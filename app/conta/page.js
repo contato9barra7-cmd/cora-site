@@ -96,7 +96,67 @@ function ContaConteudo() {
         <button className="btn btn--roxo" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={baixar} disabled={baixando}>
           {baixando ? 'Preparando...' : 'Download'}
         </button>
-        <p className="dash-sub" style={{ marginTop: 10 }}>Depois de baixar, instale pelo Extension Manager do SketchUp.</p>
+        <p className="dash-sub" style={{ marginTop: 10 }}>Depois de baixar, siga o passo a passo abaixo para instalar.</p>
+      </div>
+
+      {/* Passo a passo de instalação */}
+      <div className="conta-card">
+        <h2 className="conta-h2">Como instalar</h2>
+        <div className="passos">
+          <div className="passo">
+            <div className="passo-num">1</div>
+            <div className="passo-txt">
+              <div className="passo-tit">Baixe o plugin</div>
+              <p className="passo-desc">Clique no botão <strong>Download</strong> acima para baixar o arquivo <strong>.rbz</strong> do Cora Render.</p>
+              <div className="passo-img">imagem em breve</div>
+            </div>
+          </div>
+
+          <div className="passo">
+            <div className="passo-num">2</div>
+            <div className="passo-txt">
+              <div className="passo-tit">Abra o Gerenciador de Extensões</div>
+              <p className="passo-desc">No SketchUp, vá em <strong>Extensões → Gerenciador de extensões</strong> (Extension Manager).</p>
+              <div className="passo-img">imagem em breve</div>
+            </div>
+          </div>
+
+          <div className="passo">
+            <div className="passo-num">3</div>
+            <div className="passo-txt">
+              <div className="passo-tit">Clique em "Instalar extensão"</div>
+              <p className="passo-desc">No canto inferior do gerenciador, clique em <strong>Instalar extensão</strong> (Install Extension).</p>
+              <div className="passo-img">imagem em breve</div>
+            </div>
+          </div>
+
+          <div className="passo">
+            <div className="passo-num">4</div>
+            <div className="passo-txt">
+              <div className="passo-tit">Escolha o arquivo .rbz</div>
+              <p className="passo-desc">Selecione o arquivo <strong>.rbz</strong> que você baixou no passo 1.</p>
+              <div className="passo-img">imagem em breve</div>
+            </div>
+          </div>
+
+          <div className="passo">
+            <div className="passo-num">5</div>
+            <div className="passo-txt">
+              <div className="passo-tit">Confirme a instalação</div>
+              <p className="passo-desc">Se aparecer um aviso de segurança, clique em <strong>Sim</strong> para continuar.</p>
+              <div className="passo-img">imagem em breve</div>
+            </div>
+          </div>
+
+          <div className="passo">
+            <div className="passo-num">6</div>
+            <div className="passo-txt">
+              <div className="passo-tit">Pronto!</div>
+              <p className="passo-desc">O Cora Render aparece na barra de ferramentas. Clique no ícone para abrir e fazer login.</p>
+              <div className="passo-img">imagem em breve</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     </AppShell>
