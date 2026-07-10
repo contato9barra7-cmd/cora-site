@@ -161,16 +161,20 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .faq p { padding: 0 4px 20px; color: var(--ink2); font-size: 15px; }
 
 /* ---- Cora Teams ---- */
-.teams {
-  margin-top: 34px; background: var(--wash); border: 1px solid var(--line);
-  border-radius: var(--rc); padding: 36px; display: flex; gap: 40px; flex-wrap: wrap;
-  align-items: center; justify-content: space-between;
-}
-.teams__txt { flex: 1 1 340px; }
-.teams__txt h3 { font-size: 24px; font-weight: 600; }
-.teams__txt p { color: var(--ink2); margin-top: 8px; }
-.teams ul { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
-.teams ul li { display: flex; gap: 9px; font-size: 14px; color: var(--ink2); }
+.teams { margin-top: 6px; display: grid; grid-template-columns: 1fr 1.3fr; gap: 40px; align-items: start; }
+.teams__titulo { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+.teams__lead { color: var(--ink2); font-size: 14.5px; margin-top: 12px; }
+.teams__feats { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.teams__feats li { font-size: 14px; color: var(--ink2); }
+.teams__tabelas { display: flex; flex-direction: column; gap: 18px; }
+.teams__tabela { background: var(--paper); border: 1px solid var(--line); border-radius: var(--rc); overflow: hidden; }
+.teams__tabela h4 { font-size: 14px; font-weight: 600; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.teams__tabela table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.teams__tabela th, .teams__tabela td { padding: 10px 16px; border-bottom: 1px solid var(--line); text-align: left; }
+.teams__tabela tr:last-child th, .teams__tabela tr:last-child td { border-bottom: none; }
+.teams__tabela thead th { font-weight: 600; color: var(--ink3); font-size: 12px; }
+.teams__tabela th[scope="row"] { font-weight: 500; color: var(--ink); }
+.teams__tabela .num { text-align: right; font-variant-numeric: tabular-nums; }
 
 /* ---- rodapé ---- */
 .foot { border-top: 1px solid var(--line); margin-top: 76px; padding: 36px 0; text-align: center; color: var(--ink3); font-size: 14px; }
@@ -180,6 +184,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   .planos { grid-template-columns: repeat(2, 1fr); }
   .recargas { grid-template-columns: repeat(2, 1fr); }
   .grid2 { grid-template-columns: 1fr; }
+  .teams { grid-template-columns: 1fr; }
   .head h1 { font-size: 34px; }
 }
 @media (max-width: 560px) {
@@ -232,3 +237,33 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   .cards { grid-template-columns: 1fr; }
   .galeria { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   ENTRAR (nav) + PÁGINA DE LOGIN
+   ========================================================================== */
+.nav__entrar { color: var(--ink); font-weight: 500; }
+.nav__entrar:hover { color: var(--roxo-esc); }
+
+.login-wrap {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 40px 24px; background: var(--wash);
+}
+.login-card {
+  width: 100%; max-width: 400px; background: var(--paper);
+  border: 1px solid var(--line); border-radius: var(--rc); padding: 40px 36px;
+  display: flex; flex-direction: column;
+}
+.login-logo { font-size: 18px; font-weight: 600; text-align: center; }
+.login-titulo { font-size: 28px; font-weight: 600; text-align: center; margin-top: 22px; }
+.login-sub { text-align: center; color: var(--ink2); font-size: 14px; margin-top: 6px; margin-bottom: 24px; }
+.login-label { font-size: 13px; font-weight: 500; color: var(--ink2); margin-top: 14px; margin-bottom: 6px; }
+.login-input {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--line2); border-radius: 12px;
+  font-family: inherit; font-size: 15px; background: var(--wash); color: var(--ink3);
+}
+.login-aviso {
+  margin-top: 16px; text-align: center; font-size: 13px; color: var(--ink3);
+  background: var(--wash2); border-radius: 10px; padding: 10px 12px;
+}
+.login-rodape { margin-top: 20px; text-align: center; font-size: 14px; color: var(--ink2); }
+.login-rodape a { color: var(--roxo-esc); font-weight: 500; }

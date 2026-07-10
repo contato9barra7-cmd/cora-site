@@ -49,8 +49,8 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
           >
-            <Link href="/precos" className="btn btn--verde" style={{ width: 'auto', margin: 0, padding: '13px 30px' }}>
-              Começar agora
+            <Link href="/login" className="btn btn--verde" style={{ width: 'auto', margin: 0, padding: '13px 30px' }}>
+              Testar grátis
             </Link>
             <Link href="/precos" className="btn btn--ghost" style={{ width: 'auto', margin: 0, padding: '13px 30px' }}>
               Ver planos

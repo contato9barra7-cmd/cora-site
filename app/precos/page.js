@@ -5,6 +5,7 @@ import Nav from '../../components/Nav';
 import {
   planos, recargas, descontoAnual,
   comparacao, custoImagens, custoUpscale, faq,
+  teamsPro, teamsStudio,
 } from '../../lib/planos';
 
 function brl(n) { return 'R$ ' + n.toFixed(2).replace('.', ','); }
@@ -23,11 +24,40 @@ function Check({ on }) {
   );
 }
 
-// célula da tabela de comparação: bool vira ícone, texto vira texto
-function Celula({ v, dest }) {
+function Celula({ v }) {
   if (v === true) return <span className="tick-sim">✓</span>;
   if (v === false) return <span className="tick-nao">✕</span>;
   return <span className="cel-txt">{v}</span>;
+}
+
+function TabelaTeams({ titulo, dados }) {
+  return (
+    <div className="teams__tabela">
+      <h4>{titulo}</h4>
+      <div className="tab">
+        <table>
+          <thead>
+            <tr>
+              <th>Assentos</th>
+              <th className="num">Desconto</th>
+              <th className="num">Por assento</th>
+              <th className="num">Total por mês</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dados.map((l, i) => (
+              <tr key={i}>
+                <th scope="row">{l[0]}</th>
+                <td className="num">{Math.round(l[1] * 100)}%</td>
+                <td className="num">{brlInt(l[2])}</td>
+                <td className="num">{l[3] === null ? '—' : brlInt(l[3])}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
 
 export default function Precos() {
@@ -84,8 +114,35 @@ export default function Precos() {
         </div>
       </div>
 
-      {/* O QUE VEM EM CADA PLANO — tabela */}
+      {/* CORA TEAMS — logo abaixo dos planos */}
       <div className="sec sec--wash">
+        <div className="container">
+          <div className="teams">
+            <div className="teams__lado">
+              <h2 className="teams__titulo">Cora Teams</h2>
+              <p className="teams__lead">
+                Painel de administração para distribuir assentos e acompanhar o
+                consumo da equipe. Quanto mais assentos, maior o desconto.
+              </p>
+              <ul className="teams__feats">
+                <li>✓ Painel de administração</li>
+                <li>✓ Convide e remova pessoas da equipe</li>
+                <li>✓ Acompanhe o consumo de créditos por pessoa</li>
+                <li>✓ Faturamento único</li>
+                <li>✓ Mínimo de 2 assentos</li>
+              </ul>
+              <button className="btn btn--ink" style={{ marginTop: 24 }}>Falar com a gente</button>
+            </div>
+            <div className="teams__tabelas">
+              <TabelaTeams titulo="Teams sobre o Pro" dados={teamsPro} />
+              <TabelaTeams titulo="Teams sobre o Studio" dados={teamsStudio} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* O QUE VEM EM CADA PLANO */}
+      <div className="sec">
         <div className="container">
           <h2>O que vem em cada plano</h2>
           <p className="sub">Compare tudo lado a lado.</p>
@@ -120,7 +177,7 @@ export default function Precos() {
       </div>
 
       {/* QUANTO CUSTA CADA GERAÇÃO */}
-      <div className="sec">
+      <div className="sec sec--wash">
         <div className="container">
           <h2>Quanto custa cada geração</h2>
           <p className="sub">Créditos consumidos por operação, em cada plano.</p>
@@ -156,7 +213,7 @@ export default function Precos() {
       </div>
 
       {/* RECARGAS */}
-      <div className="sec sec--wash">
+      <div className="sec">
         <div className="container">
           <h2>Acabaram os créditos no meio do projeto?</h2>
           <p className="sub">Compre uma recarga avulsa. Elas valem por 1 ano e só são usadas depois que os créditos do plano acabam.</p>
@@ -169,27 +226,6 @@ export default function Precos() {
                 <div className="recarga__u">{brl(r.preco / r.creditos)} por crédito</div>
               </div>
             ))}
-          </div>
-        </div>
-      </div>
-
-      {/* CORA TEAMS */}
-      <div className="sec">
-        <div className="container">
-          <div className="teams">
-            <div className="teams__txt">
-              <h3>Cora Teams</h3>
-              <p>Para estúdios e equipes que compram junto.</p>
-              <ul>
-                <li>✓ Painel de administração</li>
-                <li>✓ Convide e remova pessoas da equipe</li>
-                <li>✓ Acompanhe o consumo de créditos por pessoa</li>
-                <li>✓ Faturamento único · mínimo de 2 assentos</li>
-              </ul>
-            </div>
-            <button className="btn btn--ink" style={{ width: 'auto', margin: 0, padding: '12px 28px' }}>
-              Falar com a gente
-            </button>
           </div>
         </div>
       </div>
