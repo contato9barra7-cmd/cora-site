@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { iniciarCheckout, salvarCPF } from '../../lib/auth';
+import { iniciarCheckout, salvarCPF, lerConta, abrirPortal } from '../../lib/auth';
 import { STRIPE_PRICES } from '../../lib/stripe-prices';
 import Nav from '../../components/Nav';
 import {
@@ -72,21 +72,32 @@ export default function Precos() {
   const [cpfErro, setCpfErro] = useState('');
   const [priceIdPendente, setPriceIdPendente] = useState(null);
   const [salvandoCpf, setSalvandoCpf] = useState(false);
+  const [conta, setConta] = useState(null);
+  const [modalUpgrade, setModalUpgrade] = useState(false);
+  const [planoAlvo, setPlanoAlvo] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    setConta(lerConta());
+  }, []);
 
   function formatarCpf(v) {
     const d = v.replace(/\D/g, '').slice(0, 11);
     return d.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   }
 
-  async function comprar(priceId) {
+  async function comprar(priceId, guia) {
     setErroCheckout('');
     try {
-      await iniciarCheckout(priceId);
+      await iniciarCheckout(priceId, guia);
     } catch (e) {
       if (e.precisaCpf) {
         setPriceIdPendente(priceId);
         setModalCpf(true);
+        return;
+      }
+      if (e.jaTemPlano) {
+        setModalUpgrade(true);
         return;
       }
       setErroCheckout(e.message);
@@ -98,9 +109,11 @@ export default function Precos() {
     setSalvandoCpf(true);
     try {
       await salvarCPF(cpf);
+      // abre a guia a partir DESTE clique (evita bloqueio de popup)
+      const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
       setModalCpf(false);
       setCpf('');
-      if (priceIdPendente) await comprar(priceIdPendente);
+      if (priceIdPendente) await comprar(priceIdPendente, guia);
     } catch (e) {
       setCpfErro(e.message);
     } finally {
@@ -111,15 +124,41 @@ export default function Precos() {
   async function comprarRecarga(recargaId) {
     const priceId = STRIPE_PRICES.recargas[recargaId];
     if (!priceId) return;
-    await comprar(priceId);
+    const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+    await comprar(priceId, guia);
   }
 
   async function assinarPlano(planoId) {
     if (planoId === 'free') { router.push('/cadastro'); return; }
+
+    // Já tem plano pago ativo? Não deixa comprar de novo — oferece upgrade/troca.
+    const temPlanoPago = conta && conta.plano && conta.plano !== 'free' && conta.status === 'ativo';
+    if (temPlanoPago) {
+      if (conta.plano === planoId) {
+        // mesmo plano que já tem
+        setPlanoAlvo(planoId);
+        setModalUpgrade(true);
+        return;
+      }
+      setPlanoAlvo(planoId);
+      setModalUpgrade(true);
+      return;
+    }
+
     const grupo = STRIPE_PRICES[planoId];
     if (!grupo) return;
     const priceId = anual ? grupo.anual : grupo.mensal;
-    await comprar(priceId);
+    const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+    await comprar(priceId, guia);
+  }
+
+  async function irParaPortal() {
+    setModalUpgrade(false);
+    try {
+      await abrirPortal();
+    } catch (e) {
+      setErroCheckout(e.message);
+    }
   }
   const colunas = ['Free', 'Starter', 'Pro', 'Studio'];
 
@@ -326,6 +365,28 @@ export default function Precos() {
       <div className="container">
         <div className="foot">© {new Date().getFullYear()} Cora Render · 9barra7 Academy</div>
       </div>
+
+      {modalUpgrade && (
+        <div className="modal-overlay" onClick={() => setModalUpgrade(false)}>
+          <div className="modal-cpf" onClick={(e) => e.stopPropagation()}>
+            <h3>Você já tem um plano ativo</h3>
+            <p>
+              Sua conta já está no plano <strong style={{ textTransform: 'capitalize' }}>{conta?.plano}</strong>.
+              {conta?.plano === planoAlvo
+                ? ' Para gerenciar sua assinatura, use o portal.'
+                : ' Para mudar de plano, faça a alteração no portal — o valor é ajustado proporcionalmente ao tempo restante.'}
+            </p>
+            <div className="modal-acoes">
+              <button className="btn btn--ghost" onClick={() => setModalUpgrade(false)}>
+                Cancelar
+              </button>
+              <button className="btn btn--verde" onClick={irParaPortal}>
+                {conta?.plano === planoAlvo ? 'Gerenciar assinatura' : 'Mudar de plano'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {modalCpf && (
         <div className="modal-overlay" onClick={() => !salvandoCpf && setModalCpf(false)}>
