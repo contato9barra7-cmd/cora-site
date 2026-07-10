@@ -663,11 +663,6 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .perfil-input:focus { outline: none; border-color: var(--roxo); }
 .perfil-input:disabled { background: var(--wash); color: var(--ink3); cursor: not-allowed; }
 .perfil-avatar-area { display: flex; align-items: center; gap: 14px; flex: 1; }
-.perfil-avatar {
-  width: 56px; height: 56px; border-radius: 50%; background: var(--roxo); color: #fff;
-  display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 22px; flex-shrink: 0;
-}
-.perfil-avatar-hint { font-size: 13px; color: var(--ink3); }
 .perfil-sub { font-size: 13px; color: var(--ink3); margin-top: 4px; }
 .perfil-toggle-linha { justify-content: space-between; }
 
@@ -700,18 +695,24 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   .perfil-input { width: 100%; box-sizing: border-box; }
 }
 
-/* Botões de foto no perfil */
-.perfil-avatar-botoes { display: flex; gap: 8px; }
-.perfil-btn-foto {
-  padding: 8px 16px; border: 1px solid var(--line); background: var(--paper); color: var(--ink);
-  border-radius: 100px; font-size: 13px; cursor: pointer;
+/* Avatar com hover (lápis) e X no canto */
+.perfil-avatar-box { position: relative; width: 72px; height: 72px; }
+.perfil-avatar {
+  width: 72px; height: 72px; border-radius: 50%; background: var(--roxo); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 26px; flex-shrink: 0;
 }
-.perfil-btn-foto:hover { background: var(--wash); }
-.perfil-btn-remover {
-  padding: 8px 16px; border: 1px solid var(--line); background: none; color: var(--ink3);
-  border-radius: 100px; font-size: 13px; cursor: pointer;
+.perfil-avatar-editar {
+  position: absolute; inset: 0; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(0,0,0,.45); color: #fff; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .15s;
 }
-.perfil-btn-remover:hover { color: var(--alerta); border-color: #e5b3ae; }
+.perfil-avatar-box:hover .perfil-avatar-editar { opacity: 1; }
+.perfil-avatar-x {
+  position: absolute; top: -4px; right: -4px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--alerta); color: #fff; border: 2px solid var(--paper); cursor: pointer;
+  font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.perfil-avatar-x:hover { background: #b71c1c; }
 
 /* Espaçamento do botão deletar em relação ao texto acima */
 .perfil-perigo .perfil-btn-deletar { margin-top: 14px; }
@@ -725,3 +726,36 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   border: 1px solid var(--line); border-radius: 100px; padding: 4px 10px; font-size: 12px;
   background: var(--paper); color: var(--ink); cursor: pointer;
 }
+
+/* Texto legal da newsletter */
+.perfil-legal { font-size: 11px; color: var(--ink3); line-height: 1.5; margin-top: 14px; }
+.perfil-link { color: var(--roxo); text-decoration: underline; }
+
+/* Sessões e dispositivos */
+.disp-lista { display: flex; flex-direction: column; gap: 10px; }
+.disp-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--wash);
+}
+.disp-nome { font-weight: 600; font-size: 14px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+.disp-ativo {
+  font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 10px;
+  background: #eafaf0; color: #1b7a43;
+}
+.disp-sub { font-size: 12px; color: var(--ink3); margin-top: 3px; }
+.disp-remover {
+  padding: 7px 16px; border: 1px solid var(--line); background: var(--paper); color: var(--ink2);
+  border-radius: 100px; font-size: 13px; cursor: pointer; white-space: nowrap;
+}
+.disp-remover:hover { color: var(--alerta); border-color: #e5b3ae; }
+
+/* Botão de ajuda (?) */
+.perfil-ajuda {
+  width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--line2); background: none;
+  color: var(--ink3); font-size: 12px; cursor: pointer; margin-left: 8px; vertical-align: middle;
+  display: inline-flex; align-items: center; justify-content: center; font-weight: 600;
+}
+.perfil-ajuda:hover { border-color: var(--roxo); color: var(--roxo); }
+.ajuda-bloco { margin-bottom: 16px; }
+.ajuda-tit { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.ajuda-txt { font-size: 13px; color: var(--ink2); line-height: 1.55; }

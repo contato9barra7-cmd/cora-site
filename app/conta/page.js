@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta, atualizarConta } from '../../lib/auth';
+import { lerConta, atualizarConta, baixarPlugin } from '../../lib/auth';
 
 const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
 
@@ -14,6 +14,21 @@ function ContaConteudo() {
   const [carregando, setCarregando] = useState(true);
   const [aviso, setAviso] = useState('');
   const [erro, setErro] = useState('');
+  const [baixando, setBaixando] = useState(false);
+
+  async function baixar() {
+    setBaixando(true);
+    setErro('');
+    try {
+      const url = await baixarPlugin();
+      // dispara o download
+      window.location.href = url;
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setTimeout(() => setBaixando(false), 1500);
+    }
+  }
 
   useEffect(() => {
     const c = lerConta();
@@ -78,10 +93,10 @@ function ContaConteudo() {
       <div className="conta-card">
         <h2 className="conta-h2">Plugin para o SketchUp</h2>
         <p className="conta-p">Baixe o Cora Render e instale no seu SketchUp. Funciona no SketchUp 2023 em diante.</p>
-        <button className="btn btn--roxo" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} disabled>
-          Download em breve
+        <button className="btn btn--roxo" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={baixar} disabled={baixando}>
+          {baixando ? 'Preparando...' : 'Download'}
         </button>
-        <p className="dash-sub" style={{ marginTop: 10 }}>O link de download será disponibilizado aqui.</p>
+        <p className="dash-sub" style={{ marginTop: 10 }}>Depois de baixar, instale pelo Extension Manager do SketchUp.</p>
       </div>
     </div>
     </AppShell>

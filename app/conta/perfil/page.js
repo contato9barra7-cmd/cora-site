@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../../components/AppShell';
-import { lerConta, salvarPerfil, deletarMinhaConta, aplicarTema, sair, salvarFoto } from '../../../lib/auth';
+import { lerConta, salvarPerfil, deletarMinhaConta, aplicarTema, sair, salvarFoto, listarDispositivos, removerDispositivo } from '../../../lib/auth';
 
 const IDIOMAS = [
   { v: 'pt', l: 'Português' },
@@ -30,6 +30,25 @@ export default function Perfil() {
   const [erro, setErro] = useState('');
   const [modalDeletar, setModalDeletar] = useState(false);
   const [deletando, setDeletando] = useState(false);
+  const [dispositivos, setDispositivos] = useState([]);
+  const [modalAjuda, setModalAjuda] = useState(false);
+
+  async function carregarDispositivos() {
+    try {
+      const lista = await listarDispositivos();
+      setDispositivos(lista);
+    } catch (e) { /* silencioso */ }
+  }
+
+  async function tirarDispositivo(id) {
+    if (!confirm('Remover este computador? Ele precisará ser reconectado no próximo login.')) return;
+    try {
+      await removerDispositivo(id);
+      await carregarDispositivos();
+    } catch (e) {
+      setErro(e.message);
+    }
+  }
 
   // --- foto de perfil (recorte 1:1, igual ao plugin) ---
   const [modalFoto, setModalFoto] = useState(false);
@@ -113,6 +132,7 @@ export default function Perfil() {
     setTema(c.tema || 'sistema');
     setNewsletter(c.newsletter !== false);
     setCarregando(false);
+    carregarDispositivos();
   }, [router]);
 
   async function salvar() {
@@ -168,15 +188,21 @@ export default function Perfil() {
           <div className="perfil-linha">
             <label className="perfil-lbl">Avatar</label>
             <div className="perfil-avatar-area">
-              <span
-                className="perfil-avatar"
-                style={conta.foto_url ? { backgroundImage: `url(${conta.foto_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : undefined}
-              >
-                {conta.foto_url ? '' : inicial}
-              </span>
-              <div className="perfil-avatar-botoes">
-                <button className="perfil-btn-foto" onClick={abrirSeletorFoto}>Trocar foto</button>
-                {conta.foto_url && <button className="perfil-btn-remover" onClick={removerFoto}>Remover</button>}
+              <div className="perfil-avatar-box">
+                <span
+                  className="perfil-avatar"
+                  style={conta.foto_url ? { backgroundImage: `url(${conta.foto_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : undefined}
+                >
+                  {conta.foto_url ? '' : inicial}
+                </span>
+                <button className="perfil-avatar-editar" onClick={abrirSeletorFoto} title="Trocar foto" aria-label="Trocar foto">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                  </svg>
+                </button>
+                {conta.foto_url && (
+                  <button className="perfil-avatar-x" onClick={removerFoto} title="Remover foto" aria-label="Remover foto">×</button>
+                )}
               </div>
               <input type="file" ref={inputFotoRef} accept="image/*" style={{ display: 'none' }} onChange={aoSelecionarFoto} />
             </div>
@@ -229,6 +255,12 @@ export default function Perfil() {
               <span className="perfil-toggle-bola" />
             </button>
           </div>
+          <p className="perfil-legal">
+            A 9barra7 vai tratar seus dados para enviar informações sobre nossos produtos e serviços,
+            promoções, pesquisas e novidades, com base no nosso interesse legítimo. Seus dados não serão
+            compartilhados com terceiros. Você pode desativar as notificações no botão acima. Mais informações na{' '}
+            <a href="/privacidade" className="perfil-link">política de privacidade</a>.
+          </p>
         </section>
 
         <div className="perfil-salvar-barra">
@@ -236,6 +268,37 @@ export default function Perfil() {
             {salvando ? 'Salvando...' : 'Salvar alterações'}
           </button>
         </div>
+
+        {/* SESSÕES E DISPOSITIVOS */}
+        <section className="perfil-sec">
+          <h2 className="perfil-h2">
+            Sessões e dispositivos
+            <button className="perfil-ajuda" onClick={() => setModalAjuda(true)} title="Ajuda" aria-label="Ajuda">?</button>
+          </h2>
+          <p className="perfil-sub" style={{ marginTop: 0, marginBottom: 16 }}>
+            {dispositivos.length}/2 computadores. Por segurança, cada conta pode ter até 2 computadores conectados (uso um por vez).
+          </p>
+          {dispositivos.length === 0 ? (
+            <p className="perfil-sub">Nenhum computador conectado ainda.</p>
+          ) : (
+            <div className="disp-lista">
+              {dispositivos.map(d => (
+                <div key={d.id} className="disp-item">
+                  <div>
+                    <div className="disp-nome">
+                      {d.nome_pc || 'Computador'}
+                      {d.ativo_agora && <span className="disp-ativo">Em uso agora</span>}
+                    </div>
+                    <div className="disp-sub">
+                      Último acesso: {d.ultimo_acesso ? new Date(d.ultimo_acesso).toLocaleString('pt-BR') : '—'}
+                    </div>
+                  </div>
+                  <button className="disp-remover" onClick={() => tirarDispositivo(d.id)}>Remover</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* DELETAR CONTA */}
         <section className="perfil-sec perfil-perigo">
@@ -272,6 +335,37 @@ export default function Perfil() {
           </div>
         </div>
       )}
+      {modalAjuda && (
+        <div className="foto-overlay" onClick={() => setModalAjuda(false)}>
+          <div className="foto-modal" onClick={(e) => e.stopPropagation()} style={{ width: 420 }}>
+            <div className="foto-titulo">Problemas comuns</div>
+
+            <div className="ajuda-bloco">
+              <div className="ajuda-tit">Segurança</div>
+              <p className="ajuda-txt">
+                Se você exceder o número de dispositivos permitido, remova um da lista. Depois de salvar,
+                você poderá conectar o novo computador no próximo login.
+              </p>
+            </div>
+
+            <div className="ajuda-bloco">
+              <div className="ajuda-tit">Número de usuários</div>
+              <p className="ajuda-txt">
+                Se você é uma empresa e precisa de mais usuários, temos ofertas especiais.{' '}
+                <a href="/precos" className="perfil-link">Fale com a gente</a> para mais informações.
+              </p>
+            </div>
+
+            <p className="ajuda-txt" style={{ marginTop: 4 }}>
+              Cada conta pode ter até <strong>2 computadores</strong> conectados, com uso de um por vez
+              (seja no plugin do SketchUp ou na versão web).
+            </p>
+
+            <div className="foto-cancelar" onClick={() => setModalAjuda(false)} style={{ marginTop: 16 }}>Fechar</div>
+          </div>
+        </div>
+      )}
+
       {modalFoto && (
         <div className="foto-overlay" onClick={() => setModalFoto(false)}>
           <div className="foto-modal" onClick={(e) => e.stopPropagation()}>

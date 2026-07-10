@@ -1,270 +1,112 @@
 'use client';
 
-import { useState } from 'react';
-import Nav from '../../components/Nav';
-import {
-  planos, recargas, descontoAnual,
-  comparacao, custos, faq,
-  teamsPro, teamsStudio,
-} from '../../lib/planos';
+import { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import AppShell from '../../components/AppShell';
+import { lerConta, atualizarConta, baixarPlugin } from '../../lib/auth';
 
-function brl(n) { return 'R$ ' + n.toFixed(2).replace('.', ','); }
-function brlInt(n) { return 'R$ ' + n.toLocaleString('pt-BR'); }
-function num(v) { return typeof v === 'number' ? v.toLocaleString('pt-BR') : v; }
+const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
 
-function Check({ on }) {
-  return on ? (
-    <svg className="ic" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M13 4.5 6.5 11 3 7.5" stroke="var(--verde-esc)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ) : (
-    <svg className="ic" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M4 4l8 8M12 4l-8 8" stroke="var(--ink3)" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  );
-}
+function ContaConteudo() {
+  const router = useRouter();
+  const params = useSearchParams();
+  const [conta, setConta] = useState(null);
+  const [carregando, setCarregando] = useState(true);
+  const [aviso, setAviso] = useState('');
+  const [erro, setErro] = useState('');
+  const [baixando, setBaixando] = useState(false);
 
-function Celula({ v }) {
-  if (v === true) return <span className="tick-sim">✓</span>;
-  if (v === false) return <span className="tick-nao">✕</span>;
-  return <span className="cel-txt">{v}</span>;
-}
+  async function baixar() {
+    setBaixando(true);
+    setErro('');
+    try {
+      const url = await baixarPlugin();
+      // dispara o download
+      window.location.href = url;
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setTimeout(() => setBaixando(false), 1500);
+    }
+  }
 
-function TabelaTeams({ titulo, dados }) {
+  useEffect(() => {
+    const c = lerConta();
+    if (!c) { router.push('/login'); return; }
+    setConta(c);
+    setCarregando(false);
+
+    if (params.get('pagamento') === 'sucesso') {
+      setAviso('Pagamento recebido! Atualizando sua conta...');
+      atualizarConta().then((fresca) => {
+        if (fresca) setConta(fresca);
+        setAviso('Pagamento confirmado. Plano atualizado!');
+        setTimeout(() => setAviso(''), 5000);
+      });
+    }
+  }, [router, params]);
+
+  if (carregando) return <AppShell><div className="admin-wrap"><p>Carregando...</p></div></AppShell>;
+  if (!conta) return null;
+
+  const ehAdmin = conta.is_admin === true;
+  const ehPago = conta.plano && conta.plano !== 'free';
+  const nomePlano = ehAdmin ? 'Admin' : (NOME_PLANO[conta.plano] || conta.plano);
+  const creditos = (conta.creditos_total === -1 || ehAdmin) ? 'Ilimitado'
+    : (conta.creditos_restantes ?? 0).toLocaleString('pt-BR');
+  const totalCreditos = (conta.creditos_total === -1 || ehAdmin) ? null
+    : (conta.creditos_total ?? 0).toLocaleString('pt-BR');
+
   return (
-    <div className="teams__tabela">
-      <h4>{titulo}</h4>
-      <div className="tab">
-        <table>
-          <thead>
-            <tr>
-              <th>Assentos</th>
-              <th className="num">Desconto</th>
-              <th className="num">Por assento</th>
-              <th className="num">Total por mês</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dados.map((l, i) => (
-              <tr key={i}>
-                <th scope="row">{l[0]}</th>
-                <td className="num">{Math.round(l[1] * 100)}%</td>
-                <td className="num">{brlInt(l[2])}</td>
-                <td className="num">{l[3] === null ? '—' : brlInt(l[3])}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <AppShell>
+    <div className="admin-wrap">
+      {aviso && <div className="conta-aviso">{aviso}</div>}
+      {erro && <div className="login-erro" style={{ marginBottom: 18 }}>{erro}</div>}
+
+      <h1 className="conta-ola">Olá, {conta.nome || conta.email}</h1>
+
+      {/* Plano + créditos */}
+      <div className="dash-grid">
+        <div className="dash-card">
+          <span className="dash-rotulo">Seu plano</span>
+          <span className="dash-valor">{nomePlano}</span>
+          <span className={'dash-badge ' + (conta.status === 'ativo' ? 'ok' : 'off')}>
+            {conta.status}
+          </span>
+        </div>
+
+        <div className="dash-card">
+          <span className="dash-rotulo">Créditos disponíveis</span>
+          <span className="dash-valor">{creditos}</span>
+          {totalCreditos && <span className="dash-sub">de {totalCreditos} no ciclo</span>}
+        </div>
+
+        <div className="dash-card">
+          <span className="dash-rotulo">{ehPago ? 'Renova em' : 'Válido até'}</span>
+          <span className="dash-valor">
+            {conta.expira_em && !ehAdmin ? new Date(conta.expira_em).toLocaleDateString('pt-BR') : '—'}
+          </span>
+        </div>
+      </div>
+
+      {/* Download do plugin */}
+      <div className="conta-card">
+        <h2 className="conta-h2">Plugin para o SketchUp</h2>
+        <p className="conta-p">Baixe o Cora Render e instale no seu SketchUp. Funciona no SketchUp 2023 em diante.</p>
+        <button className="btn btn--roxo" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={baixar} disabled={baixando}>
+          {baixando ? 'Preparando...' : 'Download'}
+        </button>
+        <p className="dash-sub" style={{ marginTop: 10 }}>Depois de baixar, instale pelo Extension Manager do SketchUp.</p>
       </div>
     </div>
+    </AppShell>
   );
 }
 
-export default function Precos() {
-  const [anual, setAnual] = useState(false);
-  const [abaCusto, setAbaCusto] = useState('imagens');
-  const colunas = ['Free', 'Starter', 'Pro', 'Studio'];
-
+export default function Conta() {
   return (
-    <>
-      <Nav />
-
-      {/* CABEÇALHO + PLANOS */}
-      <div className="container">
-        <div className="head">
-          <h1>Escolha como você quer renderizar</h1>
-          <p>Planos mensais, sem fidelidade. Cancele quando quiser.</p>
-          <div className="toggle">
-            <button className={!anual ? 'ativo' : ''} onClick={() => setAnual(false)}>Mensal</button>
-            <button className={anual ? 'ativo' : ''} onClick={() => setAnual(true)}>
-              Anual · -{Math.round(descontoAnual * 100)}%
-            </button>
-          </div>
-        </div>
-
-        <div className="planos">
-          {planos.map((p) => {
-            let preco, cobranca = '', risco = '';
-            if (p.mensal === 0) {
-              preco = 'Grátis';
-              cobranca = '7 dias';
-            } else if (anual) {
-              const mes = p.mensal * (1 - descontoAnual);
-              preco = brl(mes);
-              cobranca = brlInt(Math.round(mes * 12)) + ' cobrados por ano';
-              risco = brlInt(p.mensal);
-            } else {
-              preco = brlInt(p.mensal);
-              cobranca = 'por mês, cobrado mensalmente';
-            }
-            return (
-              <div key={p.id} className={'plano' + (p.destaque ? ' plano--destaque' : '')}>
-                {p.tag && <span className="plano__tag">{p.tag}</span>}
-                <h3 className="plano__nome">{p.nome}</h3>
-                <p className="plano__desc">{p.desc}</p>
-                <div className="plano__preco">
-                  {risco && <span className="plano__risco">{risco}</span>}
-                  <span className="plano__valor">{preco}</span>
-                  {p.mensal > 0 && <span className="plano__mes">/mês</span>}
-                </div>
-                <p className="plano__cobranca">{cobranca}</p>
-                <div className="plano__cred">
-                  <div className="plano__credtxt">{p.creditosTxt}</div>
-                  <div className="plano__credsub">{p.creditosSub}</div>
-                </div>
-                <button className={'btn btn--' + p.ctaEstilo}>{p.cta}</button>
-                <ul className="feats">
-                  {p.feats.map((f, i) => (
-                    <li key={i} className={f[0] ? '' : 'off'}>
-                      <Check on={f[0]} />{f[1]}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* CORA TEAMS — logo abaixo dos planos */}
-      <div className="sec sec--wash">
-        <div className="container">
-          <div className="teams">
-            <div className="teams__lado">
-              <h2 className="teams__titulo">Cora Teams</h2>
-              <p className="teams__lead">
-                Painel de administração para distribuir assentos e acompanhar o
-                consumo da equipe. Quanto mais assentos, maior o desconto.
-              </p>
-              <ul className="teams__feats">
-                <li>✓ Painel de administração</li>
-                <li>✓ Convide e remova pessoas da equipe</li>
-                <li>✓ Acompanhe o consumo de créditos por pessoa</li>
-                <li>✓ Faturamento único</li>
-                <li>✓ Mínimo de 2 assentos</li>
-              </ul>
-              <button className="btn btn--ink" style={{ marginTop: 24 }}>Falar com a gente</button>
-            </div>
-            <div className="teams__tabelas">
-              <TabelaTeams titulo="Teams sobre o Pro" dados={teamsPro} />
-              <TabelaTeams titulo="Teams sobre o Studio" dados={teamsStudio} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* O QUE VEM EM CADA PLANO */}
-      <div className="sec">
-        <div className="container">
-          <h2>O que vem em cada plano</h2>
-          <p className="sub">Compare tudo lado a lado.</p>
-          <div className="tabela-wrap">
-            <table className="cmp">
-              <thead>
-                <tr>
-                  <th></th>
-                  {colunas.map((c) => (
-                    <th key={c} className={c === 'Pro' ? 'dest' : ''}>{c}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {comparacao.map((linha, i) => {
-                  if (linha[0] === 'grupo') {
-                    return <tr key={i} className="grupo"><td colSpan={5}>{linha[1]}</td></tr>;
-                  }
-                  return (
-                    <tr key={i}>
-                      <td>{linha[0]}</td>
-                      {linha.slice(1).map((v, j) => (
-                        <td key={j}><Celula v={v} /></td>
-                      ))}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {/* QUANTO CUSTA CADA GERAÇÃO — com abas */}
-      <div className="sec sec--wash">
-        <div className="container">
-          <h2>Quanto custa cada geração</h2>
-          <p className="sub">Cada operação com IA consome créditos. O que não usa IA — material, espelho, otimizar o modelo — é sempre grátis.</p>
-
-          <div className="custo-abas">
-            {Object.keys(custos).map((key) => (
-              <button
-                key={key}
-                className={'custo-aba' + (abaCusto === key ? ' ativa' : '')}
-                onClick={() => setAbaCusto(key)}
-              >
-                {custos[key].label}
-              </button>
-            ))}
-          </div>
-
-          <div className="custo-bloco">
-            <table className="custo">
-              <thead>
-                <tr>
-                  {custos[abaCusto].colunas.map((c, i) => (
-                    <td key={i} className={i === 0 ? '' : 'num'}>{c}</td>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {custos[abaCusto].linhas.map((linha, i) => (
-                  <tr key={i}>
-                    {linha.map((v, j) => (
-                      <td key={j} className={j === 0 ? '' : 'num'}>{num(v)}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {/* RECARGAS */}
-      <div className="sec">
-        <div className="container">
-          <h2>Acabaram os créditos no meio do projeto?</h2>
-          <p className="sub">Compre uma recarga avulsa. Elas valem por 1 ano e só são usadas depois que os créditos do plano acabam.</p>
-          <div className="recargas">
-            {recargas.map((r) => (
-              <div key={r.n} className={'recarga' + (r.popular ? ' recarga--pop' : '')}>
-                <div className="recarga__n">{r.n}</div>
-                <div className="recarga__cred">{r.creditos.toLocaleString('pt-BR')} créditos</div>
-                <div className="recarga__p">{brlInt(r.preco)}</div>
-                <div className="recarga__u">{brl(r.preco / r.creditos)} por crédito</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* FAQ */}
-      <div className="sec sec--wash">
-        <div className="container">
-          <h2>Perguntas frequentes</h2>
-          <div className="faq">
-            {faq.map((item, i) => (
-              <details key={i}>
-                <summary>{item[0]}</summary>
-                <p>{item[1]}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="container">
-        <div className="foot">© {new Date().getFullYear()} Cora Render · 9barra7 Academy</div>
-      </div>
-    </>
+    <Suspense fallback={<AppShell><div className="admin-wrap"><p>Carregando...</p></div></AppShell>}>
+      <ContaConteudo />
+    </Suspense>
   );
 }

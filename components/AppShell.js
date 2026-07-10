@@ -13,6 +13,11 @@ const Icone = {
       <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
     </svg>
   ),
+  conta: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </svg>
+  ),
   assinatura: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>
@@ -76,6 +81,7 @@ export default function AppShell({ children }) {
 
   const itens = [
     { href: '/conta', rotulo: 'Dashboard', icone: Icone.dashboard, admin: false },
+    { href: '/conta/perfil', rotulo: 'Minha conta', icone: Icone.conta, admin: false },
     { href: '/assinatura', rotulo: 'Assinatura', icone: Icone.assinatura, admin: false },
     { href: '/admin', rotulo: 'Admin', icone: Icone.admin, admin: true },
   ].filter(i => !i.admin || (conta && conta.is_admin));
@@ -151,9 +157,7 @@ export default function AppShell({ children }) {
                   )}
                   {ilimitado && conta && <div className="app-user-creditos">Créditos ilimitados</div>}
                 </div>
-                <Link href="/conta/perfil" className="app-user-link" onClick={() => setMenuUser(false)}>Configurações da conta</Link>
-                <Link href="/conta" className="app-user-link" onClick={() => setMenuUser(false)}>Dashboard</Link>
-                <Link href="/assinatura" className="app-user-link" onClick={() => setMenuUser(false)}>Assinatura</Link>
+                <Link href="/conta/perfil" className="app-user-link" onClick={() => setMenuUser(false)}>Minha conta</Link>
 
                 <div className="app-user-pref">
                   <label>Idioma</label>
