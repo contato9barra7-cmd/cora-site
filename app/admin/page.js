@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar } from '../../lib/auth';
+import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais } from '../../lib/auth';
 
 const PLANOS = ['free', 'starter', 'pro', 'studio'];
 
@@ -24,6 +24,51 @@ export default function Admin() {
   const [busca, setBusca] = useState('');
   const [erro, setErro] = useState('');
   const [ocupado, setOcupado] = useState(null); // id da conta em ação
+  const [exportando, setExportando] = useState(false);
+  const [dadosFiscais, setDadosFiscais] = useState(null); // { email: {telefone, endereco} }
+  const [carregandoFiscais, setCarregandoFiscais] = useState(false);
+
+  async function mostrarFiscais() {
+    if (dadosFiscais) { setDadosFiscais(null); return; } // toggle
+    setCarregandoFiscais(true);
+    setErro('');
+    try {
+      const linhas = await adminDadosFiscais();
+      const mapa = {};
+      linhas.forEach(l => { mapa[l.email] = { telefone: l.telefone, endereco: l.endereco }; });
+      setDadosFiscais(mapa);
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setCarregandoFiscais(false);
+    }
+  }
+
+  async function exportarContador() {
+    setExportando(true);
+    setErro('');
+    try {
+      const linhas = await adminDadosFiscais();
+      if (!linhas.length) { setErro('Nenhum assinante pago para exportar.'); return; }
+      // monta CSV (separador ; que o Excel BR entende bem)
+      const cab = ['Nome', 'Email', 'CPF', 'Plano', 'Telefone', 'Endereço'];
+      const esc = (v) => `"${String(v || '').replace(/"/g, '""')}"`;
+      const corpo = linhas.map(l => [l.nome, l.email, l.cpf, l.plano, l.telefone, l.endereco].map(esc).join(';'));
+      const csv = '\uFEFF' + [cab.join(';'), ...corpo].join('\r\n'); // BOM p/ acentos no Excel
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const hoje = new Date().toISOString().slice(0, 10);
+      link.download = `cora-render-fiscais-${hoje}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setExportando(false);
+    }
+  }
 
   useEffect(() => {
     const c = lerConta();
@@ -43,7 +88,13 @@ export default function Admin() {
     }
   }
 
-  async function mudarPlano(id, plano) {
+  async function mudarPlano(id, plano, email, planoAtual) {
+    if (plano === planoAtual) return;
+    if (!confirm(`Mudar o plano de ${email} de "${planoAtual}" para "${plano}"?\n\nIsso altera o plano no nosso sistema imediatamente.`)) {
+      // recarrega para o dropdown voltar ao valor original
+      await carregar();
+      return;
+    }
     setOcupado(id);
     setErro('');
     try {
@@ -101,9 +152,27 @@ export default function Admin() {
           <h1>Painel de administração</h1>
           <p className="admin-sub">{assinantes.length} contas · {pagos} com plano pago ativo</p>
         </div>
-        <Link href="/conta" className="btn btn--ghost" style={{ width: 'auto', margin: 0, padding: '8px 18px' }}>
-          Minha conta
-        </Link>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            className="btn btn--ghost"
+            style={{ width: 'auto', margin: 0, padding: '8px 18px' }}
+            onClick={mostrarFiscais}
+            disabled={carregandoFiscais}
+          >
+            {carregandoFiscais ? 'Carregando...' : (dadosFiscais ? 'Ocultar dados fiscais' : 'Ver dados fiscais')}
+          </button>
+          <button
+            className="btn btn--verde"
+            style={{ width: 'auto', margin: 0, padding: '8px 18px' }}
+            onClick={exportarContador}
+            disabled={exportando}
+          >
+            {exportando ? 'Gerando...' : 'Exportar p/ contador'}
+          </button>
+          <Link href="/conta" className="btn btn--ghost" style={{ width: 'auto', margin: 0, padding: '8px 18px' }}>
+            Minha conta
+          </Link>
+        </div>
       </div>
 
       {erro && <div className="login-erro" style={{ marginBottom: 16 }}>{erro}</div>}
@@ -122,6 +191,8 @@ export default function Admin() {
             <tr>
               <th>Nome / Email</th>
               <th>CPF</th>
+              {dadosFiscais && <th>Telefone</th>}
+              {dadosFiscais && <th>Endereço</th>}
               <th>Plano</th>
               <th>Status</th>
               <th>Créditos</th>
@@ -137,11 +208,13 @@ export default function Admin() {
                   <div className="admin-email">{a.email}{!a.email_verificado && <span className="admin-tag-nv">não verificado</span>}</div>
                 </td>
                 <td>{fmtCpf(a.cpf)}</td>
+                {dadosFiscais && <td>{dadosFiscais[a.email]?.telefone || '—'}</td>}
+                {dadosFiscais && <td style={{ fontSize: 13, maxWidth: 220 }}>{dadosFiscais[a.email]?.endereco || '—'}</td>}
                 <td>
                   <select
                     value={a.plano}
                     disabled={ocupado === a.id}
-                    onChange={(e) => mudarPlano(a.id, e.target.value)}
+                    onChange={(e) => mudarPlano(a.id, e.target.value, a.email, a.plano)}
                     className="admin-select"
                   >
                     {PLANOS.map(p => <option key={p} value={p}>{p}</option>)}
