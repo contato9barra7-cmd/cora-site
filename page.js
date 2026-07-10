@@ -1,220 +1,266 @@
 'use client';
 
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import Nav from '../components/Nav';
-import Reveal from '../components/Reveal';
-import Marquee from '../components/Marquee';
+import { useState } from 'react';
+import Nav from '../../components/Nav';
+import {
+  planos, recargas, descontoAnual,
+  comparacao, custos, faq,
+  teamsPro, teamsStudio,
+} from '../../lib/planos';
 
-/* ============================================================================
-   LANDING PAGE — CORA RENDER
-   Copy de venda provisória, pronta para o designer usar como base.
-   Todo o texto está aqui em cima, fácil de editar.
-   ============================================================================ */
+function brl(n) { return 'R$ ' + n.toFixed(2).replace('.', ','); }
+function brlInt(n) { return 'R$ ' + n.toLocaleString('pt-BR'); }
+function num(v) { return typeof v === 'number' ? v.toLocaleString('pt-BR') : v; }
 
-const marcas = ['SketchUp 2025', 'Render', 'Batch', 'Editar', '360°', 'Animação', 'Timelapse', 'Diretor de Narrativa'];
+function Check({ on }) {
+  return on ? (
+    <svg className="ic" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M13 4.5 6.5 11 3 7.5" stroke="var(--verde-esc)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ) : (
+    <svg className="ic" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M4 4l8 8M12 4l-8 8" stroke="var(--ink3)" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
 
-// dores que o mercado não resolve (baseado em pesquisa de concorrentes)
-const dores = [
-  ['Cada vista sai diferente', 'Você precisa de 5 imagens do mesmo projeto para o cliente — e cada ferramenta devolve 5 estilos diferentes. No Cora, o Batch mantém a consistência entre todas as cenas.'],
-  ['A IA inventa o que não existe', 'Escada vira rampa, aparece parede onde era janela. O Cora lê os materiais das suas cenas e respeita o seu projeto.'],
-  ['Uma ferramenta para cada coisa', 'Uma para render, outra para vídeo, outra para pós. O Cora faz tudo num lugar só, sem exportar nada.'],
-  ['Tudo em inglês', 'A maioria das ferramentas nem fala a sua língua. O Cora é feito para o arquiteto brasileiro, em português.'],
-];
+function Celula({ v }) {
+  if (v === true) return <span className="tick-sim">✓</span>;
+  if (v === false) return <span className="tick-nao">✕</span>;
+  return <span className="cel-txt">{v}</span>;
+}
 
-// capacidades / o que faz
-const capacidades = [
-  ['Render', 'Transforme a cena do SketchUp em imagem realista em segundos.'],
-  ['Batch de cenas', 'Renderize o projeto inteiro de uma vez, com consistência entre as vistas.'],
-  ['Editar', 'Ambientação, mood, pessoas, close-ups e maquete física — a partir do seu render.'],
-  ['360°', 'Panoramas navegáveis para o cliente entrar no projeto.'],
-  ['Animação e vídeo', 'Dê movimento aos ambientes e apresente como um filme.'],
-  ['Timelapse e Diretor', 'Da obra ao render final, em sequência narrada. Ninguém mais faz isso.'],
-];
+function TabelaTeams({ titulo, dados }) {
+  return (
+    <div className="teams__tabela">
+      <h4>{titulo}</h4>
+      <div className="tab">
+        <table>
+          <thead>
+            <tr>
+              <th>Assentos</th>
+              <th className="num">Desconto</th>
+              <th className="num">Por assento</th>
+              <th className="num">Total por mês</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dados.map((l, i) => (
+              <tr key={i}>
+                <th scope="row">{l[0]}</th>
+                <td className="num">{Math.round(l[1] * 100)}%</td>
+                <td className="num">{brlInt(l[2])}</td>
+                <td className="num">{l[3] === null ? '—' : brlInt(l[3])}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
-// como funciona (3 passos)
-const passos = [
-  ['1', 'Modele no SketchUp', 'Você continua no seu fluxo de sempre. O Cora vive dentro do SketchUp 2025.'],
-  ['2', 'Descreva e gere', 'Escolha a cena, ajuste os detalhes e deixe a IA fazer o trabalho pesado.'],
-  ['3', 'Apresente e impressione', 'Imagens, vídeos e narrativas prontas para o cliente — em minutos, não em dias.'],
-];
+export default function Precos() {
+  const [anual, setAnual] = useState(false);
+  const [abaCusto, setAbaCusto] = useState('imagens');
+  const colunas = ['Free', 'Starter', 'Pro', 'Studio'];
 
-export default function Home() {
   return (
     <>
       <Nav />
 
-      {/* HERO */}
-      <section className="hero">
-        <div className="container">
-          <motion.p className="hero__tag"
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}>
-            Para arquitetos que usam SketchUp
-          </motion.p>
-          <motion.h1 className="hero__titulo"
-            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}>
-            Do modelo 3D à apresentação que fecha o projeto
-          </motion.h1>
-          <motion.p className="hero__sub"
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}>
-            Render, vídeo, 360° e narrativa com IA — direto do seu SketchUp,
-            em português. Sem exportar, sem pular de programa, sem esperar horas.
-          </motion.p>
-          <motion.div className="hero__ctas"
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}>
-            <Link href="/login" className="btn btn--verde" style={{ width: 'auto', margin: 0, padding: '14px 32px' }}>
-              Testar grátis por 7 dias
-            </Link>
-            <Link href="/precos" className="btn btn--ghost" style={{ width: 'auto', margin: 0, padding: '14px 32px' }}>
-              Ver planos
-            </Link>
-          </motion.div>
-          <motion.p className="hero__nota"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-            Sem cartão para testar · Cancele quando quiser
-          </motion.p>
+      {/* CABEÇALHO + PLANOS */}
+      <div className="container">
+        <div className="head">
+          <h1>Escolha como você quer renderizar</h1>
+          <p>Planos mensais, sem fidelidade. Cancele quando quiser.</p>
+          <div className="toggle">
+            <button className={!anual ? 'ativo' : ''} onClick={() => setAnual(false)}>Mensal</button>
+            <button className={anual ? 'ativo' : ''} onClick={() => setAnual(true)}>
+              Anual · -{Math.round(descontoAnual * 100)}%
+            </button>
+          </div>
         </div>
-      </section>
 
-      {/* FAIXA DE CAPACIDADES (marquee) */}
-      <section className="faixa">
-        <Marquee items={marcas} />
-      </section>
-
-      {/* PROBLEMA / DORES */}
-      <section className="sec">
-        <div className="container">
-          <Reveal>
-            <h2 className="sec__titulo">Renderizar com IA prometeu muito. E entregou frustração.</h2>
-            <p className="sec__sub">As ferramentas atuais deixam quatro problemas sem solução. O Cora nasceu para resolvê-los.</p>
-          </Reveal>
-          <div className="cards cards--2">
-            {dores.map((d, i) => (
-              <Reveal key={i} delay={i * 0.06}>
-                <div className="card card--dor">
-                  <h3>{d[0]}</h3>
-                  <p>{d[1]}</p>
+        <div className="planos">
+          {planos.map((p) => {
+            let preco, cobranca = '', risco = '';
+            if (p.mensal === 0) {
+              preco = 'Grátis';
+              cobranca = '7 dias';
+            } else if (anual) {
+              const mes = p.mensal * (1 - descontoAnual);
+              preco = brl(mes);
+              cobranca = brlInt(Math.round(mes * 12)) + ' cobrados por ano';
+              risco = brlInt(p.mensal);
+            } else {
+              preco = brlInt(p.mensal);
+              cobranca = 'por mês, cobrado mensalmente';
+            }
+            return (
+              <div key={p.id} className={'plano' + (p.destaque ? ' plano--destaque' : '')}>
+                {p.tag && <span className="plano__tag">{p.tag}</span>}
+                <h3 className="plano__nome">{p.nome}</h3>
+                <p className="plano__desc">{p.desc}</p>
+                <div className="plano__preco">
+                  {risco && <span className="plano__risco">{risco}</span>}
+                  <span className="plano__valor">{preco}</span>
+                  {p.mensal > 0 && <span className="plano__mes">/mês</span>}
                 </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CAPACIDADES */}
-      <section className="sec sec--wash">
-        <div className="container">
-          <Reveal>
-            <h2 className="sec__titulo">Um ecossistema, não mais um plugin de render</h2>
-            <p className="sec__sub">Tudo que você precisa para apresentar um projeto — no mesmo lugar.</p>
-          </Reveal>
-          <div className="cards">
-            {capacidades.map((c, i) => (
-              <Reveal key={i} delay={i * 0.06}>
-                <div className="card">
-                  <h3>{c[0]}</h3>
-                  <p>{c[1]}</p>
+                <p className="plano__cobranca">{cobranca}</p>
+                <div className="plano__cred">
+                  <div className="plano__credtxt">{p.creditosTxt}</div>
+                  <div className="plano__credsub">{p.creditosSub}</div>
                 </div>
-              </Reveal>
-            ))}
-          </div>
+                <button className={'btn btn--' + p.ctaEstilo}>{p.cta}</button>
+                <ul className="feats">
+                  {p.feats.map((f, i) => (
+                    <li key={i} className={f[0] ? '' : 'off'}>
+                      <Check on={f[0]} />{f[1]}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </div>
-      </section>
+      </div>
 
-      {/* GALERIA (placeholder pro designer) */}
-      <section className="sec">
+      {/* CORA TEAMS — logo abaixo dos planos */}
+      <div className="sec sec--wash">
         <div className="container">
-          <Reveal>
-            <h2 className="sec__titulo">Do modelo à imagem final</h2>
-            <p className="sec__sub">Espaço para a galeria de exemplos e antes/depois. O designer define o visual.</p>
-          </Reveal>
-          <div className="galeria">
-            {[1, 2, 3].map((n) => (
-              <Reveal key={n} delay={n * 0.08}>
-                <div className="galeria__item">Exemplo {n}</div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* COMO FUNCIONA */}
-      <section className="sec sec--wash">
-        <div className="container">
-          <Reveal>
-            <h2 className="sec__titulo">Simples assim</h2>
-          </Reveal>
-          <div className="passos">
-            {passos.map((p, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="passo">
-                  <span className="passo__num">{p[0]}</span>
-                  <h3>{p[1]}</h3>
-                  <p>{p[2]}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* DIFERENCIAL / PT-BR */}
-      <section className="sec">
-        <div className="container">
-          <Reveal>
-            <div className="destaque">
-              <h2>Feito no Brasil, para o arquiteto brasileiro</h2>
-              <p>
-                Interface, suporte e prompts em português. Uma década de prática
-                real em visualização arquitetônica por trás de cada ferramenta.
-                O Cora entende como você trabalha — porque foi feito por quem faz.
+          <div className="teams">
+            <div className="teams__lado">
+              <h2 className="teams__titulo">Cora Teams</h2>
+              <p className="teams__lead">
+                Painel de administração para distribuir assentos e acompanhar o
+                consumo da equipe. Quanto mais assentos, maior o desconto.
               </p>
+              <ul className="teams__feats">
+                <li>✓ Painel de administração</li>
+                <li>✓ Convide e remova pessoas da equipe</li>
+                <li>✓ Acompanhe o consumo de créditos por pessoa</li>
+                <li>✓ Faturamento único</li>
+                <li>✓ Mínimo de 2 assentos</li>
+              </ul>
+              <button className="btn btn--ink" style={{ marginTop: 24 }}>Falar com a gente</button>
             </div>
-          </Reveal>
+            <div className="teams__tabelas">
+              <TabelaTeams titulo="Teams sobre o Pro" dados={teamsPro} />
+              <TabelaTeams titulo="Teams sobre o Studio" dados={teamsStudio} />
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
 
-      {/* DEPOIMENTOS (placeholder) */}
-      <section className="sec sec--wash">
+      {/* O QUE VEM EM CADA PLANO */}
+      <div className="sec">
         <div className="container">
-          <Reveal>
-            <h2 className="sec__titulo">O que dizem os arquitetos</h2>
-            <p className="sec__sub">Espaço para depoimentos reais — entram quando você tiver os primeiros clientes.</p>
-          </Reveal>
-          <div className="depo-grid">
-            {[1, 2, 3].map((n) => (
-              <Reveal key={n} delay={n * 0.08}>
-                <div className="depo">
-                  <p className="depo__txt">"Depoimento do cliente {n} aqui."</p>
-                  <p className="depo__autor">Nome · Escritório</p>
-                </div>
-              </Reveal>
+          <h2>O que vem em cada plano</h2>
+          <p className="sub">Compare tudo lado a lado.</p>
+          <div className="tabela-wrap">
+            <table className="cmp">
+              <thead>
+                <tr>
+                  <th></th>
+                  {colunas.map((c) => (
+                    <th key={c} className={c === 'Pro' ? 'dest' : ''}>{c}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {comparacao.map((linha, i) => {
+                  if (linha[0] === 'grupo') {
+                    return <tr key={i} className="grupo"><td colSpan={5}>{linha[1]}</td></tr>;
+                  }
+                  return (
+                    <tr key={i}>
+                      <td>{linha[0]}</td>
+                      {linha.slice(1).map((v, j) => (
+                        <td key={j}><Celula v={v} /></td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* QUANTO CUSTA CADA GERAÇÃO — com abas */}
+      <div className="sec sec--wash">
+        <div className="container">
+          <h2>Quanto custa cada geração</h2>
+          <p className="sub">Cada operação com IA consome créditos. O que não usa IA — material, espelho, otimizar o modelo — é sempre grátis.</p>
+
+          <div className="custo-abas">
+            {Object.keys(custos).map((key) => (
+              <button
+                key={key}
+                className={'custo-aba' + (abaCusto === key ? ' ativa' : '')}
+                onClick={() => setAbaCusto(key)}
+              >
+                {custos[key].label}
+              </button>
+            ))}
+          </div>
+
+          <div className="custo-bloco">
+            <table className="custo">
+              <thead>
+                <tr>
+                  {custos[abaCusto].colunas.map((c, i) => (
+                    <td key={i} className={i === 0 ? '' : 'num'}>{c}</td>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {custos[abaCusto].linhas.map((linha, i) => (
+                  <tr key={i}>
+                    {linha.map((v, j) => (
+                      <td key={j} className={j === 0 ? '' : 'num'}>{num(v)}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* RECARGAS */}
+      <div className="sec">
+        <div className="container">
+          <h2>Acabaram os créditos no meio do projeto?</h2>
+          <p className="sub">Compre uma recarga avulsa. Elas valem por 1 ano e só são usadas depois que os créditos do plano acabam.</p>
+          <div className="recargas">
+            {recargas.map((r) => (
+              <div key={r.n} className={'recarga' + (r.popular ? ' recarga--pop' : '')}>
+                <div className="recarga__n">{r.n}</div>
+                <div className="recarga__cred">{r.creditos.toLocaleString('pt-BR')} créditos</div>
+                <div className="recarga__p">{brlInt(r.preco)}</div>
+                <div className="recarga__u">{brl(r.preco / r.creditos)} por crédito</div>
+              </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* CHAMADA FINAL */}
-      <section className="cta-final">
+      {/* FAQ */}
+      <div className="sec sec--wash">
         <div className="container">
-          <Reveal>
-            <h2>Sua próxima apresentação pode ser diferente</h2>
-            <p>Comece hoje, grátis por 7 dias. Sem cartão, sem compromisso.</p>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24, flexWrap: 'wrap' }}>
-              <Link href="/login" className="btn btn--verde" style={{ width: 'auto', margin: 0, padding: '14px 34px' }}>
-                Testar grátis
-              </Link>
-              <Link href="/precos" className="btn btn--ghost" style={{ width: 'auto', margin: 0, padding: '14px 34px' }}>
-                Ver planos e preços
-              </Link>
-            </div>
-          </Reveal>
+          <h2>Perguntas frequentes</h2>
+          <div className="faq">
+            {faq.map((item, i) => (
+              <details key={i}>
+                <summary>{item[0]}</summary>
+                <p>{item[1]}</p>
+              </details>
+            ))}
+          </div>
         </div>
-      </section>
+      </div>
 
       <div className="container">
         <div className="foot">© {new Date().getFullYear()} Cora Render · 9barra7 Academy</div>

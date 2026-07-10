@@ -84,19 +84,30 @@ export default function Precos() {
 
         <div className="planos">
           {planos.map((p) => {
-            let preco;
-            if (p.mensal === 0) preco = 'Grátis';
-            else if (anual) preco = brl(p.mensal * (1 - descontoAnual));
-            else preco = brlInt(p.mensal);
+            let preco, cobranca = '', risco = '';
+            if (p.mensal === 0) {
+              preco = 'Grátis';
+              cobranca = '7 dias';
+            } else if (anual) {
+              const mes = p.mensal * (1 - descontoAnual);
+              preco = brl(mes);
+              cobranca = brlInt(Math.round(mes * 12)) + ' cobrados por ano';
+              risco = brlInt(p.mensal);
+            } else {
+              preco = brlInt(p.mensal);
+              cobranca = 'por mês, cobrado mensalmente';
+            }
             return (
               <div key={p.id} className={'plano' + (p.destaque ? ' plano--destaque' : '')}>
                 {p.tag && <span className="plano__tag">{p.tag}</span>}
                 <h3 className="plano__nome">{p.nome}</h3>
                 <p className="plano__desc">{p.desc}</p>
                 <div className="plano__preco">
+                  {risco && <span className="plano__risco">{risco}</span>}
                   <span className="plano__valor">{preco}</span>
                   {p.mensal > 0 && <span className="plano__mes">/mês</span>}
                 </div>
+                <p className="plano__cobranca">{cobranca}</p>
                 <div className="plano__cred">
                   <div className="plano__credtxt">{p.creditosTxt}</div>
                   <div className="plano__credsub">{p.creditosSub}</div>
