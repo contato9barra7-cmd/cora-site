@@ -392,3 +392,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   font-family: inherit; font-size: inherit; cursor: pointer; padding: 0;
 }
 .link-botao:hover { text-decoration: underline; }
+
+/* aviso de pagamento na conta */
+.conta-aviso {
+  background: #eafaf0; border: 1px solid #b7e4c7;
+  color: #1b7a43; border-radius: 12px; padding: 14px 18px; margin-bottom: 18px; font-size: 15px;
+}

@@ -1,21 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { lerConta, sair } from '../../lib/auth';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { lerConta, sair, atualizarConta } from '../../lib/auth';
 
-export default function Conta() {
+function ContaConteudo() {
   const router = useRouter();
+  const params = useSearchParams();
   const [conta, setConta] = useState(null);
   const [carregando, setCarregando] = useState(true);
+  const [aviso, setAviso] = useState('');
 
   useEffect(() => {
     const c = lerConta();
     if (!c) { router.push('/login'); return; }
     setConta(c);
     setCarregando(false);
-  }, [router]);
+
+    // Voltou do pagamento? Rebusca os dados frescos do servidor.
+    if (params.get('pagamento') === 'sucesso') {
+      setAviso('Pagamento recebido! Atualizando sua conta...');
+      atualizarConta().then((fresca) => {
+        if (fresca) setConta(fresca);
+        setAviso('Pagamento confirmado. Plano atualizado!');
+        setTimeout(() => setAviso(''), 5000);
+      });
+    }
+  }, [router, params]);
 
   function fazerLogout() {
     sair();
@@ -33,6 +45,8 @@ export default function Conta() {
           Sair
         </button>
       </div>
+
+      {aviso && <div className="conta-aviso">{aviso}</div>}
 
       <div className="conta-card">
         <h1>Olá, {conta.nome || conta.email}</h1>
@@ -61,5 +75,13 @@ export default function Conta() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function Conta() {
+  return (
+    <Suspense fallback={<div className="conta-wrap"><p>Carregando...</p></div>}>
+      <ContaConteudo />
+    </Suspense>
   );
 }

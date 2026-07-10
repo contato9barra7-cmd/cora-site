@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { verificar, reenviarCodigo } from '../../lib/auth';
+import { verificar, reenviarCodigo, retomarCheckoutPendente } from '../../lib/auth';
 
 function VerificarConteudo() {
   const router = useRouter();
@@ -25,7 +25,9 @@ function VerificarConteudo() {
     setCarregando(true);
     try {
       await verificar({ email, codigo });
-      router.push('/conta');
+      // Se a pessoa tinha escolhido um plano antes de criar conta, vai direto ao pagamento.
+      const foiPraCheckout = await retomarCheckoutPendente();
+      if (!foiPraCheckout) router.push('/conta');
     } catch (e) {
       setErro(e.message);
     } finally {
