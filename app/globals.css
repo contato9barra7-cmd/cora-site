@@ -313,3 +313,44 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   .destaque { padding: 40px 28px; }
   .destaque h2 { font-size: 26px; }
 }
+
+/* ==========================================================================
+   ABAS DE CUSTO POR GERAÇÃO (imagens / timelapse / upscale / animação)
+   ========================================================================== */
+.custo-abas {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 34px;
+}
+.custo-aba {
+  border: 1px solid var(--line2); background: var(--paper); color: var(--ink2);
+  font-family: inherit; font-size: 14px; font-weight: 500; padding: 10px 22px;
+  border-radius: var(--r); cursor: pointer; transition: all .15s;
+}
+.custo-aba:hover { border-color: var(--roxo); color: var(--ink); }
+.custo-aba.ativa { background: var(--roxo); color: #000; border-color: var(--roxo); }
+
+.custo-bloco {
+  max-width: 760px; margin: 28px auto 0; background: var(--paper);
+  border: 1px solid var(--line); border-radius: var(--rc); overflow: hidden;
+}
+
+/* ==========================================================================
+   LOGIN (erro) + PÁGINA DE CONTA
+   ========================================================================== */
+.login-erro {
+  margin-top: 14px; font-size: 14px; color: var(--alerta);
+  background: #fdecea; border: 1px solid #f5c6c2; border-radius: 10px; padding: 10px 12px;
+}
+
+.conta-wrap { max-width: 720px; margin: 0 auto; padding: 32px 24px 80px; }
+.conta-topo { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 28px; }
+.conta-card {
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--rc);
+  padding: 28px; margin-bottom: 18px;
+}
+.conta-card h1 { font-size: 26px; font-weight: 600; margin-bottom: 18px; }
+.conta-linha {
+  display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--line);
+}
+.conta-linha:last-child { border-bottom: none; }
+.conta-linha span { color: var(--ink2); font-size: 15px; }
+.conta-linha strong { font-weight: 600; text-transform: capitalize; }

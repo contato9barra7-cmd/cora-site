@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Nav from '../../components/Nav';
 import {
   planos, recargas, descontoAnual,
-  comparacao, custoImagens, custoUpscale, faq,
+  comparacao, custos, faq,
   teamsPro, teamsStudio,
 } from '../../lib/planos';
 
@@ -62,6 +62,7 @@ function TabelaTeams({ titulo, dados }) {
 
 export default function Precos() {
   const [anual, setAnual] = useState(false);
+  const [abaCusto, setAbaCusto] = useState('imagens');
   const colunas = ['Free', 'Starter', 'Pro', 'Studio'];
 
   return (
@@ -176,38 +177,43 @@ export default function Precos() {
         </div>
       </div>
 
-      {/* QUANTO CUSTA CADA GERAÇÃO */}
+      {/* QUANTO CUSTA CADA GERAÇÃO — com abas */}
       <div className="sec sec--wash">
         <div className="container">
           <h2>Quanto custa cada geração</h2>
-          <p className="sub">Créditos consumidos por operação, em cada plano.</p>
-          <div className="grid2">
-            <div className="bloco">
-              <h3>Imagens e cenas</h3>
-              <table className="custo">
-                <thead>
-                  <tr><td>Operação</td><td>Starter</td><td>Pro</td><td>Studio</td></tr>
-                </thead>
-                <tbody>
-                  {custoImagens.map((r, i) => (
-                    <tr key={i}>
-                      <td>{r[0]}</td><td>{num(r[1])}</td><td>{num(r[2])}</td><td>{num(r[3])}</td>
-                    </tr>
+          <p className="sub">Cada operação com IA consome créditos. O que não usa IA — material, espelho, otimizar o modelo — é sempre grátis.</p>
+
+          <div className="custo-abas">
+            {Object.keys(custos).map((key) => (
+              <button
+                key={key}
+                className={'custo-aba' + (abaCusto === key ? ' ativa' : '')}
+                onClick={() => setAbaCusto(key)}
+              >
+                {custos[key].label}
+              </button>
+            ))}
+          </div>
+
+          <div className="custo-bloco">
+            <table className="custo">
+              <thead>
+                <tr>
+                  {custos[abaCusto].colunas.map((c, i) => (
+                    <td key={i} className={i === 0 ? '' : 'num'}>{c}</td>
                   ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="bloco">
-              <h3>Upscale</h3>
-              <table className="custo">
-                <thead><tr><td>Resolução</td><td>Créditos</td></tr></thead>
-                <tbody>
-                  {custoUpscale.map((r, i) => (
-                    <tr key={i}><td>{r[0]}</td><td>{num(r[1])}</td></tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                </tr>
+              </thead>
+              <tbody>
+                {custos[abaCusto].linhas.map((linha, i) => (
+                  <tr key={i}>
+                    {linha.map((v, j) => (
+                      <td key={j} className={j === 0 ? '' : 'num'}>{num(v)}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
