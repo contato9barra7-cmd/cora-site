@@ -777,3 +777,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   background: var(--wash); display: flex; align-items: center; justify-content: center;
   color: var(--ink3); font-size: 13px; font-style: italic;
 }
+
+/* Grupos de dispositivos (plugin/web) */
+.disp-grupo { margin-bottom: 20px; }
+.disp-grupo:last-child { margin-bottom: 0; }
+.disp-grupo-tit { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
+.disp-contagem { font-weight: 400; color: var(--ink3); font-size: 13px; margin-left: 6px; }

@@ -275,29 +275,45 @@ export default function Perfil() {
             Sessões e dispositivos
             <button className="perfil-ajuda" onClick={() => setModalAjuda(true)} title="Ajuda" aria-label="Ajuda">?</button>
           </h2>
-          <p className="perfil-sub" style={{ marginTop: 0, marginBottom: 16 }}>
-            {dispositivos.length}/2 computadores. Por segurança, cada conta pode ter até 2 computadores conectados (uso um por vez).
+          <p className="perfil-sub" style={{ marginTop: 0, marginBottom: 18 }}>
+            Cada conta pode ter até 2 computadores no plugin e 3 dispositivos na versão web. O uso é de um por vez (plugin ou web, nunca ao mesmo tempo).
           </p>
-          {dispositivos.length === 0 ? (
-            <p className="perfil-sub">Nenhum computador conectado ainda.</p>
-          ) : (
-            <div className="disp-lista">
-              {dispositivos.map(d => (
-                <div key={d.id} className="disp-item">
-                  <div>
-                    <div className="disp-nome">
-                      {d.nome_pc || 'Computador'}
-                      {d.ativo_agora && <span className="disp-ativo">Em uso agora</span>}
-                    </div>
-                    <div className="disp-sub">
-                      Último acesso: {d.ultimo_acesso ? new Date(d.ultimo_acesso).toLocaleString('pt-BR') : '—'}
-                    </div>
+
+          {(() => {
+            const plugins = dispositivos.filter(d => (d.tipo || 'plugin') !== 'web');
+            const webs = dispositivos.filter(d => d.tipo === 'web');
+            const grupo = (titulo, lista, max) => (
+              <div className="disp-grupo">
+                <div className="disp-grupo-tit">{titulo} <span className="disp-contagem">{lista.length}/{max}</span></div>
+                {lista.length === 0 ? (
+                  <p className="perfil-sub" style={{ marginTop: 0 }}>Nenhum dispositivo conectado ainda.</p>
+                ) : (
+                  <div className="disp-lista">
+                    {lista.map(d => (
+                      <div key={d.id} className="disp-item">
+                        <div>
+                          <div className="disp-nome">
+                            {d.nome_pc || 'Dispositivo'}
+                            {d.ativo_agora && <span className="disp-ativo">Em uso agora</span>}
+                          </div>
+                          <div className="disp-sub">
+                            Último acesso: {d.ultimo_acesso ? new Date(d.ultimo_acesso).toLocaleString('pt-BR') : '—'}
+                          </div>
+                        </div>
+                        <button className="disp-remover" onClick={() => tirarDispositivo(d.id)}>Remover</button>
+                      </div>
+                    ))}
                   </div>
-                  <button className="disp-remover" onClick={() => tirarDispositivo(d.id)}>Remover</button>
-                </div>
-              ))}
-            </div>
-          )}
+                )}
+              </div>
+            );
+            return (
+              <>
+                {grupo('Plugin (SketchUp)', plugins, 2)}
+                {grupo('Versão web', webs, 3)}
+              </>
+            );
+          })()}
         </section>
 
         {/* DELETAR CONTA */}
@@ -357,8 +373,8 @@ export default function Perfil() {
             </div>
 
             <p className="ajuda-txt" style={{ marginTop: 4 }}>
-              Cada conta pode ter até <strong>2 computadores</strong> conectados, com uso de um por vez
-              (seja no plugin do SketchUp ou na versão web).
+              Cada conta pode ter até <strong>2 computadores no plugin</strong> e <strong>3 dispositivos na versão web</strong>,
+              com uso de um por vez (nunca plugin e web ao mesmo tempo).
             </p>
 
             <div className="foto-cancelar" onClick={() => setModalAjuda(false)} style={{ marginTop: 16 }}>Fechar</div>
