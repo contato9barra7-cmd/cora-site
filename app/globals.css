@@ -424,3 +424,25 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 @media (max-width: 760px) {
   .dash-grid { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   MODAL DE CPF
+   ========================================================================== */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+}
+.modal-cpf {
+  background: #fff; border-radius: 16px; padding: 30px; max-width: 420px; width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+.modal-cpf h3 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+.modal-cpf p { color: var(--ink2); font-size: 15px; margin-bottom: 18px; }
+.modal-input {
+  width: 100%; padding: 13px 16px; border: 1px solid var(--line); border-radius: 10px;
+  font-size: 16px; margin-bottom: 12px; box-sizing: border-box;
+}
+.modal-input:focus { outline: none; border-color: var(--roxo); }
+.modal-erro { color: #b23b32; font-size: 14px; margin-bottom: 12px; }
+.modal-acoes { display: flex; gap: 12px; margin-top: 6px; }
+.modal-acoes .btn { flex: 1; margin: 0; padding: 12px; }

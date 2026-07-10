@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { iniciarCheckout } from '../../lib/auth';
+import { iniciarCheckout, salvarCPF } from '../../lib/auth';
 import { STRIPE_PRICES } from '../../lib/stripe-prices';
 import Nav from '../../components/Nav';
 import {
@@ -67,17 +67,51 @@ export default function Precos() {
   const [anual, setAnual] = useState(false);
   const [abaCusto, setAbaCusto] = useState('imagens');
   const [erroCheckout, setErroCheckout] = useState('');
+  const [modalCpf, setModalCpf] = useState(false);
+  const [cpf, setCpf] = useState('');
+  const [cpfErro, setCpfErro] = useState('');
+  const [priceIdPendente, setPriceIdPendente] = useState(null);
+  const [salvandoCpf, setSalvandoCpf] = useState(false);
   const router = useRouter();
 
-  async function comprarRecarga(recargaId) {
-    const priceId = STRIPE_PRICES.recargas[recargaId];
-    if (!priceId) return;
+  function formatarCpf(v) {
+    const d = v.replace(/\D/g, '').slice(0, 11);
+    return d.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  }
+
+  async function comprar(priceId) {
     setErroCheckout('');
     try {
       await iniciarCheckout(priceId);
     } catch (e) {
+      if (e.precisaCpf) {
+        setPriceIdPendente(priceId);
+        setModalCpf(true);
+        return;
+      }
       setErroCheckout(e.message);
     }
+  }
+
+  async function confirmarCpf() {
+    setCpfErro('');
+    setSalvandoCpf(true);
+    try {
+      await salvarCPF(cpf);
+      setModalCpf(false);
+      setCpf('');
+      if (priceIdPendente) await comprar(priceIdPendente);
+    } catch (e) {
+      setCpfErro(e.message);
+    } finally {
+      setSalvandoCpf(false);
+    }
+  }
+
+  async function comprarRecarga(recargaId) {
+    const priceId = STRIPE_PRICES.recargas[recargaId];
+    if (!priceId) return;
+    await comprar(priceId);
   }
 
   async function assinarPlano(planoId) {
@@ -85,12 +119,7 @@ export default function Precos() {
     const grupo = STRIPE_PRICES[planoId];
     if (!grupo) return;
     const priceId = anual ? grupo.anual : grupo.mensal;
-    setErroCheckout('');
-    try {
-      await iniciarCheckout(priceId);
-    } catch (e) {
-      setErroCheckout(e.message);
-    }
+    await comprar(priceId);
   }
   const colunas = ['Free', 'Starter', 'Pro', 'Studio'];
 
@@ -297,6 +326,33 @@ export default function Precos() {
       <div className="container">
         <div className="foot">© {new Date().getFullYear()} Cora Render · 9barra7 Academy</div>
       </div>
+
+      {modalCpf && (
+        <div className="modal-overlay" onClick={() => !salvandoCpf && setModalCpf(false)}>
+          <div className="modal-cpf" onClick={(e) => e.stopPropagation()}>
+            <h3>Confirme seu CPF</h3>
+            <p>Precisamos do seu CPF para emitir a nota fiscal da sua compra.</p>
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="000.000.000-00"
+              value={cpf}
+              onChange={(e) => setCpf(formatarCpf(e.target.value))}
+              className="modal-input"
+              autoFocus
+            />
+            {cpfErro && <div className="modal-erro">{cpfErro}</div>}
+            <div className="modal-acoes">
+              <button className="btn btn--ghost" onClick={() => setModalCpf(false)} disabled={salvandoCpf}>
+                Cancelar
+              </button>
+              <button className="btn btn--verde" onClick={confirmarCpf} disabled={salvandoCpf}>
+                {salvandoCpf ? 'Salvando...' : 'Continuar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
