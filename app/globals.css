@@ -267,3 +267,49 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 }
 .login-rodape { margin-top: 20px; text-align: center; font-size: 14px; color: var(--ink2); }
 .login-rodape a { color: var(--roxo-esc); font-weight: 500; }
+
+/* ==========================================================================
+   LANDING PAGE — seções extras (dores, passos, destaque, depoimentos)
+   ========================================================================== */
+.hero__tag {
+  display: inline-block; font-size: 13px; font-weight: 600; color: var(--roxo-esc);
+  text-transform: uppercase; letter-spacing: .08em; margin-bottom: 18px;
+  background: var(--wash); border: 1px solid var(--line); padding: 6px 14px; border-radius: var(--r);
+}
+.hero__nota { margin-top: 18px; font-size: 13px; color: var(--ink3); }
+
+.cards--2 { grid-template-columns: repeat(2, 1fr); }
+.card--dor h3 { color: var(--ink); }
+.card--dor h3::before { content: '✕ '; color: var(--alerta); font-weight: 700; }
+
+/* passos */
+.passos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 44px; }
+.passo { text-align: center; padding: 8px; }
+.passo__num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 50%; background: var(--roxo); color: #000;
+  font-size: 20px; font-weight: 700; margin-bottom: 16px;
+}
+.passo h3 { font-size: 18px; font-weight: 600; }
+.passo p { color: var(--ink2); font-size: 15px; margin-top: 8px; }
+
+/* destaque PT-BR */
+.destaque {
+  background: var(--ink); color: #fff; border-radius: 20px; padding: 56px 48px; text-align: center;
+}
+.destaque h2 { font-size: 32px; font-weight: 600; letter-spacing: -0.02em; }
+.destaque p { color: #cfcfcf; font-size: 17px; margin-top: 16px; max-width: 640px; margin-left: auto; margin-right: auto; }
+
+/* depoimentos */
+.depo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 36px; }
+.depo { background: var(--paper); border: 1px solid var(--line); border-radius: var(--rc); padding: 26px; }
+.depo__txt { font-size: 16px; color: var(--ink); line-height: 1.6; }
+.depo__autor { font-size: 14px; color: var(--ink3); margin-top: 16px; font-weight: 500; }
+
+@media (max-width: 900px) {
+  .cards--2 { grid-template-columns: 1fr; }
+  .passos { grid-template-columns: 1fr; }
+  .depo-grid { grid-template-columns: 1fr; }
+  .destaque { padding: 40px 28px; }
+  .destaque h2 { font-size: 26px; }
+}
