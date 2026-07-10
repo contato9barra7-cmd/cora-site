@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais } from '../../lib/auth';
+import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais, adminDeletarConta } from '../../lib/auth';
 
 const PLANOS = ['free', 'starter', 'pro', 'studio'];
 
@@ -99,6 +99,20 @@ export default function Admin() {
     setErro('');
     try {
       await adminMudarPlano(id, plano);
+      await carregar();
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setOcupado(null);
+    }
+  }
+
+  async function deletar(id, email) {
+    if (!confirm(`Deletar a conta de ${email}?\n\nEsta ação é PERMANENTE e apaga a conta, plano e créditos. Não pode ser desfeita.`)) return;
+    setOcupado(id);
+    setErro('');
+    try {
+      await adminDeletarConta(id);
       await carregar();
     } catch (e) {
       setErro(e.message);
@@ -242,6 +256,14 @@ export default function Admin() {
                     >
                       Stripe
                     </a>
+                    <button
+                      className="admin-btn-deletar"
+                      disabled={ocupado === a.id}
+                      onClick={() => deletar(a.id, a.email)}
+                      title="Deletar conta"
+                    >
+                      Deletar
+                    </button>
                   </div>
                 </td>
               </tr>
