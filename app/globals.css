@@ -489,7 +489,8 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .admin-badge { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 12px; text-transform: capitalize; }
 .admin-badge.ok { background: #eafaf0; color: #1b7a43; }
 .admin-badge.off { background: #f2f2f5; color: #666; }
-.admin-acoes { display: flex; gap: 6px; align-items: center; }
+.admin-acoes { display: flex; gap: 6px; align-items: center; justify-content: flex-end; }
+.admin-tabela th:last-child, .admin-tabela td:last-child { text-align: right; }
 .admin-btn-cancelar {
   padding: 5px 12px; border: 1px solid #e5b3ae; background: #fff; color: #b23b32;
   border-radius: 100px; font-size: 13px; cursor: pointer;
@@ -542,13 +543,18 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .app-nav { padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; }
 .app-nav-item {
-  display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px;
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 100px;
   color: var(--ink2); text-decoration: none; font-size: 15px; white-space: nowrap;
 }
+.app-nav-ic {
+  display: flex; flex-shrink: 0; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%; background: var(--wash); transition: background .15s;
+}
+.app-nav-item:hover .app-nav-ic { background: var(--wash2); }
+.app-nav-item.ativo .app-nav-ic { background: rgba(255,255,255,.25); }
 .app-nav-item:hover { background: var(--paper); color: var(--ink); }
 .app-nav-item.ativo { background: var(--roxo); color: #fff; }
 .app-nav-item.ativo:hover { background: var(--roxo); }
-.app-nav-ic { display: flex; flex-shrink: 0; }
 .app-shell.recolhido .app-nav-item { justify-content: center; padding: 10px; }
 
 /* HEADER */
@@ -692,4 +698,30 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   .perfil-linha { flex-direction: column; align-items: flex-start; gap: 8px; }
   .perfil-lbl { width: auto; }
   .perfil-input { width: 100%; box-sizing: border-box; }
+}
+
+/* Botões de foto no perfil */
+.perfil-avatar-botoes { display: flex; gap: 8px; }
+.perfil-btn-foto {
+  padding: 8px 16px; border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+  border-radius: 100px; font-size: 13px; cursor: pointer;
+}
+.perfil-btn-foto:hover { background: var(--wash); }
+.perfil-btn-remover {
+  padding: 8px 16px; border: 1px solid var(--line); background: none; color: var(--ink3);
+  border-radius: 100px; font-size: 13px; cursor: pointer;
+}
+.perfil-btn-remover:hover { color: var(--alerta); border-color: #e5b3ae; }
+
+/* Espaçamento do botão deletar em relação ao texto acima */
+.perfil-perigo .perfil-btn-deletar { margin-top: 14px; }
+
+/* Preferências rápidas no menu do avatar */
+.app-user-pref {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 12px; font-size: 13px; color: var(--ink2);
+}
+.app-user-pref select {
+  border: 1px solid var(--line); border-radius: 100px; padding: 4px 10px; font-size: 12px;
+  background: var(--paper); color: var(--ink); cursor: pointer;
 }

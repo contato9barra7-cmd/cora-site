@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { lerConta, sair, salvarFoto, aplicarTema } from '../lib/auth';
+import { lerConta, sair, aplicarTema, salvarPerfil } from '../lib/auth';
 
 // Ícones simples em SVG (sem dependência externa)
 const Icone = {
@@ -41,97 +41,6 @@ export default function AppShell({ children }) {
   const [conta, setConta] = useState(null);
   const [recolhido, setRecolhido] = useState(false);
   const [menuUser, setMenuUser] = useState(false);
-  const [modalFoto, setModalFoto] = useState(false);
-  const [salvandoFoto, setSalvandoFoto] = useState(false);
-
-  // refs e estado do recorte de foto (mesma lógica do plugin)
-  const inputFotoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const fotoState = useRef({ img: null, zoom: 1, x: 0, y: 0, base: 1, drag: false, lx: 0, ly: 0 });
-
-  function abrirSeletorFoto() {
-    if (inputFotoRef.current) inputFotoRef.current.click();
-  }
-
-  function aoSelecionarFoto(ev) {
-    const file = ev.target.files && ev.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const st = fotoState.current;
-        st.img = img;
-        st.base = Math.max(260 / img.width, 260 / img.height);
-        st.zoom = 1; st.x = 0; st.y = 0;
-        setMenuUser(false);
-        setModalFoto(true);
-        // desenha após o modal renderizar
-        setTimeout(desenharFoto, 30);
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-    ev.target.value = '';
-  }
-
-  function desenharFoto() {
-    const canvas = canvasRef.current;
-    const st = fotoState.current;
-    if (!canvas || !st.img) return;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, 260, 260);
-    const esc = st.base * st.zoom;
-    const w = st.img.width * esc, h = st.img.height * esc;
-    let x = (260 - w) / 2 + st.x, y = (260 - h) / 2 + st.y;
-    x = Math.min(0, Math.max(260 - w, x));
-    y = Math.min(0, Math.max(260 - h, y));
-    st.x = x - (260 - w) / 2; st.y = y - (260 - h) / 2;
-    ctx.drawImage(st.img, x, y, w, h);
-  }
-
-  function aoZoom(e) {
-    fotoState.current.zoom = parseFloat(e.target.value);
-    desenharFoto();
-  }
-  function dragStart(e) {
-    const st = fotoState.current;
-    st.drag = true; st.lx = e.clientX; st.ly = e.clientY;
-    e.currentTarget.setPointerCapture(e.pointerId);
-  }
-  function dragMove(e) {
-    const st = fotoState.current;
-    if (!st.drag) return;
-    st.x += (e.clientX - st.lx); st.y += (e.clientY - st.ly);
-    st.lx = e.clientX; st.ly = e.clientY;
-    desenharFoto();
-  }
-  function dragEnd() { fotoState.current.drag = false; }
-
-  async function salvarFotoRecortada() {
-    const st = fotoState.current;
-    if (!st.img) return;
-    setSalvandoFoto(true);
-    try {
-      const out = document.createElement('canvas');
-      out.width = 400; out.height = 400;
-      const octx = out.getContext('2d');
-      const esc = st.base * st.zoom * (400 / 260);
-      const w = st.img.width * esc, h = st.img.height * esc;
-      const x = (400 - w) / 2 + st.x * (400 / 260);
-      const y = (400 - h) / 2 + st.y * (400 / 260);
-      octx.drawImage(st.img, x, y, w, h);
-      const dataUrl = out.toDataURL('image/jpeg', 0.85);
-      const contaAtualizada = await salvarFoto(dataUrl);
-      if (contaAtualizada) setConta(contaAtualizada);
-      setModalFoto(false);
-    } catch (err) {
-      // se falhar, fecha mesmo assim (o erro fica no console)
-      console.error(err);
-    } finally {
-      setSalvandoFoto(false);
-    }
-  }
 
   useEffect(() => {
     const c = lerConta();
@@ -150,6 +59,14 @@ export default function AppShell({ children }) {
     if (typeof window !== 'undefined') {
       localStorage.setItem('cora_menu_recolhido', novo ? '1' : '0');
     }
+  }
+
+  // troca rápida de tema/idioma direto no menu do avatar
+  async function trocarPref(campo, valor) {
+    const nova = { ...conta, [campo]: valor };
+    setConta(nova);
+    if (campo === 'tema') aplicarTema(valor);
+    try { await salvarPerfil({ [campo]: valor }); } catch (e) { /* silencioso */ }
   }
 
   function logout() {
@@ -234,54 +151,33 @@ export default function AppShell({ children }) {
                   )}
                   {ilimitado && conta && <div className="app-user-creditos">Créditos ilimitados</div>}
                 </div>
-                <button className="app-user-link" onClick={abrirSeletorFoto}>Trocar foto</button>
                 <Link href="/conta/perfil" className="app-user-link" onClick={() => setMenuUser(false)}>Configurações da conta</Link>
                 <Link href="/conta" className="app-user-link" onClick={() => setMenuUser(false)}>Dashboard</Link>
                 <Link href="/assinatura" className="app-user-link" onClick={() => setMenuUser(false)}>Assinatura</Link>
+
+                <div className="app-user-pref">
+                  <label>Idioma</label>
+                  <select value={conta?.idioma || 'pt'} onChange={(e) => trocarPref('idioma', e.target.value)}>
+                    <option value="pt">Português</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                  </select>
+                </div>
+                <div className="app-user-pref">
+                  <label>Tema</label>
+                  <select value={conta?.tema || 'sistema'} onChange={(e) => trocarPref('tema', e.target.value)}>
+                    <option value="claro">Claro</option>
+                    <option value="escuro">Escuro</option>
+                    <option value="sistema">Sistema</option>
+                  </select>
+                </div>
+
                 <button className="app-user-link app-user-sair" onClick={logout}>Sair</button>
               </div>
             )}
           </div>
-
-          <input
-            type="file"
-            ref={inputFotoRef}
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={aoSelecionarFoto}
-          />
         </div>
       </header>
-
-      {/* MODAL DE RECORTE DE FOTO (1:1, zoom, arraste — igual ao plugin) */}
-      {modalFoto && (
-        <div className="foto-overlay" onClick={() => setModalFoto(false)}>
-          <div className="foto-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="foto-titulo">Foto de perfil</div>
-            <div className="foto-orient">Proporção 1:1 · recomendado 400×400px. Arraste e use o zoom para enquadrar.</div>
-            <div
-              className="foto-crop"
-              onPointerDown={dragStart}
-              onPointerMove={dragMove}
-              onPointerUp={dragEnd}
-            >
-              <canvas ref={canvasRef} width={260} height={260} style={{ display: 'block' }} />
-            </div>
-            <div className="foto-zoom-row">
-              <span>−</span>
-              <input type="range" min="1" max="3" step="0.01" defaultValue="1" onChange={aoZoom} style={{ flex: 1 }} />
-              <span>+</span>
-            </div>
-            <div className="foto-botoes">
-              <button className="foto-btn-outra" onClick={abrirSeletorFoto}>Escolher outra</button>
-              <button className="foto-btn-salvar" onClick={salvarFotoRecortada} disabled={salvandoFoto}>
-                {salvandoFoto ? 'Salvando...' : 'Salvar'}
-              </button>
-            </div>
-            <div className="foto-cancelar" onClick={() => setModalFoto(false)}>Cancelar</div>
-          </div>
-        </div>
-      )}
 
       {/* CONTEÚDO */}
       <main className="app-main">{children}</main>

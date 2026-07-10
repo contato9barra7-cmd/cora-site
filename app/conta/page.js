@@ -77,7 +77,7 @@ function ContaConteudo() {
       {/* Download do plugin */}
       <div className="conta-card">
         <h2 className="conta-h2">Plugin para o SketchUp</h2>
-        <p className="conta-p">Baixe o Cora Render e instale no seu SketchUp 2025.</p>
+        <p className="conta-p">Baixe o Cora Render e instale no seu SketchUp. Funciona no SketchUp 2023 em diante.</p>
         <button className="btn btn--roxo" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} disabled>
           Download em breve
         </button>
