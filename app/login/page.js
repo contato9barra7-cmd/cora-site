@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { entrar } from '../../lib/auth';
+import { entrar, lerConta } from '../../lib/auth';
 
 export default function Login() {
   const router = useRouter();
@@ -12,6 +12,11 @@ export default function Login() {
   const [verSenha, setVerSenha] = useState(false);
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
+
+  // Se já está logada, vai direto pra conta (não mostra login de novo).
+  useEffect(() => {
+    if (lerConta()) router.push('/conta');
+  }, [router]);
 
   async function fazerLogin() {
     setErro('');

@@ -3,7 +3,9 @@
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { lerConta, sair, atualizarConta } from '../../lib/auth';
+import { lerConta, sair, atualizarConta, abrirPortal } from '../../lib/auth';
+
+const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
 
 function ContaConteudo() {
   const router = useRouter();
@@ -11,6 +13,8 @@ function ContaConteudo() {
   const [conta, setConta] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [aviso, setAviso] = useState('');
+  const [erro, setErro] = useState('');
+  const [abrindoPortal, setAbrindoPortal] = useState(false);
 
   useEffect(() => {
     const c = lerConta();
@@ -18,7 +22,6 @@ function ContaConteudo() {
     setConta(c);
     setCarregando(false);
 
-    // Voltou do pagamento? Rebusca os dados frescos do servidor.
     if (params.get('pagamento') === 'sucesso') {
       setAviso('Pagamento recebido! Atualizando sua conta...');
       atualizarConta().then((fresca) => {
@@ -34,8 +37,25 @@ function ContaConteudo() {
     router.push('/');
   }
 
+  async function gerenciar() {
+    setErro('');
+    setAbrindoPortal(true);
+    try {
+      await abrirPortal();
+    } catch (e) {
+      setErro(e.message);
+      setAbrindoPortal(false);
+    }
+  }
+
   if (carregando) return <div className="conta-wrap"><p>Carregando...</p></div>;
   if (!conta) return null;
+
+  const ehPago = conta.plano && conta.plano !== 'free';
+  const creditos = conta.creditos_total === -1 ? 'Ilimitado'
+    : (conta.creditos_restantes ?? 0).toLocaleString('pt-BR');
+  const totalCreditos = conta.creditos_total === -1 ? null
+    : (conta.creditos_total ?? 0).toLocaleString('pt-BR');
 
   return (
     <div className="conta-wrap">
@@ -47,32 +67,62 @@ function ContaConteudo() {
       </div>
 
       {aviso && <div className="conta-aviso">{aviso}</div>}
+      {erro && <div className="login-erro" style={{ marginBottom: 18 }}>{erro}</div>}
 
-      <div className="conta-card">
-        <h1>Olá, {conta.nome || conta.email}</h1>
-        <div className="conta-linha"><span>Plano</span><strong>{conta.plano}</strong></div>
-        <div className="conta-linha"><span>Status</span><strong>{conta.status}</strong></div>
-        <div className="conta-linha">
-          <span>Créditos</span>
-          <strong>{conta.creditos_total === -1 ? 'Ilimitado' : (conta.creditos_restantes ?? 0)}</strong>
+      <h1 className="conta-ola">Olá, {conta.nome || conta.email}</h1>
+
+      {/* Plano + créditos */}
+      <div className="dash-grid">
+        <div className="dash-card">
+          <span className="dash-rotulo">Seu plano</span>
+          <span className="dash-valor">{NOME_PLANO[conta.plano] || conta.plano}</span>
+          <span className={'dash-badge ' + (conta.status === 'ativo' ? 'ok' : 'off')}>
+            {conta.status}
+          </span>
         </div>
-        {conta.expira_em && (
-          <div className="conta-linha">
-            <span>Válido até</span>
-            <strong>{new Date(conta.expira_em).toLocaleDateString('pt-BR')}</strong>
-          </div>
+
+        <div className="dash-card">
+          <span className="dash-rotulo">Créditos disponíveis</span>
+          <span className="dash-valor">{creditos}</span>
+          {totalCreditos && <span className="dash-sub">de {totalCreditos} no ciclo</span>}
+        </div>
+
+        <div className="dash-card">
+          <span className="dash-rotulo">{ehPago ? 'Renova em' : 'Válido até'}</span>
+          <span className="dash-valor">
+            {conta.expira_em ? new Date(conta.expira_em).toLocaleDateString('pt-BR') : '—'}
+          </span>
+        </div>
+      </div>
+
+      {/* Gerenciar assinatura */}
+      <div className="conta-card">
+        <h2 className="conta-h2">Assinatura</h2>
+        {ehPago ? (
+          <>
+            <p className="conta-p">Gerencie sua assinatura: trocar de plano, atualizar o cartão, ver faturas ou cancelar.</p>
+            <button className="btn btn--ink" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={gerenciar} disabled={abrindoPortal}>
+              {abrindoPortal ? 'Abrindo...' : 'Gerenciar assinatura'}
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="conta-p">Você está no plano Free. Assine para desbloquear a geração com IA.</p>
+            <Link href="/precos" className="btn btn--verde" style={{ width: 'auto', marginTop: 6, padding: '11px 24px', display: 'inline-block' }}>
+              Ver planos
+            </Link>
+          </>
         )}
       </div>
 
+      {/* Download do plugin */}
       <div className="conta-card">
-        <h2 style={{ fontSize: 18, marginBottom: 12 }}>Próximos passos</h2>
-        <p style={{ color: 'var(--ink2)', fontSize: 15 }}>
-          Aqui vão entrar: download do plugin, cobrança e gerenciamento da assinatura.
-          (Em construção — próximas etapas.)
-        </p>
-        <Link href="/precos" className="btn btn--roxo" style={{ width: 'auto', marginTop: 16, padding: '10px 22px', display: 'inline-block' }}>
-          Ver planos
-        </Link>
+        <h2 className="conta-h2">Plugin para o SketchUp</h2>
+        <p className="conta-p">Baixe o Cora Render e instale no seu SketchUp 2025.</p>
+        <button className="btn btn--roxo" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} disabled>
+          Download em breve
+        </button>
+        <p className="dash-sub" style={{ marginTop: 10 }}>O link de download será disponibilizado aqui.</p>
       </div>
     </div>
   );
