@@ -1,0 +1,25 @@
+'use client';
+
+import { motion } from 'framer-motion';
+
+/**
+ * Marquee — faixa de itens rolando de lado, em loop infinito.
+ * Usada para logos de marcas, palavras-chave, etc.
+ * items: array de strings (ou depois, logos).
+ */
+export default function Marquee({ items = [], duration = 24 }) {
+  const dobrado = [...items, ...items]; // duplica para o loop parecer contínuo
+  return (
+    <div className="marquee">
+      <motion.div
+        className="marquee__track"
+        animate={{ x: ['0%', '-50%'] }}
+        transition={{ duration, ease: 'linear', repeat: Infinity }}
+      >
+        {dobrado.map((it, i) => (
+          <span className="marquee__item" key={i}>{it}</span>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
