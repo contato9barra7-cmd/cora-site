@@ -188,7 +188,7 @@ export default function Admin() {
             onClick={exportarContador}
             disabled={exportando}
           >
-            {exportando ? 'Gerando...' : 'Exportar p/ contador'}
+            {exportando ? 'Gerando...' : 'Exportar .CSV'}
           </button>
         </div>
       </div>
