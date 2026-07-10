@@ -1,6 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { iniciarCheckout } from '../../lib/auth';
+import { STRIPE_PRICES } from '../../lib/stripe-prices';
 import Nav from '../../components/Nav';
 import {
   planos, recargas, descontoAnual,
@@ -63,6 +66,32 @@ function TabelaTeams({ titulo, dados }) {
 export default function Precos() {
   const [anual, setAnual] = useState(false);
   const [abaCusto, setAbaCusto] = useState('imagens');
+  const [erroCheckout, setErroCheckout] = useState('');
+  const router = useRouter();
+
+  async function comprarRecarga(recargaId) {
+    const priceId = STRIPE_PRICES.recargas[recargaId];
+    if (!priceId) return;
+    setErroCheckout('');
+    try {
+      await iniciarCheckout(priceId);
+    } catch (e) {
+      setErroCheckout(e.message);
+    }
+  }
+
+  async function assinarPlano(planoId) {
+    if (planoId === 'free') { router.push('/cadastro'); return; }
+    const grupo = STRIPE_PRICES[planoId];
+    if (!grupo) return;
+    const priceId = anual ? grupo.anual : grupo.mensal;
+    setErroCheckout('');
+    try {
+      await iniciarCheckout(priceId);
+    } catch (e) {
+      setErroCheckout(e.message);
+    }
+  }
   const colunas = ['Free', 'Starter', 'Pro', 'Studio'];
 
   return (
@@ -114,7 +143,7 @@ export default function Precos() {
                     <div className="plano__credsub">{p.creditosSub}</div>
                   </div>
                 </div>
-                <button className={'btn btn--' + p.ctaEstilo}>{p.cta}</button>
+                <button className={'btn btn--' + p.ctaEstilo} onClick={() => assinarPlano(p.id)}>{p.cta}</button>
                 <ul className="feats">
                   {p.feats.map((f, i) => (
                     <li key={i} className={f[0] ? '' : 'off'}>
@@ -243,6 +272,7 @@ export default function Precos() {
                 <div className="recarga__cred">{r.creditos.toLocaleString('pt-BR')} créditos</div>
                 <div className="recarga__p">{brlInt(r.preco)}</div>
                 <div className="recarga__u">{brl(r.preco / r.creditos)} por crédito</div>
+                <button className="btn btn--roxo" style={{ marginTop: 14 }} onClick={() => comprarRecarga(r.id)}>Comprar</button>
               </div>
             ))}
           </div>
