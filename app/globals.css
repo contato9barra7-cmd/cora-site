@@ -85,19 +85,20 @@ a { color: inherit; text-decoration: none; }
   background: var(--paper); border: 1px solid var(--line); border-radius: var(--rc);
   padding: 26px 22px; display: flex; flex-direction: column;
 }
+.plano__topo { display: flex; flex-direction: column; }
 .plano--destaque { border: 1.5px solid var(--ink); box-shadow: none; }
 .plano__tag {
   align-self: flex-start; background: var(--ink); color: #fff;
   font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: var(--r); margin-bottom: 12px;
 }
 .plano__nome { font-size: 21px; font-weight: 600; }
-.plano__desc { color: var(--ink2); font-size: 13.5px; margin-top: 8px; min-height: 56px; }
+.plano__desc { color: var(--ink2); font-size: 13.5px; margin-top: 8px; min-height: 60px; }
 .plano__preco { margin-top: 22px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .plano__risco { color: var(--ink3); text-decoration: line-through; font-size: 15px; }
 .plano__valor { font-size: 38px; font-weight: 600; letter-spacing: -0.03em; }
 .plano__mes { color: var(--ink2); font-size: 13px; }
 .plano__cobranca { color: var(--ink3); font-size: 12.5px; margin-top: 4px; min-height: 18px; }
-.plano__cred { margin-top: 14px; }
+.plano__cred { margin-top: 14px; min-height: 46px; }
 .plano__credtxt { font-size: 15px; font-weight: 500; }
 .plano__credsub { font-size: 12.5px; color: var(--ink2); margin-top: 3px; }
 
@@ -162,19 +163,34 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .faq details[open] summary { color: var(--roxo-esc); }
 .faq p { padding: 0 4px 20px; color: var(--ink2); font-size: 15px; }
 
-/* ---- Cora Teams ---- */
-.teams { margin-top: 6px; display: grid; grid-template-columns: 1fr 1.3fr; gap: 40px; align-items: start; }
-.teams__titulo { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+/* ---- Cora Teams (card único dividido por linha vertical, igual HTML) ---- */
+.teams {
+  margin-top: 6px; border: 1px solid var(--line); border-radius: var(--rc);
+  background: var(--paper); display: grid; grid-template-columns: 340px 1fr;
+  gap: 0; overflow: hidden;
+}
+.teams__lado { padding: 36px; border-right: 1px solid var(--line); }
+.teams__titulo { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
 .teams__lead { color: var(--ink2); font-size: 14.5px; margin-top: 12px; }
-.teams__feats { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.teams__feats { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 9px; }
 .teams__feats li { font-size: 14px; color: var(--ink2); }
-.teams__tabelas { display: flex; flex-direction: column; gap: 18px; }
-.teams__tabela { background: var(--paper); border: 1px solid var(--line); border-radius: var(--rc); overflow: hidden; }
-.teams__tabela h4 { font-size: 14px; font-weight: 600; padding: 14px 16px; border-bottom: 1px solid var(--line); }
-.teams__tabela table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-.teams__tabela th, .teams__tabela td { padding: 10px 16px; border-bottom: 1px solid var(--line); text-align: left; }
-.teams__tabela tr:last-child th, .teams__tabela tr:last-child td { border-bottom: none; }
-.teams__tabela thead th { font-weight: 600; color: var(--ink3); font-size: 12px; }
+.teams__tabelas { padding: 36px; display: flex; flex-direction: column; gap: 24px; }
+.teams__tabela h4 {
+  font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--ink3); margin-bottom: 14px;
+}
+.teams__tabela .tab {
+  border: 1px solid var(--line); border-radius: var(--rc); overflow: hidden; background: var(--paper);
+}
+.teams__tabela table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.teams__tabela th, .teams__tabela td {
+  padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--line);
+}
+.teams__tabela thead th {
+  background: var(--wash); font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink3);
+}
+.teams__tabela tbody tr:last-child td, .teams__tabela tbody tr:last-child th { border-bottom: 0; }
 .teams__tabela th[scope="row"] { font-weight: 500; color: var(--ink); }
 .teams__tabela .num { text-align: right; font-variant-numeric: tabular-nums; }
 
@@ -187,6 +203,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   .recargas { grid-template-columns: repeat(2, 1fr); }
   .grid2 { grid-template-columns: 1fr; }
   .teams { grid-template-columns: 1fr; }
+  .teams__lado { border-right: 0; border-bottom: 1px solid var(--line); }
   .head h1 { font-size: 34px; }
 }
 @media (max-width: 560px) {

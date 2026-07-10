@@ -99,18 +99,20 @@ export default function Precos() {
             }
             return (
               <div key={p.id} className={'plano' + (p.destaque ? ' plano--destaque' : '')}>
-                {p.tag && <span className="plano__tag">{p.tag}</span>}
-                <h3 className="plano__nome">{p.nome}</h3>
-                <p className="plano__desc">{p.desc}</p>
-                <div className="plano__preco">
-                  {risco && <span className="plano__risco">{risco}</span>}
-                  <span className="plano__valor">{preco}</span>
-                  {p.mensal > 0 && <span className="plano__mes">/mês</span>}
-                </div>
-                <p className="plano__cobranca">{cobranca}</p>
-                <div className="plano__cred">
-                  <div className="plano__credtxt">{p.creditosTxt}</div>
-                  <div className="plano__credsub">{p.creditosSub}</div>
+                <div className="plano__topo">
+                  {p.tag && <span className="plano__tag">{p.tag}</span>}
+                  <h3 className="plano__nome">{p.nome}</h3>
+                  <p className="plano__desc">{p.desc}</p>
+                  <div className="plano__preco">
+                    {risco && <span className="plano__risco">{risco}</span>}
+                    <span className="plano__valor">{preco}</span>
+                    {p.mensal > 0 && <span className="plano__mes">/mês</span>}
+                  </div>
+                  <p className="plano__cobranca">{cobranca}</p>
+                  <div className="plano__cred">
+                    <div className="plano__credtxt">{p.creditosTxt}</div>
+                    <div className="plano__credsub">{p.creditosSub}</div>
+                  </div>
                 </div>
                 <button className={'btn btn--' + p.ctaEstilo}>{p.cta}</button>
                 <ul className="feats">
@@ -143,7 +145,7 @@ export default function Precos() {
                 <li>✓ Faturamento único</li>
                 <li>✓ Mínimo de 2 assentos</li>
               </ul>
-              <button className="btn btn--ink" style={{ marginTop: 24 }}>Falar com a gente</button>
+              <button className="btn btn--ink" style={{ width: '100%', marginTop: 24 }}>Falar com a gente</button>
             </div>
             <div className="teams__tabelas">
               <TabelaTeams titulo="Teams sobre o Pro" dados={teamsPro} />
