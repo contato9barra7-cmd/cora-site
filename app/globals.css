@@ -373,3 +373,22 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .conta-linha:last-child { border-bottom: none; }
 .conta-linha span { color: var(--ink2); font-size: 15px; }
 .conta-linha strong { font-weight: 600; text-transform: capitalize; }
+
+/* ==========================================================================
+   CAMPO DE SENHA COM OLHINHO (mostrar/esconder)
+   ========================================================================== */
+.senha-campo { position: relative; }
+.senha-campo .login-input { width: 100%; padding-right: 44px; }
+.senha-olho {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--ink3);
+  padding: 6px; display: flex; align-items: center; justify-content: center;
+}
+.senha-olho:hover { color: var(--ink); }
+
+/* botão que parece link (reenviar código) */
+.link-botao {
+  background: none; border: none; color: var(--roxo-esc); font-weight: 500;
+  font-family: inherit; font-size: inherit; cursor: pointer; padding: 0;
+}
+.link-botao:hover { text-decoration: underline; }
