@@ -153,9 +153,10 @@ export default function Precos() {
   }
 
   async function irParaPortal() {
+    const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
     setModalUpgrade(false);
     try {
-      await abrirPortal();
+      await abrirPortal(guia);
     } catch (e) {
       setErroCheckout(e.message);
     }

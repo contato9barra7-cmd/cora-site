@@ -39,11 +39,13 @@ function ContaConteudo() {
 
   async function gerenciar() {
     setErro('');
+    const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
     setAbrindoPortal(true);
     try {
-      await abrirPortal();
+      await abrirPortal(guia);
     } catch (e) {
       setErro(e.message);
+    } finally {
       setAbrindoPortal(false);
     }
   }
