@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import AppShell from '../../components/AppShell';
 import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais, adminDeletarConta } from '../../lib/auth';
 
 const PLANOS = ['free', 'starter', 'pro', 'studio'];
@@ -27,6 +28,7 @@ export default function Admin() {
   const [exportando, setExportando] = useState(false);
   const [dadosFiscais, setDadosFiscais] = useState(null); // { email: {telefone, endereco} }
   const [carregandoFiscais, setCarregandoFiscais] = useState(false);
+  const [meuId, setMeuId] = useState(null);
 
   async function mostrarFiscais() {
     if (dadosFiscais) { setDadosFiscais(null); return; } // toggle
@@ -73,6 +75,7 @@ export default function Admin() {
   useEffect(() => {
     const c = lerConta();
     if (!c) { router.push('/login'); return; }
+    setMeuId(c.id);
     carregar();
   }, [router]);
 
@@ -135,10 +138,11 @@ export default function Admin() {
     }
   }
 
-  if (carregando) return <div className="admin-wrap"><p>Carregando...</p></div>;
+  if (carregando) return <AppShell><div className="admin-wrap"><p>Carregando...</p></div></AppShell>;
 
   if (negado) {
     return (
+      <AppShell>
       <div className="admin-wrap">
         <h1>Acesso restrito</h1>
         <p>Esta área é exclusiva para administradores.</p>
@@ -146,10 +150,12 @@ export default function Admin() {
           Voltar para minha conta
         </Link>
       </div>
+      </AppShell>
     );
   }
 
   const filtrados = assinantes.filter(a => {
+    if (a.id === meuId) return false; // não mostra a própria conta admin
     const q = busca.toLowerCase().trim();
     if (!q) return true;
     return (a.nome || '').toLowerCase().includes(q)
@@ -160,6 +166,7 @@ export default function Admin() {
   const pagos = assinantes.filter(a => a.plano !== 'free' && a.status === 'ativo').length;
 
   return (
+    <AppShell>
     <div className="admin-wrap">
       <div className="admin-topo">
         <div>
@@ -183,9 +190,6 @@ export default function Admin() {
           >
             {exportando ? 'Gerando...' : 'Exportar p/ contador'}
           </button>
-          <Link href="/conta" className="btn btn--ghost" style={{ width: 'auto', margin: 0, padding: '8px 18px' }}>
-            Minha conta
-          </Link>
         </div>
       </div>
 
@@ -273,5 +277,6 @@ export default function Admin() {
         {filtrados.length === 0 && <p className="admin-vazio">Nenhuma conta encontrada.</p>}
       </div>
     </div>
+    </AppShell>
   );
 }

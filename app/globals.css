@@ -450,7 +450,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 /* ==========================================================================
    PAINEL DE ADMIN
    ========================================================================== */
-.admin-wrap { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+.admin-wrap { max-width: 100%; margin: 0; padding: 32px 40px; }
 .admin-topo { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 16px; }
 .admin-topo h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
 .admin-sub { color: var(--ink3); font-size: 14px; margin-top: 4px; }
@@ -499,3 +499,94 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 }
 .admin-btn-deletar:hover { background: #b71c1c; border-color: #b71c1c; }
 .admin-btn-deletar:disabled { opacity: .5; cursor: default; }
+
+/* ==========================================================================
+   APP SHELL — menu lateral fixo + header fixo (estilo app)
+   ========================================================================== */
+:root {
+  --side-w: 240px;
+  --side-w-min: 68px;
+  --header-h: 60px;
+}
+.app-shell { min-height: 100vh; background: #fafafa; }
+
+/* MENU LATERAL */
+.app-side {
+  position: fixed; top: 0; left: 0; bottom: 0; width: var(--side-w);
+  background: #fff; border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; z-index: 50; transition: width .18s ease;
+}
+.app-shell.recolhido .app-side { width: var(--side-w-min); }
+.app-side-topo {
+  height: var(--header-h); display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px; border-bottom: 1px solid var(--line);
+}
+.app-logo { font-weight: 700; font-size: 17px; color: var(--ink1); text-decoration: none; white-space: nowrap; }
+.app-shell.recolhido .app-logo { font-size: 20px; }
+.app-side-toggle {
+  background: none; border: none; cursor: pointer; color: var(--ink3); padding: 6px; border-radius: 8px;
+  display: flex; align-items: center;
+}
+.app-side-toggle:hover { background: var(--paper); color: var(--ink1); }
+.app-shell.recolhido .app-side-topo { flex-direction: column; gap: 8px; height: auto; padding: 12px 0; }
+
+.app-nav { padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; }
+.app-nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px;
+  color: var(--ink2); text-decoration: none; font-size: 15px; white-space: nowrap;
+}
+.app-nav-item:hover { background: var(--paper); color: var(--ink1); }
+.app-nav-item.ativo { background: var(--roxo); color: #fff; }
+.app-nav-item.ativo:hover { background: var(--roxo); }
+.app-nav-ic { display: flex; flex-shrink: 0; }
+.app-shell.recolhido .app-nav-item { justify-content: center; padding: 10px; }
+
+/* HEADER */
+.app-header {
+  position: fixed; top: 0; right: 0; left: var(--side-w); height: var(--header-h);
+  background: #fff; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: flex-end; padding: 0 24px;
+  z-index: 40; transition: left .18s ease;
+}
+.app-shell.recolhido .app-header { left: var(--side-w-min); }
+.app-header-dir { display: flex; align-items: center; gap: 18px; }
+
+.app-creditos { display: flex; align-items: center; gap: 10px; }
+.app-creditos-barra { width: 90px; height: 7px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.app-creditos-fill { height: 100%; background: var(--roxo); border-radius: 4px; transition: width .3s; }
+.app-creditos-txt { font-size: 13px; color: var(--ink2); white-space: nowrap; }
+
+.app-user-wrap { position: relative; }
+.app-user-btn { background: none; border: none; cursor: pointer; padding: 0; }
+.app-avatar {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--roxo); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px;
+}
+.app-user-menu {
+  position: absolute; top: 46px; right: 0; background: #fff; border: 1px solid var(--line);
+  border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,.12); padding: 8px; min-width: 200px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.app-user-nome { padding: 8px 12px; font-size: 13px; color: var(--ink3); border-bottom: 1px solid var(--line); margin-bottom: 4px; word-break: break-all; }
+.app-user-link {
+  padding: 9px 12px; border-radius: 8px; text-decoration: none; color: var(--ink1); font-size: 14px;
+  background: none; border: none; text-align: left; cursor: pointer; width: 100%;
+}
+.app-user-link:hover { background: var(--paper); }
+.app-user-sair { color: #b23b32; }
+
+/* CONTEÚDO */
+.app-main {
+  margin-left: var(--side-w); padding-top: var(--header-h); min-height: 100vh;
+  transition: margin-left .18s ease;
+}
+.app-shell.recolhido .app-main { margin-left: var(--side-w-min); }
+
+@media (max-width: 720px) {
+  .app-side { width: var(--side-w-min); }
+  .app-header { left: var(--side-w-min); }
+  .app-main { margin-left: var(--side-w-min); }
+  .app-logo { font-size: 20px; }
+  .app-nav-item { justify-content: center; padding: 10px; }
+  .app-nav-lbl { display: none; }
+}
