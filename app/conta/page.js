@@ -71,6 +71,12 @@ function ContaConteudo() {
       {aviso && <div className="conta-aviso">{aviso}</div>}
       {erro && <div className="login-erro" style={{ marginBottom: 18 }}>{erro}</div>}
 
+      {conta.is_admin && (
+        <Link href="/admin" className="btn btn--ink" style={{ width: 'auto', display: 'inline-block', padding: '9px 20px', marginBottom: 18 }}>
+          Painel de administração
+        </Link>
+      )}
+
       <h1 className="conta-ola">Olá, {conta.nome || conta.email}</h1>
 
       {/* Plano + créditos */}
