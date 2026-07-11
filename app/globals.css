@@ -925,3 +925,8 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .recarga-op-preco { font-size: 13px; color: var(--ink3); }
 
 .admin-filtro-limpar { background: none; border: none; color: var(--roxo); font-size: 13px; cursor: pointer; padding: 8px 6px; font-family: inherit; text-decoration: underline; }
+
+/* Campos obrigatórios no cadastro */
+.obrig { color: #d32f2f; font-weight: 600; }
+.campo-erro { border-color: #d32f2f !important; background: #fdecea !important; }
+.campo-erro:focus { border-color: #d32f2f !important; }

@@ -19,16 +19,28 @@ export default function Cadastro() {
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
 
+  const [faltando, setFaltando] = useState({});
+
   async function criarConta() {
     setErro('');
-    if (!nome.trim()) { setErro('Preencha seu nome.'); return; }
-    if (!email || !senha) { setErro('Preencha email e senha.'); return; }
-    if (!profissao) { setErro('Selecione sua profissão.'); return; }
-    if (!origem) { setErro('Conte como você conheceu o Cora Render.'); return; }
-    if (!usaRender) { setErro('Selecione se já usa algum renderizador.'); return; }
-    if (!tamanho) { setErro('Selecione o tamanho da sua equipe.'); return; }
-    if (!volume) { setErro('Selecione quantos projetos você faz por ano.'); return; }
-    if (senha.length < 6) { setErro('A senha deve ter ao menos 6 caracteres.'); return; }
+    const falta = {};
+    if (!nome.trim()) falta.nome = true;
+    if (!email) falta.email = true;
+    if (!profissao) falta.profissao = true;
+    if (!origem) falta.origem = true;
+    if (!usaRender) falta.usaRender = true;
+    if (!tamanho) falta.tamanho = true;
+    if (!volume) falta.volume = true;
+    if (!senha || senha.length < 6) falta.senha = true;
+
+    if (Object.keys(falta).length) {
+      setFaltando(falta);
+      setErro(!senha || senha.length < 6
+        ? 'Preencha todos os campos. A senha precisa de ao menos 6 caracteres.'
+        : 'Preencha todos os campos obrigatórios.');
+      return;
+    }
+    setFaltando({});
     setCarregando(true);
     try {
       await registrar({ email, senha, nome, profissao, origem, usa_render: usaRender, tamanho, volume });
@@ -40,6 +52,8 @@ export default function Cadastro() {
     }
   }
 
+  const cls = (campo) => 'login-input' + (faltando[campo] ? ' campo-erro' : '');
+
   return (
     <div className="login-wrap">
       <div className="login-card">
@@ -47,20 +61,20 @@ export default function Cadastro() {
         <h1 className="login-titulo">Criar conta</h1>
         <p className="login-sub">7 dias grátis para conhecer o Cora Render.</p>
 
-        <label className="login-label">Nome</label>
+        <label className="login-label">Nome <span className="obrig">*</span></label>
         <input
-          className="login-input" type="text" placeholder="Seu nome"
+          className={cls('nome')} type="text" placeholder="Seu nome"
           value={nome} onChange={(e) => setNome(e.target.value)}
         />
 
-        <label className="login-label">E-mail</label>
+        <label className="login-label">E-mail <span className="obrig">*</span></label>
         <input
-          className="login-input" type="email" placeholder="voce@email.com"
+          className={cls('email')} type="email" placeholder="voce@email.com"
           value={email} onChange={(e) => setEmail(e.target.value)}
         />
 
-        <label className="login-label">Profissão</label>
-        <select className="login-input" value={profissao} onChange={(e) => setProfissao(e.target.value)}>
+        <label className="login-label">Profissão <span className="obrig">*</span></label>
+        <select className={cls('profissao')} value={profissao} onChange={(e) => setProfissao(e.target.value)}>
           <option value="">Selecione...</option>
           <option value="arquiteto">Arquiteto(a)</option>
           <option value="designer_interiores">Designer de interiores</option>
@@ -71,8 +85,8 @@ export default function Cadastro() {
           <option value="outro">Outro</option>
         </select>
 
-        <label className="login-label">Como conheceu o Cora Render?</label>
-        <select className="login-input" value={origem} onChange={(e) => setOrigem(e.target.value)}>
+        <label className="login-label">Como conheceu o Cora Render? <span className="obrig">*</span></label>
+        <select className={cls('origem')} value={origem} onChange={(e) => setOrigem(e.target.value)}>
           <option value="">Selecione...</option>
           <option value="instagram">Instagram</option>
           <option value="youtube">YouTube</option>
@@ -83,8 +97,8 @@ export default function Cadastro() {
           <option value="outro">Outro</option>
         </select>
 
-        <label className="login-label">Já usa algum renderizador?</label>
-        <select className="login-input" value={usaRender} onChange={(e) => setUsaRender(e.target.value)}>
+        <label className="login-label">Já usa algum renderizador? <span className="obrig">*</span></label>
+        <select className={cls('usaRender')} value={usaRender} onChange={(e) => setUsaRender(e.target.value)}>
           <option value="">Selecione...</option>
           <option value="nao">Não uso nenhum</option>
           <option value="vray">V-Ray</option>
@@ -95,8 +109,8 @@ export default function Cadastro() {
           <option value="outro">Outro</option>
         </select>
 
-        <label className="login-label">Tamanho da equipe</label>
-        <select className="login-input" value={tamanho} onChange={(e) => setTamanho(e.target.value)}>
+        <label className="login-label">Tamanho da equipe <span className="obrig">*</span></label>
+        <select className={cls('tamanho')} value={tamanho} onChange={(e) => setTamanho(e.target.value)}>
           <option value="">Selecione...</option>
           <option value="autonomo">Só eu (autônomo)</option>
           <option value="2a5">2 a 5 pessoas</option>
@@ -104,18 +118,18 @@ export default function Cadastro() {
           <option value="20mais">Mais de 20 pessoas</option>
         </select>
 
-        <label className="login-label">Projetos por ano</label>
-        <select className="login-input" value={volume} onChange={(e) => setVolume(e.target.value)}>
+        <label className="login-label">Projetos por ano <span className="obrig">*</span></label>
+        <select className={cls('volume')} value={volume} onChange={(e) => setVolume(e.target.value)}>
           <option value="">Selecione...</option>
           <option value="menos10">Menos de 10</option>
           <option value="10a20">Entre 10 e 20</option>
           <option value="mais20">Mais de 20</option>
         </select>
 
-        <label className="login-label">Senha</label>
+        <label className="login-label">Senha <span className="obrig">*</span></label>
         <div className="senha-campo">
           <input
-            className="login-input" type={verSenha ? 'text' : 'password'} placeholder="mínimo 6 caracteres"
+            className={cls('senha')} type={verSenha ? 'text' : 'password'} placeholder="mínimo 6 caracteres"
             value={senha} onChange={(e) => setSenha(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && criarConta()}
           />

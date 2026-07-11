@@ -116,6 +116,9 @@ export default function Admin() {
         a.id !== meuId && !a.eh_convidado && !a.eh_trial
       );
       if (!pagantes.length) { setErro('Nenhum assinante para exportar.'); return; }
+      console.log('[export] pagantes:', pagantes.map(a => ({
+        email: a.email, valor_centavos: a.valor_centavos, tipo: typeof a.valor_centavos
+      })));
 
       let mapa = dadosFiscais;
       if (!mapa) {
