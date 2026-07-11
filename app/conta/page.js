@@ -36,6 +36,8 @@ function ContaConteudo() {
     if (!c) { router.push('/login'); return; }
     setConta(c);
     setCarregando(false);
+    // busca dados frescos do servidor (reflete mudança de plano, ex: entrou numa equipe)
+    atualizarConta().then((fresca) => { if (fresca) setConta(fresca); }).catch(() => {});
     // verifica se a pessoa participa de uma equipe (como convidada)
     minhaEquipe().then((eq) => { if (eq) setEquipeMembro(eq); });
 
