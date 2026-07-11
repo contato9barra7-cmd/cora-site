@@ -25,9 +25,13 @@ export default function Login() {
     try {
       await entrar({ email, senha });
       // Retoma compra pendente (equipe ou plano/recarga individual), se houver.
-      const temEquipe = typeof window !== 'undefined' && localStorage.getItem('cora_equipe_pendente');
+      // Só considera o pendente de equipe se tiver dados válidos (evita lixo antigo).
+      let equipePend = null;
+      try { equipePend = JSON.parse(localStorage.getItem('cora_equipe_pendente') || 'null'); } catch (x) {}
       const temCheckout = typeof window !== 'undefined' && localStorage.getItem('cora_checkout_pendente');
-      if (temEquipe) { router.push('/teams'); return; }
+      if (equipePend && equipePend.plano && equipePend.assentos) { router.push('/teams'); return; }
+      // pendente de equipe inválido/vazio → limpa
+      if (typeof window !== 'undefined') localStorage.removeItem('cora_equipe_pendente');
       if (temCheckout) {
         const foi = await retomarCheckoutPendente();
         if (foi) return;
