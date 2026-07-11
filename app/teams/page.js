@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Nav from '../../components/Nav';
 import { calcularTeams, descontoAssentos } from '../../lib/planos';
-import { iniciarCheckoutEquipe, salvarCPF } from '../../lib/auth';
+import { iniciarCheckoutEquipe, salvarCPF, lerEquipePendente, limparEquipePendente } from '../../lib/auth';
 
 function brl(n) { return 'R$ ' + n.toLocaleString('pt-BR'); }
 
@@ -17,6 +17,21 @@ export default function Teams() {
   const [cpf, setCpf] = useState('');
   const [cpfErro, setCpfErro] = useState('');
   const [salvandoCpf, setSalvandoCpf] = useState(false);
+
+  // Se a pessoa voltou de login/cadastro com uma escolha pendente, restaura e retoma.
+  useEffect(() => {
+    const pend = lerEquipePendente();
+    const logada = typeof window !== 'undefined' && localStorage.getItem('cora_token');
+    if (pend && logada) {
+      setPlano(pend.plano === 'studio' ? 'studio' : 'pro');
+      setAssentos(Math.max(2, Math.min(100, pend.assentos || 2)));
+      limparEquipePendente();
+      // retoma o checkout (vai pedir CPF se precisar, ou abrir o pagamento)
+      const guia = window.open('', '_blank');
+      assinar(guia);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const calc = calcularTeams(plano, assentos);
 
@@ -41,7 +56,10 @@ export default function Teams() {
   }
 
   function clicarAssinar() {
-    const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+    // Só abre a guia nova SE já estiver logada (senão vira about:blank).
+    // Sem login, iniciarCheckoutEquipe guarda a escolha e manda pro cadastro.
+    const logada = typeof window !== 'undefined' && localStorage.getItem('cora_token');
+    const guia = logada ? window.open('', '_blank') : null;
     assinar(guia);
   }
 

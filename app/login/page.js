@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { entrar, lerConta } from '../../lib/auth';
+import { entrar, lerConta, retomarCheckoutPendente } from '../../lib/auth';
 
 export default function Login() {
   const router = useRouter();
@@ -24,6 +24,14 @@ export default function Login() {
     setCarregando(true);
     try {
       await entrar({ email, senha });
+      // Retoma compra pendente (equipe ou plano/recarga individual), se houver.
+      const temEquipe = typeof window !== 'undefined' && localStorage.getItem('cora_equipe_pendente');
+      const temCheckout = typeof window !== 'undefined' && localStorage.getItem('cora_checkout_pendente');
+      if (temEquipe) { router.push('/teams'); return; }
+      if (temCheckout) {
+        const foi = await retomarCheckoutPendente();
+        if (foi) return;
+      }
       router.push('/conta');
     } catch (e) {
       if (e.precisaVerificar) {

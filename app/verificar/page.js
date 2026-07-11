@@ -25,7 +25,9 @@ function VerificarConteudo() {
     setCarregando(true);
     try {
       await verificar({ email, codigo });
-      // Se a pessoa tinha escolhido um plano antes de criar conta, vai direto ao pagamento.
+      // Se a pessoa tinha escolhido algo antes de criar conta, retoma.
+      const temEquipe = typeof window !== 'undefined' && localStorage.getItem('cora_equipe_pendente');
+      if (temEquipe) { router.push('/teams'); return; }
       const foiPraCheckout = await retomarCheckoutPendente();
       if (!foiPraCheckout) router.push('/conta');
     } catch (e) {

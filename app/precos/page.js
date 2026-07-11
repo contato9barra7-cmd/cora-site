@@ -124,7 +124,9 @@ export default function Precos() {
   async function comprarRecarga(recargaId) {
     const priceId = STRIPE_PRICES.recargas[recargaId];
     if (!priceId) return;
-    const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+    // Só abre a guia se já estiver logada (senão vira about:blank; sem login vai pro cadastro).
+    const logada = typeof window !== 'undefined' && localStorage.getItem('cora_token');
+    const guia = logada ? window.open('', '_blank') : null;
     await comprar(priceId, guia);
   }
 
@@ -148,7 +150,9 @@ export default function Precos() {
     const grupo = STRIPE_PRICES[planoId];
     if (!grupo) return;
     const priceId = anual ? grupo.anual : grupo.mensal;
-    const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+    // Só abre a guia se já estiver logada (senão vira about:blank; sem login vai pro cadastro).
+    const logada = typeof window !== 'undefined' && localStorage.getItem('cora_token');
+    const guia = logada ? window.open('', '_blank') : null;
     await comprar(priceId, guia);
   }
 
