@@ -75,10 +75,22 @@ export default function Admin() {
     setFiltroProfissao(''); setFiltroOrigem(''); setFiltroRender('');
   }
 
+  // Campos como telefone, CPF e CEP são numéricos mas devem virar TEXTO no Excel,
+  // senão ele converte para notação científica (ex: 5,552E+12).
+  const COLUNAS_TEXTO = ['telefone', 'cpf', 'cep'];
+
   function baixarCSV(nomeArq, cabecalho, linhas) {
-    const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const corpo = linhas.map(l => l.map(esc).join(';'));
-    const csv = '\uFEFF' + [cabecalho.join(';'), ...corpo].join('\r\n');
+    const idxTexto = cabecalho
+      .map((c, i) => COLUNAS_TEXTO.includes(String(c).toLowerCase().trim()) ? i : -1)
+      .filter(i => i >= 0);
+    const esc = (v, i) => {
+      const s = String(v ?? '').replace(/"/g, '""');
+      // ="valor" faz o Excel tratar como texto puro
+      if (idxTexto.includes(i) && s) return `="${s}"`;
+      return `"${s}"`;
+    };
+    const corpo = linhas.map(l => l.map((v, i) => esc(v, i)).join(';'));
+    const csv = '\uFEFF' + [cabecalho.map(c => `"${c}"`).join(';'), ...corpo].join('\r\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
