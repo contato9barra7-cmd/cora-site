@@ -46,6 +46,7 @@ function WorkspaceConteudo() {
   const [dispositivos, setDispositivos] = useState({});
   const [nomeEquipe, setNomeEquipe] = useState('');
   const [salvandoNome, setSalvandoNome] = useState(false);
+  const [avisoNome, setAvisoNome] = useState('');
   const criada = params.get('criada') === '1';
 
   async function carregar() {
@@ -66,9 +67,12 @@ function WorkspaceConteudo() {
   useEffect(() => { carregar(); /* eslint-disable-next-line */ }, []);
 
   async function salvarNome() {
-    setSalvandoNome(true);
-    try { await nomearEquipe(nomeEquipe); setAviso('Nome da equipe salvo.'); }
-    catch (e) { setErro(e.message); }
+    setSalvandoNome(true); setErro(''); setAvisoNome('');
+    try {
+      await nomearEquipe(nomeEquipe);
+      setAvisoNome('Alterações salvas.');
+      setTimeout(() => setAvisoNome(''), 4000);
+    } catch (e) { setErro(e.message); }
     finally { setSalvandoNome(false); }
   }
 
@@ -163,6 +167,7 @@ function WorkspaceConteudo() {
             {salvandoNome ? 'Salvando...' : 'Salvar'}
           </button>
         </div>
+        {avisoNome && <div className="conta-aviso" style={{ marginTop: 12 }}>{avisoNome}</div>}
       </div>
 
       {/* Convidar */}
