@@ -306,10 +306,10 @@ export default function Admin() {
             </button>
             {menuExport && (
               <div className="admin-export-menu" onMouseLeave={() => setMenuExport(false)}>
-                <div className="admin-export-grupo">Fiscal (contador)</div>
-                <button className="admin-export-item" onClick={exportarFiscais}>Infos fiscais — assinantes</button>
-                <button className="admin-export-item" onClick={exportarRecargas}>Infos fiscais — recargas</button>
-                <div className="admin-export-grupo">Tráfego (marketing)</div>
+                <div className="admin-export-grupo">Fiscal</div>
+                <button className="admin-export-item" onClick={exportarFiscais}>Assinantes</button>
+                <button className="admin-export-item" onClick={exportarRecargas}>Recargas</button>
+                <div className="admin-export-grupo">Tráfego</div>
                 <button className="admin-export-item" onClick={() => exportarTrafego('assinantes')}>Assinantes</button>
                 <button className="admin-export-item" onClick={() => exportarTrafego('trial')}>Trial</button>
                 <button className="admin-export-item" onClick={() => exportarTrafego('membros')}>Membros de equipe</button>
@@ -323,7 +323,7 @@ export default function Admin() {
 
       <div className="admin-abas">
         <button className={'admin-aba' + (aba === 'pagantes' ? ' ativa' : '')} onClick={() => setAba('pagantes')}>
-          Assinantes
+          Assinantes ({pagos})
         </button>
         <button className={'admin-aba' + (aba === 'trial' ? ' ativa' : '')} onClick={() => setAba('trial')}>
           Trial ({totalTrial})
@@ -332,7 +332,7 @@ export default function Admin() {
           Membros de equipe ({totalConvidados})
         </button>
         <button className={'admin-aba' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
-          Compras avulsas ({compras.length})
+          Recargas ({compras.length})
         </button>
       </div>
       {aba === 'convidados' && (
