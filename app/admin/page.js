@@ -51,7 +51,7 @@ export default function Admin() {
     try {
       const linhas = await adminDadosFiscais();
       const mapa = {};
-      linhas.forEach(l => { mapa[l.email] = { telefone: l.telefone, endereco: l.endereco }; });
+      linhas.forEach(l => { mapa[l.email] = { telefone: l.telefone, cep: l.cep, endereco: l.endereco }; });
       setDadosFiscais(mapa);
     } catch (e) {
       setErro(e.message);
@@ -66,6 +66,14 @@ export default function Admin() {
   useEffect(() => {
     adminCompras().then(setCompras).catch(() => {});
   }, []);
+
+  function limparFiltros() {
+    setFiltroData('todos');
+    setAnoFiltro(String(new Date().getFullYear()));
+    setDataDe(''); setDataAte('');
+    setFiltroStatus('');
+    setFiltroProfissao(''); setFiltroOrigem(''); setFiltroRender('');
+  }
 
   function baixarCSV(nomeArq, cabecalho, linhas) {
     const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
@@ -401,6 +409,9 @@ export default function Admin() {
             <option value="cancelado">Cancelados</option>
           </select>
         )}
+        {(filtroData !== 'todos' || filtroProfissao || filtroOrigem || filtroRender || filtroStatus) && (
+          <button className="admin-filtro-limpar" onClick={limparFiltros}>Limpar tudo</button>
+        )}
       </div>
 
       <input
@@ -419,6 +430,9 @@ export default function Admin() {
                 <th>Data</th>
                 <th>Comprador</th>
                 <th>CPF</th>
+                {dadosFiscais && <th>Telefone</th>}
+                {dadosFiscais && <th>CEP</th>}
+                {dadosFiscais && <th>Endereço</th>}
                 <th>Compra</th>
                 <th>Créditos</th>
                 <th>Destino</th>
@@ -438,6 +452,9 @@ export default function Admin() {
                     <div className="admin-email">{c.email}</div>
                   </td>
                   <td>{fmtCpf(c.cpf)}</td>
+                  {dadosFiscais && <td>{dadosFiscais[c.email]?.telefone || '—'}</td>}
+                  {dadosFiscais && <td>{dadosFiscais[c.email]?.cep || '—'}</td>}
+                  {dadosFiscais && <td style={{ fontSize: 13, maxWidth: 220 }}>{dadosFiscais[c.email]?.endereco || '—'}</td>}
                   <td>{c.descricao}</td>
                   <td>{(c.creditos || 0).toLocaleString('pt-BR')}</td>
                   <td style={{ fontSize: 13 }}>{c.destino_email && c.destino_email !== c.email ? c.destino_email : '—'}</td>
@@ -456,6 +473,7 @@ export default function Admin() {
               <th>Nome / Email</th>
               <th>CPF</th>
               {dadosFiscais && <th>Telefone</th>}
+              {dadosFiscais && <th>CEP</th>}
               {dadosFiscais && <th>Endereço</th>}
               <th>Plano</th>
               {aba === 'convidados' && <th>Equipe</th>}
@@ -483,6 +501,7 @@ export default function Admin() {
                 </td>
                 <td>{fmtCpf(a.cpf)}</td>
                 {dadosFiscais && <td>{dadosFiscais[a.email]?.telefone || '—'}</td>}
+                {dadosFiscais && <td>{dadosFiscais[a.email]?.cep || '—'}</td>}
                 {dadosFiscais && <td style={{ fontSize: 13, maxWidth: 220 }}>{dadosFiscais[a.email]?.endereco || '—'}</td>}
                 <td>
                   {a.eh_dono_equipe ? (
