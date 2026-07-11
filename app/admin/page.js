@@ -16,6 +16,11 @@ function fmtCpf(c) {
   if (!c || c.length !== 11) return c || '—';
   return c.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
+function fmtValor(centavos, moeda) {
+  if (!centavos) return '—';
+  const v = (centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  return (moeda === 'brl' || !moeda ? 'R$ ' : (moeda.toUpperCase() + ' ')) + v;
+}
 
 export default function Admin() {
   const router = useRouter();
@@ -232,9 +237,13 @@ export default function Admin() {
               {dadosFiscais && <th>Telefone</th>}
               {dadosFiscais && <th>Endereço</th>}
               <th>Plano</th>
+              {aba === 'convidados' && <th>Equipe</th>}
+              {aba === 'pagantes' && <th>Valor</th>}
+              {aba === 'pagantes' && <th>Assinou</th>}
+              {aba === 'pagantes' && <th>Renova</th>}
+              {aba === 'pagantes' && <th>Renov.</th>}
               <th>Status</th>
               <th>Créditos</th>
-              <th>Validade</th>
               <th>Ações</th>
             </tr>
           </thead>
@@ -249,18 +258,33 @@ export default function Admin() {
                 {dadosFiscais && <td>{dadosFiscais[a.email]?.telefone || '—'}</td>}
                 {dadosFiscais && <td style={{ fontSize: 13, maxWidth: 220 }}>{dadosFiscais[a.email]?.endereco || '—'}</td>}
                 <td>
-                  <select
-                    value={a.plano}
-                    disabled={ocupado === a.id}
-                    onChange={(e) => mudarPlano(a.id, e.target.value, a.email, a.plano)}
-                    className="admin-select"
-                  >
-                    {PLANOS.map(p => <option key={p} value={p}>{p}</option>)}
-                  </select>
+                  {a.eh_dono_equipe ? (
+                    <span className="admin-badge" style={{ background: '#eef0ff', color: '#4b46b3' }}>
+                      Teams · {a.assentos || '?'} assentos
+                    </span>
+                  ) : (
+                    <select
+                      value={a.plano}
+                      disabled={ocupado === a.id}
+                      onChange={(e) => mudarPlano(a.id, e.target.value, a.email, a.plano)}
+                      className="admin-select"
+                    >
+                      {PLANOS.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  )}
                 </td>
-                <td><span className={'admin-badge ' + (a.status === 'ativo' ? 'ok' : 'off')}>{a.status}</span></td>
-                <td>{a.plano === 'free' ? '—' : `${a.creditos_restantes}/${a.creditos_total}`}</td>
-                <td>{fmtData(a.expira_em)}</td>
+                {aba === 'convidados' && (
+                  <td style={{ fontSize: 13 }}>
+                    <div>{a.equipe_participa_nome || '—'}</div>
+                    <div className="admin-email">{a.equipe_dono_email || ''}</div>
+                  </td>
+                )}
+                {aba === 'pagantes' && <td>{a.valor_centavos ? fmtValor(a.valor_centavos, a.moeda) : '—'}</td>}
+                {aba === 'pagantes' && <td>{fmtData(a.assinou_em)}</td>}
+                {aba === 'pagantes' && <td>{fmtData(a.renova_em)}</td>}
+                {aba === 'pagantes' && <td style={{ textAlign: 'center' }}>{a.renovacoes || 0}</td>}
+                <td><span className={'admin-badge ' + (a.assinatura_status === 'cancelado' ? 'off' : (a.status === 'ativo' ? 'ok' : 'off'))}>{a.assinatura_status === 'cancelado' ? 'cancelado' : a.status}</span></td>
+                <td>{a.plano === 'free' && !a.eh_dono_equipe ? '—' : `${a.creditos_restantes}/${a.creditos_total}`}</td>
                 <td>
                   <div className="admin-acoes">
                     {a.plano !== 'free' && (
