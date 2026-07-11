@@ -110,15 +110,33 @@ export default function Admin() {
   async function exportarFiscais() {
     setMenuExport(false); setExportando(true); setErro('');
     try {
-      const linhas = await adminDadosFiscais();
-      if (!linhas.length) { setErro('Nenhum assinante para exportar.'); return; }
+      // Usa os MESMOS dados da tela (que já têm valor/plano/assentos)
+      // e completa com telefone/CEP/endereço vindos do Stripe.
+      const pagantes = assinantes.filter(a =>
+        a.id !== meuId && !a.eh_convidado && !a.eh_trial
+      );
+      if (!pagantes.length) { setErro('Nenhum assinante para exportar.'); return; }
+
+      let mapa = dadosFiscais;
+      if (!mapa) {
+        const linhas = await adminDadosFiscais();
+        mapa = {};
+        linhas.forEach(l => { mapa[l.email] = { telefone: l.telefone, cep: l.cep, endereco: l.endereco }; });
+      }
+
       baixarCSV('assinantes-fiscais',
-        ['Nome', 'Email', 'CPF', 'Telefone', 'CEP', 'Endereço', 'Plano', 'Assentos', 'Assinou em', 'Valor (R$)'],
-        linhas.map(l => [
-          l.nome, l.email, l.cpf, l.telefone, l.cep, l.endereco,
-          l.plano, l.assentos || 1,
-          l.assinou_em ? new Date(l.assinou_em).toLocaleDateString('pt-BR') : '',
-          ((l.valor_centavos || 0) / 100).toFixed(2),
+        ['Nome', 'Email', 'CPF', 'Telefone', 'CEP', 'Endereço', 'Plano', 'Assentos', 'Assinou em', 'Renova em', 'Renovações', 'Valor (R$)'],
+        pagantes.map(a => [
+          a.nome, a.email, a.cpf,
+          mapa[a.email]?.telefone || '',
+          mapa[a.email]?.cep || '',
+          mapa[a.email]?.endereco || '',
+          a.eh_dono_equipe ? `Teams (${a.plano_exibicao === 'teams' ? 'equipe' : a.plano})` : a.plano,
+          a.assentos || 1,
+          a.assinou_em ? new Date(a.assinou_em).toLocaleDateString('pt-BR') : '',
+          a.renova_em ? new Date(a.renova_em).toLocaleDateString('pt-BR') : '',
+          a.renovacoes || 0,
+          ((a.valor_centavos || 0) / 100).toFixed(2),
         ]));
     } catch (e) { setErro(e.message); } finally { setExportando(false); }
   }

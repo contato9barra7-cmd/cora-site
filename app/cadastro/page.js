@@ -21,7 +21,13 @@ export default function Cadastro() {
 
   async function criarConta() {
     setErro('');
+    if (!nome.trim()) { setErro('Preencha seu nome.'); return; }
     if (!email || !senha) { setErro('Preencha email e senha.'); return; }
+    if (!profissao) { setErro('Selecione sua profissão.'); return; }
+    if (!origem) { setErro('Conte como você conheceu o Cora Render.'); return; }
+    if (!usaRender) { setErro('Selecione se já usa algum renderizador.'); return; }
+    if (!tamanho) { setErro('Selecione o tamanho da sua equipe.'); return; }
+    if (!volume) { setErro('Selecione quantos projetos você faz por ano.'); return; }
     if (senha.length < 6) { setErro('A senha deve ter ao menos 6 caracteres.'); return; }
     setCarregando(true);
     try {
