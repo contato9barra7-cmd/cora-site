@@ -102,17 +102,31 @@ export default function Admin() {
     } catch (e) { setErro(e.message); } finally { setExportando(false); }
   }
 
-  function exportarRecargas() {
+  async function exportarRecargas() {
     setMenuExport(false);
     if (!compras.length) { setErro('Nenhuma recarga para exportar.'); return; }
-    baixarCSV('recargas-fiscais',
-      ['Data', 'Comprador', 'Email', 'CPF', 'Compra', 'Créditos', 'Destino', 'Valor (R$)'],
-      compras.map(c => [
-        c.criado_em ? new Date(c.criado_em).toLocaleDateString('pt-BR') : '',
-        c.nome, c.email, c.cpf, c.descricao, c.creditos,
-        (c.destino_email && c.destino_email !== c.email) ? c.destino_email : '',
-        ((c.valor_centavos || 0) / 100).toFixed(2),
-      ]));
+    setExportando(true); setErro('');
+    try {
+      // busca telefone/CEP/endereço no Stripe para completar os dados fiscais
+      let mapa = dadosFiscais;
+      if (!mapa) {
+        const linhas = await adminDadosFiscais();
+        mapa = {};
+        linhas.forEach(l => { mapa[l.email] = { telefone: l.telefone, cep: l.cep, endereco: l.endereco }; });
+      }
+      baixarCSV('recargas-fiscais',
+        ['Data', 'Comprador', 'Email', 'CPF', 'Telefone', 'CEP', 'Endereço', 'Compra', 'Créditos', 'Destino', 'Valor (R$)'],
+        compras.map(c => [
+          c.criado_em ? new Date(c.criado_em).toLocaleDateString('pt-BR') : '',
+          c.nome, c.email, c.cpf,
+          mapa[c.email]?.telefone || '',
+          mapa[c.email]?.cep || '',
+          mapa[c.email]?.endereco || '',
+          c.descricao, c.creditos,
+          (c.destino_email && c.destino_email !== c.email) ? c.destino_email : '',
+          ((c.valor_centavos || 0) / 100).toFixed(2),
+        ]));
+    } catch (e) { setErro(e.message); } finally { setExportando(false); }
   }
 
   function exportarTrafego(tipo) {
