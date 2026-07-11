@@ -12,6 +12,7 @@ export default function Teams() {
   const router = useRouter();
   const [plano, setPlano] = useState('pro');
   const [assentos, setAssentos] = useState(2);
+  const [ciclo, setCiclo] = useState('mensal'); // mensal | anual
   const [erro, setErro] = useState('');
   const [modalCpf, setModalCpf] = useState(false);
   const [cpf, setCpf] = useState('');
@@ -25,6 +26,7 @@ export default function Teams() {
     if (pend && logada) {
       setPlano(pend.plano === 'studio' ? 'studio' : 'pro');
       setAssentos(Math.max(2, Math.min(100, pend.assentos || 2)));
+      if (pend.ciclo) setCiclo(pend.ciclo === 'anual' ? 'anual' : 'mensal');
       limparEquipePendente();
       // retoma o checkout (vai pedir CPF se precisar, ou abrir o pagamento)
       const guia = null;
@@ -33,7 +35,7 @@ export default function Teams() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const calc = calcularTeams(plano, assentos);
+  const calc = calcularTeams(plano, assentos, ciclo);
 
   function mudarAssentos(delta) {
     setAssentos((a) => Math.max(2, Math.min(100, a + delta)));
@@ -47,7 +49,7 @@ export default function Teams() {
   async function assinar(guia) {
     setErro('');
     try {
-      await iniciarCheckoutEquipe(plano, assentos, guia);
+      await iniciarCheckoutEquipe(plano, assentos, guia, ciclo);
     } catch (e) {
       if (e.precisaCpf) { setModalCpf(true); return; }
       if (e.jaTemEquipe) { setErro('Você já tem uma equipe ativa. Veja na página da sua equipe.'); return; }
@@ -91,6 +93,13 @@ export default function Teams() {
             Você gerencia todos por aqui, com faturamento único.
           </p>
 
+          <div className="tm-toggle">
+            <button className={'tm-toggle-op' + (ciclo === 'mensal' ? ' ativo' : '')} onClick={() => setCiclo('mensal')}>Mensal</button>
+            <button className={'tm-toggle-op' + (ciclo === 'anual' ? ' ativo' : '')} onClick={() => setCiclo('anual')}>
+              Anual <span className="tm-toggle-tag">2 meses grátis</span>
+            </button>
+          </div>
+
           <div className="tm-planos">
             <button
               className={'tm-plano' + (plano === 'pro' ? ' ativo' : '')}
@@ -98,7 +107,7 @@ export default function Teams() {
             >
               <div className="tm-plano-nome">Pro</div>
               <div className="tm-plano-desc">20.000 créditos por assento / mês</div>
-              <div className="tm-plano-preco">{brl(297)}<span>/assento</span></div>
+              <div className="tm-plano-preco">{brl(ciclo === 'anual' ? 2970 : 297)}<span>/assento{ciclo === 'anual' ? '/ano' : ''}</span></div>
             </button>
             <button
               className={'tm-plano' + (plano === 'studio' ? ' ativo' : '')}
@@ -106,7 +115,7 @@ export default function Teams() {
             >
               <div className="tm-plano-nome">Studio</div>
               <div className="tm-plano-desc">60.000 créditos por assento / mês</div>
-              <div className="tm-plano-preco">{brl(697)}<span>/assento</span></div>
+              <div className="tm-plano-preco">{brl(ciclo === 'anual' ? 6970 : 697)}<span>/assento{ciclo === 'anual' ? '/ano' : ''}</span></div>
             </button>
           </div>
 
@@ -130,18 +139,18 @@ export default function Teams() {
               </div>
               <div className="tm-resumo-linha">
                 <span>{assentos} assentos</span>
-                <span>{brl(calc.total)}<small>/mês</small></span>
+                <span>{brl(calc.total)}<small>/{ciclo === 'anual' ? 'ano' : 'mês'}</small></span>
               </div>
               {calc.economia > 0 && (
                 <div className="tm-resumo-linha tm-economia">
                   <span>Você economiza</span>
-                  <span>{brl(calc.economia)}/mês</span>
+                  <span>{brl(calc.economia)}/{ciclo === 'anual' ? 'ano' : 'mês'}</span>
                 </div>
               )}
             </div>
 
             <button className="btn btn--verde" style={{ width: '100%', marginTop: 20, padding: '13px' }} onClick={clicarAssinar}>
-              Assinar equipe — {brl(calc.total)}/mês
+              Assinar equipe — {brl(calc.total)}/{ciclo === 'anual' ? 'ano' : 'mês'}
             </button>
             {erro && <p className="tm-erro">{erro}</p>}
             <p className="tm-obs">
