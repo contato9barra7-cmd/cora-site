@@ -54,7 +54,9 @@ function ContaConteudo() {
 
   const ehAdmin = conta.is_admin === true;
   const ehPago = conta.plano && conta.plano !== 'free';
-  const nomePlano = ehAdmin ? 'Admin' : (NOME_PLANO[conta.plano] || conta.plano);
+  const nomePlano = ehAdmin ? 'Admin'
+    : equipeMembro ? `${NOME_PLANO[conta.plano] || conta.plano} (equipe)`
+    : (NOME_PLANO[conta.plano] || conta.plano);
   const creditos = (conta.creditos_total === -1 || ehAdmin) ? 'Ilimitado'
     : (conta.creditos_restantes ?? 0).toLocaleString('pt-BR');
   const totalCreditos = (conta.creditos_total === -1 || ehAdmin) ? null
