@@ -135,7 +135,7 @@ function WorkspaceConteudo() {
   }
 
   const livres = equipe.assentos - membros.length;
-  const donoNaEquipe = membros.some((m) => m.conta_id === equipe.dono_id);
+  const donoNaEquipe = membros.some((m) => m.eh_dono);
   const slotsVazios = Array.from({ length: Math.max(0, livres) });
 
   return (
@@ -150,7 +150,7 @@ function WorkspaceConteudo() {
       )}
 
       <div className="conta-card ws-aviso-download">
-        📥 O download do plugin fica na aba <strong>Dashboard</strong>.
+        O download do plugin fica na aba <strong>Dashboard</strong>.
       </div>
 
       {/* Nome da equipe */}
@@ -158,7 +158,7 @@ function WorkspaceConteudo() {
         <h2 className="conta-h2">Nome da equipe</h2>
         <p className="ws-obs" style={{ marginTop: 0, marginBottom: 12 }}>Esse nome aparece para as pessoas convidadas.</p>
         <div className="ws-linha-input">
-          <input className="ws-input" value={nomeEquipe} onChange={(e) => setNomeEquipe(e.target.value)} placeholder="Ex: Estúdio Fischer" maxLength={60} />
+          <input className="ws-input" value={nomeEquipe} onChange={(e) => setNomeEquipe(e.target.value)} placeholder="Nome da sua equipe" maxLength={60} />
           <button className="btn btn--verde ws-btn" onClick={salvarNome} disabled={salvandoNome}>
             {salvandoNome ? 'Salvando...' : 'Salvar'}
           </button>
@@ -195,9 +195,9 @@ function WorkspaceConteudo() {
             <div className="ws-slot-linha">
               <div className="disp-nome">
                 {m.email}
-                {m.conta_id === equipe.dono_id && <span className="ws-tag ws-tag-dono">Você (dono)</span>}
+                {m.eh_dono && <span className="ws-tag ws-tag-dono">Você (dono)</span>}
                 {m.status === 'convidado' && <span className="ws-tag ws-tag-pend">Convite pendente</span>}
-                {m.status === 'ativo' && m.conta_id !== equipe.dono_id && <span className="ws-tag ws-tag-ativo">Ativo</span>}
+                {m.status === 'ativo' && !m.eh_dono && <span className="ws-tag ws-tag-ativo">Ativo</span>}
               </div>
               <button className="ws-gerenciar" onClick={() => toggleGerenciar(m)}>
                 {expandido === m.id ? 'Fechar' : 'Gerenciar'}
@@ -222,7 +222,7 @@ function WorkspaceConteudo() {
                   </>
                 )}
 
-                {m.conta_id !== equipe.dono_id && (
+                {!m.eh_dono && (
                   <div className="ws-acoes">
                     {m.status === 'convidado' && (
                       <button className="ws-btn-sec" onClick={() => reenviar(m.id)}>Reenviar acesso</button>

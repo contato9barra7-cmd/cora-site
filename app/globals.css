@@ -847,9 +847,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .ws-badge { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 100px; background: #eef0ff; color: #4b46b3; }
 .ws-convidar { display: flex; gap: 10px; }
 .ws-linha-input { display: flex; gap: 10px; align-items: stretch; }
-.ws-input { flex: 1; height: 46px; padding: 0 18px; border: 1px solid var(--line2); border-radius: 100px; font-size: 15px; background: var(--paper); color: var(--ink); }
-.ws-btn { height: 46px; padding: 0 28px; border-radius: 100px; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
-.ws-btn-convidar { white-space: nowrap; padding: 0 26px; }
+.ws-input { flex: 1; height: 44px; padding: 0 18px; border: 1px solid var(--line2); border-radius: 100px; font-size: 15px; background: var(--paper); color: var(--ink); box-sizing: border-box; }
+.ws-btn { height: 44px; width: auto; margin-top: 0; padding: 0 20px; border-radius: 100px; white-space: nowrap; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; }
+.ws-btn-convidar { white-space: nowrap; padding: 0 20px; }
 .ws-obs { font-size: 13px; color: var(--ink3); margin-top: 10px; }
 .ws-aviso-txt { color: #1b7a43; font-size: 13px; margin-top: 10px; }
 .ws-aviso-download { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink2); padding: 14px 18px; }
