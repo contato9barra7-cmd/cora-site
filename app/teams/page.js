@@ -27,7 +27,7 @@ export default function Teams() {
       setAssentos(Math.max(2, Math.min(100, pend.assentos || 2)));
       limparEquipePendente();
       // retoma o checkout (vai pedir CPF se precisar, ou abrir o pagamento)
-      const guia = window.open('', '_blank');
+      const guia = null;
       assinar(guia);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,7 +59,7 @@ export default function Teams() {
     // Só abre a guia nova SE já estiver logada (senão vira about:blank).
     // Sem login, iniciarCheckoutEquipe guarda a escolha e manda pro cadastro.
     const logada = typeof window !== 'undefined' && localStorage.getItem('cora_token');
-    const guia = logada ? window.open('', '_blank') : null;
+    const guia = null;
     assinar(guia);
   }
 
@@ -68,7 +68,7 @@ export default function Teams() {
     setSalvandoCpf(true);
     try {
       await salvarCPF(cpf);
-      const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+      const guia = null;
       setModalCpf(false);
       setCpf('');
       await assinar(guia);

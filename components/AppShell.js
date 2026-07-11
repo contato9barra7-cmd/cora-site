@@ -18,6 +18,12 @@ const Icone = {
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
     </svg>
   ),
+  equipe: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M17 21v-2a4 4 0 0 0-3-3.87"/><path d="M9 21v-2a4 4 0 0 1 3-3.87"/>
+      <circle cx="9" cy="7" r="3"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
   assinatura: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>
@@ -82,6 +88,7 @@ export default function AppShell({ children }) {
   const itens = [
     { href: '/conta', rotulo: 'Dashboard', icone: Icone.dashboard, admin: false },
     { href: '/conta/perfil', rotulo: 'Minha conta', icone: Icone.conta, admin: false },
+    { href: '/workspace', rotulo: 'Equipe', icone: Icone.equipe, admin: false },
     { href: '/assinatura', rotulo: 'Assinatura', icone: Icone.assinatura, admin: false },
     { href: '/admin', rotulo: 'Admin', icone: Icone.admin, admin: true },
   ].filter(i => !i.admin || (conta && conta.is_admin));

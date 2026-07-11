@@ -24,6 +24,9 @@ export default function Login() {
     setCarregando(true);
     try {
       await entrar({ email, senha });
+      // Retoma convite de equipe pendente, se houver.
+      const convite = typeof window !== 'undefined' && localStorage.getItem('cora_convite_token');
+      if (convite) { router.push('/convite?token=' + convite); return; }
       // Retoma compra pendente (equipe ou plano/recarga individual), se houver.
       // Só considera o pendente de equipe se tiver dados válidos (evita lixo antigo).
       let equipePend = null;

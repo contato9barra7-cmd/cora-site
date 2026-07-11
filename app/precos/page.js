@@ -110,7 +110,7 @@ export default function Precos() {
     try {
       await salvarCPF(cpf);
       // abre a guia a partir DESTE clique (evita bloqueio de popup)
-      const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+      const guia = null;
       setModalCpf(false);
       setCpf('');
       if (priceIdPendente) await comprar(priceIdPendente, guia);
@@ -126,7 +126,7 @@ export default function Precos() {
     if (!priceId) return;
     // Só abre a guia se já estiver logada (senão vira about:blank; sem login vai pro cadastro).
     const logada = typeof window !== 'undefined' && localStorage.getItem('cora_token');
-    const guia = logada ? window.open('', '_blank') : null;
+    const guia = null;
     await comprar(priceId, guia);
   }
 
@@ -152,12 +152,12 @@ export default function Precos() {
     const priceId = anual ? grupo.anual : grupo.mensal;
     // Só abre a guia se já estiver logada (senão vira about:blank; sem login vai pro cadastro).
     const logada = typeof window !== 'undefined' && localStorage.getItem('cora_token');
-    const guia = logada ? window.open('', '_blank') : null;
+    const guia = null;
     await comprar(priceId, guia);
   }
 
   async function irParaPortal() {
-    const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+    const guia = null;
     setModalUpgrade(false);
     try {
       await abrirPortal(guia);

@@ -25,6 +25,9 @@ function VerificarConteudo() {
     setCarregando(true);
     try {
       await verificar({ email, codigo });
+      // Convite de equipe pendente?
+      const convite = typeof window !== 'undefined' && localStorage.getItem('cora_convite_token');
+      if (convite) { router.push('/convite?token=' + convite); return; }
       // Se a pessoa tinha escolhido algo antes de criar conta, retoma.
       const temEquipe = typeof window !== 'undefined' && localStorage.getItem('cora_equipe_pendente');
       if (temEquipe) { router.push('/teams'); return; }

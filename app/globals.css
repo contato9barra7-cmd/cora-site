@@ -839,3 +839,14 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 /* Teams — input CPF e erro */
 .tm-input { width: 100%; padding: 12px 14px; border: 1px solid var(--line2); border-radius: 10px; font-size: 15px; background: var(--paper); color: var(--ink); }
 .tm-erro { color: var(--alerta); font-size: 13px; margin-top: 10px; text-align: center; }
+
+/* Workspace (gestão de equipe) */
+.ws-topo { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.ws-plano { font-size: 16px; font-weight: 700; color: var(--ink); }
+.ws-assentos { font-size: 13px; color: var(--ink3); margin-top: 2px; }
+.ws-badge { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 100px; background: #eef0ff; color: #4b46b3; }
+.ws-convidar { display: flex; gap: 10px; }
+.ws-convidar .tm-input { flex: 1; }
+.ws-convidar .btn { white-space: nowrap; padding: 0 22px; }
+.ws-aviso { color: #1b7a43; font-size: 13px; margin-top: 10px; }
+.ws-pendente { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 10px; background: #fff4e0; color: #a5680a; }
