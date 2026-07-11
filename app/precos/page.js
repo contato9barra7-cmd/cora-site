@@ -79,6 +79,16 @@ export default function Precos() {
 
   useEffect(() => {
     setConta(lerConta());
+    // Retoma um checkout pendente após cadastro/login (?retomar=1)
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const priceId = localStorage.getItem('cora_checkout_pendente');
+      if (params.get('retomar') === '1' && priceId) {
+        localStorage.removeItem('cora_checkout_pendente');
+        setTimeout(() => comprar(priceId, null), 300);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function formatarCpf(v) {

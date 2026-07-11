@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { verificar, reenviarCodigo, retomarCheckoutPendente } from '../../lib/auth';
+import { verificar, reenviarCodigo } from '../../lib/auth';
 
 function VerificarConteudo() {
   const router = useRouter();
@@ -31,8 +31,10 @@ function VerificarConteudo() {
       // Se a pessoa tinha escolhido algo antes de criar conta, retoma.
       const temEquipe = typeof window !== 'undefined' && localStorage.getItem('cora_equipe_pendente');
       if (temEquipe) { router.push('/teams'); return; }
-      const foiPraCheckout = await retomarCheckoutPendente();
-      if (!foiPraCheckout) router.push('/conta');
+      // Checkout de plano/recarga pendente → volta pra preços, que tem o modal de CPF.
+      const temCheckout = typeof window !== 'undefined' && localStorage.getItem('cora_checkout_pendente');
+      if (temCheckout) { router.push('/precos?retomar=1'); return; }
+      router.push('/conta');
     } catch (e) {
       setErro(e.message);
     } finally {

@@ -45,10 +45,9 @@ export default function Assinatura() {
     setErro(''); setComprando(true);
     try {
       const priceId = STRIPE_PRICES.recargas[recargaSel];
-      const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
       // se for dono, direciona ao assento escolhido; senão, recarga na própria conta
       const assento = conta.eh_dono_equipe ? assentoSel : null;
-      await iniciarCheckout(priceId, guia, assento);
+      await iniciarCheckout(priceId, null, assento);
     } catch (e) {
       setErro(e.message);
     } finally {

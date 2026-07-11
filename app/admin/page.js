@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais, adminDeletarConta } from '../../lib/auth';
+import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais, adminDeletarConta, adminCompras } from '../../lib/auth';
 
 const PLANOS = ['free', 'starter', 'pro', 'studio'];
 
@@ -61,6 +61,11 @@ export default function Admin() {
   }
 
   const [menuExport, setMenuExport] = useState(false);
+  const [compras, setCompras] = useState([]);
+
+  useEffect(() => {
+    adminCompras().then(setCompras).catch(() => {});
+  }, []);
 
   function baixarCSV(nomeArq, cabecalho, linhas) {
     const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
@@ -87,6 +92,19 @@ export default function Admin() {
         ['Nome', 'Email', 'CPF', 'Plano', 'Telefone', 'CEP', 'Endereço'],
         linhas.map(l => [l.nome, l.email, l.cpf, l.plano, l.telefone, l.cep, l.endereco]));
     } catch (e) { setErro(e.message); } finally { setExportando(false); }
+  }
+
+  function exportarRecargas() {
+    setMenuExport(false);
+    if (!compras.length) { setErro('Nenhuma recarga para exportar.'); return; }
+    baixarCSV('recargas-fiscais',
+      ['Data', 'Comprador', 'Email', 'CPF', 'Compra', 'Créditos', 'Destino', 'Valor (R$)'],
+      compras.map(c => [
+        c.criado_em ? new Date(c.criado_em).toLocaleDateString('pt-BR') : '',
+        c.nome, c.email, c.cpf, c.descricao, c.creditos,
+        (c.destino_email && c.destino_email !== c.email) ? c.destino_email : '',
+        ((c.valor_centavos || 0) / 100).toFixed(2),
+      ]));
   }
 
   function exportarTrafego(tipo) {
@@ -290,6 +308,7 @@ export default function Admin() {
               <div className="admin-export-menu" onMouseLeave={() => setMenuExport(false)}>
                 <div className="admin-export-grupo">Fiscal (contador)</div>
                 <button className="admin-export-item" onClick={exportarFiscais}>Infos fiscais — assinantes</button>
+                <button className="admin-export-item" onClick={exportarRecargas}>Infos fiscais — recargas</button>
                 <div className="admin-export-grupo">Tráfego (marketing)</div>
                 <button className="admin-export-item" onClick={() => exportarTrafego('assinantes')}>Assinantes</button>
                 <button className="admin-export-item" onClick={() => exportarTrafego('trial')}>Trial</button>
@@ -311,6 +330,9 @@ export default function Admin() {
         </button>
         <button className={'admin-aba' + (aba === 'convidados' ? ' ativa' : '')} onClick={() => setAba('convidados')}>
           Membros de equipe ({totalConvidados})
+        </button>
+        <button className={'admin-aba' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
+          Compras avulsas ({compras.length})
         </button>
       </div>
       {aba === 'convidados' && (
@@ -389,6 +411,44 @@ export default function Admin() {
         className="admin-busca"
       />
 
+      {aba === 'compras' ? (
+        <div className="admin-tabela-wrap">
+          <table className="admin-tabela">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Comprador</th>
+                <th>CPF</th>
+                <th>Compra</th>
+                <th>Créditos</th>
+                <th>Destino</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {compras.filter(c => {
+                const q = busca.toLowerCase().trim();
+                if (!q) return true;
+                return (c.nome || '').toLowerCase().includes(q) || (c.email || '').toLowerCase().includes(q);
+              }).map(c => (
+                <tr key={c.id}>
+                  <td>{fmtData(c.criado_em)}</td>
+                  <td>
+                    <div className="admin-nome">{c.nome || '—'}</div>
+                    <div className="admin-email">{c.email}</div>
+                  </td>
+                  <td>{fmtCpf(c.cpf)}</td>
+                  <td>{c.descricao}</td>
+                  <td>{(c.creditos || 0).toLocaleString('pt-BR')}</td>
+                  <td style={{ fontSize: 13 }}>{c.destino_email && c.destino_email !== c.email ? c.destino_email : '—'}</td>
+                  <td>{fmtValor(c.valor_centavos, c.moeda)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {compras.length === 0 && <p className="admin-vazio">Nenhuma compra avulsa ainda.</p>}
+        </div>
+      ) : (
       <div className="admin-tabela-wrap">
         <table className="admin-tabela">
           <thead>
@@ -493,6 +553,7 @@ export default function Admin() {
         </table>
         {filtrados.length === 0 && <p className="admin-vazio">Nenhuma conta encontrada.</p>}
       </div>
+      )}
     </div>
     </AppShell>
   );
