@@ -13,6 +13,8 @@ export default function Cadastro() {
   const [profissao, setProfissao] = useState('');
   const [origem, setOrigem] = useState('');
   const [usaRender, setUsaRender] = useState('');
+  const [tamanho, setTamanho] = useState('');
+  const [volume, setVolume] = useState('');
   const [verSenha, setVerSenha] = useState(false);
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
@@ -23,7 +25,7 @@ export default function Cadastro() {
     if (senha.length < 6) { setErro('A senha deve ter ao menos 6 caracteres.'); return; }
     setCarregando(true);
     try {
-      await registrar({ email, senha, nome, profissao, origem, usa_render: usaRender });
+      await registrar({ email, senha, nome, profissao, origem, usa_render: usaRender, tamanho, volume });
       router.push('/verificar?email=' + encodeURIComponent(email));
     } catch (e) {
       setErro(e.message);
@@ -56,6 +58,7 @@ export default function Cadastro() {
           <option value="">Selecione...</option>
           <option value="arquiteto">Arquiteto(a)</option>
           <option value="designer_interiores">Designer de interiores</option>
+          <option value="archviz">Archviz</option>
           <option value="engenheiro">Engenheiro(a)</option>
           <option value="estudante">Estudante</option>
           <option value="paisagista">Paisagista</option>
@@ -83,6 +86,23 @@ export default function Cadastro() {
           <option value="lumion">Lumion</option>
           <option value="dhistudio">D5 / outro IA</option>
           <option value="outro">Outro</option>
+        </select>
+
+        <label className="login-label">Tamanho da equipe</label>
+        <select className="login-input" value={tamanho} onChange={(e) => setTamanho(e.target.value)}>
+          <option value="">Selecione...</option>
+          <option value="autonomo">Só eu (autônomo)</option>
+          <option value="2a5">2 a 5 pessoas</option>
+          <option value="6a20">6 a 20 pessoas</option>
+          <option value="20mais">Mais de 20 pessoas</option>
+        </select>
+
+        <label className="login-label">Projetos por ano</label>
+        <select className="login-input" value={volume} onChange={(e) => setVolume(e.target.value)}>
+          <option value="">Selecione...</option>
+          <option value="menos10">Menos de 10</option>
+          <option value="10a20">Entre 10 e 20</option>
+          <option value="mais20">Mais de 20</option>
         </select>
 
         <label className="login-label">Senha</label>

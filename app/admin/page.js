@@ -35,6 +35,9 @@ export default function Admin() {
   const [dataAte, setDataAte] = useState('');
   const [filtroVenc, setFiltroVenc] = useState(false); // quase vencendo
   const [filtroCancelado, setFiltroCancelado] = useState(false);
+  const [filtroProfissao, setFiltroProfissao] = useState('');
+  const [filtroOrigem, setFiltroOrigem] = useState('');
+  const [filtroRender, setFiltroRender] = useState('');
   const [erro, setErro] = useState('');
   const [ocupado, setOcupado] = useState(null); // id da conta em ação
   const [exportando, setExportando] = useState(false);
@@ -183,12 +186,24 @@ export default function Admin() {
     }
     // cancelados
     if (filtroCancelado && a.assinatura_status !== 'cancelado') return false;
+    // filtros de perfil (trial)
+    if (filtroProfissao && a.profissao !== filtroProfissao) return false;
+    if (filtroOrigem && a.origem !== filtroOrigem) return false;
+    if (filtroRender && a.usa_render !== filtroRender) return false;
     // busca textual
     const q = busca.toLowerCase().trim();
     if (!q) return true;
     return (a.nome || '').toLowerCase().includes(q)
       || (a.email || '').toLowerCase().includes(q)
       || (a.cpf || '').includes(q);
+  }).sort((a, b) => {
+    // na aba de membros, agrupa por equipe (mesmo time junto)
+    if (aba === 'convidados') {
+      const ea = (a.equipe_participa_nome || '').toLowerCase();
+      const eb = (b.equipe_participa_nome || '').toLowerCase();
+      if (ea !== eb) return ea < eb ? -1 : 1;
+    }
+    return 0;
   });
 
   const totalConvidados = assinantes.filter(a => a.eh_convidado && a.id !== meuId).length;
@@ -305,6 +320,39 @@ export default function Admin() {
             </label>
           </>
         )}
+        {aba === 'trial' && (
+          <>
+            <select className="admin-filtro-sel" value={filtroProfissao} onChange={(e) => setFiltroProfissao(e.target.value)}>
+              <option value="">Toda profissão</option>
+              <option value="arquiteto">Arquiteto(a)</option>
+              <option value="designer_interiores">Designer de interiores</option>
+              <option value="archviz">Archviz</option>
+              <option value="engenheiro">Engenheiro(a)</option>
+              <option value="estudante">Estudante</option>
+              <option value="paisagista">Paisagista</option>
+              <option value="outro">Outro</option>
+            </select>
+            <select className="admin-filtro-sel" value={filtroOrigem} onChange={(e) => setFiltroOrigem(e.target.value)}>
+              <option value="">Toda origem</option>
+              <option value="instagram">Instagram</option>
+              <option value="youtube">YouTube</option>
+              <option value="google">Google</option>
+              <option value="indicacao">Indicação</option>
+              <option value="tiktok">TikTok</option>
+              <option value="anuncio">Anúncio</option>
+              <option value="outro">Outro</option>
+            </select>
+            <select className="admin-filtro-sel" value={filtroRender} onChange={(e) => setFiltroRender(e.target.value)}>
+              <option value="">Usa qualquer render</option>
+              <option value="nao">Nenhum</option>
+              <option value="vray">V-Ray</option>
+              <option value="enscape">Enscape</option>
+              <option value="lumion">Lumion</option>
+              <option value="dhistudio">D5 / IA</option>
+              <option value="outro">Outro</option>
+            </select>
+          </>
+        )}
       </div>
 
       <input
@@ -328,6 +376,8 @@ export default function Admin() {
               {aba === 'trial' && <th>Profissão</th>}
               {aba === 'trial' && <th>Origem</th>}
               {aba === 'trial' && <th>Usa render</th>}
+              {aba === 'trial' && <th>Equipe</th>}
+              {aba === 'trial' && <th>Projetos/ano</th>}
               {aba === 'trial' && <th>Cadastro</th>}
               {aba === 'pagantes' && <th>Valor</th>}
               {aba === 'pagantes' && <th>Assinou</th>}
@@ -373,6 +423,8 @@ export default function Admin() {
                 {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.profissao || '—'}</td>}
                 {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.origem || '—'}</td>}
                 {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.usa_render || '—'}</td>}
+                {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.tamanho || '—'}</td>}
+                {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.volume || '—'}</td>}
                 {aba === 'trial' && <td>{fmtData(a.criado_em)}</td>}
                 {aba === 'pagantes' && <td>{a.valor_centavos ? fmtValor(a.valor_centavos, a.moeda) : '—'}</td>}
                 {aba === 'pagantes' && <td>{fmtData(a.assinou_em)}</td>}
