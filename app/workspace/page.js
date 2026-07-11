@@ -39,6 +39,8 @@ function WorkspaceConteudo() {
   const [equipe, setEquipe] = useState(null);
   const [membros, setMembros] = useState([]);
   const [email, setEmail] = useState('');
+  const [emailsSlot, setEmailsSlot] = useState({});
+  const [convidandoSlot, setConvidandoSlot] = useState(null);
   const [erro, setErro] = useState('');
   const [aviso, setAviso] = useState('');
   const [convidando, setConvidando] = useState(false);
@@ -87,6 +89,20 @@ function WorkspaceConteudo() {
       await carregar();
     } catch (e) { setErro(e.message); }
     finally { setConvidando(false); }
+  }
+
+  async function convidarSlot(idx) {
+    setErro(''); setAviso('');
+    const em = (emailsSlot[idx] || '').trim();
+    if (!em.includes('@')) { setErro('Digite um email válido.'); return; }
+    setConvidandoSlot(idx);
+    try {
+      await convidarMembro(em);
+      setAviso('Convite enviado para ' + em);
+      setEmailsSlot((s) => { const n = { ...s }; delete n[idx]; return n; });
+      await carregar();
+    } catch (e) { setErro(e.message); }
+    finally { setConvidandoSlot(null); }
   }
 
   async function remover(id) {
@@ -170,7 +186,7 @@ function WorkspaceConteudo() {
         {avisoNome && <div className="conta-aviso" style={{ marginTop: 12 }}>{avisoNome}</div>}
       </div>
 
-      {/* Convidar */}
+      {/* Resumo do plano */}
       <div className="conta-card">
         <div className="ws-topo">
           <div>
@@ -179,15 +195,7 @@ function WorkspaceConteudo() {
           </div>
           <div className="ws-badge">{livres} {livres === 1 ? 'assento livre' : 'assentos livres'}</div>
         </div>
-
-        <div className="ws-linha-input">
-          <input className="ws-input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@da-pessoa.com" disabled={livres <= 0} />
-          <button className="btn btn--verde ws-btn" onClick={convidar} disabled={convidando || livres <= 0}>
-            {convidando ? 'Enviando...' : 'Convidar'}
-          </button>
-        </div>
-        {livres <= 0 && <p className="ws-obs">Todos os assentos estão ocupados. Remova alguém para liberar espaço.</p>}
-        {erro && <p className="tm-erro" style={{ textAlign: 'left' }}>{erro}</p>}
+        {erro && <p className="tm-erro" style={{ textAlign: 'left', marginBottom: 0 }}>{erro}</p>}
         {aviso && <p className="ws-aviso-txt">{aviso}</p>}
       </div>
 
@@ -242,14 +250,26 @@ function WorkspaceConteudo() {
 
         {slotsVazios.map((_, i) => (
           <div key={'vazio-' + i} className="ws-slot ws-slot-vazio">
-            <div className="ws-slot-linha">
-              <div className="ws-vazio-label">Assento livre</div>
-              {!donoNaEquipe && i === 0 ? (
-                <button className="ws-atribuir" onClick={atribuir}>Atribuir a mim</button>
-              ) : (
-                <span className="ws-vazio-hint">Convide alguém acima</span>
-              )}
+            <div className="ws-slot-vazio-topo">
+              <div className="ws-linha-input" style={{ flex: 1 }}>
+                <input
+                  className="ws-input"
+                  value={emailsSlot[i] || ''}
+                  onChange={(e) => setEmailsSlot((s) => ({ ...s, [i]: e.target.value }))}
+                  placeholder="email@da-pessoa.com"
+                  onKeyDown={(e) => { if (e.key === 'Enter') convidarSlot(i); }}
+                />
+                <button className="btn btn--verde ws-btn" onClick={() => convidarSlot(i)} disabled={convidandoSlot === i}>
+                  {convidandoSlot === i ? 'Enviando...' : 'Convidar'}
+                </button>
+              </div>
             </div>
+            {!donoNaEquipe && i === 0 && (
+              <div className="ws-slot-atribuir">
+                <span className="ws-vazio-hint">ou</span>
+                <button className="ws-atribuir" onClick={atribuir}>Atribuir a mim</button>
+              </div>
+            )}
           </div>
         ))}
       </div>

@@ -23,6 +23,7 @@ export default function Admin() {
   const [negado, setNegado] = useState(false);
   const [assinantes, setAssinantes] = useState([]);
   const [busca, setBusca] = useState('');
+  const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'convidados'
   const [erro, setErro] = useState('');
   const [ocupado, setOcupado] = useState(null); // id da conta em ação
   const [exportando, setExportando] = useState(false);
@@ -156,12 +157,17 @@ export default function Admin() {
 
   const filtrados = assinantes.filter(a => {
     if (a.id === meuId) return false; // não mostra a própria conta admin
+    // separa por aba: convidados de equipe vs pagantes/demais
+    if (aba === 'convidados' && !a.eh_convidado) return false;
+    if (aba === 'pagantes' && a.eh_convidado) return false;
     const q = busca.toLowerCase().trim();
     if (!q) return true;
     return (a.nome || '').toLowerCase().includes(q)
       || (a.email || '').toLowerCase().includes(q)
       || (a.cpf || '').includes(q);
   });
+
+  const totalConvidados = assinantes.filter(a => a.eh_convidado && a.id !== meuId).length;
 
   const pagos = assinantes.filter(a => a.plano !== 'free' && a.status === 'ativo').length;
 
@@ -194,6 +200,20 @@ export default function Admin() {
       </div>
 
       {erro && <div className="login-erro" style={{ marginBottom: 16 }}>{erro}</div>}
+
+      <div className="admin-abas">
+        <button className={'admin-aba' + (aba === 'pagantes' ? ' ativa' : '')} onClick={() => setAba('pagantes')}>
+          Assinantes
+        </button>
+        <button className={'admin-aba' + (aba === 'convidados' ? ' ativa' : '')} onClick={() => setAba('convidados')}>
+          Membros de equipe ({totalConvidados})
+        </button>
+      </div>
+      {aba === 'convidados' && (
+        <p className="admin-sub" style={{ marginBottom: 12 }}>
+          Estas contas recebem acesso via equipe (não pagam individualmente) e não entram no export do contador.
+        </p>
+      )}
 
       <input
         type="text"

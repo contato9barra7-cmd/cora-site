@@ -42,7 +42,7 @@ function ConviteConteudo() {
           {estado === 'carregando' && <p>Processando convite...</p>}
           {estado === 'ok' && (
             <>
-              <h1 className="tm-h1">Bem-vindo à equipe! 🎉</h1>
+              <h1 className="tm-h1">Bem-vindo à equipe</h1>
               <p className="tm-lead" style={{ margin: '0 auto 24px' }}>Seu acesso foi ativado. Agora você pode usar o Cora Render.</p>
               <button className="btn btn--verde" style={{ padding: '12px 28px' }} onClick={() => router.push('/conta')}>Ir para minha conta</button>
             </>

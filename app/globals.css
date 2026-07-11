@@ -857,6 +857,8 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 /* Slots (assentos) */
 .ws-slot { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; background: var(--wash); }
 .ws-slot-vazio { border-style: dashed; background: transparent; }
+.ws-slot-vazio-topo { display: flex; align-items: center; }
+.ws-slot-atribuir { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
 .ws-slot-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .ws-vazio-label { font-size: 14px; color: var(--ink3); }
 .ws-vazio-hint { font-size: 12px; color: var(--ink3); }
@@ -879,3 +881,8 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .ws-acoes { display: flex; gap: 10px; margin-top: 14px; }
 .ws-btn-sec { padding: 8px 18px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 13px; cursor: pointer; }
 .ws-btn-sec:hover { background: var(--wash); }
+
+/* Admin — abas */
+.admin-abas { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--line); }
+.admin-aba { padding: 10px 18px; border: none; background: none; color: var(--ink3); font-size: 14px; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.admin-aba.ativa { color: var(--ink); border-bottom-color: var(--roxo); }
