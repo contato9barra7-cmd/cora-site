@@ -59,8 +59,11 @@ function ConviteConteudo() {
           )}
           {estado === 'erro' && (
             <>
-              <h1 className="tm-h1">Ops</h1>
-              <p className="tm-lead" style={{ margin: '0 auto 24px' }}>{msg || 'Não foi possível processar o convite.'}</p>
+              <h1 className="tm-h1">Convite indisponível</h1>
+              <p className="tm-lead" style={{ margin: '0 auto 24px' }}>
+                {msg || 'Não foi possível processar o convite.'} Se você já aceitou antes, seu acesso já está ativo — é só entrar na sua conta.
+              </p>
+              <button className="btn btn--verde" style={{ padding: '12px 28px' }} onClick={() => router.push('/conta')}>Ir para minha conta</button>
             </>
           )}
         </div>

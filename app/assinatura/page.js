@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta, abrirPortal } from '../../lib/auth';
+import { lerConta, abrirPortal, lerEquipe } from '../../lib/auth';
 
 const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
 
 export default function Assinatura() {
   const router = useRouter();
   const [conta, setConta] = useState(null);
+  const [equipe, setEquipe] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
   const [abrindo, setAbrindo] = useState(false);
@@ -20,6 +21,9 @@ export default function Assinatura() {
     if (!c) { router.push('/login'); return; }
     setConta(c);
     setCarregando(false);
+    if (c.eh_dono_equipe) {
+      lerEquipe().then((d) => { if (d && d.equipe) setEquipe(d.equipe); }).catch(() => {});
+    }
   }, [router]);
 
   async function gerenciar() {
@@ -40,6 +44,7 @@ export default function Assinatura() {
 
   const ehAdmin = conta.is_admin === true;
   const ehPago = conta.plano && conta.plano !== 'free' && !ehAdmin;
+  const ehDonoEquipe = conta.eh_dono_equipe === true;
 
   return (
     <AppShell>
@@ -47,10 +52,24 @@ export default function Assinatura() {
         <h1 className="conta-ola">Assinatura</h1>
         {erro && <div className="login-erro" style={{ marginBottom: 18 }}>{erro}</div>}
 
+        {ehDonoEquipe && equipe && (
+          <div className="conta-card" style={{ borderColor: 'var(--roxo)' }}>
+            <h2 className="conta-h2">Assinatura de equipe</h2>
+            <p className="conta-p">
+              Você tem uma equipe no plano <strong>{NOME_PLANO[equipe.plano] || equipe.plano}</strong> com {equipe.assentos} assentos.
+              Gerencie os membros na aba Equipe.
+            </p>
+            <button className="btn btn--ink" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={gerenciar} disabled={abrindo}>
+              {abrindo ? 'Abrindo...' : 'Gerenciar assinatura'}
+            </button>
+          </div>
+        )}
+
         <div className="conta-card">
           <h2 className="conta-h2">Plano atual</h2>
           <p className="conta-p">
             {ehAdmin ? 'Você é administrador (acesso ilimitado).'
+              : ehDonoEquipe ? `Seu acesso individual é o plano ${NOME_PLANO[conta.plano] || conta.plano}. A assinatura de equipe está acima.`
               : `Você está no plano ${NOME_PLANO[conta.plano] || conta.plano}.`}
           </p>
 
@@ -58,7 +77,7 @@ export default function Assinatura() {
             <button className="btn btn--ink" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={gerenciar} disabled={abrindo}>
               {abrindo ? 'Abrindo...' : 'Gerenciar assinatura'}
             </button>
-          ) : !ehAdmin ? (
+          ) : !ehAdmin && !ehDonoEquipe ? (
             <Link href="/precos" className="btn btn--verde" style={{ width: 'auto', marginTop: 6, padding: '11px 24px', display: 'inline-block' }}>
               Ver planos
             </Link>

@@ -235,14 +235,16 @@ function WorkspaceConteudo() {
                   </>
                 )}
 
-                {!m.eh_dono && (
-                  <div className="ws-acoes">
-                    {m.status === 'convidado' && (
-                      <button className="ws-btn-sec" onClick={() => reenviar(m.id)}>Reenviar acesso</button>
-                    )}
+                <div className="ws-acoes">
+                  {!m.eh_dono && m.status === 'convidado' && (
+                    <button className="ws-btn-sec" onClick={() => reenviar(m.id)}>Reenviar acesso</button>
+                  )}
+                  {m.eh_dono ? (
+                    <button className="ws-remover" onClick={() => remover(m.id)}>Liberar meu assento</button>
+                  ) : (
                     <button className="ws-remover" onClick={() => remover(m.id)}>Remover acesso</button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             )}
           </div>
