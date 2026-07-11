@@ -243,7 +243,7 @@ export default function Precos() {
                 <li>✓ Faturamento único</li>
                 <li>✓ Mínimo de 2 assentos</li>
               </ul>
-              <button className="btn btn--ink" style={{ width: '100%', marginTop: 24 }}>Falar com a gente</button>
+              <button className="btn btn--ink" style={{ width: '100%', marginTop: 24 }} onClick={() => router.push('/teams')}>Criar equipe</button>
             </div>
             <div className="teams__tabelas">
               <TabelaTeams titulo="Teams sobre o Pro" dados={teamsPro} />
