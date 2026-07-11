@@ -240,7 +240,7 @@ export default function Admin() {
               {aba === 'convidados' && <th>Equipe</th>}
               {aba === 'pagantes' && <th>Valor</th>}
               {aba === 'pagantes' && <th>Assinou</th>}
-              {aba === 'pagantes' && <th>Renova</th>}
+              {aba === 'pagantes' && <th>Renova em</th>}
               {aba === 'pagantes' && <th>Renov.</th>}
               <th>Status</th>
               <th>Créditos</th>
