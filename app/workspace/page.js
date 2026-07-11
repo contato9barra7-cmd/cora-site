@@ -327,6 +327,9 @@ function WorkspaceConteudo() {
                 {m.eh_dono && <span className="ws-tag ws-tag-dono">Você (dono)</span>}
                 {m.status === 'convidado' && <span className="ws-tag ws-tag-pend">Convite pendente</span>}
                 {m.status === 'ativo' && !m.eh_dono && <span className="ws-tag ws-tag-ativo">Ativo</span>}
+                {m.status === 'ativo' && m.creditos_total != null && (
+                  <span className="ws-creditos">{Math.max(0, (m.creditos_total || 0) - (m.creditos_usados || 0)).toLocaleString('pt-BR')} de {(m.creditos_total || 0).toLocaleString('pt-BR')} créditos</span>
+                )}
               </div>
               <button className="ws-gerenciar" onClick={() => toggleGerenciar(m)}>
                 {expandido === m.id ? 'Fechar' : 'Gerenciar'}

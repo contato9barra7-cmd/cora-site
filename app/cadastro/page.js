@@ -77,11 +77,12 @@ export default function Cadastro() {
           <option value="outro">Outro</option>
         </select>
 
-        <label className="login-label">Já usa algum render?</label>
+        <label className="login-label">Já usa algum renderizador?</label>
         <select className="login-input" value={usaRender} onChange={(e) => setUsaRender(e.target.value)}>
           <option value="">Selecione...</option>
           <option value="nao">Não uso nenhum</option>
           <option value="vray">V-Ray</option>
+          <option value="corona">Corona</option>
           <option value="enscape">Enscape</option>
           <option value="lumion">Lumion</option>
           <option value="dhistudio">D5 / outro IA</option>

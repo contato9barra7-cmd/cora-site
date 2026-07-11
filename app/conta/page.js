@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta, atualizarConta, baixarPlugin, minhaEquipe } from '../../lib/auth';
+import { lerConta, atualizarConta, baixarPlugin, minhaEquipe, sairDaEquipe } from '../../lib/auth';
 
 const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
 
@@ -16,6 +16,19 @@ function ContaConteudo() {
   const [erro, setErro] = useState('');
   const [baixando, setBaixando] = useState(false);
   const [equipeMembro, setEquipeMembro] = useState(null);
+  const [saindo, setSaindo] = useState(false);
+
+  async function sairEquipe() {
+    if (!confirm('Tem certeza que deseja sair da equipe? Você perderá o acesso ao plano fornecido por ela.')) return;
+    setSaindo(true);
+    try {
+      await sairDaEquipe();
+      const fresca = await atualizarConta();
+      if (fresca) setConta(fresca);
+      setEquipeMembro(null);
+    } catch (e) { setErro(e.message); }
+    finally { setSaindo(false); }
+  }
 
   async function baixar() {
     setBaixando(true);
@@ -61,9 +74,14 @@ function ContaConteudo() {
     : equipeMembro ? `${NOME_PLANO[conta.plano] || conta.plano} (equipe)`
     : (NOME_PLANO[conta.plano] || conta.plano);
   const creditos = (conta.creditos_total === -1 || ehAdmin) ? 'Ilimitado'
+    : conta.eh_dono_equipe ? (conta.equipe_creditos_total ?? 0).toLocaleString('pt-BR')
     : (conta.creditos_restantes ?? 0).toLocaleString('pt-BR');
   const totalCreditos = (conta.creditos_total === -1 || ehAdmin) ? null
+    : conta.eh_dono_equipe ? null
     : (conta.creditos_total ?? 0).toLocaleString('pt-BR');
+  // data mostrada: renovação da equipe (dono) ou validade individual
+  const dataRenov = conta.eh_dono_equipe ? conta.equipe_renova_em : conta.expira_em;
+  const rotuloData = (ehPago || conta.eh_dono_equipe) ? 'Renova em' : 'Válido até';
 
   return (
     <AppShell>
@@ -87,12 +105,13 @@ function ContaConteudo() {
           <span className="dash-rotulo">Créditos disponíveis</span>
           <span className="dash-valor">{creditos}</span>
           {totalCreditos && <span className="dash-sub">de {totalCreditos} no ciclo</span>}
+          {conta.eh_dono_equipe && <span className="dash-sub">total da equipe</span>}
         </div>
 
         <div className="dash-card">
-          <span className="dash-rotulo">{ehPago ? 'Renova em' : 'Válido até'}</span>
+          <span className="dash-rotulo">{rotuloData}</span>
           <span className="dash-valor">
-            {conta.expira_em && !ehAdmin ? new Date(conta.expira_em).toLocaleDateString('pt-BR') : '—'}
+            {dataRenov && !ehAdmin ? new Date(dataRenov).toLocaleDateString('pt-BR') : '—'}
           </span>
         </div>
       </div>
@@ -110,6 +129,9 @@ function ContaConteudo() {
                 {' · '}convidado por {equipeMembro.dono_nome || equipeMembro.dono_email}.
                 Seu acesso ao plano {equipeMembro.plano === 'studio' ? 'Studio' : 'Pro'} é fornecido por esta equipe.
               </p>
+              <button className="ws-btn-sec" style={{ marginTop: 12 }} onClick={sairEquipe} disabled={saindo}>
+                {saindo ? 'Saindo...' : 'Sair da equipe'}
+              </button>
             </div>
           </div>
         </div>

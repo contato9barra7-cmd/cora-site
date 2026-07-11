@@ -91,9 +91,9 @@ export default function AppShell({ children }) {
     { href: '/conta', rotulo: 'Dashboard', icone: Icone.dashboard, admin: false },
     { href: '/conta/perfil', rotulo: 'Minha conta', icone: Icone.conta, admin: false },
     { href: '/workspace', rotulo: 'Equipe', icone: Icone.equipe, admin: false, soDono: true },
-    { href: '/assinatura', rotulo: 'Assinatura', icone: Icone.assinatura, admin: false },
+    { href: '/assinatura', rotulo: 'Assinatura', icone: Icone.assinatura, admin: false, soPagante: true },
     { href: '/admin', rotulo: 'Admin', icone: Icone.admin, admin: true },
-  ].filter(i => (!i.admin || (conta && conta.is_admin)) && (!i.soDono || (conta && conta.eh_dono_equipe)));
+  ].filter(i => (!i.admin || (conta && conta.is_admin)) && (!i.soDono || (conta && conta.eh_dono_equipe)) && (!i.soPagante || !(conta && conta.eh_membro_equipe)));
 
   // créditos para a barrinha do header
   const ilimitado = conta && (conta.creditos_total === -1 || conta.is_admin);

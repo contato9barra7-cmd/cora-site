@@ -33,8 +33,7 @@ export default function Admin() {
   const [anoFiltro, setAnoFiltro] = useState(String(new Date().getFullYear()));
   const [dataDe, setDataDe] = useState('');
   const [dataAte, setDataAte] = useState('');
-  const [filtroVenc, setFiltroVenc] = useState(false); // quase vencendo
-  const [filtroCancelado, setFiltroCancelado] = useState(false);
+  const [filtroStatus, setFiltroStatus] = useState(''); // '' | vencendo | cancelado
   const [filtroProfissao, setFiltroProfissao] = useState('');
   const [filtroOrigem, setFiltroOrigem] = useState('');
   const [filtroRender, setFiltroRender] = useState('');
@@ -177,15 +176,14 @@ export default function Admin() {
     else if (aba === 'pagantes') { if (a.eh_convidado || a.eh_trial) return false; }
     // filtro de data
     if (!passaFiltroData(a)) return false;
-    // quase vencendo (renova nos próximos 7 dias)
-    if (filtroVenc) {
+    // status (quase vencendo / cancelado)
+    if (filtroStatus === 'vencendo') {
       const ref = a.renova_em || a.expira_em;
       if (!ref) return false;
       const dias = (new Date(ref) - new Date()) / (1000 * 60 * 60 * 24);
       if (dias < 0 || dias > 7) return false;
     }
-    // cancelados
-    if (filtroCancelado && a.assinatura_status !== 'cancelado') return false;
+    if (filtroStatus === 'cancelado' && a.assinatura_status !== 'cancelado') return false;
     // filtros de perfil (trial)
     if (filtroProfissao && a.profissao !== filtroProfissao) return false;
     if (filtroOrigem && a.origem !== filtroOrigem) return false;
@@ -294,7 +292,7 @@ export default function Admin() {
 
       <div className="admin-filtros">
         <select className="admin-filtro-sel" value={filtroData} onChange={(e) => setFiltroData(e.target.value)}>
-          <option value="todos">Todo o período</option>
+          <option value="todos">Período</option>
           <option value="mes">Este mês</option>
           <option value="12meses">Últimos 12 meses</option>
           <option value="ano">Ano específico</option>
@@ -310,48 +308,42 @@ export default function Admin() {
             <input className="admin-filtro-sel" type="date" value={dataAte} onChange={(e) => setDataAte(e.target.value)} />
           </>
         )}
+        <select className="admin-filtro-sel" value={filtroProfissao} onChange={(e) => setFiltroProfissao(e.target.value)}>
+          <option value="">Profissão</option>
+          <option value="arquiteto">Arquiteto(a)</option>
+          <option value="designer_interiores">Designer de interiores</option>
+          <option value="archviz">Archviz</option>
+          <option value="engenheiro">Engenheiro(a)</option>
+          <option value="estudante">Estudante</option>
+          <option value="paisagista">Paisagista</option>
+          <option value="outro">Outro</option>
+        </select>
+        <select className="admin-filtro-sel" value={filtroOrigem} onChange={(e) => setFiltroOrigem(e.target.value)}>
+          <option value="">Origem</option>
+          <option value="instagram">Instagram</option>
+          <option value="youtube">YouTube</option>
+          <option value="google">Google</option>
+          <option value="indicacao">Indicação</option>
+          <option value="tiktok">TikTok</option>
+          <option value="anuncio">Anúncio</option>
+          <option value="outro">Outro</option>
+        </select>
+        <select className="admin-filtro-sel" value={filtroRender} onChange={(e) => setFiltroRender(e.target.value)}>
+          <option value="">Renderizador</option>
+          <option value="nao">Nenhum</option>
+          <option value="vray">V-Ray</option>
+          <option value="corona">Corona</option>
+          <option value="enscape">Enscape</option>
+          <option value="lumion">Lumion</option>
+          <option value="dhistudio">D5 / IA</option>
+          <option value="outro">Outro</option>
+        </select>
         {aba === 'pagantes' && (
-          <>
-            <label className="admin-filtro-check">
-              <input type="checkbox" checked={filtroVenc} onChange={(e) => setFiltroVenc(e.target.checked)} /> Quase vencendo
-            </label>
-            <label className="admin-filtro-check">
-              <input type="checkbox" checked={filtroCancelado} onChange={(e) => setFiltroCancelado(e.target.checked)} /> Cancelados
-            </label>
-          </>
-        )}
-        {aba === 'trial' && (
-          <>
-            <select className="admin-filtro-sel" value={filtroProfissao} onChange={(e) => setFiltroProfissao(e.target.value)}>
-              <option value="">Toda profissão</option>
-              <option value="arquiteto">Arquiteto(a)</option>
-              <option value="designer_interiores">Designer de interiores</option>
-              <option value="archviz">Archviz</option>
-              <option value="engenheiro">Engenheiro(a)</option>
-              <option value="estudante">Estudante</option>
-              <option value="paisagista">Paisagista</option>
-              <option value="outro">Outro</option>
-            </select>
-            <select className="admin-filtro-sel" value={filtroOrigem} onChange={(e) => setFiltroOrigem(e.target.value)}>
-              <option value="">Toda origem</option>
-              <option value="instagram">Instagram</option>
-              <option value="youtube">YouTube</option>
-              <option value="google">Google</option>
-              <option value="indicacao">Indicação</option>
-              <option value="tiktok">TikTok</option>
-              <option value="anuncio">Anúncio</option>
-              <option value="outro">Outro</option>
-            </select>
-            <select className="admin-filtro-sel" value={filtroRender} onChange={(e) => setFiltroRender(e.target.value)}>
-              <option value="">Usa qualquer render</option>
-              <option value="nao">Nenhum</option>
-              <option value="vray">V-Ray</option>
-              <option value="enscape">Enscape</option>
-              <option value="lumion">Lumion</option>
-              <option value="dhistudio">D5 / IA</option>
-              <option value="outro">Outro</option>
-            </select>
-          </>
+          <select className="admin-filtro-sel" value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)}>
+            <option value="">Todos os status</option>
+            <option value="vencendo">Quase vencendo</option>
+            <option value="cancelado">Cancelados</option>
+          </select>
         )}
       </div>
 

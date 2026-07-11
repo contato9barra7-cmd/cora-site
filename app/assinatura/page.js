@@ -52,37 +52,36 @@ export default function Assinatura() {
         <h1 className="conta-ola">Assinatura</h1>
         {erro && <div className="login-erro" style={{ marginBottom: 18 }}>{erro}</div>}
 
-        {ehDonoEquipe && equipe && (
+        {ehDonoEquipe && equipe ? (
           <div className="conta-card" style={{ borderColor: 'var(--roxo)' }}>
             <h2 className="conta-h2">Assinatura de equipe</h2>
             <p className="conta-p">
               Você tem uma equipe no plano <strong>{NOME_PLANO[equipe.plano] || equipe.plano}</strong> com {equipe.assentos} assentos.
-              Gerencie os membros na aba Equipe.
+              Gerencie os membros e a foto na aba Equipe.
             </p>
             <button className="btn btn--ink" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={gerenciar} disabled={abrindo}>
               {abrindo ? 'Abrindo...' : 'Gerenciar assinatura'}
             </button>
           </div>
+        ) : (
+          <div className="conta-card">
+            <h2 className="conta-h2">Plano atual</h2>
+            <p className="conta-p">
+              {ehAdmin ? 'Você é administrador (acesso ilimitado).'
+                : `Você está no plano ${NOME_PLANO[conta.plano] || conta.plano}.`}
+            </p>
+
+            {ehPago ? (
+              <button className="btn btn--ink" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={gerenciar} disabled={abrindo}>
+                {abrindo ? 'Abrindo...' : 'Gerenciar assinatura'}
+              </button>
+            ) : !ehAdmin ? (
+              <Link href="/precos" className="btn btn--verde" style={{ width: 'auto', marginTop: 6, padding: '11px 24px', display: 'inline-block' }}>
+                Ver planos
+              </Link>
+            ) : null}
+          </div>
         )}
-
-        <div className="conta-card">
-          <h2 className="conta-h2">Plano atual</h2>
-          <p className="conta-p">
-            {ehAdmin ? 'Você é administrador (acesso ilimitado).'
-              : ehDonoEquipe ? `Seu acesso individual é o plano ${NOME_PLANO[conta.plano] || conta.plano}. A assinatura de equipe está acima.`
-              : `Você está no plano ${NOME_PLANO[conta.plano] || conta.plano}.`}
-          </p>
-
-          {ehPago ? (
-            <button className="btn btn--ink" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={gerenciar} disabled={abrindo}>
-              {abrindo ? 'Abrindo...' : 'Gerenciar assinatura'}
-            </button>
-          ) : !ehAdmin && !ehDonoEquipe ? (
-            <Link href="/precos" className="btn btn--verde" style={{ width: 'auto', marginTop: 6, padding: '11px 24px', display: 'inline-block' }}>
-              Ver planos
-            </Link>
-          ) : null}
-        </div>
 
         {ehPago && (
           <div className="conta-card">
