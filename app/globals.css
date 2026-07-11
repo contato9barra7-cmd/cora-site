@@ -830,3 +830,8 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   .tm-planos { grid-template-columns: 1fr; }
   .tm-faixas-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* Teams — layout público (com Nav) */
+.tm-wrap { max-width: 820px; margin: 0 auto; padding: 48px 0 80px; }
+.tm-h1 { font-size: 32px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.tm-lead { font-size: 15px; color: var(--ink2); line-height: 1.6; margin-bottom: 32px; max-width: 620px; }
