@@ -28,7 +28,13 @@ export default function Admin() {
   const [negado, setNegado] = useState(false);
   const [assinantes, setAssinantes] = useState([]);
   const [busca, setBusca] = useState('');
-  const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'convidados'
+  const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'trial' | 'convidados'
+  const [filtroData, setFiltroData] = useState('todos'); // todos | mes | 12meses | ano | periodo
+  const [anoFiltro, setAnoFiltro] = useState(String(new Date().getFullYear()));
+  const [dataDe, setDataDe] = useState('');
+  const [dataAte, setDataAte] = useState('');
+  const [filtroVenc, setFiltroVenc] = useState(false); // quase vencendo
+  const [filtroCancelado, setFiltroCancelado] = useState(false);
   const [erro, setErro] = useState('');
   const [ocupado, setOcupado] = useState(null); // id da conta em ação
   const [exportando, setExportando] = useState(false);
@@ -162,9 +168,22 @@ export default function Admin() {
 
   const filtrados = assinantes.filter(a => {
     if (a.id === meuId) return false; // não mostra a própria conta admin
-    // separa por aba: convidados de equipe vs pagantes/demais
-    if (aba === 'convidados' && !a.eh_convidado) return false;
-    if (aba === 'pagantes' && a.eh_convidado) return false;
+    // separa por aba
+    if (aba === 'convidados') { if (!a.eh_convidado) return false; }
+    else if (aba === 'trial') { if (!a.eh_trial) return false; }
+    else if (aba === 'pagantes') { if (a.eh_convidado || a.eh_trial) return false; }
+    // filtro de data
+    if (!passaFiltroData(a)) return false;
+    // quase vencendo (renova nos próximos 7 dias)
+    if (filtroVenc) {
+      const ref = a.renova_em || a.expira_em;
+      if (!ref) return false;
+      const dias = (new Date(ref) - new Date()) / (1000 * 60 * 60 * 24);
+      if (dias < 0 || dias > 7) return false;
+    }
+    // cancelados
+    if (filtroCancelado && a.assinatura_status !== 'cancelado') return false;
+    // busca textual
     const q = busca.toLowerCase().trim();
     if (!q) return true;
     return (a.nome || '').toLowerCase().includes(q)
@@ -173,10 +192,38 @@ export default function Admin() {
   });
 
   const totalConvidados = assinantes.filter(a => a.eh_convidado && a.id !== meuId).length;
+  const totalTrial = assinantes.filter(a => a.eh_trial && a.id !== meuId).length;
   // contas "reais" = exclui a própria conta admin e os convidados de equipe
   const contasReais = assinantes.filter(a => a.id !== meuId && !a.eh_convidado);
   const totalContas = contasReais.length;
   const pagos = contasReais.filter(a => (a.plano !== 'free' || a.eh_dono_equipe) && a.status === 'ativo').length;
+
+  // filtro de data (aplicado sobre assinou_em pra pagantes, criado_em pra trial)
+  function passaFiltroData(a) {
+    if (filtroData === 'todos') return true;
+    const campo = aba === 'trial' ? a.criado_em : (a.assinou_em || a.criado_em);
+    if (!campo) return filtroData === 'todos';
+    const d = new Date(campo);
+    const agora = new Date();
+    if (filtroData === 'mes') {
+      return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+    }
+    if (filtroData === '12meses') {
+      const limite = new Date(); limite.setMonth(limite.getMonth() - 12);
+      return d >= limite;
+    }
+    if (filtroData === 'ano') {
+      return d.getFullYear() === parseInt(anoFiltro, 10);
+    }
+    if (filtroData === 'periodo') {
+      const de = dataDe ? new Date(dataDe) : null;
+      const ate = dataAte ? new Date(dataAte + 'T23:59:59') : null;
+      if (de && d < de) return false;
+      if (ate && d > ate) return false;
+      return true;
+    }
+    return true;
+  }
 
   return (
     <AppShell>
@@ -212,6 +259,9 @@ export default function Admin() {
         <button className={'admin-aba' + (aba === 'pagantes' ? ' ativa' : '')} onClick={() => setAba('pagantes')}>
           Assinantes
         </button>
+        <button className={'admin-aba' + (aba === 'trial' ? ' ativa' : '')} onClick={() => setAba('trial')}>
+          Trial ({totalTrial})
+        </button>
         <button className={'admin-aba' + (aba === 'convidados' ? ' ativa' : '')} onClick={() => setAba('convidados')}>
           Membros de equipe ({totalConvidados})
         </button>
@@ -221,6 +271,41 @@ export default function Admin() {
           Estas contas recebem acesso via equipe (não pagam individualmente) e não entram no export do contador.
         </p>
       )}
+      {aba === 'trial' && (
+        <p className="admin-sub" style={{ marginBottom: 12 }}>
+          Contas em teste grátis (plano Free). Dados de perfil úteis para tráfego e segmentação.
+        </p>
+      )}
+
+      <div className="admin-filtros">
+        <select className="admin-filtro-sel" value={filtroData} onChange={(e) => setFiltroData(e.target.value)}>
+          <option value="todos">Todo o período</option>
+          <option value="mes">Este mês</option>
+          <option value="12meses">Últimos 12 meses</option>
+          <option value="ano">Ano específico</option>
+          <option value="periodo">Intervalo de datas</option>
+        </select>
+        {filtroData === 'ano' && (
+          <input className="admin-filtro-sel" type="number" min="2024" max="2100" value={anoFiltro} onChange={(e) => setAnoFiltro(e.target.value)} style={{ width: 90 }} />
+        )}
+        {filtroData === 'periodo' && (
+          <>
+            <input className="admin-filtro-sel" type="date" value={dataDe} onChange={(e) => setDataDe(e.target.value)} />
+            <span style={{ color: 'var(--ink3)', fontSize: 13 }}>até</span>
+            <input className="admin-filtro-sel" type="date" value={dataAte} onChange={(e) => setDataAte(e.target.value)} />
+          </>
+        )}
+        {aba === 'pagantes' && (
+          <>
+            <label className="admin-filtro-check">
+              <input type="checkbox" checked={filtroVenc} onChange={(e) => setFiltroVenc(e.target.checked)} /> Quase vencendo
+            </label>
+            <label className="admin-filtro-check">
+              <input type="checkbox" checked={filtroCancelado} onChange={(e) => setFiltroCancelado(e.target.checked)} /> Cancelados
+            </label>
+          </>
+        )}
+      </div>
 
       <input
         type="text"
@@ -240,6 +325,10 @@ export default function Admin() {
               {dadosFiscais && <th>Endereço</th>}
               <th>Plano</th>
               {aba === 'convidados' && <th>Equipe</th>}
+              {aba === 'trial' && <th>Profissão</th>}
+              {aba === 'trial' && <th>Origem</th>}
+              {aba === 'trial' && <th>Usa render</th>}
+              {aba === 'trial' && <th>Cadastro</th>}
               {aba === 'pagantes' && <th>Valor</th>}
               {aba === 'pagantes' && <th>Assinou</th>}
               {aba === 'pagantes' && <th>Renova em</th>}
@@ -281,6 +370,10 @@ export default function Admin() {
                     <div className="admin-email">{a.equipe_dono_email || ''}</div>
                   </td>
                 )}
+                {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.profissao || '—'}</td>}
+                {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.origem || '—'}</td>}
+                {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.usa_render || '—'}</td>}
+                {aba === 'trial' && <td>{fmtData(a.criado_em)}</td>}
                 {aba === 'pagantes' && <td>{a.valor_centavos ? fmtValor(a.valor_centavos, a.moeda) : '—'}</td>}
                 {aba === 'pagantes' && <td>{fmtData(a.assinou_em)}</td>}
                 {aba === 'pagantes' && <td>{fmtData(a.renova_em)}</td>}

@@ -248,14 +248,21 @@ function WorkspaceConteudo() {
       <div className="conta-card">
         <h2 className="conta-h2">Identidade da equipe</h2>
         <div className="ws-identidade">
-          <div className="ws-foto-area">
-            <div className="ws-foto-box" style={foto ? { backgroundImage: `url(${foto})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
-              {!foto && <span className="ws-foto-inicial">{(nomeEquipe || 'E').charAt(0).toUpperCase()}</span>}
-            </div>
-            <button className="ws-foto-editar" onClick={abrirSeletorFoto} title="Trocar foto">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <div className="perfil-avatar-box">
+            <span
+              className="perfil-avatar"
+              style={foto ? { backgroundImage: `url(${foto})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : undefined}
+            >
+              {foto ? '' : (nomeEquipe || 'E').charAt(0).toUpperCase()}
+            </span>
+            <button className="perfil-avatar-editar" onClick={abrirSeletorFoto} title="Trocar foto" aria-label="Trocar foto">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+              </svg>
             </button>
-            {foto && <button className="ws-foto-remover" onClick={removerFotoEquipe} title="Remover foto">×</button>}
+            {foto && (
+              <button className="perfil-avatar-x" onClick={removerFotoEquipe} title="Remover foto" aria-label="Remover foto">×</button>
+            )}
             <input ref={inputFotoRef} type="file" accept="image/*" onChange={aoSelecionarFoto} style={{ display: 'none' }} />
           </div>
           <div style={{ flex: 1 }}>
@@ -274,16 +281,23 @@ function WorkspaceConteudo() {
       {modalFoto && (
         <div className="foto-overlay" onClick={() => setModalFoto(false)}>
           <div className="foto-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="foto-titulo">Ajustar foto da equipe</div>
-            <canvas ref={canvasRef} width={260} height={260} className="foto-canvas"
-              onPointerDown={dragStart} onPointerMove={dragMove} onPointerUp={dragEnd} onPointerLeave={dragEnd} />
-            <input type="range" min="1" max="3" step="0.01" defaultValue="1" onChange={aoZoom} className="foto-zoom" />
-            <div className="foto-acoes">
-              <button className="btn btn--verde" onClick={salvarFotoRecortada} disabled={salvandoFoto} style={{ width: 'auto', marginTop: 0, padding: '10px 24px' }}>
+            <div className="foto-titulo">Foto da equipe</div>
+            <div className="foto-orient">Proporção 1:1 · recomendado 400×400px. Arraste e use o zoom para enquadrar.</div>
+            <div className="foto-crop" onPointerDown={dragStart} onPointerMove={dragMove} onPointerUp={dragEnd}>
+              <canvas ref={canvasRef} width={260} height={260} style={{ display: 'block' }} />
+            </div>
+            <div className="foto-zoom-row">
+              <span>−</span>
+              <input type="range" min="1" max="3" step="0.01" defaultValue="1" onChange={aoZoom} style={{ flex: 1 }} />
+              <span>+</span>
+            </div>
+            <div className="foto-botoes">
+              <button className="foto-btn-outra" onClick={abrirSeletorFoto}>Escolher outra</button>
+              <button className="foto-btn-salvar" onClick={salvarFotoRecortada} disabled={salvandoFoto}>
                 {salvandoFoto ? 'Salvando...' : 'Salvar'}
               </button>
-              <div className="foto-cancelar" onClick={() => setModalFoto(false)}>Cancelar</div>
             </div>
+            <div className="foto-cancelar" onClick={() => setModalFoto(false)}>Cancelar</div>
           </div>
         </div>
       )}

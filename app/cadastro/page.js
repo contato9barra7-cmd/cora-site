@@ -10,6 +10,9 @@ export default function Cadastro() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [profissao, setProfissao] = useState('');
+  const [origem, setOrigem] = useState('');
+  const [usaRender, setUsaRender] = useState('');
   const [verSenha, setVerSenha] = useState(false);
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
@@ -20,7 +23,7 @@ export default function Cadastro() {
     if (senha.length < 6) { setErro('A senha deve ter ao menos 6 caracteres.'); return; }
     setCarregando(true);
     try {
-      await registrar({ email, senha, nome });
+      await registrar({ email, senha, nome, profissao, origem, usa_render: usaRender });
       router.push('/verificar?email=' + encodeURIComponent(email));
     } catch (e) {
       setErro(e.message);
@@ -47,6 +50,40 @@ export default function Cadastro() {
           className="login-input" type="email" placeholder="voce@email.com"
           value={email} onChange={(e) => setEmail(e.target.value)}
         />
+
+        <label className="login-label">Profissão</label>
+        <select className="login-input" value={profissao} onChange={(e) => setProfissao(e.target.value)}>
+          <option value="">Selecione...</option>
+          <option value="arquiteto">Arquiteto(a)</option>
+          <option value="designer_interiores">Designer de interiores</option>
+          <option value="engenheiro">Engenheiro(a)</option>
+          <option value="estudante">Estudante</option>
+          <option value="paisagista">Paisagista</option>
+          <option value="outro">Outro</option>
+        </select>
+
+        <label className="login-label">Como conheceu o Cora Render?</label>
+        <select className="login-input" value={origem} onChange={(e) => setOrigem(e.target.value)}>
+          <option value="">Selecione...</option>
+          <option value="instagram">Instagram</option>
+          <option value="youtube">YouTube</option>
+          <option value="google">Google / Busca</option>
+          <option value="indicacao">Indicação de amigo</option>
+          <option value="tiktok">TikTok</option>
+          <option value="anuncio">Anúncio</option>
+          <option value="outro">Outro</option>
+        </select>
+
+        <label className="login-label">Já usa algum render?</label>
+        <select className="login-input" value={usaRender} onChange={(e) => setUsaRender(e.target.value)}>
+          <option value="">Selecione...</option>
+          <option value="nao">Não uso nenhum</option>
+          <option value="vray">V-Ray</option>
+          <option value="enscape">Enscape</option>
+          <option value="lumion">Lumion</option>
+          <option value="dhistudio">D5 / outro IA</option>
+          <option value="outro">Outro</option>
+        </select>
 
         <label className="login-label">Senha</label>
         <div className="senha-campo">
