@@ -916,3 +916,10 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .tm-toggle-op { border: none; background: none; padding: 8px 20px; border-radius: 100px; font-size: 14px; color: var(--ink2); cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 8px; }
 .tm-toggle-op.ativo { background: var(--paper); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 .tm-toggle-tag { font-size: 11px; background: var(--accent); color: #143d0a; padding: 2px 8px; border-radius: 100px; font-weight: 600; }
+
+/* Modal de recarga */
+.recarga-opcoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.recarga-op { display: flex; flex-direction: column; gap: 2px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); cursor: pointer; font-family: inherit; }
+.recarga-op.ativa { border-color: var(--roxo); background: var(--wash2); }
+.recarga-op-cred { font-size: 15px; font-weight: 600; color: var(--ink); }
+.recarga-op-preco { font-size: 13px; color: var(--ink3); }
