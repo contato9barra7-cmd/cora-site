@@ -95,11 +95,11 @@ export default function AppShell({ children }) {
     { href: '/admin', rotulo: 'Admin', icone: Icone.admin, admin: true },
   ].filter(i => (!i.admin || (conta && conta.is_admin)) && (!i.soDono || (conta && conta.eh_dono_equipe)) && (!i.soPagante || !(conta && conta.eh_membro_equipe)));
 
-  // créditos para a barrinha do header
+  // créditos para o anel do avatar (mostra o quanto RESTA)
   const ilimitado = conta && (conta.creditos_total === -1 || conta.is_admin);
   const total = conta?.creditos_total ?? 0;
   const usados = conta?.creditos_usados ?? 0;
-  const pct = ilimitado || total === 0 ? 0 : Math.min(100, Math.round((usados / total) * 100));
+  const pctRestante = ilimitado || total === 0 ? 0 : Math.max(0, Math.min(100, Math.round(((total - usados) / total) * 100)));
 
   const inicial = (conta?.nome || conta?.email || '?').charAt(0).toUpperCase();
 
@@ -143,7 +143,7 @@ export default function AppShell({ children }) {
                     className="app-anel-fill"
                     cx="23" cy="23" r="21"
                     strokeDasharray={2 * Math.PI * 21}
-                    strokeDashoffset={(2 * Math.PI * 21) * (1 - pct / 100)}
+                    strokeDashoffset={(2 * Math.PI * 21) * (1 - pctRestante / 100)}
                     transform="rotate(-90 23 23)"
                   />
                 </svg>

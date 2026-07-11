@@ -897,3 +897,16 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .admin-filtro-check { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink2); cursor: pointer; }
 
 .ws-creditos { display: block; font-size: 12px; color: var(--ink3); margin-top: 4px; }
+
+/* Anel de créditos do membro (aba equipe) */
+.ws-slot-dir { display: flex; align-items: center; gap: 14px; }
+.ws-anel-wrap { display: flex; align-items: center; gap: 8px; }
+.ws-anel-txt { font-size: 12px; color: var(--ink2); line-height: 1.25; }
+.ws-anel-txt span { color: var(--ink3); }
+
+/* Dropdown de exportação */
+.admin-export-wrap { position: relative; display: inline-block; }
+.admin-export-menu { position: absolute; right: 0; top: calc(100% + 6px); background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 6px; min-width: 240px; z-index: 50; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.admin-export-grupo { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink3); padding: 8px 10px 4px; }
+.admin-export-item { display: block; width: 100%; text-align: left; background: none; border: none; padding: 9px 10px; border-radius: 8px; font-size: 13px; color: var(--ink); cursor: pointer; font-family: inherit; }
+.admin-export-item:hover { background: var(--wash2); }

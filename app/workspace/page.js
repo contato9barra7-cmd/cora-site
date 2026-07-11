@@ -327,13 +327,30 @@ function WorkspaceConteudo() {
                 {m.eh_dono && <span className="ws-tag ws-tag-dono">Você (dono)</span>}
                 {m.status === 'convidado' && <span className="ws-tag ws-tag-pend">Convite pendente</span>}
                 {m.status === 'ativo' && !m.eh_dono && <span className="ws-tag ws-tag-ativo">Ativo</span>}
-                {m.status === 'ativo' && m.creditos_total != null && (
-                  <span className="ws-creditos">{Math.max(0, (m.creditos_total || 0) - (m.creditos_usados || 0)).toLocaleString('pt-BR')} de {(m.creditos_total || 0).toLocaleString('pt-BR')} créditos</span>
-                )}
               </div>
-              <button className="ws-gerenciar" onClick={() => toggleGerenciar(m)}>
-                {expandido === m.id ? 'Fechar' : 'Gerenciar'}
-              </button>
+              <div className="ws-slot-dir">
+                {m.status === 'ativo' && m.creditos_total != null && (() => {
+                  const rest = Math.max(0, (m.creditos_total || 0) - (m.creditos_usados || 0));
+                  const pct = m.creditos_total > 0 ? Math.round((rest / m.creditos_total) * 100) : 0;
+                  const circ = 2 * Math.PI * 15;
+                  return (
+                    <div className="ws-anel-wrap">
+                      <svg width="34" height="34" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="15" fill="none" stroke="var(--line)" strokeWidth="4" />
+                        <circle cx="18" cy="18" r="15" fill="none" stroke="var(--roxo)" strokeWidth="4"
+                          strokeDasharray={circ} strokeDashoffset={circ * (1 - pct / 100)}
+                          strokeLinecap="round" transform="rotate(-90 18 18)" />
+                      </svg>
+                      <div className="ws-anel-txt">
+                        {rest.toLocaleString('pt-BR')}<br /><span>de {(m.creditos_total || 0).toLocaleString('pt-BR')}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+                <button className="ws-gerenciar" onClick={() => toggleGerenciar(m)}>
+                  {expandido === m.id ? 'Fechar' : 'Gerenciar'}
+                </button>
+              </div>
             </div>
 
             {expandido === m.id && (

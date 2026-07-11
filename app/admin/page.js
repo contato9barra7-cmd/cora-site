@@ -60,30 +60,52 @@ export default function Admin() {
     }
   }
 
-  async function exportarContador() {
-    setExportando(true);
-    setErro('');
+  const [menuExport, setMenuExport] = useState(false);
+
+  function baixarCSV(nomeArq, cabecalho, linhas) {
+    const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const corpo = linhas.map(l => l.map(esc).join(';'));
+    const csv = '\uFEFF' + [cabecalho.join(';'), ...corpo].join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const hoje = new Date().toISOString().slice(0, 10);
+    link.download = `cora-${nomeArq}-${hoje}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const RENDER_LBL = { nao: 'Nenhum', vray: 'V-Ray', corona: 'Corona', enscape: 'Enscape', lumion: 'Lumion', dhistudio: 'D5/IA', outro: 'Outro' };
+
+  async function exportarFiscais() {
+    setMenuExport(false); setExportando(true); setErro('');
     try {
       const linhas = await adminDadosFiscais();
-      if (!linhas.length) { setErro('Nenhum assinante pago para exportar.'); return; }
-      // monta CSV (separador ; que o Excel BR entende bem)
-      const cab = ['Nome', 'Email', 'CPF', 'Plano', 'Telefone', 'Endereço'];
-      const esc = (v) => `"${String(v || '').replace(/"/g, '""')}"`;
-      const corpo = linhas.map(l => [l.nome, l.email, l.cpf, l.plano, l.telefone, l.endereco].map(esc).join(';'));
-      const csv = '\uFEFF' + [cab.join(';'), ...corpo].join('\r\n'); // BOM p/ acentos no Excel
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      const hoje = new Date().toISOString().slice(0, 10);
-      link.download = `cora-render-fiscais-${hoje}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      setErro(e.message);
-    } finally {
-      setExportando(false);
-    }
+      if (!linhas.length) { setErro('Nenhum assinante para exportar.'); return; }
+      baixarCSV('fiscais',
+        ['Nome', 'Email', 'CPF', 'Plano', 'Telefone', 'CEP', 'Endereço'],
+        linhas.map(l => [l.nome, l.email, l.cpf, l.plano, l.telefone, l.cep, l.endereco]));
+    } catch (e) { setErro(e.message); } finally { setExportando(false); }
+  }
+
+  function exportarTrafego(tipo) {
+    setMenuExport(false);
+    const base = assinantes.filter(a => a.id !== meuId);
+    let lista, nome;
+    if (tipo === 'assinantes') { lista = base.filter(a => !a.eh_convidado && !a.eh_trial); nome = 'trafego-assinantes'; }
+    else if (tipo === 'trial') { lista = base.filter(a => a.eh_trial); nome = 'trafego-trial'; }
+    else { lista = base.filter(a => a.eh_convidado); nome = 'trafego-membros'; }
+    if (!lista.length) { setErro('Nenhuma conta nessa categoria.'); return; }
+    baixarCSV(nome,
+      ['Nome', 'Email', 'Profissão', 'Origem', 'Renderizador', 'Tamanho equipe', 'Projetos/ano', 'Cadastro'],
+      lista.map(a => [a.nome, a.email, a.profissao, a.origem, RENDER_LBL[a.usa_render] || a.usa_render, a.tamanho, a.volume,
+        a.criado_em ? new Date(a.criado_em).toLocaleDateString('pt-BR') : '']));
+  }
+
+  async function exportarContador() {
+    // mantida por compatibilidade — chama a fiscal
+    return exportarFiscais();
   }
 
   useEffect(() => {
@@ -255,14 +277,26 @@ export default function Admin() {
           >
             {carregandoFiscais ? 'Carregando...' : (dadosFiscais ? 'Ocultar dados fiscais' : 'Ver dados fiscais')}
           </button>
-          <button
-            className="btn btn--verde"
-            style={{ width: 'auto', margin: 0, padding: '8px 18px' }}
-            onClick={exportarContador}
-            disabled={exportando}
-          >
-            {exportando ? 'Gerando...' : 'Exportar .CSV'}
-          </button>
+          <div className="admin-export-wrap">
+            <button
+              className="btn btn--verde"
+              style={{ width: 'auto', margin: 0, padding: '8px 18px' }}
+              onClick={() => setMenuExport(!menuExport)}
+              disabled={exportando}
+            >
+              {exportando ? 'Gerando...' : 'Exportar .CSV'}
+            </button>
+            {menuExport && (
+              <div className="admin-export-menu" onMouseLeave={() => setMenuExport(false)}>
+                <div className="admin-export-grupo">Fiscal (contador)</div>
+                <button className="admin-export-item" onClick={exportarFiscais}>Infos fiscais — assinantes</button>
+                <div className="admin-export-grupo">Tráfego (marketing)</div>
+                <button className="admin-export-item" onClick={() => exportarTrafego('assinantes')}>Assinantes</button>
+                <button className="admin-export-item" onClick={() => exportarTrafego('trial')}>Trial</button>
+                <button className="admin-export-item" onClick={() => exportarTrafego('membros')}>Membros de equipe</button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
