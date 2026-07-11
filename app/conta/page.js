@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta, atualizarConta, baixarPlugin } from '../../lib/auth';
+import { lerConta, atualizarConta, baixarPlugin, minhaEquipe } from '../../lib/auth';
 
 const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
 
@@ -15,6 +15,7 @@ function ContaConteudo() {
   const [aviso, setAviso] = useState('');
   const [erro, setErro] = useState('');
   const [baixando, setBaixando] = useState(false);
+  const [equipeMembro, setEquipeMembro] = useState(null);
 
   async function baixar() {
     setBaixando(true);
@@ -35,6 +36,8 @@ function ContaConteudo() {
     if (!c) { router.push('/login'); return; }
     setConta(c);
     setCarregando(false);
+    // verifica se a pessoa participa de uma equipe (como convidada)
+    minhaEquipe().then((eq) => { if (eq) setEquipeMembro(eq); });
 
     if (params.get('pagamento') === 'sucesso') {
       setAviso('Pagamento recebido! Atualizando sua conta...');
@@ -88,6 +91,17 @@ function ContaConteudo() {
           </span>
         </div>
       </div>
+
+      {equipeMembro && (
+        <div className="conta-card" style={{ borderColor: 'var(--roxo)' }}>
+          <h2 className="conta-h2">Você faz parte de uma equipe</h2>
+          <p className="conta-p">
+            {equipeMembro.nome ? <>Equipe <strong>{equipeMembro.nome}</strong></> : 'Equipe'}
+            {' · '}convidado por {equipeMembro.dono_nome || equipeMembro.dono_email}.
+            Seu acesso ao plano {equipeMembro.plano === 'studio' ? 'Studio' : 'Pro'} é fornecido por esta equipe.
+          </p>
+        </div>
+      )}
 
       {/* Download do plugin */}
       <div className="conta-card">
