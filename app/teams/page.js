@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Nav from '../../components/Nav';
 import { calcularTeams, descontoAssentos } from '../../lib/planos';
+import { iniciarCheckoutEquipe, salvarCPF } from '../../lib/auth';
 
 function brl(n) { return 'R$ ' + n.toLocaleString('pt-BR'); }
 
@@ -11,6 +12,11 @@ export default function Teams() {
   const router = useRouter();
   const [plano, setPlano] = useState('pro');
   const [assentos, setAssentos] = useState(2);
+  const [erro, setErro] = useState('');
+  const [modalCpf, setModalCpf] = useState(false);
+  const [cpf, setCpf] = useState('');
+  const [cpfErro, setCpfErro] = useState('');
+  const [salvandoCpf, setSalvandoCpf] = useState(false);
 
   const calc = calcularTeams(plano, assentos);
 
@@ -18,9 +24,41 @@ export default function Teams() {
     setAssentos((a) => Math.max(2, Math.min(100, a + delta)));
   }
 
-  function assinar() {
-    // Etapa 2: aqui vai o checkout de equipe (login + CPF -> Stripe com quantidade).
-    alert('Em breve: checkout de equipe com ' + assentos + ' assentos do plano ' + (plano === 'pro' ? 'Pro' : 'Studio') + '.');
+  function formatarCpf(v) {
+    const d = v.replace(/\D/g, '').slice(0, 11);
+    return d.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  }
+
+  async function assinar(guia) {
+    setErro('');
+    try {
+      await iniciarCheckoutEquipe(plano, assentos, guia);
+    } catch (e) {
+      if (e.precisaCpf) { setModalCpf(true); return; }
+      if (e.jaTemEquipe) { setErro('Você já tem uma equipe ativa. Veja na página da sua equipe.'); return; }
+      setErro(e.message);
+    }
+  }
+
+  function clicarAssinar() {
+    const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+    assinar(guia);
+  }
+
+  async function confirmarCpf() {
+    setCpfErro('');
+    setSalvandoCpf(true);
+    try {
+      await salvarCPF(cpf);
+      const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+      setModalCpf(false);
+      setCpf('');
+      await assinar(guia);
+    } catch (e) {
+      setCpfErro(e.message);
+    } finally {
+      setSalvandoCpf(false);
+    }
   }
 
   return (
@@ -84,9 +122,10 @@ export default function Teams() {
               )}
             </div>
 
-            <button className="btn btn--verde" style={{ width: '100%', marginTop: 20, padding: '13px' }} onClick={assinar}>
+            <button className="btn btn--verde" style={{ width: '100%', marginTop: 20, padding: '13px' }} onClick={clicarAssinar}>
               Assinar equipe — {brl(calc.total)}/mês
             </button>
+            {erro && <p className="tm-erro">{erro}</p>}
             <p className="tm-obs">
               Ao assinar, você faz login (ou cria uma conta) e informa o CPF. Depois é só convidar as pessoas por email.
             </p>
@@ -105,6 +144,29 @@ export default function Teams() {
           </div>
         </div>
       </div>
+
+      {modalCpf && (
+        <div className="foto-overlay" onClick={() => setModalCpf(false)}>
+          <div className="modal-cpf" onClick={(e) => e.stopPropagation()}>
+            <div className="foto-titulo">Informe seu CPF</div>
+            <p className="tm-sub" style={{ marginBottom: 14 }}>
+              Precisamos do CPF para emitir a nota fiscal da assinatura.
+            </p>
+            <input
+              className="tm-input"
+              value={cpf}
+              onChange={(e) => setCpf(formatarCpf(e.target.value))}
+              placeholder="000.000.000-00"
+              inputMode="numeric"
+            />
+            {cpfErro && <p className="tm-erro">{cpfErro}</p>}
+            <button className="btn btn--verde" style={{ width: '100%', marginTop: 16, padding: '12px' }} onClick={confirmarCpf} disabled={salvandoCpf}>
+              {salvandoCpf ? 'Salvando...' : 'Continuar'}
+            </button>
+            <div className="foto-cancelar" onClick={() => setModalCpf(false)} style={{ marginTop: 12 }}>Cancelar</div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
