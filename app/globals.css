@@ -846,7 +846,30 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .ws-assentos { font-size: 13px; color: var(--ink3); margin-top: 2px; }
 .ws-badge { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 100px; background: #eef0ff; color: #4b46b3; }
 .ws-convidar { display: flex; gap: 10px; }
-.ws-convidar .tm-input { flex: 1; }
-.ws-convidar .btn { white-space: nowrap; padding: 0 22px; }
+.ws-input { flex: 1; padding: 13px 16px; border: 1px solid var(--line2); border-radius: 10px; font-size: 15px; background: var(--paper); color: var(--ink); }
+.ws-btn-convidar { white-space: nowrap; padding: 0 26px; }
+.ws-obs { font-size: 13px; color: var(--ink3); margin-top: 10px; }
 .ws-aviso { color: #1b7a43; font-size: 13px; margin-top: 10px; }
-.ws-pendente { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 10px; background: #fff4e0; color: #a5680a; }
+
+/* Slots (assentos) */
+.ws-slot { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; background: var(--wash); }
+.ws-slot-vazio { border-style: dashed; background: transparent; }
+.ws-slot-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ws-vazio-label { font-size: 14px; color: var(--ink3); }
+.ws-vazio-hint { font-size: 12px; color: var(--ink3); }
+.ws-gerenciar { padding: 7px 16px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.ws-gerenciar:hover { background: var(--wash2); }
+.ws-atribuir { padding: 7px 16px; border: none; background: var(--roxo); color: #fff; border-radius: 100px; font-size: 13px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+.ws-atribuir:hover { opacity: .9; }
+
+/* Tags */
+.ws-tag { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 10px; margin-left: 8px; }
+.ws-tag-dono { background: #eef0ff; color: #4b46b3; }
+.ws-tag-ativo { background: #eafaf0; color: #1b7a43; }
+.ws-tag-pend { background: #fff4e0; color: #a5680a; }
+
+/* Detalhe expandido (gerenciar) */
+.ws-detalhe { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.ws-disp-tit { font-size: 13px; font-weight: 600; color: var(--ink2); margin-bottom: 10px; }
+.ws-remover { margin-top: 14px; padding: 8px 18px; border: 1px solid #e5b3ae; background: none; color: var(--alerta); border-radius: 100px; font-size: 13px; cursor: pointer; }
+.ws-remover:hover { background: var(--alerta); color: #fff; }
