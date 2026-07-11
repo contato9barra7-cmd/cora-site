@@ -102,15 +102,24 @@ export default function Admin() {
   }
 
   const RENDER_LBL = { nao: 'Nenhum', vray: 'V-Ray', corona: 'Corona', enscape: 'Enscape', lumion: 'Lumion', dhistudio: 'D5/IA', outro: 'Outro' };
+  const PROFISSAO_LBL = { arquiteto: 'Arquiteto(a)', designer_interiores: 'Designer de interiores', archviz: 'Archviz', engenheiro: 'Engenheiro(a)', estudante: 'Estudante', paisagista: 'Paisagista', outro: 'Outro' };
+  const ORIGEM_LBL = { instagram: 'Instagram', youtube: 'YouTube', google: 'Google', indicacao: 'Indicação', tiktok: 'TikTok', anuncio: 'Anúncio', outro: 'Outro' };
+  const TAMANHO_LBL = { autonomo: 'Só eu (autônomo)', '2a5': '2 a 5 pessoas', '6a20': '6 a 20 pessoas', '20mais': 'Mais de 20 pessoas' };
+  const VOLUME_LBL = { menos10: 'Menos de 10', '10a20': 'Entre 10 e 20', mais20: 'Mais de 20' };
 
   async function exportarFiscais() {
     setMenuExport(false); setExportando(true); setErro('');
     try {
       const linhas = await adminDadosFiscais();
       if (!linhas.length) { setErro('Nenhum assinante para exportar.'); return; }
-      baixarCSV('fiscais',
-        ['Nome', 'Email', 'CPF', 'Plano', 'Telefone', 'CEP', 'Endereço'],
-        linhas.map(l => [l.nome, l.email, l.cpf, l.plano, l.telefone, l.cep, l.endereco]));
+      baixarCSV('assinantes-fiscais',
+        ['Nome', 'Email', 'CPF', 'Telefone', 'CEP', 'Endereço', 'Plano', 'Assentos', 'Assinou em', 'Valor (R$)'],
+        linhas.map(l => [
+          l.nome, l.email, l.cpf, l.telefone, l.cep, l.endereco,
+          l.plano, l.assentos || 1,
+          l.assinou_em ? new Date(l.assinou_em).toLocaleDateString('pt-BR') : '',
+          ((l.valor_centavos || 0) / 100).toFixed(2),
+        ]));
     } catch (e) { setErro(e.message); } finally { setExportando(false); }
   }
 
@@ -151,8 +160,15 @@ export default function Admin() {
     if (!lista.length) { setErro('Nenhuma conta nessa categoria.'); return; }
     baixarCSV(nome,
       ['Nome', 'Email', 'Profissão', 'Origem', 'Renderizador', 'Tamanho equipe', 'Projetos/ano', 'Cadastro'],
-      lista.map(a => [a.nome, a.email, a.profissao, a.origem, RENDER_LBL[a.usa_render] || a.usa_render, a.tamanho, a.volume,
-        a.criado_em ? new Date(a.criado_em).toLocaleDateString('pt-BR') : '']));
+      lista.map(a => [
+        a.nome, a.email,
+        PROFISSAO_LBL[a.profissao] || a.profissao,
+        ORIGEM_LBL[a.origem] || a.origem,
+        RENDER_LBL[a.usa_render] || a.usa_render,
+        TAMANHO_LBL[a.tamanho] || a.tamanho,
+        VOLUME_LBL[a.volume] || a.volume,
+        a.criado_em ? new Date(a.criado_em).toLocaleDateString('pt-BR') : '',
+      ]));
   }
 
   async function exportarContador() {
@@ -435,9 +451,7 @@ export default function Admin() {
             <option value="cancelado">Cancelados</option>
           </select>
         )}
-        {(filtroData !== 'todos' || filtroProfissao || filtroOrigem || filtroRender || filtroStatus) && (
-          <button className="admin-filtro-limpar" onClick={limparFiltros}>Limpar tudo</button>
-        )}
+        <button className="admin-filtro-limpar" onClick={limparFiltros}>Limpar tudo</button>
       </div>
 
       <input
@@ -551,11 +565,11 @@ export default function Admin() {
                     <div className="admin-email">{a.equipe_dono_email || ''}</div>
                   </td>
                 )}
-                {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.profissao || '—'}</td>}
-                {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.origem || '—'}</td>}
-                {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.usa_render || '—'}</td>}
-                {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.tamanho || '—'}</td>}
-                {aba === 'trial' && <td style={{ fontSize: 13 }}>{a.volume || '—'}</td>}
+                {aba === 'trial' && <td style={{ fontSize: 13 }}>{PROFISSAO_LBL[a.profissao] || a.profissao || '—'}</td>}
+                {aba === 'trial' && <td style={{ fontSize: 13 }}>{ORIGEM_LBL[a.origem] || a.origem || '—'}</td>}
+                {aba === 'trial' && <td style={{ fontSize: 13 }}>{RENDER_LBL[a.usa_render] || a.usa_render || '—'}</td>}
+                {aba === 'trial' && <td style={{ fontSize: 13 }}>{TAMANHO_LBL[a.tamanho] || a.tamanho || '—'}</td>}
+                {aba === 'trial' && <td style={{ fontSize: 13 }}>{VOLUME_LBL[a.volume] || a.volume || '—'}</td>}
                 {aba === 'trial' && <td>{fmtData(a.criado_em)}</td>}
                 {aba === 'pagantes' && <td>{a.valor_centavos ? fmtValor(a.valor_centavos, a.moeda) : '—'}</td>}
                 {aba === 'pagantes' && <td>{fmtData(a.assinou_em)}</td>}
