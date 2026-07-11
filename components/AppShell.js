@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { lerConta, sair, aplicarTema, salvarPerfil } from '../lib/auth';
+import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta } from '../lib/auth';
 
 // Ícones simples em SVG (sem dependência externa)
 const Icone = {
@@ -56,6 +56,8 @@ export default function AppShell({ children }) {
   useEffect(() => {
     const c = lerConta();
     setConta(c);
+    // busca dados frescos pra ter campos novos (ex: eh_dono_equipe, para a aba Equipe)
+    atualizarConta().then((fresca) => { if (fresca) setConta(fresca); }).catch(() => {});
     // aplica o tema salvo (da conta ou do navegador)
     if (typeof window !== 'undefined') {
       setRecolhido(localStorage.getItem('cora_menu_recolhido') === '1');

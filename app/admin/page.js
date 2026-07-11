@@ -173,8 +173,10 @@ export default function Admin() {
   });
 
   const totalConvidados = assinantes.filter(a => a.eh_convidado && a.id !== meuId).length;
-
-  const pagos = assinantes.filter(a => a.plano !== 'free' && a.status === 'ativo').length;
+  // contas "reais" = exclui a própria conta admin e os convidados de equipe
+  const contasReais = assinantes.filter(a => a.id !== meuId && !a.eh_convidado);
+  const totalContas = contasReais.length;
+  const pagos = contasReais.filter(a => (a.plano !== 'free' || a.eh_dono_equipe) && a.status === 'ativo').length;
 
   return (
     <AppShell>
@@ -182,7 +184,7 @@ export default function Admin() {
       <div className="admin-topo">
         <div>
           <h1>Painel de administração</h1>
-          <p className="admin-sub">{assinantes.length} contas · {pagos} com plano pago ativo</p>
+          <p className="admin-sub">{totalContas} contas · {pagos} com plano pago ativo</p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button

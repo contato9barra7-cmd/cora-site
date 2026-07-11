@@ -57,6 +57,7 @@ function ContaConteudo() {
   const ehAdmin = conta.is_admin === true;
   const ehPago = conta.plano && conta.plano !== 'free';
   const nomePlano = ehAdmin ? 'Admin'
+    : conta.eh_dono_equipe ? `Teams (${NOME_PLANO[conta.equipe_plano] || conta.equipe_plano || 'Pro'})`
     : equipeMembro ? `${NOME_PLANO[conta.plano] || conta.plano} (equipe)`
     : (NOME_PLANO[conta.plano] || conta.plano);
   const creditos = (conta.creditos_total === -1 || ehAdmin) ? 'Ilimitado'
@@ -98,12 +99,19 @@ function ContaConteudo() {
 
       {equipeMembro && (
         <div className="conta-card" style={{ borderColor: 'var(--roxo)' }}>
-          <h2 className="conta-h2">Você faz parte de uma equipe</h2>
-          <p className="conta-p">
-            {equipeMembro.nome ? <>Equipe <strong>{equipeMembro.nome}</strong></> : 'Equipe'}
-            {' · '}convidado por {equipeMembro.dono_nome || equipeMembro.dono_email}.
-            Seu acesso ao plano {equipeMembro.plano === 'studio' ? 'Studio' : 'Pro'} é fornecido por esta equipe.
-          </p>
+          <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+            {equipeMembro.foto && (
+              <div style={{ width: 52, height: 52, borderRadius: 12, backgroundImage: `url(${equipeMembro.foto})`, backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0 }} />
+            )}
+            <div>
+              <h2 className="conta-h2" style={{ margin: 0 }}>Você faz parte de uma equipe</h2>
+              <p className="conta-p" style={{ marginBottom: 0 }}>
+                {equipeMembro.nome ? <>Equipe <strong>{equipeMembro.nome}</strong></> : 'Equipe'}
+                {' · '}convidado por {equipeMembro.dono_nome || equipeMembro.dono_email}.
+                Seu acesso ao plano {equipeMembro.plano === 'studio' ? 'Studio' : 'Pro'} é fornecido por esta equipe.
+              </p>
+            </div>
+          </div>
         </div>
       )}
 

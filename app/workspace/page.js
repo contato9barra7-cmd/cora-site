@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta, lerEquipe, convidarMembro, removerMembro, atribuirAMim, dispositivosDoMembro, nomearEquipe, reenviarConvite } from '../../lib/auth';
+import { lerConta, lerEquipe, convidarMembro, removerMembro, atribuirAMim, dispositivosDoMembro, nomearEquipe, reenviarConvite, salvarFotoEquipe } from '../../lib/auth';
 
 const NOME_PLANO = { pro: 'Pro', studio: 'Studio' };
 
@@ -49,6 +49,77 @@ function WorkspaceConteudo() {
   const [nomeEquipe, setNomeEquipe] = useState('');
   const [salvandoNome, setSalvandoNome] = useState(false);
   const [avisoNome, setAvisoNome] = useState('');
+  const [foto, setFoto] = useState('');
+
+  // --- foto da equipe (recorte 1:1, igual ao perfil) ---
+  const [modalFoto, setModalFoto] = useState(false);
+  const [salvandoFoto, setSalvandoFoto] = useState(false);
+  const inputFotoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const fotoState = useRef({ img: null, zoom: 1, x: 0, y: 0, base: 1, drag: false, lx: 0, ly: 0 });
+
+  function abrirSeletorFoto() { if (inputFotoRef.current) inputFotoRef.current.click(); }
+  function aoSelecionarFoto(ev) {
+    const file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const st = fotoState.current;
+        st.img = img;
+        st.base = Math.max(260 / img.width, 260 / img.height);
+        st.zoom = 1; st.x = 0; st.y = 0;
+        setModalFoto(true);
+        setTimeout(desenharFoto, 30);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    ev.target.value = '';
+  }
+  function desenharFoto() {
+    const canvas = canvasRef.current;
+    const st = fotoState.current;
+    if (!canvas || !st.img) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 260, 260);
+    const esc = st.base * st.zoom;
+    const w = st.img.width * esc, h = st.img.height * esc;
+    let x = (260 - w) / 2 + st.x, y = (260 - h) / 2 + st.y;
+    x = Math.min(0, Math.max(260 - w, x));
+    y = Math.min(0, Math.max(260 - h, y));
+    st.x = x - (260 - w) / 2; st.y = y - (260 - h) / 2;
+    ctx.drawImage(st.img, x, y, w, h);
+  }
+  function aoZoom(e) { fotoState.current.zoom = parseFloat(e.target.value); desenharFoto(); }
+  function dragStart(e) { const st = fotoState.current; st.drag = true; st.lx = e.clientX; st.ly = e.clientY; e.currentTarget.setPointerCapture(e.pointerId); }
+  function dragMove(e) { const st = fotoState.current; if (!st.drag) return; st.x += (e.clientX - st.lx); st.y += (e.clientY - st.ly); st.lx = e.clientX; st.ly = e.clientY; desenharFoto(); }
+  function dragEnd() { fotoState.current.drag = false; }
+  async function salvarFotoRecortada() {
+    const st = fotoState.current;
+    if (!st.img) return;
+    setSalvandoFoto(true);
+    try {
+      const out = document.createElement('canvas');
+      out.width = 400; out.height = 400;
+      const octx = out.getContext('2d');
+      const esc = st.base * st.zoom * (400 / 260);
+      const w = st.img.width * esc, h = st.img.height * esc;
+      const x = (400 - w) / 2 + st.x * (400 / 260);
+      const y = (400 - h) / 2 + st.y * (400 / 260);
+      octx.drawImage(st.img, x, y, w, h);
+      const dataUrl = out.toDataURL('image/jpeg', 0.85);
+      await salvarFotoEquipe(dataUrl);
+      setFoto(dataUrl);
+      setModalFoto(false);
+    } catch (err) { console.error(err); }
+    finally { setSalvandoFoto(false); }
+  }
+  async function removerFotoEquipe() {
+    try { await salvarFotoEquipe(''); setFoto(''); }
+    catch (err) { console.error(err); }
+  }
   const criada = params.get('criada') === '1';
 
   async function carregar() {
@@ -58,7 +129,7 @@ function WorkspaceConteudo() {
       const dados = await lerEquipe();
       setEquipe(dados.equipe);
       setMembros(dados.membros || []);
-      if (dados.equipe) setNomeEquipe(dados.equipe.nome || '');
+      if (dados.equipe) { setNomeEquipe(dados.equipe.nome || ''); setFoto(dados.equipe.foto || ''); }
     } catch (e) {
       setErro(e.message);
     } finally {
@@ -173,18 +244,49 @@ function WorkspaceConteudo() {
         O download do plugin fica na aba <strong>Dashboard</strong>.
       </div>
 
-      {/* Nome da equipe */}
+      {/* Foto e nome da equipe */}
       <div className="conta-card">
-        <h2 className="conta-h2">Nome da equipe</h2>
-        <p className="ws-obs" style={{ marginTop: 0, marginBottom: 12 }}>Esse nome aparece para as pessoas convidadas.</p>
-        <div className="ws-linha-input">
-          <input className="ws-input" value={nomeEquipe} onChange={(e) => setNomeEquipe(e.target.value)} placeholder="Nome da sua equipe" maxLength={60} />
-          <button className="btn btn--verde ws-btn" onClick={salvarNome} disabled={salvandoNome}>
-            {salvandoNome ? 'Salvando...' : 'Salvar'}
-          </button>
+        <h2 className="conta-h2">Identidade da equipe</h2>
+        <div className="ws-identidade">
+          <div className="ws-foto-area">
+            <div className="ws-foto-box" style={foto ? { backgroundImage: `url(${foto})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+              {!foto && <span className="ws-foto-inicial">{(nomeEquipe || 'E').charAt(0).toUpperCase()}</span>}
+            </div>
+            <button className="ws-foto-editar" onClick={abrirSeletorFoto} title="Trocar foto">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </button>
+            {foto && <button className="ws-foto-remover" onClick={removerFotoEquipe} title="Remover foto">×</button>}
+            <input ref={inputFotoRef} type="file" accept="image/*" onChange={aoSelecionarFoto} style={{ display: 'none' }} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <p className="ws-obs" style={{ marginTop: 0, marginBottom: 10 }}>Nome e foto aparecem para as pessoas convidadas.</p>
+            <div className="ws-linha-input">
+              <input className="ws-input" value={nomeEquipe} onChange={(e) => setNomeEquipe(e.target.value)} placeholder="Nome da sua equipe" maxLength={60} />
+              <button className="btn btn--verde ws-btn" onClick={salvarNome} disabled={salvandoNome}>
+                {salvandoNome ? 'Salvando...' : 'Salvar'}
+              </button>
+            </div>
+            {avisoNome && <div className="conta-aviso" style={{ marginTop: 12 }}>{avisoNome}</div>}
+          </div>
         </div>
-        {avisoNome && <div className="conta-aviso" style={{ marginTop: 12 }}>{avisoNome}</div>}
       </div>
+
+      {modalFoto && (
+        <div className="foto-overlay" onClick={() => setModalFoto(false)}>
+          <div className="foto-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="foto-titulo">Ajustar foto da equipe</div>
+            <canvas ref={canvasRef} width={260} height={260} className="foto-canvas"
+              onPointerDown={dragStart} onPointerMove={dragMove} onPointerUp={dragEnd} onPointerLeave={dragEnd} />
+            <input type="range" min="1" max="3" step="0.01" defaultValue="1" onChange={aoZoom} className="foto-zoom" />
+            <div className="foto-acoes">
+              <button className="btn btn--verde" onClick={salvarFotoRecortada} disabled={salvandoFoto} style={{ width: 'auto', marginTop: 0, padding: '10px 24px' }}>
+                {salvandoFoto ? 'Salvando...' : 'Salvar'}
+              </button>
+              <div className="foto-cancelar" onClick={() => setModalFoto(false)}>Cancelar</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Resumo do plano */}
       <div className="conta-card">
