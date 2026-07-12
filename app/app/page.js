@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import PainelRender from '../../components/PainelRender';
 import Visualizador from '../../components/Visualizador';
+import Filtros from '../../components/Filtros';
 import { lerConta, creditosMudaram } from '../../lib/auth';
 import { urlParaBase64 } from '../../lib/render';
 import {
@@ -71,6 +72,14 @@ const FILTROS = [
   }
 ];
 
+// "4:5" -> "4 / 5", que o CSS entende em aspect-ratio.
+// Sem proporção guardada (gerações antigas), cai em 4/3 — um meio-termo
+// razoável que não espreme nem estica demais.
+function proporcaoCss(p) {
+  if (!p || !/^\d+:\d+$/.test(p)) return '4 / 3';
+  return p.replace(':', ' / ');
+}
+
 export default function AppPage() {
   const router = useRouter();
   const [conta, setConta] = useState(null);
@@ -95,6 +104,18 @@ export default function AppPage() {
 
   const [vendo, setVendo] = useState(null);   // { lote, indice }
 
+  // Como o feed se apresenta
+  const [layout, setLayout]   = useState('grade');   // grade | linha
+  const [tamanho, setTamanho] = useState('m');       // p | m | g | gg
+
+  // Filtros avançados (o painel do ícone de ajustes)
+  const [painelFiltros, setPainelFiltros] = useState(false);
+  const [avancados, setAvancados] = useState({});
+
+  // Modo A/B: comparar duas imagens quaisquer do histórico
+  const [modoAB, setModoAB] = useState(false);
+  const [ladoB, setLadoB]   = useState(null);
+
   const carregar = useCallback(async () => {
     setCarregando(true);
     setErro('');
@@ -105,13 +126,20 @@ export default function AppPage() {
       if (filtro === 'upscale')   f.ferramenta = 'upscale';
       if (buscaAtiva) f.busca = buscaAtiva;
 
+      // Os avançados (do painel de ajustes) somam aos rápidos
+      if (avancados.de)  f.de  = avancados.de;
+      if (avancados.ate) f.ate = avancados.ate;
+      if (avancados.ferramentas?.length) f.ferramentas = avancados.ferramentas;
+      if (avancados.proporcoes?.length)  f.proporcoes  = avancados.proporcoes;
+      if (avancados.resolucoes?.length)  f.resolucoes  = avancados.resolucoes;
+
       setLotes(await listarGeracoes(f));
     } catch (e) {
       setErro(e.message);
     } finally {
       setCarregando(false);
     }
-  }, [filtro, buscaAtiva]);
+  }, [filtro, buscaAtiva, avancados]);
 
   useEffect(() => {
     const c = lerConta();
@@ -222,19 +250,94 @@ export default function AppPage() {
               ))}
             </div>
 
-            <form
-              className="cr-busca"
-              onSubmit={(e) => { e.preventDefault(); setBuscaAtiva(busca.trim()); }}
-            >
-              <input
-                type="text"
-                placeholder="Buscar"
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                spellCheck={false}
-              />
-            </form>
+            <div className="cr-barra-dir">
+
+              {/* Como o feed se apresenta */}
+              <div className="cr-seg-lay">
+                <button
+                  className={'cr-fbtn' + (layout === 'linha' ? ' cr-fbtn--on' : '')}
+                  onClick={() => setLayout('linha')}
+                  data-tip="Lista"
+                  aria-label="Lista"
+                >
+                  <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <path d="M3 5h14M3 10h14M3 15h14" strokeLinecap="round"/>
+                  </svg>
+                </button>
+                <button
+                  className={'cr-fbtn' + (layout === 'grade' ? ' cr-fbtn--on' : '')}
+                  onClick={() => setLayout('grade')}
+                  data-tip="Grade"
+                  aria-label="Grade"
+                >
+                  <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/>
+                    <rect x="2.5" y="11.5" width="6" height="6" rx="1"/><rect x="11.5" y="11.5" width="6" height="6" rx="1"/>
+                  </svg>
+                </button>
+              </div>
+
+              {/* Tamanho das miniaturas */}
+              <div className="cr-tams">
+                {['p', 'm', 'g', 'gg'].map((t) => (
+                  <button
+                    key={t}
+                    className={'cr-tam' + (tamanho === t ? ' cr-tam--on' : '')}
+                    onClick={() => setTamanho(t)}
+                  >{t.toUpperCase()}</button>
+                ))}
+              </div>
+
+              {/* Filtros avançados */}
+              <div className="cr-ft-wrap">
+                <button
+                  className={'cr-fbtn' + (painelFiltros ? ' cr-fbtn--on' : '')}
+                  onClick={() => setPainelFiltros((v) => !v)}
+                  data-tip="Filtros"
+                  aria-label="Filtros"
+                >
+                  <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <path d="M3 6h14M6 10h8M8 14h4" strokeLinecap="round"/>
+                  </svg>
+                </button>
+
+                <Filtros
+                  aberto={painelFiltros}
+                  valor={avancados}
+                  onMudar={setAvancados}
+                  onLimpar={() => setAvancados({})}
+                  onFechar={() => setPainelFiltros(false)}
+                />
+              </div>
+
+              <form
+                className="cr-busca"
+                onSubmit={(e) => { e.preventDefault(); setBuscaAtiva(busca.trim()); }}
+              >
+                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <circle cx="8.5" cy="8.5" r="5"/><path d="M12.5 12.5L17 17" strokeLinecap="round"/>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Buscar"
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  spellCheck={false}
+                />
+              </form>
+            </div>
           </header>
+
+          {modoAB && (
+            <div className="cr-ab-barra">
+              <span>
+                {ladoB
+                  ? 'Lado A escolhido. Abra uma imagem para comparar.'
+                  : 'Modo A/B: clique numa imagem para escolher o lado A.'}
+              </span>
+              <button onClick={() => { setModoAB(false); setLadoB(null); }}>Sair</button>
+            </div>
+          )}
 
           <div className="cr-lista">
 
@@ -260,6 +363,7 @@ export default function AppPage() {
                         (i < progresso.feito ? ' cr-slot--ok'
                           : i === progresso.feito ? ' cr-slot--agora' : '')
                       }
+                      style={{ aspectRatio: proporcaoCss(progresso.proporcao) }}
                     >
                       {i === progresso.feito && <span className="cr-spin" />}
                       {i > progresso.feito && <span className="cr-slot-n">{i + 1}</span>}
@@ -313,12 +417,17 @@ export default function AppPage() {
                     </p>
                   )}
 
-                  <div className="cr-cards">
+                  <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
                     {lote.itens.map((item, i) => (
                       <button
                         key={item.id}
-                        className="cr-card"
-                        onClick={() => setVendo({ lote, indice: i })}
+                        className={'cr-card' + (ladoB?.id === item.id ? ' cr-card--ab' : '')}
+                        style={{ aspectRatio: proporcaoCss(lote.proporcao) }}
+                        onClick={() => {
+                          // No A/B, clicar escolhe o lado de comparação
+                          if (modoAB) { setLadoB(item); return; }
+                          setVendo({ lote, indice: i });
+                        }}
                       >
                         <img src={item.url} alt="" loading="lazy" />
                         {item.favorito && (
@@ -344,6 +453,10 @@ export default function AppPage() {
           original={vendo.lote.original}
           prompt={vendo.lote.observacoes}
           ehAdmin={ehAdmin}
+          modoAB={modoAB}
+          ladoB={ladoB}
+          onEntrarAB={() => { setModoAB(true); setVendo(null); }}
+          onSairAB={() => { setModoAB(false); setLadoB(null); }}
           onFechar={() => setVendo(null)}
           onFavoritar={favoritar}
           onExcluir={excluir}

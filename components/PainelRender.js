@@ -17,6 +17,7 @@
 import { useState, useEffect, useRef } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
+import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import {
   gerarRender, lerMateriais, custoRender, CREDITOS,
   TIPOS, PROPORCOES, LUZ_TIPOS, MOODS, DIRECOES,
@@ -63,6 +64,54 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   const [popRes, setPopRes]     = useState(false);
 
   const [erro, setErro] = useState('');
+
+  // ── Volta como a pessoa deixou ──
+  // Fechar a aba não pode custar a leitura de materiais (que custou 15
+  // créditos) nem o ajuste fino de luz e entorno.
+  const [restaurado, setRestaurado] = useState(false);
+  const [avisoImg, setAvisoImg]     = useState(false);
+
+  useEffect(() => {
+    const r = lerRascunho();
+    if (r) {
+      if (r.imagem)  setImagem(r.imagem);
+      if (r.previa)  setPrevia(r.previa);
+      if (r.tipo)    setTipo(r.tipo);
+      if (r.proporcao)   setProporcao(r.proporcao);
+      if (r.resolucao)   setResolucao(r.resolucao);
+      if (r.quantidade)  setQuantidade(r.quantidade);
+      if (r.materiais)   setMateriais(r.materiais);
+      if (r.matEstado)   setMatEstado(r.matEstado);
+      if (r.luzTipo)     setLuzTipo(r.luzTipo);
+      if (r.mood)        setMood(r.mood);
+      if (r.detNatural)  setDetNatural(r.detNatural);
+      if (r.direcoes)    setDirecoes(r.direcoes);
+      if (r.descLuz)     setDescLuz(r.descLuz);
+      if (r.corLuz)      setCorLuz(r.corLuz);
+      if (r.intensidade) setIntensidade(r.intensidade);
+      if (r.detArtificial) setDetArtificial(r.detArtificial);
+      if (r.tagsEntorno) setTagsEntorno(r.tagsEntorno);
+      if (r.entorno)     setEntorno(r.entorno);
+      if (r.refTexto)    setRefTexto(r.refTexto);
+
+      // A imagem era grande demais para o localStorage: avisa, sem drama.
+      if (r.imagemGrande && r.matEstado === 'confirmado') setAvisoImg(true);
+    }
+    setRestaurado(true);
+  }, []);
+
+  // Guarda a cada mudança (só depois de restaurar, senão apaga o que leu)
+  useEffect(() => {
+    if (!restaurado) return;
+    salvarRascunho({
+      imagem, previa, tipo, proporcao, resolucao, quantidade,
+      materiais, matEstado, luzTipo, mood, detNatural,
+      direcoes, descLuz, corLuz, intensidade, detArtificial,
+      tagsEntorno, entorno, refTexto
+    });
+  }, [restaurado, imagem, previa, tipo, proporcao, resolucao, quantidade,
+      materiais, matEstado, luzTipo, mood, detNatural, direcoes, descLuz,
+      corLuz, intensidade, detArtificial, tagsEntorno, entorno, refTexto]);
 
   // Alguém mandou uma imagem de outra aba? Carrega.
   useEffect(() => {
@@ -144,15 +193,24 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       direcaoLuz:    direcoes.join(', '),
       descLuz:       descLuz.trim(),
       refTexto:      refTexto.trim(),
-      referencias:   refs.map((r) => ({ base64: r.base64, mimeType: 'image/png' }))
+      // O label vai explícito: o servidor usa ele para nomear a referência
+      // no prompt. (@img01 e @ref01 são a mesma coisa — ver o index.js.)
+      referencias: refs.map((r, i) => ({
+        base64: r.base64,
+        mimeType: 'image/png',
+        label: '@img' + String(i + 1).padStart(2, '0')
+      }))
     };
 
     try {
       const r = await gerarRender(cfg, {
-        onProgresso: (feito, total, estado) => onProgresso({ feito, total, estado }),
+        onProgresso: (feito, total, estado) => onProgresso({ feito, total, estado, proporcao }),
         loteAnterior   // mesma config = continua na mesma linha do feed
       });
       onPronto(r);
+      // Deu certo: o rascunho já cumpriu o papel. (O painel continua
+      // preenchido na tela — só não precisamos mais guardar em disco.)
+      limparRascunho();
     } catch (e) {
       setErro(e.message);
     } finally {
@@ -398,7 +456,40 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           onChange={(e) => setRefTexto(e.target.value)}
           spellCheck={false}
         />
-        <p className="cr-hint">Use @img01, @img02... para referenciar cada imagem carregada.</p>
+
+        {/* Confere se as @img que a pessoa escreveu existem mesmo */}
+        {(() => {
+          const citadas = [...refTexto.matchAll(/@img(\d{1,2})/gi)]
+            .map((m) => parseInt(m[1], 10));
+          const orfas = [...new Set(citadas)].filter((n) => n < 1 || n > refs.length);
+
+          if (orfas.length > 0) {
+            return (
+              <p className="cr-hint cr-hint--erro">
+                {orfas.map((n) => '@img' + String(n).padStart(2, '0')).join(', ')}
+                {orfas.length === 1 ? ' não existe' : ' não existem'} — você tem {refs.length}
+                {refs.length === 1 ? ' referência' : ' referências'}.
+              </p>
+            );
+          }
+          if (citadas.length > 0) {
+            return (
+              <p className="cr-hint cr-hint--ok">
+                {[...new Set(citadas)].length}
+                {[...new Set(citadas)].length === 1 ? ' referência citada' : ' referências citadas'}.
+              </p>
+            );
+          }
+          return <p className="cr-hint">Use @img01, @img02... para referenciar cada imagem carregada.</p>;
+        })()}
+
+        {avisoImg && (
+          <div className="cr-aviso">
+            Seus materiais foram guardados, mas a imagem era grande demais para
+            caber na memória do navegador. Escolha a imagem de novo.
+            <button onClick={() => setAvisoImg(false)}>Entendi</button>
+          </div>
+        )}
 
         {erro && <div className="cr-erro">{erro}</div>}
       </div>

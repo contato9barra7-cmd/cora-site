@@ -1,25 +1,26 @@
-// Ícone de crédito — a moedinha que aparece nos botões que geram.
-// Só aparece em quem REALMENTE cobra: "Ler materiais" e "Renderizar".
-// Botões que apenas transportam a imagem para outra aba (Editar, Upscale,
-// Animar) não cobram nada no clique, então não levam este ícone.
+// Ícone de crédito — o losango do plugin.
+//
+// O plugin usa exatamente este path (panel.html):
+//   <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+//     <path d="M12 2l10 10-10 10L2 12z"/>
+//   </svg>
+// Copiado tal e qual, para o mesmo símbolo aparecer nos dois lugares.
+//
+// Só entra em botões que REALMENTE cobram ("Ler materiais", "Renderizar").
+// Editar/Upscale/Animar apenas transportam a imagem para outra aba — não
+// geram, não cobram, não levam o losango.
 
-export default function IconeCredito({ tamanho = 11 }) {
+export default function IconeCredito({ tamanho = 12 }) {
   return (
     <svg
-      viewBox="0 0 20 20"
+      viewBox="0 0 24 24"
       width={tamanho}
       height={tamanho}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
+      fill="currentColor"
+      style={{ verticalAlign: '-1px' }}
       aria-hidden="true"
     >
-      <circle cx="10" cy="10" r="7.2" />
-      <path
-        d="M10 5.8v8.4M7.9 8.1h3.3a1.55 1.55 0 010 3.1H8.8a1.55 1.55 0 000 3.1h3.3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M12 2l10 10-10 10L2 12z" />
     </svg>
   );
 }

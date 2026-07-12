@@ -79,6 +79,10 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
   const [pegando, setPegando]       = useState(null);
   const [busca, setBusca]           = useState('');
 
+  // A imagem enviada fica AQUI, esperando o OK. Colar ou escolher um arquivo
+  // não fecha o picker sozinho — a pessoa vê o que carregou e confirma.
+  const [pendente, setPendente] = useState(null);   // { base64, previa }
+
   const carregarFeed = useCallback(async (soFavoritos, termo) => {
     setCarregando(true);
     setErro('');
@@ -106,7 +110,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
   useEffect(() => {
     if (!aberto) return;
 
-    const onKey = (e) => { if (e.key === 'Escape') onFechar(); };
+    const onKey = (e) => { if (e.key === 'Escape') fechar(); };
 
     const onPaste = async (e) => {
       const item = [...(e.clipboardData?.items || [])]
@@ -124,15 +128,24 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
     };
   });
 
+  // Guarda o que a pessoa enviou. NÃO fecha — ela confirma depois.
   async function escolherArquivo(file) {
     setErro('');
     try {
       const base64 = await arquivoParaBase64(file);
-      onEscolher({ base64, previa: URL.createObjectURL(file) });
-      onFechar();
+      setPendente({ base64, previa: URL.createObjectURL(file) });
+      setOrigem('enviar');   // se colou estando no histórico, mostra o que colou
     } catch (e) { setErro(e.message); }
   }
 
+  function confirmar() {
+    if (!pendente) return;
+    onEscolher(pendente);
+    setPendente(null);
+    onFechar();
+  }
+
+  // Do histórico, um clique basta: a pessoa já está vendo a imagem.
   async function escolherDoFeed(item) {
     setPegando(item.id);
     setErro('');
@@ -144,12 +157,18 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
     finally { setPegando(null); }
   }
 
+  // Fechar limpa o que estava pendente
+  function fechar() {
+    setPendente(null);
+    onFechar();
+  }
+
   if (!aberto) return null;
 
   const vazio = !carregando && grupos.length === 0;
 
   return (
-    <div className="cr-overlay" onClick={onFechar}>
+    <div className="cr-overlay" onClick={fechar}>
       <div className="pk" onClick={(e) => e.stopPropagation()}>
 
         {/* ── Lateral: de onde vem a imagem ── */}
@@ -188,12 +207,12 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
               </div>
             )}
 
-            <button className="cr-modal-x" onClick={onFechar} aria-label="Fechar">×</button>
+            <button className="cr-modal-x" onClick={fechar} aria-label="Fechar">×</button>
           </header>
 
           <div className="pk-corpo">
 
-            {origem === 'enviar' && (
+            {origem === 'enviar' && !pendente && (
               <label
                 className={'pk-drop' + (arrastando ? ' pk-drop--on' : '')}
                 onDragOver={(e) => { e.preventDefault(); setArrastando(true); }}
@@ -219,7 +238,24 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
               </label>
             )}
 
-            {origem !== 'enviar' && (
+            {/* Carregou: mostra e espera o OK */}
+            {pendente && (
+              <div className="pk-pend">
+                <div className="pk-pend-img">
+                  <img src={pendente.previa} alt="" />
+                </div>
+                <div className="pk-pend-acoes">
+                  <button className="pk-pend-trocar" onClick={() => setPendente(null)}>
+                    Trocar imagem
+                  </button>
+                  <button className="pk-pend-ok" onClick={confirmar}>
+                    Usar esta imagem
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {origem !== 'enviar' && !pendente && (
               <>
                 {carregando && <p className="cr-msg">Carregando...</p>}
 

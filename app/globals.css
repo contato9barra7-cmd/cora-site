@@ -30,7 +30,7 @@
   --accent:     var(--roxo);
   --accent-esc: var(--roxo-esc);
   --accent-bg:  rgba(164, 161, 243, .12);
-  --accent-txt: #FFFFFF;          /* texto sobre o accent cheio */
+  --accent-txt: #111111;          /* PRETO sobre o roxo — o branco some */
 }
 :root[data-theme="dark"] {
   /* No escuro o accent vira verde (ver o bloco acima) */
@@ -982,7 +982,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 }
 
 .cr-painel {
-  width: 360px;
+  width: 400px;
   flex-shrink: 0;
   border-right: 1px solid var(--line);
   background: var(--wash);
@@ -1088,9 +1088,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .cr-fbtn--fav.cr-fbtn--on svg { fill: var(--roxo); }
 
 /* ── Tooltip (portado do plugin: [data-tip]) ── */
-.cr-wrap [data-tip] { position: relative; }
+[data-tip] { position: relative; }
 
-.cr-wrap [data-tip]:hover::after {
+[data-tip]:hover::after {
   content: attr(data-tip);
   position: absolute;
   top: calc(100% + 6px);
@@ -1230,8 +1230,10 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .cr-card {
   position: relative;
-  width: 216px;
-  height: 126px;
+  /* Sem altura fixa: a largura vem da grade e a altura sai do aspect-ratio,
+     que a página define a partir da proporção real da geração. Antes eram
+     216x126 fixos, o que espremia uma 4:5 e esticava uma 21:9. */
+  width: 100%;
   border-radius: 10px;
   border: 1px solid var(--line);
   background: var(--wash);
@@ -1245,7 +1247,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .cr-card img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover;   /* o card já tem a proporção certa: nada é cortado */
   display: block;
 }
 
@@ -2799,7 +2801,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 }
 
 .cr-slot {
-  aspect-ratio: 4 / 5;
+  /* a proporção vem da página (a mesma da geração em curso) */
   border-radius: 10px;
   border: 1px dashed var(--line2);
   background: var(--wash);
@@ -2857,4 +2859,515 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   color: var(--accent);
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .4));
   pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Tooltip — a caixinha tem que caber o texto
+
+   O problema anterior: `white-space: pre-line` deixa a linha quebrar, mas
+   a caixa não crescia junto — a letra vazava para fora do fundo escuro.
+   `nowrap` + `width: max-content` resolve: a caixa acompanha o texto.
+   ═══════════════════════════════════════════════════════════ */
+
+[data-tip]:hover::after {
+  white-space: nowrap;
+  width: auto;
+  max-width: none;
+  padding: 5px 10px;
+  font-size: 11px;
+  border-radius: 6px;
+  z-index: 100;
+}
+
+/* No rodapé do visualizador o tooltip sobe, senão sai da tela */
+.vz-acoes [data-tip]:hover::after,
+.cr-barra [data-tip]:hover::after {
+  top: auto;
+  bottom: calc(100% + 7px);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Visualizador — o tamanho NÃO muda entre os modos
+   ═══════════════════════════════════════════════════════════ */
+
+.vz-area {
+  flex: 1;
+  min-height: 0;
+  height: 62vh;              /* fixo: trocar de modo não faz a tela pular */
+  padding: 16px;
+  background: var(--wash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* O par de imagens: esta caixa tem o tamanho da IMAGEM, não do contêiner.
+   É por isso que a cortina do split cai no lugar certo — as duas camadas
+   compartilham exatamente a mesma caixa. */
+.vz-par {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  max-height: 100%;
+  line-height: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: ew-resize;
+  user-select: none;
+}
+
+.vz-par--single { cursor: grab; }
+.vz-par--single:active { cursor: grabbing; }
+
+.vz-img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(62vh - 32px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+}
+
+.vz-cortina {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+/* A imagem de dentro da cortina NÃO encolhe: ela tem o tamanho da caixa
+   inteira, e é a cortina que corta. Sem isto, o print apareceria espremido
+   e "pegaria" um pedaço do render — era esse o bug. */
+.vz-img--fixa {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: none;
+  max-height: none;
+  width: 100%;
+  height: 100%;
+}
+
+.vz-cortina { width: 50%; }
+.vz-cortina .vz-img--fixa { width: auto; height: 100%; }
+
+.vz-sbs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+}
+
+.vz-sbs-lado {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--wash2);
+}
+
+.vz-sbs-lado .vz-img { max-height: calc(62vh - 32px); }
+
+/* Etiquetas Print/Render — o fundo acompanha o texto */
+.vz-tag {
+  position: absolute;
+  top: 10px;
+  display: inline-block;
+  width: auto;
+  white-space: nowrap;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, .62);
+  padding: 4px 10px;
+  border-radius: 100px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.vz-tag--esq { left: 10px; }
+.vz-tag--dir { right: 10px; }
+
+.vz-aviso {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 11px;
+  color: #fff;
+  background: rgba(0, 0, 0, .62);
+  padding: 6px 14px;
+  border-radius: 100px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Botão A/B */
+.vz-ab {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink3);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-left: auto;
+  transition: all .15s;
+}
+
+.vz-ab:hover { border-color: var(--ink3); color: var(--ink2); }
+
+.vz-ab--on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.vz-cab .cr-modal-x { margin-left: 8px; }
+
+.vz-ab-dica {
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  text-align: center;
+}
+
+/* Ações: tudo em ícone. O nome aparece no hover. */
+.vz-ico--envia {
+  color: var(--ink2);
+}
+
+.vz-ico--envia:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+/* Coração favoritado: roxo no claro, verde no escuro (é o --accent) */
+.vz-ico--fav {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+/* ═══ Picker: a imagem enviada espera o OK ═══ */
+.pk-pend {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 14px;
+}
+
+.pk-pend-img {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--wash);
+  overflow: hidden;
+  padding: 12px;
+}
+
+.pk-pend-img img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.pk-pend-acoes {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pk-pend-trocar {
+  flex: 1;
+  height: 38px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink2);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.pk-pend-trocar:hover { border-color: var(--ink3); color: var(--ink); }
+
+.pk-pend-ok {
+  flex: 2;
+  height: 38px;
+  border-radius: 100px;
+  border: none;
+  background: var(--accent);
+  color: var(--accent-txt);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.pk-pend-ok:hover { opacity: .88; }
+
+/* ═══ Feed: grade ou lista, com tamanhos ═══ */
+.cr-barra-dir {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cr-seg-lay {
+  display: flex;
+  gap: 3px;
+}
+
+.cr-tams {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 100px;
+  background: var(--wash);
+}
+
+.cr-tam {
+  width: 26px;
+  height: 24px;
+  border: none;
+  border-radius: 100px;
+  background: transparent;
+  color: var(--ink3);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.cr-tam:hover { color: var(--ink2); }
+
+.cr-tam--on {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.cr-ft-wrap { position: relative; }
+
+/* Grade: quantas por linha depende do tamanho */
+.cr-cards--grade { display: grid; gap: 8px; }
+.cr-cards--grade.cr-cards--p  { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+.cr-cards--grade.cr-cards--m  { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.cr-cards--grade.cr-cards--g  { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+.cr-cards--grade.cr-cards--gg { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); }
+
+/* Lista: uma fileira que rola na horizontal */
+.cr-cards--linha {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.cr-cards--linha .cr-card { flex-shrink: 0; }
+.cr-cards--linha.cr-cards--p  .cr-card { width: 110px; }
+.cr-cards--linha.cr-cards--m  .cr-card { width: 170px; }
+.cr-cards--linha.cr-cards--g  .cr-card { width: 250px; }
+.cr-cards--linha.cr-cards--gg .cr-card { width: 360px; }
+
+/* Na lista, os cards de uma mesma linha têm proporções diferentes e alturas
+   diferentes. Alinhar pelo topo evita que fiquem dançando na vertical. */
+.cr-cards--linha { align-items: flex-start; }
+
+/* Card escolhido como lado A */
+.cr-card--ab {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.cr-ab-barra {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 16px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 11px;
+  border-bottom: 1px solid var(--line);
+}
+
+.cr-ab-barra button {
+  margin-left: auto;
+  padding: 3px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ═══ Painel de filtros ═══ */
+.ft-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.ft {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 41;
+  width: 330px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .14);
+}
+
+.ft-bloco { margin-bottom: 16px; }
+
+.ft-bloco h4 {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--ink3);
+  margin: 0 0 8px;
+}
+
+.ft-datas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ft-datas input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+}
+
+.ft-datas input:focus { border-color: var(--accent); }
+.ft-datas span { color: var(--ink3); font-size: 12px; }
+
+.ft-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ft-tag {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink2);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.ft-tag:hover { border-color: var(--ink3); }
+
+.ft-tag--on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.ft-limpar {
+  width: 100%;
+  height: 34px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink2);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.ft-limpar:hover:not(:disabled) { border-color: var(--alerta); color: var(--alerta); }
+.ft-limpar:disabled { opacity: .4; cursor: default; }
+
+/* Busca com lupa */
+.cr-busca {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 100px;
+  background: var(--wash);
+  color: var(--ink3);
+}
+
+.cr-busca input {
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+  width: 110px;
+}
+
+/* Hint de referências */
+.cr-hint--erro { color: var(--alerta); }
+.cr-hint--ok   { color: var(--accent); }
+
+/* Coração no card: usa o accent (roxo no claro, verde no escuro) */
+.cr-card-fav { color: var(--accent); }
+
+/* Aviso ameno (não é erro) */
+.cr-aviso {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--wash2);
+  color: var(--ink2);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.cr-aviso button {
+  display: block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink2);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
 }
