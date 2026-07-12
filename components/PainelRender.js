@@ -19,8 +19,10 @@ import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
 import CampoRefs from './CampoRefs';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
+import { salvarLeitura } from '../lib/leituras';
+import HistoricoLeituras from './HistoricoLeituras';
 import {
-  gerarRender, lerMateriais, custoRender, CREDITOS,
+  gerarRender, lerMateriais, custoRender, miniatura, CREDITOS,
   TIPOS, PROPORCOES, LUZ_TIPOS, MOODS, DIRECOES,
   CORES_LUZ, INTENSIDADES, ENTORNOS, RESOLUCOES, MAX_REFS
 } from '../lib/render';
@@ -72,6 +74,11 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   const [restaurado, setRestaurado] = useState(false);
   const [avisoImg, setAvisoImg]     = useState(false);
   const [confirmarReset, setConfirmarReset] = useState(false);
+  const [verLeituras, setVerLeituras]       = useState(false);
+
+  // Quando a imagem veio do histórico, sabemos o id dela: a leitura aponta
+  // para a geração, e a thumb sai da URL assinada. Nada é duplicado.
+  const [geracaoIdDaImagem, setGeracaoIdDaImagem] = useState(null);
 
   useEffect(() => {
     const r = lerRascunho('render');
@@ -133,13 +140,19 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     return () => window.removeEventListener('click', fechar);
   }, [popRatio, popRes]);
 
-  function escolheuImagem({ base64, previa: p }) {
+  function escolheuImagem({ base64, previa: p, geracaoId }) {
     if (picker === 'ref') {
       if (refs.length < MAX_REFS) setRefs((r) => [...r, { base64, previa: p }]);
       return;
     }
     setImagem(base64);
     setPrevia(p);
+
+    // Se veio do histórico, a imagem já está no R2 — a leitura vai apontar
+    // para ela, em vez de guardar outra cópia. Se foi upload, fica null e
+    // a leitura guarda uma miniatura própria.
+    setGeracaoIdDaImagem(geracaoId || null);
+
     setMateriais('');       // imagem nova: os materiais antigos não valem mais
     setMatEstado('vazio');
     setErro('');
@@ -159,10 +172,38 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       const txt = await lerMateriais(imagem, tipo);
       setMateriais(txt);
       setMatEstado('revisar');   // agora a pessoa lê, edita e confirma
+
+      // Isto custou 15 créditos. Guardamos no banco para que fechar o
+      // navegador não signifique pagar de novo pelo mesmo trabalho.
+      // Não esperamos o salvamento: se falhar, a pessoa nem fica sabendo —
+      // a leitura está na tela, que é o que importa agora.
+      salvarLeitura({
+        origem:    'render',
+        titulo:    tituloDaLeitura(),
+        materiais: txt,
+        geracaoId: geracaoIdDaImagem,          // a imagem já está no R2
+        thumb:     geracaoIdDaImagem ? null : await miniatura(imagem)
+      });
+
     } catch (e) {
       setErro(e.message);
       setMatEstado('vazio');
     }
+  }
+
+  // Um nome para a pessoa reconhecer a leitura depois.
+  function tituloDaLeitura() {
+    const agora = new Date().toLocaleDateString('pt-BR', {
+      day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+    });
+    return `${tipo === 'externo' ? 'Externo' : tipo === 'planta' ? 'Planta' : 'Interno'} · ${agora}`;
+  }
+
+  // Reabre uma leitura antiga: o texto volta, sem custo.
+  function usarLeitura(l) {
+    setMateriais(l.materiais);
+    setMatEstado('revisar');
+    setVerLeituras(false);
   }
 
   async function gerar() {
@@ -224,7 +265,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   // Volta tudo ao padrão. O rascunho vai junto — senão a próxima visita
   // ressuscitaria o que a pessoa acabou de apagar.
   function resetar() {
-    setImagem(null);      setPrevia(null);
+    setImagem(null);      setPrevia(null);   setGeracaoIdDaImagem(null);
     setTipo('interno');   setProporcao('4:5');   setResolucao('2k');
     setQuantidade(1);
     setMateriais('');     setMatEstado('vazio');
@@ -281,7 +322,19 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
         </div>
 
         {/* ── Materiais ── */}
-        <div className="cr-sec">Materiais</div>
+        <div className="cr-sec">
+          Materiais
+
+          {/* Ler custa 15 créditos. Esta gaveta existe para ninguém pagar
+              duas vezes pelo mesmo trabalho. */}
+          <button className="cr-sec-link" onClick={() => setVerLeituras(true)}>
+            <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="10" cy="10" r="7"/>
+              <path d="M10 6v4l2.5 1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Leituras anteriores
+          </button>
+        </div>
 
         {matEstado !== 'revisar' && (
           <button
@@ -527,6 +580,12 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
             </div>
           </div>
         )}
+
+        <HistoricoLeituras
+          aberto={verLeituras}
+          onFechar={() => setVerLeituras(false)}
+          onEscolher={usarLeitura}
+        />
 
         {avisoImg && (
           <div className="cr-aviso">

@@ -30,10 +30,12 @@ import { useState, useEffect } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
-import { listarAprovadas } from '../lib/geracoes';
+import { listarAprovadas, bytesDaGeracao } from '../lib/geracoes';
+import { salvarLeitura } from '../lib/leituras';
+import HistoricoLeituras from './HistoricoLeituras';
 import {
-  analisarBatch, gerarBatch, CREDITOS, custoBatchCena,
-  urlParaBase64, PROPORCOES, RESOLUCOES, MAX_REFS
+  analisarBatch, gerarBatch, CREDITOS, custoBatchCena, miniatura,
+  PROPORCOES, RESOLUCOES, MAX_REFS
 } from '../lib/render';
 
 const MAX_CENAS = 20;
@@ -62,12 +64,15 @@ export default function PainelBatch({ onPronto, onProgresso, ocupado, setOcupado
         const aprovadas = await listarAprovadas();
         if (!vivo || aprovadas.length === 0) return;
 
+        // Os bytes vêm do SERVIDOR, não da URL do R2: o R2 não manda CORS,
+        // então o fetch() do navegador morria ali ("Failed to fetch") e as
+        // aprovadas nunca chegavam.
         const comBase64 = await Promise.all(
           aprovadas.map(async (a) => {
             try {
               return {
                 id: a.id,
-                base64: await urlParaBase64(a.url),
+                base64: await bytesDaGeracao(a.id),
                 previa: a.url,
                 doHistorico: true
               };
@@ -91,21 +96,27 @@ export default function PainelBatch({ onPronto, onProgresso, ocupado, setOcupado
     return () => { vivo = false; };
   }, []);
 
-  // ── Rascunho: sair e voltar não perde a análise (que custou créditos) ──
+  // ── Persistência: trocar de aba não pode zerar o trabalho ──
+  //
+  //  Guardamos as cenas E a análise. As IMAGENS vão junto (em base64) porque
+  //  sem elas as cenas viram nomes vazios — e a pessoa teria que subir tudo
+  //  de novo. O `rascunho.js` corta o que não couber.
+  //
+  //  A análise em si também vive no BANCO (cada cena vira uma leitura), então
+  //  mesmo perdendo o localStorage a pessoa não paga duas vezes.
   const [restaurado, setRestaurado] = useState(false);
 
   useEffect(() => {
     const r = lerRascunho('batch');
+    if (r?.cenas)   setCenas(r.cenas);
     if (r?.analise) setAnalise(r.analise);
     setRestaurado(true);
   }, []);
 
   useEffect(() => {
     if (!restaurado) return;
-    // Só o texto da análise vai para o disco. Os pixels (refs e cenas) são
-    // grandes demais e a pessoa os reescolhe em segundos.
-    salvarRascunho('batch', { analise });
-  }, [restaurado, analise]);
+    salvarRascunho('batch', { cenas, analise });
+  }, [restaurado, cenas, analise]);
 
   function escolheu({ base64, previa }) {
     if (picker === 'ref') {
@@ -143,14 +154,31 @@ export default function PainelBatch({ onPronto, onProgresso, ocupado, setOcupado
       });
 
       // Cada cena começa NÃO aprovada: a pessoa precisa ler e concordar.
-      setAnalise(r.cenas.map((c, i) => ({
+      const cenasAnalisadas = r.cenas.map((c, i) => ({
         nome:      c.nome || marcadas[i]?.nome || `Cena ${i + 1}`,
         cenaId:    marcadas[i]?.id,
         previa:    marcadas[i]?.previa,
         materiais: c.materiais_completos || c.leitura || '',
         aprovada:  false,
         cfg: { qtd: 1, proporcao: '4:5', resolucao: '2k' }
-      })));
+      }));
+
+      setAnalise(cenasAnalisadas);
+
+      // Cada cena analisada vira uma leitura no BANCO. Isto custou 15
+      // créditos por cena — perder seria pagar de novo pelo mesmo trabalho.
+      // Não esperamos: se o salvamento falhar, a análise está na tela.
+      cenasAnalisadas.forEach(async (c, i) => {
+        const cena = marcadas[i];
+        if (!c.materiais || !cena) return;
+
+        salvarLeitura({
+          origem:    'batch',
+          titulo:    c.nome,
+          materiais: c.materiais,
+          thumb:     await miniatura(cena.base64)
+        });
+      });
     } catch (e) {
       setErro(e.message);
     } finally {

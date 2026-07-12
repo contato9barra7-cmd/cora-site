@@ -15,8 +15,8 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useCallback } from 'react';
-import { arquivoParaBase64, urlParaBase64 } from '../lib/render';
-import { listarGeracoes } from '../lib/geracoes';
+import { arquivoParaBase64 } from '../lib/render';
+import { listarGeracoes, bytesDaGeracao } from '../lib/geracoes';
 
 // Enviar vem primeiro: quase sempre a pessoa quer subir uma imagem nova.
 // Quem vai buscar no histórico procura; quem vai subir, encontra na frente.
@@ -152,8 +152,12 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
     setPegando(item.id);
     setErro('');
     try {
-      const base64 = await urlParaBase64(item.url);
-      onEscolher({ base64, previa: item.url });
+      // Os bytes vêm do servidor: o R2 não manda CORS, então o fetch()
+      // direto na URL da imagem falha ("Failed to fetch").
+      const base64 = await bytesDaGeracao(item.id);
+      // O `geracaoId` viaja junto: com ele, a leitura de materiais aponta
+      // para a imagem que JÁ está no R2, em vez de guardar outra cópia.
+      onEscolher({ base64, previa: item.url, geracaoId: item.id });
       onFechar();
     } catch (e) { setErro(e.message); }
     finally { setPegando(null); }
