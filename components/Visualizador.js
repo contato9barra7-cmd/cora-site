@@ -13,17 +13,16 @@
 //  O tamanho da janela NÃO muda entre os modos — só o conteúdo. Trocar de
 //  modo não pode fazer a tela pular.
 //
-//  ── O bug do split (corrigido) ──
-//  Antes, a camada de cima usava a largura do CONTÊINER. Como a imagem é
-//  menor que o contêiner (fica centralizada, com margem), o corte caía no
-//  lugar errado e o lado do print mostrava um pedaço do render.
-//  Agora as duas camadas usam a MESMA caixa (a da imagem), e o corte é
-//  relativo a ela. Por isso o wrapper .vz-par tem o tamanho da imagem, não
-//  o do contêiner.
+//  ── A imagem É a caixa ──
+//  Não há moldura fixa com a imagem encaixada dentro (que deixava faixas
+//  vazias e arredondava a moldura, não a imagem). A imagem se dimensiona
+//  sozinha: altura cheia, largura pela proporção real. No Split, o print
+//  recebe a MESMA proporção e fica ancorado à esquerda — por isso os dois
+//  coincidem e a cortina corta no lugar certo.
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useRef, useEffect } from 'react';
-import ModalDownload from './ModalDownload';
+import { proporcaoCss } from './Card';
 
 const MODOS = [
   {
@@ -58,22 +57,29 @@ const MODOS = [
 
 export default function Visualizador({
   item, original, prompt, ehAdmin,
+  proporcao,                     // "4:5", "16:9"... dá forma à caixa
+  proporcaoEsq,                  // no A/B, a imagem A pode ter outra forma
   rotuloEsq, rotuloDir,          // no A/B viram "A" e "B"
-  onFechar, onFavoritar, onExcluir, onEnviarPara
+  onFechar, onFavoritar, onBaixar, onExcluir, onEnviarPara
 }) {
   const [modo, setModo]           = useState('split');
   const [corte, setCorte]         = useState(50);
   const [segurando, setSegurando] = useState(false);
-  const [baixar, setBaixar]       = useState(false);
+  // O modal de download e a confirmação de exclusão vivem na PÁGINA: o card
+  // do feed também precisa deles, e dois lugares com o mesmo modal é um
+  // convite a divergirem.
 
-  // Apagar é irreversível — a imagem sai do R2 e não volta. Pede confirmação.
-  const [confirmar, setConfirmar] = useState(false);
-
-  // A largura real da caixa (= da imagem de baixo). O print, dentro da
-  // cortina, precisa dela: sem isso ele encolheria com a cortina, e as duas
-  // imagens deixariam de coincidir.
-  const [largura, setLargura] = useState(0);
   const parRef = useRef(null);
+
+  // A forma da caixa. A imagem NÃO se encaixa numa moldura fixa — ela é a
+  // caixa: altura cheia, e a largura sai desta proporção. Por isso não
+  // sobra faixa vazia e o arredondamento fica na própria imagem.
+  const forma = { aspectRatio: proporcaoCss(proporcao) };
+
+  // No A/B as duas podem ter proporções diferentes. No Side by Side cada uma
+  // fica na sua forma; no Split a sobreposição exige a mesma, então ali o
+  // print acompanha o render.
+  const formaEsq = proporcaoEsq ? { aspectRatio: proporcaoCss(proporcaoEsq) } : forma;
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onFechar(); };
@@ -81,24 +87,6 @@ export default function Visualizador({
     return () => window.removeEventListener('keydown', onKey);
   }, [onFechar]);
 
-  // Mede a caixa sempre que ela mudar (troca de modo, resize da janela)
-  useEffect(() => {
-    if (!parRef.current) return;
-
-    const medir = () => {
-      if (parRef.current) setLargura(parRef.current.clientWidth);
-    };
-    medir();
-
-    const ro = new ResizeObserver(medir);
-    ro.observe(parRef.current);
-    window.addEventListener('resize', medir);
-
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', medir);
-    };
-  }, [modo, item.url]);
 
   // A cortina é relativa à IMAGEM, não ao contêiner. Era esse o bug.
   function arrastar(e) {
@@ -171,6 +159,7 @@ export default function Visualizador({
             <div
               className="vz-par"
               ref={parRef}
+              style={forma}
               onMouseDown={iniciarArrasto}
               onTouchStart={iniciarArrasto}
             >
@@ -181,12 +170,15 @@ export default function Visualizador({
                   a largura da CAIXA (não da cortina) — senão encolheria junto
                   e as duas imagens deixariam de coincidir. Era esse o bug. */}
               <div className="vz-cortina" style={{ width: corte + '%' }}>
+                {/* Mesma forma do render, ancorado à esquerda: os dois se
+                    sobrepõem exatamente, e a cortina só descobre o que já
+                    está no lugar. */}
                 <img
                   className="vz-img vz-img--fixa"
                   src={esquerda}
                   alt=""
                   draggable={false}
-                  style={{ width: largura ? largura + 'px' : '100%' }}
+                  style={forma}
                 />
               </div>
 
@@ -205,11 +197,11 @@ export default function Visualizador({
 
           {compara && modo === 'sbs' && (
             <div className="vz-sbs">
-              <div className="vz-sbs-lado">
+              <div className="vz-sbs-lado" style={formaEsq}>
                 <img className="vz-img" src={esquerda} alt="" />
                 <span className="vz-tag vz-tag--esq">{rotEsq}</span>
               </div>
-              <div className="vz-sbs-lado">
+              <div className="vz-sbs-lado" style={forma}>
                 <img className="vz-img" src={item.url} alt="" />
                 <span className="vz-tag vz-tag--esq">{rotDir}</span>
               </div>
@@ -220,6 +212,7 @@ export default function Visualizador({
             <div className="vz-sbs vz-sbs--um">
               <div
                 className="vz-sbs-lado vz-sbs-lado--segura"
+                style={forma}
                 onMouseDown={() => compara && setSegurando(true)}
                 onMouseUp={() => setSegurando(false)}
                 onMouseLeave={() => setSegurando(false)}
@@ -271,14 +264,14 @@ export default function Visualizador({
             </svg>
           </button>
 
-          <button className="vz-ico" onClick={() => setBaixar(true)} data-tip="Baixar (PNG/JPEG)" aria-label="Baixar">
+          <button className="vz-ico" onClick={() => onBaixar(item)} data-tip="Baixar (PNG/JPEG)" aria-label="Baixar">
             <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M3.5 14v1.5A1.5 1.5 0 005 17h10a1.5 1.5 0 001.5-1.5V14" strokeLinecap="round"/>
             </svg>
           </button>
 
-          <button className="vz-ico vz-ico--perigo" onClick={() => setConfirmar(true)} data-tip="Excluir" aria-label="Excluir">
+          <button className="vz-ico vz-ico--perigo" onClick={() => onExcluir(item)} data-tip="Excluir" aria-label="Excluir">
             <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
               <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
@@ -314,28 +307,7 @@ export default function Visualizador({
         </footer>
       </div>
 
-      <ModalDownload aberto={baixar} url={item.url} id={item.id} onFechar={() => setBaixar(false)} />
 
-      {/* Apagar não tem volta: a imagem sai do R2 para sempre. */}
-      {confirmar && (
-        <div className="cr-overlay cr-overlay--alto" onClick={() => setConfirmar(false)}>
-          <div className="cf" onClick={(e) => e.stopPropagation()}>
-            <h3>Excluir esta imagem?</h3>
-            <p>Ela será apagada para sempre. Não dá para recuperar depois.</p>
-            <div className="cf-acoes">
-              <button className="cf-nao" onClick={() => setConfirmar(false)}>
-                Cancelar
-              </button>
-              <button
-                className="cf-sim"
-                onClick={() => { setConfirmar(false); onExcluir(item); }}
-              >
-                Excluir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

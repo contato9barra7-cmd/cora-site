@@ -19,6 +19,7 @@ import PainelRender from '../../components/PainelRender';
 import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
 import Card, { proporcaoCss } from '../../components/Card';
+import ModalDownload from '../../components/ModalDownload';
 import { lerConta, creditosMudaram } from '../../lib/auth';
 import { urlParaBase64 } from '../../lib/render';
 import {
@@ -153,6 +154,11 @@ export default function AppPage() {
   // mudava em `lotes` e não em `vendo` — o coração não acendia).
   const [vendo, setVendo] = useState(null);   // { loteId, itemId }
 
+  // Baixar e excluir agora acontecem do card TAMBÉM, não só da janela
+  // grande — então o modal e a confirmação moram aqui, um só para os dois.
+  const [baixando, setBaixando]   = useState(null);   // o item a baixar
+  const [excluindo, setExcluindo] = useState(null);   // o item a excluir
+
   // Como o feed se apresenta
   const [layout, setLayout]   = useState('grade');   // grade | linha
   const [tamanho, setTamanho] = useState('g');       // p | m | g | gg — G por padrão (os tamanhos aumentaram)
@@ -247,12 +253,17 @@ export default function AppPage() {
     }
   }
 
-  async function excluir(item) {
+  // Apagar é irreversível — quem chama isto já confirmou.
+  async function excluirDeVerdade(item) {
     try {
       await apagarGeracao(item.id);
+      setExcluindo(null);
       setVendo(null);
       carregar();
-    } catch (e) { setErro(e.message); }
+    } catch (e) {
+      setErro(e.message);
+      setExcluindo(null);
+    }
   }
 
   // Os botões Editar/Upscale/Animar do visualizador não geram nada:
@@ -540,6 +551,10 @@ export default function AppPage() {
                         if (modoAB) { escolherAB(it); return; }
                         setVendo({ loteId: it.loteId, itemId: it.id });
                       }}
+                      onFavoritar={favoritar}
+                      onBaixar={setBaixando}
+                      onExcluir={setExcluindo}
+                      onEnviarPara={enviarPara}
                     />
                   ))}
                 </div>
@@ -583,7 +598,7 @@ export default function AppPage() {
                     {lote.itens.map((item) => (
                       <Card
                         key={item.id}
-                        it={{ ...item, proporcao: lote.proporcao, ferramenta: lote.ferramenta, criadoEm: lote.criadoEm }}
+                        it={{ ...item, loteId: lote.loteId, proporcao: lote.proporcao, ferramenta: lote.ferramenta, criadoEm: lote.criadoEm }}
                         modoAB={modoAB}
                         ladoA={ladoA}
                         ladoB={ladoB}
@@ -591,6 +606,10 @@ export default function AppPage() {
                           if (modoAB) { escolherAB({ ...item, loteId: lote.loteId }); return; }
                           setVendo({ loteId: lote.loteId, itemId: item.id });
                         }}
+                        onFavoritar={favoritar}
+                        onBaixar={setBaixando}
+                        onExcluir={setExcluindo}
+                        onEnviarPara={enviarPara}
                       />
                     ))}
                   </div>
@@ -611,12 +630,15 @@ export default function AppPage() {
             <Visualizador
               item={ladoB}
               original={ladoA.url}
+              proporcao={ladoB.proporcao}
+              proporcaoEsq={ladoA.proporcao}
               rotuloEsq="A"
               rotuloDir="B"
               ehAdmin={ehAdmin}
               onFechar={() => setVendo(null)}
               onFavoritar={favoritar}
-              onExcluir={excluir}
+              onBaixar={setBaixando}
+              onExcluir={setExcluindo}
               onEnviarPara={enviarPara}
             />
           );
@@ -631,15 +653,38 @@ export default function AppPage() {
           <Visualizador
             item={item}
             original={lote.original}
+            proporcao={lote.proporcao}
             prompt={lote.observacoes}
             ehAdmin={ehAdmin}
             onFechar={() => setVendo(null)}
             onFavoritar={favoritar}
-            onExcluir={excluir}
+            onBaixar={setBaixando}
+            onExcluir={setExcluindo}
             onEnviarPara={enviarPara}
           />
         );
       })()}
+
+      {/* O modal de download e a confirmação servem ao card E à janela */}
+      <ModalDownload
+        aberto={baixando !== null}
+        url={baixando?.url}
+        id={baixando?.id}
+        onFechar={() => setBaixando(null)}
+      />
+
+      {excluindo && (
+        <div className="cr-overlay cr-overlay--alto" onClick={() => setExcluindo(null)}>
+          <div className="cf" onClick={(e) => e.stopPropagation()}>
+            <h3>Excluir esta imagem?</h3>
+            <p>Ela será apagada para sempre. Não dá para recuperar depois.</p>
+            <div className="cf-acoes">
+              <button className="cf-nao" onClick={() => setExcluindo(null)}>Cancelar</button>
+              <button className="cf-sim" onClick={() => excluirDeVerdade(excluindo)}>Excluir</button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }

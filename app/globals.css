@@ -3216,22 +3216,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
    e não havia como escolher a segunda imagem.
    ═══════════════════════════════════════════════════════════ */
 
-.cr-overlay--passa {
-  background: rgba(0, 0, 0, .25);
-  pointer-events: none;          /* o feed atrás recebe os cliques */
-  align-items: flex-end;
-  padding-bottom: 20px;
-}
 
-.cr-overlay--passa .vz {
-  pointer-events: auto;          /* mas a janela continua viva */
-}
 
 /* Encolhida, para não tapar o feed */
-.vz--esperando {
-  max-width: 460px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, .28);
-}
 
 
 
@@ -3374,11 +3361,13 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
    ═══════════════════════════════════════════════════════════ */
 
 .vz {
-  /* Palco fixo: nem cresce nem encolhe */
-  width: 860px;
-  max-width: 94vw;
-  height: 660px;
-  max-height: 92vh;
+  /* Palco fixo: nem cresce nem encolhe ao trocar de modo. Grande — a
+     imagem é o assunto da tela. */
+  width: 1120px;
+  max-width: 92vw;
+  height: 82vh;
+  max-height: 860px;
+  min-height: 560px;
 
   display: flex;
   flex-direction: column;
@@ -3391,7 +3380,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 /* A área ocupa o que sobra entre o cabeçalho e o rodapé — e só. */
 .vz-area {
   flex: 1;
-  min-height: 0;              /* deixa o flex encolher de verdade */
+  min-height: 0;
   padding: 16px;
   box-sizing: border-box;
   background: var(--wash);
@@ -3401,99 +3390,79 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   overflow: hidden;
 }
 
-/* ── O par (Split e Single) ──
-   A caixa tem o tamanho da IMAGEM, não da área. Isso é o que faz a cortina
-   do Split cair no lugar certo: as duas camadas dividem a mesma caixa. */
-/* ── O par (Split e Single) ──
-   A caixa tem o tamanho da IMAGEM. As duas camadas (print e render) ocupam
-   EXATAMENTE a mesma caixa — é isso que faz a cortina cortar no lugar certo.
+/* ═══════════════════════════════════════════════════════════
+   A IMAGEM É A CAIXA
 
-   O bug anterior: o print do SketchUp e o render do Gemini têm tamanhos
-   diferentes em pixels. Como cada um se dimensionava sozinho, ficavam
-   desalinhados, e a cortina parecia "pegar" a imagem errada.
+   O erro que eu vinha repetindo: dar tamanho fixo a uma MOLDURA e encaixar
+   a imagem dentro. Sobravam faixas vazias, e o arredondamento ficava na
+   moldura, não na imagem.
 
-   Conserto: o render (embaixo) define o tamanho da caixa; o print (em cima)
-   é esticado para preencher essa MESMA caixa via inset:0 + object-fit.
-   Assim os dois coincidem pixel a pixel, e a cortina revela o print
-   exatamente onde deveria. */
-.vz-par {
+   O certo é o inverso: a imagem não tem moldura. Ela É a caixa.
+     height: 100%        → cresce até encostar em cima e embaixo
+     aspect-ratio: <p>   → a largura sai da proporção real
+   Nada de fundo atrás, e o border-radius vai na própria imagem.
+
+   No Split, o print recebe a MESMA aspect-ratio do render e fica ancorado
+   à esquerda — por isso os dois coincidem e a cortina corta no lugar certo.
+   ═══════════════════════════════════════════════════════════ */
+
+.vz-par,
+.vz-sbs-lado {
   position: relative;
-  display: block;
+  height: 100%;
+  width: auto;
   max-width: 100%;
-  max-height: 100%;
-  line-height: 0;
   border-radius: 12px;
   overflow: hidden;
+  line-height: 0;
   user-select: none;
-  cursor: ew-resize;
 }
 
+.vz-par { cursor: ew-resize; }
 
-/* A imagem de baixo (o render) define o tamanho da caixa */
+.vz-sbs-lado--segura { cursor: grab; }
+.vz-sbs-lado--segura:active { cursor: grabbing; }
+
+/* A imagem preenche a caixa que ela mesma dimensionou */
 .vz-img {
   display: block;
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: contain;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
   user-select: none;
   -webkit-user-drag: none;
 }
 
-/* A cortina: a largura vem do JS (o arrasto). O que estiver aqui é só o
-   ponto de partida. */
+/* Split: a cortina revela o print. A largura vem do JS (o arrasto). */
 .vz-cortina {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   overflow: hidden;
-  /* a largura vem do JS (o arrasto) — não fixar aqui */
 }
 
-/* O print, DENTRO da cortina, preenche a caixa inteira do par — não a
-   cortina. Por isso inset:0 e width/height 100%: ele fica ancorado à
-   mesma moldura da imagem de baixo, e a cortina apenas o revela aos poucos. */
+/* O print, dentro da cortina, tem a MESMA aspect-ratio do render e fica
+   ancorado à esquerda — assim os dois se sobrepõem pixel a pixel, e a
+   cortina apenas descobre o que já está no lugar certo. */
 .vz-img--fixa {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  top: 0;
+  left: 0;
   height: 100%;
+  width: auto;
   max-width: none;
-  max-height: none;
-  object-fit: fill;   /* a caixa JÁ tem a proporção certa (vem do render) */
 }
 
-/* ── Side by Side ──
-   Duas metades do mesmo palco. Cada imagem cabe inteira na sua metade. */
+/* Side by Side: duas caixas, cada uma se dimensionando sozinha */
 .vz-sbs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-}
-
-/* O Single usa a MESMA moldura do Side by Side — só que com uma coluna.
-   Antes ele tinha uma caixa própria, sem os cantos arredondados. */
-.vz-sbs--um { grid-template-columns: 1fr; }
-
-.vz-sbs-lado--segura { cursor: grab; }
-.vz-sbs-lado--segura:active { cursor: grabbing; }
-
-.vz-sbs-lado {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
   min-height: 0;
-  min-width: 0;
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--wash2);
-  user-select: none;
 }
 
 /* ── O handle do split: accent (roxo no claro, verde no escuro) ── */
@@ -3524,12 +3493,6 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   justify-content: center;
 }
 
-/* No A/B, enquanto espera o lado A, a janela encolhe para não tapar o feed */
-.vz--esperando {
-  width: 460px;
-  height: 380px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, .28);
-}
 
 
 
@@ -3858,3 +3821,137 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* Single: uma caixa só, dentro da mesma moldura do Side by Side.
+   Como o .vz-sbs agora é flex (não grid), basta o gap sumir. */
+.vz-sbs--um { gap: 0; }
+
+/* ═══════════════════════════════════════════════════════════
+   Barra de rolagem — segue o tema
+
+   Sem isto o navegador usa a dele: uma faixa branca gritando no meio do
+   painel escuro. `color-scheme` já resolve no Firefox e no Safari; o
+   WebKit precisa das regras explícitas.
+   ═══════════════════════════════════════════════════════════ */
+
+:root { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 100px;
+  background-clip: content-box;
+  background-color: var(--line2);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ink3);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Ações no hover do card
+
+   As mesmas da janela grande. Não faz sentido ter que abrir a imagem só
+   para favoritar ou baixar — as ações vêm até onde a mão já está.
+
+   Ficam escondidas no modo A/B: lá o clique tem outro significado
+   (escolher o lado da comparação).
+   ═══════════════════════════════════════════════════════════ */
+
+.cr-card-acoes {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 100px;
+  background: rgba(20, 20, 22, .72);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity .14s, transform .14s;
+  pointer-events: none;
+}
+
+.cr-card:hover .cr-card-acoes,
+.cr-card:focus-within .cr-card-acoes {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.cr-ca {
+  width: 27px;
+  height: 27px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, .82);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background .12s, color .12s;
+}
+
+.cr-ca:hover {
+  background: rgba(255, 255, 255, .18);
+  color: #fff;
+}
+
+.cr-ca--fav { color: var(--accent); }
+.cr-ca--perigo:hover { background: var(--alerta); color: #fff; }
+
+.cr-ca-div {
+  width: 1px;
+  height: 15px;
+  margin: 0 3px;
+  background: rgba(255, 255, 255, .22);
+}
+
+/* O tooltip destas ações desce (há espaço abaixo, dentro da imagem) */
+.cr-card-acoes [data-tip]:hover::after {
+  top: calc(100% + 6px);
+  bottom: auto;
+  z-index: 10;
+}
+
+/* O card virou <div role=button>: precisa dos estilos de botão */
+.cr-card {
+  border: 1px solid var(--line);
+  background: var(--wash);
+  padding: 0;
+  cursor: pointer;
+}
+
+.cr-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Com as ações no topo, o coração fica embaixo para não brigar por espaço */
+.cr-card-fav {
+  top: auto;
+  bottom: 8px;
+  right: 8px;
+}
+
+/* E a legenda sobe um pouco, para o coração não sentar em cima dela */
+.cr-card-info { padding-right: 32px; }
