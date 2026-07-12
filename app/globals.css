@@ -945,3 +945,5 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .admin-geo-v { font-size: 12px; color: var(--ink2); }
 .admin-geo-v em { color: var(--ink3); font-style: normal; }
 @media (max-width: 780px) { .admin-geo-cols { grid-template-columns: 1fr; gap: 20px; } }
+
+.link-inline { background: none; border: none; color: var(--roxo); font-size: inherit; font-family: inherit; cursor: pointer; padding: 0; text-decoration: underline; }

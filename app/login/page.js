@@ -87,6 +87,10 @@ export default function Login() {
           {carregando ? 'Entrando...' : 'Entrar'}
         </button>
 
+        <p className="login-rodape" style={{ marginTop: 14 }}>
+          <Link href="/esqueci-senha">Esqueci minha senha</Link>
+        </p>
+
         <p className="login-rodape">
           Ainda não tem conta? <Link href="/cadastro">Criar conta grátis</Link>
         </p>
