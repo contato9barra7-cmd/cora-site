@@ -8,7 +8,20 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (localStorage.getItem('cora_menu_recolhido') === '1') {
+                  document.documentElement.classList.add('menu-recolhido');
+                }
+              } catch (e) {}
+            `
+          }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

@@ -58,7 +58,7 @@ const MODOS = [
 
 export default function Visualizador({
   item, original, prompt, ehAdmin,
-  ladoB, modoAB, onEntrarAB, onSairAB,
+  rotuloEsq, rotuloDir,          // no A/B viram "A" e "B"
   onFechar, onFavoritar, onExcluir, onEnviarPara
 }) {
   const [modo, setModo]           = useState('split');
@@ -99,21 +99,16 @@ export default function Visualizador({
 
   if (!item) return null;
 
-  // No A/B, o "print" vira a imagem A escolhida
-  const esquerda = modoAB ? (ladoB?.url || null) : original;
-  const rotEsq   = modoAB ? 'A' : 'Print';
-  const rotDir   = modoAB ? 'B' : 'Render';
+  // No A/B a "esquerda" é a imagem A que a pessoa escolheu; no normal, é o
+  // print do SketchUp. Os rótulos vêm de fora justamente por isso.
+  const esquerda = original;
+  const rotEsq   = rotuloEsq || 'Print';
+  const rotDir   = rotuloDir || 'Render';
   const compara  = Boolean(esquerda);
 
   return (
-    <div
-      className={'cr-overlay' + (modoAB && !ladoB ? ' cr-overlay--passa' : '')}
-      onClick={modoAB && !ladoB ? undefined : onFechar}
-    >
-      <div
-        className={'vz' + (modoAB && !ladoB ? ' vz--esperando' : '')}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="cr-overlay" onClick={onFechar}>
+      <div className="vz" onClick={(e) => e.stopPropagation()}>
 
         <header className="vz-cab">
           {compara && (
@@ -132,22 +127,8 @@ export default function Visualizador({
             </div>
           )}
 
-          <button
-            className={'vz-ab' + (modoAB ? ' vz-ab--on' : '')}
-            onClick={modoAB ? onSairAB : onEntrarAB}
-            data-tip={modoAB ? 'Sair do A/B' : 'Comparar com outra imagem'}
-          >
-            A/B
-          </button>
-
           <button className="cr-modal-x" onClick={onFechar} aria-label="Fechar">×</button>
         </header>
-
-        {modoAB && !ladoB && (
-          <p className="vz-ab-dica">
-            Clique numa imagem do feed, atrás, para escolher o lado A.
-          </p>
-        )}
 
         {/* A área tem tamanho FIXO — trocar de modo não faz a tela pular */}
         <div className="vz-area">
@@ -217,7 +198,9 @@ export default function Visualizador({
                     {segurando ? rotEsq : rotDir}
                   </span>
                   <span className="vz-tag vz-tag--baixo">
-                    {segurando ? 'Solte para ver o render' : 'Segure para ver o print'}
+                    {segurando
+                      ? `Solte para ver ${rotDir === 'Render' ? 'o render' : rotDir}`
+                      : `Segure para ver ${rotEsq === 'Print' ? 'o print' : rotEsq}`}
                   </span>
                 </>
               )}

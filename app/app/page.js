@@ -76,8 +76,64 @@ const FILTROS = [
 // Sem proporção guardada (gerações antigas), cai em 4/3 — um meio-termo
 // razoável que não espreme nem estica demais.
 function proporcaoCss(p) {
-  if (!p || !/^\d+:\d+$/.test(p)) return '4 / 3';
+  // "auto" não tem forma definida — quem decide é a imagem que voltar.
+  // Até lá (e para gerações antigas sem proporção), 4/3 é o meio-termo que
+  // menos distorce.
+  if (!p || p === 'auto' || !/^\d+:\d+$/.test(p)) return '4 / 3';
   return p.replace(':', ' / ');
+}
+
+const MESES = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+];
+
+// ═══════════════════════════════════════════════════════════
+//  Achata os lotes numa grade contínua, agrupada por mês
+//
+//  O servidor entrega lotes (N variações de uma configuração). Para a grade
+//  no estilo Magnific, desmontamos isso: todas as imagens numa lista só,
+//  em ordem de tempo, separadas apenas por mês.
+//
+//  Cada imagem leva junto os dados do lote (ferramenta, proporção, loteId),
+//  porque o visualizador ainda precisa deles — e é o loteId que liga a
+//  imagem ao print original, para a comparação.
+// ═══════════════════════════════════════════════════════════
+function agruparPorMes(lotes) {
+  const todas = [];
+
+  lotes.forEach((lote) => {
+    lote.itens.forEach((item) => {
+      todas.push({
+        ...item,
+        loteId:     lote.loteId,
+        ferramenta: lote.ferramenta,
+        proporcao:  lote.proporcao,
+        tipo:       lote.tipo,
+        criadoEm:   lote.criadoEm
+      });
+    });
+  });
+
+  // Mais recentes primeiro
+  todas.sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+
+  const grupos = [];
+  const indice = new Map();
+
+  todas.forEach((it) => {
+    const d = new Date(it.criadoEm);
+    const chave = `${d.getFullYear()}-${d.getMonth()}`;
+
+    if (!indice.has(chave)) {
+      const g = { chave, titulo: `${MESES[d.getMonth()]} ${d.getFullYear()}`, itens: [] };
+      indice.set(chave, g);
+      grupos.push(g);
+    }
+    indice.get(chave).itens.push(it);
+  });
+
+  return grupos;
 }
 
 export default function AppPage() {
@@ -109,15 +165,32 @@ export default function AppPage() {
 
   // Como o feed se apresenta
   const [layout, setLayout]   = useState('grade');   // grade | linha
-  const [tamanho, setTamanho] = useState('m');       // p | m | g | gg
+  const [tamanho, setTamanho] = useState('gg');      // p | m | g | gg — GG por padrão
 
   // Filtros avançados (o painel do ícone de ajustes)
   const [painelFiltros, setPainelFiltros] = useState(false);
   const [avancados, setAvancados] = useState({});
 
-  // Modo A/B: comparar duas imagens quaisquer do histórico
+  // Modo A/B: a pessoa escolhe AS DUAS imagens no feed. A que estava
+  // aberta não entra sozinha — comparar deve valer para qualquer par.
   const [modoAB, setModoAB] = useState(false);
+  const [ladoA, setLadoA]   = useState(null);
   const [ladoB, setLadoB]   = useState(null);
+
+  // Primeiro clique escolhe o A; o segundo, o B. Clicar de novo numa já
+  // escolhida a solta.
+  function escolherAB(it) {
+    if (ladoA?.id === it.id) { setLadoA(null); return; }
+    if (ladoB?.id === it.id) { setLadoB(null); return; }
+    if (!ladoA) { setLadoA(it); return; }
+    setLadoB(it);
+  }
+
+  function sairAB() {
+    setModoAB(false);
+    setLadoA(null);
+    setLadoB(null);
+  }
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -157,14 +230,25 @@ export default function AppPage() {
   }, [conta, carregar]);
 
   async function favoritar(item) {
+    const antes  = item.favorito;
+    const otimista = !antes;
+
+    // Acende na hora: o clique responde na velocidade do dedo, não da rede.
+    const pintar = (v) => setLotes((ls) => ls.map((l) => ({
+      ...l,
+      itens: l.itens.map((i) => (i.id === item.id ? { ...i, favorito: v } : i))
+    })));
+
+    pintar(otimista);
+
     try {
-      const novo = await alternarFavorito(item.id);
-      // Um lugar só. O visualizador lê daqui, então acende junto.
-      setLotes((ls) => ls.map((l) => ({
-        ...l,
-        itens: l.itens.map((i) => (i.id === item.id ? { ...i, favorito: novo } : i))
-      })));
-    } catch (e) { setErro(e.message); }
+      const real = await alternarFavorito(item.id);
+      // O servidor é a verdade final — se discordar, corrige.
+      if (real !== otimista) pintar(real);
+    } catch (e) {
+      pintar(antes);          // deu errado: desfaz
+      setErro(e.message);
+    }
   }
 
   async function excluir(item) {
@@ -198,6 +282,10 @@ export default function AppPage() {
   }
 
   const ehAdmin = conta?.is_admin === true;
+
+  // A grade contínua: todas as imagens, por mês (sem separar por lote)
+  const porMes = agruparPorMes(lotes);
+  const vazio  = !carregando && porMes.length === 0 && !progresso;
 
   return (
     <AppShell>
@@ -250,6 +338,16 @@ export default function AppPage() {
             </div>
 
             <div className="cr-barra-dir">
+
+              <button
+                className={'cr-fbtn' + (modoAB ? ' cr-fbtn--on' : '')}
+                onClick={() => (modoAB ? sairAB() : setModoAB(true))}
+                data-tip="Comparar duas imagens"
+                aria-label="Comparar A/B"
+              >
+                <span className="cr-ab-ico">A/B</span>
+              </button>
+
 
               {/* Como o feed se apresenta */}
               <div className="cr-seg-lay">
@@ -330,11 +428,21 @@ export default function AppPage() {
           {modoAB && (
             <div className="cr-ab-barra">
               <span>
-                {ladoB
-                  ? 'Lado A escolhido. Abra uma imagem para comparar.'
-                  : 'Modo A/B: clique numa imagem para escolher o lado A.'}
+                {!ladoA  ? 'Comparar A/B: clique na primeira imagem.'
+                  : !ladoB ? 'Agora clique na segunda imagem.'
+                  : 'Pronto — as duas escolhidas.'}
               </span>
-              <button onClick={() => { setModoAB(false); setLadoB(null); }}>Sair</button>
+
+              {ladoA && ladoB && (
+                <button
+                  className="cr-ab-ver"
+                  onClick={() => setVendo({ ab: true })}
+                >
+                  Comparar
+                </button>
+              )}
+
+              <button onClick={sairAB}>Sair</button>
             </div>
           )}
 
@@ -352,8 +460,26 @@ export default function AppPage() {
                       ? 'Há muito tráfego agora — isso pode demorar mais que o normal.'
                       : `Gerando imagem ${Math.min(progresso.feito + 1, progresso.total)} de ${progresso.total}`}
                   </span>
+
+                  {/* Este número é REAL: conta imagens prontas do lote.
+                      (Dentro de cada imagem não há progresso — o Gemini não
+                      informa quanto falta, então lá a barra é indeterminada.) */}
+                  {progresso.total > 1 && (
+                    <span className="cr-gerando-pct">
+                      {Math.round((progresso.feito / progresso.total) * 100)}%
+                    </span>
+                  )}
                 </div>
-                <div className="cr-gerando-slots">
+
+                {progresso.total > 1 && (
+                  <div className="cr-prog-trilho">
+                    <div
+                      className="cr-prog-cheio"
+                      style={{ width: (progresso.feito / progresso.total) * 100 + '%' }}
+                    />
+                  </div>
+                )}
+                <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
                   {Array.from({ length: progresso.total }).map((_, i) => (
                     <div
                       key={i}
@@ -374,7 +500,7 @@ export default function AppPage() {
 
             {carregando && <p className="cr-msg">Carregando...</p>}
 
-            {!carregando && lotes.length === 0 && !progresso && (
+            {vazio && (
               <div className="cr-vazio">
                 <h2>Nada aqui ainda</h2>
                 <p>
@@ -385,63 +511,74 @@ export default function AppPage() {
               </div>
             )}
 
-            {!carregando && lotes.map((lote) => {
-              const expira = diasAteExpirar(lote.criadoEm);
-              return (
-                <article key={lote.loteId} className="cr-lote">
-                  <header className="cr-lote-cab">
-                    {/* O prompt/observações NÃO aparece para quem não é admin */}
-                    {ehAdmin && (
-                      <span className="cr-lote-obs">
-                        {lote.observacoes || 'Sem observações'}
+            {/* ── Grade contínua, agrupada por mês (como o Magnific) ──
+                Sem separar por lote: todas as imagens juntas, cada uma na
+                sua proporção. Os dados do lote (ferramenta, proporção,
+                quando) viajam com cada imagem, para o visualizador. */}
+            {!carregando && porMes.map((mes) => (
+              <section key={mes.chave} className="cr-mes">
+                <h3 className="cr-mes-tit">
+                  {mes.titulo}
+
+                  {/* As gerações mais velhas do mês somem primeiro — o aviso
+                      só aparece quando já está perto. */}
+                  {(() => {
+                    const maisVelha = mes.itens[mes.itens.length - 1];
+                    const dias = diasAteExpirar(maisVelha.criadoEm);
+                    if (dias === null || dias > 15) return null;
+                    return (
+                      <span className="cr-mes-expira">
+                        {dias === 0
+                          ? 'algumas serão apagadas hoje'
+                          : `algumas serão apagadas em ${dias} ${dias === 1 ? 'dia' : 'dias'}`}
                       </span>
-                    )}
-                    {!ehAdmin && <span className="cr-lote-obs" />}
+                    );
+                  })()}
+                </h3>
 
-                    <span className="cr-tag cr-tag--roxa">
-                      {ROTULO_FERRAMENTA[lote.ferramenta] || lote.ferramenta}
-                    </span>
-                    {lote.proporcao && <span className="cr-tag">{lote.proporcao}</span>}
-                    {lote.tipo === 'video' && lote.duracaoSeg && (
-                      <span className="cr-tag">{lote.duracaoSeg}s</span>
-                    )}
-                    <span className="cr-lote-data">{tempoRelativo(lote.criadoEm)}</span>
-                  </header>
+                <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
+                  {mes.itens.map((it) => (
+                    <button
+                      key={it.id}
+                      className={
+                        'cr-card'
+                        + (ladoA?.id === it.id ? ' cr-card--a' : '')
+                        + (ladoB?.id === it.id ? ' cr-card--b' : '')
+                      }
+                      style={{ aspectRatio: proporcaoCss(it.proporcao) }}
+                      onClick={() => {
+                        // No A/B, os cliques escolhem A e depois B
+                        if (modoAB) { escolherAB(it); return; }
+                        setVendo({ loteId: it.loteId, itemId: it.id });
+                      }}
+                    >
+                      <img src={it.url} alt="" loading="lazy" />
 
-                  {expira !== null && (
-                    <p className="cr-expira">
-                      {expira === 0
-                        ? 'Esta geração será apagada hoje.'
-                        : `Esta geração será apagada em ${expira} ${expira === 1 ? 'dia' : 'dias'}.`}
-                    </p>
-                  )}
+                      {/* Etiqueta A ou B durante a comparação */}
+                      {modoAB && ladoA?.id === it.id && <span className="cr-card-ab">A</span>}
+                      {modoAB && ladoB?.id === it.id && <span className="cr-card-ab">B</span>}
 
-                  <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
-                    {lote.itens.map((item, i) => (
-                      <button
-                        key={item.id}
-                        className={'cr-card' + (ladoB?.id === item.id ? ' cr-card--ab' : '')}
-                        style={{ aspectRatio: proporcaoCss(lote.proporcao) }}
-                        onClick={() => {
-                          // No A/B, clicar escolhe o lado de comparação
-                          if (modoAB) { setLadoB(item); return; }
-                          setVendo({ loteId: lote.loteId, itemId: item.id });
-                        }}
-                      >
-                        <img src={item.url} alt="" loading="lazy" />
-                        {item.favorito && (
-                          <span className="cr-card-fav">
-                            <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor">
-                              <path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/>
-                            </svg>
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </article>
-              );
-            })}
+                      {it.favorito && (
+                        <span className="cr-card-fav">
+                          <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor">
+                            <path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/>
+                          </svg>
+                        </span>
+                      )}
+
+                      <span className="cr-card-info">
+                        <span className="cr-card-fer">
+                          {ROTULO_FERRAMENTA[it.ferramenta] || it.ferramenta}
+                        </span>
+                        {it.proporcao && <span>{it.proporcao}</span>}
+                        <span className="cr-card-quando">{tempoRelativo(it.criadoEm)}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            ))}
+
           </div>
         </section>
       </div>
@@ -449,7 +586,24 @@ export default function AppPage() {
       {(() => {
         if (!vendo) return null;
 
-        // Deriva de `lotes` — nunca de uma cópia guardada
+        // ── Modo A/B: as duas imagens que a pessoa escolheu ──
+        if (vendo.ab && ladoA && ladoB) {
+          return (
+            <Visualizador
+              item={ladoB}
+              original={ladoA.url}
+              rotuloEsq="A"
+              rotuloDir="B"
+              ehAdmin={ehAdmin}
+              onFechar={() => setVendo(null)}
+              onFavoritar={favoritar}
+              onExcluir={excluir}
+              onEnviarPara={enviarPara}
+            />
+          );
+        }
+
+        // ── Normal: uma geração, comparada com o print dela ──
         const lote = lotes.find((l) => l.loteId === vendo.loteId);
         const item = lote?.itens.find((i) => i.id === vendo.itemId);
         if (!item) return null;
@@ -460,10 +614,6 @@ export default function AppPage() {
             original={lote.original}
             prompt={lote.observacoes}
             ehAdmin={ehAdmin}
-            modoAB={modoAB}
-            ladoB={ladoB}
-            onEntrarAB={() => setModoAB(true)}   /* NÃO fecha: a pessoa escolhe o A no feed atrás */
-            onSairAB={() => { setModoAB(false); setLadoB(null); }}
             onFechar={() => setVendo(null)}
             onFavoritar={favoritar}
             onExcluir={excluir}

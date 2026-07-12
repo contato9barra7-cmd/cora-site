@@ -518,7 +518,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
                 <rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
                 <rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
               </svg>
-              <span>{proporcao}</span>
+              <span>{proporcao === 'auto' ? 'Auto' : proporcao}</span>
               <span className="cr-pill-seta">{popRatio ? '▾' : '▴'}</span>
             </button>
 
@@ -535,7 +535,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
                         <rect x={p.x} y={p.y} width={p.w} height={p.h} rx="1"
                               stroke="currentColor" strokeWidth="1.5"/>
                       </svg>
-                      <span>{p.val}</span>
+                      <span>{p.val === 'auto' ? 'Auto' : p.val}</span>
                     </button>
                   ))}
                 </div>

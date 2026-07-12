@@ -65,7 +65,12 @@ export default function AppShell({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const [conta, setConta] = useState(null);
-  const [recolhido, setRecolhido] = useState(false);
+  // Lê o localStorage ANTES da primeira pintura: sem isso o menu nascia
+  // expandido e recolhia logo depois — o flash que se via a cada troca de aba.
+  const [recolhido, setRecolhido] = useState(() => {
+    if (typeof window === 'undefined') return false;   // no servidor não há localStorage
+    return localStorage.getItem('cora_menu_recolhido') === '1';
+  });
   const [menuUser, setMenuUser] = useState(false);
 
   useEffect(() => {
@@ -75,7 +80,7 @@ export default function AppShell({ children }) {
     atualizarConta().then((fresca) => { if (fresca) setConta(fresca); }).catch(() => {});
     // aplica o tema salvo (da conta ou do navegador)
     if (typeof window !== 'undefined') {
-      setRecolhido(localStorage.getItem('cora_menu_recolhido') === '1');
+      // (o recolhido já veio no useState, acima — reler aqui causava o flash)
       const tema = (c && c.tema) || localStorage.getItem('cora_tema') || 'sistema';
       aplicarTema(tema);
     }
@@ -96,6 +101,9 @@ export default function AppShell({ children }) {
     setRecolhido(novo);
     if (typeof window !== 'undefined') {
       localStorage.setItem('cora_menu_recolhido', novo ? '1' : '0');
+      // A classe no <html> é o que o script do layout.js lê na próxima
+      // carga — é ela que evita o flash antes do React entrar.
+      document.documentElement.classList.toggle('menu-recolhido', novo);
     }
   }
 

@@ -566,10 +566,10 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   width: 34px; height: 34px; border-radius: 50%; background: var(--wash); transition: background .15s;
 }
 .app-nav-item:hover .app-nav-ic { background: var(--wash2); }
-.app-nav-item.ativo .app-nav-ic { background: rgba(255,255,255,.25); }
+.app-nav-item.ativo .app-nav-ic { background: rgba(255,255,255,.32); }
 .app-nav-item:hover { background: var(--paper); color: var(--ink); }
-.app-nav-item.ativo { background: var(--roxo); color: #fff; }
-.app-nav-item.ativo:hover { background: var(--roxo); }
+.app-nav-item.ativo { background: var(--accent); color: var(--accent-txt); }
+.app-nav-item.ativo:hover { background: var(--accent); opacity: .92; }
 .app-shell.recolhido .app-nav-item { justify-content: center; padding: 10px; }
 
 /* HEADER */
@@ -1222,18 +1222,19 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 }
 
 /* ── Cards das imagens ── */
+/* O contêiner base NÃO define layout — quem manda é .cr-cards--grade ou
+   .cr-cards--linha. Antes ele forçava `display:flex`, e como o card tem
+   width:100%, cada um ocupava a linha inteira: a grade virava lista. */
 .cr-cards {
-  display: flex;
   gap: 10px;
-  flex-wrap: wrap;
 }
 
 .cr-card {
   position: relative;
-  /* Sem altura fixa: a largura vem da grade e a altura sai do aspect-ratio,
-     que a página define a partir da proporção real da geração. Antes eram
-     216x126 fixos, o que espremia uma 4:5 e esticava uma 21:9. */
-  width: 100%;
+  /* Sem largura nem altura fixas: a largura vem da coluna da grade (ou da
+     regra da lista) e a altura sai do aspect-ratio, que a página define a
+     partir da proporção real da geração. */
+  width: auto;
   border-radius: 10px;
   border: 1px solid var(--line);
   background: var(--wash);
@@ -2215,7 +2216,15 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 }
 
 /* ── Materiais: ler → revisar → confirmar ── */
-.cr-ta--mat { min-height: 190px; }
+/* A pessoa revisa aqui a lista inteira de materiais do projeto. Uma caixa
+   baixa obriga a rolar para conferir o que ela mesma pediu — dá para ver o
+   conjunto de uma vez. */
+.cr-ta--mat {
+  min-height: 320px;
+  max-height: 60vh;
+  resize: vertical;      /* e ela pode esticar mais, se quiser */
+  line-height: 1.6;
+}
 
 .cr-mat-acoes { margin-top: 8px; }
 
@@ -2410,24 +2419,6 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 }
 
 /* ═══ Visualizador ═══ */
-.vz {
-  width: 100%;
-  max-width: 860px;
-  display: flex;
-  flex-direction: column;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.vz-cab {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 14px;
-  border-bottom: 1px solid var(--line);
-}
 
 .vz-modos {
   display: flex;
@@ -2463,71 +2454,13 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .vz-cab .cr-modal-x { margin-left: auto; }
 
-.vz-area {
-  flex: 1;
-  min-height: 0;
-  background: var(--wash);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
 
-.vz-img {
-  display: block;
-  max-width: 100%;
-  max-height: 68vh;
-  object-fit: contain;
-  user-select: none;
-}
 
 /* Split: a cortina */
-.vz-split {
-  position: relative;
-  cursor: ew-resize;
-  user-select: none;
-  line-height: 0;
-}
 
-.vz-split-topo {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  overflow: hidden;
-}
 
-.vz-split-topo .vz-img {
-  max-width: none;
-  height: 100%;
-}
 
-.vz-handle {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: #fff;
-  box-shadow: 0 0 8px rgba(0, 0, 0, .35);
-  transform: translateX(-1px);
-  pointer-events: none;
-}
 
-.vz-handle-bola {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, .3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #333;
-}
 
 .vz-tag {
   position: absolute;
@@ -2544,32 +2477,11 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .vz-tag--dir { right: 12px; }
 
 /* Side by Side */
-.vz-sbs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px;
-  width: 100%;
-}
 
-.vz-sbs-lado {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--wash2);
-}
 
-.vz-sbs-lado .vz-tag { left: 10px; }
 
 /* Single: segure para ver a captura */
-.vz-single {
-  position: relative;
-  cursor: grab;
-  user-select: none;
-  line-height: 0;
-}
 
-.vz-single:active { cursor: grabbing; }
 
 
 /* Prompt: só o admin vê */
@@ -2780,11 +2692,6 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   color: var(--ink2);
 }
 
-.cr-gerando-slots {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 10px;
-}
 
 .cr-slot {
   /* a proporção vem da página (a mesma da geração em curso) */
@@ -2884,97 +2791,21 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
    o sbs em height:100%), então trocar de modo mudava a janela inteira.
    Agora a área manda, e os modos se ajustam a ela.
    ═══════════════════════════════════════════════════════════ */
-.vz-area {
-  height: 62vh;
-  min-height: 380px;
-  max-height: 560px;
-  flex-shrink: 0;
-  padding: 16px;
-  box-sizing: border-box;
-  background: var(--wash);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
 
 /* O par de imagens: esta caixa tem o tamanho da IMAGEM, não do contêiner.
    É por isso que a cortina do split cai no lugar certo — as duas camadas
    compartilham exatamente a mesma caixa. */
-.vz-par {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  max-width: 100%;
-  max-height: 100%;
-  line-height: 0;
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: ew-resize;
-  user-select: none;
-}
 
-.vz-par--single { cursor: grab; }
-.vz-par--single:active { cursor: grabbing; }
 
-.vz-img {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;      /* a área manda; a imagem obedece */
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  user-select: none;
-}
 
-.vz-cortina {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  overflow: hidden;
-}
 
 /* A imagem de dentro da cortina NÃO encolhe: ela tem o tamanho da caixa
    inteira, e é a cortina que corta. Sem isto, o print apareceria espremido
    e "pegaria" um pedaço do render — era esse o bug. */
-.vz-img--fixa {
-  position: absolute;
-  top: 0;
-  left: 0;
-  max-width: none;
-  max-height: none;
-  width: 100%;
-  height: 100%;
-}
 
-.vz-cortina { width: 50%; }
-.vz-cortina .vz-img--fixa { width: auto; height: 100%; }
 
-.vz-sbs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  align-items: center;
-}
 
-.vz-sbs-lado {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  min-height: 0;
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--wash2);
-}
 
-.vz-sbs-lado .vz-img { max-height: 100%; }
 
 /* Etiquetas Print/Render — o fundo acompanha o texto */
 .vz-tag {
@@ -3174,10 +3005,10 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   align-items: start;
 }
 
-.cr-cards--grade.cr-cards--p  { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
-.cr-cards--grade.cr-cards--m  { grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); }
-.cr-cards--grade.cr-cards--g  { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
-.cr-cards--grade.cr-cards--gg { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
+.cr-cards--grade.cr-cards--p  { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.cr-cards--grade.cr-cards--m  { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.cr-cards--grade.cr-cards--g  { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+.cr-cards--grade.cr-cards--gg { grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); }
 
 /* Lista: uma fileira que rola na horizontal */
 .cr-cards--linha {
@@ -3188,10 +3019,10 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 }
 
 .cr-cards--linha .cr-card { flex-shrink: 0; }
-.cr-cards--linha.cr-cards--p  .cr-card { width: 110px; }
-.cr-cards--linha.cr-cards--m  .cr-card { width: 170px; }
-.cr-cards--linha.cr-cards--g  .cr-card { width: 250px; }
-.cr-cards--linha.cr-cards--gg .cr-card { width: 360px; }
+.cr-cards--linha.cr-cards--p  .cr-card { width: 150px; }
+.cr-cards--linha.cr-cards--m  .cr-card { width: 230px; }
+.cr-cards--linha.cr-cards--g  .cr-card { width: 330px; }
+.cr-cards--linha.cr-cards--gg .cr-card { width: 460px; }
 
 /* Na lista, os cards de uma mesma linha têm proporções diferentes e alturas
    diferentes. Alinhar pelo topo evita que fiquem dançando na vertical. */
@@ -3402,13 +3233,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   box-shadow: 0 12px 48px rgba(0, 0, 0, .28);
 }
 
-.vz--esperando .vz-area {
-  height: 220px;
-}
 
-.vz--esperando .vz-img {
-  max-height: 188px;
-}
 
 /* ═══════════════════════════════════════════════════════════
    Campo de referências: digitar @ abre a lista
@@ -3532,3 +3357,374 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 }
 
 .ft-tag--mais:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ═══════════════════════════════════════════════════════════
+   VISUALIZADOR — o tamanho não muda. Nunca.
+
+   O erro que eu vinha cometendo: fixava a ALTURA DA ÁREA, mas deixava a
+   janela crescer com o conteúdo. E o Side by Side, com dois elementos,
+   media diferente do Split, com um — então a janela pulava ao trocar de
+   modo.
+
+   A regra agora é uma só: a JANELA tem largura e altura fixas. Os três
+   modos vivem dentro do mesmo palco e não podem empurrá-lo.
+
+   E a imagem NÃO é cortada: `object-fit: contain` com `max-width/height`
+   a faz caber inteira, na proporção dela, sobrando margem quando precisa.
+   ═══════════════════════════════════════════════════════════ */
+
+.vz {
+  /* Palco fixo: nem cresce nem encolhe */
+  width: 860px;
+  max-width: 94vw;
+  height: 660px;
+  max-height: 92vh;
+
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* A área ocupa o que sobra entre o cabeçalho e o rodapé — e só. */
+.vz-area {
+  flex: 1;
+  min-height: 0;              /* deixa o flex encolher de verdade */
+  padding: 16px;
+  box-sizing: border-box;
+  background: var(--wash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ── O par (Split e Single) ──
+   A caixa tem o tamanho da IMAGEM, não da área. Isso é o que faz a cortina
+   do Split cair no lugar certo: as duas camadas dividem a mesma caixa. */
+.vz-par {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  max-height: 100%;
+  line-height: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  user-select: none;
+  cursor: ew-resize;
+}
+
+.vz-par--single { cursor: grab; }
+.vz-par--single:active { cursor: grabbing; }
+
+/* A imagem cabe INTEIRA: proporção preservada, sem corte. */
+.vz-img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* A cortina corta o print pela esquerda. A imagem de dentro tem a ALTURA
+   da caixa e largura automática — assim ela coincide pixel a pixel com a
+   de baixo, em vez de esticar. */
+.vz-cortina {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+}
+
+.vz-img--fixa {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: auto;
+  max-width: none;
+  max-height: none;
+}
+
+/* ── Side by Side ──
+   Duas metades do mesmo palco. Cada imagem cabe inteira na sua metade. */
+.vz-sbs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.vz-sbs-lado {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--wash2);
+}
+
+/* ── O handle do split: accent (roxo no claro, verde no escuro) ── */
+.vz-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent);
+  transform: translateX(-1px);
+  pointer-events: none;
+  z-index: 4;
+}
+
+.vz-handle-bola {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-txt);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* No A/B, enquanto espera o lado A, a janela encolhe para não tapar o feed */
+.vz--esperando {
+  width: 460px;
+  height: 380px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, .28);
+}
+
+
+
+/* ═══════════════════════════════════════════════════════════
+   Menu recolhido — sem flash
+
+   O React só lê o localStorage depois de montar; a primeira pintura sairia
+   com o menu ABERTO e ele fecharia em seguida. Era esse o piscar a cada
+   troca de aba.
+
+   O script no layout.js põe `.menu-recolhido` no <html> ANTES do React
+   rodar. Estas regras espelham o que `.app-shell.recolhido` faz, para o
+   menu já nascer fechado — quando o React monta, os dois concordam e nada
+   se move.
+
+   `--side-w` é a variável que empurra o header e o conteúdo: mudá-la aqui
+   é o que faz tudo nascer na posição certa.
+   ═══════════════════════════════════════════════════════════ */
+
+html.menu-recolhido {
+  --side-w: var(--side-w-min);
+}
+
+html.menu-recolhido .app-side      { width: var(--side-w-min); }
+html.menu-recolhido .app-logo      { font-size: 20px; }
+html.menu-recolhido .app-side-topo { flex-direction: column; gap: 8px; height: auto; padding: 12px 0; }
+html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
+
+/* A transição continua valendo para o clique no botão — o que não pode é
+   o menu ANIMAR ao carregar a página. Como estas regras já valem antes da
+   primeira pintura, ele nasce fechado e não há de onde animar. */
+
+
+/* ═══════════════════════════════════════════════════════════
+   Slots em geração — mesma grade dos cards prontos
+
+   Eles usam .cr-cards--{layout}--{tamanho}, exatamente como as imagens
+   prontas. Assim trocar de P para GG (ou de grade para lista) funciona
+   DURANTE a geração, e o slot tem o tamanho e a forma que a imagem vai ter
+   quando chegar — nada pula.
+   ═══════════════════════════════════════════════════════════ */
+
+.cr-slot {
+  position: relative;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px dashed var(--line2);
+  background: var(--wash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink3);
+  overflow: hidden;
+}
+
+.cr-slot--ok {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.cr-slot--agora {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--wash2);
+}
+
+/* Barra indeterminada: diz "estou trabalhando" sem fingir saber quanto
+   falta. O Gemini não informa progresso — uma porcentagem aqui seria um
+   número inventado. */
+.cr-slot--agora::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 40%;
+  background: var(--accent);
+  border-radius: 100px;
+  animation: cr-varre 1.3s ease-in-out infinite;
+}
+
+@keyframes cr-varre {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+/* Barra do LOTE — esta porcentagem é real: conta imagens prontas.
+   (Dentro de cada imagem não há progresso: o Gemini não informa quanto
+   falta, então lá a barra é indeterminada, sem número.) */
+.cr-gerando-pct {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.cr-prog-trilho {
+  height: 4px;
+  margin-bottom: 14px;
+  border-radius: 100px;
+  background: var(--wash2);
+  overflow: hidden;
+}
+
+.cr-prog-cheio {
+  height: 100%;
+  border-radius: 100px;
+  background: var(--accent);
+  transition: width .3s ease;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   Grade contínua por mês (estilo Magnific)
+
+   Sem separar por lote: todas as imagens juntas, cada uma na sua proporção,
+   agrupadas só por mês — que é como as pessoas lembram ("aquele render de
+   junho"), não por lote de geração.
+   ═══════════════════════════════════════════════════════════ */
+
+.cr-mes { margin-bottom: 30px; }
+
+.cr-mes-tit {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink3);
+  margin: 0 0 12px;
+}
+
+/* Ferramenta e proporção aparecem no hover, no rodapé do card */
+.cr-card-info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 10px 8px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, .6));
+  opacity: 0;
+  transition: opacity .15s;
+  pointer-events: none;
+}
+
+.cr-card:hover .cr-card-info { opacity: 1; }
+
+.cr-card-info span {
+  font-size: 10px;
+  color: #fff;
+}
+
+.cr-card-fer {
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, .22);
+}
+
+/* ── A/B: as duas imagens escolhidas no feed ── */
+.cr-ab-ico {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.cr-card--a, .cr-card--b {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.cr-card-ab {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-txt);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .28);
+}
+
+.cr-ab-ver {
+  padding: 4px 14px;
+  border-radius: 100px;
+  border: none;
+  background: var(--accent);
+  color: var(--accent-txt);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.cr-ab-barra { gap: 8px; }
+.cr-ab-barra > span { margin-right: auto; }
+.cr-ab-barra button:last-child { margin-left: 0; }
+
+/* Quando foi feita — aparece no hover, junto da ferramenta */
+.cr-card-quando { margin-left: auto; opacity: .85; }
+
+/* Aviso de expiração (o R2 guarda 90 dias): só quando já está perto */
+.cr-mes-expira {
+  margin-left: 10px;
+  padding: 2px 9px;
+  border-radius: 100px;
+  background: var(--wash2);
+  color: var(--ink3);
+  font-size: 10px;
+  font-weight: 400;
+}

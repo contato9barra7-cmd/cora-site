@@ -18,7 +18,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { arquivoParaBase64, urlParaBase64 } from '../lib/render';
 import { listarGeracoes } from '../lib/geracoes';
 
+// Enviar vem primeiro: quase sempre a pessoa quer subir uma imagem nova.
+// Quem vai buscar no histórico procura; quem vai subir, encontra na frente.
 const ORIGENS = [
+  {
+    id: 'enviar', rotulo: 'Enviar',
+    icone: (
+      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M3.5 14v2a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5v-2" strokeLinecap="round"/>
+      </svg>
+    )
+  },
   {
     id: 'historico', rotulo: 'Histórico',
     icone: (
@@ -33,15 +44,6 @@ const ORIGENS = [
     icone: (
       <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z" strokeLinejoin="round"/>
-      </svg>
-    )
-  },
-  {
-    id: 'enviar', rotulo: 'Enviar',
-    icone: (
-      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M3.5 14v2a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5v-2" strokeLinecap="round"/>
       </svg>
     )
   }
@@ -71,7 +73,7 @@ function agruparPorMes(lotes) {
 }
 
 export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
-  const [origem, setOrigem]         = useState('historico');
+  const [origem, setOrigem]         = useState('enviar');   // abre no upload
   const [arrastando, setArrastando] = useState(false);
   const [grupos, setGrupos]         = useState([]);
   const [carregando, setCarregando] = useState(false);
