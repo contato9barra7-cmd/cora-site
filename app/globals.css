@@ -3404,22 +3404,32 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 /* ── O par (Split e Single) ──
    A caixa tem o tamanho da IMAGEM, não da área. Isso é o que faz a cortina
    do Split cair no lugar certo: as duas camadas dividem a mesma caixa. */
+/* ── O par (Split e Single) ──
+   A caixa tem o tamanho da IMAGEM. As duas camadas (print e render) ocupam
+   EXATAMENTE a mesma caixa — é isso que faz a cortina cortar no lugar certo.
+
+   O bug anterior: o print do SketchUp e o render do Gemini têm tamanhos
+   diferentes em pixels. Como cada um se dimensionava sozinho, ficavam
+   desalinhados, e a cortina parecia "pegar" a imagem errada.
+
+   Conserto: o render (embaixo) define o tamanho da caixa; o print (em cima)
+   é esticado para preencher essa MESMA caixa via inset:0 + object-fit.
+   Assim os dois coincidem pixel a pixel, e a cortina revela o print
+   exatamente onde deveria. */
 .vz-par {
   position: relative;
-  display: inline-flex;
+  display: block;
   max-width: 100%;
   max-height: 100%;
   line-height: 0;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
   user-select: none;
   cursor: ew-resize;
 }
 
-.vz-par--single { cursor: grab; }
-.vz-par--single:active { cursor: grabbing; }
 
-/* A imagem cabe INTEIRA: proporção preservada, sem corte. */
+/* A imagem de baixo (o render) define o tamanho da caixa */
 .vz-img {
   display: block;
   max-width: 100%;
@@ -3431,26 +3441,28 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   -webkit-user-drag: none;
 }
 
-/* A cortina corta o print pela esquerda. A imagem de dentro tem a ALTURA
-   da caixa e largura automática — assim ela coincide pixel a pixel com a
-   de baixo, em vez de esticar. */
+/* A cortina: a largura vem do JS (o arrasto). O que estiver aqui é só o
+   ponto de partida. */
 .vz-cortina {
   position: absolute;
   top: 0;
-  left: 0;
   bottom: 0;
-  width: 50%;
+  left: 0;
   overflow: hidden;
+  /* a largura vem do JS (o arrasto) — não fixar aqui */
 }
 
+/* O print, DENTRO da cortina, preenche a caixa inteira do par — não a
+   cortina. Por isso inset:0 e width/height 100%: ele fica ancorado à
+   mesma moldura da imagem de baixo, e a cortina apenas o revela aos poucos. */
 .vz-img--fixa {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
+  width: 100%;
   height: 100%;
-  width: auto;
   max-width: none;
   max-height: none;
+  object-fit: fill;   /* a caixa JÁ tem a proporção certa (vem do render) */
 }
 
 /* ── Side by Side ──
@@ -3458,11 +3470,18 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .vz-sbs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
   height: 100%;
   min-height: 0;
 }
+
+/* O Single usa a MESMA moldura do Side by Side — só que com uma coluna.
+   Antes ele tinha uma caixa própria, sem os cantos arredondados. */
+.vz-sbs--um { grid-template-columns: 1fr; }
+
+.vz-sbs-lado--segura { cursor: grab; }
+.vz-sbs-lado--segura:active { cursor: grabbing; }
 
 .vz-sbs-lado {
   position: relative;
@@ -3471,9 +3490,10 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   justify-content: center;
   min-height: 0;
   min-width: 0;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
   background: var(--wash2);
+  user-select: none;
 }
 
 /* ── O handle do split: accent (roxo no claro, verde no escuro) ── */
@@ -3677,10 +3697,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   letter-spacing: .02em;
 }
 
-.cr-card--a, .cr-card--b {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
 
 .cr-card-ab {
   position: absolute;
@@ -3727,4 +3743,118 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink3);
   font-size: 10px;
   font-weight: 400;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   X de fechar — sempre na quina superior direita
+
+   Meio dentro, meio fora. É o padrão de toda janela do app: o picker já
+   faz assim, e agora o visualizador também.
+   ═══════════════════════════════════════════════════════════ */
+
+.vz { position: relative; overflow: visible; }
+
+.vz-x {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  z-index: 6;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .16);
+  transition: all .15s;
+}
+
+.vz-x:hover { color: var(--ink); border-color: var(--ink3); }
+
+/* Como o .vz agora é `visible` (para o X escapar), os cantos internos
+   precisam cortar sozinhos. */
+.vz-cab   { border-radius: 16px 16px 0 0; }
+.vz-acoes { border-radius: 0 0 16px 16px; }
+.vz-area  { overflow: hidden; }
+
+/* ═══════════════════════════════════════════════════════════
+   Confirmação antes de apagar
+
+   Apagar é irreversível: a imagem sai do R2 e não volta. Um clique sem
+   rede de segurança num botão de lixeira é convite a perder trabalho.
+   ═══════════════════════════════════════════════════════════ */
+
+.cf {
+  width: 100%;
+  max-width: 320px;
+  padding: 22px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  text-align: center;
+}
+
+.cf h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+.cf p {
+  font-size: 12px;
+  color: var(--ink3);
+  line-height: 1.5;
+  margin: 0 0 18px;
+}
+
+.cf-acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.cf-nao {
+  flex: 1;
+  height: 36px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink2);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.cf-nao:hover { border-color: var(--ink3); color: var(--ink); }
+
+.cf-sim {
+  flex: 1;
+  height: 36px;
+  border-radius: 100px;
+  border: none;
+  background: var(--alerta);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.cf-sim:hover { opacity: .9; }
+
+/* ═══════════════════════════════════════════════════════════
+   Feed: mais respiro nas laterais
+   ═══════════════════════════════════════════════════════════ */
+
+.cr-lista { padding: 20px 24px; }
+
+/* Card selecionado no A/B */
+.cr-card--sel {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

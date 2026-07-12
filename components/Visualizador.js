@@ -65,6 +65,14 @@ export default function Visualizador({
   const [corte, setCorte]         = useState(50);
   const [segurando, setSegurando] = useState(false);
   const [baixar, setBaixar]       = useState(false);
+
+  // Apagar é irreversível — a imagem sai do R2 e não volta. Pede confirmação.
+  const [confirmar, setConfirmar] = useState(false);
+
+  // A largura real da caixa (= da imagem de baixo). O print, dentro da
+  // cortina, precisa dela: sem isso ele encolheria com a cortina, e as duas
+  // imagens deixariam de coincidir.
+  const [largura, setLargura] = useState(0);
   const parRef = useRef(null);
 
   useEffect(() => {
@@ -72,6 +80,25 @@ export default function Visualizador({
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onFechar]);
+
+  // Mede a caixa sempre que ela mudar (troca de modo, resize da janela)
+  useEffect(() => {
+    if (!parRef.current) return;
+
+    const medir = () => {
+      if (parRef.current) setLargura(parRef.current.clientWidth);
+    };
+    medir();
+
+    const ro = new ResizeObserver(medir);
+    ro.observe(parRef.current);
+    window.addEventListener('resize', medir);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', medir);
+    };
+  }, [modo, item.url]);
 
   // A cortina é relativa à IMAGEM, não ao contêiner. Era esse o bug.
   function arrastar(e) {
@@ -110,6 +137,14 @@ export default function Visualizador({
     <div className="cr-overlay" onClick={onFechar}>
       <div className="vz" onClick={(e) => e.stopPropagation()}>
 
+        {/* O X mora na quina — meio dentro, meio fora. É o mesmo padrão do
+            picker, e vale para toda janela do app. */}
+        <button className="vz-x" onClick={onFechar} aria-label="Fechar">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
+          </svg>
+        </button>
+
         <header className="vz-cab">
           {compara && (
             <div className="vz-modos">
@@ -127,7 +162,6 @@ export default function Visualizador({
             </div>
           )}
 
-          <button className="cr-modal-x" onClick={onFechar} aria-label="Fechar">×</button>
         </header>
 
         {/* A área tem tamanho FIXO — trocar de modo não faz a tela pular */}
@@ -143,11 +177,17 @@ export default function Visualizador({
               {/* Base: o render */}
               <img className="vz-img" src={item.url} alt="" draggable={false} />
 
-              {/* Cortina: o print, cortado à esquerda.
-                  A imagem de dentro tem 100% da MESMA caixa — por isso as
-                  duas coincidem pixel a pixel. */}
+              {/* A cortina corta pela esquerda. O print, dentro dela, recebe
+                  a largura da CAIXA (não da cortina) — senão encolheria junto
+                  e as duas imagens deixariam de coincidir. Era esse o bug. */}
               <div className="vz-cortina" style={{ width: corte + '%' }}>
-                <img className="vz-img vz-img--fixa" src={esquerda} alt="" draggable={false} />
+                <img
+                  className="vz-img vz-img--fixa"
+                  src={esquerda}
+                  alt=""
+                  draggable={false}
+                  style={{ width: largura ? largura + 'px' : '100%' }}
+                />
               </div>
 
               <div className="vz-handle" style={{ left: corte + '%' }}>
@@ -177,33 +217,33 @@ export default function Visualizador({
           )}
 
           {(!compara || modo === 'single') && (
-            <div
-              className="vz-par vz-par--single"
-              onMouseDown={() => compara && setSegurando(true)}
-              onMouseUp={() => setSegurando(false)}
-              onMouseLeave={() => setSegurando(false)}
-              onTouchStart={() => compara && setSegurando(true)}
-              onTouchEnd={() => setSegurando(false)}
-            >
-              <img
-                className="vz-img"
-                src={segurando && compara ? esquerda : item.url}
-                alt=""
-                draggable={false}
-              />
-              {compara && (
-                <>
-                  {/* Mesma pílula do Side by Side: diz o que se está vendo */}
-                  <span className="vz-tag vz-tag--esq">
-                    {segurando ? rotEsq : rotDir}
-                  </span>
-                  <span className="vz-tag vz-tag--baixo">
-                    {segurando
-                      ? `Solte para ver ${rotDir === 'Render' ? 'o render' : rotDir}`
-                      : `Segure para ver ${rotEsq === 'Print' ? 'o print' : rotEsq}`}
-                  </span>
-                </>
-              )}
+            <div className="vz-sbs vz-sbs--um">
+              <div
+                className="vz-sbs-lado vz-sbs-lado--segura"
+                onMouseDown={() => compara && setSegurando(true)}
+                onMouseUp={() => setSegurando(false)}
+                onMouseLeave={() => setSegurando(false)}
+                onTouchStart={() => compara && setSegurando(true)}
+                onTouchEnd={() => setSegurando(false)}
+              >
+                <img
+                  className="vz-img"
+                  src={segurando && compara ? esquerda : item.url}
+                  alt=""
+                  draggable={false}
+                />
+                {compara && (
+                  <>
+                    {/* A MESMA pílula do Side by Side — só o texto muda */}
+                    <span className="vz-tag vz-tag--esq">
+                      {segurando ? rotEsq : rotDir}
+                    </span>
+                    <span className="vz-tag vz-tag--baixo">
+                      {segurando ? `Solte para ver ${rotDir}` : `Segure para ver ${rotEsq}`}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -238,7 +278,7 @@ export default function Visualizador({
             </svg>
           </button>
 
-          <button className="vz-ico vz-ico--perigo" onClick={() => onExcluir(item)} data-tip="Excluir" aria-label="Excluir">
+          <button className="vz-ico vz-ico--perigo" onClick={() => setConfirmar(true)} data-tip="Excluir" aria-label="Excluir">
             <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
               <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
@@ -275,6 +315,27 @@ export default function Visualizador({
       </div>
 
       <ModalDownload aberto={baixar} url={item.url} id={item.id} onFechar={() => setBaixar(false)} />
+
+      {/* Apagar não tem volta: a imagem sai do R2 para sempre. */}
+      {confirmar && (
+        <div className="cr-overlay cr-overlay--alto" onClick={() => setConfirmar(false)}>
+          <div className="cf" onClick={(e) => e.stopPropagation()}>
+            <h3>Excluir esta imagem?</h3>
+            <p>Ela será apagada para sempre. Não dá para recuperar depois.</p>
+            <div className="cf-acoes">
+              <button className="cf-nao" onClick={() => setConfirmar(false)}>
+                Cancelar
+              </button>
+              <button
+                className="cf-sim"
+                onClick={() => { setConfirmar(false); onExcluir(item); }}
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

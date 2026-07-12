@@ -18,6 +18,7 @@ import AppShell from '../../components/AppShell';
 import PainelRender from '../../components/PainelRender';
 import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
+import Card, { proporcaoCss } from '../../components/Card';
 import { lerConta, creditosMudaram } from '../../lib/auth';
 import { urlParaBase64 } from '../../lib/render';
 import {
@@ -71,17 +72,6 @@ const FILTROS = [
     )
   }
 ];
-
-// "4:5" -> "4 / 5", que o CSS entende em aspect-ratio.
-// Sem proporção guardada (gerações antigas), cai em 4/3 — um meio-termo
-// razoável que não espreme nem estica demais.
-function proporcaoCss(p) {
-  // "auto" não tem forma definida — quem decide é a imagem que voltar.
-  // Até lá (e para gerações antigas sem proporção), 4/3 é o meio-termo que
-  // menos distorce.
-  if (!p || p === 'auto' || !/^\d+:\d+$/.test(p)) return '4 / 3';
-  return p.replace(':', ' / ');
-}
 
 const MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -165,7 +155,7 @@ export default function AppPage() {
 
   // Como o feed se apresenta
   const [layout, setLayout]   = useState('grade');   // grade | linha
-  const [tamanho, setTamanho] = useState('gg');      // p | m | g | gg — GG por padrão
+  const [tamanho, setTamanho] = useState('g');       // p | m | g | gg — G por padrão (os tamanhos aumentaram)
 
   // Filtros avançados (o painel do ícone de ajustes)
   const [painelFiltros, setPainelFiltros] = useState(false);
@@ -177,13 +167,19 @@ export default function AppPage() {
   const [ladoA, setLadoA]   = useState(null);
   const [ladoB, setLadoB]   = useState(null);
 
-  // Primeiro clique escolhe o A; o segundo, o B. Clicar de novo numa já
-  // escolhida a solta.
+  // Primeiro clique = A. Segundo = B. A partir daí, cada clique novo vira o
+  // A, e o A antigo desce para B — dá para ir comparando em cadeia, sempre
+  // contra a última que interessou. Clicar numa já escolhida a solta.
   function escolherAB(it) {
-    if (ladoA?.id === it.id) { setLadoA(null); return; }
+    if (ladoA?.id === it.id) { setLadoA(ladoB); setLadoB(null); return; }
     if (ladoB?.id === it.id) { setLadoB(null); return; }
-    if (!ladoA) { setLadoA(it); return; }
-    setLadoB(it);
+
+    if (!ladoA)      { setLadoA(it); return; }
+    if (!ladoB)      { setLadoB(it); return; }
+
+    // As duas ocupadas: a nova entra como A, e a A vira B.
+    setLadoB(ladoA);
+    setLadoA(it);
   }
 
   function sairAB() {
@@ -511,20 +507,16 @@ export default function AppPage() {
               </div>
             )}
 
-            {/* ── Grade contínua, agrupada por mês (como o Magnific) ──
-                Sem separar por lote: todas as imagens juntas, cada uma na
-                sua proporção. Os dados do lote (ferramenta, proporção,
-                quando) viajam com cada imagem, para o visualizador. */}
-            {!carregando && porMes.map((mes) => (
+            {/* ── GRADE: contínua por mês, sem lote (como o Magnific) ──
+                Todas as imagens juntas, cada uma na sua proporção. É como as
+                pessoas procuram: pela imagem, não pela geração. */}
+            {!carregando && layout === 'grade' && porMes.map((mes) => (
               <section key={mes.chave} className="cr-mes">
                 <h3 className="cr-mes-tit">
                   {mes.titulo}
-
-                  {/* As gerações mais velhas do mês somem primeiro — o aviso
-                      só aparece quando já está perto. */}
                   {(() => {
-                    const maisVelha = mes.itens[mes.itens.length - 1];
-                    const dias = diasAteExpirar(maisVelha.criadoEm);
+                    const velha = mes.itens[mes.itens.length - 1];
+                    const dias = diasAteExpirar(velha.criadoEm);
                     if (dias === null || dias > 15) return null;
                     return (
                       <span className="cr-mes-expira">
@@ -536,48 +528,75 @@ export default function AppPage() {
                   })()}
                 </h3>
 
-                <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
+                <div className={`cr-cards cr-cards--grade cr-cards--${tamanho}`}>
                   {mes.itens.map((it) => (
-                    <button
+                    <Card
                       key={it.id}
-                      className={
-                        'cr-card'
-                        + (ladoA?.id === it.id ? ' cr-card--a' : '')
-                        + (ladoB?.id === it.id ? ' cr-card--b' : '')
-                      }
-                      style={{ aspectRatio: proporcaoCss(it.proporcao) }}
+                      it={it}
+                      modoAB={modoAB}
+                      ladoA={ladoA}
+                      ladoB={ladoB}
                       onClick={() => {
-                        // No A/B, os cliques escolhem A e depois B
                         if (modoAB) { escolherAB(it); return; }
                         setVendo({ loteId: it.loteId, itemId: it.id });
                       }}
-                    >
-                      <img src={it.url} alt="" loading="lazy" />
-
-                      {/* Etiqueta A ou B durante a comparação */}
-                      {modoAB && ladoA?.id === it.id && <span className="cr-card-ab">A</span>}
-                      {modoAB && ladoB?.id === it.id && <span className="cr-card-ab">B</span>}
-
-                      {it.favorito && (
-                        <span className="cr-card-fav">
-                          <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor">
-                            <path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/>
-                          </svg>
-                        </span>
-                      )}
-
-                      <span className="cr-card-info">
-                        <span className="cr-card-fer">
-                          {ROTULO_FERRAMENTA[it.ferramenta] || it.ferramenta}
-                        </span>
-                        {it.proporcao && <span>{it.proporcao}</span>}
-                        <span className="cr-card-quando">{tempoRelativo(it.criadoEm)}</span>
-                      </span>
-                    </button>
+                    />
                   ))}
                 </div>
               </section>
             ))}
+
+            {/* ── LISTA: agrupada por lote ──
+                Aqui o lote importa: as N variações de uma mesma configuração
+                ficam lado a lado, para comparar o que aquele ajuste produziu. */}
+            {!carregando && layout === 'linha' && lotes.map((lote) => {
+              const dias = diasAteExpirar(lote.criadoEm);
+              return (
+                <article key={lote.loteId} className="cr-lote">
+                  <header className="cr-lote-cab">
+                    {ehAdmin && (
+                      <span className="cr-lote-obs">
+                        {lote.observacoes || 'Sem observações'}
+                      </span>
+                    )}
+                    {!ehAdmin && <span className="cr-lote-obs" />}
+
+                    <span className="cr-tag cr-tag--roxa">
+                      {ROTULO_FERRAMENTA[lote.ferramenta] || lote.ferramenta}
+                    </span>
+                    {lote.proporcao && <span className="cr-tag">{lote.proporcao}</span>}
+                    {lote.tipo === 'video' && lote.duracaoSeg && (
+                      <span className="cr-tag">{lote.duracaoSeg}s</span>
+                    )}
+                    <span className="cr-lote-data">{tempoRelativo(lote.criadoEm)}</span>
+                  </header>
+
+                  {dias !== null && dias <= 15 && (
+                    <p className="cr-expira">
+                      {dias === 0
+                        ? 'Esta geração será apagada hoje.'
+                        : `Esta geração será apagada em ${dias} ${dias === 1 ? 'dia' : 'dias'}.`}
+                    </p>
+                  )}
+
+                  <div className={`cr-cards cr-cards--linha cr-cards--${tamanho}`}>
+                    {lote.itens.map((item) => (
+                      <Card
+                        key={item.id}
+                        it={{ ...item, proporcao: lote.proporcao, ferramenta: lote.ferramenta, criadoEm: lote.criadoEm }}
+                        modoAB={modoAB}
+                        ladoA={ladoA}
+                        ladoB={ladoB}
+                        onClick={() => {
+                          if (modoAB) { escolherAB({ ...item, loteId: lote.loteId }); return; }
+                          setVendo({ loteId: lote.loteId, itemId: item.id });
+                        }}
+                      />
+                    ))}
+                  </div>
+                </article>
+              );
+            })}
 
           </div>
         </section>
