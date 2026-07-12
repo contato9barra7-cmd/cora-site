@@ -19,12 +19,65 @@ import {
   ROTULO_FERRAMENTA, tempoRelativo, diasAteExpirar
 } from '../../lib/geracoes';
 
+// Ícones e tooltips iguais aos do histórico do plugin.
 const FILTROS = [
-  { id: 'tudo',      rotulo: 'Tudo' },
-  { id: 'imagem',    rotulo: 'Imagens' },
-  { id: 'video',     rotulo: 'Vídeos' },
-  { id: 'favoritos', rotulo: 'Favoritos' }
+  {
+    id: 'tudo', rotulo: 'Tudo',
+    icone: (
+      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/>
+        <rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/>
+      </svg>
+    )
+  },
+  {
+    id: 'imagem', rotulo: 'Imagens',
+    icone: (
+      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/>
+        <path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>
+      </svg>
+    )
+  },
+  {
+    id: 'video', rotulo: 'Vídeos',
+    icone: (
+      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <rect x="2.5" y="5" width="11" height="10" rx="2"/>
+        <path d="M13.5 8.5l4-2.2v7.4l-4-2.2" strokeLinejoin="round"/>
+      </svg>
+    )
+  },
+  {
+    id: 'favoritos', rotulo: 'Favoritos', fav: true,
+    icone: (
+      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <path d="M10 16.5l-1.2-1.1C5.4 12.3 3 10.1 3 7.5 3 5.5 4.5 4 6.5 4c1.1 0 2.2.5 2.9 1.4l.6.7.6-.7C11.3 4.5 12.4 4 13.5 4 15.5 4 17 5.5 17 7.5c0 2.6-2.4 4.8-5.8 7.9L10 16.5z"/>
+      </svg>
+    )
+  }
 ];
+
+// Coração para favoritar (preenche quando ativo, como no plugin)
+const IC_CORACAO = (
+  <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <path d="M10 16.5l-1.2-1.1C5.4 12.3 3 10.1 3 7.5 3 5.5 4.5 4 6.5 4c1.1 0 2.2.5 2.9 1.4l.6.7.6-.7C11.3 4.5 12.4 4 13.5 4 15.5 4 17 5.5 17 7.5c0 2.6-2.4 4.8-5.8 7.9L10 16.5z"/>
+  </svg>
+);
+
+const IC_BAIXAR = (
+  <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <path d="M10 3v9m0 0l-3.2-3.2M10 12l3.2-3.2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M3.5 14v1.5a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5V14" strokeLinecap="round"/>
+  </svg>
+);
+
+const IC_LIXO = (
+  <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
+    <path d="M5 5.5l.7 10a1.5 1.5 0 001.5 1.4h5.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
+  </svg>
+);
 
 export default function App() {
   const router = useRouter();
@@ -157,10 +210,12 @@ export default function App() {
             {FILTROS.map((f) => (
               <button
                 key={f.id}
-                className={'cr-chip' + (filtro === f.id ? ' cr-chip--on' : '')}
+                className={'cr-fbtn' + (filtro === f.id ? ' cr-fbtn--on' : '') + (f.fav ? ' cr-fbtn--fav' : '')}
                 onClick={() => setFiltro(f.id)}
+                data-tip={f.rotulo}
+                aria-label={f.rotulo}
               >
-                {f.rotulo}
+                {f.icone}
               </button>
             ))}
 
@@ -241,10 +296,26 @@ export default function App() {
                         <button
                           className={'cr-mini' + (item.favorito ? ' cr-mini--on' : '')}
                           onClick={() => favoritar(item.id)}
+                          data-tip={item.favorito ? 'Desfavoritar' : 'Favoritar'}
                           aria-label={item.favorito ? 'Desfavoritar' : 'Favoritar'}
-                          title={item.favorito ? 'Desfavoritar' : 'Favoritar'}
                         >
-                          {item.favorito ? '★' : '☆'}
+                          {IC_CORACAO}
+                        </button>
+                        <button
+                          className="cr-mini"
+                          onClick={() => baixar(item.url, lote, item.ordem, 'png')}
+                          data-tip="Baixar PNG"
+                          aria-label="Baixar PNG"
+                        >
+                          {IC_BAIXAR}
+                        </button>
+                        <button
+                          className="cr-mini cr-mini--perigo"
+                          onClick={() => apagar(item.id)}
+                          data-tip="Apagar"
+                          aria-label="Apagar"
+                        >
+                          {IC_LIXO}
                         </button>
                       </div>
                     </div>
@@ -341,10 +412,11 @@ export default function App() {
                   Baixar JPG
                 </button>
                 <button
-                  className={'cr-btn' + (item.favorito ? ' cr-btn--on' : '')}
+                  className={'cr-btn cr-btn--ic' + (item.favorito ? ' cr-btn--on' : '')}
                   onClick={() => favoritar(item.id)}
                 >
-                  {item.favorito ? '★ Favorito' : '☆ Favoritar'}
+                  {IC_CORACAO}
+                  {item.favorito ? 'Favorito' : 'Favoritar'}
                 </button>
                 <button className="cr-btn cr-btn--perigo" onClick={() => apagar(item.id)}>
                   Apagar

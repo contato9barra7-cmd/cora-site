@@ -1045,25 +1045,55 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   background: var(--paper);
 }
 
-.cr-chip {
-  padding: 6px 14px;
-  border-radius: 100px;
+/* Filtros em ícone, com tooltip — iguais aos do histórico do plugin */
+.cr-fbtn {
+  width: 32px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
   border: 1px solid var(--line2);
   background: transparent;
   color: var(--ink3);
-  font-size: 12px;
-  font-weight: 600;
-  font-family: inherit;
   cursor: pointer;
   transition: all .15s;
+  padding: 0;
 }
 
-.cr-chip:hover { color: var(--ink); border-color: var(--ink3); }
+.cr-fbtn:hover { border-color: var(--ink3); color: var(--ink2); }
 
-.cr-chip--on {
-  background: var(--wash);
-  border-color: var(--ink3);
-  color: var(--ink);
+.cr-fbtn--on {
+  border-color: var(--roxo);
+  color: var(--roxo);
+  background: color-mix(in srgb, var(--roxo) 10%, transparent);
+}
+
+/* O coração do filtro "Favoritos" enche quando está ativo */
+.cr-fbtn--fav.cr-fbtn--on svg { fill: var(--roxo); }
+
+/* ── Tooltip (portado do plugin: [data-tip]) ── */
+.cr-wrap [data-tip] { position: relative; }
+
+.cr-wrap [data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: pre-line;
+  text-align: center;
+  width: max-content;
+  max-width: 230px;
+  line-height: 1.4;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 50;
 }
 
 .cr-busca {
@@ -1226,26 +1256,43 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .cr-card:hover .cr-card-acoes { opacity: 1; }
 
 .cr-mini {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   border: 1px solid var(--line2);
   background: var(--paper);
   color: var(--ink3);
-  font-size: 12px;
-  line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
+  transition: all .15s;
 }
 
-.cr-mini:hover { color: var(--ink); }
-.cr-mini--on { color: var(--verde); border-color: var(--verde); opacity: 1; }
+.cr-mini:hover { color: var(--ink); border-color: var(--ink3); }
+
+/* Favoritado: o coração enche */
+.cr-mini--on {
+  color: var(--roxo);
+  border-color: var(--roxo);
+}
+.cr-mini--on svg { fill: var(--roxo); }
+
+.cr-mini--perigo:hover { color: var(--alerta); border-color: var(--alerta); }
+
+/* O tooltip do card abre para CIMA (senão sai pela borda de baixo) */
+.cr-card-acoes [data-tip]:hover::after {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
 
 /* A estrela fica sempre visível quando está favoritada */
 .cr-card-acoes:has(.cr-mini--on) { opacity: 1; }
+
+/* Botão com ícone + texto (rodapé do preview) */
+.cr-btn--ic { display: inline-flex; align-items: center; gap: 6px; }
+.cr-btn--on svg { fill: var(--roxo); }
 
 /* ── Preview em overlay ── */
 .cr-overlay {
