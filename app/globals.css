@@ -416,13 +416,13 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .conta-h2 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
 .conta-p { color: var(--ink2); font-size: 15px; margin-bottom: 14px; }
 
-.dash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 18px; }
+.dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 18px; }
 .dash-card {
   background: var(--paper); border: 1px solid var(--line); border-radius: var(--rc);
   padding: 22px; display: flex; flex-direction: column; gap: 4px;
 }
 .dash-rotulo { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink3); }
-.dash-valor { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; text-transform: capitalize; }
+.dash-valor { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; text-transform: capitalize; }
 .dash-sub { font-size: 13px; color: var(--ink3); }
 .dash-badge {
   align-self: flex-start; margin-top: 6px; font-size: 12px; font-weight: 600;
