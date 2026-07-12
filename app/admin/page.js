@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais, adminDeletarConta, adminCompras } from '../../lib/auth';
+import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais, adminDeletarConta, adminCompras, adminSincronizarStripe } from '../../lib/auth';
 
 const PLANOS = ['free', 'starter', 'pro', 'studio'];
 
@@ -69,6 +69,18 @@ export default function Admin() {
   useEffect(() => {
     adminCompras().then(setCompras).catch(() => {});
   }, []);
+
+  const [sincronizando, setSincronizando] = useState(false);
+
+  async function sincronizarStripe() {
+    setSincronizando(true); setErro('');
+    try {
+      const n = await adminSincronizarStripe();
+      await carregar();
+      setErro(n > 0 ? `${n} assinatura(s) sincronizada(s) do Stripe.` : 'Nada para sincronizar.');
+    } catch (e) { setErro(e.message); }
+    finally { setSincronizando(false); }
+  }
 
   function limparFiltros() {
     setFiltroData('todos');
@@ -424,6 +436,15 @@ export default function Admin() {
             disabled={carregandoFiscais}
           >
             {carregandoFiscais ? 'Carregando...' : (dadosFiscais ? 'Ocultar dados fiscais' : 'Ver dados fiscais')}
+          </button>
+          <button
+            className="btn btn--ink"
+            style={{ width: 'auto', margin: 0, padding: '8px 18px' }}
+            onClick={sincronizarStripe}
+            disabled={sincronizando}
+            title="Busca valores e datas das assinaturas no Stripe"
+          >
+            {sincronizando ? 'Sincronizando...' : 'Sincronizar Stripe'}
           </button>
           <div className="admin-export-wrap">
             <button
