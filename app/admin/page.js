@@ -37,6 +37,9 @@ export default function Admin() {
   const [filtroProfissao, setFiltroProfissao] = useState('');
   const [filtroOrigem, setFiltroOrigem] = useState('');
   const [filtroRender, setFiltroRender] = useState('');
+  const [filtroEstado, setFiltroEstado] = useState('');
+  const [filtroPais, setFiltroPais] = useState('');
+  const [verGeo, setVerGeo] = useState(false);
   const [erro, setErro] = useState('');
   const [ocupado, setOcupado] = useState(null); // id da conta em ação
   const [exportando, setExportando] = useState(false);
@@ -73,11 +76,41 @@ export default function Admin() {
     setDataDe(''); setDataAte('');
     setFiltroStatus('');
     setFiltroProfissao(''); setFiltroOrigem(''); setFiltroRender('');
+    setFiltroEstado(''); setFiltroPais('');
   }
 
   // Campos como telefone, CPF e CEP são numéricos mas devem virar TEXTO no Excel,
   // senão ele converte para notação científica (ex: 5,552E+12).
   const COLUNAS_TEXTO = ['telefone', 'cpf', 'cep'];
+
+  // Relatório geográfico: agrupa por estado (BR) e por país
+  function relatorioGeo() {
+    const pagantes = assinantes.filter(a => a.id !== meuId && !a.eh_convidado && !a.eh_trial);
+    const totalClientes = pagantes.length;
+    const totalValor = pagantes.reduce((s, a) => s + (a.valor_centavos || 0), 0);
+
+    const agrupa = (campo) => {
+      const mapa = {};
+      pagantes.forEach(a => {
+        const k = (a[campo] || '').toUpperCase() || '—';
+        if (!mapa[k]) mapa[k] = { n: 0, valor: 0 };
+        mapa[k].n += 1;
+        mapa[k].valor += (a.valor_centavos || 0);
+      });
+      return Object.entries(mapa)
+        .map(([k, v]) => ({
+          chave: k,
+          n: v.n,
+          valor: v.valor,
+          pctClientes: totalClientes ? Math.round((v.n / totalClientes) * 100) : 0,
+          pctValor: totalValor ? Math.round((v.valor / totalValor) * 100) : 0,
+        }))
+        .sort((a, b) => b.n - a.n);
+    };
+    return { estados: agrupa('estado'), paises: agrupa('pais'), totalClientes, totalValor };
+  }
+
+  const geo = relatorioGeo();
 
   function baixarCSV(nomeArq, cabecalho, linhas) {
     const idxTexto = cabecalho
@@ -128,12 +161,13 @@ export default function Admin() {
       }
 
       baixarCSV('assinantes-fiscais',
-        ['Nome', 'Email', 'CPF', 'Telefone', 'CEP', 'Endereço', 'Plano', 'Assentos', 'Assinou em', 'Renova em', 'Renovações', 'Valor (R$)'],
+        ['Nome', 'Email', 'CPF', 'Telefone', 'CEP', 'Endereço', 'Cidade', 'Estado', 'País', 'Plano', 'Assentos', 'Assinou em', 'Renova em', 'Renovações', 'Valor (R$)'],
         pagantes.map(a => [
           a.nome, a.email, a.cpf,
           mapa[a.email]?.telefone || '',
           mapa[a.email]?.cep || '',
           mapa[a.email]?.endereco || '',
+          a.cidade || '', a.estado || '', a.pais || '',
           a.eh_dono_equipe ? `Teams (${a.plano_exibicao === 'teams' ? 'equipe' : a.plano})` : a.plano,
           a.assentos || 1,
           a.assinou_em ? new Date(a.assinou_em).toLocaleDateString('pt-BR') : '',
@@ -299,6 +333,8 @@ export default function Admin() {
     if (filtroProfissao && a.profissao !== filtroProfissao) return false;
     if (filtroOrigem && a.origem !== filtroOrigem) return false;
     if (filtroRender && a.usa_render !== filtroRender) return false;
+    if (filtroEstado && (a.estado || '').toUpperCase() !== filtroEstado) return false;
+    if (filtroPais && (a.pais || '').toUpperCase() !== filtroPais) return false;
     // busca textual
     const q = busca.toLowerCase().trim();
     if (!q) return true;
@@ -392,6 +428,51 @@ export default function Admin() {
 
       {erro && <div className="login-erro" style={{ marginBottom: 16 }}>{erro}</div>}
 
+      {geo.totalClientes > 0 && (
+        <div className="admin-geo">
+          <div className="admin-geo-topo">
+            <h2 className="admin-geo-titulo">Origem geográfica</h2>
+            <button className="admin-geo-toggle" onClick={() => setVerGeo(!verGeo)}>
+              {verGeo ? 'Ocultar' : 'Ver relatório'}
+            </button>
+          </div>
+          {verGeo && (
+            <div className="admin-geo-cols">
+              <div>
+                <div className="admin-geo-sub">Por estado</div>
+                {geo.estados.map(e => (
+                  <div key={e.chave} className="admin-geo-linha">
+                    <span className="admin-geo-k">{e.chave}</span>
+                    <div className="admin-geo-barra">
+                      <div className="admin-geo-fill" style={{ width: `${e.pctClientes}%` }} />
+                    </div>
+                    <span className="admin-geo-v">
+                      {e.pctClientes}% · {e.n} {e.n === 1 ? 'cliente' : 'clientes'}
+                      {e.valor > 0 && <em> · {fmtValor(e.valor, 'brl')} ({e.pctValor}% da receita)</em>}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <div className="admin-geo-sub">Por país</div>
+                {geo.paises.map(p => (
+                  <div key={p.chave} className="admin-geo-linha">
+                    <span className="admin-geo-k">{p.chave}</span>
+                    <div className="admin-geo-barra">
+                      <div className="admin-geo-fill" style={{ width: `${p.pctClientes}%` }} />
+                    </div>
+                    <span className="admin-geo-v">
+                      {p.pctClientes}% · {p.n} {p.n === 1 ? 'cliente' : 'clientes'}
+                      {p.valor > 0 && <em> · {fmtValor(p.valor, 'brl')} ({p.pctValor}% da receita)</em>}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="admin-abas">
         <button className={'admin-aba' + (aba === 'pagantes' ? ' ativa' : '')} onClick={() => setAba('pagantes')}>
           Assinantes ({pagos})
@@ -472,6 +553,18 @@ export default function Admin() {
             <option value="cancelado">Cancelados</option>
           </select>
         )}
+        <select className="admin-filtro-sel" value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
+          <option value="">Estado</option>
+          {[...new Set(assinantes.map(a => (a.estado || '').toUpperCase()).filter(Boolean))].sort().map(uf => (
+            <option key={uf} value={uf}>{uf}</option>
+          ))}
+        </select>
+        <select className="admin-filtro-sel" value={filtroPais} onChange={(e) => setFiltroPais(e.target.value)}>
+          <option value="">País</option>
+          {[...new Set(assinantes.map(a => (a.pais || '').toUpperCase()).filter(Boolean))].sort().map(p => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
         <button className="admin-filtro-limpar" onClick={limparFiltros}>Limpar tudo</button>
       </div>
 
