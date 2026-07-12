@@ -114,6 +114,22 @@ function ContaConteudo() {
             {dataRenov && !ehAdmin ? new Date(dataRenov).toLocaleDateString('pt-BR') : '—'}
           </span>
         </div>
+
+        {(ehPago || conta.eh_dono_equipe) && !ehAdmin && conta.assinou_em && (
+          <div className="dash-card">
+            <span className="dash-rotulo">Cliente desde</span>
+            <span className="dash-valor">{new Date(conta.assinou_em).toLocaleDateString('pt-BR')}</span>
+          </div>
+        )}
+
+        {(ehPago || conta.eh_dono_equipe) && !ehAdmin && conta.valor_centavos > 0 && (
+          <div className="dash-card">
+            <span className="dash-rotulo">Valor da assinatura</span>
+            <span className="dash-valor">
+              R$ {((conta.valor_centavos || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+        )}
       </div>
 
       {equipeMembro && (

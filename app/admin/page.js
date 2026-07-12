@@ -262,7 +262,13 @@ export default function Admin() {
       setAssinantes(lista);
       setCarregando(false);
     } catch (e) {
-      setNegado(true);
+      // só nega acesso se for realmente permissão; senão mostra o erro real
+      const msg = (e.message || '').toLowerCase();
+      if (msg.includes('admin') || msg.includes('permiss') || msg.includes('acesso') || msg.includes('401') || msg.includes('403')) {
+        setNegado(true);
+      } else {
+        setErro('Erro ao carregar: ' + e.message);
+      }
       setCarregando(false);
     }
   }
