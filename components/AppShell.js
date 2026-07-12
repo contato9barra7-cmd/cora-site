@@ -7,6 +7,13 @@ import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta } from '../li
 
 // Ícones simples em SVG (sem dependência externa)
 const Icone = {
+  studio: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <circle cx="8.5" cy="8.5" r="1.5"/>
+      <path d="M21 15l-5-5L5 21"/>
+    </svg>
+  ),
   dashboard: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -89,6 +96,7 @@ export default function AppShell({ children }) {
 
   const itens = [
     { href: '/conta', rotulo: 'Dashboard', icone: Icone.dashboard, admin: false },
+    { href: '/app', rotulo: 'Cora Render', icone: Icone.studio, admin: false },
     { href: '/conta/perfil', rotulo: 'Minha conta', icone: Icone.conta, admin: false },
     { href: '/workspace', rotulo: 'Equipe', icone: Icone.equipe, admin: false, soDono: true },
     { href: '/assinatura', rotulo: 'Assinatura', icone: Icone.assinatura, admin: false, soPagante: true },

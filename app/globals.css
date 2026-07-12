@@ -947,3 +947,532 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 @media (max-width: 780px) { .admin-geo-cols { grid-template-columns: 1fr; gap: 20px; } }
 
 .link-inline { background: none; border: none; color: var(--roxo); font-size: inherit; font-family: inherit; cursor: pointer; padding: 0; text-decoration: underline; }
+/* ═══════════════════════════════════════════════════════════
+   /app — Cora Render na web
+
+   COLE ISTO NO FIM DO app/globals.css
+
+   Usa as vars que o site ja tem: --accent, --roxo, --ink, --ink2,
+   --ink3, --line, --line2, --paper, --wash, --alerta.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Layout: painel + feed ── */
+.cr-wrap {
+  display: flex;
+  gap: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(100vh - 120px);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.cr-painel {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--line);
+  background: var(--wash);
+  display: flex;
+  flex-direction: column;
+}
+
+.cr-feed {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Pills das ferramentas ── */
+.cr-pills {
+  display: flex;
+  gap: 4px;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.cr-pill {
+  flex: 1;
+  padding: 7px 0;
+  border-radius: 100px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink3);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.cr-pill:hover:not(:disabled) { color: var(--ink); }
+
+.cr-pill--on {
+  background: var(--paper);
+  border-color: var(--roxo);
+  color: var(--roxo);
+}
+
+.cr-pill:disabled { opacity: .4; cursor: default; }
+
+.cr-painel-vazio {
+  padding: 20px 16px;
+  color: var(--ink3);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.cr-painel-vazio p { margin: 0 0 10px; }
+.cr-dica { font-size: 12px; opacity: .8; }
+
+/* ── Barra de filtros ── */
+.cr-barra {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.cr-chip {
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink3);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.cr-chip:hover { color: var(--ink); border-color: var(--ink3); }
+
+.cr-chip--on {
+  background: var(--wash);
+  border-color: var(--ink3);
+  color: var(--ink);
+}
+
+.cr-busca {
+  margin-left: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cr-busca input {
+  width: 180px;
+  padding: 6px 28px 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+}
+
+.cr-busca input:focus { border-color: var(--roxo); }
+.cr-busca input::placeholder { color: var(--ink3); }
+
+.cr-busca-x {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--ink3);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.cr-busca-x:hover { color: var(--ink); }
+
+/* ── Mensagens ── */
+.cr-msg {
+  padding: 32px 16px;
+  color: var(--ink3);
+  font-size: 14px;
+}
+
+.cr-vazio {
+  padding: 64px 24px;
+  text-align: center;
+  color: var(--ink3);
+}
+
+.cr-vazio h2 {
+  font-size: 18px;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+.cr-vazio p { font-size: 14px; margin: 0; }
+
+/* ── Um lote (uma geração e suas variações) ── */
+.cr-lote {
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.cr-lote:last-child { border-bottom: none; }
+
+.cr-lote-cab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.cr-lote-obs {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--ink2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cr-lote-data {
+  font-size: 11px;
+  color: var(--ink3);
+  flex-shrink: 0;
+}
+
+.cr-tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  color: var(--ink3);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.cr-tag--roxa {
+  border-color: var(--roxo);
+  color: var(--roxo);
+}
+
+.cr-expira {
+  font-size: 11px;
+  color: var(--alerta);
+  margin: 0 0 10px;
+}
+
+/* ── Cards das imagens ── */
+.cr-cards {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cr-card {
+  position: relative;
+  width: 216px;
+  height: 126px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--wash);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+
+.cr-card:hover { border-color: var(--verde); }
+
+.cr-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cr-card-erro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 11px;
+  color: var(--ink3);
+}
+
+.cr-card-acoes {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity .15s;
+}
+
+.cr-card:hover .cr-card-acoes { opacity: 1; }
+
+.cr-mini {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--line2);
+  background: var(--paper);
+  color: var(--ink3);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.cr-mini:hover { color: var(--ink); }
+.cr-mini--on { color: var(--verde); border-color: var(--verde); opacity: 1; }
+
+/* A estrela fica sempre visível quando está favoritada */
+.cr-card-acoes:has(.cr-mini--on) { opacity: 1; }
+
+/* ── Preview em overlay ── */
+.cr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.cr-modal {
+  width: 100%;
+  max-width: 1100px;
+  max-height: 92vh;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cr-modal-cab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.cr-modal-x {
+  background: none;
+  border: none;
+  color: var(--ink3);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.cr-modal-x:hover { color: var(--ink); }
+
+/* Segmentado: lado a lado / cortina / só o render */
+.cr-segm {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 100px;
+  background: var(--wash);
+  flex-shrink: 0;
+}
+
+.cr-segm-b {
+  padding: 5px 14px;
+  border-radius: 100px;
+  border: none;
+  background: transparent;
+  color: var(--ink3);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cr-segm-b.on {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* Área da imagem */
+.cr-modal-img {
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  background: var(--wash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.cr-so {
+  max-width: 100%;
+  max-height: 66vh;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.cr-lado {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.cr-lado figure {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.cr-lado img {
+  width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.cr-lado figcaption {
+  font-size: 11px;
+  color: var(--ink3);
+}
+
+/* Cortina: o render sobre o original, cortado pelo slider */
+.cr-cortina {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.cr-cortina > img {
+  display: block;
+  max-width: 100%;
+  max-height: 62vh;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.cr-cortina-topo {
+  position: absolute;
+  inset: 0;
+}
+
+.cr-cortina-topo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+  display: block;
+}
+
+.cr-cortina-slider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -28px;
+  width: 100%;
+  accent-color: var(--roxo);
+}
+
+/* Rodapé com as ações */
+.cr-modal-pe {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.cr-btn {
+  padding: 7px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink2);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.cr-btn:hover { color: var(--ink); border-color: var(--ink3); }
+
+.cr-btn--on {
+  color: var(--verde);
+  border-color: var(--verde);
+}
+
+.cr-btn--perigo:hover {
+  color: var(--alerta);
+  border-color: var(--alerta);
+}
+
+.cr-nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--ink3);
+}
+
+.cr-nav button {
+  background: none;
+  border: none;
+  color: var(--ink2);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 6px;
+}
+
+.cr-nav button:hover { color: var(--ink); }
+
+/* ── Telas estreitas: o painel vai para cima ── */
+@media (max-width: 860px) {
+  .cr-wrap {
+    flex-direction: column;
+    min-height: 0;
+  }
+  .cr-painel {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .cr-card {
+    width: calc(50% - 5px);
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+  .cr-lado { flex-direction: column; }
+  .cr-busca { margin-left: 0; width: 100%; }
+  .cr-busca input { width: 100%; }
+}
+

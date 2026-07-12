@@ -133,38 +133,38 @@ export default function App() {
 
   return (
     <AppShell>
-      <div className="app-wrap">
+      <div className="cr-wrap">
 
         {/* ── Painel esquerdo: entra na parte 2 ── */}
-        <aside className="app-painel">
-          <div className="app-pills">
-            <button className="app-pill app-pill--on">Render</button>
-            <button className="app-pill" disabled>Editar</button>
-            <button className="app-pill" disabled>Batch</button>
+        <aside className="cr-painel">
+          <div className="cr-pills">
+            <button className="cr-pill cr-pill--on">Render</button>
+            <button className="cr-pill" disabled>Editar</button>
+            <button className="cr-pill" disabled>Batch</button>
           </div>
-          <div className="app-painel-vazio">
+          <div className="cr-painel-vazio">
             <p>As ferramentas de geração entram aqui em breve.</p>
-            <p className="app-dica">
+            <p className="cr-dica">
               Por enquanto, gere pelo plugin do SketchUp — tudo aparece neste histórico.
             </p>
           </div>
         </aside>
 
         {/* ── Feed ── */}
-        <section className="app-feed">
+        <section className="cr-feed">
 
-          <div className="app-barra">
+          <div className="cr-barra">
             {FILTROS.map((f) => (
               <button
                 key={f.id}
-                className={'app-chip' + (filtro === f.id ? ' app-chip--on' : '')}
+                className={'cr-chip' + (filtro === f.id ? ' cr-chip--on' : '')}
                 onClick={() => setFiltro(f.id)}
               >
                 {f.rotulo}
               </button>
             ))}
 
-            <div className="app-busca">
+            <div className="cr-busca">
               <input
                 type="text"
                 placeholder="Buscar"
@@ -174,7 +174,7 @@ export default function App() {
               />
               {buscaAtiva && (
                 <button
-                  className="app-busca-x"
+                  className="cr-busca-x"
                   onClick={() => { setBusca(''); setBuscaAtiva(''); }}
                   aria-label="Limpar busca"
                 >×</button>
@@ -184,10 +184,10 @@ export default function App() {
 
           {erro && <div className="login-erro">{erro}</div>}
 
-          {carregando && <p className="app-msg">Carregando seu histórico...</p>}
+          {carregando && <p className="cr-msg">Carregando seu histórico...</p>}
 
           {!carregando && lotes.length === 0 && (
-            <div className="app-vazio">
+            <div className="cr-vazio">
               <h2>Nada aqui ainda</h2>
               <p>
                 {buscaAtiva || filtro !== 'tudo'
@@ -200,45 +200,45 @@ export default function App() {
           {!carregando && lotes.map((lote) => {
             const expira = diasAteExpirar(lote.criadoEm);
             return (
-              <article key={lote.loteId} className="app-lote">
-                <header className="app-lote-cab">
-                  <span className="app-lote-obs">
+              <article key={lote.loteId} className="cr-lote">
+                <header className="cr-lote-cab">
+                  <span className="cr-lote-obs">
                     {lote.observacoes || 'Sem observações'}
                   </span>
-                  <span className="app-tag app-tag--roxa">
+                  <span className="cr-tag cr-tag--roxa">
                     {ROTULO_FERRAMENTA[lote.ferramenta] || lote.ferramenta}
                   </span>
-                  {lote.proporcao && <span className="app-tag">{lote.proporcao}</span>}
+                  {lote.proporcao && <span className="cr-tag">{lote.proporcao}</span>}
                   {lote.tipo === 'video' && lote.duracaoSeg && (
-                    <span className="app-tag">{lote.duracaoSeg}s</span>
+                    <span className="cr-tag">{lote.duracaoSeg}s</span>
                   )}
-                  <span className="app-lote-data">{tempoRelativo(lote.criadoEm)}</span>
+                  <span className="cr-lote-data">{tempoRelativo(lote.criadoEm)}</span>
                 </header>
 
                 {expira !== null && (
-                  <p className="app-expira">
+                  <p className="cr-expira">
                     {expira === 0
                       ? 'Esta geração será apagada hoje.'
                       : `Esta geração será apagada em ${expira} ${expira === 1 ? 'dia' : 'dias'}. Baixe o que quiser guardar.`}
                   </p>
                 )}
 
-                <div className="app-cards">
+                <div className="cr-cards">
                   {lote.itens.map((item, i) => (
                     <div
                       key={item.id}
-                      className="app-card"
+                      className="cr-card"
                       onClick={() => { setPreview({ lote, indice: i }); setModoComparar('lado'); }}
                     >
                       {item.url ? (
                         <img src={item.url} alt="" loading="lazy" />
                       ) : (
-                        <div className="app-card-erro">imagem indisponível</div>
+                        <div className="cr-card-erro">imagem indisponível</div>
                       )}
 
-                      <div className="app-card-acoes" onClick={(e) => e.stopPropagation()}>
+                      <div className="cr-card-acoes" onClick={(e) => e.stopPropagation()}>
                         <button
-                          className={'app-mini' + (item.favorito ? ' app-mini--on' : '')}
+                          className={'cr-mini' + (item.favorito ? ' cr-mini--on' : '')}
                           onClick={() => favoritar(item.id)}
                           aria-label={item.favorito ? 'Desfavoritar' : 'Favoritar'}
                           title={item.favorito ? 'Desfavoritar' : 'Favoritar'}
@@ -260,41 +260,41 @@ export default function App() {
         const item = preview.lote.itens[preview.indice];
         const temOriginal = !!preview.lote.original;
         return (
-          <div className="app-overlay" onClick={() => setPreview(null)}>
-            <div className="app-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="cr-overlay" onClick={() => setPreview(null)}>
+            <div className="cr-modal" onClick={(e) => e.stopPropagation()}>
 
-              <header className="app-modal-cab">
-                <span className="app-lote-obs">
+              <header className="cr-modal-cab">
+                <span className="cr-lote-obs">
                   {preview.lote.observacoes || 'Sem observações'}
                 </span>
 
                 {temOriginal && (
-                  <div className="app-segm">
+                  <div className="cr-segm">
                     <button
-                      className={'app-segm-b' + (modoComparar === 'lado' ? ' on' : '')}
+                      className={'cr-segm-b' + (modoComparar === 'lado' ? ' on' : '')}
                       onClick={() => setModoComparar('lado')}
                     >Lado a lado</button>
                     <button
-                      className={'app-segm-b' + (modoComparar === 'cortina' ? ' on' : '')}
+                      className={'cr-segm-b' + (modoComparar === 'cortina' ? ' on' : '')}
                       onClick={() => setModoComparar('cortina')}
                     >Cortina</button>
                     <button
-                      className={'app-segm-b' + (modoComparar === 'so' ? ' on' : '')}
+                      className={'cr-segm-b' + (modoComparar === 'so' ? ' on' : '')}
                       onClick={() => setModoComparar('so')}
                     >Só o render</button>
                   </div>
                 )}
 
                 <button
-                  className="app-modal-x"
+                  className="cr-modal-x"
                   onClick={() => setPreview(null)}
                   aria-label="Fechar"
                 >×</button>
               </header>
 
-              <div className="app-modal-img">
+              <div className="cr-modal-img">
                 {modoComparar === 'lado' && temOriginal && (
-                  <div className="app-lado">
+                  <div className="cr-lado">
                     <figure>
                       <img src={preview.lote.original} alt="Original do SketchUp" />
                       <figcaption>Original</figcaption>
@@ -307,10 +307,10 @@ export default function App() {
                 )}
 
                 {modoComparar === 'cortina' && temOriginal && (
-                  <div className="app-cortina">
+                  <div className="cr-cortina">
                     <img src={preview.lote.original} alt="Original do SketchUp" />
                     <div
-                      className="app-cortina-topo"
+                      className="cr-cortina-topo"
                       style={{ clipPath: `inset(0 0 0 ${cortina}%)` }}
                     >
                       <img src={item.url} alt="Resultado" />
@@ -320,36 +320,36 @@ export default function App() {
                       min="0" max="100" step="1"
                       value={cortina}
                       onChange={(e) => setCortina(Number(e.target.value))}
-                      className="app-cortina-slider"
+                      className="cr-cortina-slider"
                       aria-label="Comparar original e render"
                     />
                   </div>
                 )}
 
                 {(modoComparar === 'so' || !temOriginal) && (
-                  <img src={item.url} alt="Resultado" className="app-so" />
+                  <img src={item.url} alt="Resultado" className="cr-so" />
                 )}
               </div>
 
-              <footer className="app-modal-pe">
-                <button className="app-btn" onClick={() => baixar(item.url, preview.lote, item.ordem, 'png')}>
+              <footer className="cr-modal-pe">
+                <button className="cr-btn" onClick={() => baixar(item.url, preview.lote, item.ordem, 'png')}>
                   Baixar PNG
                 </button>
-                <button className="app-btn" onClick={() => baixar(item.url, preview.lote, item.ordem, 'jpeg')}>
+                <button className="cr-btn" onClick={() => baixar(item.url, preview.lote, item.ordem, 'jpeg')}>
                   Baixar JPG
                 </button>
                 <button
-                  className={'app-btn' + (item.favorito ? ' app-btn--on' : '')}
+                  className={'cr-btn' + (item.favorito ? ' cr-btn--on' : '')}
                   onClick={() => favoritar(item.id)}
                 >
                   {item.favorito ? '★ Favorito' : '☆ Favoritar'}
                 </button>
-                <button className="app-btn app-btn--perigo" onClick={() => apagar(item.id)}>
+                <button className="cr-btn cr-btn--perigo" onClick={() => apagar(item.id)}>
                   Apagar
                 </button>
 
                 {preview.lote.itens.length > 1 && (
-                  <div className="app-nav">
+                  <div className="cr-nav">
                     <button onClick={() => irPara(-1)} aria-label="Anterior">‹</button>
                     <span>{preview.indice + 1} de {preview.lote.itens.length}</span>
                     <button onClick={() => irPara(1)} aria-label="Próxima">›</button>
