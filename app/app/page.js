@@ -182,7 +182,8 @@ export default function App() {
             </div>
           </div>
 
-          {erro && <div className="login-erro">{erro}</div>}
+          <div className="cr-lista">
+          {erro && <div className="login-erro" style={{ margin: 16 }}>{erro}</div>}
 
           {carregando && <p className="cr-msg">Carregando seu histórico...</p>}
 
@@ -252,6 +253,7 @@ export default function App() {
               </article>
             );
           })}
+          </div>
         </section>
       </div>
 

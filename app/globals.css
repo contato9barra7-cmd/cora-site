@@ -960,22 +960,20 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .cr-wrap {
   display: flex;
   gap: 0;
-  max-width: 1400px;
-  margin: 0 auto;
-  min-height: calc(100vh - 120px);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  overflow: hidden;
+  width: 100%;
+  height: calc(100vh - var(--header-h));
   background: var(--paper);
+  overflow: hidden;
 }
 
 .cr-painel {
-  width: 260px;
+  width: 280px;
   flex-shrink: 0;
   border-right: 1px solid var(--line);
   background: var(--wash);
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .cr-feed {
@@ -983,6 +981,14 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   min-width: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+/* A lista rola por dentro; a barra de filtros fica fixa no topo */
+.cr-lista {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 /* ── Pills das ferramentas ── */
@@ -1032,9 +1038,11 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 12px 16px;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--line);
   flex-wrap: wrap;
+  flex-shrink: 0;
+  background: var(--paper);
 }
 
 .cr-chip {
@@ -1459,13 +1467,17 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 @media (max-width: 860px) {
   .cr-wrap {
     flex-direction: column;
-    min-height: 0;
+    height: auto;
+    overflow: visible;
   }
   .cr-painel {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid var(--line);
+    overflow: visible;
   }
+  .cr-feed { overflow: visible; }
+  .cr-lista { overflow: visible; }
   .cr-card {
     width: calc(50% - 5px);
     height: auto;
