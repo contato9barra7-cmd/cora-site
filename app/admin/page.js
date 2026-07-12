@@ -68,6 +68,11 @@ export default function Admin() {
 
   useEffect(() => {
     adminCompras().then(setCompras).catch(() => {});
+    // sincroniza os valores com o Stripe em segundo plano (sem travar a tela)
+    adminSincronizarStripe()
+      .then((n) => { if (n > 0) carregar(); })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [sincronizando, setSincronizando] = useState(false);
@@ -436,15 +441,6 @@ export default function Admin() {
             disabled={carregandoFiscais}
           >
             {carregandoFiscais ? 'Carregando...' : (dadosFiscais ? 'Ocultar dados fiscais' : 'Ver dados fiscais')}
-          </button>
-          <button
-            className="btn btn--ink"
-            style={{ width: 'auto', margin: 0, padding: '8px 18px' }}
-            onClick={sincronizarStripe}
-            disabled={sincronizando}
-            title="Busca valores e datas das assinaturas no Stripe"
-          >
-            {sincronizando ? 'Sincronizando...' : 'Sincronizar Stripe'}
           </button>
           <div className="admin-export-wrap">
             <button
