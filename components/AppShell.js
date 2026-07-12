@@ -153,7 +153,9 @@ export default function AppShell({ children }) {
       {/* MENU LATERAL FIXO */}
       <aside className="app-side">
         <div className="app-side-topo">
-          <Link href="/conta" className="app-logo">
+          {/* O logo leva à landing (corarender.com). Para voltar ao painel,
+              o caminho é o item "Cora Render" do menu. */}
+          <Link href="/" className="app-logo">
             {recolhido ? 'C' : 'Cora Render'}
           </Link>
           <button className="app-side-toggle" onClick={toggleMenu} title={recolhido ? 'Expandir' : 'Recolher'}>
@@ -243,7 +245,13 @@ export default function AppShell({ children }) {
                     <div className="cred-num">Ilimitados</div>
                   </div>
                 )}
-                <Link href="/conta/perfil" className="app-user-link" onClick={() => setMenuUser(false)}>Minha conta</Link>
+                <Link href="/conta/perfil" className="app-user-link" onClick={() => setMenuUser(false)}>
+                  <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <circle cx="10" cy="6.5" r="3"/>
+                    <path d="M3.5 17a6.5 6.5 0 0113 0" strokeLinecap="round"/>
+                  </svg>
+                  Minha conta
+                </Link>
 
                 <div className="app-user-pref">
                   <label>Idioma</label>
@@ -262,7 +270,13 @@ export default function AppShell({ children }) {
                   </select>
                 </div>
 
-                <button className="app-user-link app-user-sair" onClick={logout}>Sair</button>
+                <button className="app-user-link app-user-sair" onClick={logout}>
+                  <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <path d="M8 17H4.5A1.5 1.5 0 013 15.5v-11A1.5 1.5 0 014.5 3H8" strokeLinecap="round"/>
+                    <path d="M13 13.5L16.5 10 13 6.5M16.5 10H7" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Sair
+                </button>
               </div>
             )}
           </div>

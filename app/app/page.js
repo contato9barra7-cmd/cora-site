@@ -16,6 +16,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import PainelRender from '../../components/PainelRender';
+import PainelBatch from '../../components/PainelBatch';
 import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
 import Card, { proporcaoCss } from '../../components/Card';
@@ -23,7 +24,7 @@ import ModalDownload from '../../components/ModalDownload';
 import { lerConta, creditosMudaram } from '../../lib/auth';
 import { urlParaBase64 } from '../../lib/render';
 import {
-  listarGeracoes, alternarFavorito, apagarGeracao,
+  listarGeracoes, alternarFavorito, alternarAprovado, apagarGeracao,
   ROTULO_FERRAMENTA, tempoRelativo, diasAteExpirar
 } from '../../lib/geracoes';
 
@@ -160,8 +161,8 @@ export default function AppPage() {
   const [excluindo, setExcluindo] = useState(null);   // o item a excluir
 
   // Como o feed se apresenta
-  const [layout, setLayout]   = useState('grade');   // grade | linha
-  const [tamanho, setTamanho] = useState('g');       // p | m | g | gg — G por padrão (os tamanhos aumentaram)
+  const [layout, setLayout]   = useState('linha');   // grade | linha — lista por padrão
+  const [tamanho, setTamanho] = useState('g');       // p | m | g | gg — G por padrão
 
   // Filtros avançados (o painel do ícone de ajustes)
   const [painelFiltros, setPainelFiltros] = useState(false);
@@ -253,6 +254,36 @@ export default function AppPage() {
     }
   }
 
+  // Aprovar: a imagem vira referência de estilo no Batch. Otimista, como o
+  // favoritar — o clique responde na velocidade do dedo, não da rede.
+  async function aprovar(item) {
+    const antes = item.aprovado;
+    const novo  = !antes;
+
+    const pintar = (v) => setLotes((ls) => ls.map((l) => ({
+      ...l,
+      itens: l.itens.map((i) => (i.id === item.id ? { ...i, aprovado: v } : i))
+    })));
+
+    pintar(novo);
+
+    try {
+      const real = await alternarAprovado(item.id);
+      if (real !== novo) pintar(real);
+    } catch (e) {
+      pintar(antes);
+      setErro(e.message);
+    }
+  }
+
+  // O batch devolve VÁRIOS lotes (um por cena) — diferente do render, que
+  // devolve um só. Recarregar o feed é o caminho mais simples e correto:
+  // os lotes já estão no banco, salvos pelo servidor.
+  function aoGerarBatch() {
+    setUltimoLote(null);
+    carregar();
+  }
+
   // Apagar é irreversível — quem chama isto já confirmou.
   async function excluirDeVerdade(item) {
     try {
@@ -306,8 +337,12 @@ export default function AppPage() {
               onClick={() => setFerramenta('render')}
               disabled={ocupado}
             >Render</button>
+            <button
+              className={'cr-pill' + (ferramenta === 'batch' ? ' cr-pill--on' : '')}
+              onClick={() => setFerramenta('batch')}
+              disabled={ocupado}
+            >Batch</button>
             <button className="cr-pill" disabled data-tip="Em breve">Editar</button>
-            <button className="cr-pill" disabled data-tip="Em breve">Batch</button>
           </div>
 
           {ferramenta === 'render' && (
@@ -321,7 +356,16 @@ export default function AppPage() {
             />
           )}
 
-          {ferramenta !== 'render' && (
+          {ferramenta === 'batch' && (
+            <PainelBatch
+              ocupado={ocupado}
+              setOcupado={setOcupado}
+              onProgresso={setProgresso}
+              onPronto={aoGerarBatch}
+            />
+          )}
+
+          {ferramenta !== 'render' && ferramenta !== 'batch' && (
             <div className="cr-painel-vazio">
               <p>A aba {ferramenta} entra em breve.</p>
             </div>
@@ -552,6 +596,7 @@ export default function AppPage() {
                         setVendo({ loteId: it.loteId, itemId: it.id });
                       }}
                       onFavoritar={favoritar}
+                      onAprovar={aprovar}
                       onBaixar={setBaixando}
                       onExcluir={setExcluindo}
                       onEnviarPara={enviarPara}
@@ -607,6 +652,7 @@ export default function AppPage() {
                           setVendo({ loteId: lote.loteId, itemId: item.id });
                         }}
                         onFavoritar={favoritar}
+                        onAprovar={aprovar}
                         onBaixar={setBaixando}
                         onExcluir={setExcluindo}
                         onEnviarPara={enviarPara}

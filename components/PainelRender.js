@@ -71,9 +71,10 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   // créditos) nem o ajuste fino de luz e entorno.
   const [restaurado, setRestaurado] = useState(false);
   const [avisoImg, setAvisoImg]     = useState(false);
+  const [confirmarReset, setConfirmarReset] = useState(false);
 
   useEffect(() => {
-    const r = lerRascunho();
+    const r = lerRascunho('render');
     if (r) {
       if (r.imagem)  setImagem(r.imagem);
       if (r.previa)  setPrevia(r.previa);
@@ -104,7 +105,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   // Guarda a cada mudança (só depois de restaurar, senão apaga o que leu)
   useEffect(() => {
     if (!restaurado) return;
-    salvarRascunho({
+    salvarRascunho('render', {
       imagem, previa, tipo, proporcao, resolucao, quantidade,
       materiais, matEstado, luzTipo, mood, detNatural,
       direcoes, descLuz, corLuz, intensidade, detArtificial,
@@ -211,13 +212,31 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       onPronto(r);
       // Deu certo: o rascunho já cumpriu o papel. (O painel continua
       // preenchido na tela — só não precisamos mais guardar em disco.)
-      limparRascunho();
+      limparRascunho('render');
     } catch (e) {
       setErro(e.message);
     } finally {
       setOcupado(false);
       onProgresso(null);
     }
+  }
+
+  // Volta tudo ao padrão. O rascunho vai junto — senão a próxima visita
+  // ressuscitaria o que a pessoa acabou de apagar.
+  function resetar() {
+    setImagem(null);      setPrevia(null);
+    setTipo('interno');   setProporcao('4:5');   setResolucao('2k');
+    setQuantidade(1);
+    setMateriais('');     setMatEstado('vazio');
+    setLuzTipo('Direta'); setMood('Dia claro editorial'); setDetNatural('');
+    setDirecoes([]);      setDescLuz('');
+    setCorLuz('Desligada'); setIntensidade('Média'); setDetArtificial('');
+    setTagsEntorno([]);   setEntorno('');
+    setRefs([]);          setRefTexto('');
+    setErro('');          setAvisoImg(false);
+
+    limparRascunho('render');
+    setConfirmarReset(false);
   }
 
   const custo      = custoRender(quantidade, resolucao);
@@ -486,6 +505,28 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           }
           return <p className="cr-hint">Use @img01, @img02... para referenciar cada imagem carregada.</p>;
         })()}
+
+        {/* Recomeçar do zero. Pede confirmação: os materiais lidos custaram
+            créditos, e apagá-los sem querer é perder dinheiro. */}
+        <button className="cr-resetar" onClick={() => setConfirmarReset(true)}>
+          Resetar configurações
+        </button>
+
+        {confirmarReset && (
+          <div className="cr-overlay cr-overlay--alto" onClick={() => setConfirmarReset(false)}>
+            <div className="cf" onClick={(e) => e.stopPropagation()}>
+              <h3>Resetar tudo?</h3>
+              <p>
+                Todos os campos voltam ao padrão, inclusive os materiais que você
+                leu — e ler de novo custa {CREDITOS.materiais} créditos.
+              </p>
+              <div className="cf-acoes">
+                <button className="cf-nao" onClick={() => setConfirmarReset(false)}>Cancelar</button>
+                <button className="cf-sim" onClick={resetar}>Resetar</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {avisoImg && (
           <div className="cr-aviso">

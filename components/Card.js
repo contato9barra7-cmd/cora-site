@@ -35,9 +35,20 @@ const Coracao = ({ cheio }) => (
   </svg>
 );
 
+// O check de "aprovada" — o mesmo path do plugin (points="2,8 6,12 14,4").
+// Aprovada NÃO é favorita: favorita = gostei; aprovada = esta define o
+// estilo do projeto, e entra sozinha como referência no Batch.
+const Check = () => (
+  <svg viewBox="0 0 16 16" width="15" height="15" fill="none"
+       stroke="currentColor" strokeWidth="2.2"
+       strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="2,8 6,12 14,4"/>
+  </svg>
+);
+
 export default function Card({
   it, modoAB, ladoA, ladoB, onClick,
-  onFavoritar, onBaixar, onExcluir, onEnviarPara
+  onFavoritar, onAprovar, onBaixar, onExcluir, onEnviarPara
 }) {
   const ehA = ladoA?.id === it.id;
   const ehB = ladoB?.id === it.id;
@@ -47,7 +58,9 @@ export default function Card({
 
   return (
     <div
-      className={'cr-card' + (ehA || ehB ? ' cr-card--sel' : '')}
+      className={'cr-card'
+        + (ehA || ehB ? ' cr-card--sel' : '')
+        + (it.aprovado ? ' cr-card--aprovada' : '')}
       style={{ aspectRatio: proporcaoCss(it.proporcao) }}
       onClick={onClick}
       role="button"
@@ -60,7 +73,14 @@ export default function Card({
       {modoAB && ehA && <span className="cr-card-ab">A</span>}
       {modoAB && ehB && <span className="cr-card-ab">B</span>}
 
-      {/* Favoritada: o coração fica à mostra, sem precisar do hover */}
+      {/* Aprovada: a badge fica à mostra — é o que o Batch vai usar */}
+      {it.aprovado && !modoAB && (
+        <span className="cr-card-selo" data-tip="Aprovada — é referência no Batch">
+          <Check />
+        </span>
+      )}
+
+      {/* Favoritada: o coração também fica à mostra */}
       {it.favorito && !modoAB && (
         <span className="cr-card-fav"><Coracao cheio /></span>
       )}
@@ -69,6 +89,15 @@ export default function Card({
           clique tem outro significado (escolher o lado). */}
       {!modoAB && (
         <div className="cr-card-acoes">
+          <button
+            className={'cr-ca' + (it.aprovado ? ' cr-ca--on' : '')}
+            onClick={so(() => onAprovar(it))}
+            data-tip={it.aprovado ? 'Remover aprovação' : 'Aprovar (vira referência no Batch)'}
+            aria-label={it.aprovado ? 'Remover aprovação' : 'Aprovar'}
+          >
+            <Check />
+          </button>
+
           <button
             className={'cr-ca' + (it.favorito ? ' cr-ca--fav' : '')}
             onClick={so(() => onFavoritar(it))}

@@ -605,11 +605,62 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 }
 .app-user-nome { padding: 8px 12px; font-size: 13px; color: var(--ink3); border-bottom: 1px solid var(--line); margin-bottom: 4px; word-break: break-all; }
 .app-user-link {
-  padding: 9px 12px; border-radius: 8px; text-decoration: none; color: var(--ink); font-size: 14px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 8px; text-decoration: none;
+  color: var(--ink); font-size: 13px;
   background: none; border: none; text-align: left; cursor: pointer; width: 100%;
+  font-family: inherit;
 }
-.app-user-link:hover { background: var(--paper); }
-.app-user-sair { color: #b23b32; }
+.app-user-link:hover { background: var(--wash); }
+
+/* Sair: vermelho já destaca — não precisa de tamanho. Antes ele tinha os
+   mesmos 14px do item de navegação e, sendo vermelho, gritava mais alto. */
+.app-user-sair {
+  color: var(--alerta);
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 8px 8px;
+}
+.app-user-sair:hover { background: rgba(196, 68, 58, .08); }
+
+/* Nome e plano: o nome manda, o plano é legenda */
+.app-user-nome {
+  padding: 2px 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  border-bottom: none;
+  margin-bottom: 0;
+  word-break: break-word;
+}
+
+
+/* Preferências: rótulo discreto, seletor em pílula */
+.app-user-pref {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 5px 10px;
+}
+
+.app-user-pref label {
+  font-size: 12px;
+  color: var(--ink3);
+}
+
+.app-user-pref select {
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+.app-user-pref select:hover { border-color: var(--ink3); }
 
 /* CONTEÚDO */
 .app-main {
@@ -2103,6 +2154,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
    ═══════════════════════════════════════════════════════════ */
 
 .app-user-plano {
+  padding: 0 10px 10px;
   font-size: 11px;
   font-weight: 400;
   color: var(--ink3);
@@ -2187,32 +2239,42 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
    ═══════════════════════════════════════════════════════════ */
 
 .cr-custo-tag {
+  /* Flutua na borda direita: o texto do botão fica CENTRADO e não se mexe
+     quando a moeda aparece. (No plugin é `position:absolute; right:12px`.)
+     Antes ela estava no fluxo e empurrava o texto ao surgir. */
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px 8px;
+  gap: 4px;
+  padding: 3px 9px;
   border-radius: 100px;
-  background: rgba(0, 0, 0, .13);
+  background: rgba(0, 0, 0, .14);
   font-size: 10px;
   font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+
   opacity: 0;
-  max-width: 0;
-  overflow: hidden;
-  transition: opacity .15s, max-width .15s;
+  transition: opacity .15s ease;
 }
 
-/* Aparece no hover — não polui o botão em repouso */
+/* Aparece só no hover — não polui o botão em repouso */
 .cr-b-ler:hover:not(:disabled) .cr-custo-tag,
 .cr-btn-gerar:hover:not(:disabled) .cr-custo-tag {
   opacity: 1;
-  max-width: 70px;
 }
 
+/* `relative` para a moeda se ancorar; `center` para o texto ficar no meio */
 .cr-b-ler, .cr-btn-gerar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
 }
 
 /* ── Materiais: ler → revisar → confirmar ── */
@@ -3953,3 +4015,227 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 /* E a legenda sobe um pouco, para o coração não sentar em cima dela */
 .cr-card-info { padding-right: 32px; }
+
+/* ═══════════════════════════════════════════════════════════
+   Aprovada — a imagem que define o estilo do projeto
+
+   NÃO é a mesma coisa que favorita. Favorita = gostei. Aprovada = esta
+   entra sozinha como referência no Batch. Por isso ela tem borda accent:
+   a pessoa precisa ver, de relance, o que o Batch vai usar.
+   ═══════════════════════════════════════════════════════════ */
+
+.cr-card--aprovada {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.cr-card-selo {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-txt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+  pointer-events: none;
+}
+
+.cr-card-selo svg { width: 12px; height: 12px; }
+
+/* O botão de aprovar, ligado */
+.cr-ca--on { color: var(--accent); }
+
+/* ── Resetar ── */
+.cr-resetar {
+  width: 100%;
+  height: 34px;
+  margin-top: 18px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink3);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.cr-resetar:hover {
+  border-color: var(--alerta);
+  color: var(--alerta);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Aba Batch
+   ═══════════════════════════════════════════════════════════ */
+
+.cr-hint--topo { margin-top: -4px; margin-bottom: 10px; }
+
+.cr-cenas-acoes { margin-bottom: 10px; }
+
+/* ── A lista de cenas ── */
+.cr-cena {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  margin-bottom: 5px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+
+.cr-cena:hover { border-color: var(--ink3); }
+
+.cr-cena--on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.cr-cena input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cr-cena-check {
+  flex-shrink: 0;
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid var(--line2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-txt);
+  transition: all .15s;
+}
+
+.cr-cena--on .cr-cena-check {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.cr-cena-img {
+  flex-shrink: 0;
+  width: 36px;
+  height: 28px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--wash2);
+}
+
+/* O nome é editável: as cenas do plugin vêm nomeadas, as da web não. */
+.cr-cena-nome {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 12px;
+  font-family: inherit;
+  padding: 3px 0;
+  outline: none;
+  border-bottom: 1px solid transparent;
+}
+
+.cr-cena-nome:focus { border-bottom-color: var(--line2); }
+
+.cr-cena-x {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink3);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cr-cena-x:hover { background: var(--wash2); color: var(--alerta); }
+
+.cr-cena-add {
+  width: 100%;
+  height: 40px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px dashed var(--line2);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--ink3);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.cr-cena-add:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Fase 2: o bloco de cada cena ── */
+.cr-bcena {
+  padding: 11px;
+  margin-bottom: 9px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  transition: border-color .15s, background .15s;
+}
+
+/* Aprovada: esta cena vai gerar (e vai custar) */
+.cr-bcena--ok {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+.cr-bcena-cab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.cr-bcena-cab img {
+  width: 34px;
+  height: 27px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.cr-bcena-cab span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cr-bcena-acoes { margin-top: 9px; }
+
+/* ── A config desta cena: quantidade, proporção, resolução ── */
+.cr-bcfg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+/* Aprovada = travada. Para mexer, "Editar" primeiro. */
+.cr-bcfg--off { opacity: .55; pointer-events: none; }
+
+/* O botão de "aprovada", já ligado */
+.cr-b--on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
