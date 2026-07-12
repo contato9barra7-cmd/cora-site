@@ -17,6 +17,7 @@
 import { useState, useEffect, useRef } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
+import CampoRefs from './CampoRefs';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import {
   gerarRender, lerMateriais, custoRender, CREDITOS,
@@ -449,12 +450,15 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
             </button>
           )}
         </div>
-        <textarea
+        {/* Digitar @ abre a lista das referências, para clicar */}
+        <CampoRefs
           className="cr-ta"
-          placeholder="Use @img01, @img02... para referenciar cada imagem"
-          value={refTexto}
-          onChange={(e) => setRefTexto(e.target.value)}
-          spellCheck={false}
+          placeholder={refs.length > 0
+            ? 'Digite @ para escolher uma referência'
+            : 'Adicione uma referência acima para usar @img01'}
+          valor={refTexto}
+          onMudar={setRefTexto}
+          refs={refs}
         />
 
         {/* Confere se as @img que a pessoa escreveu existem mesmo */}

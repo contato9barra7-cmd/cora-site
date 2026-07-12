@@ -102,7 +102,10 @@ export default function AppPage() {
   const [busca, setBusca]           = useState('');
   const [buscaAtiva, setBuscaAtiva] = useState('');
 
-  const [vendo, setVendo] = useState(null);   // { lote, indice }
+  // Guarda só IDs: a imagem em si vem sempre de `lotes`, que é a fonte
+  // única. Guardar uma cópia aqui fazia as duas divergirem (o favorito
+  // mudava em `lotes` e não em `vendo` — o coração não acendia).
+  const [vendo, setVendo] = useState(null);   // { loteId, itemId }
 
   // Como o feed se apresenta
   const [layout, setLayout]   = useState('grade');   // grade | linha
@@ -132,6 +135,8 @@ export default function AppPage() {
       if (avancados.ferramentas?.length) f.ferramentas = avancados.ferramentas;
       if (avancados.proporcoes?.length)  f.proporcoes  = avancados.proporcoes;
       if (avancados.resolucoes?.length)  f.resolucoes  = avancados.resolucoes;
+      if (avancados.baixadas)  f.baixadas  = true;
+      if (avancados.favoritos) f.favoritos = true;
 
       setLotes(await listarGeracoes(f));
     } catch (e) {
@@ -154,17 +159,11 @@ export default function AppPage() {
   async function favoritar(item) {
     try {
       const novo = await alternarFavorito(item.id);
+      // Um lugar só. O visualizador lê daqui, então acende junto.
       setLotes((ls) => ls.map((l) => ({
         ...l,
         itens: l.itens.map((i) => (i.id === item.id ? { ...i, favorito: novo } : i))
       })));
-      setVendo((v) => v && ({
-        ...v,
-        lote: {
-          ...v.lote,
-          itens: v.lote.itens.map((i) => (i.id === item.id ? { ...i, favorito: novo } : i))
-        }
-      }));
     } catch (e) { setErro(e.message); }
   }
 
@@ -426,7 +425,7 @@ export default function AppPage() {
                         onClick={() => {
                           // No A/B, clicar escolhe o lado de comparação
                           if (modoAB) { setLadoB(item); return; }
-                          setVendo({ lote, indice: i });
+                          setVendo({ loteId: lote.loteId, itemId: item.id });
                         }}
                       >
                         <img src={item.url} alt="" loading="lazy" />
@@ -447,22 +446,31 @@ export default function AppPage() {
         </section>
       </div>
 
-      {vendo && (
-        <Visualizador
-          item={vendo.lote.itens[vendo.indice]}
-          original={vendo.lote.original}
-          prompt={vendo.lote.observacoes}
-          ehAdmin={ehAdmin}
-          modoAB={modoAB}
-          ladoB={ladoB}
-          onEntrarAB={() => { setModoAB(true); setVendo(null); }}
-          onSairAB={() => { setModoAB(false); setLadoB(null); }}
-          onFechar={() => setVendo(null)}
-          onFavoritar={favoritar}
-          onExcluir={excluir}
-          onEnviarPara={enviarPara}
-        />
-      )}
+      {(() => {
+        if (!vendo) return null;
+
+        // Deriva de `lotes` — nunca de uma cópia guardada
+        const lote = lotes.find((l) => l.loteId === vendo.loteId);
+        const item = lote?.itens.find((i) => i.id === vendo.itemId);
+        if (!item) return null;
+
+        return (
+          <Visualizador
+            item={item}
+            original={lote.original}
+            prompt={lote.observacoes}
+            ehAdmin={ehAdmin}
+            modoAB={modoAB}
+            ladoB={ladoB}
+            onEntrarAB={() => setModoAB(true)}   /* NÃO fecha: a pessoa escolhe o A no feed atrás */
+            onSairAB={() => { setModoAB(false); setLadoB(null); }}
+            onFechar={() => setVendo(null)}
+            onFavoritar={favoritar}
+            onExcluir={excluir}
+            onEnviarPara={enviarPara}
+          />
+        );
+      })()}
     </AppShell>
   );
 }

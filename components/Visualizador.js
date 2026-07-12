@@ -106,8 +106,14 @@ export default function Visualizador({
   const compara  = Boolean(esquerda);
 
   return (
-    <div className="cr-overlay" onClick={onFechar}>
-      <div className="vz" onClick={(e) => e.stopPropagation()}>
+    <div
+      className={'cr-overlay' + (modoAB && !ladoB ? ' cr-overlay--passa' : '')}
+      onClick={modoAB && !ladoB ? undefined : onFechar}
+    >
+      <div
+        className={'vz' + (modoAB && !ladoB ? ' vz--esperando' : '')}
+        onClick={(e) => e.stopPropagation()}
+      >
 
         <header className="vz-cab">
           {compara && (
@@ -139,7 +145,7 @@ export default function Visualizador({
 
         {modoAB && !ladoB && (
           <p className="vz-ab-dica">
-            Modo A/B: clique numa imagem do histórico para escolher o lado A.
+            Clique numa imagem do feed, atrás, para escolher o lado A.
           </p>
         )}
 
@@ -205,9 +211,15 @@ export default function Visualizador({
                 draggable={false}
               />
               {compara && (
-                <span className="vz-aviso">
-                  {segurando ? 'Solte para ver o render' : 'Segure para ver o print'}
-                </span>
+                <>
+                  {/* Mesma pílula do Side by Side: diz o que se está vendo */}
+                  <span className="vz-tag vz-tag--esq">
+                    {segurando ? rotEsq : rotDir}
+                  </span>
+                  <span className="vz-tag vz-tag--baixo">
+                    {segurando ? 'Solte para ver o render' : 'Segure para ver o print'}
+                  </span>
+                </>
               )}
             </div>
           )}
@@ -279,7 +291,7 @@ export default function Visualizador({
         </footer>
       </div>
 
-      <ModalDownload aberto={baixar} url={item.url} onFechar={() => setBaixar(false)} />
+      <ModalDownload aberto={baixar} url={item.url} id={item.id} onFechar={() => setBaixar(false)} />
     </div>
   );
 }

@@ -11,8 +11,9 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
+import { marcarBaixada } from '../lib/geracoes';
 
-export default function ModalDownload({ aberto, url, onFechar }) {
+export default function ModalDownload({ aberto, url, id, onFechar }) {
   const [formato, setFormato]   = useState('png');
   const [baixando, setBaixando] = useState(false);
   const [erro, setErro]         = useState('');
@@ -51,6 +52,9 @@ export default function ModalDownload({ aberto, url, onFechar }) {
         const jpg = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.8));
         salvar(jpg, `${nome}.jpg`);
       }
+
+      // Registra para o filtro "Baixadas" (best-effort: não bloqueia)
+      if (id) marcarBaixada(id);
 
       onFechar();
     } catch (e) {

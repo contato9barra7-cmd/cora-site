@@ -171,6 +171,14 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
     <div className="cr-overlay" onClick={fechar}>
       <div className="pk" onClick={(e) => e.stopPropagation()}>
 
+        {/* O X mora na quina, meio dentro meio fora — não rouba espaço do cabeçalho */}
+        <button className="pk-x" onClick={fechar} aria-label="Fechar">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
+          </svg>
+        </button>
+
+
         {/* ── Lateral: de onde vem a imagem ── */}
         <nav className="pk-lado">
           {ORIGENS.map((o) => (
@@ -207,7 +215,6 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
               </div>
             )}
 
-            <button className="cr-modal-x" onClick={fechar} aria-label="Fechar">×</button>
           </header>
 
           <div className="pk-corpo">
