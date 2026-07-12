@@ -13,6 +13,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
+import PainelRender from '../../components/PainelRender';
 import { lerConta } from '../../lib/auth';
 import {
   listarGeracoes, alternarFavorito, apagarGeracao, baixarImagem,
@@ -45,6 +46,15 @@ const FILTROS = [
       <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
         <rect x="2.5" y="5" width="11" height="10" rx="2"/>
         <path d="M13.5 8.5l4-2.2v7.4l-4-2.2" strokeLinejoin="round"/>
+      </svg>
+    )
+  },
+  {
+    id: 'upscale', rotulo: 'Upscales',
+    icone: (
+      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <path d="M11 4h5v5M16 4l-5 5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M9 16H4v-5M4 16l5-5" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     )
   },
@@ -87,6 +97,9 @@ export default function App() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro]             = useState('');
 
+  const [ferramenta, setFerramenta] = useState('render');
+  const [ocupado, setOcupado]       = useState(false);
+
   const [filtro, setFiltro]   = useState('tudo');
   const [busca, setBusca]     = useState('');
   const [buscaAtiva, setBuscaAtiva] = useState('');
@@ -103,6 +116,7 @@ export default function App() {
       const f = {};
       if (filtro === 'imagem' || filtro === 'video') f.tipo = filtro;
       if (filtro === 'favoritos') f.favorito = true;
+      if (filtro === 'upscale')   f.ferramenta = 'upscale';
       if (buscaAtiva) f.busca = buscaAtiva;
 
       const dados = await listarGeracoes(f);
@@ -191,16 +205,22 @@ export default function App() {
         {/* ── Painel esquerdo: entra na parte 2 ── */}
         <aside className="cr-painel">
           <div className="cr-pills">
-            <button className="cr-pill cr-pill--on">Render</button>
-            <button className="cr-pill" disabled>Editar</button>
-            <button className="cr-pill" disabled>Batch</button>
+            <button
+              className={'cr-pill' + (ferramenta === 'render' ? ' cr-pill--on' : '')}
+              onClick={() => setFerramenta('render')}
+              disabled={ocupado}
+            >Render</button>
+            <button className="cr-pill" disabled data-tip="Em breve">Editar</button>
+            <button className="cr-pill" disabled data-tip="Em breve">Batch</button>
           </div>
-          <div className="cr-painel-vazio">
-            <p>As ferramentas de geração entram aqui em breve.</p>
-            <p className="cr-dica">
-              Por enquanto, gere pelo plugin do SketchUp — tudo aparece neste histórico.
-            </p>
-          </div>
+
+          {ferramenta === 'render' && (
+            <PainelRender
+              ocupado={ocupado}
+              setOcupado={setOcupado}
+              onPronto={() => carregar()}
+            />
+          )}
         </aside>
 
         {/* ── Feed ── */}
