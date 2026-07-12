@@ -3,46 +3,48 @@
 // ═══════════════════════════════════════════════════════════
 //  PainelRender — a aba Render do /app
 //
-//  Espelha a aba Render do plugin: mesmos controles, mesmos valores,
-//  mesma ordem. A diferença é que a imagem vem de UPLOAD, não da
-//  captura do viewport do SketchUp.
+//  Espelha a aba Render do plugin: mesmos controles, mesmos textos,
+//  mesma ordem, mesmos grupos. Quem usa o plugin reconhece aqui.
+//    Tipo de ambiente → Materiais → Iluminação Natural →
+//    Direção da Luz → Luz Artificial → Entorno → Referências
+//  E, na barra fixa embaixo: quantidade + proporção + resolução + Renderizar.
 //
-//  Ficam de fora (dependem do modelo 3D, não existem na web):
-//    - Regra dos terços (overlay no viewport)
-//    - Espelho / Vidro fumê (precisam da geometria)
-//    - Ler materiais DO MODELO — aqui o GPT lê da própria imagem
+//  Diferenças (o que depende do SketchUp não existe na web):
+//    - A imagem vem de UPLOAD, não da captura do viewport
+//    - Sem "Auto" na proporção (era o safe frame do viewport)
+//    - Sem regra dos terços, espelho, vidro fumê
+//    - "Ler materiais" lê da IMAGEM (no plugin, lê a lista do modelo)
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import PickerImagem from './PickerImagem';
 import {
-  gerarRender, lerMateriais, arquivoParaBase64,
+  gerarRender, lerMateriais, arquivoParaBase64, custoRender,
   TIPOS, PROPORCOES, LUZ_TIPOS, MOODS, DIRECOES,
-  CORES_LUZ, INTENSIDADES, ENTORNOS, RESOLUCOES
+  CORES_LUZ, INTENSIDADES, ENTORNOS, RESOLUCOES, MAX_REFS
 } from '../lib/render';
-
-const MAX_REFS = 4;
 
 export default function PainelRender({ onPronto, ocupado, setOcupado }) {
   // ── Imagem base ──
   const [imagem, setImagem]   = useState(null);   // base64 puro
-  const [previa, setPrevia]   = useState(null);   // data URL, para o <img>
-  const [arrastando, setArrastando] = useState(false);
-  const inputRef = useRef(null);
+  const [previa, setPrevia]   = useState(null);
+  const [picker, setPicker]   = useState(false);
 
   // ── Controles (mesmos padrões do plugin) ──
   const [tipo, setTipo]             = useState('interno');
-  const [proporcao, setProporcao]   = useState('auto');
+  const [proporcao, setProporcao]   = useState('4:5');
   const [resolucao, setResolucao]   = useState('2k');
   const [quantidade, setQuantidade] = useState(1);
 
   const [materiais, setMateriais]   = useState('');
+  const [temMat, setTemMat]         = useState(false);   // a textarea só aparece depois de ler
   const [lendoMat, setLendoMat]     = useState(false);
 
   const [luzTipo, setLuzTipo]       = useState('Direta');
   const [mood, setMood]             = useState('Dia claro editorial');
   const [detNatural, setDetNatural] = useState('');
 
-  const [direcoes, setDirecoes]     = useState([]);   // pode marcar várias
+  const [direcoes, setDirecoes]     = useState([]);
   const [descLuz, setDescLuz]       = useState('');
 
   const [corLuz, setCorLuz]         = useState('Desligada');
@@ -52,34 +54,30 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
   const [tagsEntorno, setTagsEntorno] = useState([]);
   const [entorno, setEntorno]         = useState('');
 
-  const [refs, setRefs]         = useState([]);   // [{ base64, mimeType, previa }]
+  const [refs, setRefs]         = useState([]);
   const [refTexto, setRefTexto] = useState('');
+  const refInput = useRef(null);
 
-  const [erro, setErro]         = useState('');
-  const [progresso, setProgresso] = useState(null);   // { feito, total, estado }
+  const [popRatio, setPopRatio] = useState(false);
+  const [popRes, setPopRes]     = useState(false);
 
-  // ── Colar imagem com Ctrl+V ──
+  const [erro, setErro]           = useState('');
+  const [progresso, setProgresso] = useState(null);
+
+  // Fecha os popovers ao clicar fora
   useEffect(() => {
-    async function onPaste(e) {
-      if (ocupado) return;
-      const item = [...(e.clipboardData?.items || [])]
-        .find((i) => i.type.startsWith('image/'));
-      if (!item) return;
-      const file = item.getAsFile();
-      if (file) await carregarImagem(file);
-    }
-    window.addEventListener('paste', onPaste);
-    return () => window.removeEventListener('paste', onPaste);
-  });
+    if (!popRatio && !popRes) return;
+    const fechar = () => { setPopRatio(false); setPopRes(false); };
+    window.addEventListener('click', fechar);
+    return () => window.removeEventListener('click', fechar);
+  }, [popRatio, popRes]);
 
-  async function carregarImagem(file) {
+  function escolheuImagem({ base64, previa: p }) {
+    setImagem(base64);
+    setPrevia(p);
+    setMateriais('');   // a imagem mudou: os materiais antigos não valem mais
+    setTemMat(false);
     setErro('');
-    try {
-      const b64 = await arquivoParaBase64(file);
-      setImagem(b64);
-      setPrevia(URL.createObjectURL(file));
-      setMateriais('');   // a imagem mudou: os materiais antigos não valem mais
-    } catch (e) { setErro(e.message); }
   }
 
   async function addRef(file) {
@@ -101,26 +99,27 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
   }
 
   async function lerMat() {
-    if (!imagem) { setErro('Envie a imagem primeiro'); return; }
+    if (!imagem) { setErro('Envie a imagem do modelo primeiro'); return; }
     setLendoMat(true);
     setErro('');
     try {
       const txt = await lerMateriais(imagem, tipo);
       setMateriais(txt);
+      setTemMat(true);   // agora sim a textarea aparece, para editar
     } catch (e) { setErro(e.message); }
     finally { setLendoMat(false); }
   }
 
   async function gerar() {
-    if (!imagem)  { setErro('Envie a imagem do seu modelo'); return; }
-    if (ocupado)  return;
+    if (!imagem) { setErro('Envie a imagem do seu modelo'); return; }
+    if (ocupado) return;
 
     setErro('');
     setOcupado(true);
     setProgresso({ feito: 0, total: quantidade, estado: 'na_fila' });
 
     // O plugin junta o detalhe ao mood, e a intensidade à cor da luz.
-    // Repetimos exatamente, senão o promptador recebe um formato diferente.
+    // Repetimos igual: o promptador do GPT espera esse formato.
     const moodFinal = detNatural.trim()
       ? `${mood} (${luzTipo}). Detalhes: ${detNatural.trim()}`
       : `${mood} (${luzTipo})`;
@@ -134,11 +133,7 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
 
     try {
       const r = await gerarRender({
-        imagem,
-        tipo,
-        proporcao,
-        resolucao,
-        quantidade,
+        imagem, tipo, proporcao, resolucao, quantidade,
         mood:          moodFinal,
         materiais:     materiais.trim(),
         entorno:       entornoFinal,
@@ -151,7 +146,7 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
         onProgresso: (feito, total, estado) => setProgresso({ feito, total, estado })
       });
 
-      onPronto(r);   // avisa a página: recarrega o feed
+      onPronto(r);
     } catch (e) {
       setErro(e.message);
     } finally {
@@ -160,281 +155,289 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
     }
   }
 
-  const custo = quantidade * 120;   // TODO: puxar a tabela real de créditos
+  const custo    = custoRender(quantidade, resolucao);
+  const ratioSel = PROPORCOES.find((p) => p.val === proporcao) || PROPORCOES[5];
 
   return (
-    <div className="cr-form">
+    <>
+      <div className="cr-form">
 
-      {/* ── Imagem base ── */}
-      <div className="cr-sec">Imagem do modelo</div>
-
-      <div
-        className={'cr-drop' + (arrastando ? ' cr-drop--on' : '') + (previa ? ' cr-drop--tem' : '')}
-        onClick={() => !ocupado && inputRef.current?.click()}
-        onDragOver={(e) => { e.preventDefault(); setArrastando(true); }}
-        onDragLeave={() => setArrastando(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setArrastando(false);
-          const f = e.dataTransfer.files[0];
-          if (f && f.type.startsWith('image/')) carregarImagem(f);
-        }}
-      >
+        {/* ── Imagem do modelo ── */}
+        <div className="cr-sec">Imagem do modelo</div>
         {previa ? (
-          <>
+          <div className="cr-base">
             <img src={previa} alt="" />
             <button
-              className="cr-drop-x"
-              onClick={(e) => { e.stopPropagation(); setImagem(null); setPrevia(null); setMateriais(''); }}
-              data-tip="Remover"
-              aria-label="Remover imagem"
+              className="cr-base-x"
+              onClick={() => { setImagem(null); setPrevia(null); setMateriais(''); setTemMat(false); }}
+              data-tip="Trocar imagem"
+              aria-label="Trocar imagem"
             >×</button>
-          </>
+          </div>
         ) : (
-          <div className="cr-drop-vazio">
+          <button className="cr-drop" onClick={() => setPicker(true)} disabled={ocupado}>
             <svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.4">
               <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/>
               <path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>
             </svg>
-            <span>Arraste o print aqui</span>
-            <span className="cr-drop-sub">ou clique, ou cole com Ctrl+V</span>
-          </div>
-        )}
-        <input
-          ref={inputRef} type="file" accept="image/*" hidden
-          onChange={(e) => { const f = e.target.files[0]; if (f) carregarImagem(f); e.target.value = ''; }}
-        />
-      </div>
-
-      {/* ── Tipo de ambiente ── */}
-      <div className="cr-sec">Tipo de ambiente</div>
-      <div className="cr-segs">
-        {TIPOS.map((t) => (
-          <button
-            key={t.val}
-            className={'cr-seg' + (tipo === t.val ? ' cr-seg--on' : '')}
-            onClick={() => setTipo(t.val)}
-          >{t.rotulo}</button>
-        ))}
-      </div>
-
-      {/* ── Proporção ── */}
-      <div className="cr-sec">Proporção</div>
-      <div className="cr-ratios">
-        {PROPORCOES.map((p) => (
-          <button
-            key={p.val}
-            className={'cr-ratio' + (proporcao === p.val ? ' cr-ratio--on' : '')}
-            onClick={() => setProporcao(p.val)}
-          >
-            <svg viewBox="0 0 28 28" fill="none">
-              <rect
-                x={(28 - p.w) / 2} y={(28 - p.h) / 2}
-                width={p.w} height={p.h} rx="1"
-                stroke="currentColor" strokeWidth="1.5"
-              />
-            </svg>
-            <span>{p.rotulo}</span>
+            <span>Arraste, cole, ou clique</span>
           </button>
-        ))}
-      </div>
-
-      {/* ── Materiais ── */}
-      <div className="cr-sec">
-        Materiais
-        <button className="cr-sec-btn" onClick={lerMat} disabled={lendoMat || !imagem || ocupado}>
-          {lendoMat ? 'Lendo...' : 'Ler da imagem'}
-        </button>
-      </div>
-      <textarea
-        className="cr-ta cr-ta--alta"
-        placeholder="Clique em “Ler da imagem” — a IA descreve o que vê. Você pode editar depois."
-        value={materiais}
-        onChange={(e) => setMateriais(e.target.value)}
-        spellCheck={false}
-      />
-
-      {/* ── Iluminação natural ── */}
-      <div className="cr-sec">Iluminação natural</div>
-      <div className="cr-segs">
-        {LUZ_TIPOS.map((l) => (
-          <button
-            key={l.val}
-            className={'cr-seg' + (luzTipo === l.val ? ' cr-seg--on' : '')}
-            onClick={() => setLuzTipo(l.val)}
-          >{l.rotulo}</button>
-        ))}
-      </div>
-
-      {MOODS.map((g) => (
-        <div key={g.grupo}>
-          <div className="cr-grp">{g.grupo}</div>
-          <div className="cr-tags">
-            {g.itens.map((m) => (
-              <button
-                key={m}
-                className={'cr-tag' + (mood === m ? ' cr-tag--on' : '')}
-                onClick={() => setMood(m)}
-              >{m}</button>
-            ))}
-          </div>
-        </div>
-      ))}
-
-      <textarea
-        className="cr-ta"
-        placeholder="Opcional — detalhes da luz natural..."
-        value={detNatural}
-        onChange={(e) => setDetNatural(e.target.value)}
-        spellCheck={false}
-      />
-
-      {/* ── Direção da luz ── */}
-      <div className="cr-sec">Direção da luz</div>
-      <div className="cr-tags">
-        {DIRECOES.map((d) => (
-          <button
-            key={d}
-            className={'cr-tag' + (direcoes.includes(d) ? ' cr-tag--on' : '')}
-            onClick={() => toggle(direcoes, setDirecoes, d)}
-          >{d}</button>
-        ))}
-      </div>
-      <textarea
-        className="cr-ta"
-        placeholder="Opcional — descreva a luz com suas palavras..."
-        value={descLuz}
-        onChange={(e) => setDescLuz(e.target.value)}
-        spellCheck={false}
-      />
-
-      {/* ── Luz artificial ── */}
-      <div className="cr-sec">Luz artificial</div>
-      <div className="cr-grp">Cor</div>
-      <div className="cr-tags">
-        {CORES_LUZ.map((c) => (
-          <button
-            key={c}
-            className={'cr-tag' + (corLuz === c ? ' cr-tag--on' : '')}
-            onClick={() => setCorLuz(c)}
-          >{c}</button>
-        ))}
-      </div>
-
-      {corLuz !== 'Desligada' && (
-        <>
-          <div className="cr-grp">Intensidade</div>
-          <div className="cr-tags">
-            {INTENSIDADES.map((i) => (
-              <button
-                key={i}
-                className={'cr-tag' + (intensidade === i ? ' cr-tag--on' : '')}
-                onClick={() => setIntensidade(i)}
-              >{i}</button>
-            ))}
-          </div>
-          <textarea
-            className="cr-ta"
-            placeholder="Opcional — detalhes da luz artificial..."
-            value={detArtificial}
-            onChange={(e) => setDetArtificial(e.target.value)}
-            spellCheck={false}
-          />
-        </>
-      )}
-
-      {/* ── Entorno ── */}
-      <div className="cr-sec">Entorno <span className="cr-opc">opcional</span></div>
-      <div className="cr-tags">
-        {ENTORNOS.map((e) => (
-          <button
-            key={e}
-            className={'cr-tag' + (tagsEntorno.includes(e) ? ' cr-tag--on' : '')}
-            onClick={() => toggle(tagsEntorno, setTagsEntorno, e)}
-          >{e}</button>
-        ))}
-      </div>
-      <textarea
-        className="cr-ta"
-        placeholder="Descreva o entorno com suas palavras..."
-        value={entorno}
-        onChange={(e) => setEntorno(e.target.value)}
-        spellCheck={false}
-      />
-      <p className="cr-hint">
-        Quanto mais específico, melhor. Ex: “10º andar, vista de bairro residencial arborizado”
-      </p>
-
-      {/* ── Referências ── */}
-      <div className="cr-sec">
-        Referências <span className="cr-opc">{refs.length}/{MAX_REFS}</span>
-      </div>
-      <div className="cr-refs">
-        {refs.map((r, i) => (
-          <div key={i} className="cr-ref">
-            <img src={r.previa} alt="" />
-            <button
-              className="cr-ref-x"
-              onClick={() => setRefs((rs) => rs.filter((_, j) => j !== i))}
-              aria-label="Remover referência"
-            >×</button>
-            <span className="cr-ref-n">@ref{String(i + 1).padStart(2, '0')}</span>
-          </div>
-        ))}
-        {refs.length < MAX_REFS && (
-          <label className="cr-ref cr-ref--add">
-            +
-            <input
-              type="file" accept="image/*" hidden
-              onChange={(e) => { const f = e.target.files[0]; if (f) addRef(f); e.target.value = ''; }}
-            />
-          </label>
         )}
-      </div>
-      <textarea
-        className="cr-ta"
-        placeholder="Opcional — como usar as referências. Ex: “@ref01 define o piso”"
-        value={refTexto}
-        onChange={(e) => setRefTexto(e.target.value)}
-        spellCheck={false}
-      />
 
-      {/* ── Resolução e quantidade ── */}
-      <div className="cr-sec">Saída</div>
-      <div className="cr-saida">
-        <div className="cr-segs cr-segs--peq">
-          {RESOLUCOES.map((r) => (
+        {/* ── Tipo de ambiente ── */}
+        <div className="cr-sec">Tipo de ambiente</div>
+        <div className="cr-g3">
+          {TIPOS.map((t) => (
             <button
-              key={r.val}
-              className={'cr-seg' + (resolucao === r.val ? ' cr-seg--on' : '')}
-              onClick={() => setResolucao(r.val)}
-            >{r.rotulo}</button>
+              key={t.val}
+              className={'cr-b' + (tipo === t.val ? ' cr-b--on' : '')}
+              onClick={() => setTipo(t.val)}
+            >{t.rotulo}</button>
           ))}
         </div>
 
-        <div className="cr-qty">
-          <button
-            onClick={() => setQuantidade((q) => Math.max(1, q - 1))}
-            aria-label="Menos uma"
-          >−</button>
-          <span>{quantidade}</span>
-          <button
-            onClick={() => setQuantidade((q) => Math.min(10, q + 1))}
-            aria-label="Mais uma"
-          >+</button>
+        {/* ── Materiais ── */}
+        <div className="cr-sec">Materiais</div>
+        <button className="cr-b-ler" onClick={lerMat} disabled={lendoMat || !imagem || ocupado}>
+          {lendoMat ? 'Lendo a imagem...' : 'Ler materiais'}
+        </button>
+        {temMat && (
+          <textarea
+            className="cr-ta cr-ta--alta"
+            placeholder="Edite os materiais aqui..."
+            value={materiais}
+            onChange={(e) => setMateriais(e.target.value)}
+            spellCheck={false}
+          />
+        )}
+
+        {/* ── Iluminação Natural ── */}
+        <div className="cr-sec">Iluminação Natural</div>
+        <div className="cr-g2">
+          {LUZ_TIPOS.map((l) => (
+            <button
+              key={l.val}
+              className={'cr-b' + (luzTipo === l.val ? ' cr-b--on' : '')}
+              onClick={() => setLuzTipo(l.val)}
+            >{l.rotulo}</button>
+          ))}
         </div>
+
+        {MOODS.map((g) => (
+          <div key={g.grupo}>
+            <div className="cr-grp">{g.grupo}</div>
+            <div className="cr-g2">
+              {g.itens.map((m) => (
+                <button
+                  key={m}
+                  className={'cr-b' + (mood === m ? ' cr-b--on' : '')}
+                  onClick={() => setMood(m)}
+                >{m}</button>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <textarea
+          className="cr-ta"
+          placeholder="Opcional — detalhes adicionais sobre a iluminação natural..."
+          value={detNatural}
+          onChange={(e) => setDetNatural(e.target.value)}
+          spellCheck={false}
+        />
+
+        {/* ── Direção da Luz ── */}
+        <div className="cr-sec">Direção da Luz</div>
+        <div className="cr-g2">
+          {DIRECOES.map((d) => (
+            <button
+              key={d}
+              className={'cr-b' + (direcoes.includes(d) ? ' cr-b--on' : '')}
+              onClick={() => toggle(direcoes, setDirecoes, d)}
+            >{d}</button>
+          ))}
+        </div>
+        <textarea
+          className="cr-ta"
+          placeholder="Opcional — descreva como a luz entra no espaço..."
+          value={descLuz}
+          onChange={(e) => setDescLuz(e.target.value)}
+          spellCheck={false}
+        />
+        <p className="cr-hint">Ex: “luz entra pela porta-janela lateral direita e pelo fundo”</p>
+
+        {/* ── Luz Artificial ── */}
+        <div className="cr-sec">Luz Artificial</div>
+        <div className="cr-grp">Cor</div>
+        <div className="cr-g3">
+          {CORES_LUZ.map((c) => (
+            <button
+              key={c}
+              className={'cr-b' + (corLuz === c ? ' cr-b--on' : '')}
+              onClick={() => setCorLuz(c)}
+            >{c}</button>
+          ))}
+        </div>
+
+        {corLuz !== 'Desligada' && (
+          <>
+            <div className="cr-grp">Intensidade</div>
+            <div className="cr-g3">
+              {INTENSIDADES.map((i) => (
+                <button
+                  key={i}
+                  className={'cr-b' + (intensidade === i ? ' cr-b--on' : '')}
+                  onClick={() => setIntensidade(i)}
+                >{i}</button>
+              ))}
+            </div>
+            <textarea
+              className="cr-ta"
+              placeholder="Opcional — detalhes adicionais sobre a luz artificial..."
+              value={detArtificial}
+              onChange={(e) => setDetArtificial(e.target.value)}
+              spellCheck={false}
+            />
+          </>
+        )}
+
+        {/* ── Entorno ── */}
+        <div className="cr-sec">Entorno <span className="cr-opc">Opcional</span></div>
+        <div className="cr-g2">
+          {ENTORNOS.map((e) => (
+            <button
+              key={e}
+              className={'cr-b' + (tagsEntorno.includes(e) ? ' cr-b--on' : '')}
+              onClick={() => toggle(tagsEntorno, setTagsEntorno, e)}
+            >{e}</button>
+          ))}
+        </div>
+        <textarea
+          className="cr-ta"
+          placeholder="Descreva com suas palavras o entorno..."
+          value={entorno}
+          onChange={(e) => setEntorno(e.target.value)}
+          spellCheck={false}
+        />
+        <p className="cr-hint">
+          Melhores resultados quando você dá mais especificações. Ex: “10º andar em cidade
+          como Florianópolis, vista de bairro residencial arborizado”
+        </p>
+
+        {/* ── Referências ── */}
+        <div className="cr-sec">Referências <span className="cr-opc">Opcional</span></div>
+        <div className="cr-refs">
+          {refs.map((r, i) => (
+            <div key={i} className="cr-ref">
+              <img src={r.previa} alt="" />
+              <button
+                className="cr-ref-x"
+                onClick={() => setRefs((rs) => rs.filter((_, j) => j !== i))}
+                aria-label="Remover referência"
+              >×</button>
+              <span className="cr-ref-n">@img{String(i + 1).padStart(2, '0')}</span>
+            </div>
+          ))}
+          {refs.length < MAX_REFS && (
+            <button className="cr-ref cr-ref--add" onClick={() => refInput.current?.click()}>
+              <span className="cr-ref-mais">+</span>
+              <span className="cr-ref-c">{refs.length}/{MAX_REFS}</span>
+            </button>
+          )}
+          <input
+            ref={refInput} type="file" accept="image/*" multiple hidden
+            onChange={(e) => {
+              [...e.target.files].forEach((f) => addRef(f));
+              e.target.value = '';
+            }}
+          />
+        </div>
+        <textarea
+          className="cr-ta"
+          placeholder="Use @img01, @img02... para referenciar cada imagem"
+          value={refTexto}
+          onChange={(e) => setRefTexto(e.target.value)}
+          spellCheck={false}
+        />
+        <p className="cr-hint">Use @img01, @img02... para referenciar cada imagem carregada.</p>
+
+        {erro && <div className="cr-erro">{erro}</div>}
       </div>
 
-      {erro && <div className="cr-erro">{erro}</div>}
+      {/* ── Barra fixa embaixo (= .render-bar do plugin) ── */}
+      <div className="cr-barra-ger">
+        <div className="cr-pills-cfg">
 
-      {/* ── Gerar ── */}
-      <div className="cr-gerar">
-        <button
-          className="cr-btn-gerar"
-          onClick={gerar}
-          disabled={ocupado || !imagem}
-        >
-          {ocupado ? 'Gerando...' : 'Gerar'}
+          <div className="cr-qty">
+            <button onClick={() => setQuantidade((q) => Math.max(1, q - 1))} aria-label="Menos uma">−</button>
+            <span>{quantidade}</span>
+            <button onClick={() => setQuantidade((q) => Math.min(10, q + 1))} aria-label="Mais uma">+</button>
+          </div>
+
+          {/* Pill: proporção */}
+          <div className="cr-pill-wrap">
+            <button
+              className={'cr-pill-cfg' + (popRatio ? ' cr-pill-cfg--on' : '')}
+              onClick={(e) => { e.stopPropagation(); setPopRes(false); setPopRatio((v) => !v); }}
+            >
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none">
+                <rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+              </svg>
+              <span>{proporcao}</span>
+              <span className="cr-pill-seta">{popRatio ? '▾' : '▴'}</span>
+            </button>
+
+            {popRatio && (
+              <div className="cr-pop" onClick={(e) => e.stopPropagation()}>
+                <div className="cr-pop-grade">
+                  {PROPORCOES.map((p) => (
+                    <button
+                      key={p.val}
+                      className={'cr-pop-b' + (proporcao === p.val ? ' cr-pop-b--on' : '')}
+                      onClick={() => { setProporcao(p.val); setPopRatio(false); }}
+                    >
+                      <svg viewBox="0 0 28 28" fill="none">
+                        <rect x={p.x} y={p.y} width={p.w} height={p.h} rx="1"
+                              stroke="currentColor" strokeWidth="1.5"/>
+                      </svg>
+                      <span>{p.val}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Pill: resolução */}
+          <div className="cr-pill-wrap">
+            <button
+              className={'cr-pill-cfg' + (popRes ? ' cr-pill-cfg--on' : '')}
+              onClick={(e) => { e.stopPropagation(); setPopRatio(false); setPopRes((v) => !v); }}
+            >
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/>
+              </svg>
+              <span>{RESOLUCOES.find((r) => r.val === resolucao)?.rotulo}</span>
+              <span className="cr-pill-seta">{popRes ? '▾' : '▴'}</span>
+            </button>
+
+            {popRes && (
+              <div className="cr-pop cr-pop--res" onClick={(e) => e.stopPropagation()}>
+                {RESOLUCOES.map((r) => (
+                  <button
+                    key={r.val}
+                    className={'cr-pop-res' + (resolucao === r.val ? ' cr-pop-res--on' : '')}
+                    onClick={() => { setResolucao(r.val); setPopRes(false); }}
+                  >{r.rotulo}</button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <button className="cr-btn-gerar" onClick={gerar} disabled={ocupado || !imagem}>
+          {ocupado ? 'Renderizando...' : 'Renderizar'}
         </button>
 
         {progresso ? (
@@ -449,6 +452,13 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
           </p>
         )}
       </div>
-    </div>
+
+      <PickerImagem
+        aberto={picker}
+        onFechar={() => setPicker(false)}
+        onEscolher={escolheuImagem}
+        titulo="Imagem do modelo"
+      />
+    </>
   );
 }
