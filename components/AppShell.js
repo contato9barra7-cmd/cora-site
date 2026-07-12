@@ -3,9 +3,18 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta } from '../lib/auth';
+import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta , EVENTO_CREDITOS } from '../lib/auth';
 
 // Ícones simples em SVG (sem dependência externa)
+function rotuloPlano(c) {
+  if (!c) return '';
+  if (c.is_admin) return 'Admin';
+  const nomes = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
+  const p = nomes[c.plano] || c.plano;
+  if (c.eh_dono_equipe || c.eh_membro_equipe) return `Teams (${p})`;
+  return `Plano ${p}`;
+}
+
 const Icone = {
   studio: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -73,6 +82,16 @@ export default function AppShell({ children }) {
     }
   }, [pathname]);
 
+  // Alguém gastou crédito (uma geração no /app)? Atualiza o número, o anel
+  // e tudo mais — sem precisar de F5.
+  useEffect(() => {
+    function onCreditos(e) {
+      if (e.detail) setConta(e.detail);
+    }
+    window.addEventListener(EVENTO_CREDITOS, onCreditos);
+    return () => window.removeEventListener(EVENTO_CREDITOS, onCreditos);
+  }, []);
+
   function toggleMenu() {
     const novo = !recolhido;
     setRecolhido(novo);
@@ -108,6 +127,17 @@ export default function AppShell({ children }) {
   const total = conta?.creditos_total ?? 0;
   const usados = conta?.creditos_usados ?? 0;
   const pctRestante = ilimitado || total === 0 ? 0 : Math.max(0, Math.min(100, Math.round(((total - usados) / total) * 100)));
+
+  const restantes = Math.max(0, total - usados);
+  const acabando  = !ilimitado && total > 0 && pctRestante <= 10;
+
+  // Quantos dias até renovar? (só mostra quando faz sentido)
+  const dataRenov = conta?.eh_dono_equipe ? conta?.equipe_renova_em : conta?.expira_em;
+  const diasRenov = (() => {
+    if (!dataRenov) return null;
+    const d = Math.ceil((new Date(dataRenov) - new Date()) / 86400000);
+    return (d >= 0 && d <= 60) ? d : null;
+  })();
 
   const inicial = (conta?.nome || conta?.email || '?').charAt(0).toUpperCase();
 
@@ -167,13 +197,45 @@ export default function AppShell({ children }) {
               <div className="app-user-menu" onMouseLeave={() => setMenuUser(false)}>
                 <div className="app-user-nome">
                   {conta?.nome || conta?.email}
-                  {!ilimitado && conta && total > 0 && (
-                    <div className="app-user-creditos">
-                      {Math.max(0, total - usados).toLocaleString('pt-BR')} de {total.toLocaleString('pt-BR')} créditos
-                    </div>
+                  {conta?.plano && (
+                    <div className="app-user-plano">{rotuloPlano(conta)}</div>
                   )}
-                  {ilimitado && conta && <div className="app-user-creditos">Créditos ilimitados</div>}
                 </div>
+
+                {!ilimitado && conta && total > 0 && (
+                  <div className="cred-card">
+                    <div className="cred-rot">Créditos restantes</div>
+                    <div className="cred-num">{restantes.toLocaleString('pt-BR')}</div>
+                    <div className="cred-barra">
+                      <div
+                        className={'cred-fill' + (acabando ? ' cred-fill--alerta' : '')}
+                        style={{ width: pctRestante + '%' }}
+                      />
+                    </div>
+                    <div className="cred-pe">
+                      <span>de {total.toLocaleString('pt-BR')}</span>
+                      {diasRenov !== null && (
+                        <span>renova em {diasRenov} {diasRenov === 1 ? 'dia' : 'dias'}</span>
+                      )}
+                    </div>
+                    {acabando && (
+                      <div className="cred-aviso">
+                        <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
+                          <path d="M10 3.5l7 12.5H3l7-12.5z" strokeLinejoin="round"/>
+                          <path d="M10 8v3.5M10 13.5v.5" strokeLinecap="round"/>
+                        </svg>
+                        <span>Seus créditos estão acabando</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {ilimitado && conta && (
+                  <div className="cred-card cred-card--ilim">
+                    <div className="cred-rot">Créditos</div>
+                    <div className="cred-num">Ilimitados</div>
+                  </div>
+                )}
                 <Link href="/conta/perfil" className="app-user-link" onClick={() => setMenuUser(false)}>Minha conta</Link>
 
                 <div className="app-user-pref">

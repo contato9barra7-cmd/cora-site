@@ -3,52 +3,54 @@
 // ═══════════════════════════════════════════════════════════
 //  PainelRender — a aba Render do /app
 //
-//  Espelha a aba Render do plugin: mesmos controles, mesmos textos,
-//  mesma ordem, mesmos grupos. Quem usa o plugin reconhece aqui.
+//  Espelha o plugin: mesmos controles, textos, ordem e grupos.
 //    Tipo de ambiente → Materiais → Iluminação Natural →
 //    Direção da Luz → Luz Artificial → Entorno → Referências
-//  E, na barra fixa embaixo: quantidade + proporção + resolução + Renderizar.
+//  Barra fixa embaixo: quantidade + proporção + resolução + Renderizar.
 //
-//  Diferenças (o que depende do SketchUp não existe na web):
-//    - A imagem vem de UPLOAD, não da captura do viewport
+//  Diferenças (dependem do SketchUp, não existem na web):
+//    - A imagem vem do picker (upload/histórico), não do viewport
 //    - Sem "Auto" na proporção (era o safe frame do viewport)
-//    - Sem regra dos terços, espelho, vidro fumê
 //    - "Ler materiais" lê da IMAGEM (no plugin, lê a lista do modelo)
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef } from 'react';
 import PickerImagem from './PickerImagem';
+import IconeCredito from './IconeCredito';
 import {
-  gerarRender, lerMateriais, arquivoParaBase64, custoRender,
+  gerarRender, lerMateriais, custoRender, CREDITOS,
   TIPOS, PROPORCOES, LUZ_TIPOS, MOODS, DIRECOES,
   CORES_LUZ, INTENSIDADES, ENTORNOS, RESOLUCOES, MAX_REFS
 } from '../lib/render';
 
-export default function PainelRender({ onPronto, ocupado, setOcupado }) {
+export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, loteAnterior }) {
   // ── Imagem base ──
-  const [imagem, setImagem]   = useState(null);   // base64 puro
-  const [previa, setPrevia]   = useState(null);
-  const [picker, setPicker]   = useState(false);
+  const [imagem, setImagem] = useState(null);
+  const [previa, setPrevia] = useState(null);
 
-  // ── Controles (mesmos padrões do plugin) ──
+  // Picker: 'base' | 'ref' | null — sabe onde guardar o que for escolhido
+  const [picker, setPicker] = useState(null);
+
+  // ── Controles (padrões do plugin) ──
   const [tipo, setTipo]             = useState('interno');
   const [proporcao, setProporcao]   = useState('4:5');
   const [resolucao, setResolucao]   = useState('2k');
   const [quantidade, setQuantidade] = useState(1);
 
-  const [materiais, setMateriais]   = useState('');
-  const [temMat, setTemMat]         = useState(false);   // a textarea só aparece depois de ler
-  const [lendoMat, setLendoMat]     = useState(false);
+  // Materiais: ler → revisar → confirmar. Sem confirmar, não renderiza.
+  const [materiais, setMateriais] = useState('');
+  const [matEstado, setMatEstado] = useState('vazio');  // vazio | lendo | revisar | confirmado
+  const editandoMat = matEstado === 'revisar';
 
   const [luzTipo, setLuzTipo]       = useState('Direta');
   const [mood, setMood]             = useState('Dia claro editorial');
   const [detNatural, setDetNatural] = useState('');
 
-  const [direcoes, setDirecoes]     = useState([]);
-  const [descLuz, setDescLuz]       = useState('');
+  const [direcoes, setDirecoes] = useState([]);
+  const [descLuz, setDescLuz]   = useState('');
 
-  const [corLuz, setCorLuz]         = useState('Desligada');
-  const [intensidade, setIntensidade] = useState('Média');
+  const [corLuz, setCorLuz]               = useState('Desligada');
+  const [intensidade, setIntensidade]     = useState('Média');
   const [detArtificial, setDetArtificial] = useState('');
 
   const [tagsEntorno, setTagsEntorno] = useState([]);
@@ -56,13 +58,21 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
 
   const [refs, setRefs]         = useState([]);
   const [refTexto, setRefTexto] = useState('');
-  const refInput = useRef(null);
 
   const [popRatio, setPopRatio] = useState(false);
   const [popRes, setPopRes]     = useState(false);
 
-  const [erro, setErro]           = useState('');
-  const [progresso, setProgresso] = useState(null);
+  const [erro, setErro] = useState('');
+
+  // Alguém mandou uma imagem de outra aba? Carrega.
+  useEffect(() => {
+    if (imagemInicial) {
+      setImagem(imagemInicial.base64);
+      setPrevia(imagemInicial.previa);
+      setMateriais('');
+      setMatEstado('vazio');
+    }
+  }, [imagemInicial]);
 
   // Fecha os popovers ao clicar fora
   useEffect(() => {
@@ -73,23 +83,15 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
   }, [popRatio, popRes]);
 
   function escolheuImagem({ base64, previa: p }) {
+    if (picker === 'ref') {
+      if (refs.length < MAX_REFS) setRefs((r) => [...r, { base64, previa: p }]);
+      return;
+    }
     setImagem(base64);
     setPrevia(p);
-    setMateriais('');   // a imagem mudou: os materiais antigos não valem mais
-    setTemMat(false);
+    setMateriais('');       // imagem nova: os materiais antigos não valem mais
+    setMatEstado('vazio');
     setErro('');
-  }
-
-  async function addRef(file) {
-    if (refs.length >= MAX_REFS) return;
-    try {
-      const b64 = await arquivoParaBase64(file);
-      setRefs((r) => [...r, {
-        base64: b64,
-        mimeType: file.type || 'image/png',
-        previa: URL.createObjectURL(file)
-      }]);
-    } catch (e) { setErro(e.message); }
   }
 
   function toggle(lista, setLista, valor) {
@@ -99,24 +101,26 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
   }
 
   async function lerMat() {
-    if (!imagem) { setErro('Envie a imagem do modelo primeiro'); return; }
-    setLendoMat(true);
+    if (!imagem) { setErro('Escolha a imagem do modelo primeiro'); return; }
+    setMatEstado('lendo');
     setErro('');
     try {
       const txt = await lerMateriais(imagem, tipo);
       setMateriais(txt);
-      setTemMat(true);   // agora sim a textarea aparece, para editar
-    } catch (e) { setErro(e.message); }
-    finally { setLendoMat(false); }
+      setMatEstado('revisar');   // agora a pessoa lê, edita e confirma
+    } catch (e) {
+      setErro(e.message);
+      setMatEstado('vazio');
+    }
   }
 
   async function gerar() {
-    if (!imagem) { setErro('Envie a imagem do seu modelo'); return; }
+    if (!imagem) { setErro('Escolha a imagem do seu modelo'); return; }
+    if (matEstado === 'revisar') { setErro('Confirme os materiais para renderizar'); return; }
     if (ocupado) return;
 
     setErro('');
     setOcupado(true);
-    setProgresso({ feito: 0, total: quantidade, estado: 'na_fila' });
 
     // O plugin junta o detalhe ao mood, e a intensidade à cor da luz.
     // Repetimos igual: o promptador do GPT espera esse formato.
@@ -131,32 +135,34 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
     const entornoFinal = [tagsEntorno.join(', '), entorno.trim()]
       .filter(Boolean).join('. ');
 
-    try {
-      const r = await gerarRender({
-        imagem, tipo, proporcao, resolucao, quantidade,
-        mood:          moodFinal,
-        materiais:     materiais.trim(),
-        entorno:       entornoFinal,
-        luzArtificial: luzArtFinal,
-        direcaoLuz:    direcoes.join(', '),
-        descLuz:       descLuz.trim(),
-        refTexto:      refTexto.trim(),
-        referencias:   refs.map((r) => ({ base64: r.base64, mimeType: r.mimeType }))
-      }, {
-        onProgresso: (feito, total, estado) => setProgresso({ feito, total, estado })
-      });
+    const cfg = {
+      imagem, tipo, proporcao, resolucao, quantidade,
+      mood:          moodFinal,
+      materiais:     materiais.trim(),
+      entorno:       entornoFinal,
+      luzArtificial: luzArtFinal,
+      direcaoLuz:    direcoes.join(', '),
+      descLuz:       descLuz.trim(),
+      refTexto:      refTexto.trim(),
+      referencias:   refs.map((r) => ({ base64: r.base64, mimeType: 'image/png' }))
+    };
 
+    try {
+      const r = await gerarRender(cfg, {
+        onProgresso: (feito, total, estado) => onProgresso({ feito, total, estado }),
+        loteAnterior   // mesma config = continua na mesma linha do feed
+      });
       onPronto(r);
     } catch (e) {
       setErro(e.message);
     } finally {
       setOcupado(false);
-      setProgresso(null);
+      onProgresso(null);
     }
   }
 
-  const custo    = custoRender(quantidade, resolucao);
-  const ratioSel = PROPORCOES.find((p) => p.val === proporcao) || PROPORCOES[5];
+  const custo      = custoRender(quantidade, resolucao);
+  const travadoMat = matEstado === 'revisar';   // precisa confirmar antes
 
   return (
     <>
@@ -169,18 +175,18 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
             <img src={previa} alt="" />
             <button
               className="cr-base-x"
-              onClick={() => { setImagem(null); setPrevia(null); setMateriais(''); setTemMat(false); }}
-              data-tip="Trocar imagem"
-              aria-label="Trocar imagem"
+              onClick={() => { setImagem(null); setPrevia(null); setMateriais(''); setMatEstado('vazio'); }}
+              data-tip="Remover imagem"
+              aria-label="Remover imagem"
             >×</button>
           </div>
         ) : (
-          <button className="cr-drop" onClick={() => setPicker(true)} disabled={ocupado}>
+          <button className="cr-drop" onClick={() => setPicker('base')} disabled={ocupado}>
             <svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.4">
               <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/>
               <path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>
             </svg>
-            <span>Arraste, cole, ou clique</span>
+            <span>Escolher imagem</span>
           </button>
         )}
 
@@ -198,17 +204,57 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
 
         {/* ── Materiais ── */}
         <div className="cr-sec">Materiais</div>
-        <button className="cr-b-ler" onClick={lerMat} disabled={lendoMat || !imagem || ocupado}>
-          {lendoMat ? 'Lendo a imagem...' : 'Ler materiais'}
-        </button>
-        {temMat && (
-          <textarea
-            className="cr-ta cr-ta--alta"
-            placeholder="Edite os materiais aqui..."
-            value={materiais}
-            onChange={(e) => setMateriais(e.target.value)}
-            spellCheck={false}
-          />
+
+        {matEstado !== 'revisar' && (
+          <button
+            className="cr-b-ler"
+            onClick={lerMat}
+            disabled={matEstado === 'lendo' || !imagem || ocupado}
+          >
+            <span>
+              {matEstado === 'lendo' ? 'Lendo a imagem...'
+                : matEstado === 'confirmado' ? 'Ler materiais de novo'
+                : 'Ler materiais'}
+            </span>
+            {matEstado !== 'lendo' && (
+              <span className="cr-custo-tag">
+                <IconeCredito /> {CREDITOS.materiais}
+              </span>
+            )}
+          </button>
+        )}
+
+        {(matEstado === 'revisar' || matEstado === 'confirmado') && (
+          <>
+            <textarea
+              className="cr-ta cr-ta--mat"
+              placeholder="Edite os materiais aqui..."
+              value={materiais}
+              onChange={(e) => setMateriais(e.target.value)}
+              readOnly={matEstado === 'confirmado'}
+              spellCheck={false}
+            />
+
+            {matEstado === 'revisar' && (
+              <>
+                <p className="cr-hint">Materiais identificados — edite se necessário</p>
+                <div className="cr-g2 cr-mat-acoes">
+                  <button className="cr-b" onClick={() => setMatEstado('confirmado')}>
+                    Editar
+                  </button>
+                  <button className="cr-b-conf" onClick={() => setMatEstado('confirmado')}>
+                    Tá bom, seguir assim
+                  </button>
+                </div>
+              </>
+            )}
+
+            {matEstado === 'confirmado' && (
+              <button className="cr-b-editar-mat" onClick={() => setMatEstado('revisar')}>
+                Editar materiais
+              </button>
+            )}
+          </>
         )}
 
         {/* ── Iluminação Natural ── */}
@@ -324,7 +370,7 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
           como Florianópolis, vista de bairro residencial arborizado”
         </p>
 
-        {/* ── Referências ── */}
+        {/* ── Referências (abrem o mesmo picker) ── */}
         <div className="cr-sec">Referências <span className="cr-opc">Opcional</span></div>
         <div className="cr-refs">
           {refs.map((r, i) => (
@@ -339,18 +385,11 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
             </div>
           ))}
           {refs.length < MAX_REFS && (
-            <button className="cr-ref cr-ref--add" onClick={() => refInput.current?.click()}>
+            <button className="cr-ref cr-ref--add" onClick={() => setPicker('ref')}>
               <span className="cr-ref-mais">+</span>
               <span className="cr-ref-c">{refs.length}/{MAX_REFS}</span>
             </button>
           )}
-          <input
-            ref={refInput} type="file" accept="image/*" multiple hidden
-            onChange={(e) => {
-              [...e.target.files].forEach((f) => addRef(f));
-              e.target.value = '';
-            }}
-          />
         </div>
         <textarea
           className="cr-ta"
@@ -364,7 +403,7 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
         {erro && <div className="cr-erro">{erro}</div>}
       </div>
 
-      {/* ── Barra fixa embaixo (= .render-bar do plugin) ── */}
+      {/* ── Barra fixa (= .render-bar do plugin) ── */}
       <div className="cr-barra-ger">
         <div className="cr-pills-cfg">
 
@@ -436,28 +475,31 @@ export default function PainelRender({ onPronto, ocupado, setOcupado }) {
           </div>
         </div>
 
-        <button className="cr-btn-gerar" onClick={gerar} disabled={ocupado || !imagem}>
-          {ocupado ? 'Renderizando...' : 'Renderizar'}
+        <button
+          className="cr-btn-gerar"
+          onClick={gerar}
+          disabled={ocupado || !imagem || travadoMat}
+        >
+          <span>{ocupado ? 'Renderizando...' : 'Renderizar'}</span>
+          {!ocupado && !travadoMat && imagem && (
+            <span className="cr-custo-tag">
+              <IconeCredito /> {custo}
+            </span>
+          )}
         </button>
 
-        {progresso ? (
-          <p className="cr-prog">
-            {progresso.estado === 'na_fila'
-              ? 'Na fila — muito tráfego agora...'
-              : `Imagem ${Math.min(progresso.feito + 1, progresso.total)} de ${progresso.total}`}
-          </p>
-        ) : (
-          <p className="cr-custo">
-            {custo} créditos · {quantidade} {quantidade === 1 ? 'imagem' : 'imagens'}
-          </p>
-        )}
+        <p className="cr-custo">
+          {travadoMat
+            ? 'Confirme os materiais para renderizar'
+            : `${custo} créditos · ${quantidade} ${quantidade === 1 ? 'imagem' : 'imagens'}`}
+        </p>
       </div>
 
       <PickerImagem
-        aberto={picker}
-        onFechar={() => setPicker(false)}
+        aberto={picker !== null}
+        onFechar={() => setPicker(null)}
         onEscolher={escolheuImagem}
-        titulo="Imagem do modelo"
+        titulo={picker === 'ref' ? 'Adicionar referência' : 'Imagem do modelo'}
       />
     </>
   );

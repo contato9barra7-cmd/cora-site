@@ -1,48 +1,95 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════
-//  PickerImagem — escolher a imagem base, em overlay
+//  PickerImagem — escolher imagem, em overlay
 //
-//  Três abas:
-//    Enviar     — arrastar, colar (Ctrl+V), ou escolher um arquivo
-//    Histórico  — reusar algo que já foi gerado (plugin ou web)
-//    Favoritos  — o mesmo, filtrado
+//  REGRA: todo card que seleciona imagem abre este picker.
+//  Imagem base, referências, imagem do Editar — tudo.
 //
-//  As duas últimas são a vantagem da web sobre o plugin: dá para encadear
-//  render → editar sem baixar e subir a imagem de novo.
+//  Origens: Histórico · Favoritos · Enviar
+//  O histórico vem agrupado por mês, como as pessoas lembram das coisas
+//  ("aquele render de junho").
 //
-//  Devolve { base64, previa } — o base64 vai para o servidor, a prévia
-//  (data URL ou URL assinada) é só para mostrar na tela.
+//  Devolve { base64, previa }. O base64 vai para o servidor; a prévia
+//  (URL assinada ou data URL) é só para a tela.
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useCallback } from 'react';
 import { arquivoParaBase64, urlParaBase64 } from '../lib/render';
 import { listarGeracoes } from '../lib/geracoes';
 
-const ABAS = [
-  { id: 'enviar',    rotulo: 'Enviar' },
-  { id: 'historico', rotulo: 'Histórico' },
-  { id: 'favoritos', rotulo: 'Favoritos' }
+const ORIGENS = [
+  {
+    id: 'historico', rotulo: 'Histórico',
+    icone: (
+      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M3 10a7 7 0 107-7 7 7 0 00-5 2.1" strokeLinecap="round"/>
+        <path d="M3 3v2.5h2.5M10 6v4l2.5 1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    )
+  },
+  {
+    id: 'favoritos', rotulo: 'Favoritos',
+    icone: (
+      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z" strokeLinejoin="round"/>
+      </svg>
+    )
+  },
+  {
+    id: 'enviar', rotulo: 'Enviar',
+    icone: (
+      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M3.5 14v2a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5v-2" strokeLinecap="round"/>
+      </svg>
+    )
+  }
 ];
 
+const MESES = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+];
+
+// Junta as imagens por mês, para o histórico ficar navegável
+function agruparPorMes(lotes) {
+  const grupos = new Map();
+
+  lotes.forEach((lote) => {
+    lote.itens.filter((i) => i.url).forEach((item) => {
+      const d = new Date(lote.criado_em || item.criado_em);
+      const chave = `${d.getFullYear()}-${d.getMonth()}`;
+      if (!grupos.has(chave)) {
+        grupos.set(chave, { titulo: `${MESES[d.getMonth()]} ${d.getFullYear()}`, itens: [] });
+      }
+      grupos.get(chave).itens.push(item);
+    });
+  });
+
+  return [...grupos.values()];
+}
+
 export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
-  const [aba, setAba]               = useState('enviar');
+  const [origem, setOrigem]         = useState('historico');
   const [arrastando, setArrastando] = useState(false);
-  const [lotes, setLotes]           = useState([]);
+  const [grupos, setGrupos]         = useState([]);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro]             = useState('');
-  const [pegando, setPegando]       = useState(null);   // id da imagem sendo baixada
+  const [pegando, setPegando]       = useState(null);
+  const [busca, setBusca]           = useState('');
 
-  const carregarFeed = useCallback(async (soFavoritos) => {
+  const carregarFeed = useCallback(async (soFavoritos, termo) => {
     setCarregando(true);
     setErro('');
     try {
       const d = await listarGeracoes({
         tipo: 'imagem',
         favorito: soFavoritos,
-        limite: 60
+        busca: termo || undefined,
+        limite: 80
       });
-      setLotes(d);
+      setGrupos(agruparPorMes(d));
     } catch (e) {
       setErro(e.message);
     } finally {
@@ -51,19 +98,17 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
   }, []);
 
   useEffect(() => {
-    if (!aberto) return;
-    if (aba === 'historico') carregarFeed(false);
-    if (aba === 'favoritos') carregarFeed(true);
-  }, [aberto, aba, carregarFeed]);
+    if (!aberto || origem === 'enviar') return;
+    carregarFeed(origem === 'favoritos', busca);
+  }, [aberto, origem, busca, carregarFeed]);
 
-  // Esc fecha; Ctrl+V cola
+  // Esc fecha; Ctrl+V cola (só na aba Enviar)
   useEffect(() => {
     if (!aberto) return;
 
     const onKey = (e) => { if (e.key === 'Escape') onFechar(); };
 
     const onPaste = async (e) => {
-      if (aba !== 'enviar') return;
       const item = [...(e.clipboardData?.items || [])]
         .find((i) => i.type.startsWith('image/'));
       if (!item) return;
@@ -101,86 +146,114 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
 
   if (!aberto) return null;
 
-  // Achata os lotes numa lista de imagens
-  const imagens = lotes.flatMap((l) => l.itens.filter((i) => i.url));
+  const vazio = !carregando && grupos.length === 0;
 
   return (
     <div className="cr-overlay" onClick={onFechar}>
-      <div className="cr-picker" onClick={(e) => e.stopPropagation()}>
+      <div className="pk" onClick={(e) => e.stopPropagation()}>
 
-        <header className="cr-picker-cab">
-          <span>{titulo || 'Escolher imagem'}</span>
-          <button className="cr-modal-x" onClick={onFechar} aria-label="Fechar">×</button>
-        </header>
-
-        <div className="cr-picker-abas">
-          {ABAS.map((a) => (
+        {/* ── Lateral: de onde vem a imagem ── */}
+        <nav className="pk-lado">
+          {ORIGENS.map((o) => (
             <button
-              key={a.id}
-              className={'cr-picker-aba' + (aba === a.id ? ' cr-picker-aba--on' : '')}
-              onClick={() => setAba(a.id)}
-            >{a.rotulo}</button>
-          ))}
-        </div>
-
-        <div className="cr-picker-corpo">
-
-          {aba === 'enviar' && (
-            <label
-              className={'cr-picker-drop' + (arrastando ? ' cr-picker-drop--on' : '')}
-              onDragOver={(e) => { e.preventDefault(); setArrastando(true); }}
-              onDragLeave={() => setArrastando(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setArrastando(false);
-                const f = e.dataTransfer.files[0];
-                if (f && f.type.startsWith('image/')) escolherArquivo(f);
-              }}
+              key={o.id}
+              className={'pk-origem' + (origem === o.id ? ' pk-origem--on' : '')}
+              onClick={() => setOrigem(o.id)}
             >
-              <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" strokeWidth="1.3">
-                <path d="M12 16V4m0 0L8 8m4-4l4 4" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" strokeLinecap="round"/>
-              </svg>
-              <span className="cr-picker-drop-t">Arraste sua imagem aqui</span>
-              <span className="cr-picker-drop-s">ou cole com Ctrl+V</span>
-              <span className="cr-picker-btn">Escolher arquivo</span>
-              <input
-                type="file" accept="image/*" hidden
-                onChange={(e) => { const f = e.target.files[0]; if (f) escolherArquivo(f); e.target.value = ''; }}
-              />
-            </label>
-          )}
+              {o.icone}
+              <span>{o.rotulo}</span>
+            </button>
+          ))}
+        </nav>
 
-          {(aba === 'historico' || aba === 'favoritos') && (
-            <>
-              {carregando && <p className="cr-msg">Carregando...</p>}
+        <div className="pk-main">
+          <header className="pk-cab">
+            <span className="pk-titulo">
+              {origem === 'enviar' ? (titulo || 'Enviar imagem')
+                : ORIGENS.find((o) => o.id === origem).rotulo}
+            </span>
 
-              {!carregando && imagens.length === 0 && (
-                <p className="cr-msg">
-                  {aba === 'favoritos'
-                    ? 'Você ainda não favoritou nenhuma imagem.'
-                    : 'Nenhuma imagem no seu histórico ainda.'}
-                </p>
-              )}
+            {origem !== 'enviar' && (
+              <div className="pk-busca">
+                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <circle cx="8.5" cy="8.5" r="5"/><path d="M12.5 12.5L17 17" strokeLinecap="round"/>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Buscar"
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  spellCheck={false}
+                />
+              </div>
+            )}
 
-              {!carregando && imagens.length > 0 && (
-                <div className="cr-picker-grade">
-                  {imagens.map((i) => (
-                    <button
-                      key={i.id}
-                      className={'cr-picker-item' + (pegando === i.id ? ' cr-picker-item--indo' : '')}
-                      onClick={() => escolherDoFeed(i)}
-                      disabled={pegando !== null}
-                    >
-                      <img src={i.url} alt="" loading="lazy" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
+            <button className="cr-modal-x" onClick={onFechar} aria-label="Fechar">×</button>
+          </header>
 
-          {erro && <div className="cr-erro">{erro}</div>}
+          <div className="pk-corpo">
+
+            {origem === 'enviar' && (
+              <label
+                className={'pk-drop' + (arrastando ? ' pk-drop--on' : '')}
+                onDragOver={(e) => { e.preventDefault(); setArrastando(true); }}
+                onDragLeave={() => setArrastando(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setArrastando(false);
+                  const f = e.dataTransfer.files[0];
+                  if (f && f.type.startsWith('image/')) escolherArquivo(f);
+                }}
+              >
+                <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" strokeWidth="1.3">
+                  <path d="M12 16V4m0 0L8 8m4-4l4 4" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" strokeLinecap="round"/>
+                </svg>
+                <span className="pk-drop-t">Arraste sua imagem aqui</span>
+                <span className="pk-drop-s">ou cole com Ctrl+V</span>
+                <span className="pk-drop-b">Procurar no computador</span>
+                <input
+                  type="file" accept="image/*" hidden
+                  onChange={(e) => { const f = e.target.files[0]; if (f) escolherArquivo(f); e.target.value = ''; }}
+                />
+              </label>
+            )}
+
+            {origem !== 'enviar' && (
+              <>
+                {carregando && <p className="cr-msg">Carregando...</p>}
+
+                {vazio && (
+                  <p className="cr-msg">
+                    {busca ? 'Nada encontrado para essa busca.'
+                      : origem === 'favoritos'
+                        ? 'Nenhum favorito ainda.'
+                        : 'Nenhuma imagem no histórico ainda.'}
+                  </p>
+                )}
+
+                {grupos.map((g) => (
+                  <section key={g.titulo} className="pk-mes">
+                    <h3>{g.titulo}</h3>
+                    <div className="pk-grade">
+                      {g.itens.map((i) => (
+                        <button
+                          key={i.id}
+                          className={'pk-item' + (pegando === i.id ? ' pk-item--indo' : '')}
+                          onClick={() => escolherDoFeed(i)}
+                          disabled={pegando !== null}
+                        >
+                          <img src={i.url} alt="" loading="lazy" />
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </>
+            )}
+
+            {erro && <div className="cr-erro">{erro}</div>}
+          </div>
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta, atualizarConta, baixarPlugin, minhaEquipe, sairDaEquipe } from '../../lib/auth';
+import { lerConta, atualizarConta, baixarPlugin, minhaEquipe, sairDaEquipe, EVENTO_CREDITOS} from '../../lib/auth';
 
 const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
 
@@ -63,6 +63,15 @@ function ContaConteudo() {
       });
     }
   }, [router, params]);
+
+  // Gerou algo no /app? O saldo mostrado aqui atualiza sozinho.
+  useEffect(() => {
+    function onCreditosDash(e) {
+      if (e.detail) setConta(e.detail);
+    }
+    window.addEventListener(EVENTO_CREDITOS, onCreditosDash);
+    return () => window.removeEventListener(EVENTO_CREDITOS, onCreditosDash);
+  }, []);
 
   if (carregando) return <AppShell><div className="admin-wrap"><p>Carregando...</p></div></AppShell>;
   if (!conta) return null;

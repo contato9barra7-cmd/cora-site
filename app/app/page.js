@@ -3,31 +3,34 @@
 // ═══════════════════════════════════════════════════════════
 //  /app — o Cora Render na web
 //
-//  PARTE 1: o FEED. Mostra tudo que a pessoa ja gerou (no plugin ou
-//  na web), com filtros, preview em overlay, favoritar, baixar e apagar.
+//  Painel à esquerda (as ferramentas), feed à direita (tudo que já foi
+//  gerado, do plugin E da web).
 //
-//  A parte 2 (o painel de geracao a esquerda) entra depois. Por isso
-//  o painel esquerdo aqui ainda esta vazio, so com o espaco reservado.
+//  O feed agrupa por LOTE: N variações da mesma configuração ficam numa
+//  linha só. Clicar em Renderizar de novo sem mudar nada continua na mesma
+//  linha; mudar qualquer coisa começa uma linha nova. (A regra mora em
+//  assinaturaConfig, no lib/render.)
 // ═══════════════════════════════════════════════════════════
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import PainelRender from '../../components/PainelRender';
-import { lerConta } from '../../lib/auth';
+import Visualizador from '../../components/Visualizador';
+import { lerConta, creditosMudaram } from '../../lib/auth';
+import { urlParaBase64 } from '../../lib/render';
 import {
-  listarGeracoes, alternarFavorito, apagarGeracao, baixarImagem,
+  listarGeracoes, alternarFavorito, apagarGeracao,
   ROTULO_FERRAMENTA, tempoRelativo, diasAteExpirar
 } from '../../lib/geracoes';
 
-// Ícones e tooltips iguais aos do histórico do plugin.
 const FILTROS = [
   {
     id: 'tudo', rotulo: 'Tudo',
     icone: (
       <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
-        <rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/>
-        <rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/>
+        <rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/>
+        <rect x="2.5" y="11.5" width="6" height="6" rx="1"/><rect x="11.5" y="11.5" width="6" height="6" rx="1"/>
       </svg>
     )
   },
@@ -44,8 +47,8 @@ const FILTROS = [
     id: 'video', rotulo: 'Vídeos',
     icone: (
       <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
-        <rect x="2.5" y="5" width="11" height="10" rx="2"/>
-        <path d="M13.5 8.5l4-2.2v7.4l-4-2.2" strokeLinejoin="round"/>
+        <rect x="2.5" y="5" width="10" height="10" rx="1.5"/>
+        <path d="M12.5 8.5l5-2.5v8l-5-2.5" strokeLinejoin="round"/>
       </svg>
     )
   },
@@ -59,55 +62,38 @@ const FILTROS = [
     )
   },
   {
-    id: 'favoritos', rotulo: 'Favoritos', fav: true,
+    id: 'favoritos', rotulo: 'Favoritos',
     icone: (
       <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
-        <path d="M10 16.5l-1.2-1.1C5.4 12.3 3 10.1 3 7.5 3 5.5 4.5 4 6.5 4c1.1 0 2.2.5 2.9 1.4l.6.7.6-.7C11.3 4.5 12.4 4 13.5 4 15.5 4 17 5.5 17 7.5c0 2.6-2.4 4.8-5.8 7.9L10 16.5z"/>
+        <path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z" strokeLinejoin="round"/>
       </svg>
     )
   }
 ];
 
-// Coração para favoritar (preenche quando ativo, como no plugin)
-const IC_CORACAO = (
-  <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
-    <path d="M10 16.5l-1.2-1.1C5.4 12.3 3 10.1 3 7.5 3 5.5 4.5 4 6.5 4c1.1 0 2.2.5 2.9 1.4l.6.7.6-.7C11.3 4.5 12.4 4 13.5 4 15.5 4 17 5.5 17 7.5c0 2.6-2.4 4.8-5.8 7.9L10 16.5z"/>
-  </svg>
-);
-
-const IC_BAIXAR = (
-  <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
-    <path d="M10 3v9m0 0l-3.2-3.2M10 12l3.2-3.2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M3.5 14v1.5a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5V14" strokeLinecap="round"/>
-  </svg>
-);
-
-const IC_LIXO = (
-  <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
-    <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
-    <path d="M5 5.5l.7 10a1.5 1.5 0 001.5 1.4h5.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
-  </svg>
-);
-
-export default function App() {
+export default function AppPage() {
   const router = useRouter();
+  const [conta, setConta] = useState(null);
 
-  const [conta, setConta]           = useState(null);
   const [lotes, setLotes]           = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro]             = useState('');
 
   const [ferramenta, setFerramenta] = useState('render');
   const [ocupado, setOcupado]       = useState(false);
+  const [progresso, setProgresso]   = useState(null);
 
-  const [filtro, setFiltro]   = useState('tudo');
-  const [busca, setBusca]     = useState('');
+  // O último lote gerado — para saber se o próximo continua na mesma linha
+  const [ultimoLote, setUltimoLote] = useState(null);
+
+  // Imagem vinda de outra aba (o botão "Editar" do visualizador)
+  const [imagemDeOutraAba, setImagemDeOutraAba] = useState(null);
+
+  const [filtro, setFiltro]         = useState('tudo');
+  const [busca, setBusca]           = useState('');
   const [buscaAtiva, setBuscaAtiva] = useState('');
 
-  // Preview em overlay: qual lote esta aberto, e em qual variacao
-  const [preview, setPreview] = useState(null);   // { lote, indice }
-  const [modoComparar, setModoComparar] = useState('lado');  // lado | cortina | so
-  const [cortina, setCortina] = useState(50);     // % da cortina
+  const [vendo, setVendo] = useState(null);   // { lote, indice }
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -119,8 +105,7 @@ export default function App() {
       if (filtro === 'upscale')   f.ferramenta = 'upscale';
       if (buscaAtiva) f.busca = buscaAtiva;
 
-      const dados = await listarGeracoes(f);
-      setLotes(dados);
+      setLotes(await listarGeracoes(f));
     } catch (e) {
       setErro(e.message);
     } finally {
@@ -138,71 +123,60 @@ export default function App() {
     if (conta) carregar();
   }, [conta, carregar]);
 
-  // Esc fecha o preview
-  useEffect(() => {
-    if (!preview) return;
-    const onKey = (e) => {
-      if (e.key === 'Escape') setPreview(null);
-      if (e.key === 'ArrowRight') irPara(1);
-      if (e.key === 'ArrowLeft')  irPara(-1);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  });
-
-  function irPara(passo) {
-    setPreview((p) => {
-      if (!p) return p;
-      const n = p.lote.itens.length;
-      const novo = (p.indice + passo + n) % n;
-      return { ...p, indice: novo };
-    });
-  }
-
-  async function favoritar(id) {
+  async function favoritar(item) {
     try {
-      const novo = await alternarFavorito(id);
-      // Atualiza na hora, sem recarregar tudo
+      const novo = await alternarFavorito(item.id);
       setLotes((ls) => ls.map((l) => ({
         ...l,
-        itens: l.itens.map((i) => (i.id === id ? { ...i, favorito: novo } : i))
+        itens: l.itens.map((i) => (i.id === item.id ? { ...i, favorito: novo } : i))
       })));
-      setPreview((p) => {
-        if (!p) return p;
-        return {
-          ...p,
-          lote: {
-            ...p.lote,
-            itens: p.lote.itens.map((i) => (i.id === id ? { ...i, favorito: novo } : i))
-          }
-        };
-      });
+      setVendo((v) => v && ({
+        ...v,
+        lote: {
+          ...v.lote,
+          itens: v.lote.itens.map((i) => (i.id === item.id ? { ...i, favorito: novo } : i))
+        }
+      }));
     } catch (e) { setErro(e.message); }
   }
 
-  async function apagar(id) {
-    if (!confirm('Apagar esta imagem do histórico? Não dá para desfazer.')) return;
+  async function excluir(item) {
     try {
-      await apagarGeracao(id);
-      setPreview(null);
+      await apagarGeracao(item.id);
+      setVendo(null);
       carregar();
     } catch (e) { setErro(e.message); }
   }
 
-  async function baixar(url, lote, ordem, formato) {
+  // Os botões Editar/Upscale/Animar do visualizador não geram nada:
+  // levam a imagem para a aba de destino, onde a pessoa configura e só
+  // então gera. A imagem vive no R2, então buscamos o base64 antes de
+  // entregar ao painel (que precisa mandá-lo ao servidor).
+  async function enviarPara(destino, item) {
+    setVendo(null);
+    setErro('');
     try {
-      const nome = `cora_${lote.ferramenta}_${lote.loteId}_${ordem + 1}`;
-      await baixarImagem(url, nome, formato);
-    } catch (e) { setErro(e.message); }
+      const base64 = await urlParaBase64(item.url);
+      setImagemDeOutraAba({ base64, previa: item.url });
+      setFerramenta(destino);
+    } catch (e) {
+      setErro('Não foi possível carregar a imagem: ' + e.message);
+    }
   }
 
-  if (!conta) return null;
+  function aoGerar(r) {
+    setUltimoLote({ loteId: r.loteId, assinatura: r.assinatura, prompt: r.prompt, quantas: r.quantas });
+    carregar();          // o feed mostra a geração nova
+    creditosMudaram();   // o menu e o anel atualizam
+  }
+
+  const ehAdmin = conta?.is_admin === true;
 
   return (
     <AppShell>
-      <div className="cr-wrap">
+      <div className="cr-tela">
 
-        {/* ── Painel esquerdo: entra na parte 2 ── */}
+        {/* ═══ Painel ═══ */}
         <aside className="cr-painel">
           <div className="cr-pills">
             <button
@@ -218,242 +192,164 @@ export default function App() {
             <PainelRender
               ocupado={ocupado}
               setOcupado={setOcupado}
-              onPronto={() => carregar()}
+              onProgresso={setProgresso}
+              onPronto={aoGerar}
+              imagemInicial={imagemDeOutraAba}
+              loteAnterior={ultimoLote}
             />
+          )}
+
+          {ferramenta !== 'render' && (
+            <div className="cr-painel-vazio">
+              <p>A aba {ferramenta} entra em breve.</p>
+            </div>
           )}
         </aside>
 
-        {/* ── Feed ── */}
+        {/* ═══ Feed ═══ */}
         <section className="cr-feed">
 
-          <div className="cr-barra">
-            {FILTROS.map((f) => (
-              <button
-                key={f.id}
-                className={'cr-fbtn' + (filtro === f.id ? ' cr-fbtn--on' : '') + (f.fav ? ' cr-fbtn--fav' : '')}
-                onClick={() => setFiltro(f.id)}
-                data-tip={f.rotulo}
-                aria-label={f.rotulo}
-              >
-                {f.icone}
-              </button>
-            ))}
+          <header className="cr-barra">
+            <div className="cr-fbtns">
+              {FILTROS.map((f) => (
+                <button
+                  key={f.id}
+                  className={'cr-fbtn' + (filtro === f.id ? ' cr-fbtn--on' : '')}
+                  onClick={() => setFiltro(f.id)}
+                  data-tip={f.rotulo}
+                  aria-label={f.rotulo}
+                >{f.icone}</button>
+              ))}
+            </div>
 
-            <div className="cr-busca">
+            <form
+              className="cr-busca"
+              onSubmit={(e) => { e.preventDefault(); setBuscaAtiva(busca.trim()); }}
+            >
               <input
                 type="text"
                 placeholder="Buscar"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') setBuscaAtiva(busca.trim()); }}
+                spellCheck={false}
               />
-              {buscaAtiva && (
-                <button
-                  className="cr-busca-x"
-                  onClick={() => { setBusca(''); setBuscaAtiva(''); }}
-                  aria-label="Limpar busca"
-                >×</button>
-              )}
-            </div>
-          </div>
+            </form>
+          </header>
 
           <div className="cr-lista">
-          {erro && <div className="login-erro" style={{ margin: 16 }}>{erro}</div>}
 
-          {carregando && <p className="cr-msg">Carregando seu histórico...</p>}
+            {erro && <div className="cr-erro">{erro}</div>}
 
-          {!carregando && lotes.length === 0 && (
-            <div className="cr-vazio">
-              <h2>Nada aqui ainda</h2>
-              <p>
-                {buscaAtiva || filtro !== 'tudo'
-                  ? 'Nenhuma geração corresponde a esse filtro.'
-                  : 'Suas gerações do plugin e da web aparecem aqui.'}
-              </p>
-            </div>
-          )}
-
-          {!carregando && lotes.map((lote) => {
-            const expira = diasAteExpirar(lote.criadoEm);
-            return (
-              <article key={lote.loteId} className="cr-lote">
-                <header className="cr-lote-cab">
-                  <span className="cr-lote-obs">
-                    {lote.observacoes || 'Sem observações'}
+            {/* Gerando: os slots aparecem antes do feed */}
+            {progresso && (
+              <div className="cr-gerando">
+                <div className="cr-gerando-cab">
+                  <span className="cr-spin" />
+                  <span>
+                    {progresso.estado === 'na_fila'
+                      ? 'Há muito tráfego agora — isso pode demorar mais que o normal.'
+                      : `Gerando imagem ${Math.min(progresso.feito + 1, progresso.total)} de ${progresso.total}`}
                   </span>
-                  <span className="cr-tag cr-tag--roxa">
-                    {ROTULO_FERRAMENTA[lote.ferramenta] || lote.ferramenta}
-                  </span>
-                  {lote.proporcao && <span className="cr-tag">{lote.proporcao}</span>}
-                  {lote.tipo === 'video' && lote.duracaoSeg && (
-                    <span className="cr-tag">{lote.duracaoSeg}s</span>
-                  )}
-                  <span className="cr-lote-data">{tempoRelativo(lote.criadoEm)}</span>
-                </header>
-
-                {expira !== null && (
-                  <p className="cr-expira">
-                    {expira === 0
-                      ? 'Esta geração será apagada hoje.'
-                      : `Esta geração será apagada em ${expira} ${expira === 1 ? 'dia' : 'dias'}. Baixe o que quiser guardar.`}
-                  </p>
-                )}
-
-                <div className="cr-cards">
-                  {lote.itens.map((item, i) => (
+                </div>
+                <div className="cr-gerando-slots">
+                  {Array.from({ length: progresso.total }).map((_, i) => (
                     <div
-                      key={item.id}
-                      className="cr-card"
-                      onClick={() => { setPreview({ lote, indice: i }); setModoComparar('lado'); }}
+                      key={i}
+                      className={
+                        'cr-slot' +
+                        (i < progresso.feito ? ' cr-slot--ok'
+                          : i === progresso.feito ? ' cr-slot--agora' : '')
+                      }
                     >
-                      {item.url ? (
-                        <img src={item.url} alt="" loading="lazy" />
-                      ) : (
-                        <div className="cr-card-erro">imagem indisponível</div>
-                      )}
-
-                      <div className="cr-card-acoes" onClick={(e) => e.stopPropagation()}>
-                        <button
-                          className={'cr-mini' + (item.favorito ? ' cr-mini--on' : '')}
-                          onClick={() => favoritar(item.id)}
-                          data-tip={item.favorito ? 'Desfavoritar' : 'Favoritar'}
-                          aria-label={item.favorito ? 'Desfavoritar' : 'Favoritar'}
-                        >
-                          {IC_CORACAO}
-                        </button>
-                        <button
-                          className="cr-mini"
-                          onClick={() => baixar(item.url, lote, item.ordem, 'png')}
-                          data-tip="Baixar PNG"
-                          aria-label="Baixar PNG"
-                        >
-                          {IC_BAIXAR}
-                        </button>
-                        <button
-                          className="cr-mini cr-mini--perigo"
-                          onClick={() => apagar(item.id)}
-                          data-tip="Apagar"
-                          aria-label="Apagar"
-                        >
-                          {IC_LIXO}
-                        </button>
-                      </div>
+                      {i === progresso.feito && <span className="cr-spin" />}
+                      {i > progresso.feito && <span className="cr-slot-n">{i + 1}</span>}
                     </div>
                   ))}
                 </div>
-              </article>
-            );
-          })}
+              </div>
+            )}
+
+            {carregando && <p className="cr-msg">Carregando...</p>}
+
+            {!carregando && lotes.length === 0 && !progresso && (
+              <div className="cr-vazio">
+                <h2>Nada aqui ainda</h2>
+                <p>
+                  {buscaAtiva || filtro !== 'tudo'
+                    ? 'Nenhuma geração corresponde a esse filtro.'
+                    : 'Suas gerações do plugin e da web aparecem aqui.'}
+                </p>
+              </div>
+            )}
+
+            {!carregando && lotes.map((lote) => {
+              const expira = diasAteExpirar(lote.criadoEm);
+              return (
+                <article key={lote.loteId} className="cr-lote">
+                  <header className="cr-lote-cab">
+                    {/* O prompt/observações NÃO aparece para quem não é admin */}
+                    {ehAdmin && (
+                      <span className="cr-lote-obs">
+                        {lote.observacoes || 'Sem observações'}
+                      </span>
+                    )}
+                    {!ehAdmin && <span className="cr-lote-obs" />}
+
+                    <span className="cr-tag cr-tag--roxa">
+                      {ROTULO_FERRAMENTA[lote.ferramenta] || lote.ferramenta}
+                    </span>
+                    {lote.proporcao && <span className="cr-tag">{lote.proporcao}</span>}
+                    {lote.tipo === 'video' && lote.duracaoSeg && (
+                      <span className="cr-tag">{lote.duracaoSeg}s</span>
+                    )}
+                    <span className="cr-lote-data">{tempoRelativo(lote.criadoEm)}</span>
+                  </header>
+
+                  {expira !== null && (
+                    <p className="cr-expira">
+                      {expira === 0
+                        ? 'Esta geração será apagada hoje.'
+                        : `Esta geração será apagada em ${expira} ${expira === 1 ? 'dia' : 'dias'}.`}
+                    </p>
+                  )}
+
+                  <div className="cr-cards">
+                    {lote.itens.map((item, i) => (
+                      <button
+                        key={item.id}
+                        className="cr-card"
+                        onClick={() => setVendo({ lote, indice: i })}
+                      >
+                        <img src={item.url} alt="" loading="lazy" />
+                        {item.favorito && (
+                          <span className="cr-card-fav">
+                            <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor">
+                              <path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/>
+                            </svg>
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
       </div>
 
-      {/* ── Preview em overlay ── */}
-      {preview && (() => {
-        const item = preview.lote.itens[preview.indice];
-        const temOriginal = !!preview.lote.original;
-        return (
-          <div className="cr-overlay" onClick={() => setPreview(null)}>
-            <div className="cr-modal" onClick={(e) => e.stopPropagation()}>
-
-              <header className="cr-modal-cab">
-                <span className="cr-lote-obs">
-                  {preview.lote.observacoes || 'Sem observações'}
-                </span>
-
-                {temOriginal && (
-                  <div className="cr-segm">
-                    <button
-                      className={'cr-segm-b' + (modoComparar === 'lado' ? ' on' : '')}
-                      onClick={() => setModoComparar('lado')}
-                    >Lado a lado</button>
-                    <button
-                      className={'cr-segm-b' + (modoComparar === 'cortina' ? ' on' : '')}
-                      onClick={() => setModoComparar('cortina')}
-                    >Cortina</button>
-                    <button
-                      className={'cr-segm-b' + (modoComparar === 'so' ? ' on' : '')}
-                      onClick={() => setModoComparar('so')}
-                    >Só o render</button>
-                  </div>
-                )}
-
-                <button
-                  className="cr-modal-x"
-                  onClick={() => setPreview(null)}
-                  aria-label="Fechar"
-                >×</button>
-              </header>
-
-              <div className="cr-modal-img">
-                {modoComparar === 'lado' && temOriginal && (
-                  <div className="cr-lado">
-                    <figure>
-                      <img src={preview.lote.original} alt="Original do SketchUp" />
-                      <figcaption>Original</figcaption>
-                    </figure>
-                    <figure>
-                      <img src={item.url} alt="Resultado" />
-                      <figcaption>Render</figcaption>
-                    </figure>
-                  </div>
-                )}
-
-                {modoComparar === 'cortina' && temOriginal && (
-                  <div className="cr-cortina">
-                    <img src={preview.lote.original} alt="Original do SketchUp" />
-                    <div
-                      className="cr-cortina-topo"
-                      style={{ clipPath: `inset(0 0 0 ${cortina}%)` }}
-                    >
-                      <img src={item.url} alt="Resultado" />
-                    </div>
-                    <input
-                      type="range"
-                      min="0" max="100" step="1"
-                      value={cortina}
-                      onChange={(e) => setCortina(Number(e.target.value))}
-                      className="cr-cortina-slider"
-                      aria-label="Comparar original e render"
-                    />
-                  </div>
-                )}
-
-                {(modoComparar === 'so' || !temOriginal) && (
-                  <img src={item.url} alt="Resultado" className="cr-so" />
-                )}
-              </div>
-
-              <footer className="cr-modal-pe">
-                <button className="cr-btn" onClick={() => baixar(item.url, preview.lote, item.ordem, 'png')}>
-                  Baixar PNG
-                </button>
-                <button className="cr-btn" onClick={() => baixar(item.url, preview.lote, item.ordem, 'jpeg')}>
-                  Baixar JPG
-                </button>
-                <button
-                  className={'cr-btn cr-btn--ic' + (item.favorito ? ' cr-btn--on' : '')}
-                  onClick={() => favoritar(item.id)}
-                >
-                  {IC_CORACAO}
-                  {item.favorito ? 'Favorito' : 'Favoritar'}
-                </button>
-                <button className="cr-btn cr-btn--perigo" onClick={() => apagar(item.id)}>
-                  Apagar
-                </button>
-
-                {preview.lote.itens.length > 1 && (
-                  <div className="cr-nav">
-                    <button onClick={() => irPara(-1)} aria-label="Anterior">‹</button>
-                    <span>{preview.indice + 1} de {preview.lote.itens.length}</span>
-                    <button onClick={() => irPara(1)} aria-label="Próxima">›</button>
-                  </div>
-                )}
-              </footer>
-            </div>
-          </div>
-        );
-      })()}
+      {vendo && (
+        <Visualizador
+          item={vendo.lote.itens[vendo.indice]}
+          original={vendo.lote.original}
+          prompt={vendo.lote.observacoes}
+          ehAdmin={ehAdmin}
+          onFechar={() => setVendo(null)}
+          onFavoritar={favoritar}
+          onExcluir={excluir}
+          onEnviarPara={enviarPara}
+        />
+      )}
     </AppShell>
   );
 }
