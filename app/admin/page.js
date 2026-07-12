@@ -112,6 +112,23 @@ export default function Admin() {
 
   const geo = relatorioGeo();
 
+  function exportarGeo() {
+    setMenuExport(false);
+    if (!geo.totalClientes) { setErro('Sem dados de localização ainda.'); return; }
+    const linhas = [];
+    geo.estados.forEach(e => linhas.push([
+      'Estado', e.chave, e.n, `${e.pctClientes}%`,
+      ((e.valor || 0) / 100).toFixed(2), `${e.pctValor}%`,
+    ]));
+    geo.paises.forEach(p => linhas.push([
+      'País', p.chave, p.n, `${p.pctClientes}%`,
+      ((p.valor || 0) / 100).toFixed(2), `${p.pctValor}%`,
+    ]));
+    baixarCSV('origem-geografica',
+      ['Tipo', 'Local', 'Clientes', '% dos clientes', 'Receita (R$)', '% da receita'],
+      linhas);
+  }
+
   function baixarCSV(nomeArq, cabecalho, linhas) {
     const idxTexto = cabecalho
       .map((c, i) => COLUNAS_TEXTO.includes(String(c).toLowerCase().trim()) ? i : -1)
@@ -420,6 +437,8 @@ export default function Admin() {
                 <button className="admin-export-item" onClick={() => exportarTrafego('assinantes')}>Assinantes</button>
                 <button className="admin-export-item" onClick={() => exportarTrafego('trial')}>Trial</button>
                 <button className="admin-export-item" onClick={() => exportarTrafego('membros')}>Membros de equipe</button>
+                <div className="admin-export-grupo">Relatórios</div>
+                <button className="admin-export-item" onClick={exportarGeo}>Origem geográfica</button>
               </div>
             )}
           </div>
