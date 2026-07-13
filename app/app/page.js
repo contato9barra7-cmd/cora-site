@@ -12,12 +12,14 @@
 //  assinaturaConfig, no lib/render.)
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import PainelRender from '../../components/PainelRender';
 import PainelBatch from '../../components/PainelBatch';
 import PainelEditar from '../../components/PainelEditar';
+import TelaPincel from '../../components/TelaPincel';
+import PainelPincel from '../../components/PainelPincel';
 import PainelAnalises from '../../components/PainelAnalises';
 import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
@@ -25,6 +27,7 @@ import Card, { proporcaoCss } from '../../components/Card';
 import ModalDownload from '../../components/ModalDownload';
 import ModalDetalhes from '../../components/ModalDetalhes';
 import { lerConta, creditosMudaram } from '../../lib/auth';
+import { gerarGenerativa } from '../../lib/render';
 
 import {
   listarGeracoes, alternarFavorito, alternarAprovado, apagarGeracao,
@@ -140,10 +143,46 @@ export default function AppPage() {
   const [erro, setErro]             = useState('');
 
   const [ferramenta, setFerramenta] = useState('render');
+
+  // Preenchimento e expansão tomam o FEED: pintar máscara num painel de
+  // 380px seria impossível. Ao sair, o feed volta — com o resultado nele.
+  const [pincel, setPincel]         = useState(null);   // {modo, base, previa}
+  const montarPincel                = useRef(null);     // a tela devolve os bytes
   const [ocupado, setOcupado]       = useState(false);
   // O progresso aceita função: os painéis ACUMULAM as falhas nele
   // (setProgresso(p => ({...p, falhas}))), em vez de sobrescrever.
   const [progresso, setProgresso]   = useState(null);
+
+  // ── Gerar com o pincel ──
+  //
+  //  A tela devolve a imagem e a máscara já prontas (preto-e-branco, no
+  //  tamanho nativo). Quem cobra é o servidor — e estorna se falhar.
+  async function gerarComPincel({ modo, texto, resolucao }) {
+    const montar = montarPincel.current;
+    if (!montar) return;
+
+    const { imagem, mascara, pronto } = montar();
+
+    if (!pronto) {
+      throw new Error(modo === 'expansao'
+        ? 'Arraste as bordas para definir a área a criar'
+        : 'Pinte a área que você quer trocar');
+    }
+
+    setOcupado(true);
+    setProgresso({ feito: 0, total: 1, estado: 'processando', proporcao: 'auto' });
+
+    try {
+      await gerarGenerativa({ modo, imagem, mascara, texto, resolucao });
+
+      setPincel(null);        // sai do pincel: o feed volta, com o resultado
+      recarregarComFolga();
+
+    } finally {
+      setOcupado(false);
+      setProgresso(null);
+    }
+  }
 
   // O que refazer quando a pessoa clica em "Tentar de novo".
   const [refazer, setRefazer]       = useState(null);
@@ -496,7 +535,17 @@ export default function AppPage() {
             />
           </div>
 
-          <div hidden={ferramenta !== 'editar'}>
+          {/* Com o pincel aberto, o painel vira os controles dele */}
+          {pincel && ferramenta === 'editar' && (
+            <PainelPincel
+              modo={pincel.modo}
+              ocupado={ocupado}
+              onVoltar={() => setPincel(null)}
+              onGerar={gerarComPincel}
+            />
+          )}
+
+          <div hidden={ferramenta !== 'editar' || !!pincel}>
             <PainelEditar
               imagemInicial={imagemDeOutraAba}
               ferramentas={conta?.ferramentas || []}
@@ -505,9 +554,7 @@ export default function AppPage() {
               setOcupado={setOcupado}
               onProgresso={setProgresso}
               onPronto={() => { setProgresso(null); recarregarComFolga(); }}
-              onAbrirPincel={() => setErro(
-                'O preenchimento e a expansão entram em breve — por enquanto, use o plugin.'
-              )}
+              onAbrirPincel={setPincel}
             />
           </div>
 
@@ -525,6 +572,18 @@ export default function AppPage() {
 
         {/* ═══ Feed ═══ */}
         <section className="cr-feed">
+
+          {/* O pincel toma o feed. Ao sair, tudo volta — com o resultado. */}
+          {pincel ? (
+            <TelaPincel
+              modo={pincel.modo}
+              base={pincel.base}
+              previa={pincel.previa}
+              onGerar={montarPincel}
+              ocupado={ocupado}
+            />
+          ) : (
+          <>
 
           <header className="cr-barra">
             <div className="cr-fbtns">
@@ -894,7 +953,10 @@ export default function AppPage() {
               );
             })}
 
+
           </div>
+          </>
+          )}
         </section>
       </div>
 
