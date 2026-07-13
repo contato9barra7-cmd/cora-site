@@ -348,7 +348,8 @@ export default function PainelEditar({
             {(m.campos || []).map((c) => (
               <div key={c.chave} className="ed-grupo">
                 <div className="cr-sec">{c.rotulo}</div>
-                <div className="cr-chips">
+                {/* Quatro opções não cabem numa linha sem cortar o texto */}
+                <div className={'cr-chips' + (c.opcoes.length > 3 ? ' cr-chips--2' : '')}>
                   {c.opcoes.map((o) => (
                     <button
                       key={o}

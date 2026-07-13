@@ -1,3 +1,39 @@
+/* ═══════════════════════════════════════════════════════════
+   Degular Display — a fonte da marca
+
+   O CSS já pedia por ela, mas sem isto nunca carregava: caía no system-ui.
+   `font-display: swap` mostra o texto na fonte do sistema enquanto a nossa
+   baixa — melhor um texto trocando de fonte do que um espaço em branco.
+   ═══════════════════════════════════════════════════════════ */
+@font-face {
+  font-family: 'Degular Display';
+  src: url('/fontes/DegularDisplay-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Degular Display';
+  src: url('/fontes/DegularDisplay-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Degular Display';
+  src: url('/fontes/DegularDisplay-Semibold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Degular Display';
+  src: url('/fontes/DegularDisplay-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ==========================================================================
    ESTILO GLOBAL — CORA RENDER (tema claro, fundo branco)
    Cores da marca: verde #B3FF9F, roxo #A4A1F3
@@ -60,6 +96,12 @@ html, body {
 }
 
 a { color: inherit; text-decoration: none; }
+
+/* Os controles não herdam a fonte do body: o navegador impõe a dele.
+   Sem isto, a Degular entraria no texto mas não nos botões e campos. */
+button, input, select, textarea, optgroup {
+  font-family: 'Degular Display', system-ui, -apple-system, sans-serif;
+}
 
 .container { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
 
@@ -658,7 +700,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .app-user-creditos { font-size: 11px; color: var(--ink3); margin-top: 3px; font-weight: 400; }
 .app-user-menu {
   position: absolute; top: 46px; right: 0; background: var(--paper); border: 1px solid var(--line);
-  border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,.12); padding: 8px; min-width: 200px;
+  border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,.12); padding: 10px; width: 280px;
   display: flex; flex-direction: column; gap: 2px;
 }
 .app-user-nome { padding: 8px 12px; font-size: 13px; color: var(--ink3); border-bottom: 1px solid var(--line); margin-bottom: 4px; word-break: break-all; }
@@ -1126,7 +1168,10 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   position: sticky;
   top: 0;
   z-index: 20;
-  background: var(--wash);
+
+  /* Tingido de accent, bem leve — separa a barra do painel sem pesar.
+     Provisorio: entra a cor da marca depois. */
+  background: color-mix(in srgb, var(--accent) 6%, var(--wash));
 }
 
 .cr-pill {
@@ -2280,8 +2325,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--ink3);
+  white-space: nowrap;   /* cabe numa linha: nao quebra mais */
 }
 
 .cred-aviso {
@@ -5220,6 +5266,23 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   flex-wrap: wrap;
   gap: 6px;
 }
+
+/* Preenchem a linha, em partes iguais: sobrar espaço à direita fazia a
+   escolha parecer inacabada. */
+.cr-chips .cr-chip {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Quatro opções (a base da maquete) não cabem numa linha só sem cortar o
+   texto. Duas por linha, ainda em partes iguais. */
+.cr-chips--2 .cr-chip { flex: 1 1 calc(50% - 3px); }
 
 /* Cada grupo de escolha respira. Colados, "O que inserir" e "Estilo de
    presenca" pareciam um so. */
