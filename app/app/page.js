@@ -321,6 +321,23 @@ export default function AppPage() {
 
   const ehAdmin = conta?.is_admin === true;
 
+  // ── As imagens aprovadas ──
+  //
+  //  O Batch as usa como referência de estilo. Elas saem DAQUI, do estado
+  //  que a página já tem — não de um fetch próprio do Batch.
+  //
+  //  Por quê: aprovar/desaprovar acontece no feed, que é desta página. Se o
+  //  Batch buscasse sozinho (um useEffect que roda uma vez), ele não ficaria
+  //  sabendo — e era exatamente esse o bug: aprovar não surtia efeito, e
+  //  desaprovar não tirava a imagem das referências.
+  //
+  //  Assim, o React reage na hora: aprovou, entra; desaprovou, sai.
+  const aprovadas = lotes.flatMap((l) =>
+    l.itens
+      .filter((i) => i.aprovado)
+      .map((i) => ({ id: i.id, url: i.url, thumb: i.thumb }))
+  );
+
   // A grade contínua: todas as imagens, por mês (sem separar por lote)
   const porMes = agruparPorMes(lotes);
   const vazio  = !carregando && porMes.length === 0 && !progresso;
@@ -358,6 +375,7 @@ export default function AppPage() {
 
           {ferramenta === 'batch' && (
             <PainelBatch
+              aprovadas={aprovadas}
               ocupado={ocupado}
               setOcupado={setOcupado}
               onProgresso={setProgresso}
@@ -502,7 +520,28 @@ export default function AppPage() {
             {erro && <div className="cr-erro">{erro}</div>}
 
             {/* Gerando: os slots aparecem antes do feed */}
-            {progresso && (
+            {/* ── Analisando: NÃO é gerar ──
+                Analisar cenas produz TEXTO (os materiais), não imagens. Mostrar
+                os slots de imagem aqui fazia parecer que um render gigante
+                estava sendo feito — e não estava. */}
+            {progresso?.estado === 'analisando' && (
+              <div className="cr-gerando cr-gerando--texto">
+                <div className="cr-gerando-cab">
+                  <span className="cr-spin" />
+                  <span>
+                    {progresso.total === 1
+                      ? 'Lendo os materiais da cena...'
+                      : `Lendo os materiais de ${progresso.total} cenas...`}
+                  </span>
+                </div>
+                <p className="cr-gerando-nota">
+                  A IA está cruzando cada cena com as referências. Assim que
+                  terminar, você revisa e aprova.
+                </p>
+              </div>
+            )}
+
+            {progresso && progresso.estado !== 'analisando' && (
               <div className="cr-gerando">
                 <div className="cr-gerando-cab">
                   <span className="cr-spin" />

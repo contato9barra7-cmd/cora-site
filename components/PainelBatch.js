@@ -26,11 +26,11 @@
 //  se importa — a rota /analisar-batch recebe as cenas como base64.
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
-import { listarAprovadas, bytesDaGeracao } from '../lib/geracoes';
+import { bytesDaGeracao } from '../lib/geracoes';
 import { salvarLeitura } from '../lib/leituras';
 import HistoricoLeituras from './HistoricoLeituras';
 import {
@@ -40,9 +40,11 @@ import {
 
 const MAX_CENAS = 20;
 
-export default function PainelBatch({ onPronto, onProgresso, ocupado, setOcupado }) {
+export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado, setOcupado }) {
   // ── Fase 1 ──
-  const [refs, setRefs]   = useState([]);   // { base64, previa, doHistorico }
+  //  `refs` guarda só as MANUAIS (as que a pessoa subiu). As aprovadas vêm
+  //  da página e são derivadas — assim aprovar/desaprovar reflete na hora.
+  const [refs, setRefs]   = useState([]);   // { base64, previa }
   const [cenas, setCenas] = useState([]);   // { id, nome, base64, previa, marcada }
 
   // ── Fase 2 ──
@@ -54,47 +56,69 @@ export default function PainelBatch({ onPronto, onProgresso, ocupado, setOcupado
 
   const fase = analise ? 2 : 1;
 
-  // ── As aprovadas entram sozinhas ──
-  // É o que "aprovada" quer dizer: esta imagem define o estilo do projeto.
+  // ── As aprovadas entram (e saem) sozinhas ──
+  //
+  //  A lista de aprovadas vem da PÁGINA, que é dona do feed. Antes o Batch
+  //  buscava sozinho num useEffect com `[]` — rodava uma vez, na montagem.
+  //  Aprovar depois disso não surtia efeito, e desaprovar não tirava a
+  //  imagem daqui. Agora o React reage: entrou na lista, aparece; saiu,
+  //  desaparece.
+  //
+  //  Os BYTES (que vão para o servidor) ainda precisam ser buscados — o R2
+  //  não manda CORS, então quem lê é o servidor. Mas só buscamos os que
+  //  faltam: uma imagem já baixada não é baixada de novo.
+  const [bytesPorId, setBytesPorId] = useState({});
+
+  // Os ids, como texto. `aprovadas` é um array NOVO a cada render (vem de um
+  // flatMap na página), então usá-lo como dependência dispararia o efeito
+  // sempre. A string só muda quando os ids mudam de verdade.
+  const idsAprovados = (aprovadas || []).map((a) => a.id).join(',');
+
+  // O que já foi buscado. Um `ref` (e não estado) porque isto não pinta
+  // nada na tela: serve só para não baixar a mesma imagem duas vezes. Como
+  // ref, também não entra nas dependências do efeito — nada de laço.
+  const jaBuscados = useRef({});
+
   useEffect(() => {
+    const faltando = (aprovadas || []).filter((a) => !(a.id in jaBuscados.current));
+    if (faltando.length === 0) return;
+
     let vivo = true;
 
     (async () => {
-      try {
-        const aprovadas = await listarAprovadas();
-        if (!vivo || aprovadas.length === 0) return;
+      const novos = {};
 
-        // Os bytes vêm do SERVIDOR, não da URL do R2: o R2 não manda CORS,
-        // então o fetch() do navegador morria ali ("Failed to fetch") e as
-        // aprovadas nunca chegavam.
-        const comBase64 = await Promise.all(
-          aprovadas.map(async (a) => {
-            try {
-              return {
-                id: a.id,
-                base64: await bytesDaGeracao(a.id),
-                previa: a.url,
-                doHistorico: true
-              };
-            } catch { return null; }
-          })
-        );
+      await Promise.all(faltando.map(async (a) => {
+        try {
+          novos[a.id] = await bytesDaGeracao(a.id);
+        } catch {
+          // Falhou? Marca como `null` assim mesmo — a chave passa a existir,
+          // e não tentamos de novo em laço. A imagem só não vira referência.
+          novos[a.id] = null;
+        }
+      }));
 
-        if (!vivo) return;
+      // Marca ANTES do setState: se o componente sair do ar no meio, o ref
+      // já sabe o que foi buscado.
+      Object.assign(jaBuscados.current, novos);
 
-        // As que a pessoa subiu à mão ficam; as do histórico são repostas.
-        setRefs((atuais) => {
-          const manuais = atuais.filter((r) => !r.doHistorico);
-          const doHist  = comBase64.filter(Boolean);
-          return [...doHist, ...manuais].slice(0, MAX_REFS);
-        });
-      } catch {
-        // Sem aprovadas, sem drama: a pessoa sobe as referências à mão.
-      }
+      if (vivo) setBytesPorId((b) => ({ ...b, ...novos }));
     })();
 
     return () => { vivo = false; };
-  }, []);
+  }, [idsAprovados]);
+
+  // As referências: as aprovadas (com os bytes já em mãos) + as manuais.
+  const refsAprovadas = (aprovadas || [])
+    .filter((a) => bytesPorId[a.id])
+    .map((a) => ({
+      id: a.id,
+      base64: bytesPorId[a.id],
+      previa: a.thumb || a.url,
+      doHistorico: true
+    }));
+
+  const todasRefs = [...refsAprovadas, ...refs].slice(0, MAX_REFS);
 
   // ── Persistência: trocar de aba não pode zerar o trabalho ──
   //
@@ -120,8 +144,8 @@ export default function PainelBatch({ onPronto, onProgresso, ocupado, setOcupado
 
   function escolheu({ base64, previa }) {
     if (picker === 'ref') {
-      if (refs.length < MAX_REFS) {
-        setRefs((r) => [...r, { base64, previa, doHistorico: false }]);
+      if (todasRefs.length < MAX_REFS) {
+        setRefs((r) => [...r, { base64, previa }]);
       }
       return;
     }
@@ -140,7 +164,7 @@ export default function PainelBatch({ onPronto, onProgresso, ocupado, setOcupado
   const marcadas = cenas.filter((c) => c.marcada);
 
   async function analisar() {
-    if (refs.length === 0)     { setErro('Adicione ao menos uma referência'); return; }
+    if (todasRefs.length === 0) { setErro('Adicione ao menos uma referência'); return; }
     if (marcadas.length === 0) { setErro('Marque ao menos uma cena'); return; }
 
     setErro('');
@@ -150,7 +174,7 @@ export default function PainelBatch({ onPronto, onProgresso, ocupado, setOcupado
     try {
       const r = await analisarBatch({
         cenas: marcadas.map((c) => ({ nome: c.nome, base64: c.base64 })),
-        refs:  refs.map((r) => r.base64)
+        refs:  todasRefs.map((r) => r.base64)
       });
 
       // Cada cena começa NÃO aprovada: a pessoa precisa ler e concordar.
@@ -216,7 +240,7 @@ export default function PainelBatch({ onPronto, onProgresso, ocupado, setOcupado
             resolucao: c.cfg.resolucao
           };
         }),
-        refs: refs.map((r) => r.base64)
+        refs: todasRefs.map((r) => r.base64)
       }, {
         onProgresso: (feito, total) => onProgresso({ feito, total, estado: 'gerando' })
       });
@@ -232,7 +256,7 @@ export default function PainelBatch({ onPronto, onProgresso, ocupado, setOcupado
   }
 
   function resetar() {
-    setRefs((r) => r.filter((x) => x.doHistorico));   // as aprovadas voltam sozinhas
+    setRefs([]);          // só as manuais: as aprovadas vêm da página
     setCenas([]);
     setAnalise(null);
     setErro('');
@@ -260,21 +284,37 @@ export default function PainelBatch({ onPronto, onProgresso, ocupado, setOcupado
             </p>
 
             <div className="cr-refs">
-              {refs.map((r, i) => (
-                <div key={i} className="cr-ref">
+              {todasRefs.map((r, i) => (
+                <div key={r.id || 'm' + i} className="cr-ref">
                   <img src={r.previa} alt="" />
-                  <button
-                    className="cr-ref-x"
-                    onClick={() => setRefs((rs) => rs.filter((_, j) => j !== i))}
-                    aria-label="Remover referência"
-                  >×</button>
+
+                  {/* A vinda do histórico não se tira daqui: ela sai quando
+                      a pessoa desaprova a imagem, no feed. Tirar por aqui
+                      seria mentira — a imagem continuaria aprovada. */}
+                  {!r.doHistorico && (
+                    <button
+                      className="cr-ref-x"
+                      onClick={() => setRefs((rs) => rs.filter((x) => x !== r))}
+                      aria-label="Remover referência"
+                    >×</button>
+                  )}
+
+                  {r.doHistorico && (
+                    <span className="cr-ref-selo" data-tip="Aprovada — desaprove no feed para tirar">
+                      <svg viewBox="0 0 16 16" width="9" height="9" fill="none"
+                           stroke="currentColor" strokeWidth="2.4"
+                           strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="2,8 6,12 14,4"/>
+                      </svg>
+                    </span>
+                  )}
                 </div>
               ))}
 
-              {refs.length < MAX_REFS && (
+              {todasRefs.length < MAX_REFS && (
                 <button className="cr-ref cr-ref--add" onClick={() => setPicker('ref')}>
                   <span className="cr-ref-mais">+</span>
-                  <span className="cr-ref-c">{refs.length}/{MAX_REFS}</span>
+                  <span className="cr-ref-c">{todasRefs.length}/{MAX_REFS}</span>
                 </button>
               )}
             </div>
@@ -445,7 +485,7 @@ export default function PainelBatch({ onPronto, onProgresso, ocupado, setOcupado
             <button
               className="cr-btn-gerar"
               onClick={analisar}
-              disabled={ocupado || refs.length === 0 || marcadas.length === 0}
+              disabled={ocupado || todasRefs.length === 0 || marcadas.length === 0}
             >
               <span>{ocupado ? 'Analisando...' : 'Analisar cenas'}</span>
               {!ocupado && marcadas.length > 0 && (

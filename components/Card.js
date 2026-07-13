@@ -67,7 +67,10 @@ export default function Card({
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter') onClick(); }}
     >
-      <img src={it.url} alt="" loading="lazy" />
+      {/* A miniatura (600px, ~60 KB), não a original (2K, 4 MB). Sem isto
+          o navegador baixaria a imagem inteira para mostrar num card de
+          330px. As gerações antigas não têm thumb — ali cai na original. */}
+      <img src={it.thumb || it.url} alt="" loading="lazy" />
 
       {/* Qual lado esta imagem ocupa na comparação */}
       {modoAB && ehA && <span className="cr-card-ab">A</span>}

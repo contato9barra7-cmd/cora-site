@@ -4467,3 +4467,31 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink3);
   text-align: center;
 }
+
+/* Analisar cenas produz TEXTO, não imagens — então nada de slots aqui. */
+.cr-gerando--texto { padding-bottom: 14px; }
+
+.cr-gerando-nota {
+  margin: 8px 0 0;
+  padding-left: 26px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink3);
+}
+
+/* A referência que veio do "aprovado": não se tira daqui, tira-se no feed.
+   Um X aqui seria mentira — a imagem continuaria aprovada. */
+.cr-ref-selo {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-txt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+}

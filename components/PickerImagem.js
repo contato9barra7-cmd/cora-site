@@ -60,7 +60,9 @@ function agruparPorMes(lotes) {
 
   lotes.forEach((lote) => {
     lote.itens.filter((i) => i.url).forEach((item) => {
-      const d = new Date(lote.criado_em || item.criado_em);
+      // O servidor manda `criadoEm` (camelCase), não `criado_em`. Com o
+      // nome errado, virava Invalid Date e o cabeçalho dizia "undefined NaN".
+      const d = new Date(lote.criadoEm || item.criadoEm);
       const chave = `${d.getFullYear()}-${d.getMonth()}`;
       if (!grupos.has(chave)) {
         grupos.set(chave, { titulo: `${MESES[d.getMonth()]} ${d.getFullYear()}`, itens: [] });
@@ -89,11 +91,14 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
     setCarregando(true);
     setErro('');
     try {
+      // 80 era demais: o servidor assina uma URL do R2 para CADA imagem
+      // antes de responder, então 80 imagens = 80 chamadas ao R2, e a
+      // gaveta demorava a abrir. 24 enche a tela; o resto vem ao rolar.
       const d = await listarGeracoes({
         tipo: 'imagem',
         favorito: soFavoritos,
         busca: termo || undefined,
-        limite: 80
+        limite: 24
       });
       setGrupos(agruparPorMes(d));
     } catch (e) {
@@ -292,7 +297,10 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
                           onClick={() => escolherDoFeed(i)}
                           disabled={pegando !== null}
                         >
-                          <img src={i.url} alt="" loading="lazy" />
+                          {/* A miniatura, não a original: aqui o card tem
+                              uns 100px. Baixar 4 MB para isso era o que
+                              deixava a gaveta lenta. */}
+                          <img src={i.thumb || i.url} alt="" loading="lazy" />
                         </button>
                       ))}
                     </div>
