@@ -1351,7 +1351,8 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   transition: border-color .15s;
 }
 
-.cr-card:hover { border-color: var(--verde); }
+/* O accent, não o verde fixo: roxo no tema claro, verde no escuro. */
+.cr-card:hover { border-color: var(--accent); }
 
 .cr-card img {
   width: 100%;
@@ -1610,8 +1611,8 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .cr-btn:hover { color: var(--ink); border-color: var(--ink3); }
 
 .cr-btn--on {
-  color: var(--verde);
-  border-color: var(--verde);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .cr-btn--perigo:hover {
@@ -2257,7 +2258,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .cred-fill {
   height: 100%;
   border-radius: 100px;
-  background: var(--verde);
+  background: var(--accent);
   transition: width .3s ease, background .2s;
 }
 
