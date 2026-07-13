@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import PainelRender from '../../components/PainelRender';
 import PainelBatch from '../../components/PainelBatch';
+import PainelAnalises from '../../components/PainelAnalises';
 import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
 import Card, { proporcaoCss } from '../../components/Card';
@@ -276,6 +277,15 @@ export default function AppPage() {
     }
   }
 
+  // Uma leitura da aba Análises, levada ao Render como ponto de partida.
+  // A pessoa ajusta o que quiser antes de gerar — nada é gerado aqui.
+  const [materiaisDeOutraAba, setMateriaisDeOutraAba] = useState(null);
+
+  function usarLeitura(l) {
+    setMateriaisDeOutraAba({ materiais: l.materiais, quando: Date.now() });
+    setFerramenta('render');
+  }
+
   // O batch devolve VÁRIOS lotes (um por cena) — diferente do render, que
   // devolve um só. Recarregar o feed é o caminho mais simples e correto:
   // os lotes já estão no banco, salvos pelo servidor.
@@ -362,10 +372,15 @@ export default function AppPage() {
               onClick={() => setFerramenta('batch')}
             >Batch</button>
             <button className="cr-pill" disabled data-tip="Em breve">Editar</button>
+            <button
+              className={'cr-pill' + (ferramenta === 'analises' ? ' cr-pill--on' : '')}
+              onClick={() => setFerramenta('analises')}
+            >Análises</button>
           </div>
 
           {ferramenta === 'render' && (
             <PainelRender
+              materiaisIniciais={materiaisDeOutraAba}
               ocupado={ocupado}
               setOcupado={setOcupado}
               onProgresso={setProgresso}
@@ -385,7 +400,11 @@ export default function AppPage() {
             />
           )}
 
-          {ferramenta !== 'render' && ferramenta !== 'batch' && (
+          {ferramenta === 'analises' && (
+            <PainelAnalises onUsar={usarLeitura} />
+          )}
+
+          {ferramenta !== 'render' && ferramenta !== 'batch' && ferramenta !== 'analises' && (
             <div className="cr-painel-vazio">
               <p>A aba {ferramenta} entra em breve.</p>
             </div>
@@ -551,20 +570,31 @@ export default function AppPage() {
                   </div>
                 )}
                 <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
-                  {Array.from({ length: progresso.total }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={
-                        'cr-slot' +
-                        (i < progresso.feito ? ' cr-slot--ok'
-                          : i === progresso.feito ? ' cr-slot--agora' : '')
-                      }
-                      style={{ aspectRatio: proporcaoCss(progresso.proporcao) }}
-                    >
-                      {i === progresso.feito && <span className="cr-spin" />}
-                      {i > progresso.feito && <span className="cr-slot-n">{i + 1}</span>}
-                    </div>
-                  ))}
+                  {Array.from({ length: progresso.total }).map((_, i) => {
+                    const saindo = i === progresso.feito;
+
+                    return (
+                      <div
+                        key={i}
+                        className={
+                          'cr-slot' +
+                          (i < progresso.feito ? ' cr-slot--ok'
+                            : saindo ? ' cr-slot--agora' : '')
+                        }
+                        style={{ aspectRatio: proporcaoCss(progresso.proporcao) }}
+                      >
+                        {/* A imagem base, desfocada: a pessoa vê a cena tomando
+                            forma em vez de encarar um retângulo vazio. No Render
+                            e no Batch é o print; na Editar, será a imagem base. */}
+                        {saindo && progresso.base && (
+                          <img className="cr-slot-base" src={progresso.base} alt="" />
+                        )}
+
+                        {saindo && <span className="cr-spin" />}
+                        {i > progresso.feito && <span className="cr-slot-n">{i + 1}</span>}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

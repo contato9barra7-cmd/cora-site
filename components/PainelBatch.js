@@ -244,13 +244,16 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
     // igual ao Render. (Analisar produz texto, e o aviso fica no painel.)
     // Sem esta linha, o feed só reagia quando a primeira imagem ficava
     // pronta: até lá, nada acontecia na tela.
+    // A primeira cena a sair: sua forma e seu print vão para o slot.
+    const primeira = cenasAprovadas[0];
+    const printDa = (c) => cenas.find((x) => x.id === c?.cenaId)?.previa || null;
+
     onProgresso({
       feito: 0,
       total: totalImagens,
       estado: 'gerando',
-      // A forma dos slots. Um batch pode misturar proporções; usamos a da
-      // primeira cena, que é a que a pessoa vê primeiro.
-      proporcao: cenasAprovadas[0]?.cfg.proporcao || '4:5'
+      proporcao: primeira?.cfg.proporcao || '4:5',
+      base: printDa(primeira)          // o print, desfocado no slot
     });
 
     try {
@@ -268,11 +271,17 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
         }),
         refs: todasRefs.map((r) => r.base64)
       }, {
-        onProgresso: (feito, total) => onProgresso({
-          feito, total,
-          estado: 'gerando',
-          proporcao: cenasAprovadas[0]?.cfg.proporcao || '4:5'
-        })
+        // `emCurso` é a cena que está saindo agora — o slot mostra o print
+        // DELA, não o da primeira cena o tempo todo.
+        onProgresso: (feito, total, emCurso) => {
+          const c = cenasAprovadas.find((x) => x.nome === emCurso?.nome) || primeira;
+          onProgresso({
+            feito, total,
+            estado: 'gerando',
+            proporcao: c?.cfg.proporcao || '4:5',
+            base: printDa(c)
+          });
+        }
       });
 
       // Some com os slots ANTES de recarregar o feed: senão há um instante
@@ -470,11 +479,13 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
                   spellCheck={false}
                 />
 
-                {/* A config desta cena — quantidade, proporção, resolução */}
+                {/* A config NÃO trava ao aprovar: aprovar é concordar com a
+                    LEITURA dos materiais, não com a resolução ou a quantidade.
+                    Essas continuam livres até a hora de gerar. */}
                 <CfgCena
                   cfg={c.cfg}
                   onMudar={(campo, v) => mudarCfg(i, campo, v)}
-                  travado={c.aprovada}
+                  travado={ocupado}
                 />
 
                 <div className="cr-g2 cr-bcena-acoes">

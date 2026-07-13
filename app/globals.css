@@ -635,7 +635,6 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   word-break: break-word;
 }
 
-
 /* Preferências: rótulo discreto, seletor em pílula */
 .app-user-pref {
   display: flex; align-items: center; justify-content: space-between;
@@ -1604,8 +1603,6 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   .cr-busca input { width: 100%; }
 }
 
-
-
 /* ═══════════════════════════════════════════════════════════
    Painel de geração (/app)
 
@@ -2518,22 +2515,11 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .vz-cab .cr-modal-x { margin-left: auto; }
 
-
-
 /* Split: a cortina */
-
-
-
-
-
 
 /* Side by Side */
 
-
-
 /* Single: segure para ver a captura */
-
-
 
 /* Prompt: só o admin vê */
 .vz-prompt {
@@ -2743,18 +2729,10 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   color: var(--ink2);
 }
 
-
-
 .cr-slot--ok {
   border-style: solid;
   border-color: var(--accent);
   background: var(--accent-bg);
-}
-
-.cr-slot--agora {
-  border-style: solid;
-  border-color: var(--accent);
-  background: var(--wash2);
 }
 
 .cr-slot-n { font-size: 11px; }
@@ -2837,16 +2815,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
    É por isso que a cortina do split cai no lugar certo — as duas camadas
    compartilham exatamente a mesma caixa. */
 
-
-
-
 /* A imagem de dentro da cortina NÃO encolhe: ela tem o tamanho da caixa
    inteira, e é a cortina que corta. Sem isto, o print apareceria espremido
    e "pegaria" um pedaço do render — era esse o bug. */
-
-
-
-
 
 /* Etiquetas Print/Render — o fundo acompanha o texto */
 .vz-tag {
@@ -3258,7 +3229,6 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   cursor: pointer;
 }
 
-
 /* ═══════════════════════════════════════════════════════════
    A/B — escolher o lado A no feed, com a janela aberta
 
@@ -3268,11 +3238,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
    e não havia como escolher a segunda imagem.
    ═══════════════════════════════════════════════════════════ */
 
-
-
 /* Encolhida, para não tapar o feed */
-
-
 
 /* ═══════════════════════════════════════════════════════════
    Campo de referências: digitar @ abre a lista
@@ -3426,7 +3392,11 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 16px;
-  overflow: hidden;
+
+  /* `visible` para o X escapar pela quina. Os cantos são arredondados pelas
+     peças de dentro (cabeçalho, área, rodapé) — se cortássemos aqui, o X
+     seria cortado junto. */
+  overflow: visible;
 }
 
 /* A área ocupa o que sobra entre o cabeçalho e o rodapé — e só. */
@@ -3545,9 +3515,6 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   justify-content: center;
 }
 
-
-
-
 /* ═══════════════════════════════════════════════════════════
    Menu recolhido — sem flash
 
@@ -3576,7 +3543,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* A transição continua valendo para o clique no botão — o que não pode é
    o menu ANIMAR ao carregar a página. Como estas regras já valem antes da
    primeira pintura, ele nasce fechado e não há de onde animar. */
-
 
 /* ═══════════════════════════════════════════════════════════
    Slots em geração — mesma grade dos cards prontos
@@ -3619,31 +3585,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: var(--accent-bg);
 }
 
-.cr-slot--agora {
-  border-style: solid;
-  border-color: var(--accent);
-  background: var(--wash2);
-}
-
 /* Barra indeterminada: diz "estou trabalhando" sem fingir saber quanto
    falta. O Gemini não informa progresso — uma porcentagem aqui seria um
    número inventado. */
-.cr-slot--agora::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  width: 40%;
-  background: var(--accent);
-  border-radius: 100px;
-  animation: cr-varre 1.3s ease-in-out infinite;
-}
-
-@keyframes cr-varre {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(250%); }
-}
 
 /* Barra do LOTE — esta porcentagem é real: conta imagens prontas.
    (Dentro de cada imagem não há progresso: o Gemini não informa quanto
@@ -3669,7 +3613,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: var(--accent);
   transition: width .3s ease;
 }
-
 
 /* ═══════════════════════════════════════════════════════════
    Grade contínua por mês (estilo Magnific)
@@ -3725,7 +3668,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   letter-spacing: .02em;
 }
 
-
 .cr-card-ab {
   position: absolute;
   top: 8px;
@@ -3780,7 +3722,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    faz assim, e agora o visualizador também.
    ═══════════════════════════════════════════════════════════ */
 
-.vz { position: relative; overflow: visible; }
+.vz { position: relative; }
 
 .vz-x {
   position: absolute;
@@ -3806,7 +3748,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 /* Como o .vz agora é `visible` (para o X escapar), os cantos internos
    precisam cortar sozinhos. */
-.vz-cab   { border-radius: 16px 16px 0 0; }
+.vz-cab { border-radius: 15px 15px 0 0; }
 .vz-acoes { border-radius: 0 0 16px 16px; }
 .vz-area  { overflow: hidden; }
 
@@ -4508,10 +4450,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 10px 12px;
+  padding: 10px 14px;
   margin-bottom: 10px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 100px;      /* semicírculo, como os outros botões */
   background: var(--wash);
   font-size: 11px;
   color: var(--ink2);
@@ -4553,4 +4495,247 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: default;
   border-color: var(--line2);
   color: var(--ink3);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   O slot em curso — a imagem base, desfocada
+
+   Em vez de um retângulo vazio, a pessoa vê a própria cena tomando forma.
+   No Render e no Batch é o print do SketchUp; na aba Editar, será a imagem
+   que está sendo editada.
+
+   A varredura por cima sugere o trabalho acontecendo — sem inventar uma
+   porcentagem que o Gemini não reporta.
+   ═══════════════════════════════════════════════════════════ */
+
+.cr-slot-base {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(7px) saturate(.7);
+  opacity: .5;
+  transform: scale(1.08);   /* o blur come as bordas; a escala cobre */
+}
+
+.cr-slot--agora {
+  border-style: solid;
+  border-color: var(--accent);
+  overflow: hidden;
+}
+
+/* A varredura, por cima da base */
+.cr-slot--agora::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    color-mix(in srgb, var(--accent) 30%, transparent) 50%,
+    transparent 62%
+  );
+  background-size: 220% 100%;
+  animation: cr-varre 1.7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes cr-varre {
+  0%   { background-position: 180% 0; }
+  100% { background-position: -80% 0; }
+}
+
+/* O spinner fica por cima de tudo */
+.cr-slot .cr-spin { position: relative; z-index: 2; }
+
+/* ═══════════════════════════════════════════════════════════
+   Aba Análises — as leituras de materiais já feitas
+
+   Cada leitura custou créditos: 15 no Render, 8 por cena no Batch. Aqui
+   elas ficam guardadas, para ninguém pagar duas vezes pelo mesmo trabalho.
+
+   A thumb torna a lista navegável: sem ela seria uma pilha de textos
+   parecidos, e ninguém saberia qual é qual.
+   ═══════════════════════════════════════════════════════════ */
+
+.an-busca {
+  width: 100%;
+  height: 36px;
+  padding: 0 14px;
+  margin-bottom: 10px;
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  background: var(--wash);
+  color: var(--ink);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+}
+
+.an-busca:focus { border-color: var(--accent); }
+
+.an-filtros { margin-bottom: 14px; }
+
+.an-item {
+  margin-bottom: 6px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color .15s;
+}
+
+.an-item:hover { border-color: var(--line2); }
+.an-item--on   { border-color: var(--accent); }
+
+.an-cab {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.an-cab:hover { background: var(--wash); }
+
+.an-thumb {
+  flex-shrink: 0;
+  width: 52px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 7px;
+  background: var(--wash2);
+}
+
+.an-thumb--vazia { display: block; }
+
+.an-txt {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.an-topo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.an-tit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.an-tag {
+  flex-shrink: 0;
+  padding: 1px 7px;
+  border-radius: 100px;
+  background: var(--wash2);
+  color: var(--ink3);
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.an-quando {
+  font-size: 10px;
+  color: var(--ink3);
+}
+
+/* A prévia: duas linhas, o suficiente para reconhecer */
+.an-prev {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ink3);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.an-seta {
+  flex-shrink: 0;
+  color: var(--ink3);
+  padding-top: 3px;
+  transition: transform .18s;
+}
+
+.an-seta--on { transform: rotate(180deg); }
+
+.an-corpo {
+  padding: 0 10px 10px;
+  border-top: 1px solid var(--line);
+}
+
+.an-materiais {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  background: var(--wash);
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--ink2);
+  white-space: pre-wrap;
+}
+
+.an-acoes {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.an-acoes .cr-b,
+.an-acoes .cr-b-conf { flex: 1; }
+
+.an-lixo {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line2);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all .15s;
+}
+
+.an-lixo:hover {
+  border-color: var(--alerta);
+  background: var(--alerta);
+  color: #fff;
+}
+
+.an-vazio {
+  padding: 34px 16px;
+  text-align: center;
+}
+
+.an-vazio p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink3);
+  margin: 0;
+}
+
+.an-pe {
+  margin-top: 14px;
+  font-size: 10px;
+  color: var(--ink3);
+  text-align: center;
 }

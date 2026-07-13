@@ -20,14 +20,13 @@ import IconeCredito from './IconeCredito';
 import CampoRefs from './CampoRefs';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import { salvarLeitura } from '../lib/leituras';
-import HistoricoLeituras from './HistoricoLeituras';
 import {
   gerarRender, lerMateriais, custoRender, miniatura, CREDITOS,
   TIPOS, PROPORCOES, LUZ_TIPOS, MOODS, DIRECOES,
   CORES_LUZ, INTENSIDADES, ENTORNOS, RESOLUCOES, MAX_REFS
 } from '../lib/render';
 
-export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, loteAnterior }) {
+export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, materiaisIniciais, loteAnterior }) {
   // ── Imagem base ──
   const [imagem, setImagem] = useState(null);
   const [previa, setPrevia] = useState(null);
@@ -74,7 +73,6 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   const [restaurado, setRestaurado] = useState(false);
   const [avisoImg, setAvisoImg]     = useState(false);
   const [confirmarReset, setConfirmarReset] = useState(false);
-  const [verLeituras, setVerLeituras]       = useState(false);
 
   // Quando a imagem veio do histórico, sabemos o id dela: a leitura aponta
   // para a geração, e a thumb sai da URL assinada. Nada é duplicado.
@@ -131,6 +129,17 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       setMatEstado('vazio');
     }
   }, [imagemInicial]);
+
+  // Uma leitura da aba Análises? Carrega — sem custo, já foi paga.
+  //
+  // Fica em 'revisar' (e não 'confirmado') de propósito: a leitura veio de
+  // OUTRA imagem, e a pessoa precisa conferir se ainda faz sentido para esta.
+  useEffect(() => {
+    if (materiaisIniciais?.materiais) {
+      setMateriais(materiaisIniciais.materiais);
+      setMatEstado('revisar');
+    }
+  }, [materiaisIniciais]);
 
   // Fecha os popovers ao clicar fora
   useEffect(() => {
@@ -199,12 +208,6 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     return `${tipo === 'externo' ? 'Externo' : tipo === 'planta' ? 'Planta' : 'Interno'} · ${agora}`;
   }
 
-  // Reabre uma leitura antiga: o texto volta, sem custo.
-  function usarLeitura(l) {
-    setMateriais(l.materiais);
-    setMatEstado('revisar');
-    setVerLeituras(false);
-  }
 
   async function gerar() {
     if (!imagem) { setErro('Escolha a imagem do seu modelo'); return; }
@@ -213,6 +216,13 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
     setErro('');
     setOcupado(true);
+    onProgresso({
+      feito: 0,
+      total: quantidade,
+      estado: 'enviado',
+      proporcao,
+      base: previa
+    });
 
     // O plugin junta o detalhe ao mood, e a intensidade à cor da luz.
     // Repetimos igual: o promptador do GPT espera esse formato.
@@ -247,7 +257,10 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
     try {
       const r = await gerarRender(cfg, {
-        onProgresso: (feito, total, estado) => onProgresso({ feito, total, estado, proporcao }),
+        onProgresso: (feito, total, estado) => onProgresso({
+          feito, total, estado, proporcao,
+          base: previa           // o print, desfocado no slot
+        }),
         loteAnterior   // mesma config = continua na mesma linha do feed
       });
       // Some com os slots ANTES de recarregar o feed: senão há um instante
@@ -328,19 +341,9 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
         </div>
 
         {/* ── Materiais ── */}
-        <div className="cr-sec">
-          Materiais
-
-          {/* Ler custa 15 créditos. Esta gaveta existe para ninguém pagar
-              duas vezes pelo mesmo trabalho. */}
-          <button className="cr-sec-link" onClick={() => setVerLeituras(true)}>
-            <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <circle cx="10" cy="10" r="7"/>
-              <path d="M10 6v4l2.5 1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Leituras anteriores
-          </button>
-        </div>
+        {/* As leituras já feitas vivem na aba Análises — não repetimos a
+            porta aqui. */}
+        <div className="cr-sec">Materiais</div>
 
         {matEstado !== 'revisar' && (
           <button
@@ -591,11 +594,6 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           </div>
         )}
 
-        <HistoricoLeituras
-          aberto={verLeituras}
-          onFechar={() => setVerLeituras(false)}
-          onEscolher={usarLeitura}
-        />
 
         {avisoImg && (
           <div className="cr-aviso">
