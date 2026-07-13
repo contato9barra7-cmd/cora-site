@@ -32,7 +32,6 @@ import IconeCredito from './IconeCredito';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import { bytesDaGeracao } from '../lib/geracoes';
 import { salvarLeitura } from '../lib/leituras';
-import HistoricoLeituras from './HistoricoLeituras';
 import {
   analisarBatch, gerarBatch, CREDITOS, custoBatchCena, miniatura,
   PROPORCOES, RESOLUCOES, MAX_REFS

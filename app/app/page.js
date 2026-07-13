@@ -22,10 +22,10 @@ import Filtros from '../../components/Filtros';
 import Card, { proporcaoCss } from '../../components/Card';
 import ModalDownload from '../../components/ModalDownload';
 import { lerConta, creditosMudaram } from '../../lib/auth';
-import { urlParaBase64 } from '../../lib/render';
+
 import {
   listarGeracoes, alternarFavorito, alternarAprovado, apagarGeracao,
-  ROTULO_FERRAMENTA, tempoRelativo, diasAteExpirar
+  bytesDaGeracao, ROTULO_FERRAMENTA, tempoRelativo, diasAteExpirar
 } from '../../lib/geracoes';
 
 const FILTROS = [
@@ -297,16 +297,17 @@ export default function AppPage() {
     }
   }
 
-  // Os botões Editar/Upscale/Animar do visualizador não geram nada:
-  // levam a imagem para a aba de destino, onde a pessoa configura e só
-  // então gera. A imagem vive no R2, então buscamos o base64 antes de
-  // entregar ao painel (que precisa mandá-lo ao servidor).
+  // Os botões Editar/Upscale/Animar não geram nada: levam a imagem para a
+  // aba de destino, onde a pessoa configura e só então gera.
+  //
+  // Os bytes vêm do SERVIDOR, não da URL do R2 — o R2 não manda CORS, então
+  // um fetch() direto na imagem morre com "Failed to fetch".
   async function enviarPara(destino, item) {
     setVendo(null);
     setErro('');
     try {
-      const base64 = await urlParaBase64(item.url);
-      setImagemDeOutraAba({ base64, previa: item.url });
+      const base64 = await bytesDaGeracao(item.id);
+      setImagemDeOutraAba({ base64, previa: item.thumb || item.url, geracaoId: item.id });
       setFerramenta(destino);
     } catch (e) {
       setErro('Não foi possível carregar a imagem: ' + e.message);
