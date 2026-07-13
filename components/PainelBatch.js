@@ -38,7 +38,7 @@ import {
 
 const MAX_CENAS = 20;
 
-export default function PainelBatch({ aprovadas, leituraInicial, onPronto, onProgresso, ocupado, setOcupado }) {
+export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, onPronto, onProgresso, ocupado, setOcupado }) {
   // ── Fase 1 ──
   //  `refs` guarda só as MANUAIS (as que a pessoa subiu). As aprovadas vêm
   //  da página e são derivadas — assim aprovar/desaprovar reflete na hora.
@@ -364,19 +364,19 @@ export default function PainelBatch({ aprovadas, leituraInicial, onPronto, onPro
                 <div key={r.id || 'm' + i} className="cr-ref">
                   <img src={r.previa} alt="" />
 
-                  {/* A vinda do histórico não se tira daqui: ela sai quando
-                      a pessoa desaprova a imagem, no feed. Tirar por aqui
-                      seria mentira — a imagem continuaria aprovada. */}
-                  {!r.doHistorico && (
-                    <button
-                      className="cr-ref-x"
-                      onClick={() => setRefs((rs) => rs.filter((x) => x !== r))}
-                      aria-label="Remover referência"
-                    >×</button>
-                  )}
+                  {/* O X tira a referência daqui. Se ela veio do "aprovado",
+                      desaprova a imagem no feed também — assim as duas telas
+                      não se contradizem. */}
+                  <button
+                    className="cr-ref-x"
+                    onClick={() => (r.doHistorico
+                      ? onDesaprovar(r.id)
+                      : setRefs((rs) => rs.filter((x) => x !== r)))}
+                    aria-label="Remover referência"
+                  >×</button>
 
                   {r.doHistorico && (
-                    <span className="cr-ref-selo" data-tip="Aprovada — desaprove no feed para tirar">
+                    <span className="cr-ref-selo" data-tip="Veio das suas imagens aprovadas">
                       <svg viewBox="0 0 16 16" width="9" height="9" fill="none"
                            stroke="currentColor" strokeWidth="2.4"
                            strokeLinecap="round" strokeLinejoin="round">

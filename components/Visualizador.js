@@ -60,7 +60,7 @@ export default function Visualizador({
   proporcao,                     // "4:5", "16:9"... dá forma à caixa
   proporcaoEsq,                  // no A/B, a imagem A pode ter outra forma
   rotuloEsq, rotuloDir,          // no A/B viram "A" e "B"
-  onFechar, onFavoritar, onBaixar, onExcluir, onEnviarPara
+  onFechar, onFavoritar, onBaixar, onExcluir, onEnviarPara, onDetalhes
 }) {
   const [modo, setModo]           = useState('split');
   const [corte, setCorte]         = useState(50);
@@ -277,6 +277,27 @@ export default function Visualizador({
               <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
             </svg>
           </button>
+
+          {/* O que foi usado nesta geração: configurações, imagem de origem,
+              prompt. Meses depois, ninguém lembra.
+
+              No modo A/B não aparece: são duas imagens de lotes diferentes, e
+              "detalhes de qual?" não teria resposta. */}
+          {onDetalhes && (
+          <button
+            className="vz-ico"
+            onClick={onDetalhes}
+            data-tip="Detalhes"
+            aria-label="Ver detalhes desta geração"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+                 stroke="currentColor" strokeWidth="1.6">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 11v5" strokeLinecap="round"/>
+              <circle cx="12" cy="7.8" r=".9" fill="currentColor" stroke="none"/>
+            </svg>
+          </button>
+          )}
 
           <div className="vz-div" />
 

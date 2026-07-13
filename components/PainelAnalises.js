@@ -197,7 +197,7 @@ export default function PainelAnalises({ onUsar }) {
         type="text"
         value={busca}
         onChange={(e) => setBusca(e.target.value)}
-        placeholder="Buscar nos materiais..."
+        placeholder="Buscar nas análises..."
         spellCheck={false}
       />
 

@@ -2727,14 +2727,6 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   background: var(--paper);
 }
 
-.cr-gerando-cab {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  font-size: 13px;
-  color: var(--ink2);
-}
 
 .cr-slot--ok {
   border-style: solid;
@@ -3599,30 +3591,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    falta. O Gemini não informa progresso — uma porcentagem aqui seria um
    número inventado. */
 
-/* Barra do LOTE — esta porcentagem é real: conta imagens prontas.
-   (Dentro de cada imagem não há progresso: o Gemini não informa quanto
-   falta, então lá a barra é indeterminada, sem número.) */
-.cr-gerando-pct {
-  margin-left: auto;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--accent);
-}
 
-.cr-prog-trilho {
-  height: 4px;
-  margin-bottom: 14px;
-  border-radius: 100px;
-  background: var(--wash2);
-  overflow: hidden;
-}
 
-.cr-prog-cheio {
-  height: 100%;
-  border-radius: 100px;
-  background: var(--accent);
-  transition: width .3s ease;
-}
 
 /* ═══════════════════════════════════════════════════════════
    Grade contínua por mês (estilo Magnific)
@@ -4431,13 +4401,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* Analisar cenas produz TEXTO, não imagens — então nada de slots aqui. */
 .cr-gerando--texto { padding-bottom: 14px; }
 
-.cr-gerando-nota {
-  margin: 8px 0 0;
-  padding-left: 26px;
-  font-size: 11px;
-  line-height: 1.5;
-  color: var(--ink3);
-}
 
 /* A referência que veio do "aprovado": não se tira daqui, tira-se no feed.
    Um X aqui seria mentira — a imagem continuaria aprovada. */
@@ -4881,4 +4844,170 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: var(--accent-bg);
   color: var(--ink);
   font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Detalhes da geração
+
+   Meses depois, olhando uma imagem no histórico, ninguém lembra: que
+   resolução era? qual foi o prompt? qual print deu origem a isto?
+   ═══════════════════════════════════════════════════════════ */
+
+.dt {
+  width: 100%;
+  max-width: 440px;
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.dt-cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.dt-cab h3 {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+
+.dt-x {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.dt-x:hover { background: var(--wash); color: var(--ink); }
+
+.dt-corpo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 18px 20px;
+}
+
+.dt-sec {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 9px;
+}
+
+.dt-sec:not(:first-child) { margin-top: 20px; }
+
+.dt-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dt-pill {
+  padding: 5px 13px;
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  background: var(--wash);
+  color: var(--ink2);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.dt-data {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: var(--ink3);
+}
+
+/* O print que deu origem à imagem */
+.dt-origem {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  display: block;
+}
+
+.dt-prompt {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--wash);
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--ink2);
+  white-space: pre-wrap;
+}
+
+.dt-vazio {
+  margin: 16px 0 0;
+  font-size: 12px;
+  color: var(--ink3);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   O slot em curso — o contador vive DENTRO dele
+
+   Antes havia um "Gerando imagem 1 de 1" solto acima dos slots, flutuando
+   no branco. Agora o contador é parte da própria imagem que está nascendo:
+   uma etiqueta sobre o print desfocado.
+   ═══════════════════════════════════════════════════════════ */
+
+.cr-slot-tag {
+  position: absolute;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 100px;
+
+  /* Escuro e translúcido: legível sobre qualquer imagem, clara ou escura. */
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(5px);
+
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* O spinner sobre fundo escuro precisa ser claro */
+.cr-spin--claro {
+  border-color: rgba(255, 255, 255, .3);
+  border-top-color: #fff;
+}
+
+/* O aviso de fila: informação real (a pessoa precisa saber por que demora),
+   então continua acima dos slots — mas como objeto, não como texto solto. */
+.cr-fila {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 15px;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: var(--wash);
+  font-size: 11px;
+  color: var(--ink2);
 }

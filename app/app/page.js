@@ -22,6 +22,7 @@ import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
 import Card, { proporcaoCss } from '../../components/Card';
 import ModalDownload from '../../components/ModalDownload';
+import ModalDetalhes from '../../components/ModalDetalhes';
 import { lerConta, creditosMudaram } from '../../lib/auth';
 
 import {
@@ -362,6 +363,13 @@ export default function AppPage() {
   //  desaprovar não tirava a imagem das referências.
   //
   //  Assim, o React reage na hora: aprovou, entra; desaprovou, sai.
+  // O X numa referência do Batch desaprova a imagem no feed — assim as duas
+  // telas não se contradizem (a fonte da verdade continua sendo o feed).
+  function desaprovarPorId(id) {
+    const item = lotes.flatMap((l) => l.itens).find((i) => i.id === id);
+    if (item) aprovar(item);
+  }
+
   const aprovadas = lotes.flatMap((l) =>
     l.itens
       .filter((i) => i.aprovado)
@@ -413,6 +421,7 @@ export default function AppPage() {
             <PainelBatch
               leituraInicial={leituraDeOutraAba?.destino === 'batch' ? leituraDeOutraAba : null}
               aprovadas={aprovadas}
+              onDesaprovar={desaprovarPorId}
               ocupado={ocupado}
               setOcupado={setOcupado}
               onProgresso={setProgresso}
@@ -560,35 +569,22 @@ export default function AppPage() {
 
             {erro && <div className="cr-erro">{erro}</div>}
 
-            {/* Gerando: os slots aparecem antes do feed */}
+            {/* ── Gerando ──
+                Sem cabeçalho solto: o contador vai PARA DENTRO do slot, sobre
+                a imagem base desfocada. O que era um texto flutuando no branco
+                agora é parte da própria imagem que está nascendo. */}
             {progresso && (
               <div className="cr-gerando">
-                <div className="cr-gerando-cab">
-                  <span className="cr-spin" />
-                  <span>
-                    {progresso.estado === 'na_fila'
-                      ? 'Há muito tráfego agora — isso pode demorar mais que o normal.'
-                      : `Gerando imagem ${Math.min(progresso.feito + 1, progresso.total)} de ${progresso.total}`}
-                  </span>
 
-                  {/* Este número é REAL: conta imagens prontas do lote.
-                      (Dentro de cada imagem não há progresso — o Gemini não
-                      informa quanto falta, então lá a barra é indeterminada.) */}
-                  {progresso.total > 1 && (
-                    <span className="cr-gerando-pct">
-                      {Math.round((progresso.feito / progresso.total) * 100)}%
-                    </span>
-                  )}
-                </div>
-
-                {progresso.total > 1 && (
-                  <div className="cr-prog-trilho">
-                    <div
-                      className="cr-prog-cheio"
-                      style={{ width: (progresso.feito / progresso.total) * 100 + '%' }}
-                    />
+                {/* O aviso de fila FICA: é informação real, não decoração.
+                    A pessoa precisa saber por que está demorando. */}
+                {progresso.estado === 'na_fila' && (
+                  <div className="cr-fila">
+                    <span className="cr-spin" />
+                    <span>Há muito tráfego agora — isso pode demorar mais que o normal.</span>
                   </div>
                 )}
+
                 <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
                   {Array.from({ length: progresso.total }).map((_, i) => {
                     const saindo = i === progresso.feito;
@@ -605,12 +601,23 @@ export default function AppPage() {
                       >
                         {/* A imagem base, desfocada: a pessoa vê a cena tomando
                             forma em vez de encarar um retângulo vazio. No Render
-                            e no Batch é o print; na Editar, será a imagem base. */}
+                            e no Batch é o print; na Editar, a imagem base. */}
                         {saindo && progresso.base && (
                           <img className="cr-slot-base" src={progresso.base} alt="" />
                         )}
 
-                        {saindo && <span className="cr-spin" />}
+                        {/* O contador, sobre a imagem. Este número é REAL: conta
+                            imagens prontas do lote. (Dentro de cada imagem não há
+                            progresso — o Gemini não informa quanto falta.) */}
+                        {saindo && (
+                          <span className="cr-slot-tag">
+                            <span className="cr-spin cr-spin--claro" />
+                            {progresso.total > 1
+                              ? `${progresso.feito + 1} de ${progresso.total}`
+                              : 'Gerando'}
+                          </span>
+                        )}
+
                         {i > progresso.feito && <span className="cr-slot-n">{i + 1}</span>}
                       </div>
                     );
@@ -618,6 +625,7 @@ export default function AppPage() {
                 </div>
               </div>
             )}
+
 
             {carregando && <p className="cr-msg">Carregando...</p>}
 
@@ -777,6 +785,7 @@ export default function AppPage() {
             onBaixar={setBaixando}
             onExcluir={setExcluindo}
             onEnviarPara={enviarPara}
+            onDetalhes={() => setDetalhes({ lote, item })}
           />
         );
       })()}
@@ -787,6 +796,13 @@ export default function AppPage() {
         url={baixando?.url}
         id={baixando?.id}
         onFechar={() => setBaixando(null)}
+      />
+
+      <ModalDetalhes
+        aberto={detalhes !== null}
+        lote={detalhes?.lote}
+        item={detalhes?.item}
+        onFechar={() => setDetalhes(null)}
       />
 
       {excluindo && (
