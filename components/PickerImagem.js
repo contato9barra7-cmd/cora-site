@@ -140,19 +140,45 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
     setErro('');
     try {
       const base64 = await arquivoParaBase64(file);
-      setPendente({ base64, previa: URL.createObjectURL(file) });
+      const previa = URL.createObjectURL(file);
+
+      setPendente({
+        base64,
+        previa,
+        de: 'enviar',
+        nome: file.name,
+        peso: file.size
+      });
       setOrigem('enviar');   // se colou estando no histórico, mostra o que colou
+
+      medir(previa);
     } catch (e) { setErro(e.message); }
+  }
+
+  // As dimensões: numa miniatura de 100px ninguém confere se é a imagem certa.
+  // O número ajuda a ter certeza antes de gastar créditos com a errada.
+  function medir(url) {
+    const img = new Image();
+    img.onload = () => {
+      setPendente((p) => p && ({ ...p, w: img.naturalWidth, h: img.naturalHeight }));
+    };
+    img.src = url;
   }
 
   function confirmar() {
     if (!pendente) return;
-    onEscolher(pendente);
+
+    // Só os campos que o chamador espera — o resto (nome, peso, dimensões)
+    // era só para a tela de confirmação.
+    const { base64, previa, geracaoId } = pendente;
+    onEscolher({ base64, previa, geracaoId });
+
     setPendente(null);
     onFechar();
   }
 
-  // Do histórico, um clique basta: a pessoa já está vendo a imagem.
+  // Do histórico também se confirma: a miniatura tem 100px, e ninguém
+  // consegue ter certeza de que é a imagem certa a esse tamanho.
   async function escolherDoFeed(item) {
     setPegando(item.id);
     setErro('');
@@ -160,10 +186,18 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
       // Os bytes vêm do servidor: o R2 não manda CORS, então o fetch()
       // direto na URL da imagem falha ("Failed to fetch").
       const base64 = await bytesDaGeracao(item.id);
+
       // O `geracaoId` viaja junto: com ele, a leitura de materiais aponta
       // para a imagem que JÁ está no R2, em vez de guardar outra cópia.
-      onEscolher({ base64, previa: item.url, geracaoId: item.id });
-      onFechar();
+      setPendente({
+        base64,
+        previa: item.url,
+        geracaoId: item.id,
+        de: 'feed',
+        id: item.id
+      });
+
+      medir(item.url);
     } catch (e) { setErro(e.message); }
     finally { setPegando(null); }
   }
@@ -256,24 +290,15 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
               </label>
             )}
 
-            {/* Carregou: mostra e espera o OK */}
-            {pendente && (
-              <div className="pk-pend">
-                <div className="pk-pend-img">
-                  <img src={pendente.previa} alt="" />
-                </div>
-                <div className="pk-pend-acoes">
-                  <button className="pk-pend-trocar" onClick={() => setPendente(null)}>
-                    Trocar imagem
-                  </button>
-                  <button className="pk-pend-ok" onClick={confirmar}>
-                    Usar esta imagem
-                  </button>
-                </div>
+            {/* No ENVIO a prévia é grande: não há grade competindo pelo
+                espaço, e numa miniatura ninguém confere se é a imagem certa. */}
+            {pendente && pendente.de === 'enviar' && (
+              <div className="pk-previa">
+                <img src={pendente.previa} alt="" />
               </div>
             )}
 
-            {origem !== 'enviar' && !pendente && (
+            {origem !== 'enviar' && (
               <>
                 {carregando && <p className="cr-msg">Carregando...</p>}
 
@@ -293,10 +318,22 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
                       {g.itens.map((i) => (
                         <button
                           key={i.id}
-                          className={'pk-item' + (pegando === i.id ? ' pk-item--indo' : '')}
+                          className={'pk-item'
+                            + (pegando === i.id ? ' pk-item--indo' : '')
+                            + (pendente?.id === i.id ? ' pk-item--on' : '')}
                           onClick={() => escolherDoFeed(i)}
                           disabled={pegando !== null}
                         >
+                          {/* O visto: a escolhida se anuncia sem precisar
+                              sair da grade. Clicar noutra troca. */}
+                          {pendente?.id === i.id && (
+                            <span className="pk-visto">
+                              <svg viewBox="0 0 20 20" width="11" height="11" fill="none"
+                                   stroke="currentColor" strokeWidth="2.4">
+                                <path d="M4.5 10.5l3.5 3.5 7.5-8" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </span>
+                          )}
                           {/* A miniatura, não a original: aqui o card tem
                               uns 100px. Baixar 4 MB para isso era o que
                               deixava a gaveta lenta. */}
@@ -311,6 +348,46 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
 
             {erro && <div className="cr-erro">{erro}</div>}
           </div>
+
+          {/* ── A confirmação ──
+              A mesma barra serve aos dois casos. O que muda é o que fica
+              acima dela: a grade (dá para trocar clicando em outra) ou a
+              prévia grande (no envio, onde não há grade). */}
+          {pendente && (
+            <footer className="pk-ok">
+              {/* No histórico a grade continua à vista, e a miniatura aqui
+                  lembra qual foi escolhida. No envio a prévia já é grande —
+                  repetir seria redundante. */}
+              {pendente.de === 'feed' && (
+                <img className="pk-ok-mini" src={pendente.previa} alt="" />
+              )}
+
+              <div className="pk-ok-txt">
+                <strong>
+                  {pendente.de === 'enviar'
+                    ? (pendente.nome || 'Imagem enviada')
+                    : '1 imagem escolhida'}
+                </strong>
+                <span>
+                  {pendente.w
+                    ? pendente.w + ' × ' + pendente.h
+                    : 'Carregando...'}
+                  {pendente.peso ? ' · ' + (pendente.peso / 1048576).toFixed(1).replace('.', ',') + ' MB' : ''}
+                </span>
+              </div>
+
+              {/* Só no envio: no histórico, trocar é clicar em outra da grade. */}
+              {pendente.de === 'enviar' && (
+                <button className="pk-ok-outra" onClick={() => setPendente(null)}>
+                  Escolher outra
+                </button>
+              )}
+
+              <button className="pk-ok-btn" onClick={confirmar}>
+                Usar esta imagem
+              </button>
+            </footer>
+          )}
         </div>
       </div>
     </div>
