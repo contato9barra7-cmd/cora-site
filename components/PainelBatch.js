@@ -50,6 +50,11 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
   const [analise, setAnalise] = useState(null);   // [{ nome, materiais, aprovada, cfg }]
 
   const [picker, setPicker] = useState(null);     // 'ref' | 'cena'
+
+  // Analisar produz TEXTO, não imagens — então o aviso fica no PAINEL, junto
+  // do botão que a pessoa acabou de apertar. Mandá-lo para o feed (à direita)
+  // fazia parecer que uma imagem gigante estava sendo gerada.
+  const [analisando, setAnalisando] = useState(false);
   const [erro, setErro]     = useState('');
   const [confirmarReset, setConfirmarReset] = useState(false);
 
@@ -167,21 +172,25 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
     if (marcadas.length === 0) { setErro('Marque ao menos uma cena'); return; }
 
     setErro('');
-    setOcupado(true);
-    onProgresso({ feito: 0, total: marcadas.length, estado: 'analisando' });
+    setAnalisando(true);   // o aviso fica AQUI, no painel — não no feed
 
     try {
-      const r = await analisarBatch({
+      // Já vem como array (o lib desembrulha o { analise: { cenas } })
+      const lidas = await analisarBatch({
         cenas: marcadas.map((c) => ({ nome: c.nome, base64: c.base64 })),
         refs:  todasRefs.map((r) => r.base64)
       });
 
-      // Cada cena começa NÃO aprovada: a pessoa precisa ler e concordar.
-      const cenasAnalisadas = r.cenas.map((c, i) => ({
+      // Os campos vêm do servidor com estes nomes (é o que o plugin lê):
+      //   nome, leitura, materiais_completos, materiais_novos, perguntas
+      //
+      // `materiais_completos` é a leitura JÁ com as respostas da verificação;
+      // `leitura` é o texto cru. Preferimos a primeira.
+      const cenasAnalisadas = lidas.map((c, i) => ({
         nome:      c.nome || marcadas[i]?.nome || `Cena ${i + 1}`,
         cenaId:    marcadas[i]?.id,
         previa:    marcadas[i]?.previa,
-        materiais: c.materiais_completos || c.leitura || '',
+        materiais: c.materiais_completos || c.leitura || c.materiais_novos || '',
         aprovada:  false,
         cfg: { qtd: 1, proporcao: '4:5', resolucao: '2k' }
       }));
@@ -205,8 +214,7 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
     } catch (e) {
       setErro(e.message);
     } finally {
-      setOcupado(false);
-      onProgresso(null);
+      setAnalisando(false);
     }
   }
 
@@ -251,8 +259,7 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
     } catch (e) {
       setErro(e.message);
     } finally {
-      setOcupado(false);
-      onProgresso(null);
+      setAnalisando(false);
     }
   }
 
@@ -483,13 +490,26 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
       <div className="cr-barra-ger">
         {fase === 1 ? (
           <>
+            {/* O aviso fica AQUI, no painel, junto do botão que a pessoa
+                apertou — não no feed, que é onde as imagens aparecem. */}
+            {analisando && (
+              <div className="cr-lendo">
+                <span className="cr-spin" />
+                <span>
+                  {marcadas.length === 1
+                    ? 'Lendo os materiais da cena...'
+                    : `Lendo os materiais de ${marcadas.length} cenas...`}
+                </span>
+              </div>
+            )}
+
             <button
               className="cr-btn-gerar"
               onClick={analisar}
-              disabled={ocupado || todasRefs.length === 0 || marcadas.length === 0}
+              disabled={analisando || ocupado || todasRefs.length === 0 || marcadas.length === 0}
             >
-              <span>{ocupado ? 'Analisando...' : 'Analisar cenas'}</span>
-              {!ocupado && marcadas.length > 0 && (
+              <span>{analisando ? 'Analisando...' : 'Analisar cenas'}</span>
+              {!analisando && marcadas.length > 0 && (
                 <span className="cr-custo-tag">
                   <IconeCredito /> {CREDITOS.analiseBatch * marcadas.length}
                 </span>

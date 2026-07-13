@@ -4495,3 +4495,19 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   justify-content: center;
   box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
 }
+
+/* Analisar produz TEXTO, não imagens — o aviso fica no painel, junto do
+   botão que a pessoa apertou. No feed (à direita) parecia que uma imagem
+   gigante estava sendo gerada. */
+.cr-lendo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--wash);
+  font-size: 11px;
+  color: var(--ink2);
+}

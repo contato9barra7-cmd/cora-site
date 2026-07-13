@@ -521,28 +521,7 @@ export default function AppPage() {
             {erro && <div className="cr-erro">{erro}</div>}
 
             {/* Gerando: os slots aparecem antes do feed */}
-            {/* ── Analisando: NÃO é gerar ──
-                Analisar cenas produz TEXTO (os materiais), não imagens. Mostrar
-                os slots de imagem aqui fazia parecer que um render gigante
-                estava sendo feito — e não estava. */}
-            {progresso?.estado === 'analisando' && (
-              <div className="cr-gerando cr-gerando--texto">
-                <div className="cr-gerando-cab">
-                  <span className="cr-spin" />
-                  <span>
-                    {progresso.total === 1
-                      ? 'Lendo os materiais da cena...'
-                      : `Lendo os materiais de ${progresso.total} cenas...`}
-                  </span>
-                </div>
-                <p className="cr-gerando-nota">
-                  A IA está cruzando cada cena com as referências. Assim que
-                  terminar, você revisa e aprova.
-                </p>
-              </div>
-            )}
-
-            {progresso && progresso.estado !== 'analisando' && (
+            {progresso && (
               <div className="cr-gerando">
                 <div className="cr-gerando-cab">
                   <span className="cr-spin" />
