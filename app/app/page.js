@@ -161,6 +161,7 @@ export default function AppPage() {
   // grande — então o modal e a confirmação moram aqui, um só para os dois.
   const [baixando, setBaixando]   = useState(null);   // o item a baixar
   const [excluindo, setExcluindo] = useState(null);   // o item a excluir
+  const [detalhes, setDetalhes]   = useState(null);   // { lote, item }
 
   // Como o feed se apresenta
   const [layout, setLayout]   = useState('linha');   // grade | linha — lista por padrão
