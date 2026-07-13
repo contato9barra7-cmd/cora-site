@@ -71,15 +71,60 @@ export default function Visualizador({
 
   const parRef = useRef(null);
 
-  // A forma da caixa. A imagem NÃO se encaixa numa moldura fixa — ela é a
+  // ── A forma real das imagens ──
+  //
+  //  Quando a geração não declara proporção (o preenchimento e a expansão
+  //  salvam null: o FLUX devolve no tamanho da base, seja ele qual for), o
+  //  proporcaoCss chutava 4/3 — e o `object-fit: cover` CORTAVA a imagem
+  //  para caber nesse chute. A imagem aparecia com a forma errada.
+  //
+  //  Sem proporção declarada, medimos a imagem de verdade.
+  const [medida, setMedida]       = useState(null);
+  const [medidaEsq, setMedidaEsq] = useState(null);
+
+  // A imagem gerada (B, à direita)
+  useEffect(() => {
+    if (proporcao && proporcao !== 'auto') { setMedida(null); return; }
+    if (!item?.url) return;
+
+    let vivo = true;
+    const img = new Image();
+    img.onload = () => {
+      if (vivo && img.naturalWidth && img.naturalHeight) {
+        setMedida(img.naturalWidth + ' / ' + img.naturalHeight);
+      }
+    };
+    img.src = item.url;
+    return () => { vivo = false; };
+  }, [item?.url, proporcao]);
+
+  // A imagem de comparação (A, à esquerda) — pode ter outra forma
+  useEffect(() => {
+    if (proporcaoEsq && proporcaoEsq !== 'auto') { setMedidaEsq(null); return; }
+    if (!original) { setMedidaEsq(null); return; }
+
+    let vivo = true;
+    const img = new Image();
+    img.onload = () => {
+      if (vivo && img.naturalWidth && img.naturalHeight) {
+        setMedidaEsq(img.naturalWidth + ' / ' + img.naturalHeight);
+      }
+    };
+    img.src = original;
+    return () => { vivo = false; };
+  }, [original, proporcaoEsq]);
+
+  // A forma da caixa. A imagem NÃO se encaixa numa moldura fixa — ela É a
   // caixa: altura cheia, e a largura sai desta proporção. Por isso não
   // sobra faixa vazia e o arredondamento fica na própria imagem.
-  const forma = { aspectRatio: proporcaoCss(proporcao) };
+  const forma = { aspectRatio: medida || proporcaoCss(proporcao) };
 
   // No A/B as duas podem ter proporções diferentes. No Side by Side cada uma
   // fica na sua forma; no Split a sobreposição exige a mesma, então ali o
   // print acompanha o render.
-  const formaEsq = proporcaoEsq ? { aspectRatio: proporcaoCss(proporcaoEsq) } : forma;
+  const formaEsq = (medidaEsq || proporcaoEsq)
+    ? { aspectRatio: medidaEsq || proporcaoCss(proporcaoEsq) }
+    : forma;
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onFechar(); };

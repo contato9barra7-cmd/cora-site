@@ -1184,8 +1184,8 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
    O gesto carrega a hierarquia — não uma cor de fundo, que só preenchia
    espaço. E por não depender de cor, sobrevive à troca de paleta.
 
-   O sulco é o fundo do próprio .cr-pills (arredondado), não um ::before com
-   z-index negativo — esse iria parar atrás do painel e sumiria. */
+   O sulco é o fundo do próprio .cr-trilho, não um ::before com z-index
+   negativo — esse iria parar atrás do painel e sumiria. */
 .cr-trilho {
   display: flex;
   gap: 2px;
@@ -1194,7 +1194,16 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   box-sizing: border-box;
   border-radius: 100px;
   background: var(--wash2);
+
+  /* Preparado para MAIS de 4 abas: passando disso, o trilho rola em vez de
+     espremer as pills até o texto sumir. Enquanto couberem, nada muda. */
+  overflow-x: auto;
+  scrollbar-width: none;              /* a barra some: rola-se pelo gesto */
+  scroll-behavior: smooth;
 }
+
+.cr-trilho::-webkit-scrollbar { display: none; }
+
 
 .cr-pill {
   flex: 1;
@@ -1934,23 +1943,33 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .cr-ref img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+/* O MESMO X de todo o resto: fundo claro, traço escuro, borda fina.
+   Era o único preto-com-X-branco do produto. A borda é o que o mantém
+   visível sobre uma foto clara — não precisa ser preto para isso. */
 .cr-ref-x {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 15px;
-  height: 15px;
+  top: 3px;
+  right: 3px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  border: none;
-  background: rgba(0, 0, 0, .6);
-  color: #fff;
-  font-size: 10px;
+  border: 1px solid var(--line2);
+  background: var(--paper);
+  color: var(--ink2);
+  font-size: 12px;
   line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12);   /* destaca sobre a imagem */
+  transition: all .15s;
+}
+
+.cr-ref-x:hover {
+  border-color: var(--alerta);
+  color: var(--alerta);
 }
 
 .cr-ref-n {
@@ -2069,7 +2088,13 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   color: var(--accent);
 }
 
-.cr-pill-seta { font-size: 8px; color: var(--ink3); }
+.cr-seta {
+  color: var(--ink3);
+  flex-shrink: 0;
+  transition: transform .18s;
+}
+
+.cr-seta--on { transform: rotate(180deg); }
 
 .cr-pop {
   position: absolute;
@@ -2473,42 +2498,48 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   border: 1px solid var(--line);
   border-radius: 16px;
   overflow: hidden;
+
+  /* Funda: da o peso de "isto esta por cima de tudo". */
+  box-shadow: 0 16px 48px rgba(0, 0, 0, .18);
 }
 
 .pk-lado {
-  width: 170px;
+  width: 132px;               /* 170 comia espaco que a grade precisa */
   flex-shrink: 0;
-  padding: 14px 10px;
+  padding: 13px 8px;
   border-right: 1px solid var(--line);
   background: var(--wash);
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 1px;
 }
 
 .pk-origem {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   height: 34px;
-  padding: 0 10px;
+  padding: 0 9px;
   border: none;
-  border-radius: 8px;
+  border-radius: 7px;
   background: transparent;
   color: var(--ink3);
-  font-size: 12px;
+  font-size: 11.5px;
   font-family: inherit;
   cursor: pointer;
   text-align: left;
   transition: all .15s;
 }
 
-.pk-origem:hover { background: var(--paper); color: var(--ink2); }
+.pk-origem:hover { color: var(--ink2); background: var(--paper); }
 
+/* A ativa e marcada por um TRACO na borda, nao por uma pilula. A pilula
+   competia com as outras pilulas da tela; o traco so aponta. */
 .pk-origem--on {
   background: var(--paper);
   color: var(--ink);
   font-weight: 600;
+  box-shadow: inset 2px 0 0 var(--accent);
 }
 
 .pk-main {
@@ -2521,23 +2552,28 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .pk-cab {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 11px;
   padding: 13px 16px;
   border-bottom: 1px solid var(--line);
 }
 
 .pk-titulo {
-  font-size: 14px;
+  font-size: 12.5px;
   font-weight: 600;
+  flex-shrink: 0;
 }
 
+/* A busca ESTICA ao lado do titulo. Encostada a direita, sobrava um vazio
+   no meio do cabecalho. */
 .pk-busca {
-  margin-left: auto;
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 6px;
   height: 30px;
   padding: 0 12px;
+  border: 1px solid var(--line);
   border-radius: 100px;
   background: var(--wash);
   color: var(--ink3);
@@ -2571,22 +2607,27 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .pk-grade {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 7px;
+  grid-template-columns: repeat(5, 1fr);   /* 6 deixava tudo miudo demais */
+  gap: 9px;
 }
 
+/* Sem moldura: so a imagem. A borda cinza em volta de cada miniatura fazia a
+   grade parecer uma planilha. O anel so aparece no hover. */
 .pk-item {
   aspect-ratio: 1;
-  border-radius: 8px;
-  border: 1px solid var(--line);
+  border-radius: 9px;
+  border: none;
   background: var(--wash);
   overflow: hidden;
   cursor: pointer;
   padding: 0;
-  transition: border-color .15s, transform .1s;
+  transition: box-shadow .15s, transform .1s;
 }
 
-.pk-item:hover { border-color: var(--accent); transform: scale(1.03); }
+.pk-item:hover {
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--accent);
+  transform: scale(1.02);
+}
 .pk-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .pk-item--indo { opacity: .5; }
 .pk-item:disabled { cursor: default; }
@@ -2651,6 +2692,8 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .vz-modo:hover { color: var(--ink2); }
 
+/* A ativa e a unica coisa clara do trilho — no escuro, o contraste faz o
+   trabalho que a cor fazia no claro. */
 .vz-modo--on {
   background: var(--paper);
   color: var(--ink);

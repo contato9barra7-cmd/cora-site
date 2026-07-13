@@ -16,6 +16,7 @@ import { useState, useEffect } from 'react';
 import PickerImagem from './PickerImagem';
 import CampoRefs from './CampoRefs';
 import IconeCredito from './IconeCredito';
+import Seta from './Seta';
 import {
   editarImagem, custoEditar, PROPORCOES, RESOLUCOES, MAX_REFS
 } from '../lib/render';
@@ -439,7 +440,7 @@ export default function PainelEditar({
                   <rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
                 </svg>
                 <span>{proporcao === 'auto' ? 'Auto' : proporcao}</span>
-                <span className="cr-pill-seta">{popRatio ? '▾' : '▴'}</span>
+                <Seta aberto={popRatio} />
               </button>
 
               {popRatio && (
@@ -472,7 +473,7 @@ export default function PainelEditar({
                   <rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/>
                 </svg>
                 <span>{RESOLUCOES.find((r) => r.val === resolucao)?.rotulo}</span>
-                <span className="cr-pill-seta">{popRes ? '▾' : '▴'}</span>
+                <Seta aberto={popRes} />
               </button>
 
               {popRes && (
@@ -498,9 +499,6 @@ export default function PainelEditar({
             )}
           </button>
 
-          <p className="cr-custo">
-            {custo} créditos · {quantidade} {quantidade === 1 ? 'imagem' : 'imagens'}
-          </p>
         </div>
       )}
 

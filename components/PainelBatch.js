@@ -641,10 +641,12 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
               </button>
             )}
 
+            {/* O custo sai (ja esta na tag do hover); a CONTAGEM fica —
+                ela orienta, e nao aparece em nenhum outro lugar. */}
             <p className="cr-custo">
               {marcadas.length === 0
                 ? 'Marque as cenas que quer analisar'
-                : `${marcadas.length} ${marcadas.length === 1 ? 'cena' : 'cenas'} · ${CREDITOS.analiseBatch} créditos cada`}
+                : `${marcadas.length} ${marcadas.length === 1 ? 'cena' : 'cenas'}`}
             </p>
           </>
         ) : (

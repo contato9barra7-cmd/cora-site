@@ -17,6 +17,7 @@
 import { useState, useEffect } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
+import Seta from './Seta';
 import CampoRefs from './CampoRefs';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import {
@@ -330,8 +331,14 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     setConfirmarReset(false);
   }
 
-  const custo      = custoRender(quantidade, resolucao);
-  const travadoMat = matEstado === 'revisar';   // precisa confirmar antes
+  const custo = custoRender(quantidade, resolucao);
+
+  // So renderiza com o material CONFIRMADO.
+  //
+  // Antes travava so em 'revisar' (leu mas nao confirmou). Quem nunca leu
+  // ficava em 'vazio' e passava direto — renderizando sem material nenhum,
+  // que e o oposto do que o produto quer.
+  const travadoMat = matEstado !== 'confirmado';
 
   return (
     <>
@@ -666,7 +673,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
                 <rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
               </svg>
               <span>{proporcao === 'auto' ? 'Auto' : proporcao}</span>
-              <span className="cr-pill-seta">{popRatio ? '▾' : '▴'}</span>
+              <Seta aberto={popRatio} />
             </button>
 
             {popRatio && (
@@ -700,7 +707,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
                 <rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/>
               </svg>
               <span>{RESOLUCOES.find((r) => r.val === resolucao)?.rotulo}</span>
-              <span className="cr-pill-seta">{popRes ? '▾' : '▴'}</span>
+              <Seta aberto={popRes} />
             </button>
 
             {popRes && (
@@ -730,11 +737,16 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           )}
         </button>
 
-        <p className="cr-custo">
-          {travadoMat
-            ? 'Confirme os materiais para renderizar'
-            : `${custo} créditos · ${quantidade} ${quantidade === 1 ? 'imagem' : 'imagens'}`}
-        </p>
+        {/* O custo nao se repete aqui: ja aparece na tag do hover.
+            So o aviso fica — a pessoa precisa saber por que o botao esta
+            apagado. */}
+        {travadoMat && (
+          <p className="cr-custo">
+            {matEstado === 'revisar'
+              ? 'Confirme os materiais para renderizar'
+              : 'Leia os materiais para renderizar'}
+          </p>
+        )}
       </div>
 
       <PickerImagem
