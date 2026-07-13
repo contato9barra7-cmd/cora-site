@@ -331,7 +331,6 @@ function ContaConteudo() {
           </div>
         </div>
       </div>
-      </div>
     </div>
     </AppShell>
   );
