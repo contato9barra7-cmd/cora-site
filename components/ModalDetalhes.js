@@ -47,11 +47,13 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
 
         <div className="dt-corpo">
 
-          {/* ── Configurações ── */}
-          <div className="dt-sec">Configurações</div>
+          {/* ── Como foi feita ──
+              A ferramenta primeiro, destacada: é a informação que diz o que
+              esta imagem É. Depois as configurações. */}
+          <div className="dt-sec">Como foi feita</div>
           <div className="dt-pills">
             {lote.ferramenta && (
-              <span className="dt-pill">
+              <span className="dt-pill dt-pill--forte">
                 {ROTULO_FERRAMENTA[lote.ferramenta] || lote.ferramenta}
               </span>
             )}

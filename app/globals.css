@@ -585,12 +585,14 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   transition: color .14s;
 }
 
+/* No HOVER, a cor da marca aparece de leve — a pessoa sente que aquilo é
+   clicável antes mesmo de clicar. */
 .app-nav-item:hover {
-  background: var(--wash);
+  background: color-mix(in srgb, var(--accent) 11%, transparent);
   color: var(--ink);
 }
 
-.app-nav-item:hover .app-nav-ic { color: var(--ink2); }
+.app-nav-item:hover .app-nav-ic { color: var(--accent); }
 
 /* O ativo: um traço na borda esquerda, e o ícone ganha a cor da marca. */
 .app-nav-item.ativo {
@@ -612,7 +614,11 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .app-nav-item.ativo .app-nav-ic { color: var(--accent); }
 
-.app-nav-item.ativo:hover { background: var(--wash); }
+/* O ATIVO não muda no hover: ele já está marcado pelo traço. Piscar de cor
+   ao passar o mouse sobre o item onde a pessoa JÁ está seria ruído. */
+.app-nav-item.ativo:hover {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
 
 /* Separa o trabalho (o que a pessoa faz) da conta (o que ela administra) */
 .app-nav-div {
@@ -5063,3 +5069,12 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 /* O texto do item de menu — o protagonista, agora que o ícone é discreto */
 .app-nav-lbl { line-height: 1; }
+
+/* A ferramenta é a informação que diz o que esta imagem É — Render, Batch,
+   Editar. Destacada das demais configurações. */
+.dt-pill--forte {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--ink);
+  font-weight: 600;
+}

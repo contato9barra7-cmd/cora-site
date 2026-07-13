@@ -685,6 +685,7 @@ export default function AppPage() {
                       onBaixar={setBaixando}
                       onExcluir={setExcluindo}
                       onEnviarPara={enviarPara}
+                      onDetalhes={(item) => setDetalhes({ lote: loteDoItem(item.id), item })}
                     />
                   ))}
                 </div>
@@ -741,6 +742,7 @@ export default function AppPage() {
                         onBaixar={setBaixando}
                         onExcluir={setExcluindo}
                         onEnviarPara={enviarPara}
+                        onDetalhes={() => setDetalhes({ lote, item })}
                       />
                     ))}
                   </div>
