@@ -507,9 +507,9 @@ export default function AppPage() {
               onPronto={() => { setProgresso(null); recarregarComFolga(); }}
               onAbrirPincel={() => setErro(
                 'O preenchimento e a expansão entram em breve — por enquanto, use o plugin.'
-              </div>
+              )}
             />
-          )}
+          </div>
 
           {ferramenta === 'analises' && (
             <PainelAnalises onUsar={usarLeitura} />
