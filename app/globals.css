@@ -702,8 +702,17 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   position: absolute; top: 46px; right: 0; background: var(--paper); border: 1px solid var(--line);
   border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,.12); padding: 10px; width: 280px;
   display: flex; flex-direction: column; gap: 2px;
+
+  /* O menu vive DENTRO do <button> do avatar (.app-user-btn), que centraliza
+     o proprio conteudo. Sem isto, o nome e o plano herdavam o centro. */
+  text-align: left;
+  align-items: stretch;
 }
-.app-user-nome { padding: 8px 12px; font-size: 13px; color: var(--ink3); border-bottom: 1px solid var(--line); margin-bottom: 4px; word-break: break-all; }
+
+/* Cada filho tambem: `text-align` herda, mas um <button> filho (como o
+   "Minha conta") volta a centralizar sozinho. */
+.app-user-menu > * { text-align: left; }
+/* (A regra completa do .app-user-nome esta mais abaixo — esta e antiga.) */
 .app-user-link {
   display: flex; align-items: center; gap: 8px;
   padding: 8px 10px; border-radius: 8px; text-decoration: none;
@@ -3238,16 +3247,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   outline-offset: 1px;
 }
 
-.cr-ab-barra {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 16px;
-  background: var(--accent-bg);
-  color: var(--accent);
-  font-size: 11px;
-  border-bottom: 1px solid var(--line);
-}
+
 
 .cr-ab-barra button {
   margin-left: auto;
@@ -3847,21 +3847,11 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   box-shadow: 0 2px 8px rgba(0, 0, 0, .28);
 }
 
-.cr-ab-ver {
-  padding: 4px 14px;
-  border-radius: 100px;
-  border: none;
-  background: var(--accent);
-  color: var(--accent-txt);
-  font-size: 11px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-}
 
-.cr-ab-barra { gap: 8px; }
-.cr-ab-barra > span { margin-right: auto; }
-.cr-ab-barra button:last-child { margin-left: 0; }
+
+
+
+
 
 /* Quando foi feita — aparece no hover, junto da ferramenta */
 .cr-card-quando { margin-left: auto; opacity: .85; }
@@ -5669,4 +5659,156 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-weight: 600;
   color: var(--ink2);
   min-width: 30px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   Comparar A/B — dois slots que se preenchem
+
+   A barra antiga NARRAVA em texto ("clique na primeira imagem") o que devia
+   estar visível. E, escolhida a errada, só dava para sair e recomeçar.
+   ═══════════════════════════════════════════════════════════ */
+.cr-ab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--wash);
+  transition: background .2s, border-color .2s;
+}
+
+/* Escolhidas as duas, a barra se acende: o passo seguinte é o botão. */
+.cr-ab--pronto {
+  background: var(--accent-bg);
+  border-bottom-color: var(--accent);
+}
+
+.cr-ab-slots {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cr-ab-vs {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink3);
+}
+
+.cr-ab--pronto .cr-ab-vs { color: var(--accent); }
+
+/* Vazio: um tracejado esperando. Cheio: a miniatura do que foi escolhido. */
+.cr-ab-slot {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 10px;
+  border: 1px dashed var(--line2);
+  border-radius: 9px;
+  background: transparent;
+}
+
+.cr-ab-slot b {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--line2);
+  color: var(--paper);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.cr-ab-slot span {
+  font-size: 11px;
+  color: var(--ink3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cr-ab-slot--cheio {
+  border-style: solid;
+  border-color: var(--line);
+  background: var(--paper);
+  padding: 0 6px 0 6px;
+}
+
+.cr-ab-slot--cheio span { color: var(--ink); font-weight: 500; }
+
+.cr-ab-slot img {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+}
+
+/* O X de tirar a imagem do slot */
+.cr-ab-slot button {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink3);
+  cursor: pointer;
+  padding: 0;
+  transition: all .15s;
+}
+
+.cr-ab-slot button:hover { background: var(--wash); color: var(--alerta); }
+
+.cr-ab-sair {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: var(--ink3);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 6px 4px;
+}
+
+.cr-ab-sair:hover { color: var(--ink); }
+
+.cr-ab-ver {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 100px;
+  background: var(--accent);
+  color: var(--accent-txt);
+  font-size: 11.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+
+/* Apagado até as duas estarem escolhidas: o botão não promete o que ainda
+   não pode cumprir. */
+.cr-ab-ver:disabled {
+  opacity: .35;
+  cursor: default;
 }

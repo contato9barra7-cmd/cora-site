@@ -12,7 +12,7 @@
 //  assinaturaConfig, no lib/render.)
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import PainelRender from '../../components/PainelRender';
@@ -689,23 +689,56 @@ export default function AppPage() {
           </header>
 
           {modoAB && (
-            <div className="cr-ab-barra">
-              <span>
-                {!ladoA  ? 'Comparar A/B: clique na primeira imagem.'
-                  : !ladoB ? 'Agora clique na segunda imagem.'
-                  : 'Pronto — as duas escolhidas.'}
-              </span>
+            <div className={'cr-ab' + (ladoA && ladoB ? ' cr-ab--pronto' : '')}>
 
-              {ladoA && ladoB && (
-                <button
-                  className="cr-ab-ver"
-                  onClick={() => setVendo({ ab: true })}
-                >
-                  Comparar
-                </button>
-              )}
+              {/* Os slots MOSTRAM o que foi escolhido, em vez de narrar o que
+                  falta fazer. E cada um se desfaz sozinho: escolheu errado,
+                  troca só aquele — não precisa sair e recomeçar. */}
+              <div className="cr-ab-slots">
+                {[['A', ladoA, () => setLadoA(null)],
+                  ['B', ladoB, () => setLadoB(null)]].map(([letra, lado, limpar], i) => (
+                  <Fragment key={letra}>
+                    {i === 1 && <span className="cr-ab-vs">vs</span>}
 
-              <button onClick={sairAB}>Sair</button>
+                    <div className={'cr-ab-slot' + (lado ? ' cr-ab-slot--cheio' : '')}>
+                      {lado ? (
+                        <>
+                          <img src={lado.thumb || lado.url} alt="" />
+                          <span>Imagem {letra}</span>
+                          <button onClick={limpar} aria-label={'Tirar a imagem ' + letra}>
+                            <svg viewBox="0 0 20 20" width="13" height="13" fill="none"
+                                 stroke="currentColor" strokeWidth="1.7">
+                              <path d="M6 6l8 8M14 6l-8 8" strokeLinecap="round"/>
+                            </svg>
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <b>{letra}</b>
+                          <span>
+                            {/* Só um dos dois é o próximo — o outro espera */}
+                            {(letra === 'A' || ladoA) ? 'Clique numa imagem' : 'Depois, a segunda'}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </Fragment>
+                ))}
+              </div>
+
+              <button className="cr-ab-sair" onClick={sairAB}>Cancelar</button>
+
+              <button
+                className="cr-ab-ver"
+                onClick={() => setVendo({ ab: true })}
+                disabled={!ladoA || !ladoB}
+              >
+                <svg viewBox="0 0 14 14" width="13" height="13" fill="none">
+                  <rect x="1" y="1" width="5" height="12" rx="1" stroke="currentColor" strokeWidth="1.3"/>
+                  <rect x="8" y="1" width="5" height="12" rx="1" stroke="currentColor" strokeWidth="1.3"/>
+                </svg>
+                Comparar
+              </button>
             </div>
           )}
 
