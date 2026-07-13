@@ -5516,7 +5516,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .pn-pilha {
   position: relative;
   line-height: 0;
-  transition: transform .12s;
+  transform-origin: center;
 }
 
 .pn-canvas {
@@ -5525,16 +5525,52 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   max-width: 100%;
 }
 
-/* O canvas da máscara fica POR CIMA da imagem, no mesmo lugar. */
-.pn-canvas--draw {
+/* O canvas da máscara fica POR CIMA da imagem, no mesmo lugar.
+
+   A OPACIDADE VIVE AQUI, não na cor do pincel. Com rgba() a tinta acumula:
+   passar duas vezes no mesmo lugar escurece, e a máscara ganha bordas duras
+   onde não deveria. Cor sólida + opacity do canvas = passada uniforme. */
+.pn-draw {
   position: absolute;
   top: 0;
   left: 0;
   cursor: crosshair;
+  opacity: .4;
 }
 
 /* Na expansão não se pinta: a moldura é que define a área. */
-.pn-canvas--off { pointer-events: none; }
+.pn-draw--off { pointer-events: none; }
+
+/* O alvo — um círculo do tamanho do pincel, seguindo o mouse.
+   Sem ele, não dá para saber onde a tinta vai cair. */
+.pn-cursor {
+  position: fixed;
+  display: none;
+  pointer-events: none;
+  z-index: 9999;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .4);
+}
+
+/* O rodapé: as dicas de zoom, ou os controles da expansão */
+.pn-pe {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 20px;
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.pn-zoom {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink2);
+  min-width: 36px;
+}
 
 /* A moldura da expansão: o tracejado mostra o que vai ser criado. */
 .pn-moldura {
@@ -5550,9 +5586,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  padding: 12px 20px;
-  border-top: 1px solid var(--line);
-  background: var(--paper);
 }
 
 .pn-lado {

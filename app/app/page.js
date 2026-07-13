@@ -578,9 +578,7 @@ export default function AppPage() {
             <TelaPincel
               modo={pincel.modo}
               base={pincel.base}
-              previa={pincel.previa}
               onGerar={montarPincel}
-              ocupado={ocupado}
             />
           ) : (
           <>

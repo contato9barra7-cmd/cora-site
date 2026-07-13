@@ -9,7 +9,7 @@
 
 import { useState } from 'react';
 import IconeCredito from './IconeCredito';
-import { custoGenerativa, RESOLUCOES } from '../lib/render';
+import { custoGenerativa } from '../lib/render';
 
 const TEXTOS = {
   preenchimento: {
@@ -27,9 +27,13 @@ const TEXTOS = {
 };
 
 export default function PainelPincel({ modo, ocupado, onVoltar, onGerar }) {
-  const [texto, setTexto]   = useState('');
-  const [resolucao, setRes] = useState('2k');
-  const [erro, setErro]     = useState('');
+  const [texto, setTexto] = useState('');
+  const [erro, setErro]   = useState('');
+
+  // Sem escolha de resolução: o plugin não tem, e o flux-fill sempre foi 2k.
+  // Oferecê-la aqui criaria uma diferença entre os dois — e preços diferentes
+  // pela mesma coisa.
+  const resolucao = '2k';
 
   const t = TEXTOS[modo] || TEXTOS.preenchimento;
 
@@ -67,17 +71,6 @@ export default function PainelPincel({ modo, ocupado, onVoltar, onGerar }) {
         placeholder={t.ph}
         spellCheck={false}
       />
-
-      <div className="cr-sec">Resolução</div>
-      <div className="cr-chips">
-        {RESOLUCOES.map((r) => (
-          <button
-            key={r.val}
-            className={'cr-chip' + (resolucao === r.val ? ' cr-chip--on' : '')}
-            onClick={() => setRes(r.val)}
-          >{r.rotulo}</button>
-        ))}
-      </div>
 
       {erro && <div className="cr-erro">{erro}</div>}
 
