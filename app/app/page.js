@@ -24,7 +24,6 @@ import PainelAnalises from '../../components/PainelAnalises';
 import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
 import Card, { proporcaoCss } from '../../components/Card';
-import ModalDownload from '../../components/ModalDownload';
 import ModalDetalhes from '../../components/ModalDetalhes';
 import { lerConta, creditosMudaram } from '../../lib/auth';
 import { gerarGenerativa } from '../../lib/render';
@@ -148,6 +147,13 @@ export default function AppPage() {
   // 380px seria impossível. Ao sair, o feed volta — com o resultado nele.
   const [pincel, setPincel]         = useState(null);   // {modo, base, previa}
   const montarPincel                = useRef(null);     // a tela devolve os bytes
+  const limparPincel                = useRef(null);     // o painel manda limpar
+
+  // O painel comanda, a tela obedece. O estado mora aqui, no meio dos dois.
+  const [pnFerr, setPnFerr]   = useState('pincel');
+  const [pnTam, setPnTam]     = useState(38);
+  const [pnRatio, setPnRatio] = useState('livre');
+  const [pnMed, setPnMed]     = useState(null);   // as dimensões da moldura
   const [ocupado, setOcupado]       = useState(false);
   // O progresso aceita função: os painéis ACUMULAM as falhas nele
   // (setProgresso(p => ({...p, falhas}))), em vez de sobrescrever.
@@ -163,20 +169,24 @@ export default function AppPage() {
 
     const { imagem, mascara, pronto } = montar();
 
+    // Valida ANTES de sair: o erro precisa de uma tela onde aparecer.
     if (!pronto) {
       throw new Error(modo === 'expansao'
         ? 'Arraste as bordas para definir a área a criar'
         : 'Pinte a área que você quer trocar');
     }
 
+    setPincel(null);          // sai do pincel JÁ: o feed mostra o "gerando"
     setOcupado(true);
     setProgresso({ feito: 0, total: 1, estado: 'processando', proporcao: 'auto' });
 
     try {
       await gerarGenerativa({ modo, imagem, mascara, texto });
-
-      setPincel(null);        // sai do pincel: o feed volta, com o resultado
       recarregarComFolga();
+
+    } catch (e) {
+      // O pincel já fechou: o erro aparece no feed, como o das outras abas.
+      setErro('Não foi possível gerar: ' + e.message);
 
     } finally {
       setOcupado(false);
@@ -186,7 +196,6 @@ export default function AppPage() {
 
   // O que refazer quando a pessoa clica em "Tentar de novo".
   const [refazer, setRefazer]       = useState(null);
-
 
   // O último lote gerado — para saber se o próximo continua na mesma linha
   const [ultimoLote, setUltimoLote] = useState(null);
@@ -205,7 +214,6 @@ export default function AppPage() {
 
   // Baixar e excluir agora acontecem do card TAMBÉM, não só da janela
   // grande — então o modal e a confirmação moram aqui, um só para os dois.
-  const [baixando, setBaixando]   = useState(null);   // o item a baixar
   const [excluindo, setExcluindo] = useState(null);   // o item a excluir
   const [detalhes, setDetalhes]   = useState(null);   // { lote, item }
 
@@ -427,7 +435,16 @@ export default function AppPage() {
     setErro('');
     try {
       const base64 = await bytesDaGeracao(item.id);
-      setImagemDeOutraAba({ base64, previa: item.thumb || item.url, geracaoId: item.id });
+
+      // O DESTINO viaja junto: sem ele, o Render e o Editar recebiam a mesma
+      // imagem, e "Enviar para Editar" a colocava nas duas abas.
+      setImagemDeOutraAba({
+        base64,
+        previa: item.thumb || item.url,
+        geracaoId: item.id,
+        para: destino
+      });
+
       setFerramenta(destino);
     } catch (e) {
       setErro('Não foi possível carregar a imagem: ' + e.message);
@@ -522,7 +539,7 @@ export default function AppPage() {
               setOcupado={setOcupado}
               onProgresso={setProgresso}
               onPronto={aoGerar}
-              imagemInicial={imagemDeOutraAba}
+              imagemInicial={imagemDeOutraAba?.para === 'render' ? imagemDeOutraAba : null}
               loteAnterior={ultimoLote}
             />
           </div>
@@ -546,19 +563,32 @@ export default function AppPage() {
               ocupado={ocupado}
               onVoltar={() => setPincel(null)}
               onGerar={gerarComPincel}
+              ferramenta={pnFerr}   setFerramenta={setPnFerr}
+              tamanho={pnTam}       setTamanho={setPnTam}
+              proporcao={pnRatio}   setProporcao={setPnRatio}
+              medidas={pnMed}
+              limpar={limparPincel}
             />
           )}
 
           <div hidden={ferramenta !== 'editar' || !!pincel}>
             <PainelEditar
-              imagemInicial={imagemDeOutraAba}
+              imagemInicial={imagemDeOutraAba?.para === 'editar' ? imagemDeOutraAba : null}
               ferramentas={conta?.ferramentas || []}
               ehAdmin={ehAdmin}
               ocupado={ocupado}
               setOcupado={setOcupado}
               onProgresso={setProgresso}
               onPronto={() => { setProgresso(null); recarregarComFolga(); }}
-              onAbrirPincel={setPincel}
+              onAbrirPincel={(p) => {
+                // Cada abertura começa limpa: a marcação da anterior não
+                // tem nada a ver com a imagem nova.
+                setPnFerr('pincel');
+                setPnTam(38);
+                setPnRatio('livre');
+                setPnMed(null);
+                setPincel(p);
+              }}
             />
           </div>
 
@@ -582,6 +612,11 @@ export default function AppPage() {
             <TelaPincel
               modo={pincel.modo}
               base={pincel.base}
+              ferramenta={pnFerr}
+              tamanho={pnTam}
+              proporcao={pnRatio}
+              aoLimpar={limparPincel}
+              aoMudarMoldura={setPnMed}
               onGerar={montarPincel}
             />
           ) : (
@@ -610,7 +645,6 @@ export default function AppPage() {
               >
                 <span className="cr-ab-ico">A/B</span>
               </button>
-
 
               {/* Como o feed se apresenta */}
               <div className="cr-seg-lay">
@@ -871,7 +905,6 @@ export default function AppPage() {
               </div>
             )}
 
-
             {carregando && <p className="cr-msg">Carregando...</p>}
 
             {vazio && (
@@ -920,7 +953,6 @@ export default function AppPage() {
                       }}
                       onFavoritar={favoritar}
                       onAprovar={aprovar}
-                      onBaixar={setBaixando}
                       onExcluir={setExcluindo}
                       onEnviarPara={enviarPara}
                       onDetalhes={(item) => setDetalhes({ lote: loteDoItem(item.id), item })}
@@ -977,7 +1009,6 @@ export default function AppPage() {
                         }}
                         onFavoritar={favoritar}
                         onAprovar={aprovar}
-                        onBaixar={setBaixando}
                         onExcluir={setExcluindo}
                         onEnviarPara={enviarPara}
                         onDetalhes={() => setDetalhes({ lote, item })}
@@ -987,7 +1018,6 @@ export default function AppPage() {
                 </article>
               );
             })}
-
 
           </div>
           </>
@@ -1011,7 +1041,6 @@ export default function AppPage() {
               ehAdmin={ehAdmin}
               onFechar={() => setVendo(null)}
               onFavoritar={favoritar}
-              onBaixar={setBaixando}
               onExcluir={setExcluindo}
               onEnviarPara={enviarPara}
             />
@@ -1032,7 +1061,7 @@ export default function AppPage() {
             ehAdmin={ehAdmin}
             onFechar={() => setVendo(null)}
             onFavoritar={favoritar}
-            onBaixar={setBaixando}
+            onAprovar={aprovar}
             onExcluir={setExcluindo}
             onEnviarPara={enviarPara}
             onDetalhes={() => setDetalhes({ lote, item })}
@@ -1041,12 +1070,6 @@ export default function AppPage() {
       })()}
 
       {/* O modal de download e a confirmação servem ao card E à janela */}
-      <ModalDownload
-        aberto={baixando !== null}
-        url={baixando?.url}
-        id={baixando?.id}
-        onFechar={() => setBaixando(null)}
-      />
 
       <ModalDetalhes
         aberto={detalhes !== null}

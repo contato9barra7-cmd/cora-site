@@ -322,9 +322,20 @@ function WorkspaceConteudo() {
         {membros.map((m) => (
           <div key={m.id} className="ws-slot">
             <div className="ws-slot-linha">
+              <span className={'ws-av' + (m.status === 'convidado' ? ' ws-av--pend' : '')}>
+                {m.status === 'convidado'
+                  ? (
+                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
+                         stroke="currentColor" strokeWidth="1.5">
+                      <rect x="2.5" y="4.5" width="15" height="11" rx="1.5"/>
+                      <path d="M3 5.5l7 5 7-5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )
+                  : (m.email || '?')[0].toUpperCase()}
+              </span>
               <div className="disp-nome">
                 {m.email}
-                {m.eh_dono && <span className="ws-tag ws-tag-dono">Você (dono)</span>}
+                {m.eh_dono && <span className="ws-tag ws-tag-dono">Você · proprietário</span>}
                 {m.status === 'convidado' && <span className="ws-tag ws-tag-pend">Convite pendente</span>}
                 {m.status === 'ativo' && !m.eh_dono && <span className="ws-tag ws-tag-ativo">Ativo</span>}
               </div>
@@ -389,6 +400,12 @@ function WorkspaceConteudo() {
         {slotsVazios.map((_, i) => (
           <div key={'vazio-' + i} className="ws-slot ws-slot-vazio">
             <div className="ws-slot-vazio-topo">
+              <span className="ws-av ws-av--livre">
+                <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
+                     stroke="currentColor" strokeWidth="1.6">
+                  <path d="M10 5v10M5 10h10" strokeLinecap="round"/>
+                </svg>
+              </span>
               <div className="ws-linha-input" style={{ flex: 1 }}>
                 <input
                   className="ws-input"
@@ -402,12 +419,14 @@ function WorkspaceConteudo() {
                 </button>
               </div>
             </div>
-            {!donoNaEquipe && i === 0 && (
-              <div className="ws-slot-atribuir">
-                <span className="ws-vazio-hint">ou</span>
+            <div className="ws-slot-atribuir">
+              <span className="ws-vazio-hint">
+                Assento livre — você já está pagando por ele
+              </span>
+              {!donoNaEquipe && i === 0 && (
                 <button className="ws-atribuir" onClick={atribuir}>Atribuir a mim</button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         ))}
       </div>

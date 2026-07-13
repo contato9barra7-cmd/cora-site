@@ -178,12 +178,21 @@ export default function Perfil() {
   return (
     <AppShell>
       <div className="admin-wrap perfil-wrap">
-        <h1 className="conta-ola">Minha conta</h1>
+        <nav className="perfil-idx">
+          <h1>Minha conta</h1>
+          <a href="#sec-perfil">Perfil</a>
+          <a href="#sec-prefs">Preferências</a>
+          <a href="#sec-notif">Notificações</a>
+          <a href="#sec-seg">Segurança</a>
+          <a href="#sec-perigo" className="perfil-idx--perigo">Deletar conta</a>
+        </nav>
+
+        <div className="perfil-col">
         {aviso && <div className="conta-aviso">{aviso}</div>}
         {erro && <div className="login-erro" style={{ marginBottom: 18 }}>{erro}</div>}
 
         {/* PERFIL */}
-        <section className="perfil-sec">
+        <section className="perfil-sec" id="sec-perfil">
           <h2 className="perfil-h2">Perfil</h2>
           <div className="perfil-linha">
             <label className="perfil-lbl">Avatar</label>
@@ -222,7 +231,7 @@ export default function Perfil() {
         </section>
 
         {/* PREFERÊNCIAS */}
-        <section className="perfil-sec">
+        <section className="perfil-sec" id="sec-prefs">
           <h2 className="perfil-h2">Preferências</h2>
           <div className="perfil-linha">
             <label className="perfil-lbl">Idioma</label>
@@ -239,7 +248,7 @@ export default function Perfil() {
         </section>
 
         {/* NOTIFICAÇÕES */}
-        <section className="perfil-sec">
+        <section className="perfil-sec" id="sec-notif">
           <h2 className="perfil-h2">Notificações</h2>
           <div className="perfil-linha perfil-toggle-linha">
             <div>
@@ -270,7 +279,7 @@ export default function Perfil() {
         </div>
 
         {/* SESSÕES E DISPOSITIVOS */}
-        <section className="perfil-sec">
+        <section className="perfil-sec" id="sec-seg">
           <h2 className="perfil-h2">
             Sessões e dispositivos
             <button className="perfil-ajuda" onClick={() => setModalAjuda(true)} title="Ajuda" aria-label="Ajuda">?</button>
@@ -317,7 +326,7 @@ export default function Perfil() {
         </section>
 
         {/* DELETAR CONTA */}
-        <section className="perfil-sec perfil-perigo">
+        <section className="perfil-sec perfil-perigo" id="sec-perigo">
           <h2 className="perfil-h2">Deletar conta</h2>
           {ehPago ? (
             <p className="perfil-sub">
@@ -333,6 +342,7 @@ export default function Perfil() {
             </>
           )}
         </section>
+        </div>
       </div>
 
       {modalDeletar && (

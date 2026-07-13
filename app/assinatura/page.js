@@ -74,6 +74,12 @@ export default function Assinatura() {
 
   const ehAdmin = conta.is_admin === true;
   const ehPago = conta.plano && conta.plano !== 'free' && !ehAdmin;
+
+  // "renova em 11 de agosto" é uma data; "29 dias" é o que a pessoa sente.
+  const dataRenov = conta.eh_dono_equipe ? conta.equipe_renova_em : conta.expira_em;
+  const diasAte = dataRenov
+    ? Math.max(0, Math.ceil((new Date(dataRenov) - new Date()) / 86400000))
+    : null;
   const ehDonoEquipe = conta.eh_dono_equipe === true;
 
   return (
@@ -94,22 +100,53 @@ export default function Assinatura() {
             </button>
           </div>
         ) : (
-          <div className="conta-card">
-            <h2 className="conta-h2">Plano atual</h2>
-            <p className="conta-p">
-              {ehAdmin ? 'Você é administrador (acesso ilimitado).'
-                : `Você está no plano ${NOME_PLANO[conta.plano] || conta.plano}.`}
-            </p>
+          <div className="as-plano">
+            <div className="as-plano-topo">
+              <div>
+                <div className="as-plano-rot">
+                  <span>Plano atual</span>
+                  {conta.status === 'ativo' && <em>ATIVO</em>}
+                </div>
+                <strong className="as-plano-nome">
+                  {ehAdmin ? 'Admin' : (NOME_PLANO[conta.plano] || conta.plano)}
+                </strong>
+                <span className="as-plano-sub">
+                  {ehAdmin ? 'Acesso ilimitado'
+                    : <>
+                        {(conta.creditos_total ?? 0).toLocaleString('pt-BR')} créditos por mês
+                        {diasAte != null && <> · renova em {diasAte} dias</>}
+                      </>}
+                </span>
+              </div>
 
-            {ehPago ? (
-              <button className="btn btn--ink" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={gerenciar} disabled={abrindo}>
-                {abrindo ? 'Abrindo...' : 'Gerenciar assinatura'}
-              </button>
-            ) : !ehAdmin ? (
-              <Link href="/precos" className="btn btn--verde" style={{ width: 'auto', marginTop: 6, padding: '11px 24px', display: 'inline-block' }}>
-                Ver planos
-              </Link>
-            ) : null}
+              {!ehAdmin && conta.valor_centavos > 0 && (
+                <div className="as-plano-preco">
+                  <strong>
+                    R$ {((conta.valor_centavos || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    <em>/mês</em>
+                  </strong>
+                  {conta.assinou_em && (
+                    <span>
+                      Cliente desde{' '}
+                      {new Date(conta.assinou_em).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="as-plano-pe">
+              {ehPago ? (
+                <>
+                  <Link href="/precos" className="as-btn-cta">Mudar de plano</Link>
+                  <button className="as-btn-sec" onClick={gerenciar} disabled={abrindo}>
+                    {abrindo ? 'Abrindo...' : 'Gerenciar no Stripe'}
+                  </button>
+                </>
+              ) : !ehAdmin ? (
+                <Link href="/precos" className="as-btn-cta">Ver planos</Link>
+              ) : null}
+            </div>
           </div>
         )}
 

@@ -16,6 +16,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { ROTULO_FERRAMENTA, tempoRelativo } from '../lib/geracoes';
+import MenuDownload from './MenuDownload';
 
 // "4:5" -> "4 / 5". "auto" não tem forma definida — quem decide é a imagem
 // que voltar; até lá, 4/3 é o meio-termo que menos distorce.
@@ -48,7 +49,7 @@ const Check = () => (
 
 export default function Card({
   it, modoAB, ladoA, ladoB, onClick,
-  onFavoritar, onAprovar, onBaixar, onExcluir, onEnviarPara, onDetalhes
+  onFavoritar, onAprovar, onExcluir, onEnviarPara, onDetalhes
 }) {
   const ehA = ladoA?.id === it.id;
   const ehB = ladoB?.id === it.id;
@@ -110,17 +111,9 @@ export default function Card({
             <Coracao cheio={it.favorito} />
           </button>
 
-          <button
-            className="cr-ca"
-            onClick={so(() => onBaixar(it))}
-            data-tip="Baixar"
-            aria-label="Baixar"
-          >
-            <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3.5 14v1.5A1.5 1.5 0 005 17h10a1.5 1.5 0 001.5-1.5V14" strokeLinecap="round"/>
-            </svg>
-          </button>
+          <span onClick={(e) => e.stopPropagation()}>
+            <MenuDownload item={it} className="cr-ca" />
+          </span>
 
           <button
             className="cr-ca cr-ca--perigo"

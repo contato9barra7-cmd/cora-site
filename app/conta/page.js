@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta, atualizarConta, baixarPlugin, minhaEquipe, sairDaEquipe, EVENTO_CREDITOS} from '../../lib/auth';
+import { lerConta, atualizarConta, baixarPlugin, minhaEquipe, sairDaEquipe, lerEquipe, EVENTO_CREDITOS} from '../../lib/auth';
 
 const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
 
@@ -17,6 +17,11 @@ function ContaConteudo() {
   const [baixando, setBaixando] = useState(false);
   const [equipeMembro, setEquipeMembro] = useState(null);
   const [saindo, setSaindo] = useState(false);
+
+  // A equipe do PROPRIETÁRIO: quem são os membros e quanto cada um gastou.
+  // É o que justifica a conta que ele paga — sem isso, o Teams é uma
+  // fatura maior sem explicação.
+  const [equipe, setEquipe] = useState(null);
 
   async function sairEquipe() {
     if (!confirm('Tem certeza que deseja sair da equipe? Você perderá o acesso ao plano fornecido por ela.')) return;
@@ -53,6 +58,11 @@ function ContaConteudo() {
     atualizarConta().then((fresca) => { if (fresca) setConta(fresca); }).catch(() => {});
     // verifica se a pessoa participa de uma equipe (como convidada)
     minhaEquipe().then((eq) => { if (eq) setEquipeMembro(eq); });
+
+    // se é proprietária, busca os membros e o consumo de cada um
+    if (c.eh_dono_equipe) {
+      lerEquipe().then((e) => { if (e) setEquipe(e); }).catch(() => {});
+    }
 
     if (params.get('pagamento') === 'sucesso') {
       setAviso('Pagamento recebido! Atualizando sua conta...');
@@ -92,144 +102,235 @@ function ContaConteudo() {
   const dataRenov = conta.eh_dono_equipe ? conta.equipe_renova_em : conta.expira_em;
   const rotuloData = (ehPago || conta.eh_dono_equipe) ? 'Renova em' : 'Válido até';
 
+  // Quanto ainda resta, em %
+  const pctCreditos = (conta.creditos_total > 0 && !ehAdmin)
+    ? Math.max(0, Math.min(100,
+        Math.round(((conta.creditos_restantes ?? 0) / conta.creditos_total) * 100)))
+    : 0;
+
+  // "renova em 11 de agosto" é uma data; "29 dias" é o que a pessoa sente.
+  const diasAte = dataRenov
+    ? Math.max(0, Math.ceil((new Date(dataRenov) - new Date()) / 86400000))
+    : null;
+
+  // Assentos pagos e vazios: é o que faz o proprietário convidar alguém
+  const vagos = equipe?.equipe
+    ? Math.max(0, (equipe.equipe.assentos || 0) - (equipe.membros || []).length)
+    : 0;
+
   return (
     <AppShell>
     <div className="admin-wrap">
       {aviso && <div className="conta-aviso">{aviso}</div>}
       {erro && <div className="login-erro" style={{ marginBottom: 18 }}>{erro}</div>}
 
-      <h1 className="conta-ola">Olá, {conta.nome || conta.email}</h1>
-
-      {/* Plano + créditos */}
-      <div className="dash-grid">
-        <div className="dash-card">
-          <span className="dash-rotulo">Seu plano</span>
-          <span className="dash-valor">{nomePlano}</span>
-          <span className={'dash-badge ' + (conta.status === 'ativo' ? 'ok' : 'off')}>
-            {conta.status}
-          </span>
-        </div>
-
-        <div className="dash-card">
-          <span className="dash-rotulo">Créditos disponíveis</span>
-          <span className="dash-valor">{creditos}</span>
-          {totalCreditos && <span className="dash-sub">de {totalCreditos} no ciclo</span>}
-          {conta.eh_dono_equipe && <span className="dash-sub">total da equipe</span>}
-        </div>
-
-        <div className="dash-card">
-          <span className="dash-rotulo">{rotuloData}</span>
-          <span className="dash-valor">
-            {dataRenov && !ehAdmin ? new Date(dataRenov).toLocaleDateString('pt-BR') : '—'}
-          </span>
-        </div>
-
-        {(ehPago || conta.eh_dono_equipe) && !ehAdmin && conta.assinou_em && (
-          <div className="dash-card">
-            <span className="dash-rotulo">Cliente desde</span>
-            <span className="dash-valor">{new Date(conta.assinou_em).toLocaleDateString('pt-BR')}</span>
+      {/* ── A faixa ──
+          O que se quer saber ao entrar: quantos créditos sobraram e quando
+          renova. O PROPRIETÁRIO vê o pote da equipe; o membro convidado vê
+          o do ASSENTO DELE — não controla o pote, e mostrá-lo confundiria. */}
+      <div className="dash-faixa">
+        <div className="dash-faixa-txt">
+          <div className="dash-faixa-plano">
+            <span>{nomePlano}</span>
+            {conta.eh_dono_equipe && <em>PROPRIETÁRIO</em>}
+            {equipeMembro && !conta.eh_dono_equipe && <em className="dash-tag--sec">EQUIPE</em>}
           </div>
-        )}
 
-        {(ehPago || conta.eh_dono_equipe) && !ehAdmin && conta.valor_centavos > 0 && (
-          <div className="dash-card">
-            <span className="dash-rotulo">Valor da assinatura</span>
-            <span className="dash-valor">
-              R$ {((conta.valor_centavos || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </span>
+          <div className="dash-faixa-num">
+            <strong>{creditos}</strong>
+            {totalCreditos && <span>créditos de {totalCreditos}</span>}
+            {conta.eh_dono_equipe && <span>créditos da equipe</span>}
           </div>
-        )}
+
+          {totalCreditos && !ehAdmin && (
+            <div className="dash-faixa-barra">
+              <div style={{ width: pctCreditos + '%' }} />
+            </div>
+          )}
+
+          {dataRenov && !ehAdmin && (
+            <div className="dash-faixa-data">
+              {rotuloData} <b>{new Date(dataRenov).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}</b>
+              {diasAte != null && <> · {diasAte} dias</>}
+            </div>
+          )}
+        </div>
+
+        <div className="dash-faixa-acoes">
+          {/* O membro não compra: quem paga é a equipe. */}
+          {!equipeMembro || conta.eh_dono_equipe ? (
+            <button className="dash-btn-cta" onClick={() => router.push('/assinatura')}>
+              Comprar créditos
+            </button>
+          ) : null}
+
+          {conta.eh_dono_equipe && (
+            <button className="dash-btn-sec" onClick={() => router.push('/workspace')}>
+              Gerenciar equipe
+            </button>
+          )}
+
+          {!equipeMembro && !conta.eh_dono_equipe && (
+            <button className="dash-btn-sec" onClick={() => router.push('/assinatura')}>
+              Ver assinatura
+            </button>
+          )}
+        </div>
       </div>
 
-      {equipeMembro && (
-        <div className="conta-card" style={{ borderColor: 'var(--roxo)' }}>
-          <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-            {equipeMembro.foto && (
-              <div style={{ width: 52, height: 52, borderRadius: 12, backgroundImage: `url(${equipeMembro.foto})`, backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0 }} />
+      {/* ── A equipe ──
+          Só para quem tem. Quem assina sozinho não vê nada disto. */}
+      {conta.eh_dono_equipe && equipe?.equipe && (
+        <div className="dash-eq">
+          <div className="dash-eq-cab">
+            {equipe.equipe.foto && (
+              <div className="dash-eq-foto"
+                   style={{ backgroundImage: `url(${equipe.equipe.foto})` }} />
             )}
-            <div>
-              <h2 className="conta-h2" style={{ margin: 0 }}>Você faz parte de uma equipe</h2>
-              <p className="conta-p" style={{ marginBottom: 0 }}>
-                {equipeMembro.nome ? <>Equipe <strong>{equipeMembro.nome}</strong></> : 'Equipe'}
-                {' · '}convidado por {equipeMembro.dono_nome || equipeMembro.dono_email}.
-                Seu acesso ao plano {equipeMembro.plano === 'studio' ? 'Studio' : 'Pro'} é fornecido por esta equipe.
-              </p>
-              <button className="ws-btn-sec" style={{ marginTop: 12 }} onClick={sairEquipe} disabled={saindo}>
-                {saindo ? 'Saindo...' : 'Sair da equipe'}
-              </button>
+            <div className="dash-eq-id">
+              <strong>{equipe.equipe.nome || 'Sua equipe'}</strong>
+              <span>
+                {(equipe.membros || []).length} de {equipe.equipe.assentos} assentos usados
+                {vagos > 0 && ` · ${vagos} ${vagos === 1 ? 'livre' : 'livres'}`}
+              </span>
             </div>
+            <button className="dash-eq-btn" onClick={() => router.push('/workspace')}>
+              Ver equipe
+            </button>
+          </div>
+
+          {/* Quem gastou quanto: é o que justifica a conta que ele paga */}
+          {(equipe.membros || []).filter((m) => m.status === 'ativo').map((m) => (
+            <div key={m.id} className="dash-eq-membro">
+              <span className="dash-eq-av">{(m.email || '?')[0].toUpperCase()}</span>
+              <div className="dash-eq-quem">
+                <strong>
+                  {m.email}
+                  {m.eh_dono && <em> · você</em>}
+                </strong>
+              </div>
+              <div className="dash-eq-uso">
+                <strong>{(m.creditos_usados ?? 0).toLocaleString('pt-BR')}</strong>
+                <span>usados</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* O membro convidado vê o estúdio — mas sem consumo alheio nem
+          botão de gerenciar: não é conta dele. */}
+      {equipeMembro && !conta.eh_dono_equipe && (
+        <div className="dash-eq">
+          <div className="dash-eq-cab">
+            {equipeMembro.foto && (
+              <div className="dash-eq-foto"
+                   style={{ backgroundImage: `url(${equipeMembro.foto})` }} />
+            )}
+            <div className="dash-eq-id">
+              <strong>{equipeMembro.nome || 'Sua equipe'}</strong>
+              <span>
+                Você faz parte desta equipe · convidado por{' '}
+                {equipeMembro.dono_nome || equipeMembro.dono_email}
+              </span>
+            </div>
+            <button className="dash-eq-btn dash-eq-btn--sair"
+                    onClick={sairEquipe} disabled={saindo}>
+              {saindo ? 'Saindo...' : 'Sair da equipe'}
+            </button>
           </div>
         </div>
       )}
 
-      {/* Download do plugin */}
-      <div className="conta-card">
-        <h2 className="conta-h2">Plugin para o SketchUp</h2>
-        <p className="conta-p">Baixe o Cora Render e instale no seu SketchUp. Funciona no SketchUp 2023 em diante.</p>
-        <button className="btn btn--roxo" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={baixar} disabled={baixando}>
-          {baixando ? 'Preparando...' : 'Download'}
-        </button>
-        <p className="dash-sub" style={{ marginTop: 10 }}>Depois de baixar, siga o passo a passo abaixo para instalar.</p>
-      </div>
-
-      {/* Passo a passo de instalação */}
-      <div className="conta-card">
-        <h2 className="conta-h2">Como instalar</h2>
-        <div className="passos">
-          <div className="passo">
-            <div className="passo-num">1</div>
-            <div className="passo-txt">
-              <div className="passo-tit">Baixe o plugin</div>
-              <p className="passo-desc">Clique no botão <strong>Download</strong> acima para baixar o arquivo <strong>.rbz</strong> do Cora Render.</p>
-              <div className="passo-img">imagem em breve</div>
+      {/* ── Assinatura e consumo ── */}
+      <div className="dash-cartoes">
+        {/* O membro não paga: no lugar da assinatura, o consumo dele. */}
+        {(!equipeMembro || conta.eh_dono_equipe) && !ehAdmin && (
+          <div className="dash-cartao">
+            <span className="dash-cartao-rot">Assinatura</span>
+            <strong className="dash-cartao-num">
+              {conta.valor_centavos > 0
+                ? <>R$ {((conta.valor_centavos || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<em>/mês</em></>
+                : '—'}
+            </strong>
+            <div className="dash-cartao-linhas">
+              {conta.assinou_em && (
+                <span>Cliente desde <b>{new Date(conta.assinou_em).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}</b></span>
+              )}
+              {dataRenov && (
+                <span>Próxima cobrança <b>{new Date(dataRenov).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}</b></span>
+              )}
             </div>
           </div>
+        )}
 
-          <div className="passo">
-            <div className="passo-num">2</div>
-            <div className="passo-txt">
-              <div className="passo-tit">Abra o Gerenciador de Extensões</div>
-              <p className="passo-desc">No SketchUp, vá em <strong>Extensões → Gerenciador de extensões</strong> (Extension Manager).</p>
-              <div className="passo-img">imagem em breve</div>
+        {/* ── O plugin ──
+            É o produto, não um rodapé: fica na faixa escura, com os passos
+            sempre à vista. Quem não instalou precisa deles na cara. */}
+        <div className="dash-plugin">
+          <div className="dash-plugin-cab">
+            <div className="dash-plugin-ico">
+              <svg viewBox="0 0 24 24" width="21" height="21" fill="none"
+                   stroke="currentColor" strokeWidth="1.5">
+                <path d="M9 3v5M15 3v5M6 8h12v5a6 6 0 01-12 0V8zM12 19v2"
+                      strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
+            <div className="dash-plugin-txt">
+              <strong>Plugin para o SketchUp</strong>
+              <span>Renderize direto do seu modelo · SketchUp 2023 ou superior</span>
+            </div>
+            <button className="dash-plugin-btn" onClick={baixar} disabled={baixando}>
+              {baixando ? 'Preparando...' : 'Baixar plugin'}
+            </button>
           </div>
 
-          <div className="passo">
-            <div className="passo-num">3</div>
-            <div className="passo-txt">
-              <div className="passo-tit">Clique em "Instalar extensão"</div>
-              <p className="passo-desc">No canto inferior do gerenciador, clique em <strong>Instalar extensão</strong> (Install Extension).</p>
-              <div className="passo-img">imagem em breve</div>
+          <div className="dash-plugin-passos">
+            <div className="dash-passo">
+              <span>1</span>
+              <div>
+                <strong>Baixe o plugin</strong>
+                <p>Clique no botão <strong>Download</strong> acima para baixar o arquivo <strong>.rbz</strong> do Cora Render.</p>
+              </div>
             </div>
-          </div>
-
-          <div className="passo">
-            <div className="passo-num">4</div>
-            <div className="passo-txt">
-              <div className="passo-tit">Escolha o arquivo .rbz</div>
-              <p className="passo-desc">Selecione o arquivo <strong>.rbz</strong> que você baixou no passo 1.</p>
-              <div className="passo-img">imagem em breve</div>
+            <div className="dash-passo">
+              <span>2</span>
+              <div>
+                <strong>Abra o Gerenciador de Extensões</strong>
+                <p>No SketchUp, vá em <strong>Extensões → Gerenciador de extensões</strong> (Extension Manager).</p>
+              </div>
             </div>
-          </div>
-
-          <div className="passo">
-            <div className="passo-num">5</div>
-            <div className="passo-txt">
-              <div className="passo-tit">Confirme a instalação</div>
-              <p className="passo-desc">Se aparecer um aviso de segurança, clique em <strong>Sim</strong> para continuar.</p>
-              <div className="passo-img">imagem em breve</div>
+            <div className="dash-passo">
+              <span>3</span>
+              <div>
+                <strong>Clique em "Instalar extensão"</strong>
+                <p>No canto inferior do gerenciador, clique em <strong>Instalar extensão</strong> (Install Extension).</p>
+              </div>
             </div>
-          </div>
-
-          <div className="passo">
-            <div className="passo-num">6</div>
-            <div className="passo-txt">
-              <div className="passo-tit">Pronto!</div>
-              <p className="passo-desc">O Cora Render aparece na barra de ferramentas. Clique no ícone para abrir e fazer login.</p>
-              <div className="passo-img">imagem em breve</div>
+            <div className="dash-passo">
+              <span>4</span>
+              <div>
+                <strong>Escolha o arquivo .rbz</strong>
+                <p>Selecione o arquivo <strong>.rbz</strong> que você baixou no passo 1.</p>
+              </div>
+            </div>
+            <div className="dash-passo">
+              <span>5</span>
+              <div>
+                <strong>Confirme a instalação</strong>
+                <p>Se aparecer um aviso de segurança, clique em <strong>Sim</strong> para continuar.</p>
+              </div>
+            </div>
+            <div className="dash-passo">
+              <span>6</span>
+              <div>
+                <strong>Pronto!</strong>
+                <p>O Cora Render aparece na barra de ferramentas. Clique no ícone para abrir e fazer login.</p>
+              </div>
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
     </AppShell>

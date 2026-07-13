@@ -22,6 +22,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useRef, useEffect } from 'react';
+import MenuDownload from './MenuDownload';
 import { proporcaoCss } from './Card';
 
 const MODOS = [
@@ -60,7 +61,7 @@ export default function Visualizador({
   proporcao,                     // "4:5", "16:9"... dá forma à caixa
   proporcaoEsq,                  // no A/B, a imagem A pode ter outra forma
   rotuloEsq, rotuloDir,          // no A/B viram "A" e "B"
-  onFechar, onFavoritar, onBaixar, onExcluir, onEnviarPara, onDetalhes
+  onFechar, onFavoritar, onAprovar, onExcluir, onEnviarPara, onDetalhes
 }) {
   const [modo, setModo]           = useState('split');
   const [corte, setCorte]         = useState(50);
@@ -295,6 +296,24 @@ export default function Visualizador({
         )}
 
         <footer className="vz-acoes">
+          {/* Aprovar existia no card do feed, mas não aqui — e é aqui que a
+              pessoa vê a imagem grande e decide se ela presta.
+              (A aprovada vira referência no Batch.) */}
+          {onAprovar && (
+            <button
+              className={'vz-ico' + (item.aprovado ? ' vz-ico--ok' : '')}
+              onClick={() => onAprovar(item)}
+              data-tip={item.aprovado ? 'Remover aprovação' : 'Aprovar (vira referência no Batch)'}
+              aria-label={item.aprovado ? 'Remover aprovação' : 'Aprovar'}
+            >
+              <svg viewBox="0 0 16 16" width="16" height="16" fill="none"
+                   stroke="currentColor" strokeWidth="2.2"
+                   strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="2,8 6,12 14,4"/>
+              </svg>
+            </button>
+          )}
+
           <button
             className={'vz-ico' + (item.favorito ? ' vz-ico--fav' : '')}
             onClick={() => onFavoritar(item)}
@@ -309,12 +328,7 @@ export default function Visualizador({
             </svg>
           </button>
 
-          <button className="vz-ico" onClick={() => onBaixar(item)} data-tip="Baixar (PNG/JPEG)" aria-label="Baixar">
-            <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3.5 14v1.5A1.5 1.5 0 005 17h10a1.5 1.5 0 001.5-1.5V14" strokeLinecap="round"/>
-            </svg>
-          </button>
+          <MenuDownload item={item} />
 
           {/* O que foi usado nesta geração: configurações, imagem de origem,
               prompt. Meses depois, ninguém lembra.
