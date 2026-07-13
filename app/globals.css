@@ -2781,17 +2781,42 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   display: flex;
   align-items: center;
   gap: 6px;
-  height: 36px;
-  padding: 0 14px;
+  height: 32px;
+  padding: 0 13px;
   border-radius: 100px;
-  border: 1px solid var(--line2);
-  background: transparent;
-  color: var(--ink2);
-  font-size: 12px;
+
+  /* Em tom accent: são o que a pessoa faz DEPOIS de ver o resultado. Em
+     cinza, com o mesmo peso de "baixar", não se distinguiam do resto. */
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  background: var(--accent-bg);
+  color: var(--accent);
+
+  font-size: 11.5px;
   font-family: inherit;
   cursor: pointer;
   transition: all .15s;
+  white-space: nowrap;
 }
+
+.vz-envia:hover {
+  background: var(--accent);
+  color: var(--accent-txt);
+  border-color: var(--accent);
+}
+
+/* O rótulo do grupo: diz o que os três fazem, sem repetir em cada um */
+.vz-envia-rot {
+  font-size: 9px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-right: 2px;
+  white-space: nowrap;
+}
+
+/* Excluir: sozinho, no canto oposto. Destruir não pode ficar a um erro de
+   mira de guardar. */
+.vz-ico--fim { margin-left: auto; }
 
 .vz-envia:hover { border-color: var(--ink3); color: var(--ink); }
 
@@ -3212,17 +3237,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 
 
-.cr-ab-barra button {
-  margin-left: auto;
-  padding: 3px 12px;
-  border-radius: 100px;
-  border: 1px solid var(--accent);
-  background: transparent;
-  color: var(--accent);
-  font-size: 11px;
-  font-family: inherit;
-  cursor: pointer;
-}
+
 
 /* ═══ Painel de filtros ═══ */
 .ft-fundo {
@@ -3550,9 +3565,10 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   padding: 16px;
   box-sizing: border-box;
 
-  /* Mesmo fundo do cabeçalho: antes havia uma faixa clara entre os dois,
-     como se a imagem tivesse uma borda branca em cima. */
-  background: var(--paper);
+  /* Um degrau mais funda que o painel: o render encostava no branco puro,
+     e isso muda a leitura das cores dele — sombras parecem mais fechadas,
+     tons claros mais lavados. */
+  background: var(--wash);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3601,6 +3617,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   user-select: none;
   -webkit-user-drag: none;
 }
+
+/* A imagem se destaca do fundo, em vez de boiar nele */
+.vz-par, .vz-sbs-lado { box-shadow: 0 2px 12px rgba(0, 0, 0, .1); border-radius: 6px; }
 
 /* Split: a cortina revela o print. A largura vem do JS (o arrasto). */
 .vz-cortina {

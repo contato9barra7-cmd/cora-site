@@ -209,12 +209,15 @@ export default function AppShell({ children }) {
             </button>
             {menuUser && (
               <div className="app-user-menu" onMouseLeave={() => setMenuUser(false)}>
+                {/* Irmãos, não aninhados: aninhado, o padding do plano
+                    somava ao do nome e ele saía 12px mais à direita. */}
                 <div className="app-user-nome">
                   {conta?.nome || conta?.email}
-                  {conta?.plano && (
-                    <div className="app-user-plano">{rotuloPlano(conta)}</div>
-                  )}
                 </div>
+
+                {conta?.plano && (
+                  <div className="app-user-plano">{rotuloPlano(conta)}</div>
+                )}
 
                 {!ilimitado && conta && total > 0 && (
                   <div className="cred-card">

@@ -316,13 +316,6 @@ export default function Visualizador({
             </svg>
           </button>
 
-          <button className="vz-ico vz-ico--perigo" onClick={() => onExcluir(item)} data-tip="Excluir" aria-label="Excluir">
-            <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
-              <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
-            </svg>
-          </button>
-
           {/* O que foi usado nesta geração: configurações, imagem de origem,
               prompt. Meses depois, ninguém lembra.
 
@@ -347,27 +340,46 @@ export default function Visualizador({
           <div className="vz-div" />
 
           {/* Estes só TRANSPORTAM: levam a imagem para a aba de destino.
-              Não geram, não cobram — por isso não têm o losango de crédito. */}
-          <button className="vz-ico vz-ico--envia" onClick={() => onEnviarPara('editar', item)}
-                  data-tip="Enviar para Editar" aria-label="Enviar para Editar">
-            <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
+              Não geram, não cobram — por isso não têm o losango de crédito.
+
+              Com rótulo: são o que a pessoa faz DEPOIS de ver o resultado, e
+              como ícone solto ninguém sabia o que eram sem passar o mouse. */}
+          <span className="vz-envia-rot">Enviar</span>
+
+          <button className="vz-envia" onClick={() => onEnviarPara('editar', item)}
+                  aria-label="Enviar para Editar">
+            <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M13.5 3.5l3 3L7 16l-3.5.5L4 13l9.5-9.5z" strokeLinejoin="round"/>
             </svg>
+            Editar
           </button>
 
-          <button className="vz-ico vz-ico--envia" onClick={() => onEnviarPara('upscale', item)}
-                  data-tip="Enviar para Upscale" aria-label="Enviar para Upscale">
-            <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <button className="vz-envia" onClick={() => onEnviarPara('upscale', item)}
+                  aria-label="Enviar para Upscale">
+            <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M11 3.5h5.5V9M16.5 3.5L11 9" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M9 16.5H3.5V11M3.5 16.5L9 11" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
+            Upscale
           </button>
 
-          <button className="vz-ico vz-ico--envia" onClick={() => onEnviarPara('animar', item)}
-                  data-tip="Enviar para Animação" aria-label="Enviar para Animação">
-            <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <button className="vz-envia" onClick={() => onEnviarPara('animar', item)}
+                  aria-label="Enviar para Animação">
+            <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="2.5" y="5" width="10" height="10" rx="1.5"/>
               <path d="M12.5 8.5l5-2.5v8l-5-2.5" strokeLinejoin="round"/>
+            </svg>
+            Animação
+          </button>
+
+          {/* Sozinho, no canto oposto. Destruir não pode ficar a um erro de
+              mira de guardar — antes ele estava entre "baixar" e "detalhes". */}
+          <button className="vz-ico vz-ico--perigo vz-ico--fim"
+                  onClick={() => onExcluir(item)}
+                  data-tip="Excluir" aria-label="Excluir">
+            <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
+              <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
             </svg>
           </button>
         </footer>
