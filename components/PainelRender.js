@@ -14,19 +14,18 @@
 //    - "Ler materiais" lê da IMAGEM (no plugin, lê a lista do modelo)
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
 import CampoRefs from './CampoRefs';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
-import { salvarLeitura } from '../lib/leituras';
 import {
-  gerarRender, lerMateriais, custoRender, miniatura, CREDITOS,
+  gerarRender, lerMateriais, custoRender, CREDITOS,
   TIPOS, PROPORCOES, LUZ_TIPOS, MOODS, DIRECOES,
   CORES_LUZ, INTENSIDADES, ENTORNOS, RESOLUCOES, MAX_REFS
 } from '../lib/render';
 
-export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, materiaisIniciais, loteAnterior }) {
+export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, leituraInicial, loteAnterior }) {
   // ── Imagem base ──
   const [imagem, setImagem] = useState(null);
   const [previa, setPrevia] = useState(null);
@@ -130,16 +129,23 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     }
   }, [imagemInicial]);
 
-  // Uma leitura da aba Análises? Carrega — sem custo, já foi paga.
+  // Uma leitura da aba Análises? Carrega o texto E a imagem — sem custo,
+  // já foi paga.
   //
-  // Fica em 'revisar' (e não 'confirmado') de propósito: a leitura veio de
-  // OUTRA imagem, e a pessoa precisa conferir se ainda faz sentido para esta.
+  // Fica em 'revisar' (e não 'confirmado') de propósito: a pessoa precisa
+  // conferir se a leitura ainda faz sentido antes de gerar.
   useEffect(() => {
-    if (materiaisIniciais?.materiais) {
-      setMateriais(materiaisIniciais.materiais);
-      setMatEstado('revisar');
+    if (!leituraInicial?.materiais) return;
+
+    setMateriais(leituraInicial.materiais);
+    setMatEstado('revisar');
+
+    // A imagem vem junto quando a leitura saiu de uma geração.
+    if (leituraInicial.base64) {
+      setImagem(leituraInicial.base64);
+      setPrevia(leituraInicial.previa);
     }
-  }, [materiaisIniciais]);
+  }, [leituraInicial]);
 
   // Fecha os popovers ao clicar fora
   useEffect(() => {
@@ -178,21 +184,16 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     setMatEstado('lendo');
     setErro('');
     try {
-      const txt = await lerMateriais(imagem, tipo);
+      // O servidor guarda a leitura (vale para a web e para o plugin) e gera
+      // a miniatura sozinho — ele tem a imagem e o sharp. Daqui só vai o que
+      // ele não teria como saber: o título e de qual geração veio a imagem.
+      const txt = await lerMateriais(imagem, tipo, {
+        titulo:    tituloDaLeitura(),
+        geracaoId: geracaoIdDaImagem
+      });
+
       setMateriais(txt);
       setMatEstado('revisar');   // agora a pessoa lê, edita e confirma
-
-      // Isto custou 15 créditos. Guardamos no banco para que fechar o
-      // navegador não signifique pagar de novo pelo mesmo trabalho.
-      // Não esperamos o salvamento: se falhar, a pessoa nem fica sabendo —
-      // a leitura está na tela, que é o que importa agora.
-      salvarLeitura({
-        origem:    'render',
-        titulo:    tituloDaLeitura(),
-        materiais: txt,
-        geracaoId: geracaoIdDaImagem,          // a imagem já está no R2
-        thumb:     geracaoIdDaImagem ? null : await miniatura(imagem)
-      });
 
     } catch (e) {
       setErro(e.message);
@@ -345,6 +346,14 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
             porta aqui. */}
         <div className="cr-sec">Materiais</div>
 
+        {/* Já leu esta imagem antes, ou tem o texto à mão? Abre o campo sem
+            gastar créditos. A aba Análises guarda as leituras antigas. */}
+        {matEstado === 'vazio' && (
+          <button className="cr-b cr-b--tenho" onClick={() => setMatEstado('revisar')}>
+            Já tenho a análise
+          </button>
+        )}
+
         {matEstado !== 'revisar' && (
           <button
             className="cr-b-ler"
@@ -368,7 +377,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           <>
             <textarea
               className="cr-ta cr-ta--mat"
-              placeholder="Edite os materiais aqui..."
+              placeholder={materiais ? "Edite os materiais aqui..." : "Cole aqui a análise que você já tem..."}
               value={materiais}
               onChange={(e) => setMateriais(e.target.value)}
               readOnly={matEstado === 'confirmado'}

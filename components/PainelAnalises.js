@@ -16,6 +16,7 @@
 
 import { useState, useEffect } from 'react';
 import { listarLeituras, apagarLeitura } from '../lib/leituras';
+import { bytesDaGeracao } from '../lib/geracoes';
 
 function quando(iso) {
   const d = new Date(iso);
@@ -34,10 +35,47 @@ export default function PainelAnalises({ onUsar }) {
   const [itens, setItens]       = useState([]);
   const [carregando, setCarreg] = useState(true);
   const [busca, setBusca]       = useState('');
-  const [filtro, setFiltro]     = useState('todas');   // todas | render | batch
+  // Dois níveis: DE ONDE veio (web | plugin) e QUAL ferramenta (render | batch)
+  const [plataforma, setPlataforma] = useState('todas');  // todas | web | plugin
+  const [filtro, setFiltro]         = useState('todas');  // todas | render | batch
   const [aberta, setAberta]     = useState(null);      // a leitura expandida
   const [apagando, setApagando] = useState(null);
   const [copiada, setCopiada]   = useState(null);
+  const [levando, setLevando]   = useState(null);
+
+  // ── Levar a leitura para um painel, com a imagem junto ──
+  //
+  //  Só o texto não basta: a pessoa teria que reencontrar a imagem à mão.
+  //  Quando a leitura veio de uma geração, buscamos os bytes dela (o R2 não
+  //  manda CORS, então quem lê é o servidor).
+  //
+  //  Quando foi um upload solto, temos só a miniatura — pequena demais para
+  //  gerar. Aí mandamos o texto e a pessoa escolhe a imagem.
+  async function usar(l, destino) {
+    setLevando(l.id);
+
+    try {
+      let base64 = null;
+
+      if (l.geracaoId) {
+        base64 = await bytesDaGeracao(l.geracaoId);
+      }
+
+      onUsar({
+        materiais: l.materiais,
+        base64,                    // null se a imagem não veio de uma geração
+        previa: l.thumb || null,
+        destino
+      });
+
+    } catch {
+      // Não deu para buscar a imagem? Leva o texto assim mesmo — é o que
+      // custou créditos.
+      onUsar({ materiais: l.materiais, base64: null, previa: null, destino });
+    } finally {
+      setLevando(null);
+    }
+  }
 
   useEffect(() => {
     let vivo = true;
@@ -50,6 +88,7 @@ export default function PainelAnalises({ onUsar }) {
   }, []);
 
   const filtrados = itens
+    .filter((i) => plataforma === 'todas' || (i.plataforma || 'web') === plataforma)
     .filter((i) => filtro === 'todas' || i.origem === filtro)
     .filter((i) => {
       if (!busca.trim()) return true;
@@ -101,7 +140,23 @@ export default function PainelAnalises({ onUsar }) {
         spellCheck={false}
       />
 
+      {/* De onde veio: a web ou o plugin do SketchUp */}
       <div className="cr-g3 an-filtros">
+        {[
+          { v: 'todas',  r: 'Todas' },
+          { v: 'web',    r: 'Web' },
+          { v: 'plugin', r: 'Plugin' }
+        ].map((f) => (
+          <button
+            key={f.v}
+            className={'cr-b' + (plataforma === f.v ? ' cr-b--on' : '')}
+            onClick={() => setPlataforma(f.v)}
+          >{f.r}</button>
+        ))}
+      </div>
+
+      {/* Qual ferramenta gerou a leitura */}
+      <div className="cr-g3 an-filtros an-filtros--sub">
         {[
           { v: 'todas',  r: 'Todas' },
           { v: 'render', r: 'Render' },
@@ -109,7 +164,7 @@ export default function PainelAnalises({ onUsar }) {
         ].map((f) => (
           <button
             key={f.v}
-            className={'cr-b' + (filtro === f.v ? ' cr-b--on' : '')}
+            className={'cr-b cr-b--sm' + (filtro === f.v ? ' cr-b--on' : '')}
             onClick={() => setFiltro(f.v)}
           >{f.r}</button>
         ))}
@@ -120,9 +175,9 @@ export default function PainelAnalises({ onUsar }) {
       {!carregando && filtrados.length === 0 && (
         <div className="an-vazio">
           <p>
-            {busca || filtro !== 'todas'
+            {busca || filtro !== 'todas' || plataforma !== 'todas'
               ? 'Nenhuma leitura corresponde a esse filtro.'
-              : 'Nenhuma leitura ainda. As que você fizer no Render e no Batch aparecem aqui.'}
+              : 'Nenhuma leitura ainda. As que você fizer aqui e no plugin aparecem nesta aba.'}
           </p>
         </div>
       )}
@@ -144,6 +199,9 @@ export default function PainelAnalises({ onUsar }) {
                 <span className="an-topo">
                   <span className="an-tit">{l.titulo || 'Sem título'}</span>
                   <span className="an-tag">{l.origem === 'batch' ? 'Batch' : 'Render'}</span>
+                  {(l.plataforma || 'web') === 'plugin' && (
+                    <span className="an-tag an-tag--plugin">Plugin</span>
+                  )}
                 </span>
                 <span className="an-quando">{quando(l.criadoEm)}</span>
                 {!expandida && <span className="an-prev">{l.materiais}</span>}
@@ -165,10 +223,22 @@ export default function PainelAnalises({ onUsar }) {
                     {copiada === l.id ? 'Copiado' : 'Copiar'}
                   </button>
 
-                  {/* Manda para o Render como ponto de partida — a pessoa
-                      ajusta o que quiser antes de gerar. */}
-                  <button className="cr-b-conf" onClick={() => onUsar(l)}>
-                    Usar no Render
+                  {/* Leva a análise E a imagem que foi lida — a pessoa cai no
+                      painel com tudo pronto, e só ajusta o que quiser. */}
+                  <button
+                    className="cr-b-conf"
+                    onClick={() => usar(l, 'render')}
+                    disabled={levando === l.id}
+                  >
+                    {levando === l.id ? 'Levando...' : 'Usar no Render'}
+                  </button>
+
+                  <button
+                    className="cr-b"
+                    onClick={() => usar(l, 'batch')}
+                    disabled={levando === l.id}
+                  >
+                    Usar no Batch
                   </button>
 
                   <button

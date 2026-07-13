@@ -4167,6 +4167,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .cr-bcena-acoes { margin-top: 9px; }
 
+/* A config vem DEPOIS das ações: separa com uma linha. */
+.cr-bcfg { border-top: 1px solid var(--line); }
+
 /* ── A config desta cena: quantidade, proporção, resolução ── */
 .cr-bcfg {
   display: flex;
@@ -4738,4 +4741,37 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-size: 10px;
   color: var(--ink3);
   text-align: center;
+}
+
+/* "Já tenho a análise" — abre o campo sem gastar créditos.
+   Fica acima do "Ler materiais", como alternativa a ele. */
+.cr-b--tenho {
+  width: 100%;
+  margin-bottom: 6px;
+  border-style: dashed;
+  color: var(--ink3);
+}
+
+.cr-b--tenho:hover {
+  border-style: solid;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* O segundo nível de filtro (a ferramenta) é subordinado ao primeiro
+   (de onde veio) — então vem menor e mais junto. */
+.an-filtros--sub {
+  margin-top: -8px;
+  margin-bottom: 14px;
+}
+
+.cr-b--sm {
+  height: 28px;
+  font-size: 11px;
+}
+
+/* A etiqueta do plugin: distingue sem gritar */
+.an-tag--plugin {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--ink2);
 }

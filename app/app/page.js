@@ -277,13 +277,13 @@ export default function AppPage() {
     }
   }
 
-  // Uma leitura da aba Análises, levada ao Render como ponto de partida.
-  // A pessoa ajusta o que quiser antes de gerar — nada é gerado aqui.
-  const [materiaisDeOutraAba, setMateriaisDeOutraAba] = useState(null);
+  // Uma leitura da aba Análises, levada a um painel — com a imagem junto,
+  // quando ela veio de uma geração. A pessoa cai lá com tudo pronto.
+  const [leituraDeOutraAba, setLeituraDeOutraAba] = useState(null);
 
   function usarLeitura(l) {
-    setMateriaisDeOutraAba({ materiais: l.materiais, quando: Date.now() });
-    setFerramenta('render');
+    setLeituraDeOutraAba({ ...l, quando: Date.now() });
+    setFerramenta(l.destino || 'render');
   }
 
   // O batch devolve VÁRIOS lotes (um por cena) — diferente do render, que
@@ -291,7 +291,26 @@ export default function AppPage() {
   // os lotes já estão no banco, salvos pelo servidor.
   function aoGerarBatch() {
     setUltimoLote(null);
+    recarregarComFolga();
+  }
+
+  // ── Por que recarregar duas vezes ──
+  //
+  //  O servidor responde a imagem SEM esperar o salvamento no banco: o
+  //  `salvarGeracaoAsync` é fire-and-forget (index.js), e agora demora ainda
+  //  mais porque gera a miniatura junto.
+  //
+  //  Resultado: a web recebe a imagem, pede o feed, e o banco AINDA não tem
+  //  a linha. O feed volta sem a geração nova — foi exatamente isso que
+  //  aconteceu (o log dizia "salvo id=10", mas a imagem não aparecia).
+  //
+  //  Então recarregamos agora (para o caso de já ter salvado) e de novo dali
+  //  a pouco (para o caso de não ter). Barato, e resolve sem mexer no
+  //  servidor — que responde rápido de propósito.
+  function recarregarComFolga() {
     carregar();
+    setTimeout(carregar, 1800);
+    setTimeout(carregar, 4500);   // a thumb de uma 4K pode demorar
   }
 
   // Apagar é irreversível — quem chama isto já confirmou.
@@ -326,8 +345,8 @@ export default function AppPage() {
 
   function aoGerar(r) {
     setUltimoLote({ loteId: r.loteId, assinatura: r.assinatura, prompt: r.prompt, quantas: r.quantas });
-    carregar();          // o feed mostra a geração nova
-    creditosMudaram();   // o menu e o anel atualizam
+    recarregarComFolga();   // o banco pode não ter salvado ainda
+    creditosMudaram();      // o menu e o anel atualizam
   }
 
   const ehAdmin = conta?.is_admin === true;
@@ -380,7 +399,7 @@ export default function AppPage() {
 
           {ferramenta === 'render' && (
             <PainelRender
-              materiaisIniciais={materiaisDeOutraAba}
+              leituraInicial={leituraDeOutraAba?.destino === 'render' ? leituraDeOutraAba : null}
               ocupado={ocupado}
               setOcupado={setOcupado}
               onProgresso={setProgresso}
@@ -392,6 +411,7 @@ export default function AppPage() {
 
           {ferramenta === 'batch' && (
             <PainelBatch
+              leituraInicial={leituraDeOutraAba?.destino === 'batch' ? leituraDeOutraAba : null}
               aprovadas={aprovadas}
               ocupado={ocupado}
               setOcupado={setOcupado}

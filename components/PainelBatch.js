@@ -31,15 +31,14 @@ import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import { bytesDaGeracao } from '../lib/geracoes';
-import { salvarLeitura } from '../lib/leituras';
 import {
-  analisarBatch, gerarBatch, CREDITOS, custoBatchCena, miniatura,
+  analisarBatch, gerarBatch, CREDITOS, custoBatchCena,
   PROPORCOES, RESOLUCOES, MAX_REFS
 } from '../lib/render';
 
 const MAX_CENAS = 20;
 
-export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado, setOcupado }) {
+export default function PainelBatch({ aprovadas, leituraInicial, onPronto, onProgresso, ocupado, setOcupado }) {
   // ── Fase 1 ──
   //  `refs` guarda só as MANUAIS (as que a pessoa subiu). As aprovadas vêm
   //  da página e são derivadas — assim aprovar/desaprovar reflete na hora.
@@ -144,12 +143,43 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
     setRestaurado(true);
   }, []);
 
+  // Uma leitura da aba Análises? Vira uma cena, com a imagem e o texto —
+  // já analisada, direto na fase 2. Sem custo: já foi paga.
+  useEffect(() => {
+    if (!leituraInicial?.materiais) return;
+
+    const id = 'c' + Date.now();
+
+    // A imagem vem junto quando a leitura saiu de uma geração.
+    if (leituraInicial.base64) {
+      setCenas((c) => [...c, {
+        id,
+        nome: leituraInicial.titulo || 'Cena da análise',
+        base64: leituraInicial.base64,
+        previa: leituraInicial.previa,
+        geracaoId: leituraInicial.geracaoId,
+        marcada: true
+      }]);
+    }
+
+    setAnalise((a) => [...(a || []), {
+      nome:      leituraInicial.titulo || 'Cena da análise',
+      cenaId:    leituraInicial.base64 ? id : null,
+      previa:    leituraInicial.previa,
+      materiais: leituraInicial.materiais,
+      aprovada:  false,
+      cfg: { qtd: 1, proporcao: '4:5', resolucao: '2k' }
+    }]);
+
+    setFase1(false);
+  }, [leituraInicial]);
+
   useEffect(() => {
     if (!restaurado) return;
     salvarRascunho('batch', { cenas, analise });
   }, [restaurado, cenas, analise]);
 
-  function escolheu({ base64, previa }) {
+  function escolheu({ base64, previa, geracaoId }) {
     if (picker === 'ref') {
       if (todasRefs.length < MAX_REFS) {
         setRefs((r) => [...r, { base64, previa }]);
@@ -201,20 +231,8 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
       setAnalise(cenasAnalisadas);
       setFase1(false);          // a análise nova abre na fase 2
 
-      // Cada cena analisada vira uma leitura no BANCO. Isto custou 15
-      // créditos por cena — perder seria pagar de novo pelo mesmo trabalho.
-      // Não esperamos: se o salvamento falhar, a análise está na tela.
-      cenasAnalisadas.forEach(async (c, i) => {
-        const cena = marcadas[i];
-        if (!c.materiais || !cena) return;
-
-        salvarLeitura({
-          origem:    'batch',
-          titulo:    c.nome,
-          materiais: c.materiais,
-          thumb:     await miniatura(cena.base64)
-        });
-      });
+      // Cada cena vira uma leitura no BANCO — mas quem salva é o SERVIDOR
+      // (rota /analisar-batch), para valer também no plugin.
     } catch (e) {
       setErro(e.message);
     } finally {
@@ -479,15 +497,8 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
                   spellCheck={false}
                 />
 
-                {/* A config NÃO trava ao aprovar: aprovar é concordar com a
-                    LEITURA dos materiais, não com a resolução ou a quantidade.
-                    Essas continuam livres até a hora de gerar. */}
-                <CfgCena
-                  cfg={c.cfg}
-                  onMudar={(campo, v) => mudarCfg(i, campo, v)}
-                  travado={ocupado}
-                />
-
+                {/* Editar e Aprovar dizem respeito ao TEXTO logo acima — ficam
+                    colados nele. */}
                 <div className="cr-g2 cr-bcena-acoes">
                   <button
                     className="cr-b"
@@ -506,6 +517,15 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
                     {c.aprovada ? '✓ Aprovada' : 'Tá bom, aprovar'}
                   </button>
                 </div>
+
+                {/* A config é de outra natureza — vai embaixo. E NÃO trava ao
+                    aprovar: aprovar é concordar com a leitura, não com a
+                    resolução ou a quantidade. */}
+                <CfgCena
+                  cfg={c.cfg}
+                  onMudar={(campo, v) => mudarCfg(i, campo, v)}
+                  travado={ocupado}
+                />
               </div>
             ))}
           </>
