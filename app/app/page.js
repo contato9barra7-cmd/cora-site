@@ -140,7 +140,12 @@ export default function AppPage() {
 
   const [ferramenta, setFerramenta] = useState('render');
   const [ocupado, setOcupado]       = useState(false);
+  // O progresso aceita função: os painéis ACUMULAM as falhas nele
+  // (setProgresso(p => ({...p, falhas}))), em vez de sobrescrever.
   const [progresso, setProgresso]   = useState(null);
+
+  // O que refazer quando a pessoa clica em "Tentar de novo".
+  const [refazer, setRefazer]       = useState(null);
 
   // O último lote gerado — para saber se o próximo continua na mesma linha
   const [ultimoLote, setUltimoLote] = useState(null);
@@ -198,8 +203,17 @@ export default function AppPage() {
     setLadoB(null);
   }
 
-  const carregar = useCallback(async () => {
-    setCarregando(true);
+  // `silencioso` = não pisca a tela.
+  //
+  //  Ao terminar uma geração recarregamos o feed — e o `setCarregando(true)`
+  //  trocava TUDO por "Carregando...", fazendo as imagens sumirem e voltarem.
+  //  Como recarregamos três vezes (o banco pode não ter salvado ainda), a
+  //  tela piscava três vezes.
+  //
+  //  Agora só a PRIMEIRA carga mostra o aviso. As atualizações acontecem por
+  //  baixo: as imagens antigas ficam na tela até as novas chegarem.
+  const carregar = useCallback(async (silencioso = false) => {
+    if (!silencioso) setCarregando(true);
     setErro('');
     try {
       const f = {};
@@ -309,10 +323,44 @@ export default function AppPage() {
   //  Então recarregamos agora (para o caso de já ter salvado) e de novo dali
   //  a pouco (para o caso de não ter). Barato, e resolve sem mexer no
   //  servidor — que responde rápido de propósito.
+  // ── Tentar de novo ──
+  //
+  //  Os créditos daquela imagem JÁ voltaram (o servidor estorna ao falhar).
+  //  Então isto é uma geração nova, e cobra normal — a pessoa não está
+  //  pagando duas vezes pela mesma coisa.
+  //
+  //  Quem sabe refazer é o PAINEL (ele tem a configuração). A página só
+  //  avisa: "refaça a ordem N".
+  function tentarDeNovo(ordem) {
+    setRefazer({ ordem, quando: Date.now() });
+
+    // Tira o cartão de erro: o slot volta a "gerando".
+    setProgresso((p) => p && ({
+      ...p,
+      falhas: (p.falhas || []).filter((f) => f.ordem !== ordem)
+    }));
+  }
+
+  // Descartar: a falha some da tela. Não há o que desfazer — os créditos já
+  // voltaram, e a imagem nunca existiu.
+  function descartarFalha(ordem) {
+    setProgresso((p) => {
+      if (!p) return p;
+
+      const falhas = (p.falhas || []).filter((f) => f.ordem !== ordem);
+
+      // Era a última coisa na tela? Some com o bloco inteiro.
+      if (falhas.length === 0 && !ocupado) return null;
+
+      return { ...p, falhas };
+    });
+  }
+
   function recarregarComFolga() {
-    carregar();
-    setTimeout(carregar, 1800);
-    setTimeout(carregar, 4500);   // a thumb de uma 4K pode demorar
+    // Silencioso: a imagem nova aparece no lugar do slot, sem a tela piscar.
+    carregar(true);
+    setTimeout(() => carregar(true), 1800);
+    setTimeout(() => carregar(true), 4500);   // a thumb de uma 4K pode demorar
   }
 
   // Apagar é irreversível — quem chama isto já confirmou.
@@ -321,7 +369,7 @@ export default function AppPage() {
       await apagarGeracao(item.id);
       setExcluindo(null);
       setVendo(null);
-      carregar();
+      carregar(true);   // silencioso: a imagem some, o resto fica
     } catch (e) {
       setErro(e.message);
       setExcluindo(null);
@@ -415,6 +463,7 @@ export default function AppPage() {
           {ferramenta === 'render' && (
             <PainelRender
               leituraInicial={leituraDeOutraAba?.destino === 'render' ? leituraDeOutraAba : null}
+              refazer={refazer}
               ocupado={ocupado}
               setOcupado={setOcupado}
               onProgresso={setProgresso}
@@ -594,18 +643,69 @@ export default function AppPage() {
 
                 <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
                   {Array.from({ length: progresso.total }).map((_, i) => {
-                    const saindo = i === progresso.feito;
+                    const falhou = (progresso.falhas || []).find((f) => f.ordem === i);
+                    const saindo = !falhou && i === progresso.feito;
 
                     return (
                       <div
                         key={i}
                         className={
                           'cr-slot' +
-                          (i < progresso.feito ? ' cr-slot--ok'
+                          (falhou ? ' cr-slot--erro'
+                            : i < progresso.feito ? ' cr-slot--ok'
                             : saindo ? ' cr-slot--agora' : '')
                         }
                         style={{ aspectRatio: proporcaoCss(progresso.proporcao) }}
                       >
+
+                        {/* ── Falhou ──
+                            O slot NÃO some: vira um cartão de erro, sobre a
+                            imagem base. A pessoa vê o que aconteceu e decide.
+
+                            Os créditos já voltaram (o servidor estorna ao
+                            falhar), então tentar de novo cobra normal — é uma
+                            nova geração. */}
+                        {falhou && (
+                          <>
+                            {progresso.base && (
+                              <img className="cr-slot-base" src={progresso.base} alt="" />
+                            )}
+
+                            <div className="cr-erro-capa">
+                              <svg viewBox="0 0 20 20" width="22" height="22" fill="none"
+                                   stroke="currentColor" strokeWidth="1.4">
+                                <path d="M10 3.5l7 12.5H3l7-12.5z" strokeLinejoin="round"/>
+                                <path d="M10 8.5v3.2" strokeLinecap="round"/>
+                                <circle cx="10" cy="13.9" r=".65" fill="currentColor" stroke="none"/>
+                              </svg>
+
+                              <div className="cr-erro-txt">
+                                <strong>Não foi possível gerar</strong>
+                                <span>Os créditos voltaram</span>
+                              </div>
+
+                              <div className="cr-erro-btns">
+                                <button
+                                  className="cr-erro-b"
+                                  onClick={() => tentarDeNovo(i)}
+                                  disabled={ocupado}
+                                >Tentar de novo</button>
+
+                                <button
+                                  className="cr-erro-x"
+                                  onClick={() => descartarFalha(i)}
+                                  aria-label="Descartar"
+                                >
+                                  <svg viewBox="0 0 20 20" width="13" height="13" fill="none"
+                                       stroke="currentColor" strokeWidth="1.5">
+                                    <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
+                                    <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                          </>
+                        )}
                         {/* A imagem base, desfocada: a pessoa vê a cena tomando
                             forma em vez de encarar um retângulo vazio. No Render
                             e no Batch é o print; na Editar, a imagem base. */}
@@ -625,11 +725,28 @@ export default function AppPage() {
                           </span>
                         )}
 
-                        {i > progresso.feito && <span className="cr-slot-n">{i + 1}</span>}
+                        {!falhou && i > progresso.feito && (
+                          <span className="cr-slot-n">{i + 1}</span>
+                        )}
                       </div>
                     );
                   })}
                 </div>
+
+                {/* Isto não é promessa: o servidor estorna de verdade ao
+                    falhar (`estornarPedido`). Dizer isso ANTES tira o medo de
+                    quem está vendo os créditos saírem da conta. */}
+                {ocupado && (
+                  <p className="cr-estorno">
+                    <svg viewBox="0 0 16 16" width="11" height="11" fill="none"
+                         stroke="currentColor" strokeWidth="1.4">
+                      <circle cx="8" cy="8" r="6.2"/>
+                      <path d="M8 5.2v3.4" strokeLinecap="round"/>
+                      <circle cx="8" cy="11" r=".7" fill="currentColor" stroke="none"/>
+                    </svg>
+                    Se falhar, os créditos voltam automaticamente.
+                  </p>
+                )}
               </div>
             )}
 

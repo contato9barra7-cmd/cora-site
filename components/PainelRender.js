@@ -25,7 +25,7 @@ import {
   CORES_LUZ, INTENSIDADES, ENTORNOS, RESOLUCOES, MAX_REFS
 } from '../lib/render';
 
-export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, leituraInicial, loteAnterior }) {
+export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, leituraInicial, refazer, loteAnterior }) {
   // ── Imagem base ──
   const [imagem, setImagem] = useState(null);
   const [previa, setPrevia] = useState(null);
@@ -129,6 +129,16 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     }
   }, [imagemInicial]);
 
+  // Refazer uma imagem que falhou. Os créditos daquela voltaram (o servidor
+  // estorna), então isto é uma geração nova — e cobra normal.
+  //
+  // Uma imagem só: as outras do lote já saíram.
+  useEffect(() => {
+    if (!refazer || ocupado) return;
+    gerar({ apenasUma: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refazer]);
+
   // Uma leitura da aba Análises? Carrega o texto E a imagem — sem custo,
   // já foi paga.
   //
@@ -220,7 +230,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   }
 
 
-  async function gerar() {
+  async function gerar({ apenasUma } = {}) {
     if (!imagem) { setErro('Escolha a imagem do seu modelo'); return; }
     if (matEstado === 'revisar') { setErro('Confirme os materiais para renderizar'); return; }
     if (ocupado) return;
@@ -229,7 +239,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     setOcupado(true);
     onProgresso({
       feito: 0,
-      total: quantidade,
+      total: apenasUma ? 1 : quantidade,
       estado: 'enviado',
       proporcao,
       base: previa
@@ -249,7 +259,10 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       .filter(Boolean).join('. ');
 
     const cfg = {
-      imagem, tipo, proporcao, resolucao, quantidade,
+      imagem, tipo, proporcao, resolucao,
+
+      // Refazendo uma que falhou? Uma imagem só — as outras do lote já saíram.
+      quantidade: apenasUma ? 1 : quantidade,
       mood:          moodFinal,
       materiais:     materiais.trim(),
       entorno:       entornoFinal,
@@ -268,10 +281,17 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
     try {
       const r = await gerarRender(cfg, {
-        onProgresso: (feito, total, estado) => onProgresso({
+        onProgresso: (feito, total, estado, falha) => onProgresso((p) => ({
+          ...(p || {}),
           feito, total, estado, proporcao,
-          base: previa           // o print, desfocado no slot
-        }),
+          base: previa,          // o print, desfocado no slot
+
+          // A que falhou vira um cartão de erro no lugar do slot. As outras
+          // seguem — o servidor já estornou os créditos desta.
+          falhas: falha
+            ? [...((p && p.falhas) || []), falha]
+            : ((p && p.falhas) || [])
+        })),
         loteAnterior   // mesma config = continua na mesma linha do feed
       });
       // Some com os slots ANTES de recarregar o feed: senão há um instante

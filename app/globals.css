@@ -565,8 +565,8 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 9px 12px;
-  border-radius: 8px;
+  padding: 9px 14px;
+  border-radius: 100px;   /* semicírculo, como os demais botões */
   color: var(--ink2);
   text-decoration: none;
   font-size: 14px;
@@ -5078,3 +5078,128 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink);
   font-weight: 600;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Quando a geração falha
+
+   O slot NÃO some. Vira um cartão de erro sobre a imagem base, com o que
+   fazer: tentar de novo, ou descartar.
+
+   Os créditos já voltaram — o servidor estorna ao falhar. Por isso tentar
+   de novo cobra normal: é uma geração nova, não uma segunda cobrança pela
+   mesma coisa.
+
+   TUDO escala com o tamanho do card (P/M/G/GG) através do --e: os botões
+   de um card de 150px não podem ter a mesma altura dos de um de 460px.
+   ═══════════════════════════════════════════════════════════ */
+
+.cr-slot--erro {
+  --e: 1;                      /* o fator de escala; cada tamanho o redefine */
+  border-style: solid;
+  border-color: var(--alerta);
+  overflow: hidden;
+}
+
+.cr-cards--p  .cr-slot--erro { --e: .72; }
+.cr-cards--m  .cr-slot--erro { --e: .88; }
+.cr-cards--g  .cr-slot--erro { --e: 1; }
+.cr-cards--gg .cr-slot--erro { --e: 1.18; }
+
+/* A capa escura sobre a imagem: o erro precisa ser legível sobre qualquer
+   render, claro ou escuro. */
+.cr-erro-capa {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(11px * var(--e));
+  padding: calc(16px * var(--e));
+  box-sizing: border-box;
+
+  background: rgba(0, 0, 0, .5);
+  color: #fff;
+  text-align: center;
+}
+
+.cr-erro-capa > svg {
+  width:  calc(22px * var(--e));
+  height: calc(22px * var(--e));
+  flex-shrink: 0;
+}
+
+.cr-erro-txt strong {
+  display: block;
+  font-size: calc(12px * var(--e));
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.cr-erro-txt span {
+  font-size: calc(10px * var(--e));
+  color: rgba(255, 255, 255, .65);
+}
+
+/* Os dois botões: mesma altura, alinhados. O texto numa linha só. */
+.cr-erro-btns {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--e));
+}
+
+.cr-erro-b {
+  height: calc(30px * var(--e));
+  padding: 0 calc(14px * var(--e));
+  border: none;
+  border-radius: 100px;
+  background: #fff;
+  color: #111;
+  font-size: calc(11px * var(--e));
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;          /* o texto não quebra em duas linhas */
+  display: inline-flex;
+  align-items: center;
+}
+
+.cr-erro-b:hover:not(:disabled) { background: rgba(255, 255, 255, .88); }
+.cr-erro-b:disabled { opacity: .5; cursor: default; }
+
+.cr-erro-x {
+  width:  calc(30px * var(--e));   /* mesma altura do outro botão */
+  height: calc(30px * var(--e));
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, .3);
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cr-erro-x:hover { background: rgba(255, 255, 255, .14); }
+
+.cr-erro-x svg {
+  width:  calc(13px * var(--e));
+  height: calc(13px * var(--e));
+}
+
+/* O aviso de estorno, enquanto gera.
+   Não é promessa: o servidor devolve os créditos de verdade ao falhar. */
+.cr-estorno {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 11px 0 0;
+  font-size: 10px;
+  color: var(--ink3);
+}
+
+.cr-estorno svg { flex-shrink: 0; }
