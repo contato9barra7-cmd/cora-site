@@ -364,6 +364,12 @@ export default function AppPage() {
   //  desaprovar não tirava a imagem das referências.
   //
   //  Assim, o React reage na hora: aprovou, entra; desaprovou, sai.
+  // De qual lote veio este item? A janela de Detalhes precisa do lote (é ele
+  // que guarda as configurações, o print de origem e as referências).
+  function loteDoItem(id) {
+    return lotes.find((l) => l.itens.some((i) => i.id === id));
+  }
+
   // O X numa referência do Batch desaprova a imagem no feed — assim as duas
   // telas não se contradizem (a fonte da verdade continua sendo o feed).
   function desaprovarPorId(id) {

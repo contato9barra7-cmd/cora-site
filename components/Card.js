@@ -48,7 +48,7 @@ const Check = () => (
 
 export default function Card({
   it, modoAB, ladoA, ladoB, onClick,
-  onFavoritar, onAprovar, onBaixar, onExcluir, onEnviarPara
+  onFavoritar, onAprovar, onBaixar, onExcluir, onEnviarPara, onDetalhes
 }) {
   const ehA = ladoA?.id === it.id;
   const ehB = ladoB?.id === it.id;
@@ -131,6 +131,22 @@ export default function Card({
             <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
               <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
+            </svg>
+          </button>
+
+          {/* O que foi usado nesta geração: print de origem, referências,
+              configurações. Aqui no hover, sem precisar abrir a imagem. */}
+          <button
+            className="cr-ca"
+            onClick={so(() => onDetalhes(it))}
+            data-tip="Detalhes"
+            aria-label="Ver detalhes"
+          >
+            <svg viewBox="0 0 20 20" width="16" height="16" fill="none"
+                 stroke="currentColor" strokeWidth="1.5">
+              <circle cx="10" cy="10" r="7.5"/>
+              <path d="M10 9.2v4.3" strokeLinecap="round"/>
+              <circle cx="10" cy="6.4" r=".8" fill="currentColor" stroke="none"/>
             </svg>
           </button>
 

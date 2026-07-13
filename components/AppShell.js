@@ -120,10 +120,12 @@ export default function AppShell({ children }) {
     router.push('/');
   }
 
+  // `divisor` separa o TRABALHO (o que a pessoa faz) da CONTA (o que ela
+  // administra). Sem isso, tudo vira uma lista indiferenciada.
   const itens = [
     { href: '/conta', rotulo: 'Dashboard', icone: Icone.dashboard, admin: false },
     { href: '/app', rotulo: 'Cora Render', icone: Icone.studio, admin: false },
-    { href: '/conta/perfil', rotulo: 'Minha conta', icone: Icone.conta, admin: false },
+    { href: '/conta/perfil', rotulo: 'Minha conta', icone: Icone.conta, admin: false, divisor: true },
     { href: '/workspace', rotulo: 'Equipe', icone: Icone.equipe, admin: false, soDono: true },
     { href: '/assinatura', rotulo: 'Assinatura', icone: Icone.assinatura, admin: false, soPagante: true },
     { href: '/admin', rotulo: 'Admin', icone: Icone.admin, admin: true },
@@ -164,15 +166,18 @@ export default function AppShell({ children }) {
         </div>
         <nav className="app-nav">
           {itens.map(i => (
-            <Link
-              key={i.href}
-              href={i.href}
-              className={'app-nav-item' + (pathname === i.href ? ' ativo' : '')}
-              title={i.rotulo}
-            >
-              <span className="app-nav-ic">{i.icone}</span>
-              {!recolhido && <span className="app-nav-lbl">{i.rotulo}</span>}
-            </Link>
+            <div key={i.href}>
+              {i.divisor && <div className="app-nav-div" />}
+
+              <Link
+                href={i.href}
+                className={'app-nav-item' + (pathname === i.href ? ' ativo' : '')}
+                title={i.rotulo}
+              >
+                <span className="app-nav-ic">{i.icone}</span>
+                {!recolhido && <span className="app-nav-lbl">{i.rotulo}</span>}
+              </Link>
+            </div>
           ))}
         </nav>
       </aside>

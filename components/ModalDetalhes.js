@@ -62,26 +62,32 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
 
           {dataCompleta && <p className="dt-data">{dataCompleta}</p>}
 
-          {/* ── A imagem de origem (o print do SketchUp) ── */}
+          {/* ── O que foi usado ──
+              Tudo o que entrou nesta geração: o print de origem e as
+              referências de estilo. Meses depois, ninguém lembra. */}
           {lote.original && (
             <>
               <div className="dt-sec">Imagem de origem</div>
-              <img className="dt-origem" src={lote.original} alt="" />
+              <div className="dt-imgs">
+                <img className="dt-img" src={lote.original} alt="" />
+              </div>
             </>
           )}
 
-          {/* ── O prompt ──
-              Só para quem gerou (e para o admin). É o que a IA recebeu. */}
-          {lote.observacoes && (
+          {lote.refs?.length > 0 && (
             <>
-              <div className="dt-sec">Prompt</div>
-              <div className="dt-prompt">{lote.observacoes}</div>
+              <div className="dt-sec">Referências ({lote.refs.length})</div>
+              <div className="dt-imgs">
+                {lote.refs.map((u, i) => (
+                  <img key={i} className="dt-img" src={u} alt="" />
+                ))}
+              </div>
             </>
           )}
 
-          {!lote.original && !lote.observacoes && (
+          {!lote.original && !lote.refs?.length && (
             <p className="dt-vazio">
-              Esta geração não guardou a imagem de origem nem o prompt.
+              Esta geração não guardou as imagens que a originaram.
             </p>
           )}
         </div>

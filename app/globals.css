@@ -557,20 +557,72 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .app-shell.recolhido .app-side-topo { flex-direction: column; gap: 8px; height: auto; padding: 12px 0; }
 
 .app-nav { padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; }
+/* ── O menu lateral ──
+   O ícone é NU: sem cápsula em volta, sem pílula gorda no ativo. Um traço
+   na borda marca onde a pessoa está, e o texto é o protagonista. */
 .app-nav-item {
-  display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 100px;
-  color: var(--ink2); text-decoration: none; font-size: 15px; white-space: nowrap;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--ink2);
+  text-decoration: none;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: color .14s, background .14s;
 }
+
 .app-nav-ic {
-  display: flex; flex-shrink: 0; align-items: center; justify-content: center;
-  width: 34px; height: 34px; border-radius: 50%; background: var(--wash); transition: background .15s;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--ink3);
+  transition: color .14s;
 }
-.app-nav-item:hover .app-nav-ic { background: var(--wash2); }
-.app-nav-item.ativo .app-nav-ic { background: rgba(255,255,255,.32); }
-.app-nav-item:hover { background: var(--paper); color: var(--ink); }
-.app-nav-item.ativo { background: var(--accent); color: var(--accent-txt); }
-.app-nav-item.ativo:hover { background: var(--accent); opacity: .92; }
-.app-shell.recolhido .app-nav-item { justify-content: center; padding: 10px; }
+
+.app-nav-item:hover {
+  background: var(--wash);
+  color: var(--ink);
+}
+
+.app-nav-item:hover .app-nav-ic { color: var(--ink2); }
+
+/* O ativo: um traço na borda esquerda, e o ícone ganha a cor da marca. */
+.app-nav-item.ativo {
+  color: var(--ink);
+  font-weight: 500;
+  background: transparent;
+}
+
+.app-nav-item.ativo::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 8px;
+  bottom: 8px;
+  width: 2.5px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+
+.app-nav-item.ativo .app-nav-ic { color: var(--accent); }
+
+.app-nav-item.ativo:hover { background: var(--wash); }
+
+/* Separa o trabalho (o que a pessoa faz) da conta (o que ela administra) */
+.app-nav-div {
+  height: 1px;
+  background: var(--line);
+  margin: 10px 12px;
+}
+
+.app-shell.recolhido .app-nav-item { justify-content: center; padding: 9px; }
+.app-shell.recolhido .app-nav-div  { margin: 10px 8px; }
 
 /* HEADER */
 .app-header {
@@ -1366,17 +1418,15 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .cr-overlay {
   position: fixed;
   inset: 0;
-
-  /* Sem isto o z-index ficava em `auto`, e a ordem no DOM decidia quem
-     ficava por cima: o modal de download aparecia ATRÁS do visualizador,
-     e não dava para clicar nele. */
-  z-index: 50;
-
   background: rgba(0, 0, 0, .62);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+
+  /* UM z-index só. Havia dois aqui — eu acrescentei um `50` sem ver que já
+     existia um `1000` mais abaixo no mesmo bloco. O último vencia, e o modal
+     de download (que eu pusera em 70) ficava ATRÁS do visualizador. */
   z-index: 1000;
 }
 
@@ -2610,8 +2660,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .vz-envia--on:hover { background: var(--accent-bg); }
 
 /* ═══ Modal de download ═══ */
-/* O que abre POR CIMA de outro overlay (o download, sobre o visualizador) */
-.cr-overlay--alto { z-index: 70; }
+/* O que abre POR CIMA de outro overlay: o download e os detalhes, sobre o
+   visualizador. Precisa ficar acima do 1000 do .cr-overlay. */
+.cr-overlay--alto { z-index: 1100; }
 
 .dl {
   width: 100%;
@@ -4938,25 +4989,23 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink3);
 }
 
-/* O print que deu origem à imagem */
-.dt-origem {
-  width: 100%;
-  border-radius: 10px;
+/* As imagens que entraram na geração: o print e as referências.
+   Miniaturas, não retratos — servem para RECONHECER, não para admirar. */
+.dt-imgs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.dt-img {
+  width: 78px;
+  height: 78px;
+  object-fit: cover;
+  border-radius: 9px;
   border: 1px solid var(--line);
   display: block;
 }
 
-.dt-prompt {
-  max-height: 200px;
-  overflow-y: auto;
-  padding: 12px;
-  border-radius: 10px;
-  background: var(--wash);
-  font-size: 11px;
-  line-height: 1.65;
-  color: var(--ink2);
-  white-space: pre-wrap;
-}
 
 .dt-vazio {
   margin: 16px 0 0;
@@ -5011,3 +5060,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-size: 11px;
   color: var(--ink2);
 }
+
+/* O texto do item de menu — o protagonista, agora que o ícone é discreto */
+.app-nav-lbl { line-height: 1; }
