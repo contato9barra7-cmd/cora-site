@@ -465,7 +465,13 @@ export default function AppPage() {
             >Análises</button>
           </div>
 
-          {ferramenta === 'render' && (
+          {/* ── Os painéis ficam MONTADOS, escondidos ──
+              Renderizar só o da aba ativa desmontava os outros — e o React
+              leva o estado junto: a imagem que a pessoa subiu, o texto que
+              escreveu, tudo sumia ao trocar de aba e voltar.
+
+              `hidden` esconde sem desmontar. O estado sobrevive. */}
+          <div hidden={ferramenta !== 'render'}>
             <PainelRender
               leituraInicial={leituraDeOutraAba?.destino === 'render' ? leituraDeOutraAba : null}
               refazer={refazer}
@@ -476,9 +482,9 @@ export default function AppPage() {
               imagemInicial={imagemDeOutraAba}
               loteAnterior={ultimoLote}
             />
-          )}
+          </div>
 
-          {ferramenta === 'batch' && (
+          <div hidden={ferramenta !== 'batch'}>
             <PainelBatch
               leituraInicial={leituraDeOutraAba?.destino === 'batch' ? leituraDeOutraAba : null}
               aprovadas={aprovadas}
@@ -488,9 +494,9 @@ export default function AppPage() {
               onProgresso={setProgresso}
               onPronto={aoGerarBatch}
             />
-          )}
+          </div>
 
-          {ferramenta === 'editar' && (
+          <div hidden={ferramenta !== 'editar'}>
             <PainelEditar
               imagemInicial={imagemDeOutraAba}
               ferramentas={conta?.ferramentas || []}
@@ -501,7 +507,7 @@ export default function AppPage() {
               onPronto={() => { setProgresso(null); recarregarComFolga(); }}
               onAbrirPincel={() => setErro(
                 'O preenchimento e a expansão entram em breve — por enquanto, use o plugin.'
-              )}
+              </div>
             />
           )}
 
