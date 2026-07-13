@@ -1120,6 +1120,13 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   gap: 4px;
   padding: 12px;
   border-bottom: 1px solid var(--line);
+
+  /* Ficam a vista ao rolar o painel: trocar de aba nao deve exigir
+     voltar ao topo. */
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--wash);
 }
 
 .cr-pill {
@@ -1139,10 +1146,12 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .cr-pill:hover:not(:disabled) { color: var(--ink); }
 
 .cr-pill--on {
-  background: var(--paper);
-  border-color: var(--roxo);
-  color: var(--roxo);
+  background: var(--accent-bg);
+  border-color: transparent;
+  color: var(--accent);
 }
+
+.cr-pill:hover:not(:disabled):not(.cr-pill--on) { color: var(--ink2); }
 
 .cr-pill:disabled { opacity: .4; cursor: default; }
 
@@ -5210,11 +5219,15 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 4px;
 }
 
+/* Cada grupo de escolha respira. Colados, "O que inserir" e "Estilo de
+   presenca" pareciam um so. */
+.ed-grupo { margin-bottom: 20px; }
+
 .cr-chip {
-  padding: 7px 13px;
+  height: 34px;               /* a MESMA altura do .cr-b */
+  padding: 0 14px;
   border: 1px solid var(--line2);
   border-radius: 100px;
   background: var(--paper);
@@ -5222,16 +5235,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-size: 11px;
   font-family: inherit;
   cursor: pointer;
-  transition: border-color .14s, background .14s, color .14s;
+  transition: all .15s;
+  white-space: nowrap;
 }
 
 .cr-chip:hover { border-color: var(--accent); }
 
+/* Selecionado = o mesmo do .cr-b--on: fundo claro, texto accent.
+   Solido com texto preto destoava de todo o resto do produto. */
 .cr-chip--on {
   border-color: var(--accent);
-  background: var(--accent);
-  color: var(--accent-txt);
-  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-bg);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -5244,92 +5259,89 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ed-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 9px;
   margin-bottom: 4px;
 }
 
+/* Cada modo tem uma FAIXA colorida com o icone. A cor e propria de cada um:
+   a pessoa aprende a reconhecer o card pela cor, nao so pelo texto.
+   (As cores sao provisorias — entram as da marca depois.) */
 .ed-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 13px 12px;
+  padding: 0;
+  overflow: hidden;
   border: 1px solid var(--line2);
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--paper);
   text-align: left;
   cursor: pointer;
-  transition: border-color .14s, background .14s;
+  transition: border-color .15s, transform .15s;
   font-family: inherit;
 }
 
 .ed-card:hover:not(:disabled) {
   border-color: var(--accent);
-  background: var(--accent-bg);
+  transform: translateY(-1px);
 }
 
 .ed-card:disabled { opacity: .55; cursor: default; }
 
-.ed-card strong {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.ed-card span {
-  font-size: 10.5px;
-  line-height: 1.4;
-  color: var(--ink3);
-}
-
-/* O cadeado dos modos de pincel — só para quem não os tem. */
-.ed-card--travado {
-  opacity: .62;
-  cursor: default;
-}
-
-.ed-card--travado:hover {
-  border-color: var(--line2);
-  background: var(--paper);
-}
-
-.ed-cad {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+.ed-faixa {
+  height: 54px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--wash2);
+  flex-shrink: 0;
+}
+
+.ed-faixa svg { width: 21px; height: 21px; }
+
+.ed-corpo { padding: 11px 12px 13px; }
+
+.ed-card strong {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+
+.ed-card span {
+  display: block;
+  font-size: 10.5px;
+  line-height: 1.45;
   color: var(--ink3);
 }
 
-/* Voltar para a grade */
-.ed-voltar {
-  display: inline-flex;
+/* Os modos de pincel, para quem nao os tem */
+.ed-card--travado { opacity: .6; cursor: default; }
+.ed-card--travado:hover { border-color: var(--line2); transform: none; }
+
+.ed-cad {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 0;
-  margin-bottom: 14px;
-  border: none;
-  background: none;
+  justify-content: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--paper);
   color: var(--ink3);
-  font-size: 11px;
-  font-family: inherit;
-  cursor: pointer;
+  z-index: 1;
 }
 
-.ed-voltar:hover { color: var(--ink); }
+.ed-voltar { margin-top: 18px; }
 
 .ed-titulo {
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
-/* Descola da imagem base: colado, parecia parte dela. */
-.ed-voltar { margin-top: 16px; }
+/* O campo respira: 4 linhas era apertado para descrever uma cena. */
+.ed-ta { min-height: 104px; }
 
 .ed-titulo strong {
   display: block;

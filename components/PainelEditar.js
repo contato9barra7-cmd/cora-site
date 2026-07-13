@@ -28,11 +28,15 @@ import {
 //
 //  O rótulo do campo de texto é sempre "O que você quer fazer" (`ed_oque` no
 //  plugin) — exceto onde o plugin usa outro.
+//  `cor`   — a faixa do card. Provisorias: entram as da marca depois.
+//  `icone` — o desenho na faixa
 const MODOS = [
   {
     id: 'edicao',
     nome: 'Edição',
     desc: 'Adicionar, trocar ou remover elementos, mudar cor ou material.',
+    cor: '#EEEDFE', tinta: '#534AB7',
+    icone: 'M5 15l10-10 3 3-10 10H5v-3z M12 6l3 3',
     refs: true,
     campo: 'O que você quer fazer',
     ph: 'Ex: remova a luminária do teto, troque a poltrona pela @img01, deixe a parede em verde escuro...'
@@ -41,6 +45,8 @@ const MODOS = [
     id: 'ambientacao',
     nome: 'Ambientação',
     desc: 'Inserir mobiliário e decoração em um espaço vazio.',
+    cor: '#E1F5EE', tinta: '#0F6E56',
+    icone: 'M3 11v6h18v-6a3 3 0 00-3-3H6a3 3 0 00-3 3z M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2',
     refs: true,
     campo: 'O que você quer fazer',
     ph: 'Ex: sala de estar contemporânea seguindo a @img01, com sofá, mesa de centro e tapete...'
@@ -49,6 +55,8 @@ const MODOS = [
     id: 'mood',
     nome: 'Mudar mood',
     desc: 'Trocar atmosfera e iluminação mantendo o projeto.',
+    cor: '#FAEEDA', tinta: '#854F0B',
+    icone: 'M12 3v2 M12 19v2 M5 12H3 M21 12h-2 M6 6l-1.5-1.5 M19.5 19.5L18 18 M6 18l-1.5 1.5 M19.5 4.5L18 6 M12 8a4 4 0 100 8 4 4 0 000-8z',
     refs: false,
     campo: 'Descreva o novo mood / iluminação',
     ph: 'Ex: golden hour, luz quente entrando pela janela, clima aconchegante. Ou: dia nublado com luz difusa e fria.',
@@ -60,6 +68,8 @@ const MODOS = [
     id: 'pessoa',
     nome: 'Adicionar pessoa/animal',
     desc: 'Inserir figura humana ou animal com escala e luz coerentes.',
+    cor: '#FBEAF0', tinta: '#993556',
+    icone: 'M12 4a3 3 0 100 6 3 3 0 000-6z M5 20v-1a5 5 0 015-5h4a5 5 0 015 5v1',
     refs: true,
     campo: 'Descreva a figura',
     ph: 'Ex: mulher ~30 anos, cabelo castanho, vestido claro, sentada no sofá lendo. Ou siga a @img01.',
@@ -74,6 +84,8 @@ const MODOS = [
     id: 'derivadas',
     nome: 'Close-ups',
     desc: 'Closes, detalhes e novos enquadramentos da mesma imagem.',
+    cor: '#E6F1FB', tinta: '#185FA5',
+    icone: 'M11 5a6 6 0 100 12 6 6 0 000-12z M20 20l-4.5-4.5',
     refs: false,
     campo: 'O que destacar',
     semTexto: true,   // gera mesmo sem texto
@@ -83,6 +95,8 @@ const MODOS = [
     id: 'maquete',
     nome: 'Maquete física',
     desc: 'Transformar o projeto em uma maquete física.',
+    cor: '#FAECE7', tinta: '#993C1D',
+    icone: 'M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z M12 12l8-4.5 M12 12v9 M12 12L4 7.5',
     refs: false,
     campo: 'Detalhes',
     semTexto: true,
@@ -100,12 +114,16 @@ const MODOS = [
     id: 'preenchimento',
     nome: 'Preenchimento generativo',
     desc: 'Corrigir falhas e remover objetos com precisão na área marcada.',
+    cor: '#EAF3DE', tinta: '#3B6D11',
+    icone: 'M6 15l7-7 3 3-7 7H6v-3z M4 21h16',
     pincel: true
   },
   {
     id: 'expansao',
     nome: 'Expansão generativa',
     desc: 'Esticar a imagem para fora e mudar a proporção.',
+    cor: '#F1EFE8', tinta: '#5F5E5A',
+    icone: 'M8 8H4v4 M16 16h4v-4 M4 8l6 6 M20 16l-6-6 M16 4h4v4 M8 20H4v-4',
     pincel: true
   }
 ];
@@ -287,8 +305,19 @@ export default function PainelEditar({
                       </span>
                     )}
 
-                    <strong>{mod.nome}</strong>
-                    <span>{mod.desc}</span>
+                    {/* A faixa: cada modo tem a sua cor. A pessoa aprende a
+                        reconhecer o card pela cor, não só pelo texto. */}
+                    <div className="ed-faixa" style={{ background: mod.cor }}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke={mod.tinta}
+                           strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <path d={mod.icone} />
+                      </svg>
+                    </div>
+
+                    <div className="ed-corpo">
+                      <strong>{mod.nome}</strong>
+                      <span>{mod.desc}</span>
+                    </div>
                   </button>
                 );
               })}
@@ -317,14 +346,13 @@ export default function PainelEditar({
 
             {/* ── Os botões de escolha deste modo ── */}
             {(m.campos || []).map((c) => (
-              <div key={c.chave}>
+              <div key={c.chave} className="ed-grupo">
                 <div className="cr-sec">{c.rotulo}</div>
-                <div className={c.chips ? 'cr-chips' : 'cr-g2'}>
+                <div className="cr-chips">
                   {c.opcoes.map((o) => (
                     <button
                       key={o}
-                      className={(c.chips ? 'cr-chip' : 'cr-b')
-                        + (escolhas[c.chave] === o ? (c.chips ? ' cr-chip--on' : ' cr-b--on') : '')}
+                      className={'cr-chip' + (escolhas[c.chave] === o ? ' cr-chip--on' : '')}
                       onClick={() => setEsc((e) => ({ ...e, [c.chave]: o }))}
                     >{o}</button>
                   ))}
@@ -365,7 +393,7 @@ export default function PainelEditar({
 
             {m.refs ? (
               <CampoRefs
-                className="cr-ta"
+                className="cr-ta ed-ta"
                 placeholder={m.ph}
                 valor={texto}
                 onMudar={setTexto}
@@ -373,8 +401,8 @@ export default function PainelEditar({
               />
             ) : (
               <textarea
-                className="cr-ta"
-                rows={4}
+                className="cr-ta ed-ta"
+                rows={5}
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
                 placeholder={m.ph}
