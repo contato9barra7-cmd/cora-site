@@ -11,7 +11,15 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
-import { marcarBaixada } from '../lib/geracoes';
+import { bytesDaGeracao, marcarBaixada } from '../lib/geracoes';
+
+// Um base64 vira Blob — o que o canvas e o link de download entendem.
+function base64ParaBlob(base64, mime = 'image/png') {
+  const bin = atob(base64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
 
 export default function ModalDownload({ aberto, url, id, onFechar }) {
   const [formato, setFormato]   = useState('png');
@@ -29,9 +37,13 @@ export default function ModalDownload({ aberto, url, id, onFechar }) {
     setBaixando(true);
     setErro('');
     try {
-      const r = await fetch(url);
-      if (!r.ok) throw new Error('Não foi possível baixar a imagem');
-      const blob = await r.blob();
+      // Os bytes vêm do SERVIDOR, não da URL do R2.
+      //
+      // O R2 não manda cabeçalho CORS: a imagem APARECE numa <img>, mas um
+      // fetch() nela morre com "Failed to fetch" — foi exatamente o que
+      // aconteceu aqui. Quem lê do bucket é o servidor.
+      const base64 = await bytesDaGeracao(id);
+      const blob   = base64ParaBlob(base64);
 
       const nome = `cora-render-${Date.now()}`;
 

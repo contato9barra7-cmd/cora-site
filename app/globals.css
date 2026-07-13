@@ -3405,7 +3405,10 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   min-height: 0;
   padding: 16px;
   box-sizing: border-box;
-  background: var(--wash);
+
+  /* Mesmo fundo do cabeçalho: antes havia uma faixa clara entre os dois,
+     como se a imagem tivesse uma borda branca em cima. */
+  background: var(--paper);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4758,20 +4761,28 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--accent);
 }
 
-/* O segundo nível de filtro (a ferramenta) é subordinado ao primeiro
-   (de onde veio) — então vem menor e mais junto. */
+/* Os dois grupos de filtro são irmãos, não pai e filho: um diz DE ONDE veio
+   a leitura, o outro QUAL ferramenta a gerou. Mesma altura, mesmo peso —
+   só ficam mais juntos entre si do que do resto. */
 .an-filtros--sub {
   margin-top: -8px;
   margin-bottom: 14px;
 }
 
-.cr-b--sm {
-  height: 28px;
-  font-size: 11px;
-}
-
 /* A etiqueta do plugin: distingue sem gritar */
 .an-tag--plugin {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--ink2);
+}
+
+/* De onde veio a leitura. As duas aparecem sempre — assim a pessoa não
+   precisa deduzir pela ausência da outra. */
+.an-tag--web {
+  background: var(--wash2);
+  color: var(--ink3);
+}
+
+.an-tag--plugin {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
   color: var(--ink2);
 }

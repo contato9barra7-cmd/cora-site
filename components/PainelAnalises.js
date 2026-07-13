@@ -15,7 +15,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
-import { listarLeituras, apagarLeitura } from '../lib/leituras';
+import { listarLeituras, apagarLeitura, bytesDaLeitura } from '../lib/leituras';
 import { bytesDaGeracao } from '../lib/geracoes';
 
 function quando(iso) {
@@ -55,21 +55,30 @@ export default function PainelAnalises({ onUsar }) {
     setLevando(l.id);
 
     try {
+      // A imagem pode estar em dois lugares:
+      //
+      //   - é uma GERAÇÃO      -> os bytes vêm de /geracoes/:id/base64
+      //   - nós a guardamos    -> vêm de /leituras/:id/imagem
+      //
+      // Nos dois casos quem lê do R2 é o servidor: o navegador não consegue
+      // (o R2 não manda CORS, e um fetch() na URL assinada morre).
       let base64 = null;
 
       if (l.geracaoId) {
         base64 = await bytesDaGeracao(l.geracaoId);
+      } else if (l.temImagem) {
+        base64 = await bytesDaLeitura(l.id);
       }
 
       onUsar({
         materiais: l.materiais,
-        base64,                    // null se a imagem não veio de uma geração
+        base64,                    // null quando não há imagem guardada
         previa: l.thumb || null,
         destino
       });
 
     } catch {
-      // Não deu para buscar a imagem? Leva o texto assim mesmo — é o que
+      // Não deu para buscar a imagem? Leva o texto assim mesmo — é ele que
       // custou créditos.
       onUsar({ materiais: l.materiais, base64: null, previa: null, destino });
     } finally {
@@ -164,7 +173,7 @@ export default function PainelAnalises({ onUsar }) {
         ].map((f) => (
           <button
             key={f.v}
-            className={'cr-b cr-b--sm' + (filtro === f.v ? ' cr-b--on' : '')}
+            className={'cr-b' + (filtro === f.v ? ' cr-b--on' : '')}
             onClick={() => setFiltro(f.v)}
           >{f.r}</button>
         ))}
@@ -199,9 +208,9 @@ export default function PainelAnalises({ onUsar }) {
                 <span className="an-topo">
                   <span className="an-tit">{l.titulo || 'Sem título'}</span>
                   <span className="an-tag">{l.origem === 'batch' ? 'Batch' : 'Render'}</span>
-                  {(l.plataforma || 'web') === 'plugin' && (
-                    <span className="an-tag an-tag--plugin">Plugin</span>
-                  )}
+                  <span className={'an-tag an-tag--' + (l.plataforma || 'web')}>
+                    {(l.plataforma || 'web') === 'plugin' ? 'Plugin' : 'Web'}
+                  </span>
                 </span>
                 <span className="an-quando">{quando(l.criadoEm)}</span>
                 {!expandida && <span className="an-prev">{l.materiais}</span>}
@@ -223,22 +232,17 @@ export default function PainelAnalises({ onUsar }) {
                     {copiada === l.id ? 'Copiado' : 'Copiar'}
                   </button>
 
-                  {/* Leva a análise E a imagem que foi lida — a pessoa cai no
-                      painel com tudo pronto, e só ajusta o que quiser. */}
+                  {/* Só o caminho que faz sentido: uma leitura de batch
+                      descreve uma CENA de um conjunto; uma de render descreve
+                      a imagem inteira. Oferecer os dois confundiria. */}
                   <button
                     className="cr-b-conf"
-                    onClick={() => usar(l, 'render')}
+                    onClick={() => usar(l, l.origem === 'batch' ? 'batch' : 'render')}
                     disabled={levando === l.id}
                   >
-                    {levando === l.id ? 'Levando...' : 'Usar no Render'}
-                  </button>
-
-                  <button
-                    className="cr-b"
-                    onClick={() => usar(l, 'batch')}
-                    disabled={levando === l.id}
-                  >
-                    Usar no Batch
+                    {levando === l.id
+                      ? 'Levando...'
+                      : l.origem === 'batch' ? 'Usar no Batch' : 'Usar no Render'}
                   </button>
 
                   <button
