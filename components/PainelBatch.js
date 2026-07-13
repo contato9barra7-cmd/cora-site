@@ -210,25 +210,27 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
     }
   }
 
-  const aprovadas = (analise || []).filter((c) => c.aprovada);
+  // As CENAS que a pessoa aprovou na fase 2 — não confundir com a prop
+  // `aprovadas`, que são as IMAGENS aprovadas no feed (as referências).
+  const cenasAprovadas = (analise || []).filter((c) => c.aprovada);
 
   // O custo é a soma real: cada cena tem sua quantidade e resolução.
-  const custoTotal = aprovadas.reduce(
+  const custoTotal = cenasAprovadas.reduce(
     (soma, c) => soma + custoBatchCena(c.cfg.qtd, c.cfg.resolucao),
     0
   );
 
-  const totalImagens = aprovadas.reduce((s, c) => s + c.cfg.qtd, 0);
+  const totalImagens = cenasAprovadas.reduce((s, c) => s + c.cfg.qtd, 0);
 
   async function gerar() {
-    if (aprovadas.length === 0) { setErro('Aprove ao menos uma cena'); return; }
+    if (cenasAprovadas.length === 0) { setErro('Aprove ao menos uma cena'); return; }
 
     setErro('');
     setOcupado(true);
 
     try {
       const r = await gerarBatch({
-        cenas: aprovadas.map((c) => {
+        cenas: cenasAprovadas.map((c) => {
           const cena = cenas.find((x) => x.id === c.cenaId);
           return {
             nome:      c.nome,
@@ -505,10 +507,10 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
             <button
               className="cr-btn-gerar"
               onClick={gerar}
-              disabled={ocupado || aprovadas.length === 0}
+              disabled={ocupado || cenasAprovadas.length === 0}
             >
               <span>{ocupado ? 'Gerando...' : 'Gerar batch'}</span>
-              {!ocupado && aprovadas.length > 0 && (
+              {!ocupado && cenasAprovadas.length > 0 && (
                 <span className="cr-custo-tag">
                   <IconeCredito /> {custoTotal}
                 </span>
@@ -516,9 +518,9 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
             </button>
 
             <p className="cr-custo">
-              {aprovadas.length === 0
+              {cenasAprovadas.length === 0
                 ? 'Aprove as cenas que quer gerar'
-                : `${aprovadas.length} ${aprovadas.length === 1 ? 'aprovada' : 'aprovadas'} · ${totalImagens} ${totalImagens === 1 ? 'imagem' : 'imagens'}`}
+                : `${cenasAprovadas.length} ${cenasAprovadas.length === 1 ? 'aprovada' : 'aprovadas'} · ${totalImagens} ${totalImagens === 1 ? 'imagem' : 'imagens'}`}
             </p>
           </>
         )}
