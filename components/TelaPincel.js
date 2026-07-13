@@ -57,6 +57,8 @@ export default function TelaPincel({
   proporcao,                  // da expansão: 'livre' | '16:9' | ...
   aoLimpar,                   // o painel pede para limpar
   aoMudarMoldura,             // devolve as dimensões ao painel
+  aoDigitar,                  // o painel digita um número
+  aoInverter,                 // o painel troca os eixos
   onGerar                     // a página pede os bytes
 }) {
   const wrapRef   = useRef(null);
@@ -98,43 +100,84 @@ export default function TelaPincel({
     aplicarTransform();
   }
 
+  const imgRef = useRef(null);
+
+  // ── O ajuste ao palco ──
+  //
+  //  Isto é o `edExpFit` do plugin. Sem ele, arrastar uma alça faz a moldura
+  //  crescer para FORA da tela e sumir de vista.
+  //
+  //  A conta: o bounding box é a UNIÃO da imagem com a moldura. Tudo é
+  //  reescalado para caber no palco — a moldura cresce, e a imagem encolhe
+  //  junto. Assim nada sai de vista, por mais que se puxe.
+  function ajustar() {
+    const wrap = wrapRef.current;
+    const bc = baseRef.current;
+    const img = imgRef.current;
+    if (!wrap || !bc || !img) return;
+
+    const { w: W, h: H } = nativo.current;
+    if (!W) return;
+
+    // O bounding box, em pixels nativos
+    const bbW = W * (1 + (m.esq  + m.dir)   / 100);
+    const bbH = H * (1 + (m.cima + m.baixo) / 100);
+
+    const folga = ehExpansao ? 90 : 32;
+    const maxW = Math.max(80, wrap.clientWidth  - folga);
+    const maxH = Math.max(80, wrap.clientHeight - folga);
+
+    // A escala que faz TUDO caber
+    const esc = Math.min(maxW / bbW, maxH / bbH, 1);
+
+    const w = Math.max(1, Math.round(W * esc));
+    const h = Math.max(1, Math.round(H * esc));
+
+    bc.width = w;
+    bc.height = h;
+    bc.style.width = w + 'px';
+    bc.style.height = h + 'px';
+    bc.getContext('2d').drawImage(img, 0, 0, w, h);
+
+    const dc = drawRef.current;
+    if (dc && !ehExpansao) {
+      // Preserva o que já foi pintado ao redimensionar
+      const pintado = dc.width ? dc.toDataURL() : null;
+      dc.width = w;
+      dc.height = h;
+      dc.style.width = w + 'px';
+      dc.style.height = h + 'px';
+      if (pintado) {
+        const p = new Image();
+        p.onload = () => dc.getContext('2d').drawImage(p, 0, 0, w, h);
+        p.src = pintado;
+      }
+    }
+  }
+
   // ── Carrega a imagem ──
   useEffect(() => {
     const img = new Image();
 
     img.onload = () => {
-      const wrap = wrapRef.current;
-      const bc = baseRef.current;
-      const dc = drawRef.current;
-      if (!wrap || !bc) return;
-
+      imgRef.current = img;
       nativo.current = { w: img.width, h: img.height };
-
-      // Cabe inteira. Na expansão sobra folga: a moldura vai crescer.
-      const folga = ehExpansao ? 120 : 32;
-      const maxW = wrap.clientWidth  - folga;
-      const maxH = wrap.clientHeight - folga;
-      const esc  = Math.min(1, maxW / img.width, maxH / img.height);
-
-      const w = Math.round(img.width  * esc);
-      const h = Math.round(img.height * esc);
-
-      bc.width = w;
-      bc.height = h;
-      bc.style.width = w + 'px';
-      bc.style.height = h + 'px';
-      bc.getContext('2d').drawImage(img, 0, 0, w, h);
-
-      if (dc) {
-        dc.width = w;
-        dc.height = h;
-        dc.style.width = w + 'px';
-        dc.style.height = h + 'px';
-      }
+      ajustar();
     };
 
     img.src = 'data:image/png;base64,' + base;
   }, [base, ehExpansao]);
+
+  // A moldura mudou (ou a janela): reescala tudo para caber
+  useEffect(() => {
+    ajustar();
+  }, [m, ehExpansao]);
+
+  useEffect(() => {
+    const r = () => ajustar();
+    window.addEventListener('resize', r);
+    return () => window.removeEventListener('resize', r);
+  });
 
   // ── Pintar (só no preenchimento) ──
   useEffect(() => {
@@ -367,6 +410,53 @@ export default function TelaPincel({
       h: Math.round(H * (1 + (m.cima + m.baixo) / 100))
     });
   }, [m, ehExpansao, aoMudarMoldura]);
+
+  // ── Digitar o número move a moldura ──
+  //
+  //  A moldura e a caixa de número são a MESMA coisa vista de dois jeitos:
+  //  arrastar muda o número, digitar move a moldura. Quem sabe o tamanho
+  //  exato que quer não deveria ter de acertá-lo no olho.
+  useEffect(() => {
+    if (!aoDigitar || !ehExpansao) return;
+
+    aoDigitar.current = (eixo, valor) => {
+      const { w: W, h: H } = nativo.current;
+      if (!W || !valor || valor < 1) return;
+
+      setM((v) => {
+        if (eixo === 'w') {
+          // A sobra se divide igual dos dois lados: quem digita "2048" quer
+          // a imagem centrada, não encostada num canto.
+          const sobra = Math.max(0, (valor - W) / W * 100);
+          return { ...v, esq: sobra / 2, dir: sobra / 2 };
+        }
+        const sobra = Math.max(0, (valor - H) / H * 100);
+        return { ...v, cima: sobra / 2, baixo: sobra / 2 };
+      });
+    };
+  });
+
+  // Inverter: troca os eixos da moldura
+  useEffect(() => {
+    if (!aoInverter || !ehExpansao) return;
+
+    aoInverter.current = () => {
+      const { w: W, h: H } = nativo.current;
+      if (!W) return;
+
+      const larg = W * (1 + (m.esq  + m.dir)   / 100);
+      const alt  = H * (1 + (m.cima + m.baixo) / 100);
+
+      // O que era largura vira altura, e vice-versa
+      const sobraW = Math.max(0, (alt  - W) / W * 100);
+      const sobraH = Math.max(0, (larg - H) / H * 100);
+
+      setM({
+        esq:   sobraW / 2, dir:   sobraW / 2,
+        cima:  sobraH / 2, baixo: sobraH / 2
+      });
+    };
+  });
 
   // ── Os bytes que vão para o servidor ──
   function montarMascara() {

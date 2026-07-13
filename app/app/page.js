@@ -148,6 +148,8 @@ export default function AppPage() {
   const [pincel, setPincel]         = useState(null);   // {modo, base, previa}
   const montarPincel                = useRef(null);     // a tela devolve os bytes
   const limparPincel                = useRef(null);     // o painel manda limpar
+  const digitarPincel               = useRef(null);     // o painel digita uma medida
+  const inverterPincel              = useRef(null);     // o painel troca os eixos
 
   // O painel comanda, a tela obedece. O estado mora aqui, no meio dos dois.
   const [pnFerr, setPnFerr]   = useState('pincel');
@@ -176,9 +178,17 @@ export default function AppPage() {
         : 'Pinte a área que você quer trocar');
     }
 
+    // A base viaja para o slot: assim o "gerando" mostra a imagem desfocada
+    // por trás, como nas outras gerações — e não um retângulo vazio.
+    const previa = pincel?.previa || ('data:image/png;base64,' + pincel.base);
+
     setPincel(null);          // sai do pincel JÁ: o feed mostra o "gerando"
     setOcupado(true);
-    setProgresso({ feito: 0, total: 1, estado: 'processando', proporcao: 'auto' });
+    setProgresso({
+      feito: 0, total: 1, estado: 'processando',
+      proporcao: 'auto',
+      base: previa
+    });
 
     try {
       await gerarGenerativa({ modo, imagem, mascara, texto });
@@ -567,6 +577,8 @@ export default function AppPage() {
               tamanho={pnTam}       setTamanho={setPnTam}
               proporcao={pnRatio}   setProporcao={setPnRatio}
               medidas={pnMed}
+              aoDigitarMedida={(eixo, v) => digitarPincel.current?.(eixo, v)}
+              aoInverter={() => inverterPincel.current?.()}
               limpar={limparPincel}
             />
           )}
@@ -617,6 +629,8 @@ export default function AppPage() {
               proporcao={pnRatio}
               aoLimpar={limparPincel}
               aoMudarMoldura={setPnMed}
+              aoDigitar={digitarPincel}
+              aoInverter={inverterPincel}
               onGerar={montarPincel}
             />
           ) : (

@@ -7,7 +7,7 @@
 //  das outras abas. Sobre a imagem eles comiam o espaço do trabalho.
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import IconeCredito from './IconeCredito';
 import Seta from './Seta';
 import { custoGenerativa } from '../lib/render';
@@ -21,25 +21,26 @@ const TEXTOS = {
   },
   expansao: {
     nome: 'Expansão generativa',
-    desc: 'Arraste as bordas da moldura para fora. A área nova é o que a IA vai criar.',
+    desc: 'Arraste as bordas da moldura para fora. As bordas e o centro têm encaixe automático.',
     campo: 'Detalhes (opcional)',
     ph: 'Ex: continuar o jardim e o céu; estender o piso...'
   }
 };
 
-// As mesmas do plugin
+// As mesmas do plugin, com o desenho da proporção (como no PainelRender:
+// o retângulo diz mais que o número).
 const RATIOS = [
-  ['livre', 'Livre'],
-  ['1:1',   '1:1'],
-  ['16:9',  '16:9'],
-  ['9:16',  '9:16'],
-  ['4:3',   '4:3'],
-  ['3:4',   '3:4'],
-  ['3:2',   '3:2'],
-  ['2:3',   '2:3'],
-  ['21:9',  '21:9'],
-  ['5:7',   '5:7'],
-  ['4:5',   '4:5']
+  { val: 'livre', x: 5,   y: 5,   w: 18,   h: 18   },
+  { val: '1:1',   x: 6,   y: 6,   w: 16,   h: 16   },
+  { val: '16:9',  x: 2,   y: 8,   w: 24,   h: 13.5 },
+  { val: '9:16',  x: 8,   y: 2,   w: 13.5, h: 24   },
+  { val: '4:3',   x: 4,   y: 6.5, w: 20,   h: 15   },
+  { val: '3:4',   x: 6.5, y: 4,   w: 15,   h: 20   },
+  { val: '3:2',   x: 3,   y: 7,   w: 22,   h: 14.5 },
+  { val: '2:3',   x: 7,   y: 3,   w: 14.5, h: 22   },
+  { val: '21:9',  x: 1,   y: 9.5, w: 26,   h: 11   },
+  { val: '5:7',   x: 7,   y: 4,   w: 14,   h: 20   },
+  { val: '4:5',   x: 6,   y: 4.5, w: 16,   h: 19   }
 ];
 
 export default function PainelPincel({
@@ -48,6 +49,8 @@ export default function PainelPincel({
   tamanho, setTamanho,
   proporcao, setProporcao,
   medidas,                       // {w, h} da moldura, vindas da tela
+  aoDigitarMedida,               // os campos mandam de volta
+  aoInverter,
   limpar                         // a tela expõe o "limpar"
 }) {
   const [texto, setTexto] = useState('');
@@ -65,8 +68,6 @@ export default function PainelPincel({
       setErro(e.message);
     }
   }
-
-  const rotuloRatio = (RATIOS.find((r) => r[0] === proporcao) || RATIOS[0])[1];
 
   return (
     <div className="cr-form">
@@ -132,46 +133,86 @@ export default function PainelPincel({
         </>
       )}
 
-      {/* ── Expansão: proporção e medidas ── */}
+      {/* ── Expansão: proporção, medidas, inverter, limpar ── */}
       {ehExpansao && (
         <>
           <div className="cr-sec">Proporção</div>
+
+          {/* O mesmo dropdown das outras abas (cr-pill-cfg + cr-pop) */}
           <div className="cr-pill-wrap">
             <button
-              className="cr-pill cr-pill--larga"
-              onClick={() => setPop((v) => !v)}
+              className={'cr-pill-cfg cr-pill-cfg--larga' + (pop ? ' cr-pill-cfg--on' : '')}
+              onClick={(e) => { e.stopPropagation(); setPop((v) => !v); }}
             >
-              <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
-                   stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="5" width="14" height="10" rx="1.5"/>
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none">
+                <rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
               </svg>
-              {rotuloRatio}
+              <span>{proporcao === 'livre' ? 'Livre' : proporcao}</span>
               <Seta aberto={pop} />
             </button>
 
             {pop && (
-              <div className="cr-pop cr-pop--ratios">
-                {RATIOS.map(([val, rot]) => (
-                  <button
-                    key={val}
-                    className={'cr-pop-op' + (proporcao === val ? ' cr-pop-op--on' : '')}
-                    onClick={() => { setProporcao(val); setPop(false); }}
-                  >{rot}</button>
-                ))}
+              <div className="cr-pop" onClick={(e) => e.stopPropagation()}>
+                <div className="cr-pop-grade">
+                  {RATIOS.map((p) => (
+                    <button
+                      key={p.val}
+                      className={'cr-pop-b' + (proporcao === p.val ? ' cr-pop-b--on' : '')}
+                      onClick={() => { setProporcao(p.val); setPop(false); }}
+                    >
+                      <svg viewBox="0 0 28 28" fill="none">
+                        <rect x={p.x} y={p.y} width={p.w} height={p.h} rx="1"
+                              stroke="currentColor" strokeWidth="1.5"
+                              strokeDasharray={p.val === 'livre' ? '3 2' : undefined}/>
+                      </svg>
+                      <span>{p.val === 'livre' ? 'Livre' : p.val}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
 
-          {/* As dimensões que vão sair. Não editáveis: quem manda é a moldura,
-              e dois lugares mandando na mesma coisa divergem. */}
-          {medidas?.w > 0 && (
-            <div className="pn-medidas">
-              <span>{medidas.w}</span>
-              <em>×</em>
-              <span>{medidas.h}</span>
-              <b>px</b>
-            </div>
-          )}
+          {/* As dimensões: dá para arrastar a moldura OU digitar o número.
+              Quem sabe o tamanho exato que quer não deveria ter de acertá-lo
+              no olho. */}
+          <div className="pn-medidas">
+            <input
+              type="number"
+              value={medidas?.w || ''}
+              onChange={(e) => aoDigitarMedida?.('w', +e.target.value)}
+              placeholder="L"
+            />
+
+            <button
+              className="pn-inverter"
+              onClick={() => aoInverter?.()}
+              title="Inverter"
+              aria-label="Inverter largura e altura"
+            >
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
+                   stroke="currentColor" strokeWidth="1.5">
+                <path d="M4 7h12m0 0l-3-3m3 3l-3 3" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M16 13H4m0 0l3-3m-3 3l3 3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            <input
+              type="number"
+              value={medidas?.h || ''}
+              onChange={(e) => aoDigitarMedida?.('h', +e.target.value)}
+              placeholder="A"
+            />
+          </div>
+
+          <button
+            className="pn-limpar-larga"
+            onClick={() => limpar?.current?.()}
+            disabled={ocupado}
+          >
+            Limpar
+          </button>
         </>
       )}
 
@@ -187,24 +228,27 @@ export default function PainelPincel({
 
       {erro && <div className="cr-erro">{erro}</div>}
 
-      <div className="pn-acoes">
+      {/* O Gerar fica SOZINHO, como no Render e no Batch. O custo aparece só
+          no hover (.cr-custo-tag) — não polui o botão em repouso. */}
+      <button className="cr-btn-gerar" onClick={gerar} disabled={ocupado}>
+        <span>{ocupado ? 'Gerando...' : 'Gerar'}</span>
+        {!ocupado && (
+          <span className="cr-custo-tag">
+            <IconeCredito /> {custoGenerativa()}
+          </span>
+        )}
+      </button>
+
+      {/* O Resetar vem depois, largo e discreto — igual ao do Render. */}
+      {!ehExpansao && (
         <button
-          className="pn-limpar"
+          className="cr-resetar"
           onClick={() => limpar?.current?.()}
           disabled={ocupado}
         >
-          {ehExpansao ? 'Resetar' : 'Limpar'}
+          Limpar marcação
         </button>
-
-        <button className="cr-btn-gerar" onClick={gerar} disabled={ocupado}>
-          <span>{ocupado ? 'Gerando...' : 'Gerar'}</span>
-          {!ocupado && (
-            <span className="cr-custo-tag">
-              <IconeCredito /> {custoGenerativa()}
-            </span>
-          )}
-        </button>
-      </div>
+      )}
     </div>
   );
 }
