@@ -157,7 +157,7 @@ export default function AppPage() {
   //
   //  A tela devolve a imagem e a máscara já prontas (preto-e-branco, no
   //  tamanho nativo). Quem cobra é o servidor — e estorna se falhar.
-  async function gerarComPincel({ modo, texto, resolucao }) {
+  async function gerarComPincel({ modo, texto }) {
     const montar = montarPincel.current;
     if (!montar) return;
 
@@ -173,7 +173,7 @@ export default function AppPage() {
     setProgresso({ feito: 0, total: 1, estado: 'processando', proporcao: 'auto' });
 
     try {
-      await gerarGenerativa({ modo, imagem, mascara, texto, resolucao });
+      await gerarGenerativa({ modo, imagem, mascara, texto });
 
       setPincel(null);        // sai do pincel: o feed volta, com o resultado
       recarregarComFolga();
@@ -483,25 +483,29 @@ export default function AppPage() {
         {/* ═══ Painel ═══ */}
         <aside className="cr-painel">
           <div className="cr-pills">
-            {/* Sem `disabled={ocupado}`: a geração roda no servidor, e não
-                há razão para prender a pessoa aqui. Ela pode trocar de aba e
-                preparar o próximo trabalho enquanto este sai. */}
-            <button
-              className={'cr-pill' + (ferramenta === 'render' ? ' cr-pill--on' : '')}
-              onClick={() => setFerramenta('render')}
-            >Render</button>
-            <button
-              className={'cr-pill' + (ferramenta === 'batch' ? ' cr-pill--on' : '')}
-              onClick={() => setFerramenta('batch')}
-            >Batch</button>
-            <button
-              className={'cr-pill' + (ferramenta === 'editar' ? ' cr-pill--on' : '')}
-              onClick={() => setFerramenta('editar')}
-            >Editar</button>
-            <button
-              className={'cr-pill' + (ferramenta === 'analises' ? ' cr-pill--on' : '')}
-              onClick={() => setFerramenta('analises')}
-            >Análises</button>
+            {/* O trilho: as pills correm num sulco, e a ativa é a placa que
+                sobe dele. */}
+            <div className="cr-trilho">
+              {/* Sem `disabled={ocupado}`: a geração roda no servidor, e não
+                  há razão para prender a pessoa aqui. Ela pode trocar de aba e
+                  preparar o próximo trabalho enquanto este sai. */}
+              <button
+                className={'cr-pill' + (ferramenta === 'render' ? ' cr-pill--on' : '')}
+                onClick={() => setFerramenta('render')}
+              >Render</button>
+              <button
+                className={'cr-pill' + (ferramenta === 'batch' ? ' cr-pill--on' : '')}
+                onClick={() => setFerramenta('batch')}
+              >Batch</button>
+              <button
+                className={'cr-pill' + (ferramenta === 'editar' ? ' cr-pill--on' : '')}
+                onClick={() => setFerramenta('editar')}
+              >Editar</button>
+              <button
+                className={'cr-pill' + (ferramenta === 'analises' ? ' cr-pill--on' : '')}
+                onClick={() => setFerramenta('analises')}
+              >Análises</button>
+            </div>
           </div>
 
           {/* ── Os painéis ficam MONTADOS, escondidos ──

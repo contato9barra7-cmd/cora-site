@@ -1162,36 +1162,49 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 /* ── Pills das ferramentas ── */
 .cr-pills {
   display: flex;
-  gap: 4px;
-  padding: 12px;
-  border-bottom: 1px solid var(--line);
+  padding: 10px 12px;
 
-  /* Ficam a vista ao rolar o painel: trocar de aba nao deve exigir
+  /* Ficam à vista ao rolar o painel: trocar de aba não deve exigir
      voltar ao topo. */
   position: sticky;
   top: 0;
   z-index: 20;
 
   /* A MESMA altura da barra do feed (.cr-barra): as duas encostam na
-     divisoria, e um degrau de 1px entre elas ficava evidente. */
+     divisória, e um degrau de 1px entre elas ficava evidente. */
   min-height: 57px;
   box-sizing: border-box;
   align-items: center;
 
-  /* Tingido de accent — separa a barra do painel.
-     Provisorio: entra a cor da marca depois. */
-  background: color-mix(in srgb, var(--accent) 32%, var(--wash));
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+/* O trilho: um sulco onde as pills correm. A ativa é a placa que sobe dele.
+   O gesto carrega a hierarquia — não uma cor de fundo, que só preenchia
+   espaço. E por não depender de cor, sobrevive à troca de paleta.
+
+   O sulco é o fundo do próprio .cr-pills (arredondado), não um ::before com
+   z-index negativo — esse iria parar atrás do painel e sumiria. */
+.cr-trilho {
+  display: flex;
+  gap: 2px;
+  width: 100%;
+  padding: 3px;
+  box-sizing: border-box;
+  border-radius: 100px;
+  background: var(--wash2);
 }
 
 .cr-pill {
   flex: 1;
   padding: 7px 0;
   border-radius: 100px;
-  border: 1px solid transparent;
+  border: none;
   background: transparent;
   color: var(--ink3);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   font-family: inherit;
   cursor: pointer;
   transition: all .15s;
@@ -1200,9 +1213,10 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .cr-pill:hover:not(:disabled) { color: var(--ink); }
 
 .cr-pill--on {
-  background: var(--accent-bg);
-  border-color: transparent;
-  color: var(--accent);
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .07);
 }
 
 .cr-pill:hover:not(:disabled):not(.cr-pill--on) { color: var(--ink2); }

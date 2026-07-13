@@ -30,17 +30,15 @@ export default function PainelPincel({ modo, ocupado, onVoltar, onGerar }) {
   const [texto, setTexto] = useState('');
   const [erro, setErro]   = useState('');
 
-  // Sem escolha de resolução: o plugin não tem, e o flux-fill sempre foi 2k.
-  // Oferecê-la aqui criaria uma diferença entre os dois — e preços diferentes
-  // pela mesma coisa.
-  const resolucao = '2k';
+  // Sem escolha de resolução: não haveria o que mudar. O FLUX Fill devolve a
+  // imagem no tamanho da que recebeu.
 
   const t = TEXTOS[modo] || TEXTOS.preenchimento;
 
   async function gerar() {
     setErro('');
     try {
-      await onGerar({ modo, texto: texto.trim(), resolucao });
+      await onGerar({ modo, texto: texto.trim() });
     } catch (e) {
       setErro(e.message);
     }
@@ -78,7 +76,7 @@ export default function PainelPincel({ modo, ocupado, onVoltar, onGerar }) {
         <span>{ocupado ? 'Gerando...' : 'Gerar'}</span>
         {!ocupado && (
           <span className="cr-custo-tag">
-            <IconeCredito /> {custoGenerativa(resolucao)}
+            <IconeCredito /> {custoGenerativa()}
           </span>
         )}
       </button>
