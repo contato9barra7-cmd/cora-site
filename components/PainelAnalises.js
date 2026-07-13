@@ -15,7 +15,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
-import { listarLeituras, apagarLeitura, bytesDaLeitura } from '../lib/leituras';
+import { listarLeituras, apagarLeitura, bytesDaLeitura, refsDaLeitura } from '../lib/leituras';
 import { bytesDaGeracao } from '../lib/geracoes';
 
 function quando(iso) {
@@ -31,6 +31,43 @@ function quando(iso) {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
 }
 
+// Um dropdown. O rótulo fica sempre à vista ("Origem", "Aba") e o valor
+// escolhido ao lado — assim a pessoa não precisa abrir para lembrar o que
+// aquele campo filtra.
+function Escolha({ rotulo, valor, opcoes, onMudar, aberto, onAbrir }) {
+  const atual = opcoes.find((o) => o.v === valor) || opcoes[0];
+
+  return (
+    <div className="an-esc">
+      <button className={'an-esc-b' + (aberto ? ' an-esc-b--on' : '')} onClick={onAbrir}>
+        <span className="an-esc-rot">{rotulo}</span>
+        <span className="an-esc-val">{atual.r}</span>
+        <svg
+          className={'an-esc-seta' + (aberto ? ' an-esc-seta--on' : '')}
+          viewBox="0 0 20 20" width="12" height="12"
+          fill="none" stroke="currentColor" strokeWidth="1.6"
+        >
+          <path d="M6 8l4 4 4-4" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      {aberto && (
+        <div className="an-esc-menu">
+          {opcoes.map((o) => (
+            <button
+              key={o.v}
+              className={'an-esc-op' + (o.v === valor ? ' an-esc-op--on' : '')}
+              onClick={() => { onMudar(o.v); onAbrir(); }}
+            >
+              {o.r}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PainelAnalises({ onUsar }) {
   const [itens, setItens]       = useState([]);
   const [carregando, setCarreg] = useState(true);
@@ -42,6 +79,7 @@ export default function PainelAnalises({ onUsar }) {
   const [apagando, setApagando] = useState(null);
   const [copiada, setCopiada]   = useState(null);
   const [levando, setLevando]   = useState(null);
+  const [menuAberto, setMenuAberto] = useState(null);   // 'plataforma' | 'filtro'
 
   // ── Levar a leitura para um painel, com a imagem junto ──
   //
@@ -62,25 +100,29 @@ export default function PainelAnalises({ onUsar }) {
       //
       // Nos dois casos quem lê do R2 é o servidor: o navegador não consegue
       // (o R2 não manda CORS, e um fetch() na URL assinada morre).
-      let base64 = null;
+      // A imagem lida e as REFERÊNCIAS de estilo vêm juntas: a análise foi
+      // feita cruzando as duas, e reaproveitar sem as refs traria a cena mas
+      // não o estilo — a geração sairia diferente.
+      const [base64, refs] = await Promise.all([
+        l.geracaoId ? bytesDaGeracao(l.geracaoId)
+          : l.temImagem ? bytesDaLeitura(l.id)
+          : Promise.resolve(null),
 
-      if (l.geracaoId) {
-        base64 = await bytesDaGeracao(l.geracaoId);
-      } else if (l.temImagem) {
-        base64 = await bytesDaLeitura(l.id);
-      }
+        l.qtdRefs > 0 ? refsDaLeitura(l.id) : Promise.resolve([])
+      ]);
 
       onUsar({
         materiais: l.materiais,
         base64,                    // null quando não há imagem guardada
         previa: l.thumb || null,
+        refs,                      // o estilo que a análise usou
         destino
       });
 
     } catch {
       // Não deu para buscar a imagem? Leva o texto assim mesmo — é ele que
       // custou créditos.
-      onUsar({ materiais: l.materiais, base64: null, previa: null, destino });
+      onUsar({ materiais: l.materiais, base64: null, previa: null, refs: [], destino });
     } finally {
       setLevando(null);
     }
@@ -89,12 +131,22 @@ export default function PainelAnalises({ onUsar }) {
   useEffect(() => {
     let vivo = true;
 
-    listarLeituras(100)
+    // 30, não 100: o servidor assina uma URL do R2 para CADA miniatura antes
+    // de responder. Com 100, a aba demorava a abrir. 30 enche a tela.
+    listarLeituras(30)
       .then((l) => { if (vivo) { setItens(l); setCarreg(false); } })
       .catch(() => { if (vivo) setCarreg(false); });
 
     return () => { vivo = false; };
   }, []);
+
+  // Fecha o dropdown ao clicar fora
+  useEffect(() => {
+    if (!menuAberto) return;
+    const fora = (e) => { if (!e.target.closest('.an-esc')) setMenuAberto(null); };
+    document.addEventListener('mousedown', fora);
+    return () => document.removeEventListener('mousedown', fora);
+  }, [menuAberto]);
 
   const filtrados = itens
     .filter((i) => plataforma === 'todas' || (i.plataforma || 'web') === plataforma)
@@ -149,34 +201,33 @@ export default function PainelAnalises({ onUsar }) {
         spellCheck={false}
       />
 
-      {/* De onde veio: a web ou o plugin do SketchUp */}
-      <div className="cr-g3 an-filtros">
-        {[
-          { v: 'todas',  r: 'Todas' },
-          { v: 'web',    r: 'Web' },
-          { v: 'plugin', r: 'Plugin' }
-        ].map((f) => (
-          <button
-            key={f.v}
-            className={'cr-b' + (plataforma === f.v ? ' cr-b--on' : '')}
-            onClick={() => setPlataforma(f.v)}
-          >{f.r}</button>
-        ))}
-      </div>
+      {/* Dois dropdowns: DE ONDE veio a leitura, e QUAL aba a gerou. */}
+      <div className="an-filtros">
+        <Escolha
+          rotulo="Origem"
+          valor={plataforma}
+          onMudar={setPlataforma}
+          aberto={menuAberto === 'plataforma'}
+          onAbrir={() => setMenuAberto(menuAberto === 'plataforma' ? null : 'plataforma')}
+          opcoes={[
+            { v: 'todas',  r: 'Todas' },
+            { v: 'web',    r: 'Web' },
+            { v: 'plugin', r: 'Plugin' }
+          ]}
+        />
 
-      {/* Qual ferramenta gerou a leitura */}
-      <div className="cr-g3 an-filtros an-filtros--sub">
-        {[
-          { v: 'todas',  r: 'Todas' },
-          { v: 'render', r: 'Render' },
-          { v: 'batch',  r: 'Batch' }
-        ].map((f) => (
-          <button
-            key={f.v}
-            className={'cr-b' + (filtro === f.v ? ' cr-b--on' : '')}
-            onClick={() => setFiltro(f.v)}
-          >{f.r}</button>
-        ))}
+        <Escolha
+          rotulo="Aba"
+          valor={filtro}
+          onMudar={setFiltro}
+          aberto={menuAberto === 'filtro'}
+          onAbrir={() => setMenuAberto(menuAberto === 'filtro' ? null : 'filtro')}
+          opcoes={[
+            { v: 'todas',  r: 'Todas' },
+            { v: 'render', r: 'Render' },
+            { v: 'batch',  r: 'Batch' }
+          ]}
+        />
       </div>
 
       {carregando && <p className="cr-msg">Carregando...</p>}

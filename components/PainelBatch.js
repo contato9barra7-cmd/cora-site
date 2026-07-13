@@ -171,6 +171,19 @@ export default function PainelBatch({ aprovadas, leituraInicial, onPronto, onPro
       cfg: { qtd: 1, proporcao: '4:5', resolucao: '2k' }
     }]);
 
+    // As REFERÊNCIAS de estilo voltam junto. Sem elas, a análise descreveria
+    // a cena mas a geração sairia com outro estilo — a análise foi feita
+    // cruzando as duas coisas.
+    if (leituraInicial.refs?.length) {
+      setRefs((r) => [
+        ...r,
+        ...leituraInicial.refs.map((b) => ({
+          base64: b,
+          previa: `data:image/png;base64,${b}`
+        }))
+      ]);
+    }
+
     setFase1(false);
   }, [leituraInicial]);
 

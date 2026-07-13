@@ -145,6 +145,15 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       setImagem(leituraInicial.base64);
       setPrevia(leituraInicial.previa);
     }
+
+    // E as REFERÊNCIAS de estilo: a análise foi feita cruzando a imagem com
+    // elas. Sem as refs, a geração sairia com outro estilo.
+    if (leituraInicial.refs?.length) {
+      setRefs(leituraInicial.refs.map((b) => ({
+        base64: b,
+        previa: `data:image/png;base64,${b}`
+      })));
+    }
   }, [leituraInicial]);
 
   // Fecha os popovers ao clicar fora
@@ -189,7 +198,8 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       // ele não teria como saber: o título e de qual geração veio a imagem.
       const txt = await lerMateriais(imagem, tipo, {
         titulo:    tituloDaLeitura(),
-        geracaoId: geracaoIdDaImagem
+        geracaoId: geracaoIdDaImagem,
+        refs:      refs.map((x) => x.base64)   // o estilo vai junto
       });
 
       setMateriais(txt);

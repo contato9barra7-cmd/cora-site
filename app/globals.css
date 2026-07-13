@@ -1366,6 +1366,12 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .cr-overlay {
   position: fixed;
   inset: 0;
+
+  /* Sem isto o z-index ficava em `auto`, e a ordem no DOM decidia quem
+     ficava por cima: o modal de download aparecia ATRÁS do visualizador,
+     e não dava para clicar nele. */
+  z-index: 50;
+
   background: rgba(0, 0, 0, .62);
   display: flex;
   align-items: center;
@@ -1985,7 +1991,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .cr-pop-res {
   height: 32px;
-  border-radius: 8px;
+  border-radius: 100px;   /* semicírculo, como os demais botões */
   border: 1px solid var(--line2);
   background: var(--paper);
   color: var(--ink2);
@@ -2604,7 +2610,8 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .vz-envia--on:hover { background: var(--accent-bg); }
 
 /* ═══ Modal de download ═══ */
-.cr-overlay--alto { z-index: 60; }
+/* O que abre POR CIMA de outro overlay (o download, sobre o visualizador) */
+.cr-overlay--alto { z-index: 70; }
 
 .dl {
   width: 100%;
@@ -4581,7 +4588,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .an-busca:focus { border-color: var(--accent); }
 
-.an-filtros { margin-bottom: 14px; }
+
 
 .an-item {
   margin-bottom: 6px;
@@ -4761,13 +4768,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--accent);
 }
 
-/* Os dois grupos de filtro são irmãos, não pai e filho: um diz DE ONDE veio
-   a leitura, o outro QUAL ferramenta a gerou. Mesma altura, mesmo peso —
-   só ficam mais juntos entre si do que do resto. */
-.an-filtros--sub {
-  margin-top: -8px;
-  margin-bottom: 14px;
-}
 
 /* A etiqueta do plugin: distingue sem gritar */
 .an-tag--plugin {
@@ -4785,4 +4785,100 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .an-tag--plugin {
   background: color-mix(in srgb, var(--accent) 20%, transparent);
   color: var(--ink2);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Os filtros da aba Análises — dois dropdowns
+
+   O rótulo ("Origem", "Aba") fica sempre à vista, com o valor ao lado.
+   Assim a pessoa não precisa abrir o menu para lembrar o que aquele campo
+   filtra — e vê de relance como a lista está filtrada.
+   ═══════════════════════════════════════════════════════════ */
+
+.an-filtros {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.an-esc {
+  position: relative;
+  flex: 1;
+}
+
+.an-esc-b {
+  width: 100%;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px 0 14px;
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+
+.an-esc-b:hover     { border-color: var(--ink3); }
+.an-esc-b--on       { border-color: var(--accent); }
+
+/* O rótulo é a legenda do campo: discreto, mas sempre presente */
+.an-esc-rot {
+  color: var(--ink3);
+  font-size: 11px;
+}
+
+.an-esc-val {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.an-esc-seta {
+  flex-shrink: 0;
+  color: var(--ink3);
+  transition: transform .18s;
+}
+
+.an-esc-seta--on { transform: rotate(180deg); }
+
+.an-esc-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .13);
+}
+
+.an-esc-op {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink2);
+  font-size: 12px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.an-esc-op:hover { background: var(--wash); }
+
+.an-esc-op--on {
+  background: var(--accent-bg);
+  color: var(--ink);
+  font-weight: 500;
 }
