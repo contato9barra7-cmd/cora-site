@@ -1946,9 +1946,11 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   z-index: 20;
 }
 
+/* 11 proporções. Em 5 colunas sobravam 4 buracos na última linha; em 6,
+   sobra 1 — e cabe em duas linhas em vez de três. */
 .cr-pop-grade {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 4px;
 }
 
@@ -2742,16 +2744,6 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 }
 
 
-.cr-slot {
-  /* a proporção vem da página (a mesma da geração em curso) */
-  border-radius: 10px;
-  border: 1px dashed var(--line2);
-  background: var(--wash);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ink3);
-}
 
 .cr-slot--ok {
   border-style: solid;
@@ -3597,7 +3589,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .cr-slot {
   position: relative;
-  width: 100%;
+
+  /* Sem `width: 100%`: num flex (o modo lista) isso fazia o slot ocupar a
+     linha inteira — o "gerando" ficava gigante. A largura vem da coluna
+     (na grade) ou das regras de tamanho abaixo (na lista), iguais às do card.
+     A altura sai do aspect-ratio, que a página define. */
+  width: auto;
+
   border-radius: 10px;
   border: 1px dashed var(--line2);
   background: var(--wash);
@@ -3607,6 +3605,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink3);
   overflow: hidden;
 }
+
+/* Na lista, o slot tem a mesma largura do card — senão o "gerando" teria um
+   tamanho e a imagem pronta, outro. */
+.cr-cards--linha.cr-cards--p  .cr-slot { width: 150px; }
+.cr-cards--linha.cr-cards--m  .cr-slot { width: 230px; }
+.cr-cards--linha.cr-cards--g  .cr-slot { width: 330px; }
+.cr-cards--linha.cr-cards--gg .cr-slot { width: 460px; }
 
 .cr-slot--ok {
   border-style: solid;
@@ -4510,4 +4515,42 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: var(--wash);
   font-size: 11px;
   color: var(--ink2);
+}
+
+/* ── Voltar às cenas (da fase 2 para a fase 1) ──
+   A análise não se perde: ela custou créditos e continua guardada. */
+.cr-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 14px;
+  padding: 5px 11px 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--ink3);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.cr-voltar:hover {
+  border-color: var(--ink3);
+  color: var(--ink);
+}
+
+/* O caminho de volta à análise, na fase 1 */
+.cr-b--voltar {
+  width: 100%;
+  margin-bottom: 8px;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cr-resetar:disabled {
+  opacity: .4;
+  cursor: default;
+  border-color: var(--line2);
+  color: var(--ink3);
 }

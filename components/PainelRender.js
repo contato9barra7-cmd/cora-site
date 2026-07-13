@@ -250,15 +250,21 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
         onProgresso: (feito, total, estado) => onProgresso({ feito, total, estado, proporcao }),
         loteAnterior   // mesma config = continua na mesma linha do feed
       });
+      // Some com os slots ANTES de recarregar o feed: senão há um instante
+      // em que a imagem nova JÁ apareceu e o "gerando" ainda está lá.
+      onProgresso(null);
+      setOcupado(false);
+
       onPronto(r);
+
       // Deu certo: o rascunho já cumpriu o papel. (O painel continua
       // preenchido na tela — só não precisamos mais guardar em disco.)
       limparRascunho('render');
+
     } catch (e) {
       setErro(e.message);
-    } finally {
-      setOcupado(false);
       onProgresso(null);
+      setOcupado(false);
     }
   }
 
@@ -561,7 +567,11 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
         {/* Recomeçar do zero. Pede confirmação: os materiais lidos custaram
             créditos, e apagá-los sem querer é perder dinheiro. */}
-        <button className="cr-resetar" onClick={() => setConfirmarReset(true)}>
+        <button
+          className="cr-resetar"
+          onClick={() => setConfirmarReset(true)}
+          disabled={ocupado}
+        >
           Resetar configurações
         </button>
 

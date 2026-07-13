@@ -58,7 +58,10 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
   const [erro, setErro]     = useState('');
   const [confirmarReset, setConfirmarReset] = useState(false);
 
-  const fase = analise ? 2 : 1;
+  // A fase 2 aparece quando há análise. Mas a pessoa pode VOLTAR à fase 1
+  // sem perder nada: `verFase1` manda na tela; `analise` continua guardada.
+  const [verFase1, setFase1] = useState(false);
+  const fase = (analise && !verFase1) ? 2 : 1;
 
   // ── As aprovadas entram (e saem) sozinhas ──
   //
@@ -196,6 +199,7 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
       }));
 
       setAnalise(cenasAnalisadas);
+      setFase1(false);          // a análise nova abre na fase 2
 
       // Cada cena analisada vira uma leitura no BANCO. Isto custou 15
       // créditos por cena — perder seria pagar de novo pelo mesmo trabalho.
@@ -236,6 +240,19 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
     setErro('');
     setOcupado(true);
 
+    // Gerar produz IMAGENS — então o progresso vai para o feed, à direita,
+    // igual ao Render. (Analisar produz texto, e o aviso fica no painel.)
+    // Sem esta linha, o feed só reagia quando a primeira imagem ficava
+    // pronta: até lá, nada acontecia na tela.
+    onProgresso({
+      feito: 0,
+      total: totalImagens,
+      estado: 'gerando',
+      // A forma dos slots. Um batch pode misturar proporções; usamos a da
+      // primeira cena, que é a que a pessoa vê primeiro.
+      proporcao: cenasAprovadas[0]?.cfg.proporcao || '4:5'
+    });
+
     try {
       const r = await gerarBatch({
         cenas: cenasAprovadas.map((c) => {
@@ -251,15 +268,25 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
         }),
         refs: todasRefs.map((r) => r.base64)
       }, {
-        onProgresso: (feito, total) => onProgresso({ feito, total, estado: 'gerando' })
+        onProgresso: (feito, total) => onProgresso({
+          feito, total,
+          estado: 'gerando',
+          proporcao: cenasAprovadas[0]?.cfg.proporcao || '4:5'
+        })
       });
+
+      // Some com os slots ANTES de recarregar o feed: senão há um instante
+      // em que a imagem nova JÁ apareceu e o "gerando" ainda está lá.
+      onProgresso(null);
+      setOcupado(false);
 
       onPronto(r);
       limparRascunho('batch');
+
     } catch (e) {
       setErro(e.message);
-    } finally {
-      setAnalisando(false);
+      onProgresso(null);
+      setOcupado(false);
     }
   }
 
@@ -267,6 +294,7 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
     setRefs([]);          // só as manuais: as aprovadas vêm da página
     setCenas([]);
     setAnalise(null);
+    setFase1(false);
     setErro('');
     limparRascunho('batch');
     setConfirmarReset(false);
@@ -406,6 +434,16 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
         {/* ═══ FASE 2 ═══ */}
         {fase === 2 && (
           <>
+            {/* Voltar não apaga a análise: ela continua guardada (custou
+                créditos). Serve para trocar as cenas ou as referências e
+                analisar de novo — ou só para conferir o que foi enviado. */}
+            <button className="cr-voltar" onClick={() => setFase1(true)}>
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Voltar às cenas
+            </button>
+
             <div className="cr-sec">Verificação de materiais por cena</div>
             <p className="cr-hint cr-hint--topo">
               A IA cruzou cada cena com as referências. Revise, ajuste e aprove —
@@ -463,7 +501,13 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
         )}
 
         {/* Recomeçar. Pede confirmação: a análise custou créditos. */}
-        <button className="cr-resetar" onClick={() => setConfirmarReset(true)}>
+        {/* Travado durante a geração: resetar no meio deixaria o `gerar`
+            rodando com cenas que já não existem. */}
+        <button
+          className="cr-resetar"
+          onClick={() => setConfirmarReset(true)}
+          disabled={ocupado || analisando}
+        >
           Resetar configurações
         </button>
 
@@ -503,12 +547,19 @@ export default function PainelBatch({ aprovadas, onPronto, onProgresso, ocupado,
               </div>
             )}
 
+            {/* Já analisou? Um caminho de volta, sem pagar de novo. */}
+            {analise && (
+              <button className="cr-b cr-b--voltar" onClick={() => setFase1(false)}>
+                Ver a análise que já fiz
+              </button>
+            )}
+
             <button
               className="cr-btn-gerar"
               onClick={analisar}
               disabled={analisando || ocupado || todasRefs.length === 0 || marcadas.length === 0}
             >
-              <span>{analisando ? 'Analisando...' : 'Analisar cenas'}</span>
+              <span>{analisando ? 'Analisando...' : analise ? 'Analisar de novo' : 'Analisar cenas'}</span>
               {!analisando && marcadas.length > 0 && (
                 <span className="cr-custo-tag">
                   <IconeCredito /> {CREDITOS.analiseBatch * marcadas.length}

@@ -350,15 +350,16 @@ export default function AppPage() {
         {/* ═══ Painel ═══ */}
         <aside className="cr-painel">
           <div className="cr-pills">
+            {/* Sem `disabled={ocupado}`: a geração roda no servidor, e não
+                há razão para prender a pessoa aqui. Ela pode trocar de aba e
+                preparar o próximo trabalho enquanto este sai. */}
             <button
               className={'cr-pill' + (ferramenta === 'render' ? ' cr-pill--on' : '')}
               onClick={() => setFerramenta('render')}
-              disabled={ocupado}
             >Render</button>
             <button
               className={'cr-pill' + (ferramenta === 'batch' ? ' cr-pill--on' : '')}
               onClick={() => setFerramenta('batch')}
-              disabled={ocupado}
             >Batch</button>
             <button className="cr-pill" disabled data-tip="Em breve">Editar</button>
           </div>
