@@ -213,6 +213,28 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
 
   const marcadas = cenas.filter((c) => c.marcada);
 
+  // ── Já tenho a análise ──
+  //
+  //  A pessoa já leu os materiais antes (na aba Análises, ou no plugin) e
+  //  quer colar o texto. Sem isto, pagaria 8 créditos por cena para refazer
+  //  um trabalho que já foi feito.
+  //
+  //  Vai direto para a fase 2, com os campos vazios.
+  function jaTenho() {
+    if (marcadas.length === 0) return;
+
+    setAnalise(marcadas.map((c, i) => ({
+      nome:      c.nome || `Cena ${i + 1}`,
+      cenaId:    c.id,
+      previa:    c.previa,
+      materiais: '',            // vazio: a pessoa cola o que já tem
+      aprovada:  false,
+      cfg: { qtd: 1, proporcao: '4:5', resolucao: '2k' }
+    })));
+
+    setFase1(false);
+  }
+
   async function analisar() {
     if (todasRefs.length === 0) { setErro('Adicione ao menos uma referência'); return; }
     if (marcadas.length === 0) { setErro('Marque ao menos uma cena'); return; }
@@ -610,6 +632,14 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                 </span>
               )}
             </button>
+
+            {/* Já leu os materiais antes (na aba Análises, ou no plugin)?
+                Cola o texto e não paga de novo pelo mesmo trabalho. */}
+            {!analise && marcadas.length > 0 && (
+              <button className="cr-b cr-b--tenho" onClick={jaTenho} disabled={ocupado}>
+                Já tenho a análise
+              </button>
+            )}
 
             <p className="cr-custo">
               {marcadas.length === 0

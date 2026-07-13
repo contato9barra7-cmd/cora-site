@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import PainelRender from '../../components/PainelRender';
 import PainelBatch from '../../components/PainelBatch';
+import PainelEditar from '../../components/PainelEditar';
 import PainelAnalises from '../../components/PainelAnalises';
 import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
@@ -146,6 +147,7 @@ export default function AppPage() {
 
   // O que refazer quando a pessoa clica em "Tentar de novo".
   const [refazer, setRefazer]       = useState(null);
+
 
   // O último lote gerado — para saber se o próximo continua na mesma linha
   const [ultimoLote, setUltimoLote] = useState(null);
@@ -453,7 +455,10 @@ export default function AppPage() {
               className={'cr-pill' + (ferramenta === 'batch' ? ' cr-pill--on' : '')}
               onClick={() => setFerramenta('batch')}
             >Batch</button>
-            <button className="cr-pill" disabled data-tip="Em breve">Editar</button>
+            <button
+              className={'cr-pill' + (ferramenta === 'editar' ? ' cr-pill--on' : '')}
+              onClick={() => setFerramenta('editar')}
+            >Editar</button>
             <button
               className={'cr-pill' + (ferramenta === 'analises' ? ' cr-pill--on' : '')}
               onClick={() => setFerramenta('analises')}
@@ -485,11 +490,27 @@ export default function AppPage() {
             />
           )}
 
+          {ferramenta === 'editar' && (
+            <PainelEditar
+              imagemInicial={imagemDeOutraAba}
+              ferramentas={conta?.ferramentas || []}
+              ehAdmin={ehAdmin}
+              ocupado={ocupado}
+              setOcupado={setOcupado}
+              onProgresso={setProgresso}
+              onPronto={() => { setProgresso(null); recarregarComFolga(); }}
+              onAbrirPincel={() => setErro(
+                'O preenchimento e a expansão entram em breve — por enquanto, use o plugin.'
+              )}
+            />
+          )}
+
           {ferramenta === 'analises' && (
             <PainelAnalises onUsar={usarLeitura} />
           )}
 
-          {ferramenta !== 'render' && ferramenta !== 'batch' && ferramenta !== 'analises' && (
+          {ferramenta !== 'render' && ferramenta !== 'batch' &&
+           ferramenta !== 'editar' && ferramenta !== 'analises' && (
             <div className="cr-painel-vazio">
               <p>A aba {ferramenta} entra em breve.</p>
             </div>
