@@ -3,43 +3,47 @@
 // ═══════════════════════════════════════════════════════════
 //  PainelEditar — a aba Editar
 //
-//  Oito modos. Seis são formulários de texto; dois (preenchimento e
-//  expansão) precisam de PINCEL, e por isso abrem numa tela grande — pintar
-//  uma máscara num painel de 380px seria impossível.
+//  Oito modos. Seis são formulários; dois (preenchimento e expansão) precisam
+//  de PINCEL, e por isso abrem numa tela grande — pintar uma máscara num
+//  painel de 380px seria impossível.
 //
 //  A imagem base é UMA SÓ: escolhida uma vez, vale para todos os modos.
-//  É assim no plugin, e quem usa os dois não deve ter que reaprender.
+//  Tudo aqui segue o plugin: os mesmos textos, os mesmos campos, a mesma
+//  barra de gerar. Quem usa os dois não deve ter que reaprender nada.
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
 import PickerImagem from './PickerImagem';
 import CampoRefs from './CampoRefs';
 import IconeCredito from './IconeCredito';
-import { editarImagem, custoEditar, RESOLUCOES, MAX_REFS } from '../lib/render';
+import {
+  editarImagem, custoEditar, PROPORCOES, RESOLUCOES, MAX_REFS
+} from '../lib/render';
 
-// ── Os oito modos ──
-//
-//  Os textos vieram do plugin: quem usa os dois não deve reaprender nada.
+// ── Os oito modos (iguais aos do plugin) ──
 //
 //    refs     — aceita imagens de referência (@img01, @img02...)?
-//    opcional — gera mesmo sem texto?
+//    campos   — os botões de escolha que este modo tem
 //    pincel   — precisa de máscara? (abre em tela grande)
+//
+//  O rótulo do campo de texto é sempre "O que você quer fazer" (`ed_oque` no
+//  plugin) — exceto onde o plugin usa outro.
 const MODOS = [
   {
     id: 'edicao',
     nome: 'Edição',
     desc: 'Adicionar, trocar ou remover elementos, mudar cor ou material.',
     refs: true,
-    campo: 'O que mudar',
-    ph: 'Ex: remova a luminária do teto, troque a poltrona pela @img01, deixe a parede em cimento queimado...'
+    campo: 'O que você quer fazer',
+    ph: 'Ex: remova a luminária do teto, troque a poltrona pela @img01, deixe a parede em verde escuro...'
   },
   {
     id: 'ambientacao',
     nome: 'Ambientação',
     desc: 'Inserir mobiliário e decoração em um espaço vazio.',
     refs: true,
-    campo: 'O que colocar',
-    ph: 'Ex: sala de estar contemporânea seguindo a @img01, com sofá, mesa de centro, tapete...'
+    campo: 'O que você quer fazer',
+    ph: 'Ex: sala de estar contemporânea seguindo a @img01, com sofá, mesa de centro e tapete...'
   },
   {
     id: 'mood',
@@ -47,15 +51,24 @@ const MODOS = [
     desc: 'Trocar atmosfera e iluminação mantendo o projeto.',
     refs: false,
     campo: 'Descreva o novo mood / iluminação',
-    ph: 'Ex: golden hour, luz quente entrando pela janela, clima aconchegante...'
+    ph: 'Ex: golden hour, luz quente entrando pela janela, clima aconchegante. Ou: dia nublado com luz difusa e fria.',
+    campos: [
+      { chave: 'tipoAmb', rotulo: 'Ambiente', opcoes: ['Interior', 'Exterior'], padrao: 'Interior' }
+    ]
   },
   {
     id: 'pessoa',
     nome: 'Adicionar pessoa/animal',
-    desc: 'Inserir figura humana ou animal com escala e luz corretas.',
+    desc: 'Inserir figura humana ou animal com escala e luz coerentes.',
     refs: true,
     campo: 'Descreva a figura',
-    ph: 'Ex: mulher ~30 anos, cabelo castanho, vestido claro, sentada no sofá lendo...'
+    ph: 'Ex: mulher ~30 anos, cabelo castanho, vestido claro, sentada no sofá lendo. Ou siga a @img01.',
+    campos: [
+      { chave: 'tipoFig', rotulo: 'O que inserir',
+        opcoes: ['Pessoa', 'Animal', 'Pessoa + Animal'], padrao: 'Pessoa' },
+      { chave: 'estilo', rotulo: 'Estilo de presença',
+        opcoes: ['Estática (nítida)', 'Editorial (leve motion blur)'], padrao: 'Estática (nítida)' }
+    ]
   },
   {
     id: 'derivadas',
@@ -63,28 +76,36 @@ const MODOS = [
     desc: 'Closes, detalhes e novos enquadramentos da mesma imagem.',
     refs: false,
     campo: 'O que destacar',
-    opcional: true,
-    ph: 'Ex: close da poltrona de couro, detalhe da luz na parede, vista de cima...'
+    semTexto: true,   // gera mesmo sem texto
+    ph: 'Ex: close da poltrona de couro, detalhe da luz na parede, vista de cima da mesa de jantar... (deixe vazio para a IA escolher os melhores ângulos)'
   },
   {
     id: 'maquete',
-    nome: 'Maquete',
-    desc: 'Transforma o render numa maquete física.',
+    nome: 'Maquete física',
+    desc: 'Transformar o projeto em uma maquete física.',
     refs: false,
     campo: 'Detalhes',
-    opcional: true,
-    ph: 'Ex: materiais — papel kraft, MDF cru, madeira balsa, acrílico transparente...'
+    semTexto: true,
+    ph: 'Ex: materiais — papel kraft, MDF cru, madeira balsa, acrílico transparente, concreto aparente; cor predominante; detalhes da base...',
+    campos: [
+      { chave: 'linguagem', rotulo: 'Linguagem da maquete',
+        opcoes: ['Realista (cores e materiais)', 'Monocromática / conceitual'],
+        padrao: 'Realista (cores e materiais)' },
+      { chave: 'base', rotulo: 'Base / contexto', chips: true,
+        opcoes: ['Mesa de arquitetura', 'Mesa limpa', 'Totem', 'Estúdio'],
+        padrao: 'Mesa de arquitetura' }
+    ]
   },
   {
     id: 'preenchimento',
-    nome: 'Preenchimento',
-    desc: 'Pinte a área que quer trocar e descreva o que colocar.',
+    nome: 'Preenchimento generativo',
+    desc: 'Corrigir falhas e remover objetos com precisão na área marcada.',
     pincel: true
   },
   {
     id: 'expansao',
-    nome: 'Expansão',
-    desc: 'Amplia a moldura da imagem, criando o que ficou de fora.',
+    nome: 'Expansão generativa',
+    desc: 'Esticar a imagem para fora e mudar a proporção.',
     pincel: true
   }
 ];
@@ -93,29 +114,42 @@ export default function PainelEditar({
   imagemInicial, onPronto, onProgresso, ocupado, setOcupado,
   ferramentas, ehAdmin, onAbrirPincel
 }) {
-  const [base, setBase]     = useState(null);   // o base64 da imagem
+  const [base, setBase]     = useState(null);
   const [previa, setPrevia] = useState(null);
   const [modo, setModo]     = useState(null);   // null = mostra a grade
 
   const [texto, setTexto]   = useState('');
   const [refs, setRefs]     = useState([]);
-  const [resolucao, setRes] = useState('2k');
+  const [escolhas, setEsc]  = useState({});     // os botões de cada modo
   const [erro, setErro]     = useState('');
+
+  // A barra de gerar — igual à do Render e à do Batch
+  const [quantidade, setQuantidade] = useState(1);
+  const [proporcao, setProporcao]   = useState('auto');
+  const [resolucao, setResolucao]   = useState('2k');
+  const [popRatio, setPopRatio]     = useState(false);
+  const [popRes, setPopRes]         = useState(false);
 
   const [picker, setPicker] = useState(null);   // 'base' | 'ref' | null
 
-  // Uma imagem enviada de outra aba entra como base
   useEffect(() => {
     if (!imagemInicial) return;
     setBase(imagemInicial.base64);
     setPrevia(imagemInicial.previa);
   }, [imagemInicial]);
 
+  // Fecha os popovers ao clicar fora
+  useEffect(() => {
+    if (!popRatio && !popRes) return;
+    const fechar = () => { setPopRatio(false); setPopRes(false); };
+    window.addEventListener('click', fechar);
+    return () => window.removeEventListener('click', fechar);
+  }, [popRatio, popRes]);
+
   const m = MODOS.find((x) => x.id === modo);
 
-  // Quem pode usar o pincel? Não perguntamos o NOME do plano — perguntamos
-  // se a conta tem a ferramenta. É o mesmo critério do servidor
-  // (`contaPermite`), e não quebra se um plano novo aparecer.
+  // Quem pode usar o pincel? Não perguntamos o NOME do plano — perguntamos se
+  // a conta tem a ferramenta. É o mesmo critério do servidor.
   const temPincel = ehAdmin
     || (ferramentas || []).includes('preenchimento')
     || (ferramentas || []).includes('expansao');
@@ -131,15 +165,18 @@ export default function PainelEditar({
   }
 
   function abrir(mod) {
-    if (mod.pincel && !temPincel) return;        // o cadeado já explica
+    if (mod.pincel && !temPincel) return;
     if (!base) { setErro('Escolha a imagem para editar'); return; }
 
     setErro('');
     setTexto('');
     setRefs([]);
 
-    // Os de pincel abrem numa tela GRANDE: pintar a máscara aqui seria
-    // impossível. Quem monta essa tela é a página.
+    // Cada modo abre com os padrões dele já marcados
+    const iniciais = {};
+    (mod.campos || []).forEach((c) => { iniciais[c.chave] = c.padrao; });
+    setEsc(iniciais);
+
     if (mod.pincel) {
       onAbrirPincel({ modo: mod.id, base, previa });
       return;
@@ -151,8 +188,7 @@ export default function PainelEditar({
   async function gerar() {
     if (!base || !m) return;
 
-    // Os modos "opcional" geram sem texto. Os outros, não.
-    if (!m.opcional && !texto.trim()) {
+    if (!m.semTexto && !texto.trim()) {
       setErro('Descreva o que você quer');
       return;
     }
@@ -161,21 +197,32 @@ export default function PainelEditar({
     setOcupado(true);
 
     onProgresso({
-      feito: 0, total: 1, estado: 'processando', proporcao: 'auto',
-      base: previa            // a imagem base, desfocada no slot
+      feito: 0, total: quantidade, estado: 'processando', proporcao,
+      base: previa
     });
 
     try {
+      // As escolhas dos botões entram no texto: o servidor recebe uma
+      // instrução só, e o promptador dele sabe o que fazer com ela.
+      const extras = Object.entries(escolhas)
+        .map(([k, v]) => v)
+        .filter(Boolean)
+        .join('. ');
+
+      const completo = [extras, texto.trim()].filter(Boolean).join('. ');
+
       const r = await editarImagem({
         modo,
         imagem: base,
-        texto: texto.trim(),
+        texto: completo,
         referencias: refs.map((x) => ({ base64: x.base64, mimeType: 'image/png' })),
+        quantidade,
+        proporcao,
         resolucao
       });
 
       onPronto(r);
-      setModo(null);          // de volta à grade
+      setModo(null);
 
     } catch (e) {
       setErro(e.message);
@@ -184,6 +231,8 @@ export default function PainelEditar({
       onProgresso(null);
     }
   }
+
+  const custo = custoEditar(resolucao) * quantidade;
 
   return (
     <>
@@ -245,17 +294,18 @@ export default function PainelEditar({
               })}
             </div>
 
-            {erro && <p className="cr-erro">{erro}</p>}
+            {erro && <div className="cr-erro">{erro}</div>}
           </>
         )}
 
         {/* ── Um modo aberto ── */}
         {m && (
           <>
-            <button className="ed-voltar" onClick={() => setModo(null)}>
-              <svg viewBox="0 0 20 20" width="12" height="12" fill="none"
-                   stroke="currentColor" strokeWidth="1.7">
-                <path d="M12 5l-5 5 5 5" strokeLinecap="round" strokeLinejoin="round"/>
+            {/* O mesmo botão do Batch — descolado da imagem base */}
+            <button className="cr-voltar ed-voltar" onClick={() => setModo(null)}>
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
+                   stroke="currentColor" strokeWidth="1.6">
+                <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               Voltar
             </button>
@@ -265,8 +315,25 @@ export default function PainelEditar({
               <span>{m.desc}</span>
             </div>
 
-            {/* As referências vêm ANTES do texto: é preciso ter as imagens
-                para poder escrever @img01 apontando para elas. */}
+            {/* ── Os botões de escolha deste modo ── */}
+            {(m.campos || []).map((c) => (
+              <div key={c.chave}>
+                <div className="cr-sec">{c.rotulo}</div>
+                <div className={c.chips ? 'cr-chips' : 'cr-g2'}>
+                  {c.opcoes.map((o) => (
+                    <button
+                      key={o}
+                      className={(c.chips ? 'cr-chip' : 'cr-b')
+                        + (escolhas[c.chave] === o ? (c.chips ? ' cr-chip--on' : ' cr-b--on') : '')}
+                      onClick={() => setEsc((e) => ({ ...e, [c.chave]: o }))}
+                    >{o}</button>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* As referências vêm ANTES do texto: é preciso tê-las para poder
+                escrever @img01 apontando para elas. */}
             {m.refs && (
               <>
                 <div className="cr-sec">
@@ -294,12 +361,8 @@ export default function PainelEditar({
               </>
             )}
 
-            <div className="cr-sec">
-              {m.campo}
-              {m.opcional && <span className="cr-opc">Opcional</span>}
-            </div>
+            <div className="cr-sec">{m.campo}</div>
 
-            {/* Com refs, o campo entende @ — digitar abre a lista para clicar */}
             {m.refs ? (
               <CampoRefs
                 className="cr-ta"
@@ -319,30 +382,98 @@ export default function PainelEditar({
               />
             )}
 
-            <div className="cr-sec">Resolução</div>
-            <div className="cr-g3">
-              {RESOLUCOES.map((r) => (
-                <button
-                  key={r.val}
-                  className={'cr-b' + (resolucao === r.val ? ' cr-b--on' : '')}
-                  onClick={() => setRes(r.val)}
-                >{r.rotulo}</button>
-              ))}
-            </div>
-
-            {erro && <p className="cr-erro">{erro}</p>}
-
-            <button className="cr-btn-gerar" onClick={gerar} disabled={ocupado}>
-              <span>{ocupado ? 'Gerando...' : 'Gerar'}</span>
-              {!ocupado && (
-                <span className="cr-custo-tag">
-                  <IconeCredito /> {custoEditar(resolucao)}
-                </span>
-              )}
-            </button>
+            {erro && <div className="cr-erro">{erro}</div>}
           </>
         )}
       </div>
+
+      {/* ── A barra de gerar ──
+          A MESMA do Render e do Batch: quantidade, proporção, resolução.
+          Só aparece com um modo aberto — na grade não há o que gerar. */}
+      {m && (
+        <div className="cr-barra-ger">
+          <div className="cr-pills-cfg">
+
+            <div className="cr-qty">
+              <button onClick={() => setQuantidade((q) => Math.max(1, q - 1))} aria-label="Menos uma">−</button>
+              <span>{quantidade}</span>
+              <button onClick={() => setQuantidade((q) => Math.min(10, q + 1))} aria-label="Mais uma">+</button>
+            </div>
+
+            <div className="cr-pill-wrap">
+              <button
+                className={'cr-pill-cfg' + (popRatio ? ' cr-pill-cfg--on' : '')}
+                onClick={(e) => { e.stopPropagation(); setPopRes(false); setPopRatio((v) => !v); }}
+              >
+                <svg viewBox="0 0 20 20" width="15" height="15" fill="none">
+                  <rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                  <rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                </svg>
+                <span>{proporcao === 'auto' ? 'Auto' : proporcao}</span>
+                <span className="cr-pill-seta">{popRatio ? '▾' : '▴'}</span>
+              </button>
+
+              {popRatio && (
+                <div className="cr-pop" onClick={(e) => e.stopPropagation()}>
+                  <div className="cr-pop-grade">
+                    {PROPORCOES.map((p) => (
+                      <button
+                        key={p.val}
+                        className={'cr-pop-b' + (proporcao === p.val ? ' cr-pop-b--on' : '')}
+                        onClick={() => { setProporcao(p.val); setPopRatio(false); }}
+                      >
+                        <svg viewBox="0 0 28 28" fill="none">
+                          <rect x={p.x} y={p.y} width={p.w} height={p.h} rx="1"
+                                stroke="currentColor" strokeWidth="1.5"/>
+                        </svg>
+                        <span>{p.val === 'auto' ? 'Auto' : p.val}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="cr-pill-wrap">
+              <button
+                className={'cr-pill-cfg' + (popRes ? ' cr-pill-cfg--on' : '')}
+                onClick={(e) => { e.stopPropagation(); setPopRatio(false); setPopRes((v) => !v); }}
+              >
+                <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/>
+                </svg>
+                <span>{RESOLUCOES.find((r) => r.val === resolucao)?.rotulo}</span>
+                <span className="cr-pill-seta">{popRes ? '▾' : '▴'}</span>
+              </button>
+
+              {popRes && (
+                <div className="cr-pop cr-pop--res" onClick={(e) => e.stopPropagation()}>
+                  {RESOLUCOES.map((r) => (
+                    <button
+                      key={r.val}
+                      className={'cr-pop-res' + (resolucao === r.val ? ' cr-pop-res--on' : '')}
+                      onClick={() => { setResolucao(r.val); setPopRes(false); }}
+                    >{r.rotulo}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <button className="cr-btn-gerar" onClick={gerar} disabled={ocupado || !base}>
+            <span>{ocupado ? 'Gerando...' : 'Gerar'}</span>
+            {!ocupado && base && (
+              <span className="cr-custo-tag">
+                <IconeCredito /> {custo}
+              </span>
+            )}
+          </button>
+
+          <p className="cr-custo">
+            {custo} créditos · {quantidade} {quantidade === 1 ? 'imagem' : 'imagens'}
+          </p>
+        </div>
+      )}
 
       <PickerImagem
         aberto={picker !== null}

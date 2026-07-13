@@ -5205,6 +5205,35 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .cr-estorno svg { flex-shrink: 0; }
 
+/* Chips — escolhas curtas que cabem lado a lado (a base da maquete) */
+.cr-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.cr-chip {
+  padding: 7px 13px;
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink2);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color .14s, background .14s, color .14s;
+}
+
+.cr-chip:hover { border-color: var(--accent); }
+
+.cr-chip--on {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-txt);
+  font-weight: 600;
+}
+
 /* ═══════════════════════════════════════════════════════════
    A aba Editar
 
@@ -5298,6 +5327,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ed-titulo {
   margin-bottom: 18px;
 }
+
+/* Descola da imagem base: colado, parecia parte dela. */
+.ed-voltar { margin-top: 16px; }
 
 .ed-titulo strong {
   display: block;
