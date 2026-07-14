@@ -24,6 +24,7 @@ import JanelaAtalhos from './JanelaAtalhos';
 import MenuCamada from './MenuCamada';
 import Confirma from './Confirma';
 import Nomear from './Nomear';
+import JanelaDesfoque from './JanelaDesfoque';
 import {
   carregarCanvas, canvasVazio, clonarCanvas, novaCamada, novoGrupo,
   compor, thumb, thumbMascara, mascaraBranca, rasterizar, mesclarCopia,
@@ -209,6 +210,14 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   // tem o seletor nativo — ele já pergunta o nome sozinho, e perguntar duas
   // vezes seria um passo a mais sem motivo.
   const [nomeando, setNomeando] = useState(null);
+
+  // A janela de desfoque: 'desfGauss' | 'desfMov' | null
+  const [desfocando, setDesfocando] = useState(null);
+
+  // A prévia do desfoque vive num canvas à parte, e some ao cancelar. Aplicar na
+  // camada a cada movimento do slider a destruiria — e o Cancelar não teria o
+  // que restaurar.
+  const previaRef = useRef(null);
   const [ratio, setRatio] = useState('livre');
 
   // ── O histórico ──
@@ -272,8 +281,20 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   // ═══ Compor ═══
   useEffect(() => {
     if (!med || !canvasRef.current) return;
+
+    // Com uma prévia de desfoque em curso, é ELA que vai para a tela — não a
+    // camada. Compor a camada crua aqui apagaria a prévia a cada re-render, e a
+    // janela pareceria não fazer nada.
+    if (previaRef.current && ativa) {
+      const finge = camadas.map((l) => (
+        l.id === ativa.id ? { ...l, canvas: previaRef.current } : l
+      ));
+      compor(finge, med.w, med.h, canvasRef.current);
+      return;
+    }
+
     compor(camadas, med.w, med.h, canvasRef.current);
-  }, [camadas, med]);
+  }, [camadas, med, ativa]);
 
   // ═══ As formiguinhas ═══
   //
@@ -1239,7 +1260,10 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     }
 
     if (PINTAM.includes(ferr)) {
-      guardar();
+      // O snapshot NÃO é tirado aqui. A camada ainda não mudou — o traço vive
+      // num canvas à parte até o botão ser solto. Guardar agora criaria um
+      // ponto de desfazer para um estado idêntico ao anterior, e o Ctrl+Z
+      // gastaria um passo sem fazer nada.
       pintar(p, true);
       return;
     }
@@ -1418,6 +1442,13 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       selecaoRapida(selRef.current, g.modo, pixelsDaCamada(ativa),
                     med.w, med.h, p, opts.tolerancia, opts.tamanho);
       contornoRef.current = null;
+
+      // A seleção precisa APARECER enquanto se pinta, não só ao soltar.
+      //
+      // O overlay só desenha a seleção firmada quando `temSel` é verdadeiro — e
+      // ele só virava verdadeiro no `subir`. Até lá, a pessoa pintava às cegas,
+      // sem saber o que estava pegando.
+      if (!temSel) setTemSel(true);
       return;
     }
 
@@ -1523,6 +1554,9 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     }
 
     else if (PINTAM.includes(ferr)) {
+      // O traço só agora vai para a camada — é aqui que a opacidade vira teto.
+      guardar();
+      fecharTraco();
       pixCache.current = { id: null, dados: null };
     }
 
@@ -1554,6 +1588,22 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   }
 
   // ═══ Pintar ═══
+  // ── O pincel ──
+  //
+  // O traço inteiro é pintado num canvas À PARTE, e só é aplicado na camada
+  // quando o botão do mouse é solto.
+  //
+  // Isso não é um detalhe de implementação: é o que separa OPACIDADE de FLUXO.
+  //
+  //   O fluxo   acumula DENTRO do traço. Passar duas vezes no mesmo lugar,
+  //             sem soltar, escurece — é a tinta se depositando.
+  //   A opacidade é o TETO do traço inteiro. Por mais que se vá e volte, o
+  //             traço nunca passa dela.
+  //
+  // Pintando direto na camada, os dois viravam a mesma coisa: os carimbos se
+  // somavam e um traço com opacidade 50 saía a 99% depois de dez sobreposições.
+  // Com a camada intermediária, o fluxo age lá dentro e a opacidade só entra na
+  // hora de compor.
   function pintar(p, inicio) {
     if (!ativa || ativa.tipo === 'grupo') return;
 
@@ -1570,77 +1620,106 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     // baixo aparece. Isso é `destination-out`.
     //
     // Numa MÁSCARA, não existe "remover" — a máscara é opaca por definição, e o
-    // que ela guarda é quanto se vê. Apagar ali é pintar de PRETO. Uma borracha
-    // que abrisse buraco na máscara deixaria a área indefinida, e o resultado
-    // seria imprevisível.
+    // que ela guarda é quanto se vê. Apagar ali é pintar de PRETO.
     const ehBorracha = ferr === 'borracha';
     const removeAlfa = ehBorracha && !naMascara;
     const tinta = ehBorracha && naMascara ? '0,0,0' : hexParaRgb(cor);
 
-    // ── Sem seleção: pinta direto ──
-    // É o caminho rápido, e o mais comum. Criar dois canvas auxiliares a cada
-    // movimento do mouse, à toa, seria caro.
-    if (!temSel || !selRef.current) {
-      pincelada(canvas, de, pc, {
-        raio,
-        dureza: opts.dureza,
-        opacidade: opts.opacidade,
-        fluxo: opts.fluxo,
-        cor: tinta,
-        apagar: removeAlfa
-      });
-
-      g.ultimoPt = pc;
-      if (canvasRef.current) compor(camadas, med.w, med.h, canvasRef.current);
-      return;
+    // O traço nasce no primeiro toque e vive até o botão ser solto.
+    if (inicio || !g.traco) {
+      g.traco = canvasVazio(canvas.width, canvas.height);
+      g.tracoAlvo = canvas;
+      g.tracoRemove = removeAlfa;
     }
 
-    // ── Com seleção: a pincelada é recortada a ela ──
-    //
-    // A pincelada não vai direto no alvo: ela é desenhada num canvas à parte,
-    // recortada pela seleção, e só então aplicada. É isso que faz a seleção
-    // valer alguma coisa para o pincel — sem ela, pintaria por fora.
-    const traco = canvasVazio(canvas.width, canvas.height);
-
-    // Sempre desenha o traço OPACO no rascunho. A opacidade e o fluxo entram
-    // depois, na hora de aplicar — senão a borracha (que precisa do alfa do
-    // traço para saber quanto apagar) perderia a informação.
-    pincelada(traco, de, pc, {
+    // A pincelada vai para o traço SEM a opacidade — só com o fluxo. A opacidade
+    // é aplicada uma única vez, ao compor, e é isso que a torna um teto.
+    pincelada(g.traco, de, pc, {
       raio,
       dureza: opts.dureza,
-      opacidade: opts.opacidade,
+      opacidade: 100,          // o teto entra depois, na composição
       fluxo: opts.fluxo,
       cor: tinta,
-      apagar: false            // no rascunho, nunca se apaga: só se desenha
+      apagar: false            // o traço só DESENHA; remover é coisa da aplicação
     });
-
-    // A seleção está em coordenadas do DOCUMENTO; o traço, nas da CAMADA.
-    // Desfazer a transformação da camada alinha as duas.
-    const recorte = canvasVazio(canvas.width, canvas.height);
-    const rc = recorte.getContext('2d');
-    rc.save();
-    rc.scale(canvas.width / largura(ativa), canvas.height / altura(ativa));
-    rc.translate(-ativa.x, -ativa.y);
-    rc.drawImage(selRef.current, 0, 0);
-    rc.restore();
-
-    // Recorta o traço: o que cai fora da seleção some.
-    const tc = traco.getContext('2d');
-    tc.globalCompositeOperation = 'destination-in';
-    tc.drawImage(recorte, 0, 0);
-    tc.globalCompositeOperation = 'source-over';
-
-    // Aplica. A borracha REMOVE por onde o traço passa; o pincel SOMA.
-    const cc = canvas.getContext('2d');
-    cc.save();
-    if (removeAlfa) cc.globalCompositeOperation = 'destination-out';
-    cc.drawImage(traco, 0, 0);
-    cc.restore();
 
     g.ultimoPt = pc;
 
-    // Redesenha sem passar pelo estado: o canvas já mudou no lugar, e um
-    // setState por movimento do mouse re-renderizaria a árvore 60x por segundo.
+    // A tela mostra o resultado ao vivo, sem tocar na camada real.
+    if (canvasRef.current) comporComTraco();
+  }
+
+  // O traço em curso, composto por cima da camada — só para os olhos. A camada
+  // real só é tocada quando o botão é solto.
+  function comporComTraco() {
+    if (!canvasRef.current) return;
+
+    const g = gesto.current;
+    compor(camadas, med.w, med.h, canvasRef.current);
+
+    if (!g.traco || !ativa) return;
+
+    // O traço está no espaço da CAMADA; a tela, no do documento.
+    const cx = canvasRef.current.getContext('2d');
+    cx.save();
+    cx.globalAlpha = opts.opacidade / 100;
+
+    // A borracha em curso precisa mostrar o buraco que vai abrir.
+    if (g.tracoRemove) cx.globalCompositeOperation = 'destination-out';
+
+    cx.drawImage(g.traco, ativa.x, ativa.y, largura(ativa), altura(ativa));
+    cx.restore();
+  }
+
+  // ── Aplicar o traço na camada ──
+  //
+  // Chamado ao soltar o botão. É aqui que a opacidade vira o teto: o traço
+  // inteiro é composto DE UMA VEZ, com um único `globalAlpha`.
+  function fecharTraco() {
+    const g = gesto.current;
+    if (!g.traco || !g.tracoAlvo) return;
+
+    const traco = g.traco;
+    const alvo = g.tracoAlvo;
+
+    g.traco = null;
+    g.tracoAlvo = null;
+
+    // A seleção recorta o traço: o que cai fora dela não é pintado.
+    if (temSel && selRef.current && ativa) {
+      const recorte = canvasVazio(alvo.width, alvo.height);
+      const rc = recorte.getContext('2d');
+
+      // A seleção está em coordenadas do DOCUMENTO; o traço, nas da CAMADA.
+      rc.save();
+      rc.scale(alvo.width / largura(ativa), alvo.height / altura(ativa));
+      rc.translate(-ativa.x, -ativa.y);
+      rc.drawImage(selRef.current, 0, 0);
+      rc.restore();
+
+      const tc = traco.getContext('2d');
+      tc.globalCompositeOperation = 'destination-in';
+      tc.drawImage(recorte, 0, 0);
+      tc.globalCompositeOperation = 'source-over';
+    }
+
+    const cc = alvo.getContext('2d');
+    cc.save();
+
+    // A OPACIDADE, uma única vez, sobre o traço inteiro.
+    cc.globalAlpha = opts.opacidade / 100;
+
+    // A borracha REMOVE por onde o traço passou; o pincel SOMA.
+    if (g.tracoRemove) cc.globalCompositeOperation = 'destination-out';
+
+    cc.drawImage(traco, 0, 0);
+    cc.restore();
+
+    g.tracoRemove = false;
+
+    // A camada mudou de verdade: o objeto inteligente perde o pixel virgem, e a
+    // tela é recomposta a partir dela.
+    if (ativa) mudar(ativa.id, {});
     if (canvasRef.current) compor(camadas, med.w, med.h, canvasRef.current);
   }
 
@@ -1677,13 +1756,29 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
 
   // ═══ O desfoque ═══
-  function aplicarDesfoque(tipo) {
+  // ── O desfoque ──
+  //
+  // Ele não é mais aplicado às cegas. A janela mostra o resultado ao vivo, e a
+  // camada só é tocada quando se aperta OK.
+  //
+  // `firmar = false` é a PRÉVIA: o resultado é composto na tela, mas a camada
+  // continua intacta — é o que permite cancelar sem perder nada.
+  // `firmar = true` é o OK: aí sim a camada muda, e o Ctrl+Z passa a valer.
+  function aplicarDesfoque(params, firmar) {
     if (!ativa || ativa.tipo === 'grupo') return;
-    guardar();
+
+    // Sem parâmetros: a prévia foi desligada, ou a janela cancelada. Devolve a
+    // tela ao estado da camada.
+    if (!params) {
+      previaRef.current = null;
+      if (canvasRef.current) compor(camadas, med.w, med.h, canvasRef.current);
+      return;
+    }
 
     const c = clonarCanvas(ativa.canvas);
 
-    // A seleção precisa vir para o espaço da camada
+    // A seleção precisa vir para o espaço da camada, ou o desfoque vazaria por
+    // fora dela.
     let s = null;
     if (temSel && selRef.current) {
       s = canvasVazio(c.width, c.height);
@@ -1695,11 +1790,31 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       sc.restore();
     }
 
-    if (tipo === 'desfGauss') desfocar(c, opts.tamanho / 2, s);
-    else desfoqueMovimento(c, opts.tamanho / 2, 0, s);
+    // O raio é dado em pixels da TELA. Numa camada escalada, ele precisa ser
+    // convertido para pixels da camada — senão um desfoque de 10px numa camada
+    // exibida a 50% sairia com o dobro da força.
+    const fator = c.width / largura(ativa);
+    const r = Math.max(0.5, params.raio * fator);
 
+    if (desfocando === 'desfGauss') desfocar(c, r, s);
+    else desfoqueMovimento(c, r, params.angulo || 0, s);
+
+    if (!firmar) {
+      // A PRÉVIA: só a tela muda.
+      previaRef.current = c;
+
+      if (canvasRef.current) {
+        // Compõe tudo, mas trocando a camada ativa pelo canvas desfocado.
+        const finge = camadas.map((l) => (l.id === ativa.id ? { ...l, canvas: c } : l));
+        compor(finge, med.w, med.h, canvasRef.current);
+      }
+      return;
+    }
+
+    // O OK: agora a camada muda de verdade.
+    guardar();
+    previaRef.current = null;
     mudar(ativa.id, { canvas: c, original: null });
-    setFerr('mover');
   }
 
   // ═══ O crop ═══
@@ -2327,7 +2442,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                 <button
                   className={'ps-ic' + (ligado ? ' ps-ic--on' : '')}
                   onClick={() => {
-                    if (g.acao) aplicarDesfoque(it.id);
+                    if (g.acao) setDesfocando(it.id);
                     else setFerr(it.id);
                   }}
                   // O botão direito no ícone abre o grupo. É o gesto do
@@ -2363,7 +2478,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                         key={i.id}
                         className={'ps-fly-it' + (ferr === i.id ? ' ps-fly-it--on' : '')}
                         onClick={() => {
-                          if (g.acao) aplicarDesfoque(i.id);
+                          if (g.acao) setDesfocando(i.id);
                           else setFerr(i.id);
                           setAberto({});
                         }}
@@ -2579,6 +2694,15 @@ export default function PainelPos({ aoSair, aoUpscale }) {
               <>
                 <span className="ps-esticar" />
                 <button className="ps-b" onClick={inverterSel}>Inverter seleção</button>
+
+                {/* Virar máscara. Ele é ação da CAMADA, e por isso vive no painel de
+                    camadas — mas com uma seleção na mão, o gesto que se quer é este, e
+                    obrigar a atravessar a tela até o outro painel seria um desvio. */}
+                <button className="ps-b" onClick={toggleMascara}
+                        disabled={!ativa || ativa.tipo === 'grupo'}>
+                  Virar máscara
+                </button>
+
                 <button className="ps-b" onClick={desmarcar}>Desmarcar</button>
               </>
             )}
@@ -2911,6 +3035,14 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       )}
 
       {atalhos && <JanelaAtalhos aoFechar={() => setAtalhos(false)} />}
+
+      {desfocando && (
+        <JanelaDesfoque
+          tipo={desfocando}
+          aoAplicar={aplicarDesfoque}
+          aoFechar={() => setDesfocando(null)}
+        />
+      )}
 
       {nomeando !== null && (
         <Nomear

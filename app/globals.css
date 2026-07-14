@@ -9528,3 +9528,177 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: var(--line);
   flex: 0 0 auto;
 }
+
+
+/* ══════════════════════════════════════════════════════════════
+   AS JANELAS DE DESFOQUE
+   ══════════════════════════════════════════════════════════════ */
+
+.df {
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 14px 50px rgba(0, 0, 0, .16);
+  overflow: hidden;
+}
+
+.df-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.df-tit {
+  font-size: 12px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.df-x {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ink3);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.df-x svg { width: 17px; height: 17px; }
+.df-x:hover { color: var(--ink); }
+
+.df-corpo {
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.df-linha {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.df-l {
+  font-size: 12.5px;
+  color: var(--ink2);
+  width: 62px;
+  flex: 0 0 auto;
+}
+
+.df-linha input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  min-width: 0;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+}
+.df-linha input[type=range]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line2);
+}
+.df-linha input[type=range]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line2);
+}
+.df-linha input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .18);
+  cursor: pointer;
+  margin-top: -5px;
+}
+.df-linha input[type=range]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .18);
+  cursor: pointer;
+}
+
+/* O número é EDITÁVEL: com o slider se acha o valor, com o campo se acerta. */
+.df-num {
+  width: 62px;
+  height: 32px;
+  flex: 0 0 auto;
+  padding: 0 8px;
+  font-size: 12.5px;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--ink);
+  background: var(--wash);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  outline: none;
+}
+.df-num:focus { border-color: var(--accent); }
+
+.df-un {
+  font-size: 11.5px;
+  color: var(--ink3);
+  width: 14px;
+  flex: 0 0 auto;
+}
+
+/* A bússola do ângulo. Um número em graus não diz nada à mão — a linha diz. */
+.df-bussola {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 1px solid var(--line2);
+  background: var(--wash);
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.df-agulha {
+  width: 22px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  transition: transform .06s linear;
+}
+
+.df-cx {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12.5px;
+  color: var(--ink2);
+  cursor: pointer;
+  user-select: none;
+}
+.df-cx input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  margin: 0;
+}
+
+.df-pe {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--line);
+  background: var(--wash);
+}
