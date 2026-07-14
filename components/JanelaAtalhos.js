@@ -40,6 +40,8 @@ const GRUPOS = [
     itens: [
       ['Ctrl', 'Somar à seleção (segure enquanto desenha)'],
       ['Alt', 'Subtrair da seleção (segure enquanto desenha)'],
+      ['Shift', 'No letreiro: quadrado / círculo perfeito'],
+      ['Duplo clique', 'Fecha o laço poligonal'],
       ['Ctrl+A', 'Selecionar tudo'],
       ['Ctrl+D', 'Desmarcar'],
       ['Ctrl+Shift+X', 'Inverter a seleção'],
@@ -49,7 +51,7 @@ const GRUPOS = [
   {
     nome: 'Camadas',
     itens: [
-      ['Ctrl+J', 'Duplicar a camada'],
+      ['Ctrl+J', 'Duplicar (só a seleção, se houver uma)'],
       ['Ctrl+G', 'Agrupar as selecionadas'],
       ['Ctrl+Shift+I', 'Converter em Objeto Inteligente'],
       ['Ctrl+Shift+R', 'Rasterizar'],

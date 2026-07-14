@@ -36,6 +36,7 @@ import {
   pincelada, hexParaRgb, desfocar, desfoqueMovimento
 } from '../lib/selecao';
 import { tirar, empilhar } from '../lib/historico';
+import * as guardarTrabalho from '../lib/guardar';
 import {
   camadaNoPonto, alcaNoPonto, pontosDasAlcas, moverComEncaixe,
   redimensionar, centralizar, ALCAS
@@ -174,6 +175,14 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   // Desmarcada, o pixel de fora fica guardado e a camada pode ser arrastada
   // para revelá-lo de novo.
   const [apagarCortado, setApagarCortado] = useState(true);
+
+  // ── O trabalho guardado ──
+  // Se houver um rascunho da sessão passada, a pessoa é convidada a voltar de
+  // onde parou. Restaurar sem perguntar seria pior: quem veio começar outra
+  // coisa acharia a tela ocupada por um trabalho velho.
+  const [rascunho, setRascunho] = useState(null);   // { quando } ou null
+  const [salvando, setSalvando] = useState(false);
+  const turno = useRef(0);          // qual salvamento é o mais recente
   const [ratio, setRatio] = useState('livre');
 
   // ── O histórico ──
@@ -307,7 +316,9 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           contornoRef.current = tracarContornos(selRef.current, med.w, med.h);
         }
 
-        if (ts - ultimo > 60) { offset += 0.6; ultimo = ts; }
+        // As formiguinhas. A 60ms por passo elas rastejavam; a 30ms com passo
+        // maior elas andam, e a seleção fica viva sem virar um piscar nervoso.
+        if (ts - ultimo > 30) { offset += 1; ultimo = ts; }
 
         cx.save();
         cx.lineWidth = 1 / escala;
@@ -646,6 +657,37 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   function duplicar() {
     if (!ativa || ativa.tipo === 'grupo') return;
     guardar();
+
+    // ── Com uma seleção ativa, duplica SÓ ela ──
+    //
+    // É o Ctrl+J do Photoshop: a parte selecionada vira uma camada nova, e o
+    // resto não vem junto. Copiar a camada inteira quando há uma seleção
+    // ignoraria justamente o que a pessoa acabou de marcar.
+    if (temSel && selRef.current) {
+      const c  = canvasVazio(med.w, med.h);
+      const cx = c.getContext('2d');
+
+      // A camada, já no espaço do documento
+      cx.drawImage(fonteDaCamada(ativa), ativa.x, ativa.y,
+                   largura(ativa), altura(ativa));
+
+      // E recortada pela seleção. O `destination-in` guarda só o que cai dentro
+      // dela — inclusive as bordas suaves, que chegam meio transparentes.
+      cx.globalCompositeOperation = 'destination-in';
+      cx.drawImage(selRef.current, 0, 0);
+      cx.globalCompositeOperation = 'source-over';
+
+      const l = novaCamada(c, ativa.nome + ' cópia', {
+        blend: ativa.blend,
+        opacidade: ativa.opacidade,
+        grupo: ativa.grupo
+      });
+
+      const i = camadas.findIndex((x) => x.id === ativa.id);
+      setCamadas((cs) => [...cs.slice(0, i), l, ...cs.slice(i)]);
+      setSel([l.id]);
+      return;
+    }
 
     const l = novaCamada(clonarCanvas(ativa.canvas), ativa.nome + ' cópia', {
       x: ativa.x, y: ativa.y,
@@ -1049,7 +1091,15 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       return;
     }
 
-    if (!ativa) return;
+    // Só as ferramentas que LEEM ou ESCREVEM pixels precisam de uma camada: a
+    // varinha e a seleção rápida leem, o pincel e a borracha escrevem.
+    //
+    // O letreiro e o laço são geometria pura sobre o DOCUMENTO. Exigir uma
+    // camada deles travava a seleção: bastava clicar fora, a camada perdia a
+    // marca, e o letreiro parava de responder para sempre.
+    const PRECISA_CAMADA = ['varinha', 'selRapida', 'pincel', 'borracha',
+                            'desfGauss', 'desfMov'];
+    if (PRECISA_CAMADA.includes(ferr) && !ativa) return;
 
     // ── A varinha: um clique, e pronto ──
     if (ferr === 'varinha') {
@@ -1231,6 +1281,22 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     if (ferr === 'ret' || ferr === 'elip') {
       g.ret.x1 = p.x;
       g.ret.y1 = p.y;
+
+      // ── Shift ──
+      //
+      // Segurar Shift força o quadrado (e, na elipse, o CÍRCULO perfeito). Sem
+      // isto, desenhar um círculo à mão é impossível: ele sempre sai um ovo.
+      //
+      // O lado que manda é o maior dos dois — assim a forma acompanha o cursor
+      // em vez de encolher quando a mão se afasta na diagonal.
+      if (e.shiftKey) {
+        const dx = p.x - g.ret.x0;
+        const dy = p.y - g.ret.y0;
+        const lado = Math.max(Math.abs(dx), Math.abs(dy));
+
+        g.ret.x1 = g.ret.x0 + Math.sign(dx || 1) * lado;
+        g.ret.y1 = g.ret.y0 + Math.sign(dy || 1) * lado;
+      }
       return;
     }
 
@@ -1305,6 +1371,21 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     if (!selRef.current && med) selRef.current = novaSelecao(med.w, med.h);
 
     if ((ferr === 'ret' || ferr === 'elip') && g.ret) {
+      const w = Math.abs(g.ret.x1 - g.ret.x0);
+      const h = Math.abs(g.ret.y1 - g.ret.y0);
+
+      // Um CLIQUE, e não um arraste: a moldura nasceu com tamanho zero. No
+      // Photoshop isso desmarca — e é o gesto natural de quem quer largar a
+      // seleção e continuar com a mesma ferramenta na mão.
+      //
+      // Mas só se não estiver somando nem subtraindo: com Ctrl apertado, um
+      // clique perdido não deveria apagar o trabalho todo.
+      if (w < 2 && h < 2) {
+        if (g.modo === 'novo' && temSel) desmarcar();
+        g.ret = null;
+        return;
+      }
+
       guardar();
       const fn = ferr === 'ret' ? retangulo : elipse;
       fn(selRef.current, g.modo, g.ret);
@@ -1313,8 +1394,18 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       g.ret = null;
     }
 
-    else if (ferr === 'laco' && g.pts.length > 2) {
+    else if (ferr === 'laco') {
+      // Um traço curto demais para ser uma forma é um clique: desmarca.
+      if (g.pts.length <= 2) {
+        if (g.modo === 'novo' && temSel) desmarcar();
+        g.pts = [];
+        return;
+      }
+
       guardar();
+      // O laço FECHA sozinho: uma reta liga o último ponto ao primeiro, mesmo
+      // que a mão não tenha voltado exatamente ao começo. Ninguém consegue
+      // fechar um contorno no pixel exato — e exigir isso seria cruel.
       poligono(selRef.current, g.modo, suavizar(g.pts));
       contornoRef.current = null;
       setTemSel(!selecaoVazia(selRef.current));
@@ -1715,6 +1806,86 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     setPan({ x: 0, y: 0 });
   }
 
+  // ═══ O trabalho guardado ═══
+
+  // Ao entrar, procura um rascunho da sessão passada.
+  useEffect(() => {
+    let vivo = true;
+
+    guardarTrabalho.existe().then((tem) => {
+      if (vivo && tem) setRascunho(true);
+    });
+
+    return () => { vivo = false; };
+  }, []);
+
+  // Salva sozinho, sempre que o trabalho muda.
+  //
+  // Com uma espera: salvar a cada pincelada gravaria PNGs de 4K dezenas de vezes
+  // por segundo e travaria tudo. Dois segundos parados é sinal de que a pessoa
+  // terminou o gesto — e é aí que vale guardar.
+  useEffect(() => {
+    if (!temImagem || !med || !camadas.length) return;
+
+    const t = setTimeout(async () => {
+      // Dois salvamentos podem se cruzar: um começa, a pessoa mexe de novo, e o
+      // segundo dispara antes de o primeiro terminar. Se o VELHO terminasse por
+      // último, ele gravaria por cima do novo — e o trabalho voltaria no tempo.
+      //
+      // O selo resolve: cada salvamento anota a sua vez, e só grava se ainda for
+      // o mais recente quando chegar a hora de escrever.
+      const meuTurno = ++turno.current;
+
+      setSalvando(true);
+
+      try {
+        await guardarTrabalho.salvar(camadas, med, selRef.current,
+                                    () => turno.current === meuTurno);
+      } catch (e) {
+        // Um disco cheio, ou uma aba anônima sem IndexedDB, não podem derrubar
+        // o editor. O trabalho segue na memória.
+      } finally {
+        if (turno.current === meuTurno) setSalvando(false);
+      }
+    }, 2000);
+
+    return () => clearTimeout(t);
+  }, [camadas, med, temImagem]);
+
+  async function restaurar() {
+    setRascunho(null);
+    setOcupado(true);
+
+    try {
+      const t = await guardarTrabalho.carregar();
+      if (!t) return;
+
+      setCamadas(t.camadas);
+      setMed(t.med);
+
+      // A seleção volta junto: ela costuma custar trabalho — uma varinha
+      // ajustada, um laço traçado à mão — e refazê-la é o que mais irrita.
+      selRef.current = t.selecao || novaSelecao(t.med.w, t.med.h);
+      contornoRef.current = null;
+      setTemSel(t.selecao ? !selecaoVazia(t.selecao) : false);
+
+      setSel(t.camadas.length ? [t.camadas[0].id] : []);
+      setPilha([]);
+      setFerr('mover');
+      setZoom(1);
+      setPan({ x: 0, y: 0 });
+    } catch (e) {
+      setErro('Não foi possível recuperar o trabalho guardado.');
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  function descartarRascunho() {
+    setRascunho(null);
+    guardarTrabalho.apagar().catch(() => {});
+  }
+
   // ═══ Zoom e pan ═══
   //
   // O pan lê e escreve o `pan` por REF, não pelo estado. Com `[pan]` nas deps, o
@@ -1987,6 +2158,14 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                     if (g.acao) aplicarDesfoque(it.id);
                     else setFerr(it.id);
                   }}
+                  // O botão direito no ícone abre o grupo. É o gesto do
+                  // Photoshop — e mirar no triângulo, que tem uns poucos pixels,
+                  // é um exercício de pontaria que ninguém pediu.
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    if (!temImagem) return;
+                    setAberto((a) => ({ [g.grupo]: !a[g.grupo] }));
+                  }}
                   disabled={!temImagem}
                   aria-label={g.nome}
                 >
@@ -1998,7 +2177,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                   barra — com ele, sete. */}
               <button
                 className="ps-tri-btn"
-                onClick={() => setAberto((a) => ({ ...a, [g.grupo]: !a[g.grupo] }))}
+                onClick={() => setAberto((a) => ({ [g.grupo]: !a[g.grupo] }))}
                 disabled={!temImagem}
                 aria-label={`Mais de ${g.nome}`}
               ><span className="ps-tri" /></button>
@@ -2064,9 +2243,10 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       </header>
 
       {/* ══ A barra de opções ══
-          Ela só existe quando a ferramenta tem o que ajustar. Uma barra sempre
-          presente, mas vazia metade do tempo, seria só um vão. */}
-      {temImagem && (mostraOpcoes || crop) && (
+          Ela existe quando a ferramenta tem o que ajustar — ou quando há uma
+          seleção ativa, que precisa de algum lugar de onde ser invertida ou
+          desfeita, mesmo que a mão já tenha trocado de ferramenta. */}
+      {temImagem && (mostraOpcoes || crop || temSel) && (
         <div className="ps-opts">
 
           {crop ? (
@@ -2191,18 +2371,22 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                 </>
               )}
 
-              <span className="ps-esticar" />
+            </>
+          )}
 
-              {temSel && (
-                <>
-                  <button className="ps-b" onClick={inverterSel}>Inverter</button>
-                  <button className="ps-b" onClick={selParaMascara}
-                          disabled={!ativa || ativa.tipo === 'grupo'}>
-                    Virar máscara
-                  </button>
-                  <button className="ps-b" onClick={desmarcar}>Desmarcar</button>
-                </>
-              )}
+          {/* ── As ações da seleção ──
+              Elas ficam FORA do bloco da ferramenta: uma seleção continua ativa
+              depois de trocar para a Mover, e os botões sumirem junto com o
+              letreiro deixava a seleção sem como ser invertida ou desfeita. */}
+          {!crop && temSel && (
+            <>
+              <span className="ps-esticar" />
+              <button className="ps-b" onClick={inverterSel}>Inverter seleção</button>
+              <button className="ps-b" onClick={selParaMascara}
+                      disabled={!ativa || ativa.tipo === 'grupo'}>
+                Virar máscara
+              </button>
+              <button className="ps-b" onClick={desmarcar}>Desmarcar</button>
             </>
           )}
         </div>
@@ -2238,6 +2422,22 @@ export default function PainelPos({ aoSair, aoUpscale }) {
               <button className="ps-b ps-b--on" onClick={() => setPicker('nova')}>
                 Abrir imagem
               </button>
+
+              {/* O trabalho da sessão passada. Ele é OFERECIDO, não imposto: quem
+                  veio começar outra coisa não deveria achar a tela ocupada. */}
+              {rascunho && (
+                <div className="ps-volta">
+                  <span>Você tem um trabalho não terminado.</span>
+                  <div className="ps-volta-b">
+                    <button className="ps-b ps-b--on" onClick={restaurar}>
+                      Continuar de onde parei
+                    </button>
+                    <button className="ps-b" onClick={descartarRascunho}>
+                      Descartar
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div
@@ -2259,6 +2459,13 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           )}
 
           {erro && <div className="ps-erro">{erro}</div>}
+
+          {/* O aviso de que está guardando. Sem ele, ninguém saberia que o
+              trabalho está seguro — e a dúvida é justamente o que faz a pessoa
+              hesitar em fechar a aba. */}
+          {temImagem && salvando && (
+            <span className="ps-salvando">Guardando…</span>
+          )}
 
           {temImagem && (
             <Dica texto="Enquadrar a imagem" lado="cima">
