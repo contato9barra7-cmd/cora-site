@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../../components/AppShell';
-import { lerConta, salvarPerfil, deletarMinhaConta, aplicarTema, sair, salvarFoto, listarDispositivos, removerDispositivo } from '../../../lib/auth';
+import { lerConta, salvarPerfil, deletarMinhaConta, aplicarTema, sair, salvarFoto, listarDispositivos, removerDispositivo, registrarDispositivoWeb } from '../../../lib/auth';
 
 const IDIOMAS = [
   { v: 'pt', l: 'Português' },
@@ -35,6 +35,13 @@ export default function Perfil() {
 
   async function carregarDispositivos() {
     try {
+      // Registra ANTES de listar. Quem já estava logado antes desta versão
+      // nunca passou pelo salvarSessao com o registro dentro — e por isso o
+      // próprio navegador que está lendo esta tela não aparecia nela.
+      //
+      // É idempotente: o mesmo device_id não duplica.
+      await registrarDispositivoWeb();
+
       const lista = await listarDispositivos();
       setDispositivos(lista);
     } catch (e) { /* silencioso */ }
