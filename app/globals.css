@@ -5506,12 +5506,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    A imagem ocupa todo o feed. Pintar máscara num painel de 380px seria
    impossível: é o mesmo motivo pelo qual o plugin dá 70vh a ela.
    ═══════════════════════════════════════════════════════════ */
-.pn-tela {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
 
 
 
@@ -5533,57 +5527,20 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 
 
-.pn-area {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  overflow: hidden;
-  background: var(--wash);
-}
 
-.pn-pilha {
-  position: relative;
-  line-height: 0;
-  transform-origin: center;
-}
 
-.pn-canvas {
-  display: block;
-  border-radius: 8px;
-  max-width: 100%;
-}
 
 /* O canvas da máscara fica POR CIMA da imagem, no mesmo lugar.
 
    A OPACIDADE VIVE AQUI, não na cor do pincel. Com rgba() a tinta acumula:
    passar duas vezes no mesmo lugar escurece, e a máscara ganha bordas duras
    onde não deveria. Cor sólida + opacity do canvas = passada uniforme. */
-.pn-draw {
-  position: absolute;
-  top: 0;
-  left: 0;
-  cursor: crosshair;
-  opacity: .4;
-}
 
 /* Na expansão não se pinta: a moldura é que define a área. */
 .pn-draw--off { pointer-events: none; }
 
 /* O alvo — um círculo do tamanho do pincel, seguindo o mouse.
    Sem ele, não dá para saber onde a tinta vai cair. */
-.pn-cursor {
-  position: fixed;
-  display: none;
-  pointer-events: none;
-  z-index: 9999;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, .4);
-}
 
 /* O rodapé: as dicas de zoom, ou os controles da expansão */
 
@@ -5591,13 +5548,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 
 /* A moldura da expansão: o tracejado mostra o que vai ser criado. */
-.pn-moldura {
-  position: absolute;
-  border: 2px dashed var(--accent);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
-  pointer-events: none;
-}
 
 
 
