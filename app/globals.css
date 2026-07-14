@@ -5874,8 +5874,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   justify-content: center;
   padding: 24px;
   overflow: hidden;
-  background: var(--wash);
   position: relative;
+
+  /* O xadrez mostra o que é VAZIO — a área que a IA vai preencher. Em fundo
+     sólido, o vazio não se distinguia da imagem. */
+  background-color: var(--wash);
+  background-image:
+    linear-gradient(45deg,  var(--line) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--line) 25%, transparent 25%),
+    linear-gradient(45deg,  transparent 75%, var(--line) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--line) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
 }
 
 .pn-pilha {
@@ -7222,11 +7232,17 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .admin-filtros-btn--on em { background: rgba(255, 255, 255, .25); }
 
 .admin-conta {
+  margin-left: auto;
   flex-shrink: 0;
   font-size: 11px;
   color: var(--ink3);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.admin-conta b {
+  font-weight: 600;
+  color: var(--ink2);
 }
 
 .admin-chips {
@@ -7702,4 +7718,51 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .admin-aviso svg {
   flex-shrink: 0;
   margin-top: 1px;
+}
+
+
+/* Os tooltips do admin em semicírculo, como os botões que os disparam */
+.admin-ico[data-tip]:hover::after,
+.admin-geo-csv[data-tip]:hover::after {
+  border-radius: 100px;
+  padding: 5px 12px;
+}
+
+/* ── O xadrez da expansão ──
+   O fundo atrás da moldura mostra o que é VAZIO — a área que a IA vai
+   preencher. Sólido, não se distinguia da imagem; xadrez, é inconfundível.
+   (O mesmo padrão que Photoshop e Figma usam para transparência.) */
+
+/* ── Tirar uma cena da análise ──
+   Sem isto, uma cena que não presta obriga a refazer a análise inteira — e a
+   análise custou créditos. */
+.cr-bcena-cab {
+  position: relative;
+}
+
+.cr-bcena-x {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink3);
+  cursor: pointer;
+  opacity: 0;
+  transition: all .13s;
+}
+
+.cr-bcena:hover .cr-bcena-x { opacity: 1; }
+
+.cr-bcena-x:hover {
+  border-color: var(--alerta);
+  background: var(--alerta);
+  color: #FFF;
 }

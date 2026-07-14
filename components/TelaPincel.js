@@ -55,6 +55,7 @@ export default function TelaPincel({
   modo, base,
   ferramenta, tamanho,        // do painel: pincel | borracha, e o calibre
   proporcao,                  // da expansão: 'livre' | '16:9' | ...
+  setProporcao,               // o inverter troca o rótulo também
   aoLimpar,                   // o painel pede para limpar
   aoMudarMoldura,             // devolve as dimensões ao painel
   aoDigitar,                  // o painel digita um número
@@ -575,16 +576,35 @@ export default function TelaPincel({
 
     aoDigitar.current = (eixo, valor) => {
       const { w: W, h: H } = nativo.current;
-      if (!W || !valor || valor < 1) return;
+      if (!W) return;
+
+      const txt = String(valor ?? '').trim();
+
+      // "2:1" — uma proporção. Vira o rótulo do botão, e o efeito da proporção
+      // recalcula a moldura sozinho.
+      const razao = txt.match(/^(\d+)\s*[:/]\s*(\d+)$/);
+      if (razao && setProporcao) {
+        const [, a, b] = razao;
+        if (+a > 0 && +b > 0) setProporcao(`${a}:${b}`);
+        return;
+      }
+
+      // Um número — pixels.
+      const px = parseInt(txt, 10);
+      if (!px || px < 1) return;
+
+      // Digitar um tamanho é escolher uma forma: a proporção fixa passa a
+      // brigar com o número. Solta para 'livre'.
+      if (proporcao && proporcao !== 'livre' && setProporcao) setProporcao('livre');
 
       setM((v) => {
         if (eixo === 'w') {
           // A sobra se divide igual dos dois lados: quem digita "2048" quer
           // a imagem centrada, não encostada num canto.
-          const sobra = Math.max(0, (valor - W) / W * 100);
+          const sobra = Math.max(0, (px - W) / W * 100);
           return { ...v, esq: sobra / 2, dir: sobra / 2 };
         }
-        const sobra = Math.max(0, (valor - H) / H * 100);
+        const sobra = Math.max(0, (px - H) / H * 100);
         return { ...v, cima: sobra / 2, baixo: sobra / 2 };
       });
     };
@@ -609,6 +629,13 @@ export default function TelaPincel({
         esq:   sobraW / 2, dir:   sobraW / 2,
         cima:  sobraH / 2, baixo: sobraH / 2
       });
+
+      // O rótulo tem de virar junto: sem isto a moldura fica 5:4 mas o botão
+      // continua dizendo "4:5" — e o efeito da proporção desfaz a inversão.
+      if (proporcao && proporcao !== 'livre' && setProporcao) {
+        const [a, b] = proporcao.split(':');
+        if (a && b) setProporcao(`${b}:${a}`);
+      }
     };
   });
 

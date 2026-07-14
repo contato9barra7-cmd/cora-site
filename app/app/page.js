@@ -651,6 +651,7 @@ export default function AppPage() {
               ferramenta={pnFerr}
               tamanho={pnTam}
               proporcao={pnRatio}
+              setProporcao={setPnRatio}
               aoLimpar={limparPincel}
               aoMudarMoldura={setPnMed}
               aoDigitar={digitarPincel}

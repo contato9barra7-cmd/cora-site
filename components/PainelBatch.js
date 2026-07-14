@@ -520,6 +520,22 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                 <div className="cr-bcena-cab">
                   {c.previa && <img src={c.previa} alt="" />}
                   <span>{c.nome}</span>
+
+                  {/* Sem isto, uma cena que não presta obriga a refazer a
+                      análise inteira — e a análise custou créditos. */}
+                  {analise.length > 1 && (
+                    <button
+                      className="cr-bcena-x"
+                      onClick={() => setAnalise((a) => a.filter((_, j) => j !== i))}
+                      data-tip="Tirar esta cena"
+                      aria-label={'Tirar a cena ' + c.nome}
+                    >
+                      <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
+                           stroke="currentColor" strokeWidth="1.6">
+                        <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round"/>
+                      </svg>
+                    </button>
+                  )}
                 </div>
 
                 <textarea

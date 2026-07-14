@@ -138,9 +138,12 @@ export default function PainelPincel({
               className={'cr-pill-cfg cr-pill-cfg--larga' + (pop ? ' cr-pill-cfg--on' : '')}
               onClick={(e) => { e.stopPropagation(); setPop((v) => !v); }}
             >
+              {/* Os retângulos ficavam em x=1 / y=2 num viewBox de 20 — quase
+                  colados na borda, e o traço de 1.5 (centrado) transbordava.
+                  Centralizados com folga real de cada lado. */}
               <svg viewBox="0 0 20 20" width="15" height="15" fill="none">
-                <rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
-                <rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="2.5" y="6" width="12" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="6.5" y="4" width="11" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
               </svg>
               <span>{proporcao === 'livre' ? 'Livre' : proporcao}</span>
               <Seta aberto={pop} />
@@ -175,9 +178,10 @@ export default function PainelPincel({
               no olho. */}
           <div className="pn-medidas">
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={medidas?.w || ''}
-              onChange={(e) => aoDigitarMedida?.('w', +e.target.value)}
+              onChange={(e) => aoDigitarMedida?.('w', e.target.value)}
               placeholder="L"
             />
 
@@ -195,9 +199,10 @@ export default function PainelPincel({
             </button>
 
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={medidas?.h || ''}
-              onChange={(e) => aoDigitarMedida?.('h', +e.target.value)}
+              onChange={(e) => aoDigitarMedida?.('h', e.target.value)}
               placeholder="A"
             />
           </div>

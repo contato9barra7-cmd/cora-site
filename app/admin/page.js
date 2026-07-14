@@ -749,9 +749,6 @@ export default function Admin() {
           {nFiltros > 0 && <em>{nFiltros}</em>}
         </button>
 
-        <span className="admin-conta">
-          {filtrados.length} de {totalAba}
-        </span>
       </div>
 
       {/* Os filtros ligados, para poder tirar um sem abrir o painel */}
@@ -767,6 +764,10 @@ export default function Admin() {
             </button>
           ))}
           <button className="admin-chip-limpar" onClick={limparFiltros}>Limpar</button>
+
+          <span className="admin-conta">
+            <b>{filtrados.length}</b> de {totalAba}
+          </span>
         </div>
       )}
 
