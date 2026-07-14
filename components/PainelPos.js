@@ -26,7 +26,8 @@ import Confirma from './Confirma';
 import {
   carregarCanvas, canvasVazio, clonarCanvas, novaCamada, novoGrupo,
   compor, thumb, thumbMascara, mascaraBranca, rasterizar, mesclarCopia,
-  exportar, fonteDaCamada, largura, altura, BLENDS, RATIOS_CROP
+  exportar, fonteDaCamada, largura, altura, areaVisivel, cortarCamada,
+  BLENDS, RATIOS_CROP
 } from '../lib/pos';
 import {
   novaSelecao, selecaoVazia, comporSelecao, modoEfetivo,
@@ -556,13 +557,40 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     setCamadas((cs) => cs.map((l) => (l.id === id ? { ...l, ...campos } : l)));
   }, []);
 
+  // A última clicada sem modificador. É a âncora do intervalo do Shift — sem
+  // guardá-la, "do primeiro ao último" não teria de onde partir.
+  const ancora = useRef(null);
+
   function selecionar(id, e) {
-    if (e?.shiftKey || e?.metaKey || e?.ctrlKey) {
-      setSel((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
-    } else {
-      setSel([id]);
-      setAlvo(null);
+    // ── Shift: o INTERVALO ──
+    // Clicar na primeira e Shift-clicar na última pega tudo entre as duas. É o
+    // gesto de qualquer lista, e sem ele marcar dez camadas exige dez cliques.
+    if (e?.shiftKey && ancora.current) {
+      const i = camadas.findIndex((l) => l.id === ancora.current);
+      const j = camadas.findIndex((l) => l.id === id);
+
+      if (i >= 0 && j >= 0) {
+        const [de, ate] = i < j ? [i, j] : [j, i];
+
+        // As escondidas (dentro de grupo fechado) entram também: o intervalo é
+        // o que está ENTRE as duas na pilha, não só o que se vê.
+        setSel(camadas.slice(de, ate + 1).map((l) => l.id));
+        setAlvo(null);
+        return;
+      }
     }
+
+    // ── Ctrl: alterna uma ──
+    if (e?.metaKey || e?.ctrlKey) {
+      setSel((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+      ancora.current = id;
+      return;
+    }
+
+    // ── Clique simples ──
+    setSel([id]);
+    setAlvo(null);
+    ancora.current = id;
   }
 
   // ═══ As ações da coluna ═══
@@ -874,10 +902,17 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   }, []);
 
   // Do documento para o pixel DAQUELA camada, que pode estar escalada e movida.
+  //
+  // Num objeto inteligente cortado, o canvas guarda mais do que se vê: a moldura
+  // desloca a origem. Sem somá-la, o pincel pintaria a uma distância exata do
+  // corte — sempre errado, e sempre pelo mesmo tanto.
   function paraCamada(p, l) {
+    const a = areaVisivel(l);
+    const ey = l.escalaY != null ? l.escalaY : l.escala;
+
     return {
-      x: (p.x - l.x) / l.escala,
-      y: (p.y - l.y) / (l.escalaY != null ? l.escalaY : l.escala)
+      x: a.x + (p.x - l.x) / l.escala,
+      y: a.y + (p.y - l.y) / ey
     };
   }
 
@@ -1098,13 +1133,52 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       let r;
 
       if (g.alca === 'mover') {
-        // Mover não deixa a moldura sair da imagem: uma moldura fora da tela
-        // não corta nada, e é só uma forma de perder o trabalho.
-        const w = x1 - x0, h = y1 - y0;
-        const nx = Math.max(0, Math.min(med.w - w, x0 + dx));
-        const ny = Math.max(0, Math.min(med.h - h, y0 + dy));
-        r = { x0: nx, y0: ny, x1: nx + w, y1: ny + h };
-        setCrop(r);
+        const w = x1 - x0;
+        const h = y1 - y0;
+
+        let nx = x0 + dx;
+        let ny = y0 + dy;
+
+        // ── As travas ──
+        // Enquadrar "no olho" no centro é impossível: a mão erra por um ou dois
+        // pixels, e o corte sai torto sem que se saiba por quê. Alt as solta.
+        const gs = [];
+
+        if (!e.altKey) {
+          const tol = 7 / escala;
+
+          // Os alvos: as bordas e o centro da imagem
+          const ax = [0, (med.w - w) / 2, med.w - w];   // já em posição de canto
+          const ay = [0, (med.h - h) / 2, med.h - h];
+
+          for (const a of ax) {
+            if (Math.abs(nx - a) < tol) {
+              nx = a;
+              // A guia é desenhada onde ela SIGNIFICA algo: no centro, se for o
+              // centro; na borda, se for a borda.
+              gs.push({ eixo: 'x', em: a === 0 ? 0 : (a === med.w - w ? med.w : med.w / 2) });
+              break;
+            }
+          }
+
+          for (const a of ay) {
+            if (Math.abs(ny - a) < tol) {
+              ny = a;
+              gs.push({ eixo: 'y', em: a === 0 ? 0 : (a === med.h - h ? med.h : med.h / 2) });
+              break;
+            }
+          }
+        }
+
+        // E a moldura nunca sai da imagem: fora dela não corta nada.
+        nx = Math.max(0, Math.min(med.w - w, nx));
+        ny = Math.max(0, Math.min(med.h - h, ny));
+
+        const igual = gs.length === guias.length
+          && gs.every((x, i) => guias[i] && x.eixo === guias[i].eixo && x.em === guias[i].em);
+        if (!igual) setGuias(gs);
+
+        setCrop({ x0: nx, y0: ny, x1: nx + w, y1: ny + h });
         return;
       }
 
@@ -1495,32 +1569,23 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
   function trocarRatio(r) {
     setRatio(r);
-    if (!crop || r === 'livre') return;
+    if (!crop || r === 'livre' || !med) return;
 
-    // Trocar a proporção reenquadra a moldura NA HORA. Esperar o próximo
-    // arraste deixaria o select mentindo sobre o que está na tela.
+    // Ao escolher uma proporção, a moldura nasce CENTRADA e do maior tamanho que
+    // cabe. É o enquadramento que quase sempre se quer — e de onde é fácil sair
+    // arrastando, se não for.
     const [a, b] = r.split(':').map(Number);
 
-    const x0 = Math.min(crop.x0, crop.x1);
-    const y0 = Math.min(crop.y0, crop.y1);
-    const w0 = Math.abs(crop.x1 - crop.x0);
-    const h0 = Math.abs(crop.y1 - crop.y0);
+    let w = med.w;
+    let h = (w * b) / a;
 
-    // Mantém a ÁREA aproximada e o centro: encolher tudo para um cantinho
-    // obrigaria a refazer o enquadramento do zero.
-    const cx = x0 + w0 / 2;
-    const cy = y0 + h0 / 2;
+    if (h > med.h) {
+      h = med.h;
+      w = (h * a) / b;
+    }
 
-    let w = Math.sqrt(w0 * h0 * (a / b));
-    let h = w * (b / a);
-
-    // E não deixa escapar da imagem
-    const cabe = Math.min(1, med.w / w, med.h / h);
-    w *= cabe;
-    h *= cabe;
-
-    const nx = Math.max(0, Math.min(med.w - w, cx - w / 2));
-    const ny = Math.max(0, Math.min(med.h - h, cy - h / 2));
+    const nx = (med.w - w) / 2;
+    const ny = (med.h - h) / 2;
 
     setCrop({ x0: nx, y0: ny, x1: nx + w, y1: ny + h });
   }
@@ -1600,12 +1665,19 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
     guardar();
 
-    // Cortar não redimensiona cada camada: ele DESLOCA todas, e encolhe o
-    // documento. Assim uma camada que estava meio para fora continua meio para
-    // fora — só que agora em relação à nova borda.
-    setCamadas((cs) => cs.map((l) => (
-      l.tipo === 'grupo' ? l : { ...l, x: l.x - x, y: l.y - y }
-    )));
+    // Cortar CORTA. Antes eu só deslocava as camadas e encolhia o documento — e
+    // os pixels de fora continuavam lá, no canvas: bastava arrastar a camada
+    // para eles reaparecerem. O corte era mentira.
+    //
+    // Agora depende do tipo:
+    //   rasterizada        -> o pixel de fora é jogado fora, de verdade
+    //   objeto inteligente -> o pixel fica guardado, mas a moldura encolhe
+    //
+    // É a diferença entre cortar o papel e cobrir parte dele.
+    setCamadas((cs) => cs
+      .map((l) => cortarCamada(l, x, y, w, h))
+      .filter(Boolean)                       // as que sobraram inteiras de fora somem
+    );
 
     setMed({ w, h });
 
@@ -1620,6 +1692,13 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   }
 
   // ═══ Zoom e pan ═══
+  //
+  // O pan lê e escreve o `pan` por REF, não pelo estado. Com `[pan]` nas deps, o
+  // efeito se re-registrava a cada quadro do arraste — e o listener trocava
+  // debaixo do gesto em curso, que engasgava ou parava.
+  const panRef = useRef({ x: 0, y: 0 });
+  useEffect(() => { panRef.current = pan; }, [pan]);
+
   useEffect(() => {
     const el = telaRef.current;
     if (!el) return;
@@ -1635,28 +1714,47 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
     const desce = (e) => {
       if (e.button !== 1) return;
+
+      // Sem isto, o botão do meio dispara o AUTOSCROLL do navegador: aparece o
+      // ícone de rolagem, a página tenta se mover sozinha, e o arraste nunca
+      // chega aqui.
       e.preventDefault();
+      e.stopPropagation();
+
       movendo = true;
-      ini = { x: e.clientX - pan.x, y: e.clientY - pan.y };
+      ini = { x: e.clientX - panRef.current.x, y: e.clientY - panRef.current.y };
     };
+
     const move = (e) => {
       if (!movendo) return;
+      e.preventDefault();
       setPan({ x: e.clientX - ini.x, y: e.clientY - ini.y });
     };
-    const sobe = () => { movendo = false; };
+
+    const sobe = (e) => {
+      if (!movendo) return;
+      movendo = false;
+      e.preventDefault();
+    };
+
+    // O `auxclick` é o clique do botão do meio depois do mouseup. Ele também
+    // abre o autoscroll em alguns navegadores, e precisa ser barrado.
+    const aux = (e) => { if (e.button === 1) e.preventDefault(); };
 
     el.addEventListener('wheel', rolar, { passive: false });
     el.addEventListener('mousedown', desce);
+    el.addEventListener('auxclick', aux);
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', sobe);
 
     return () => {
       el.removeEventListener('wheel', rolar);
       el.removeEventListener('mousedown', desce);
+      el.removeEventListener('auxclick', aux);
       window.removeEventListener('mousemove', move);
       window.removeEventListener('mouseup', sobe);
     };
-  }, [pan]);
+  }, []);
 
   // O mouse é solto na JANELA, não no canvas: quem arrasta para fora da tela e
   // solta lá espera que o traço termine mesmo assim.
@@ -1675,37 +1773,55 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
       const ctrl = e.ctrlKey || e.metaKey;
 
-      if (ctrl && e.key.toLowerCase() === 'z') { e.preventDefault(); desfazer(); return; }
-      if (ctrl && e.key.toLowerCase() === 'a') { e.preventDefault(); selecionarTudo(); return; }
-      if (ctrl && e.key.toLowerCase() === 'd') { e.preventDefault(); desmarcar(); return; }
-      if (ctrl && e.key.toLowerCase() === 'j') { e.preventDefault(); duplicar(); return; }
-      if (ctrl && e.key.toLowerCase() === 'g') { e.preventDefault(); agrupar(); return; }
-      if (ctrl && e.shiftKey && e.key.toLowerCase() === 'i') { e.preventDefault(); inverterSel(); return; }
-      if (ctrl && e.shiftKey && e.key.toLowerCase() === 'r') { e.preventDefault(); rasterizarAtiva(); return; }
-      if (ctrl && e.shiftKey && e.key.toLowerCase() === 'a') { e.preventDefault(); setAjustando(true); return; }
-      if (ctrl && e.altKey && e.key.toLowerCase() === 'e')   { e.preventDefault(); mesclar(); return; }
-      if (ctrl) return;
+      // A tecla é lida por `code`, não por `key`.
+      //
+      // No Windows, Ctrl+Alt é o AltGr — e o AltGr produz um CARACTERE. Num
+      // teclado ABNT, Ctrl+Alt+E não devolve "e" em `e.key`: devolve outra
+      // coisa, ou nada. Era por isso que o Ctrl+Alt+E nunca funcionava.
+      //
+      // O `code` é a tecla FÍSICA. Ela não muda com o modificador nem com o
+      // layout.
+      const tecla = (e.code || '').replace('Key', '').toLowerCase();
+
+      if (ctrl) {
+        // As combinações mais específicas vêm PRIMEIRO. Testar Ctrl+A antes de
+        // Ctrl+Shift+A faz o segundo nunca chegar — o primeiro casa e retorna.
+        if (e.shiftKey && tecla === 'a') { e.preventDefault(); setAjustando(true); return; }
+        if (e.shiftKey && tecla === 'i') { e.preventDefault(); inverterSel(); return; }
+        if (e.shiftKey && tecla === 'r') { e.preventDefault(); rasterizarAtiva(); return; }
+        if (e.altKey   && tecla === 'e') { e.preventDefault(); mesclar(); return; }
+
+        if (tecla === 'z') { e.preventDefault(); desfazer(); return; }
+        if (tecla === 'a') { e.preventDefault(); selecionarTudo(); return; }
+        if (tecla === 'd') { e.preventDefault(); desmarcar(); return; }
+        if (tecla === 'j') { e.preventDefault(); duplicar(); return; }
+        if (tecla === 'g') { e.preventDefault(); agrupar(); return; }
+        return;
+      }
 
       if (e.key === 'Delete' || e.key === 'Backspace') { excluir(); return; }
+      // Esc desfaz o que estiver em curso, na ordem em que se espera abandonar:
+      // primeiro o gesto, depois a seleção, e por fim a própria ferramenta.
       if (e.key === 'Escape') {
-        if (crop) { setCrop(null); setFerr('mover'); }
-        else if (gesto.current.poli.length) { gesto.current.poli = []; }
-        else desmarcar();
+        if (crop)                            { setCrop(null); setFerr('mover'); }
+        else if (gesto.current.poli.length)  { gesto.current.poli = []; }
+        else if (temSel)                     { desmarcar(); }
+        else if (ferr !== 'mover')           { setFerr('mover'); }   // volta ao repouso
+        else                                 { setSel([]); }          // e desmarca a camada
         return;
       }
       if (e.key === 'Enter' && crop) { aplicarCrop(); return; }
 
-      const k = e.key.toLowerCase();
-      if (k === 'v') setFerr('mover');
-      if (k === 'm') setFerr((f) => (f === 'ret' ? 'elip' : 'ret'));
-      if (k === 'l') setFerr((f) => (f === 'laco' ? 'lacoPoli' : 'laco'));
-      if (k === 'w') setFerr((f) => (f === 'selRapida' ? 'varinha' : 'selRapida'));
-      if (k === 'b') setFerr('pincel');
-      if (k === 'e') setFerr('borracha');
-      if (k === 'c') abrirCrop();
+      if (tecla === 'v') setFerr('mover');
+      if (tecla === 'm') setFerr((f) => (f === 'ret' ? 'elip' : 'ret'));
+      if (tecla === 'l') setFerr((f) => (f === 'laco' ? 'lacoPoli' : 'laco'));
+      if (tecla === 'w') setFerr((f) => (f === 'selRapida' ? 'varinha' : 'selRapida'));
+      if (tecla === 'b') setFerr('pincel');
+      if (tecla === 'e') setFerr('borracha');
+      if (tecla === 'c') abrirCrop();
       // X troca a cor do pincel: é o gesto de quem pinta numa máscara e precisa
       // alternar entre esconder e revelar sem tirar a mão do teclado.
-      if (k === 'x') setCor((c) => (c === '#ffffff' ? '#000000' : '#ffffff'));
+      if (tecla === 'x') setCor((c) => (c === '#ffffff' ? '#000000' : '#ffffff'));
     }
 
     window.addEventListener('keydown', tecla);
@@ -2276,14 +2392,18 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                     />
                   ) : (
                     <span
-                      className="ps-nome"
+                      className="ps-rotulo"
                       onDoubleClick={(e) => { e.stopPropagation(); setRenomeando(l.id); }}
                     >
-                      {l.nome}
-                      {filhos > 0 && <span className="ps-conta">{filhos}</span>}
-                      {/* O objeto inteligente se anuncia: sem a marca, não haveria
-                          como saber que aquela camada é reversível e a vizinha não. */}
-                      {l.smart && <span className="ps-smart" title="Objeto inteligente">◆</span>}
+                      <span className="ps-nome">
+                        {l.nome}
+                        {filhos > 0 && <span className="ps-conta">{filhos}</span>}
+                      </span>
+
+                      {/* O objeto inteligente se anuncia numa segunda linha, como
+                          no plugin. Sem isso não haveria como saber que aquela
+                          camada é reversível e a vizinha não. */}
+                      {l.smart && <span className="ps-tag">Objeto Inteligente</span>}
                     </span>
                   )}
                 </div>
@@ -2303,9 +2423,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                   if (arrastando.current == null) return;
                   if (alvoSolta?.onde !== 'fim') setAlvoSolta({ i: -1, onde: 'fim' });
                 }}
-              >
-                <span>Soltar aqui para tirar do grupo</span>
-              </div>
+              />
             )}
           </div>
         </aside>

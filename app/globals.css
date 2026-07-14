@@ -9160,10 +9160,29 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* O bloco da Camada sem camada nenhuma: presente, mas apagado. */
 .ps-bloco--inerte { opacity: .42; pointer-events: none; }
 
-/* A marca do objeto inteligente */
-.ps-smart {
-  margin-left: 6px;
-  color: var(--accent);
-  font-size: 9px;
-  vertical-align: middle;
+/* O rótulo da camada: nome em cima, tag embaixo (igual ao plugin) */
+.ps-rotulo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
 }
+
+/* A tag do objeto inteligente. Ela é pequena e no accent: informa sem competir
+   com o nome. */
+.ps-tag {
+  font-size: 9.5px;
+  line-height: 1.4;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* A zona de fuga: um vão discreto. Ela só se acende quando algo paira sobre ela
+   — um aviso permanente seria ruído no meio da coluna. */
+.ps-fuga { min-height: 30px; }
+
+/* Dentro do rótulo, o nome não estica: a coluna é vertical, e um `flex:1` ali
+   o faria ocupar a altura toda e empurrar a tag para fora. */
+.ps-rotulo .ps-nome { flex: 0 0 auto; }
