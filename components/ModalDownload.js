@@ -1,128 +1,125 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════
-//  ModalDownload — "Exportar imagem", como no plugin
+//  ModalDownload — a janela de baixar
 //
-//  PNG  = o arquivo que está no R2, baixado direto (sem perdas)
-//  JPEG = convertido AQUI, no navegador, via canvas
-//
-//  Converter no cliente evita guardar duas versões de cada imagem no R2.
-//  O JPEG sai a 80%, o mesmo do plugin.
+//  O que decide entre PNG e JPEG é o PESO. "Sem perdas" não diz se são
+//  500 KB ou 8 MB, então cada opção mostra o tamanho estimado.
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
-import { bytesDaGeracao, marcarBaixada } from '../lib/geracoes';
+import { baixarGeracao } from '../lib/geracoes';
 
-// Um base64 vira Blob — o que o canvas e o link de download entendem.
-function base64ParaBlob(base64, mime = 'image/png') {
-  const bin = atob(base64);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return new Blob([bytes], { type: mime });
+// Uma estimativa, não uma medida: medir exigiria baixar os bytes ANTES de a
+// pessoa escolher — que é justamente o que se quer evitar.
+//
+// PNG de render costuma dar ~1,2 byte por pixel; JPEG a 80%, ~0,22.
+function pesar(w, h, formato) {
+  if (!w || !h) return null;
+  const bytes = w * h * (formato === 'png' ? 1.2 : 0.22);
+
+  return bytes > 1048576
+    ? (bytes / 1048576).toFixed(1).replace('.', ',') + ' MB'
+    : Math.round(bytes / 1024) + ' KB';
 }
 
-export default function ModalDownload({ aberto, url, id, onFechar }) {
+export default function ModalDownload({ item, onFechar }) {
   const [formato, setFormato]   = useState('png');
   const [baixando, setBaixando] = useState(false);
   const [erro, setErro]         = useState('');
+  const [dim, setDim]           = useState(null);
+
+  // Mede a imagem para estimar o peso
+  useEffect(() => {
+    if (!item?.url) return;
+    const img = new Image();
+    img.onload = () => setDim({ w: img.naturalWidth, h: img.naturalHeight });
+    img.src = item.thumb || item.url;
+  }, [item]);
 
   useEffect(() => {
-    if (!aberto) return;
-    const onKey = (e) => { if (e.key === 'Escape') onFechar(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [aberto, onFechar]);
+    const esc = (e) => { if (e.key === 'Escape') onFechar(); };
+    window.addEventListener('keydown', esc);
+    return () => window.removeEventListener('keydown', esc);
+  }, [onFechar]);
 
   async function baixar() {
     setBaixando(true);
     setErro('');
     try {
-      // Os bytes vêm do SERVIDOR, não da URL do R2.
-      //
-      // O R2 não manda cabeçalho CORS: a imagem APARECE numa <img>, mas um
-      // fetch() nela morre com "Failed to fetch" — foi exatamente o que
-      // aconteceu aqui. Quem lê do bucket é o servidor.
-      const base64 = await bytesDaGeracao(id);
-      const blob   = base64ParaBlob(base64);
-
-      const nome = `cora-render-${Date.now()}`;
-
-      if (formato === 'png') {
-        salvar(blob, `${nome}.png`);
-      } else {
-        // JPEG: converte no navegador, para não guardar duas cópias no R2
-        const bmp = await createImageBitmap(blob);
-        const cv  = document.createElement('canvas');
-        cv.width  = bmp.width;
-        cv.height = bmp.height;
-
-        const ctx = cv.getContext('2d');
-        ctx.fillStyle = '#FFFFFF';          // JPEG não tem transparência
-        ctx.fillRect(0, 0, cv.width, cv.height);
-        ctx.drawImage(bmp, 0, 0);
-
-        const jpg = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.8));
-        salvar(jpg, `${nome}.jpg`);
-      }
-
-      // Registra para o filtro "Baixadas" (best-effort: não bloqueia)
-      if (id) marcarBaixada(id);
-
+      await baixarGeracao(item.id, formato);
       onFechar();
     } catch (e) {
       setErro(e.message);
-    } finally {
       setBaixando(false);
     }
   }
 
-  function salvar(blob, nome) {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = nome;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  }
-
-  if (!aberto) return null;
+  const peso = dim ? pesar(dim.w, dim.h, formato) : null;
 
   return (
     <div className="cr-overlay cr-overlay--alto" onClick={onFechar}>
       <div className="dl" onClick={(e) => e.stopPropagation()}>
-        <h3>Exportar imagem</h3>
 
-        <label className={'dl-op' + (formato === 'png' ? ' dl-op--on' : '')}>
-          <input
-            type="radio" name="fmt" value="png"
-            checked={formato === 'png'}
-            onChange={() => setFormato('png')}
-          />
-          <span className="dl-radio" />
-          <span>
-            <strong>PNG</strong>
-            <em>Qualidade 100% · sem perdas</em>
-          </span>
-        </label>
+        <div className="dl-cab">
+          <div>
+            <strong>Baixar imagem</strong>
+            {dim && (
+              <span>
+                {dim.w} × {dim.h}
+                {item?.proporcao && item.proporcao !== 'auto' ? ' · ' + item.proporcao : ''}
+              </span>
+            )}
+          </div>
 
-        <label className={'dl-op' + (formato === 'jpeg' ? ' dl-op--on' : '')}>
-          <input
-            type="radio" name="fmt" value="jpeg"
-            checked={formato === 'jpeg'}
-            onChange={() => setFormato('jpeg')}
-          />
-          <span className="dl-radio" />
-          <span>
-            <strong>JPEG</strong>
-            <em>Qualidade 80% · arquivo menor</em>
-          </span>
-        </label>
+          <button className="dl-x" onClick={onFechar} aria-label="Fechar">
+            <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
+                 stroke="currentColor" strokeWidth="1.6">
+              <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
 
-        {erro && <div className="cr-erro">{erro}</div>}
+        <div className="dl-ops">
+          {[
+            { id: 'png',  nome: 'PNG',  desc: 'Qualidade 100% · sem perdas' },
+            { id: 'jpeg', nome: 'JPEG', desc: 'Qualidade 80% · arquivo menor' }
+          ].map((f) => (
+            <button
+              key={f.id}
+              className={'dl-op' + (formato === f.id ? ' dl-op--on' : '')}
+              onClick={() => setFormato(f.id)}
+              disabled={baixando}
+            >
+              <span className="dl-radio" />
 
+              <span className="dl-txt">
+                <strong>{f.nome}</strong>
+                <em>{f.desc}</em>
+              </span>
+
+              {dim && (
+                <span className="dl-peso">{pesar(dim.w, dim.h, f.id)}</span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {erro && <div className="dl-erro">{erro}</div>}
+
+        {/* O botão diz o que vai acontecer, com o peso do que foi escolhido */}
         <button className="dl-btn" onClick={baixar} disabled={baixando}>
-          {baixando ? 'Baixando...' : 'Download'}
+          {baixando ? 'Baixando...' : (
+            <>
+              <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
+                   stroke="currentColor" strokeWidth="1.6">
+                <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3.5 15v1.5h13V15" strokeLinecap="round"/>
+              </svg>
+              Baixar {formato.toUpperCase()}{peso ? ` · ${peso}` : ''}
+            </>
+          )}
         </button>
-        <button className="dl-cancel" onClick={onFechar}>Cancelar</button>
       </div>
     </div>
   );

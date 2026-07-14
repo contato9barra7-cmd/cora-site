@@ -22,7 +22,6 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useRef, useEffect } from 'react';
-import MenuDownload from './MenuDownload';
 import { proporcaoCss } from './Card';
 
 const MODOS = [
@@ -61,7 +60,7 @@ export default function Visualizador({
   proporcao,                     // "4:5", "16:9"... dá forma à caixa
   proporcaoEsq,                  // no A/B, a imagem A pode ter outra forma
   rotuloEsq, rotuloDir,          // no A/B viram "A" e "B"
-  onFechar, onFavoritar, onAprovar, onExcluir, onEnviarPara, onDetalhes
+  onFechar, onFavoritar, onAprovar, onBaixar, onExcluir, onEnviarPara, onDetalhes
 }) {
   const [modo, setModo]           = useState('split');
   const [corte, setCorte]         = useState(50);
@@ -328,7 +327,14 @@ export default function Visualizador({
             </svg>
           </button>
 
-          <MenuDownload item={item} />
+          <button className="vz-ico" onClick={() => onBaixar(item)}
+                  data-tip="Baixar" aria-label="Baixar">
+            <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
+                 stroke="currentColor" strokeWidth="1.5">
+              <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3.5 15v1.5h13V15" strokeLinecap="round"/>
+            </svg>
+          </button>
 
           {/* O que foi usado nesta geração: configurações, imagem de origem,
               prompt. Meses depois, ninguém lembra.

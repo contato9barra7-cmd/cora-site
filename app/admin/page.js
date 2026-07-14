@@ -27,6 +27,7 @@ export default function Admin() {
   const [carregando, setCarregando] = useState(true);
   const [negado, setNegado] = useState(false);
   const [assinantes, setAssinantes] = useState([]);
+  const [painelFiltros, setPainelFiltros] = useState(false);
   const [busca, setBusca] = useState('');
   const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'trial' | 'convidados'
   const [filtroData, setFiltroData] = useState('todos'); // todos | mes | 12meses | ano | periodo
@@ -124,7 +125,12 @@ export default function Admin() {
         }))
         .sort((a, b) => b.n - a.n);
     };
-    return { estados: agrupa('estado'), paises: agrupa('pais'), totalClientes, totalValor };
+    return {
+      paises:  agrupa('pais'),
+      estados: agrupa('estado'),
+      cidades: agrupa('cidade'),
+      totalClientes, totalValor
+    };
   }
 
   const geo = relatorioGeo();
@@ -133,13 +139,17 @@ export default function Admin() {
     setMenuExport(false);
     if (!geo.totalClientes) { setErro('Sem dados de localização ainda.'); return; }
     const linhas = [];
+    geo.paises.forEach(p => linhas.push([
+      'País', p.chave, p.n, `${p.pctClientes}%`,
+      ((p.valor || 0) / 100).toFixed(2), `${p.pctValor}%`,
+    ]));
     geo.estados.forEach(e => linhas.push([
       'Estado', e.chave, e.n, `${e.pctClientes}%`,
       ((e.valor || 0) / 100).toFixed(2), `${e.pctValor}%`,
     ]));
-    geo.paises.forEach(p => linhas.push([
-      'País', p.chave, p.n, `${p.pctClientes}%`,
-      ((p.valor || 0) / 100).toFixed(2), `${p.pctValor}%`,
+    geo.cidades.forEach(c => linhas.push([
+      'Cidade', c.chave, c.n, `${c.pctClientes}%`,
+      ((c.valor || 0) / 100).toFixed(2), `${c.pctValor}%`,
     ]));
     baixarCSV('origem-geografica',
       ['Tipo', 'Local', 'Clientes', '% dos clientes', 'Receita (R$)', '% da receita'],
@@ -391,6 +401,60 @@ export default function Admin() {
     return 0;
   });
 
+  // ── Os filtros ligados ──
+  //
+  //  Recolhidos no painel, eles sumiriam de vista — e uma lista cortada por um
+  //  filtro esquecido é idêntica a uma lista vazia. Estes chips são a única
+  //  coisa na tela que explica a diferença.
+  const chipsAtivos = [
+    filtroData !== 'todos' && {
+      chave: 'data',
+      rotulo: { mes: 'Este mês', '12meses': 'Últimos 12 meses',
+                ano: `Ano ${anoFiltro}`, periodo: 'Intervalo' }[filtroData] || 'Período',
+      limpar: () => { setFiltroData('todos'); setDataDe(''); setDataAte(''); }
+    },
+    filtroStatus && {
+      chave: 'status',
+      rotulo: filtroStatus === 'vencendo' ? 'Quase vencendo' : 'Cancelados',
+      limpar: () => setFiltroStatus('')
+    },
+    filtroProfissao && {
+      chave: 'prof',
+      rotulo: PROFISSAO_LBL[filtroProfissao] || filtroProfissao,
+      limpar: () => setFiltroProfissao('')
+    },
+    filtroOrigem && {
+      chave: 'origem',
+      rotulo: 'Origem: ' + filtroOrigem,
+      limpar: () => setFiltroOrigem('')
+    },
+    filtroRender && {
+      chave: 'render',
+      rotulo: 'Render: ' + filtroRender,
+      limpar: () => setFiltroRender('')
+    },
+    filtroPais && {
+      chave: 'pais',
+      rotulo: 'País: ' + filtroPais,
+      limpar: () => setFiltroPais('')
+    },
+    filtroEstado && {
+      chave: 'estado',
+      rotulo: 'Estado: ' + filtroEstado,
+      limpar: () => setFiltroEstado('')
+    }
+  ].filter(Boolean);
+
+  const nFiltros = chipsAtivos.length;
+
+  // O total da aba, SEM filtro: é a régua contra a qual "9 de 43" faz sentido
+  const totalAba = assinantes.filter((a) => {
+    if (a.id === meuId) return false;
+    if (aba === 'convidados') return !!a.eh_convidado;
+    if (aba === 'trial')      return !!a.eh_trial;
+    return !a.eh_convidado && !a.eh_trial;
+  }).length;
+
   const totalConvidados = assinantes.filter(a => a.eh_convidado && a.id !== meuId).length;
   const totalTrial = assinantes.filter(a => a.eh_trial && a.id !== meuId).length;
   // contas "reais" = exclui a própria conta admin e os convidados de equipe
@@ -453,15 +517,39 @@ export default function Admin() {
             </button>
             {menuExport && (
               <div className="admin-export-menu" onMouseLeave={() => setMenuExport(false)}>
+
                 <div className="admin-export-grupo">Fiscal</div>
-                <button className="admin-export-item" onClick={exportarFiscais}>Assinantes</button>
-                <button className="admin-export-item" onClick={exportarRecargas}>Recargas</button>
+
+                <button className="admin-export-item" onClick={exportarFiscais}>
+                  <strong>Assinantes</strong>
+                  <em>Nome, CPF, telefone, endereço, plano</em>
+                </button>
+
+                <button className="admin-export-item" onClick={exportarRecargas}>
+                  <strong>Recargas</strong>
+                  <em>Compras avulsas, com dados do comprador</em>
+                </button>
+
+                <button className="admin-export-item" onClick={exportarGeo}>
+                  <strong>Origem geográfica</strong>
+                  <em>Clientes e receita por país, estado e cidade</em>
+                </button>
+
+                <div className="admin-export-sep" />
                 <div className="admin-export-grupo">Tráfego</div>
-                <button className="admin-export-item" onClick={() => exportarTrafego('assinantes')}>Assinantes</button>
-                <button className="admin-export-item" onClick={() => exportarTrafego('trial')}>Trial</button>
-                <button className="admin-export-item" onClick={() => exportarTrafego('membros')}>Membros de equipe</button>
-                <div className="admin-export-grupo">Relatórios</div>
-                <button className="admin-export-item" onClick={exportarGeo}>Origem geográfica</button>
+
+                <button className="admin-export-item" onClick={() => exportarTrafego('assinantes')}>
+                  <strong>Assinantes</strong>
+                  <em>Profissão, como conheceu, renderizador</em>
+                </button>
+
+                <button className="admin-export-item" onClick={() => exportarTrafego('membros')}>
+                  <strong>Membros de equipe</strong>
+                </button>
+
+                <button className="admin-export-item" onClick={() => exportarTrafego('trial')}>
+                  <strong>Trial</strong>
+                </button>
               </div>
             )}
           </div>
@@ -479,36 +567,76 @@ export default function Admin() {
             </button>
           </div>
           {verGeo && (
-            <div className="admin-geo-cols">
-              <div>
-                <div className="admin-geo-sub">Por estado</div>
-                {geo.estados.map(e => (
-                  <div key={e.chave} className="admin-geo-linha">
-                    <span className="admin-geo-k">{e.chave}</span>
-                    <div className="admin-geo-barra">
-                      <div className="admin-geo-fill" style={{ width: `${e.pctClientes}%` }} />
-                    </div>
-                    <span className="admin-geo-v">
-                      {e.pctClientes}% · {e.n} {e.n === 1 ? 'cliente' : 'clientes'}
-                      {e.valor > 0 && <em> · {fmtValor(e.valor, 'brl')} ({e.pctValor}% da receita)</em>}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div>
+            <div className="admin-geo-corpo">
+
+              {/* O país no topo: é a divisão mais grossa. Se 95% da receita é
+                  Brasil, isso muda o que se faz com o resto. */}
+              <div className="admin-geo-bloco">
                 <div className="admin-geo-sub">Por país</div>
                 {geo.paises.map(p => (
                   <div key={p.chave} className="admin-geo-linha">
-                    <span className="admin-geo-k">{p.chave}</span>
-                    <div className="admin-geo-barra">
-                      <div className="admin-geo-fill" style={{ width: `${p.pctClientes}%` }} />
+                    <div className="admin-geo-cab">
+                      <span className="admin-geo-k">{p.chave}</span>
+                      <span className="admin-geo-v">
+                        {p.n} · <b>{fmtValor(p.valor, 'brl')}</b>
+                      </span>
                     </div>
-                    <span className="admin-geo-v">
-                      {p.pctClientes}% · {p.n} {p.n === 1 ? 'cliente' : 'clientes'}
-                      {p.valor > 0 && <em> · {fmtValor(p.valor, 'brl')} ({p.pctValor}% da receita)</em>}
-                    </span>
+                    <div className="admin-geo-barra">
+                      <div className="admin-geo-fill admin-geo-fill--n"
+                           style={{ width: `${p.pctClientes}%` }} />
+                      <div className="admin-geo-fill admin-geo-fill--r"
+                           style={{ width: `${p.pctValor}%` }} />
+                    </div>
                   </div>
                 ))}
+              </div>
+
+              <div className="admin-geo-cols">
+                <div className="admin-geo-bloco">
+                  <div className="admin-geo-sub">Por estado</div>
+                  {geo.estados.map(e => (
+                    <div key={e.chave} className="admin-geo-linha">
+                      <div className="admin-geo-cab">
+                        <span className="admin-geo-k">{e.chave}</span>
+                        <span className="admin-geo-v">
+                          {e.n} · <b>{fmtValor(e.valor, 'brl')}</b>
+                        </span>
+                      </div>
+                      <div className="admin-geo-barra">
+                        <div className="admin-geo-fill admin-geo-fill--n"
+                             style={{ width: `${e.pctClientes}%` }} />
+                        <div className="admin-geo-fill admin-geo-fill--r"
+                             style={{ width: `${e.pctValor}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="admin-geo-bloco">
+                  <div className="admin-geo-sub">Por cidade</div>
+                  {geo.cidades.map(c => (
+                    <div key={c.chave} className="admin-geo-linha">
+                      <div className="admin-geo-cab">
+                        <span className="admin-geo-k">{c.chave}</span>
+                        <span className="admin-geo-v">
+                          {c.n} · <b>{fmtValor(c.valor, 'brl')}</b>
+                        </span>
+                      </div>
+                      <div className="admin-geo-barra">
+                        <div className="admin-geo-fill admin-geo-fill--n"
+                             style={{ width: `${c.pctClientes}%` }} />
+                        <div className="admin-geo-fill admin-geo-fill--r"
+                             style={{ width: `${c.pctValor}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sem a legenda, duas barras de cor diferente não dizem nada */}
+              <div className="admin-geo-legenda">
+                <span><i className="admin-geo-p admin-geo-p--n" />clientes</span>
+                <span><i className="admin-geo-p admin-geo-p--r" />receita</span>
               </div>
             </div>
           )}
@@ -540,83 +668,185 @@ export default function Admin() {
         </p>
       )}
 
-      <div className="admin-filtros">
-        <select className="admin-filtro-sel" value={filtroData} onChange={(e) => setFiltroData(e.target.value)}>
-          <option value="todos">Período</option>
-          <option value="mes">Este mês</option>
-          <option value="12meses">Últimos 12 meses</option>
-          <option value="ano">Ano específico</option>
-          <option value="periodo">Intervalo de datas</option>
-        </select>
-        {filtroData === 'ano' && (
-          <input className="admin-filtro-sel" type="number" min="2024" max="2100" value={anoFiltro} onChange={(e) => setAnoFiltro(e.target.value)} style={{ width: 90 }} />
-        )}
-        {filtroData === 'periodo' && (
-          <>
-            <input className="admin-filtro-sel" type="date" value={dataDe} onChange={(e) => setDataDe(e.target.value)} />
-            <span style={{ color: 'var(--ink3)', fontSize: 13 }}>até</span>
-            <input className="admin-filtro-sel" type="date" value={dataAte} onChange={(e) => setDataAte(e.target.value)} />
-          </>
-        )}
-        <select className="admin-filtro-sel" value={filtroProfissao} onChange={(e) => setFiltroProfissao(e.target.value)}>
-          <option value="">Profissão</option>
-          <option value="arquiteto">Arquiteto(a)</option>
-          <option value="designer_interiores">Designer de interiores</option>
-          <option value="archviz">Archviz</option>
-          <option value="engenheiro">Engenheiro(a)</option>
-          <option value="estudante">Estudante</option>
-          <option value="paisagista">Paisagista</option>
-          <option value="outro">Outro</option>
-        </select>
-        <select className="admin-filtro-sel" value={filtroOrigem} onChange={(e) => setFiltroOrigem(e.target.value)}>
-          <option value="">Origem</option>
-          <option value="instagram">Instagram</option>
-          <option value="youtube">YouTube</option>
-          <option value="google">Google</option>
-          <option value="indicacao">Indicação</option>
-          <option value="tiktok">TikTok</option>
-          <option value="anuncio">Anúncio</option>
-          <option value="outro">Outro</option>
-        </select>
-        <select className="admin-filtro-sel" value={filtroRender} onChange={(e) => setFiltroRender(e.target.value)}>
-          <option value="">Renderizador</option>
-          <option value="nao">Nenhum</option>
-          <option value="vray">V-Ray</option>
-          <option value="corona">Corona</option>
-          <option value="enscape">Enscape</option>
-          <option value="lumion">Lumion</option>
-          <option value="dhistudio">D5 / IA</option>
-          <option value="outro">Outro</option>
-        </select>
-        {aba === 'pagantes' && (
-          <select className="admin-filtro-sel" value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)}>
-            <option value="">Todos os status</option>
-            <option value="vencendo">Quase vencendo</option>
-            <option value="cancelado">Cancelados</option>
-          </select>
-        )}
-        <select className="admin-filtro-sel" value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
-          <option value="">Estado</option>
-          {[...new Set(assinantes.map(a => (a.estado || '').toUpperCase()).filter(Boolean))].sort().map(uf => (
-            <option key={uf} value={uf}>{uf}</option>
-          ))}
-        </select>
-        <select className="admin-filtro-sel" value={filtroPais} onChange={(e) => setFiltroPais(e.target.value)}>
-          <option value="">País</option>
-          {[...new Set(assinantes.map(a => (a.pais || '').toUpperCase()).filter(Boolean))].sort().map(p => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </select>
-        <button className="admin-filtro-limpar" onClick={limparFiltros}>Limpar tudo</button>
+      {/* ── A barra: busca, o botão, e o que está ligado ──
+          Sete filtros na horizontal sempre brigam por espaço. Recolhidos no
+          painel, sobra o essencial. Mas o que está LIGADO continua à vista:
+          uma lista cortada por um filtro esquecido é idêntica a uma lista
+          vazia, e nada na tela explicaria a diferença. */}
+      <div className="admin-barra">
+        <div className="admin-busca-wrap">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
+               stroke="currentColor" strokeWidth="1.6">
+            <circle cx="9" cy="9" r="5.5"/>
+            <path d="M13 13l4 4" strokeLinecap="round"/>
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar por nome, email ou CPF..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+          />
+        </div>
+
+        <button
+          className={'admin-filtros-btn' + (painelFiltros ? ' admin-filtros-btn--on' : '')}
+          onClick={() => setPainelFiltros(true)}
+        >
+          <svg viewBox="0 0 20 20" width="16" height="16" fill="none"
+               stroke="currentColor" strokeWidth="1.6">
+            <path d="M3 6h14M6 10h8M8 14h4" strokeLinecap="round"/>
+          </svg>
+          Filtros
+          {nFiltros > 0 && <em>{nFiltros}</em>}
+        </button>
+
+        <span className="admin-conta">
+          {filtrados.length} de {totalAba}
+        </span>
       </div>
 
-      <input
-        type="text"
-        placeholder="Buscar por nome, email ou CPF..."
-        value={busca}
-        onChange={(e) => setBusca(e.target.value)}
-        className="admin-busca"
-      />
+      {/* Os filtros ligados, para poder tirar um sem abrir o painel */}
+      {nFiltros > 0 && (
+        <div className="admin-chips">
+          {chipsAtivos.map((c) => (
+            <button key={c.chave} className="admin-chip" onClick={c.limpar}>
+              {c.rotulo}
+              <svg viewBox="0 0 20 20" width="12" height="12" fill="none"
+                   stroke="currentColor" strokeWidth="1.8">
+                <path d="M6 6l8 8M14 6l-8 8" strokeLinecap="round"/>
+              </svg>
+            </button>
+          ))}
+          <button className="admin-chip-limpar" onClick={limparFiltros}>Limpar</button>
+        </div>
+      )}
+
+      {/* ── O painel ──
+          Abre POR CIMA: a tabela não se mexe. Ver a lista mudando atrás
+          enquanto se mexe nos filtros é metade da utilidade. */}
+      {painelFiltros && (
+        <div className="admin-pf-fundo" onClick={() => setPainelFiltros(false)}>
+          <div className="admin-pf" onClick={(e) => e.stopPropagation()}>
+
+            <div className="admin-pf-cab">
+              <strong>Filtros</strong>
+              <button onClick={() => setPainelFiltros(false)} aria-label="Fechar">
+                <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
+                     stroke="currentColor" strokeWidth="1.6">
+                  <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <div className="admin-pf-corpo">
+
+              <div className="admin-pf-g">
+                <label>Período</label>
+                <select value={filtroData} onChange={(e) => setFiltroData(e.target.value)}>
+                  <option value="todos">Qualquer</option>
+                  <option value="mes">Este mês</option>
+                  <option value="12meses">Últimos 12 meses</option>
+                  <option value="ano">Ano específico</option>
+                  <option value="periodo">Intervalo de datas</option>
+                </select>
+
+                {filtroData === 'ano' && (
+                  <input type="number" min="2024" max="2100" value={anoFiltro}
+                         onChange={(e) => setAnoFiltro(e.target.value)} />
+                )}
+
+                {filtroData === 'periodo' && (
+                  <div className="admin-pf-datas">
+                    <input type="date" value={dataDe} onChange={(e) => setDataDe(e.target.value)} />
+                    <span>até</span>
+                    <input type="date" value={dataAte} onChange={(e) => setDataAte(e.target.value)} />
+                  </div>
+                )}
+              </div>
+
+              {aba === 'pagantes' && (
+                <div className="admin-pf-g">
+                  <label>Status</label>
+                  <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)}>
+                    <option value="">Todos</option>
+                    <option value="vencendo">Quase vencendo</option>
+                    <option value="cancelado">Cancelados</option>
+                  </select>
+                </div>
+              )}
+
+              <div className="admin-pf-g">
+                <label>Profissão</label>
+                <select value={filtroProfissao} onChange={(e) => setFiltroProfissao(e.target.value)}>
+                  <option value="">Qualquer</option>
+                  <option value="arquiteto">Arquiteto(a)</option>
+                  <option value="designer_interiores">Designer de interiores</option>
+                  <option value="archviz">Archviz</option>
+                  <option value="engenheiro">Engenheiro(a)</option>
+                  <option value="estudante">Estudante</option>
+                  <option value="paisagista">Paisagista</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+
+              <div className="admin-pf-g">
+                <label>Como conheceu</label>
+                <select value={filtroOrigem} onChange={(e) => setFiltroOrigem(e.target.value)}>
+                  <option value="">Qualquer</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="youtube">YouTube</option>
+                  <option value="google">Google</option>
+                  <option value="indicacao">Indicação</option>
+                  <option value="tiktok">TikTok</option>
+                  <option value="anuncio">Anúncio</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+
+              <div className="admin-pf-g">
+                <label>Renderizador</label>
+                <select value={filtroRender} onChange={(e) => setFiltroRender(e.target.value)}>
+                  <option value="">Qualquer</option>
+                  <option value="nao">Nenhum</option>
+                  <option value="vray">V-Ray</option>
+                  <option value="corona">Corona</option>
+                  <option value="enscape">Enscape</option>
+                  <option value="lumion">Lumion</option>
+                  <option value="dhistudio">D5 / IA</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+
+              <div className="admin-pf-sec">
+                <label>Localização</label>
+
+                <select value={filtroPais} onChange={(e) => setFiltroPais(e.target.value)}>
+                  <option value="">Qualquer país</option>
+                  {[...new Set(assinantes.map(a => (a.pais || '').toUpperCase()).filter(Boolean))].sort().map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+
+                <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
+                  <option value="">Qualquer estado</option>
+                  {[...new Set(assinantes.map(a => (a.estado || '').toUpperCase()).filter(Boolean))].sort().map(uf => (
+                    <option key={uf} value={uf}>{uf}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="admin-pf-pe">
+              <button className="admin-pf-limpar" onClick={limparFiltros}>
+                Limpar filtros
+              </button>
+              <button className="admin-pf-ok" onClick={() => setPainelFiltros(false)}>
+                Ver {filtrados.length} {filtrados.length === 1 ? 'resultado' : 'resultados'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {aba === 'compras' ? (
         <div className="admin-tabela-wrap">

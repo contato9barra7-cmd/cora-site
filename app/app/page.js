@@ -24,6 +24,7 @@ import PainelAnalises from '../../components/PainelAnalises';
 import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
 import Card, { proporcaoCss } from '../../components/Card';
+import ModalDownload from '../../components/ModalDownload';
 import ModalDetalhes from '../../components/ModalDetalhes';
 import { lerConta, creditosMudaram } from '../../lib/auth';
 import { gerarGenerativa } from '../../lib/render';
@@ -160,6 +161,10 @@ export default function AppPage() {
   // O progresso aceita função: os painéis ACUMULAM as falhas nele
   // (setProgresso(p => ({...p, falhas}))), em vez de sobrescrever.
   const [progresso, setProgresso]   = useState(null);
+
+  // O modal vive na PÁGINA, não no card: dentro da grade ele nasceria preso
+  // ao recorte dela e ficaria cortado.
+  const [baixando, setBaixando]     = useState(null);   // o item a baixar
 
   // ── Gerar com o pincel ──
   //
@@ -984,6 +989,7 @@ export default function AppPage() {
                         if (modoAB) { escolherAB(it); return; }
                         setVendo({ loteId: it.loteId, itemId: it.id });
                       }}
+                      onBaixar={setBaixando}
                       onFavoritar={favoritar}
                       onAprovar={aprovar}
                       onExcluir={setExcluindo}
@@ -1040,6 +1046,7 @@ export default function AppPage() {
                           if (modoAB) { escolherAB({ ...item, loteId: lote.loteId }); return; }
                           setVendo({ loteId: lote.loteId, itemId: item.id });
                         }}
+                        onBaixar={setBaixando}
                         onFavoritar={favoritar}
                         onAprovar={aprovar}
                         onExcluir={setExcluindo}
@@ -1073,6 +1080,7 @@ export default function AppPage() {
               rotuloDir="B"
               ehAdmin={ehAdmin}
               onFechar={() => setVendo(null)}
+              onBaixar={setBaixando}
               onFavoritar={favoritar}
               onExcluir={setExcluindo}
               onEnviarPara={enviarPara}
@@ -1093,6 +1101,7 @@ export default function AppPage() {
             prompt={lote.observacoes}
             ehAdmin={ehAdmin}
             onFechar={() => setVendo(null)}
+            onBaixar={setBaixando}
             onFavoritar={favoritar}
             onAprovar={aprovar}
             onExcluir={setExcluindo}
@@ -1123,6 +1132,13 @@ export default function AppPage() {
           </div>
         </div>
       )}
+      {baixando && (
+        <ModalDownload
+          item={baixando}
+          onFechar={() => setBaixando(null)}
+        />
+      )}
+
     </AppShell>
   );
 }

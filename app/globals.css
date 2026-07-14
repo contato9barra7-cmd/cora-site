@@ -5509,7 +5509,11 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 
 
+
 .pn-topo .cr-chip { flex: 0 0 auto; }
+
+
+
 
 
 
@@ -5536,11 +5540,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    passar duas vezes no mesmo lugar escurece, e a máscara ganha bordas duras
    onde não deveria. Cor sólida + opacity do canvas = passada uniforme. */
 
+
 /* Na expansão não se pinta: a moldura é que define a área. */
 .pn-draw--off { pointer-events: none; }
 
 /* O alvo — um círculo do tamanho do pincel, seguindo o mouse.
    Sem ele, não dá para saber onde a tinta vai cair. */
+
 
 /* O rodapé: as dicas de zoom, ou os controles da expansão */
 
@@ -6845,13 +6851,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* A pill da proporção ocupa a linha toda: é o único controle daquela linha */
 .cr-pill-cfg--larga {
   width: 100%;
-  height: 38px;
   justify-content: flex-start;
-
-  /* A pill padrão centraliza o conteúdo e por isso nunca precisou de padding.
-     Alinhada à esquerda, sem padding, o ícone encosta na borda. */
-  padding: 0 14px;
-  gap: 9px;
 }
 
 .cr-pill-cfg--larga > span { flex: 1; text-align: left; }
@@ -6987,50 +6987,568 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink3);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   A janela de baixar
 
-/* ── A imagem se move dentro da moldura ──
-   A moldura diz o TAMANHO do resultado; a posição da imagem dentro dela diz
-   o que a IA vai inventar de cada lado. */
-.pn-canvas--move {
-  cursor: grab;
-  position: relative;
-  z-index: 1;
+   O que decide entre PNG e JPEG é o PESO — "sem perdas" não diz se são
+   500 KB ou 8 MB. Por isso o tamanho aparece em cada opção, e no botão.
+   ═══════════════════════════════════════════════════════════ */
+.dl {
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .3);
 }
 
-.pn-canvas--move:active { cursor: grabbing; }
-
-/* As guias do centro: o ímã agindo em silêncio seria mágica sem explicação */
-.pn-guia {
-  position: absolute;
-  z-index: 3;
-  background: var(--accent);
-  pointer-events: none;
-  opacity: .85;
+.dl-cab {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
 }
 
-.pn-guia--v {
-  left: 50%;
-  top: -10%;
-  bottom: -10%;
-  width: 1px;
+.dl-cab strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
-.pn-guia--h {
-  top: 50%;
-  left: -10%;
-  right: -10%;
-  height: 1px;
-}
-
-/* O botão de recarga sem plano: não promete o que não entrega. Leva ao aviso,
-   não ao pagamento — e a aparência precisa dizer isso antes do clique. */
-.btn--linha {
-  background: transparent;
-  border: 1px solid var(--line2);
+.dl-cab span {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
   color: var(--ink3);
+  font-variant-numeric: tabular-nums;
+}
+
+.dl-x {
+  display: flex;
+  padding: 2px;
+  border: none;
+  background: transparent;
+  color: var(--ink3);
+  cursor: pointer;
+}
+
+.dl-x:hover { color: var(--ink); }
+
+.dl-ops {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+.dl-op {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: all .13s;
+}
+
+.dl-op:hover:not(:disabled) { border-color: var(--line2); }
+.dl-op:disabled { opacity: .55; cursor: default; }
+
+.dl-op--on {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+/* O radio: um círculo que se preenche. Sem ele, o cartão escolhido dependeria
+   só da cor de fundo — fraco demais para dizer "é este". */
+.dl-radio {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--line2);
+  border-radius: 50%;
+  background: var(--paper);
+  transition: all .13s;
+}
+
+.dl-op--on .dl-radio { border: 5px solid var(--accent); }
+
+.dl-txt {
+  flex: 1;
+  min-width: 0;
+}
+
+.dl-txt strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.dl-op--on .dl-txt strong { color: var(--accent); }
+
+.dl-txt em {
+  display: block;
+  margin-top: 1px;
+  font-style: normal;
+  font-size: 10.5px;
+  color: var(--ink3);
+}
+
+.dl-peso {
+  flex-shrink: 0;
+  font-size: 11.5px;
+  color: var(--ink3);
+  font-variant-numeric: tabular-nums;
+}
+
+.dl-erro {
+  margin-bottom: 12px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--alerta) 8%, transparent);
+  color: var(--alerta);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.dl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 42px;
+  border: none;
+  border-radius: 100px;
+  background: var(--accent);
+  color: var(--accent-txt);
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.dl-btn:disabled { opacity: .6; cursor: default; }
+
+/* ═══════════════════════════════════════════════════════════
+   Admin — a barra, o painel de filtros, o geo
+   ═══════════════════════════════════════════════════════════ */
+
+/* Sem fundo nem borda: filtro é ferramenta, não conteúdo, e não deve disputar
+   atenção com a tabela. */
+.admin-barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.admin-busca-wrap {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: var(--wash);
+  color: var(--ink3);
+}
+
+.admin-busca-wrap:focus-within {
+  border-color: var(--accent);
+  background: var(--paper);
+}
+
+.admin-busca-wrap input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 12.5px;
+  font-family: inherit;
+  outline: none;
+}
+
+.admin-filtros-btn {
+  flex-shrink: 0;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 17px;
+  border: none;
+  border-radius: 100px;
+  background: var(--accent);
+  color: var(--accent-txt);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.admin-filtros-btn--on {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: none;
+}
+
+/* O número diz quantos filtros estão ligados. Sem ele o botão não revela se
+   está filtrando — e uma lista cortada parece uma lista vazia. */
+.admin-filtros-btn em {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100px;
+  background: color-mix(in srgb, var(--accent-txt) 20%, transparent);
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.admin-filtros-btn--on em { background: rgba(255, 255, 255, .25); }
+
+.admin-conta {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--ink3);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.admin-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 100px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.admin-chip:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+
+.admin-chip-limpar {
+  padding: 0 6px;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Abre POR CIMA: a tabela não se mexe. Ver a lista mudando atrás enquanto se
+   mexe nos filtros é metade da utilidade. */
+.admin-pf-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0, 0, 0, .3);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.admin-pf {
+  width: 320px;
+  max-width: 100vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, .18);
+}
+
+.admin-pf-cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-pf-cab strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.admin-pf-cab button {
+  display: flex;
+  padding: 2px;
+  border: none;
+  background: transparent;
+  color: var(--ink3);
+  cursor: pointer;
+}
+
+.admin-pf-cab button:hover { color: var(--ink); }
+
+.admin-pf-corpo {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.admin-pf-g,
+.admin-pf-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.admin-pf-sec {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.admin-pf-g > label,
+.admin-pf-sec > label {
+  font-size: 9.5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  font-weight: 600;
+}
+
+.admin-pf-corpo select,
+.admin-pf-corpo input {
+  width: 100%;
+  height: 36px;
+  padding: 0 15px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: var(--wash);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-family: inherit;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.admin-pf-corpo select:focus,
+.admin-pf-corpo input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.admin-pf-datas {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.admin-pf-datas span {
+  flex-shrink: 0;
+  font-size: 11.5px;
+  color: var(--ink3);
+}
+
+.admin-pf-pe {
+  display: flex;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--line);
+}
+
+.admin-pf-limpar {
+  flex: 1;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink2);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.admin-pf-limpar:hover { border-color: var(--line2); }
+
+.admin-pf-ok {
+  flex: 1;
+  height: 36px;
+  border: none;
+  border-radius: 100px;
+  background: var(--accent);
+  color: var(--accent-txt);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Os seis exports têm o mesmo NOME em grupos diferentes ("Assinantes" aparece
+   duas vezes). Sem dizer o que vem dentro, é preciso baixar os dois e comparar. */
+.admin-export-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-export-item:hover { background: var(--accent-bg); }
+
+.admin-export-item strong {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.admin-export-item em {
+  font-style: normal;
+  font-size: 10px;
+  color: var(--ink3);
+  line-height: 1.4;
+}
+
+.admin-export-grupo {
+  padding: 7px 12px 5px;
+  font-size: 9.5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  font-weight: 600;
+}
+
+.admin-export-sep {
+  height: 1px;
+  margin: 5px 10px;
+  background: var(--line);
+}
+
+/* A barra media só a CONTAGEM. Mas cliente não é receita: um Studio a R$591
+   vale seis Starters. As duas barras respondem "onde vale a pena investir". */
+.admin-geo-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.admin-geo-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.admin-geo-cab {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-geo-v b {
+  font-weight: 600;
+  color: var(--ink2);
+}
+
+.admin-geo-fill--n { background: var(--accent); }
+
+.admin-geo-fill--r {
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.admin-geo-legenda {
+  display: flex;
+  gap: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 10px;
+  color: var(--ink3);
+}
+
+.admin-geo-legenda span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.admin-geo-p {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+
+.admin-geo-p--n { background: var(--accent); }
+
+.admin-geo-p--r {
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+@media (max-width: 760px) {
+  .admin-pf { width: 100%; }
+}
+
+/* Botão de contorno: para uma ação que ainda não está disponível
+   ("Requer um plano") — presente, mas claramente não é o caminho principal. */
+.btn--linha {
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink2);
 }
 
 .btn--linha:hover {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+/* As guias do ímã: aparecem quando a imagem gruda no centro da moldura.
+   Sem elas, o salto do ímã pareceria um bug — a imagem "pula" sozinha. */
+.pn-guia {
+  position: absolute;
+  background: var(--accent);
+  pointer-events: none;
+  opacity: .9;
+}
+
+.pn-guia--v {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  left: 50%;
+}
+
+.pn-guia--h {
+  left: 0;
+  right: 0;
+  height: 1px;
+  top: 50%;
 }
