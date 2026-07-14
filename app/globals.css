@@ -8836,15 +8836,17 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 /* ── O cursor conta o que a ferramenta faz ── */
-.ps-folha[data-ferr="mover"]     { cursor: move; }
+.ps-folha[data-ferr="mover"]     { cursor: default; }
 .ps-folha[data-ferr="ret"],
 .ps-folha[data-ferr="elip"],
 .ps-folha[data-ferr="laco"],
 .ps-folha[data-ferr="lacoPoli"]  { cursor: crosshair; }
 .ps-folha[data-ferr="varinha"],
 .ps-folha[data-ferr="selRapida"] { cursor: crosshair; }
+/* O pincel e a borracha NÃO têm cursor: o anel desenhado no overlay É o cursor.
+   Deixar a setinha por cima só atrapalharia a mira. */
 .ps-folha[data-ferr="pincel"],
-.ps-folha[data-ferr="borracha"]  { cursor: crosshair; }
+.ps-folha[data-ferr="borracha"]  { cursor: none; }
 .ps-folha[data-ferr="crop"]      { cursor: crosshair; }
 
 /* Rasterizar e afins, no bloco da camada */
@@ -8918,3 +8920,118 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-folha[data-alca="o"],  .ps-folha[data-alca="l"]  { cursor: ew-resize; }
 .ps-folha[data-alca="mover"] { cursor: move; }
 .ps-folha[data-alca="novo"]  { cursor: crosshair; }
+
+
+/* ── As alças da camada (Mover) ──
+   Os mesmos nomes do crop: 'no','ne','so','se','n','s','o','l','mover'. As
+   regras do crop já cobrem todos — esta só acrescenta o que faltava. */
+.ps-folha[data-alca="mover"] { cursor: move; }
+
+/* ══════════════════════════════════════════════════════════════
+   MENU DE CONTEXTO DA CAMADA
+   ══════════════════════════════════════════════════════════════ */
+
+.mc {
+  position: fixed;
+  z-index: 9998;
+  min-width: 232px;
+  padding: 5px;
+  background: var(--paper);
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .16);
+  animation: mc-abre .1s ease-out;
+}
+@keyframes mc-abre {
+  from { opacity: 0; transform: scale(.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.mc-it {
+  display: block;
+  width: 100%;
+  padding: 8px 11px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink2);
+  font-family: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .1s, color .1s;
+}
+.mc-it:hover { background: var(--wash); color: var(--ink); }
+
+.mc-it--perigo:hover { background: #FFECEC; color: #C0392B; }
+
+.mc-sep {
+  display: block;
+  height: 1px;
+  margin: 5px 7px;
+  background: var(--line);
+}
+
+/* ── O grupo, na coluna ── */
+.ps-seta {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--ink3);
+  cursor: pointer;
+  padding: 0;
+  transition: transform .13s;
+}
+.ps-seta svg { width: 9px; height: 9px; }
+.ps-seta--on { transform: rotate(90deg); }
+.ps-seta:hover { color: var(--ink); }
+
+/* ── Renomear na própria linha ── */
+.ps-nome-edit {
+  flex: 1;
+  min-width: 0;
+  height: 24px;
+  padding: 0 7px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 12px;
+  outline: none;
+}
+
+/* ── A marca de onde a camada vai cair ──
+   Sem ela, arrastar é às cegas: solta-se e torce-se para ter acertado. */
+.ps-cam--alvo {
+  box-shadow: inset 0 2px 0 -0.5px var(--accent);
+}
+.ps-cam--alvo-baixo {
+  box-shadow: inset 0 -2px 0 -0.5px var(--accent);
+}
+.ps-cam--dentro-alvo {
+  background: var(--accent-bg);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+/* A camada sendo arrastada fica fantasma: ela está "no ar". */
+.ps-cam--voando { opacity: .38; }
+
+/* Quantas camadas o grupo guarda — é a informação que o grupo fechado esconde,
+   e sem ela não haveria como saber se ele está vazio. */
+.ps-conta {
+  margin-left: 7px;
+  padding: 1px 6px;
+  border-radius: 100px;
+  background: var(--wash2);
+  color: var(--ink3);
+  font-size: 10px;
+  font-weight: 600;
+}
+.ps-cam--on .ps-conta { background: var(--paper); }

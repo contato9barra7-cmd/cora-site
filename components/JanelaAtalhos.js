@@ -26,6 +26,16 @@ const GRUPOS = [
     ]
   },
   {
+    nome: 'Na imagem',
+    itens: [
+      ['Clique', 'Pega a camada que está sob o cursor (com a Mover)'],
+      ['Arrastar', 'Move a camada — ela encaixa no centro e nas bordas'],
+      ['Alt', 'Solta as travas magnéticas enquanto arrasta'],
+      ['Shift', 'Nos cantos: redimensiona livre, sem manter a proporção'],
+      ['Shift + clique', 'Soma a camada à seleção']
+    ]
+  },
+  {
     nome: 'Seleção',
     itens: [
       ['Ctrl', 'Somar à seleção (segure enquanto desenha)'],
@@ -44,6 +54,8 @@ const GRUPOS = [
       ['Ctrl+Shift+R', 'Rasterizar'],
       ['Ctrl+Alt+E', 'Mesclar tudo numa camada nova'],
       ['Ctrl+Shift+A', 'Abrir os Ajustes'],
+      ['Duplo clique', 'Renomear a camada'],
+      ['Botão direito', 'Abre o menu da camada'],
       ['Delete', 'Excluir']
     ]
   },

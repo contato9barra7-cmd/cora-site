@@ -21,6 +21,7 @@ import PickerImagem from './PickerImagem';
 import Dica from './Dica';
 import JanelaAjustes from './JanelaAjustes';
 import JanelaAtalhos from './JanelaAtalhos';
+import MenuCamada from './MenuCamada';
 import {
   carregarCanvas, canvasVazio, clonarCanvas, novaCamada, novoGrupo,
   compor, thumb, thumbMascara, mascaraBranca, rasterizar, mesclarCopia,
@@ -33,6 +34,10 @@ import {
   pincelada, hexParaRgb, desfocar, desfoqueMovimento
 } from '../lib/selecao';
 import { tirar, empilhar } from '../lib/historico';
+import {
+  camadaNoPonto, alcaNoPonto, pontosDasAlcas, moverComEncaixe,
+  redimensionar, centralizar, ALCAS
+} from '../lib/transformar';
 
 // Os ícones são os do plugin (posIconeSVG) — quem usa os dois reconhece.
 const IC = {
@@ -139,10 +144,40 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   // ── O crop ──
   const [crop, setCrop] = useState(null);     // { x0,y0,x1,y1 } em coords do doc
   const [sobreAlca, setSobreAlca] = useState(null);   // o cursor diz o que a alça faz
+
+  // ── O menu de contexto ──
+  const [menu, setMenu] = useState(null);          // { x, y, id }
+  const [renomeando, setRenomeando] = useState(null);  // id da camada em edição
+
+  // ── Os grupos abertos ──
+  // Um grupo nasce FECHADO. Agrupar cinco camadas e ver as cinco continuarem
+  // ocupando a coluna anularia o sentido de agrupar.
+  const [abertos, setAbertos] = useState({});
+
+  // ── A caixa de transformação ──
+  // As alças aparecem quando uma camada está marcada e a ferramenta é Mover.
+  // As guias de encaixe são efêmeras: só existem durante o arraste.
+  const [guias, setGuias] = useState([]);
+
+  // ── O cursor do pincel ──
+  // Um círculo do TAMANHO REAL da ponta. Sem ele, pintar é adivinhar: a pessoa
+  // não sabe onde a tinta vai cair nem quanto vai cobrir, e erra o alvo.
+  const [pincelEm, setPincelEm] = useState(null);   // { x, y } em coords do doc
   const [ratio, setRatio] = useState('livre');
 
   // ── O histórico ──
   const [pilha, setPilha] = useState([]);
+
+  // ── O encaixe ──
+  //
+  // "100%" significa VER A IMAGEM INTEIRA, não 1 pixel do documento = 1 pixel
+  // da tela. Um render de 4000px a 1:1 apareceria com um quarto dele visível, e
+  // a pessoa teria que afastar antes de fazer qualquer coisa — ninguém começa a
+  // trabalhar assim.
+  //
+  // Então `zoom` é um MULTIPLICADOR do encaixe: zoom 1 = cabe na tela.
+  const [encaixe, setEncaixe] = useState(1);
+  const escala = encaixe * zoom;
 
   const telaRef   = useRef(null);
   const canvasRef = useRef(null);
@@ -157,6 +192,32 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
   const ativa = camadas.find((l) => l.id === sel[0]) || null;
   const temImagem = camadas.length > 0;
+
+  // ═══ O encaixe ═══
+  // Recalcula quando a imagem muda de tamanho ou a janela é redimensionada.
+  useEffect(() => {
+    if (!med) return;
+
+    function medir() {
+      const el = telaRef.current;
+      if (!el) return;
+
+      // A folga deixa a imagem respirar: encostada nas bordas, ela parece
+      // espremida, e não há onde pegar para arrastar a tela.
+      const FOLGA = 72;
+      const w = el.clientWidth  - FOLGA;
+      const h = el.clientHeight - FOLGA;
+      if (w <= 0 || h <= 0) return;
+
+      // Nunca AMPLIA: uma imagem pequena não deve ser esticada até encher a
+      // tela — ela ficaria borrada e daria a impressão de má qualidade.
+      setEncaixe(Math.min(1, w / med.w, h / med.h));
+    }
+
+    medir();
+    window.addEventListener('resize', medir);
+    return () => window.removeEventListener('resize', medir);
+  }, [med]);
 
   // ═══ Compor ═══
   useEffect(() => {
@@ -189,8 +250,8 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       // A forma sendo arrastada AGORA
       if (g.ativo || g.poli.length) {
         cx.save();
-        cx.lineWidth = 1 / zoom;    // a linha não engorda com o zoom
-        cx.setLineDash([4 / zoom, 4 / zoom]);
+        cx.lineWidth = 1 / escala;    // a linha não engorda com o zoom
+        cx.setLineDash([4 / escala, 4 / escala]);
         cx.beginPath();
 
         if (g.ret) {
@@ -212,7 +273,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         cx.strokeStyle = '#000';
         cx.stroke();
         cx.strokeStyle = '#fff';
-        cx.lineDashOffset = 4 / zoom;
+        cx.lineDashOffset = 4 / escala;
         cx.stroke();
 
         // Os vértices do poligonal, para saber onde clicar de novo
@@ -222,7 +283,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           cx.strokeStyle = '#000';
           for (const pt of g.poli) {
             cx.beginPath();
-            cx.arc(pt.x, pt.y, 3.5 / zoom, 0, Math.PI * 2);
+            cx.arc(pt.x, pt.y, 3.5 / escala, 0, Math.PI * 2);
             cx.fill();
             cx.stroke();
           }
@@ -239,18 +300,18 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         if (ts - ultimo > 60) { offset += 0.6; ultimo = ts; }
 
         cx.save();
-        cx.lineWidth = 1 / zoom;
+        cx.lineWidth = 1 / escala;
         cx.beginPath();
         for (const path of contornoRef.current) {
           cx.moveTo(path[0][0], path[0][1]);
           for (let i = 1; i < path.length; i++) cx.lineTo(path[i][0], path[i][1]);
         }
-        cx.setLineDash([4 / zoom, 4 / zoom]);
+        cx.setLineDash([4 / escala, 4 / escala]);
         cx.strokeStyle = '#000';
         cx.lineDashOffset = -offset;
         cx.stroke();
         cx.strokeStyle = '#fff';
-        cx.lineDashOffset = -offset + 4 / zoom;
+        cx.lineDashOffset = -offset + 4 / escala;
         cx.stroke();
         cx.restore();
       }
@@ -270,13 +331,13 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         cx.fill('evenodd');
 
         cx.strokeStyle = '#fff';
-        cx.lineWidth = 1.5 / zoom;
+        cx.lineWidth = 1.5 / escala;
         cx.setLineDash([]);
         cx.strokeRect(x, y, w, h);
 
         // Os terços: a regra de composição mais usada que existe
         cx.globalAlpha = .5;
-        cx.lineWidth = .7 / zoom;
+        cx.lineWidth = .7 / escala;
         for (let i = 1; i < 3; i++) {
           cx.beginPath();
           cx.moveTo(x + (w / 3) * i, y);
@@ -293,10 +354,10 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         // O tamanho é dividido pelo zoom para que, na tela, elas tenham sempre
         // o mesmo tamanho — a 20% de zoom, uma alça fixa seria um ponto
         // invisível; a 800%, um bloco cobrindo a imagem.
-        const s = 5 / zoom;
+        const s = 5 / escala;
         cx.fillStyle = '#fff';
         cx.strokeStyle = 'rgba(0,0,0,.5)';
-        cx.lineWidth = 1 / zoom;
+        cx.lineWidth = 1 / escala;
 
         for (const [hx, hy] of [
           [x, y], [x + w / 2, y], [x + w, y],
@@ -312,12 +373,108 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         cx.restore();
       }
 
+      // ── A caixa de transformação ──
+      //
+      // Quadradinhos nos cantos e nos meios, como em qualquer editor. Sem eles
+      // não há como saber que a camada é redimensionável — e a pessoa tentaria
+      // arrastar a borda sem que nada acontecesse.
+      if (ferr === 'mover' && !crop && ativa && ativa.tipo !== 'grupo') {
+        const bx = ativa.x;
+        const by = ativa.y;
+        const bw = largura(ativa);
+        const bh = altura(ativa);
+
+        cx.save();
+        cx.setLineDash([]);
+        cx.strokeStyle = 'rgba(120,120,255,.9)';
+        cx.lineWidth = 1.2 / escala;
+        cx.strokeRect(bx, by, bw, bh);
+
+        // O tamanho é dividido pela escala para que, NA TELA, as alças tenham
+        // sempre o mesmo tamanho — a 20%, alças fixas seriam pontos invisíveis.
+        const s = 4.5 / escala;
+        const pts = pontosDasAlcas(ativa);
+
+        cx.fillStyle = '#fff';
+        cx.strokeStyle = 'rgba(90,90,200,.95)';
+        cx.lineWidth = 1 / escala;
+
+        for (const a of ALCAS) {
+          const [hx, hy] = pts[a];
+          cx.beginPath();
+          cx.rect(hx - s, hy - s, s * 2, s * 2);
+          cx.fill();
+          cx.stroke();
+        }
+        cx.restore();
+      }
+
+      // ── As guias de encaixe ──
+      //
+      // Elas EXPLICAM a trava. Sem a linha, a camada "pularia" sozinha e
+      // pareceria um defeito; com ela, fica claro que encostou no centro.
+      if (guias.length) {
+        cx.save();
+        cx.strokeStyle = '#FF3D8A';    // rosa: não se confunde com nada na imagem
+        cx.lineWidth = 1 / escala;
+        cx.setLineDash([]);
+
+        for (const g of guias) {
+          cx.beginPath();
+          if (g.eixo === 'x') {
+            cx.moveTo(g.em, 0);
+            cx.lineTo(g.em, med.h);
+          } else {
+            cx.moveTo(0, g.em);
+            cx.lineTo(med.w, g.em);
+          }
+          cx.stroke();
+        }
+        cx.restore();
+      }
+
+      // ── O anel do pincel ──
+      //
+      // Ele mostra o TAMANHO REAL da ponta, no lugar exato onde a tinta vai
+      // cair. É desenhado em duas cores — preto por dentro, branco por fora —
+      // porque um anel de cor única desaparece sobre imagens da mesma cor.
+      if (PINTAM.includes(ferr) && pincelEm && !crop) {
+        const r = opts.tamanho;
+
+        cx.save();
+        cx.setLineDash([]);
+        cx.lineWidth = 1 / escala;
+
+        cx.beginPath();
+        cx.arc(pincelEm.x, pincelEm.y, r, 0, Math.PI * 2);
+        cx.strokeStyle = 'rgba(0,0,0,.75)';
+        cx.stroke();
+
+        cx.beginPath();
+        cx.arc(pincelEm.x, pincelEm.y, r + 1 / escala, 0, Math.PI * 2);
+        cx.strokeStyle = 'rgba(255,255,255,.75)';
+        cx.stroke();
+
+        // Com dureza baixa a borda é toda esfumada, e o anel de fora mentiria
+        // sobre onde a tinta é sólida. O anel interno mostra o miolo.
+        if (opts.dureza < 95) {
+          const miolo = r * (opts.dureza / 100);
+          if (miolo > 1.5 / escala) {
+            cx.beginPath();
+            cx.arc(pincelEm.x, pincelEm.y, miolo, 0, Math.PI * 2);
+            cx.strokeStyle = 'rgba(0,0,0,.28)';
+            cx.stroke();
+          }
+        }
+        cx.restore();
+      }
+
       raf = requestAnimationFrame(pintar);
     }
 
     raf = requestAnimationFrame(pintar);
     return () => cancelAnimationFrame(raf);
-  }, [med, temSel, crop, ferr, zoom]);
+  }, [med, temSel, crop, ferr, escala, camadas, sel, guias, pincelEm, opts, ativa]);
 
   // ═══ Abrir ═══
   const abrir = useCallback(async (src, nome, comoCamada) => {
@@ -337,9 +494,19 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         setTemSel(false);
         setPilha([]);
       } else {
-        const l = novaCamada(c, nome || `Camada ${camadas.length + 1}`);
+        // A camada nova entra CENTRALIZADA, e encolhida se não couber. Entrar em
+        // (0,0) esconderia metade dela atrás da borda quando fosse maior que a
+        // base — e pareceria que nada aconteceu.
+        const pos = centralizar(c, med.w, med.h);
+
+        const l = novaCamada(c, nome || `Camada ${camadas.length + 1}`, pos);
         setCamadas((cs) => [l, ...cs]);
         setSel([l.id]);
+
+        // E já com a Mover na mão: quem acabou de trazer uma imagem quer
+        // POSICIONÁ-LA. Ter que ir buscar a ferramenta antes é um passo a mais
+        // que ninguém pediu.
+        setFerr('mover');
       }
     } catch (e) {
       setErro(e.message);
@@ -441,6 +608,9 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       return [...fora.slice(0, i), g, ...dentro, ...fora.slice(i)];
     });
 
+    // O grupo nasce FECHADO. Agrupar cinco camadas e ver as cinco continuarem
+    // ocupando a coluna anularia o motivo de ter agrupado.
+    setAbertos((a) => ({ ...a, [g.id]: false }));
     setSel([g.id]);
   }
 
@@ -492,18 +662,172 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     setSel([l.id]);
   }
 
-  function soltar(destino) {
+  // ═══ Arrastar na coluna ═══
+  //
+  // O arraste antigo era às cegas: pegava-se uma camada, soltava-se, e torcia-
+  // se para ter acertado. Agora a linha de destino se ANUNCIA antes de soltar.
+  //
+  // Há três destinos possíveis, e a diferença importa:
+  //   - entre duas camadas  -> reordena
+  //   - sobre a barra de um grupo -> entra NO grupo
+  //   - fora de um grupo    -> sai dele
+  const [alvoSolta, setAlvoSolta] = useState(null);   // { i, onde } onde: 'cima'|'baixo'|'dentro'
+
+  // Qual linha está no ar. É ESTADO, não ref: a classe que a deixa fantasma
+  // precisa de uma renderização para aparecer, e um ref não provoca nenhuma.
+  const [voando, setVoando] = useState(null);
+
+  function ondeCai(e, i, l) {
+    const r = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - r.top;
+
+    // Sobre a barra de um grupo, a faixa do meio significa "entra aqui". As
+    // pontas continuam reordenando — senão seria impossível pôr uma camada
+    // logo ACIMA de um grupo.
+    if (l.tipo === 'grupo' && y > r.height * 0.25 && y < r.height * 0.75) {
+      return { i, onde: 'dentro' };
+    }
+
+    return { i, onde: y < r.height / 2 ? 'cima' : 'baixo' };
+  }
+
+  function arrastaSobre(e, i, l) {
+    e.preventDefault();
+    if (arrastando.current == null) return;
+
+    const a = ondeCai(e, i, l);
+    if (!alvoSolta || alvoSolta.i !== a.i || alvoSolta.onde !== a.onde) {
+      setAlvoSolta(a);
+    }
+  }
+
+  function soltar() {
     const origem = arrastando.current;
+    const alvo = alvoSolta;
+
     arrastando.current = null;
-    if (origem == null || origem === destino) return;
+    setVoando(null);
+    setAlvoSolta(null);
+
+    if (origem == null || !alvo) return;
+    if (origem === alvo.i) return;
 
     guardar();
+
     setCamadas((cs) => {
       const c = [...cs];
-      const [l] = c.splice(origem, 1);
-      c.splice(destino, 0, l);
-      return c;
+      const l = c[origem];
+      if (!l) return cs;
+
+      // Um grupo viaja com os filhos: arrastar a barra e deixar as camadas para
+      // trás seria quebrar o grupo sem pedir.
+      const bloco = l.tipo === 'grupo'
+        ? [l, ...c.filter((x) => x.grupo === l.id)]
+        : [l];
+
+      const ids = new Set(bloco.map((x) => x.id));
+      const resto = c.filter((x) => !ids.has(x.id));
+
+      // O índice de destino é recalculado DEPOIS de tirar o bloco: os índices
+      // antigos já não valem, e usá-los jogaria a camada no lugar errado.
+      const destino = c[alvo.i];
+      if (!destino) return cs;
+
+      // Um grupo não pode cair dentro de si mesmo, nem um filho dentro do
+      // próprio pai que está viajando junto: o resultado seria uma referência
+      // circular, e a camada sumiria da coluna para sempre.
+      if (ids.has(destino.id)) return cs;
+
+      let j = resto.findIndex((x) => x.id === destino.id);
+      if (j < 0) j = resto.length;
+
+      if (alvo.onde === 'dentro' && destino.tipo === 'grupo') {
+        // Entra no grupo: vira filho, e cai logo abaixo da barra dele.
+        const dentro = bloco.map((x) => {
+          if (x.tipo === 'grupo') return x;
+          if (l.tipo === 'grupo' && x.grupo === l.id) return x;   // filho: fica
+          return { ...x, grupo: destino.id };
+        });
+        return [...resto.slice(0, j + 1), ...dentro, ...resto.slice(j + 1)];
+      }
+
+      // Fora de grupo. Se a camada cai ao lado de uma que TEM grupo, ela herda
+      // o grupo — é o que o olho espera ao ver a linha aparecer lá dentro.
+      const herda = destino.tipo === 'grupo' ? null : (destino.grupo || null);
+
+      // Mas os FILHOS do grupo arrastado não herdam nada: eles já pertencem ao
+      // grupo que está viajando. Reatribuí-los ao destino romperia o grupo — e
+      // arrastar a barra de um grupo passaria a desmontá-lo.
+      const solto = bloco.map((x) => {
+        if (x.tipo === 'grupo') return x;
+        if (l.tipo === 'grupo' && x.grupo === l.id) return x;   // filho: fica
+        return { ...x, grupo: herda };
+      });
+
+      const k = alvo.onde === 'cima' ? j : j + 1;
+      return [...resto.slice(0, k), ...solto, ...resto.slice(k)];
     });
+  }
+
+  // ═══ O menu de contexto ═══
+  function abrirMenu(e, l) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Clicar com o direito numa camada NÃO marcada troca a seleção para ela.
+    // Agir sobre outra coisa que não a clicada seria traição.
+    if (!sel.includes(l.id)) {
+      setSel([l.id]);
+      setAlvo(null);
+    }
+
+    setMenu({ x: e.clientX, y: e.clientY, id: l.id });
+  }
+
+  function acaoDoMenu(acao) {
+    const l = camadas.find((x) => x.id === menu?.id);
+
+    if (acao === 'renomear')      { setRenomeando(menu.id); return; }
+    if (acao === 'rasterizar')    { rasterizarAtiva(); return; }
+    if (acao === 'mascara')       { toggleMascara(); return; }
+    if (acao === 'duplicar')      { duplicar(); return; }
+    if (acao === 'duplicar-tudo') { duplicarVarias(); return; }
+    if (acao === 'mesclar-copia') { mesclar(); return; }
+    if (acao === 'agrupar')       { agrupar(); return; }
+    if (acao === 'nova-vazia')    { novaVazia(); return; }
+    if (acao === 'excluir')       { excluir(); return; }
+  }
+
+  // Duplicar VÁRIAS de uma vez. A de cima é duplicada por último para que a
+  // pilha saia na mesma ordem em que entrou.
+  function duplicarVarias() {
+    if (!sel.length) return;
+    guardar();
+
+    setCamadas((cs) => {
+      const novas = [];
+
+      for (const l of cs) {
+        if (!sel.includes(l.id) || l.tipo === 'grupo') continue;
+
+        novas.push(novaCamada(clonarCanvas(l.canvas), l.nome + ' cópia', {
+          x: l.x, y: l.y,
+          escala: l.escala, escalaY: l.escalaY,
+          blend: l.blend, opacidade: l.opacidade,
+          mascara:  l.mascara  ? clonarCanvas(l.mascara)  : null,
+          original: l.original ? clonarCanvas(l.original) : null,
+          grupo: l.grupo
+        }));
+      }
+
+      return [...novas, ...cs];
+    });
+  }
+
+  function renomear(id, nome) {
+    const n = (nome || '').trim();
+    if (n) mudar(id, { nome: n });
+    setRenomeando(null);
   }
 
   // ═══ As coordenadas ═══
@@ -590,6 +914,55 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       return;
     }
 
+    // ── As alças de transformação ──
+    //
+    // Elas vêm ANTES de tudo: uma alça fica em cima da imagem, e se o teste da
+    // camada rodasse primeiro, puxar a alça viraria arrastar a camada.
+    if (ferr === 'mover' && ativa && ativa.tipo !== 'grupo') {
+      const a = alcaNoPonto(ativa, p, escala);
+
+      if (a) {
+        guardar();
+        g.ativo = true;
+        g.alcaT = a;
+        g.transDe = {
+          x: ativa.x, y: ativa.y,
+          w: largura(ativa), h: altura(ativa)
+        };
+        return;
+      }
+    }
+
+    // ── Clicar na imagem pega a camada ──
+    //
+    // Sem isto seria preciso caçar a camada na coluna antes de mexer nela — e
+    // numa pilha de dez, com nomes iguais, ninguém sabe qual é qual. O olho já
+    // sabe: é a que está debaixo do cursor.
+    //
+    // Só vale com a ferramenta Mover: com o pincel na mão, clicar deve PINTAR.
+    if (ferr === 'mover') {
+      const alvo = camadaNoPonto(camadas, p);
+
+      if (alvo) {
+        // Shift soma à seleção, como na coluna
+        if (e.shiftKey) {
+          setSel((s) => (s.includes(alvo.id) ? s : [...s, alvo.id]));
+        } else if (!sel.includes(alvo.id)) {
+          setSel([alvo.id]);
+          setAlvo(null);
+        }
+
+        guardar();
+        g.ativo = true;
+        g.moveDe = { x: p.x, y: p.y, lx: alvo.x, ly: alvo.y, id: alvo.id };
+        return;
+      }
+
+      // Clicou no vazio: desmarca
+      setSel([]);
+      return;
+    }
+
     // ── O laço poligonal: cada clique põe um vértice ──
     if (ferr === 'lacoPoli') {
       g.poli.push(p);
@@ -636,10 +1009,6 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       return;
     }
 
-    if (ferr === 'mover') {
-      g.moveDe = { x: p.x, y: p.y, lx: ativa.x, ly: ativa.y };
-      guardar();
-    }
   }
 
   function mover(e) {
@@ -649,6 +1018,25 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     // desenhar a linha elástica do último vértice até ele.
     if (ferr === 'lacoPoli' && g.poli.length) {
       g.ultimo = paraDoc(e);
+      return;
+    }
+
+    // O anel do pincel segue o mouse mesmo sem botão apertado: é uma MIRA, e
+    // uma mira que só aparece depois do disparo não serve para nada.
+    if (PINTAM.includes(ferr)) {
+      setPincelEm(paraDoc(e));
+    }
+
+    // Parado com a Mover na mão, o cursor conta o que aquele ponto faz: uma
+    // alça redimensiona, a camada arrasta, o vazio não faz nada.
+    if (ferr === 'mover' && !g.ativo && !crop) {
+      const p0 = paraDoc(e);
+
+      let dica = null;
+      if (ativa && ativa.tipo !== 'grupo') dica = alcaNoPonto(ativa, p0, escala);
+      if (!dica && camadaNoPonto(camadas, p0)) dica = 'mover';
+
+      if (dica !== sobreAlca) setSobreAlca(dica);
       return;
     }
 
@@ -748,11 +1136,39 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       return;
     }
 
-    if (ferr === 'mover' && g.moveDe && ativa) {
-      mudar(ativa.id, {
+    // ── Redimensionar pela alça ──
+    if (g.alcaT && ativa) {
+      const r = redimensionar(ativa, g.alcaT, p, g.transDe, e.shiftKey);
+      mudar(ativa.id, r);
+      return;
+    }
+
+    // ── Arrastar a camada, com as travas ──
+    if (g.moveDe) {
+      const l = camadas.find((c) => c.id === g.moveDe.id);
+      if (!l) return;
+
+      const bruto = {
         x: g.moveDe.lx + (p.x - g.moveDe.x),
         y: g.moveDe.ly + (p.y - g.moveDe.y)
-      });
+      };
+
+      // Alt solta as travas. Às vezes é justamente 2px fora do centro que se
+      // quer, e uma trava sem escapatória vira uma prisão.
+      if (e.altKey) {
+        mudar(l.id, bruto);
+        setGuias([]);
+        return;
+      }
+
+      const r = moverComEncaixe(l, bruto.x, bruto.y, camadas, med.w, med.h, escala);
+      mudar(l.id, { x: r.x, y: r.y });
+
+      // As guias só mudam de verdade de vez em quando; comparar antes de gravar
+      // evita re-renderizar a cada pixel do arraste.
+      const igual = r.guias.length === guias.length
+        && r.guias.every((x, i) => guias[i] && x.eixo === guias[i].eixo && x.em === guias[i].em);
+      if (!igual) setGuias(r.guias);
     }
   }
 
@@ -798,6 +1214,12 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     g.pts = [];
     g.ultimo = null;
     g.moveDe = null;
+    g.alcaT = null;
+    g.transDe = null;
+
+    // As guias somem quando o arraste acaba: elas dizem "está encaixando
+    // AGORA", e mantê-las depois seria mentira.
+    if (guias.length) setGuias([]);
   }
 
   // Duplo clique fecha o laço poligonal
@@ -1003,7 +1425,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
     // A tolerância cresce quando se está afastado: num zoom de 20%, uma alça de
     // 14px do documento teria menos de 3px na tela, e ninguém a acertaria.
-    const t = ALCA / zoom;
+    const t = ALCA / escala;
 
     const perto = (a, b) => Math.abs(a - b) < t;
 
@@ -1470,12 +1892,13 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           ) : (
             <div
               className="ps-folha"
-              style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
+              style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${escala})` }}
               onMouseDown={descer}
               onMouseMove={mover}
+              onMouseLeave={() => setPincelEm(null)}
               onDoubleClick={duploClique}
               data-ferr={ferr}
-              data-alca={crop && ferr === 'crop' ? (sobreAlca || 'novo') : undefined}
+              data-alca={sobreAlca || undefined}
             >
               <canvas ref={canvasRef} />
               {/* O overlay leva as formiguinhas e o crop. Separá-lo do canvas é
@@ -1488,7 +1911,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           {erro && <div className="ps-erro">{erro}</div>}
 
           {temImagem && (
-            <Dica texto="Voltar a 100%" lado="cima">
+            <Dica texto="Enquadrar a imagem" lado="cima">
               <button className="ps-zoom"
                       onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}>
                 {Math.round(zoom * 100)}%
@@ -1591,8 +2014,17 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
           <div className="ps-camadas">
             {camadas.map((l, i) => {
+              // Uma camada dentro de um grupo FECHADO não aparece. É esse o
+              // sentido de fechar: recolher, não só recuar um pouco.
+              if (l.grupo && !abertos[l.grupo]) return null;
+
               const marcada = sel.includes(l.id);
               const naM = alvoMasc === l.id;
+              const filhos = l.tipo === 'grupo'
+                ? camadas.filter((x) => x.grupo === l.id).length
+                : 0;
+
+              const alvo = alvoSolta && alvoSolta.i === i ? alvoSolta.onde : null;
 
               return (
                 <div
@@ -1600,13 +2032,39 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                   className={'ps-cam'
                     + (marcada ? ' ps-cam--on' : '')
                     + (l.grupo ? ' ps-cam--dentro' : '')
-                    + (!l.visivel ? ' ps-cam--off' : '')}
+                    + (!l.visivel ? ' ps-cam--off' : '')
+                    + (voando === i ? ' ps-cam--voando' : '')
+                    + (alvo === 'cima'   ? ' ps-cam--alvo' : '')
+                    + (alvo === 'baixo'  ? ' ps-cam--alvo-baixo' : '')
+                    + (alvo === 'dentro' ? ' ps-cam--dentro-alvo' : '')}
                   onClick={(e) => selecionar(l.id, e)}
-                  draggable
-                  onDragStart={() => { arrastando.current = i; }}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={() => soltar(i)}
+                  onContextMenu={(e) => abrirMenu(e, l)}
+                  draggable={renomeando !== l.id}
+                  onDragStart={() => { arrastando.current = i; setVoando(i); }}
+                  onDragEnd={() => { arrastando.current = null; setVoando(null); setAlvoSolta(null); }}
+                  onDragOver={(e) => arrastaSobre(e, i, l)}
+                  onDrop={soltar}
                 >
+                  {/* A seta abre e fecha o grupo. Só o grupo a tem — nas outras,
+                      um vão do mesmo tamanho mantém tudo alinhado. */}
+                  {l.tipo === 'grupo' ? (
+                    <button
+                      className={'ps-seta' + (abertos[l.id] ? ' ps-seta--on' : '')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAbertos((a) => ({ ...a, [l.id]: !a[l.id] }));
+                      }}
+                      aria-label={abertos[l.id] ? 'Fechar grupo' : 'Abrir grupo'}
+                    >
+                      <svg viewBox="0 0 10 10" fill="none" stroke="currentColor"
+                           strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 1l4 4-4 4" />
+                      </svg>
+                    </button>
+                  ) : (
+                    <span className="ps-seta" />
+                  )}
+
                   <button
                     className="ps-olho"
                     onClick={(e) => { e.stopPropagation(); mudar(l.id, { visivel: !l.visivel }); }}
@@ -1650,7 +2108,30 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                     </>
                   )}
 
-                  <span className="ps-nome">{l.nome}</span>
+                  {/* Renomear acontece NA LINHA, não numa janela: abrir um modal
+                      para trocar uma palavra é desproporcional. */}
+                  {renomeando === l.id ? (
+                    <input
+                      className="ps-nome-edit"
+                      defaultValue={l.nome}
+                      autoFocus
+                      onClick={(e) => e.stopPropagation()}
+                      onBlur={(e) => renomear(l.id, e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter')  renomear(l.id, e.target.value);
+                        if (e.key === 'Escape') setRenomeando(null);
+                        e.stopPropagation();
+                      }}
+                    />
+                  ) : (
+                    <span
+                      className="ps-nome"
+                      onDoubleClick={(e) => { e.stopPropagation(); setRenomeando(l.id); }}
+                    >
+                      {l.nome}
+                      {filhos > 0 && <span className="ps-conta">{filhos}</span>}
+                    </span>
+                  )}
                 </div>
               );
             })}
@@ -1681,6 +2162,17 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       )}
 
       {atalhos && <JanelaAtalhos aoFechar={() => setAtalhos(false)} />}
+
+      {menu && (
+        <MenuCamada
+          x={menu.x}
+          y={menu.y}
+          camada={camadas.find((l) => l.id === menu.id)}
+          quantas={sel.length}
+          aoEscolher={acaoDoMenu}
+          aoFechar={() => setMenu(null)}
+        />
+      )}
 
       <PickerImagem
         aberto={picker !== null}
