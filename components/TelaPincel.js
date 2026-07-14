@@ -72,6 +72,14 @@ export default function TelaPincel({
   //  A pilha guarda o estado ANTES de cada gesto — não durante. Empilhar a
   //  cada pixel arrastado faria um Ctrl+Z desfazer meio pixel, e seriam
   //  centenas de passos para voltar um arraste.
+  const [imanado, setImanado] = useState(false);   // grudou no centro?
+  const ferrRef = useRef(ferramenta);
+  const tamRef  = useRef(tamanho);
+  const zoomRef = useRef(100);
+  const panRef  = useRef({ x: 0, y: 0 });
+  const nativo  = useRef({ w: 0, h: 0 });
+  const ehExpansao = modo === 'expansao';
+
   const historico = useRef([]);
 
   function empilhar() {
@@ -101,13 +109,6 @@ export default function TelaPincel({
     window.addEventListener('keydown', tecla);
     return () => window.removeEventListener('keydown', tecla);
   }, [ehExpansao]);
-  const [imanado, setImanado] = useState(false);   // grudou no centro?
-  const ferrRef = useRef(ferramenta);
-  const tamRef  = useRef(tamanho);
-  const zoomRef = useRef(100);
-  const panRef  = useRef({ x: 0, y: 0 });
-  const nativo  = useRef({ w: 0, h: 0 });
-  const ehExpansao = modo === 'expansao';
   useEffect(() => { ferrRef.current = ferramenta; }, [ferramenta]);
   useEffect(() => { tamRef.current = tamanho; }, [tamanho]);
   // ── Zoom e pan ──
