@@ -292,8 +292,19 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     // camada. Compor a camada crua aqui apagaria a prévia a cada re-render, e a
     // janela pareceria não fazer nada.
     if (previaRef.current && ativa) {
+      // A prévia usa um canvas reduzido; a escala compensa para a camada não
+      // encolher na tela (ver aplicarDesfoque).
+      const compensa = ativa.canvas.width / previaRef.current.width;
+
       const finge = camadas.map((l) => (
-        l.id === ativa.id ? { ...l, canvas: previaRef.current } : l
+        l.id === ativa.id
+          ? {
+              ...l,
+              canvas: previaRef.current,
+              escala: l.escala * compensa,
+              escalaY: (l.escalaY != null ? l.escalaY : l.escala) * compensa
+            }
+          : l
       ));
       compor(finge, med.w, med.h, canvasRef.current);
       return;
@@ -1923,10 +1934,25 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       previaRef.current = c;
 
       if (canvasRef.current) {
-        // O canvas reduzido é esticado de volta ao tamanho da camada. O borrão
-        // disfarça a perda de resolução — que é justamente o ponto.
+        // O canvas da prévia é MENOR que o real (reduzido para não travar). Mas
+        // `largura(l)` é `canvas.width × escala` — então, trocando só o canvas,
+        // a camada encolheria na tela junto com ele. Era por isso que a imagem
+        // diminuía ao abrir a janela.
+        //
+        // A escala é multiplicada pelo quanto o canvas encolheu, devolvendo à
+        // camada o tamanho de antes. O borrão disfarça a perda de resolução —
+        // que é justamente o ponto de reduzir.
+        const compensa = ativa.canvas.width / c.width;
+
         const finge = camadas.map((l) => (
-          l.id === ativa.id ? { ...l, canvas: c } : l
+          l.id === ativa.id
+            ? {
+                ...l,
+                canvas: c,
+                escala: l.escala * compensa,
+                escalaY: (l.escalaY != null ? l.escalaY : l.escala) * compensa
+              }
+            : l
         ));
         compor(finge, med.w, med.h, canvasRef.current);
       }
@@ -3064,6 +3090,11 @@ export default function PainelPos({ aoSair, aoUpscale }) {
               return (
                 <div
                   key={l.id}
+                  className={'ps-bloco'
+                    + (marcada ? ' ps-bloco--on' : '')
+                    + (l.grupo ? ' ps-bloco--dentro' : '')}
+                >
+                <div
                   className={'ps-cam'
                     + (marcada ? ' ps-cam--on' : '')
                     + (l.grupo ? ' ps-cam--dentro' : '')
@@ -3173,15 +3204,18 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                       {l.smart && <span className="ps-tag">Objeto Inteligente</span>}
                     </span>
                   )}
+                </div>
 
-                  {/* ── Os filtros inteligentes ──
-                      Eles pendem da camada, como no Photoshop. Cada um é
-                      CLICÁVEL: abre a janela dele, com os valores que se
-                      escolheu, e o OK substitui em vez de empilhar.
+                {/* ── Os filtros inteligentes ──
+                    Eles pendem da camada, como no Photoshop, RECUADOS por baixo
+                    dela — os "riozinhos". Ficam FORA do cartão da camada, mas
+                    dentro do mesmo bloco: quando a camada é marcada, eles se
+                    acendem junto, porque são parte dela.
 
-                      O olho liga e desliga o filtro sem apagá-lo — é como se
-                      compara "com" e "sem" sem perder a receita. */}
-                  {l.smart && l.filtros?.length > 0 && (
+                    Cada um é clicável (abre a janela com os valores dele, e o OK
+                    substitui em vez de empilhar). O olho liga e desliga sem
+                    apagar — compara "com" e "sem" sem perder a receita. */}
+                {l.smart && l.filtros?.length > 0 && (
                     <div className="ps-filtros">
                       {l.filtros.map((f) => (
                         <div
@@ -3217,7 +3251,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                         </div>
                       ))}
                     </div>
-                  )}
+                )}
                 </div>
               );
             })}

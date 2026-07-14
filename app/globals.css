@@ -9733,21 +9733,32 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    É a diferença entre um efeito e uma DECISÃO — a primeira é permanente, a
    segunda pode ser revista. */
 
+/* ── O bloco: a camada + os filtros dela ──
+   Um envelope em volta das duas coisas. Ele não tem visual próprio; existe para
+   que a marca de seleção alcance os filtros — quando a camada é escolhida, os
+   riozinhos dela se acendem junto, porque são parte dela. */
+.ps-bloco {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Os filtros: os "riozinhos" ──
+   Recuados por baixo da camada, presos a ela por uma linha-guia. Ficam FORA do
+   cartão — mais leves que uma caixa dentro de outra — mas dentro do bloco. */
 .ps-filtros {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  margin: 6px 0 0 30px;      /* recuado: eles pertencem à camada de cima */
-  padding-left: 8px;
-  border-left: 1px solid var(--line);
+  margin: 3px 0 2px 22px;      /* recuado: pertencem à camada de cima */
+  padding-left: 10px;
+  border-left: 1.5px solid var(--line2);
 }
 
 .ps-filtro {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 4px 6px;
-  border-radius: 7px;
+  padding: 5px 8px;
+  border-radius: 8px;
   font-size: 11px;
   color: var(--ink3);
   cursor: pointer;
@@ -9757,8 +9768,22 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink2);
 }
 
-/* O filtro desligado continua ali, apenas mudo. Apagá-lo da lista seria perder
-   a receita — e o ponto do olho é justamente poder voltar atrás. */
+/* ── Quando a camada está marcada ──
+   O bloco inteiro se acende: a linha-guia ganha a cor de destaque, e os nomes
+   dos filtros acompanham. É o que faz "a camada e seus filtros" parecerem uma
+   coisa só, selecionada junto. */
+.ps-bloco--on .ps-filtros {
+  border-left-color: var(--accent);
+}
+.ps-bloco--on .ps-filtro {
+  color: var(--accent);
+}
+.ps-bloco--on .ps-filtro:hover {
+  background: var(--accent-bg);
+}
+
+/* O filtro desligado continua ali, apenas mudo. Apagá-lo seria perder a
+   receita — e o ponto do olho é justamente poder voltar atrás. */
 .ps-filtro--off .ps-filtro-nome {
   opacity: .45;
   text-decoration: line-through;
@@ -9780,7 +9805,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   flex: 0 0 auto;
   border: none;
   background: none;
-  color: var(--ink3);
+  color: inherit;
+  opacity: .7;
   cursor: pointer;
   display: grid;
   place-items: center;
@@ -9788,10 +9814,11 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-filtro-olho svg { width: 13px; height: 13px; }
 .ps-filtro-x svg    { width: 11px; height: 11px; }
 
-.ps-filtro-olho:hover { color: var(--ink); }
-.ps-filtro-x:hover    { color: var(--ink); }
+.ps-filtro-olho:hover,
+.ps-filtro-x:hover { opacity: 1; }
 
-/* O X só aparece quando o mouse está sobre a linha: uma coluna de "x" sempre
-   visível vira ruído, e convida ao clique errado. */
+/* O X só aparece sob o mouse: uma coluna de "x" sempre visível vira ruído e
+   convida ao clique errado. */
 .ps-filtro-x { opacity: 0; }
-.ps-filtro:hover .ps-filtro-x { opacity: 1; }
+.ps-filtro:hover .ps-filtro-x { opacity: .7; }
+.ps-filtro:hover .ps-filtro-x:hover { opacity: 1; }
