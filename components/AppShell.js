@@ -49,9 +49,20 @@ const Icone = {
       <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/>
     </svg>
   ),
-  menu: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 12h18M3 6h18M3 18h18"/>
+  // A barra lateral, desenhada. A seta aponta para onde o clique leva: para
+  // dentro quando vai recolher, para fora quando vai abrir.
+  recolher: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <rect x="3" y="4" width="18" height="16" rx="2.5"/>
+      <path d="M9 4v16" strokeLinecap="round"/>
+      <path d="M15.5 9.5L13 12l2.5 2.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  ),
+  expandir: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <rect x="3" y="4" width="18" height="16" rx="2.5"/>
+      <path d="M9 4v16" strokeLinecap="round"/>
+      <path d="M13 9.5l2.5 2.5L13 14.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
   config: (
@@ -160,8 +171,13 @@ export default function AppShell({ children }) {
           <Link href="/" className="app-logo">
             {recolhido ? 'C' : 'Cora Render'}
           </Link>
-          <button className="app-side-toggle" onClick={toggleMenu} title={recolhido ? 'Expandir' : 'Recolher'}>
-            {Icone.menu}
+          <button
+            className="app-side-toggle"
+            onClick={toggleMenu}
+            title={recolhido ? 'Expandir menu' : 'Recolher menu'}
+            aria-label={recolhido ? 'Expandir menu' : 'Recolher menu'}
+          >
+            {recolhido ? Icone.expandir : Icone.recolher}
           </button>
         </div>
         <nav className="app-nav">
