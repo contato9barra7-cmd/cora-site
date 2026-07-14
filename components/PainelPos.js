@@ -2892,15 +2892,15 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
       {atalhos && <JanelaAtalhos aoFechar={() => setAtalhos(false)} />}
 
-      {confirmando && (
-        {nomeando !== null && (
-          <Nomear
-            inicial={nomeando}
-            aoSalvar={salvarCora}
-            aoCancelar={() => setNomeando(null)}
-          />
-        )}
+      {nomeando !== null && (
+        <Nomear
+          inicial={nomeando}
+          aoSalvar={salvarCora}
+          aoCancelar={() => setNomeando(null)}
+        />
+      )}
 
+      {confirmando && (
         <Confirma
           texto="Abrir uma nova imagem vai fechar o trabalho atual. Tem certeza?"
           ok="Abrir mesmo assim"
