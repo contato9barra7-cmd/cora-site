@@ -139,12 +139,12 @@ export default function Assinatura() {
 
             <div className="as-plano-pe">
               {ehPago ? (
-                <>
-                  <Link href="/precos" className="as-btn-cta">Mudar de plano</Link>
-                  <button className="as-btn-sec" onClick={gerenciar} disabled={abrindo}>
-                    {abrindo ? 'Abrindo...' : 'Gerenciar no Stripe'}
-                  </button>
-                </>
+                /* Mudar de plano acontece dentro do portal do Stripe. Um botão
+                   levando a /precos era um desvio: a pessoa ia ver a tabela e
+                   voltava para clicar aqui de qualquer jeito. */
+                <button className="as-btn-cta" onClick={gerenciar} disabled={abrindo}>
+                  {abrindo ? 'Abrindo...' : 'Gerenciar assinatura'}
+                </button>
               ) : !ehAdmin ? (
                 <Link href="/precos" className="as-btn-cta">Ver planos</Link>
               ) : null}
