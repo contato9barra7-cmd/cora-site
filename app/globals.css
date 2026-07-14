@@ -7552,3 +7552,154 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   height: 1px;
   top: 50%;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Admin — os ícones do topo
+
+   Eram .btn (o botão grande de "Entrar"/"Assinar") com estilo inline forçando
+   a largura. Nenhum dos três é ação principal: a página existe para OLHAR a
+   tabela. Como ícones, recuam — e o hover verde diz que respondem ao clique.
+   ═══════════════════════════════════════════════════════════ */
+.admin-acoes {
+  display: flex;
+  gap: 7px;
+}
+
+.admin-ico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--wash);
+  color: var(--ink2);
+  cursor: pointer;
+  transition: all .13s;
+}
+
+.admin-ico:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-txt);
+}
+
+.admin-ico--on {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-txt);
+}
+
+.admin-ico:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+/* O "carregando": um anel que gira. Sem ele, clicar em "dados fiscais" (que
+   busca no servidor) não daria sinal nenhum de que algo está acontecendo. */
+.admin-ico-girando {
+  width: 15px;
+  height: 15px;
+  border: 2px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: admin-gira .7s linear infinite;
+}
+
+@keyframes admin-gira {
+  to { transform: rotate(360deg); }
+}
+
+/* ── A janela do relatório geográfico ──
+   Ele é um RELATÓRIO, não parte da tabela. Aberto no meio da página, empurrava
+   a lista para baixo; por cima, some quando não se precisa. */
+.admin-geo-janela {
+  width: 620px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .3);
+  overflow: hidden;
+}
+
+.admin-geo-cab-j {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-geo-cab-j strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.admin-geo-cab-j span {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--ink3);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-geo-cab-acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.admin-geo-csv {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink2);
+  font-size: 11.5px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.admin-geo-csv:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.admin-geo-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 22px;
+}
+
+/* ── O aviso das abas ──
+   Vive ABAIXO da barra: acima dela, nascia e morria a cada troca de aba
+   (só existe em Trial e Convidados) e a busca subia e descia junto. */
+.admin-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: var(--wash);
+  color: var(--ink3);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.admin-aviso svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}

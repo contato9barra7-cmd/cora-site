@@ -497,23 +497,57 @@ export default function Admin() {
           <h1>Painel de administração</h1>
           <p className="admin-sub">{totalContas} contas · {pagos} com plano pago ativo</p>
         </div>
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div className="admin-acoes">
           <button
-            className="btn btn--ghost"
-            style={{ width: 'auto', margin: 0, padding: '8px 18px' }}
+            className={'admin-ico' + (dadosFiscais ? ' admin-ico--on' : '')}
             onClick={mostrarFiscais}
             disabled={carregandoFiscais}
+            data-tip={dadosFiscais ? 'Ocultar dados fiscais' : 'Ver dados fiscais'}
+            aria-label={dadosFiscais ? 'Ocultar dados fiscais' : 'Ver dados fiscais'}
           >
-            {carregandoFiscais ? 'Carregando...' : (dadosFiscais ? 'Ocultar dados fiscais' : 'Ver dados fiscais')}
+            {carregandoFiscais ? (
+              <span className="admin-ico-girando" />
+            ) : (
+              <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
+                   stroke="currentColor" strokeWidth="1.5">
+                <path d="M5 2.5h7l3 3v12H5z" strokeLinejoin="round"/>
+                <path d="M12 2.5v3h3M7.5 9h5M7.5 12h5M7.5 15h3" strokeLinecap="round"/>
+              </svg>
+            )}
           </button>
+
+          {geo.totalClientes > 0 && (
+            <button
+              className={'admin-ico' + (verGeo ? ' admin-ico--on' : '')}
+              onClick={() => setVerGeo(true)}
+              data-tip="Origem geográfica"
+              aria-label="Origem geográfica"
+            >
+              <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
+                   stroke="currentColor" strokeWidth="1.5">
+                <path d="M10 17.5s5.5-4.6 5.5-9a5.5 5.5 0 10-11 0c0 4.4 5.5 9 5.5 9z" strokeLinejoin="round"/>
+                <circle cx="10" cy="8.5" r="2"/>
+              </svg>
+            </button>
+          )}
+
           <div className="admin-export-wrap">
             <button
-              className="btn btn--verde"
-              style={{ width: 'auto', margin: 0, padding: '8px 18px' }}
+              className={'admin-ico' + (menuExport ? ' admin-ico--on' : '')}
               onClick={() => setMenuExport(!menuExport)}
               disabled={exportando}
+              data-tip="Exportar .CSV"
+              aria-label="Exportar .CSV"
             >
-              {exportando ? 'Gerando...' : 'Exportar .CSV'}
+              {exportando ? (
+                <span className="admin-ico-girando" />
+              ) : (
+                <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
+                     stroke="currentColor" strokeWidth="1.5">
+                  <path d="M10 2.5v10m0 0l-3.5-3.5M10 12.5l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3.5 14.5v2a1 1 0 001 1h11a1 1 0 001-1v-2" strokeLinecap="round"/>
+                </svg>
+              )}
             </button>
             {menuExport && (
               <div className="admin-export-menu" onMouseLeave={() => setMenuExport(false)}>
@@ -558,88 +592,113 @@ export default function Admin() {
 
       {erro && <div className="login-erro" style={{ marginBottom: 16 }}>{erro}</div>}
 
-      {geo.totalClientes > 0 && (
-        <div className="admin-geo">
-          <div className="admin-geo-topo">
-            <h2 className="admin-geo-titulo">Origem geográfica</h2>
-            <button className="admin-geo-toggle" onClick={() => setVerGeo(!verGeo)}>
-              {verGeo ? 'Ocultar' : 'Ver relatório'}
-            </button>
-          </div>
-          {verGeo && (
-            <div className="admin-geo-corpo">
+      {verGeo && geo.totalClientes > 0 && (
+        <div className="cr-overlay cr-overlay--alto" onClick={() => setVerGeo(false)}>
+          <div className="admin-geo-janela" onClick={(e) => e.stopPropagation()}>
 
-              {/* O país no topo: é a divisão mais grossa. Se 95% da receita é
-                  Brasil, isso muda o que se faz com o resto. */}
-              <div className="admin-geo-bloco">
-                <div className="admin-geo-sub">Por país</div>
-                {geo.paises.map(p => (
-                  <div key={p.chave} className="admin-geo-linha">
-                    <div className="admin-geo-cab">
-                      <span className="admin-geo-k">{p.chave}</span>
-                      <span className="admin-geo-v">
-                        {p.n} · <b>{fmtValor(p.valor, 'brl')}</b>
-                      </span>
-                    </div>
-                    <div className="admin-geo-barra">
-                      <div className="admin-geo-fill admin-geo-fill--n"
-                           style={{ width: `${p.pctClientes}%` }} />
-                      <div className="admin-geo-fill admin-geo-fill--r"
-                           style={{ width: `${p.pctValor}%` }} />
-                    </div>
-                  </div>
-                ))}
+            <div className="admin-geo-cab-j">
+              <div>
+                <strong>Origem geográfica</strong>
+                <span>
+                  {geo.totalClientes} {geo.totalClientes === 1 ? 'cliente' : 'clientes'}
+                  {' · '}{fmtValor(geo.totalValor, 'brl')}/mês
+                </span>
               </div>
 
-              <div className="admin-geo-cols">
-                <div className="admin-geo-bloco">
-                  <div className="admin-geo-sub">Por estado</div>
-                  {geo.estados.map(e => (
-                    <div key={e.chave} className="admin-geo-linha">
-                      <div className="admin-geo-cab">
-                        <span className="admin-geo-k">{e.chave}</span>
-                        <span className="admin-geo-v">
-                          {e.n} · <b>{fmtValor(e.valor, 'brl')}</b>
-                        </span>
-                      </div>
-                      <div className="admin-geo-barra">
-                        <div className="admin-geo-fill admin-geo-fill--n"
-                             style={{ width: `${e.pctClientes}%` }} />
-                        <div className="admin-geo-fill admin-geo-fill--r"
-                             style={{ width: `${e.pctValor}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="admin-geo-cab-acoes">
+                <button className="admin-geo-csv" onClick={exportarGeo}>
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
+                       stroke="currentColor" strokeWidth="1.6">
+                    <path d="M10 3v9m0 0l-3-3m3 3l3-3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M4 15v2h12v-2" strokeLinecap="round"/>
+                  </svg>
+                  CSV
+                </button>
 
-                <div className="admin-geo-bloco">
-                  <div className="admin-geo-sub">Por cidade</div>
-                  {geo.cidades.map(c => (
-                    <div key={c.chave} className="admin-geo-linha">
-                      <div className="admin-geo-cab">
-                        <span className="admin-geo-k">{c.chave}</span>
-                        <span className="admin-geo-v">
-                          {c.n} · <b>{fmtValor(c.valor, 'brl')}</b>
-                        </span>
-                      </div>
-                      <div className="admin-geo-barra">
-                        <div className="admin-geo-fill admin-geo-fill--n"
-                             style={{ width: `${c.pctClientes}%` }} />
-                        <div className="admin-geo-fill admin-geo-fill--r"
-                             style={{ width: `${c.pctValor}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Sem a legenda, duas barras de cor diferente não dizem nada */}
-              <div className="admin-geo-legenda">
-                <span><i className="admin-geo-p admin-geo-p--n" />clientes</span>
-                <span><i className="admin-geo-p admin-geo-p--r" />receita</span>
+                <button className="cr-modal-x" onClick={() => setVerGeo(false)} aria-label="Fechar">
+                  <svg viewBox="0 0 20 20" width="18" height="18" fill="none"
+                       stroke="currentColor" strokeWidth="1.6">
+                    <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round"/>
+                  </svg>
+                </button>
               </div>
             </div>
-          )}
+
+            <div className="admin-geo-scroll">
+    <div className="admin-geo-corpo">
+
+                  {/* O país no topo: é a divisão mais grossa. Se 95% da receita é
+                      Brasil, isso muda o que se faz com o resto. */}
+                  <div className="admin-geo-bloco">
+                    <div className="admin-geo-sub">Por país</div>
+                    {geo.paises.map(p => (
+                      <div key={p.chave} className="admin-geo-linha">
+                        <div className="admin-geo-cab">
+                          <span className="admin-geo-k">{p.chave}</span>
+                          <span className="admin-geo-v">
+                            {p.n} · <b>{fmtValor(p.valor, 'brl')}</b>
+                          </span>
+                        </div>
+                        <div className="admin-geo-barra">
+                          <div className="admin-geo-fill admin-geo-fill--n"
+                               style={{ width: `${p.pctClientes}%` }} />
+                          <div className="admin-geo-fill admin-geo-fill--r"
+                               style={{ width: `${p.pctValor}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="admin-geo-cols">
+                    <div className="admin-geo-bloco">
+                      <div className="admin-geo-sub">Por estado</div>
+                      {geo.estados.map(e => (
+                        <div key={e.chave} className="admin-geo-linha">
+                          <div className="admin-geo-cab">
+                            <span className="admin-geo-k">{e.chave}</span>
+                            <span className="admin-geo-v">
+                              {e.n} · <b>{fmtValor(e.valor, 'brl')}</b>
+                            </span>
+                          </div>
+                          <div className="admin-geo-barra">
+                            <div className="admin-geo-fill admin-geo-fill--n"
+                                 style={{ width: `${e.pctClientes}%` }} />
+                            <div className="admin-geo-fill admin-geo-fill--r"
+                                 style={{ width: `${e.pctValor}%` }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="admin-geo-bloco">
+                      <div className="admin-geo-sub">Por cidade</div>
+                      {geo.cidades.map(c => (
+                        <div key={c.chave} className="admin-geo-linha">
+                          <div className="admin-geo-cab">
+                            <span className="admin-geo-k">{c.chave}</span>
+                            <span className="admin-geo-v">
+                              {c.n} · <b>{fmtValor(c.valor, 'brl')}</b>
+                            </span>
+                          </div>
+                          <div className="admin-geo-barra">
+                            <div className="admin-geo-fill admin-geo-fill--n"
+                                 style={{ width: `${c.pctClientes}%` }} />
+                            <div className="admin-geo-fill admin-geo-fill--r"
+                                 style={{ width: `${c.pctValor}%` }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Sem a legenda, duas barras de cor diferente não dizem nada */}
+                  <div className="admin-geo-legenda">
+                    <span><i className="admin-geo-p admin-geo-p--n" />clientes</span>
+                    <span><i className="admin-geo-p admin-geo-p--r" />receita</span>
+                  </div>
+                </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -657,16 +716,6 @@ export default function Admin() {
           Recargas ({compras.length})
         </button>
       </div>
-      {aba === 'convidados' && (
-        <p className="admin-sub" style={{ marginBottom: 12 }}>
-          Estas contas recebem acesso via equipe (não pagam individualmente) e não entram no export do contador.
-        </p>
-      )}
-      {aba === 'trial' && (
-        <p className="admin-sub" style={{ marginBottom: 12 }}>
-          Contas em teste grátis (plano Free). Dados de perfil úteis para tráfego e segmentação.
-        </p>
-      )}
 
       {/* ── A barra: busca, o botão, e o que está ligado ──
           Sete filtros na horizontal sempre brigam por espaço. Recolhidos no
@@ -719,6 +768,21 @@ export default function Admin() {
           ))}
           <button className="admin-chip-limpar" onClick={limparFiltros}>Limpar</button>
         </div>
+      )}
+
+      {/* O aviso vive ABAIXO da barra: acima dela, ele nascia e morria a cada
+          troca de aba e empurrava a busca para cima e para baixo. */}
+      {(aba === 'convidados' || aba === 'trial') && (
+        <p className="admin-aviso">
+          <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
+               stroke="currentColor" strokeWidth="1.5">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M10 9v4.5M10 6.5v.5" strokeLinecap="round"/>
+          </svg>
+          {aba === 'convidados'
+            ? 'Estas contas recebem acesso via equipe (não pagam individualmente) e não entram no export do contador.'
+            : 'Contas em teste grátis (plano Free). Dados de perfil úteis para tráfego e segmentação.'}
+        </p>
       )}
 
       {/* ── O painel ──
