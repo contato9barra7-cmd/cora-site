@@ -18,6 +18,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import PickerImagem from './PickerImagem';
+import Dica from './Dica';
+import JanelaAjustes from './JanelaAjustes';
 import {
   carregarCanvas, canvasVazio, clonarCanvas, novaCamada, novoGrupo,
   compor, thumb, thumbMascara, mascaraBranca, rasterizar, mesclarCopia,
@@ -76,6 +78,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   const [picker, setPicker] = useState(null);     // 'nova' | 'camada' | null
   const [zoom, setZoom]   = useState(1);
   const [pan, setPan]     = useState({ x: 0, y: 0 });
+  const [ajustando, setAjustando] = useState(false);
   const [erro, setErro]   = useState('');
   const [ocupado, setOcupado] = useState(false);
 
@@ -313,41 +316,40 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
       {/* ══ A topbar ══ */}
       <header className="ps-top">
-
         <button className="ps-b" onClick={aoSair}>
           <Svg d={IC.volta} /> Voltar
         </button>
-
         <button
           className="ps-b ps-b--on"
           onClick={() => setPicker('nova')}
           disabled={ocupado}
         >Abrir imagem</button>
 
-        <button
-          className="ps-ic"
-          onClick={() => setPicker('camada')}
-          disabled={!temImagem}
-          data-tip="Adicionar camada"
-          aria-label="Adicionar camada"
-        ><Svg d={IC.mais} /></button>
+        <Dica texto="Adicionar camada">
+          <button
+            className="ps-ic"
+            onClick={() => setPicker('camada')}
+            disabled={!temImagem}
+            aria-label="Adicionar camada"
+          ><Svg d={IC.mais} /></button>
+        </Dica>
 
-        <button
-          className="ps-ic"
-          disabled={!temImagem}
-          data-tip="Cortar"
-          aria-label="Cortar"
-        ><Svg d={IC.crop} /></button>
+        <Dica texto="Cortar">
+          <button
+            className="ps-ic"
+            disabled={!temImagem}
+            aria-label="Cortar"
+          ><Svg d={IC.crop} /></button>
+        </Dica>
 
         <span className="ps-sep" />
 
         {FERRAMENTAS.map((f) => (
+          <Dica key={f.id} texto={f.nome}>
           <button
-            key={f.id}
             className={'ps-ic' + (ferr === f.id ? ' ps-ic--on' : '')}
             onClick={() => setFerr(f.id)}
             disabled={!temImagem}
-            data-tip={f.nome}
             aria-label={f.nome}
           >
             {f.svg ? (
@@ -363,33 +365,35 @@ export default function PainelPos({ aoSair, aoUpscale }) {
             )}
             {f.tri && <span className="ps-tri" />}
           </button>
+          </Dica>
         ))}
 
         <span className="ps-esticar" />
 
-        <button className="ps-ic" data-tip="Atalhos" aria-label="Atalhos">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
-               strokeLinecap="round" strokeLinejoin="round">
-            <rect x="2" y="6" width="20" height="12" rx="2"/>
-            <path d={IC.teclado} />
-          </svg>
-        </button>
-
+        <Dica texto="Atalhos de teclado">
+          <button className="ps-ic" aria-label="Atalhos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
+                 strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="6" width="20" height="12" rx="2"/>
+              <path d={IC.teclado} />
+            </svg>
+          </button>
+        </Dica>
         <button className="ps-b" onClick={mesclar} disabled={!temImagem}>
           Salvar no Histórico
         </button>
-
         <button className="ps-b" onClick={paraUpscale} disabled={!temImagem}>
           Fazer upscale
         </button>
 
-        <button
-          className="ps-ic"
-          onClick={baixar}
-          disabled={!temImagem}
-          data-tip="Baixar"
-          aria-label="Baixar"
-        ><Svg d={IC.baixar} /></button>
+        <Dica texto="Baixar">
+          <button
+            className="ps-ic"
+            onClick={baixar}
+            disabled={!temImagem}
+            aria-label="Baixar"
+          ><Svg d={IC.baixar} /></button>
+        </Dica>
       </header>
 
       <div className="ps-main">
@@ -423,11 +427,12 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           {erro && <div className="ps-erro">{erro}</div>}
 
           {temImagem && (
-            <button
-              className="ps-zoom"
-              onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
-              data-tip="Voltar a 100%"
-            >{Math.round(zoom * 100)}%</button>
+            <Dica texto="Voltar a 100%" lado="cima">
+              <button
+                className="ps-zoom"
+                onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
+              >{Math.round(zoom * 100)}%</button>
+            </Dica>
           )}
         </div>
 
@@ -435,9 +440,11 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         <aside className="ps-col">
 
           <div className="ps-bloco">
-            <button className="ps-b ps-b--on ps-b--largo" disabled={!temImagem}>
-              Ajustes
-            </button>
+            <button
+              className="ps-b ps-b--on ps-b--largo"
+              onClick={() => setAjustando(true)}
+              disabled={!ativa || ativa.tipo === 'grupo'}
+            >Ajustes</button>
           </div>
 
           {ativa && (
@@ -473,68 +480,73 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           <div className="ps-cab">
             <span className="cr-sec ps-sec">Camadas</span>
 
-            <button
-              className="ps-mini"
-              onClick={toggleMascara}
-              disabled={!ativa || ativa.tipo === 'grupo'}
-              data-tip={ativa?.mascara ? 'Remover máscara' : 'Adicionar máscara'}
-              aria-label="Máscara"
-            >
+            <Dica texto={ativa?.mascara ? 'Remover máscara' : 'Adicionar máscara'}>
+              <button
+                className="ps-mini"
+                onClick={toggleMascara}
+                disabled={!ativa || ativa.tipo === 'grupo'}
+                aria-label="Máscara"
+              >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                 <rect x="3" y="4" width="18" height="16" rx="2"/>
                 <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/>
               </svg>
-            </button>
+              </button>
+            </Dica>
 
-            <button
-              className="ps-mini"
-              onClick={novaVazia}
-              disabled={!temImagem}
-              data-tip="Nova camada vazia"
-              aria-label="Nova camada"
-            >
+            <Dica texto="Nova camada vazia">
+              <button
+                className="ps-mini"
+                onClick={novaVazia}
+                disabled={!temImagem}
+                aria-label="Nova camada"
+              >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                 <rect x="4" y="4" width="16" height="16" rx="2"/>
                 <path d="M12 8v8M8 12h8"/>
               </svg>
-            </button>
+              </button>
+            </Dica>
 
-            <button
-              className="ps-mini"
-              onClick={duplicar}
-              disabled={!ativa || ativa.tipo === 'grupo'}
-              data-tip="Duplicar camada"
-              aria-label="Duplicar"
-            >
+            <Dica texto="Duplicar camada">
+              <button
+                className="ps-mini"
+                onClick={duplicar}
+                disabled={!ativa || ativa.tipo === 'grupo'}
+                aria-label="Duplicar"
+              >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                 <rect x="8" y="8" width="12" height="12" rx="2"/>
                 <path d="M4 16V6a2 2 0 012-2h10"/>
               </svg>
-            </button>
+              </button>
+            </Dica>
 
-            <button
-              className="ps-mini"
-              onClick={agrupar}
-              disabled={!sel.length}
-              data-tip="Agrupar selecionadas"
-              aria-label="Agrupar"
-            >
+            <Dica texto="Agrupar selecionadas">
+              <button
+                className="ps-mini"
+                onClick={agrupar}
+                disabled={!sel.length}
+                aria-label="Agrupar"
+              >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                 <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
               </svg>
-            </button>
+              </button>
+            </Dica>
 
-            <button
-              className="ps-mini ps-mini--perigo"
-              onClick={excluir}
-              disabled={!sel.length}
-              data-tip="Excluir"
-              aria-label="Excluir"
-            >
+            <Dica texto="Excluir">
+              <button
+                className="ps-mini ps-mini--perigo"
+                onClick={excluir}
+                disabled={!sel.length}
+                aria-label="Excluir"
+              >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                 <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>
               </svg>
-            </button>
+              </button>
+            </Dica>
           </div>
 
           <div className="ps-camadas">
@@ -612,6 +624,28 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         onChange={escolheuArquivo}
         style={{ display: 'none' }}
       />
+
+      {/* A janela de Ajustes. Ela recebe a camada ATIVA e devolve o canvas já
+          processado — os ajustes ficam guardados nela para poder reabrir e
+          continuar de onde parou. */}
+      {ajustando && ativa && (
+        <JanelaAjustes
+          camada={{ ...ativa, canvas: ativa.original || ativa.canvas }}
+          aoFechar={() => setAjustando(false)}
+          aoAplicar={(canvas, params) => {
+            // `original` guarda o pixel VIRGEM. Sem ele, reabrir os Ajustes
+            // partiria da imagem já processada e os efeitos se empilhariam:
+            // duas passadas de contraste 50 não são um contraste 50 — são um
+            // contraste 100 mal feito, e não haveria como voltar.
+            mudar(ativa.id, {
+              canvas,
+              original: ativa.original || ativa.canvas,
+              ajustes: params
+            });
+            setAjustando(false);
+          }}
+        />
+      )}
 
       <PickerImagem
         aberto={picker !== null}

@@ -8004,22 +8004,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   row-gap: 8px;
 }
 
-/* O tooltip precisa passar por cima da tela e da coluna de camadas */
-.ps-top [data-tip]:hover::after {
-  white-space: nowrap;
-  max-width: none;
-  width: auto;
-  z-index: 200;
-}
-
-/* Nos últimos botões ele sairia pela direita da janela: ali se alinha pela
-   borda direita do botão, não pelo centro. */
-.ps-top > *:nth-last-child(-n+3)[data-tip]:hover::after {
-  left: auto;
-  right: 0;
-  transform: none;
-}
-
 .ps-sep {
   flex-shrink: 0;
   width: 1px;
@@ -8371,4 +8355,291 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+
+/* ── Dica: o tooltip que escapa do recorte ──
+   O [data-tip] de CSS puro é um ::after posicionado por dentro — e morre em
+   qualquer ancestral com `overflow: hidden`. Há um: o `.cr-tela`, que segura o
+   app inteiro. Nenhum z-index atravessa um recorte.
+
+   Este vive no <body>, via portal, com `position: fixed`. Não está dentro de
+   ninguém, então ninguém o corta. */
+.cr-dica {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: inherit;
+  line-height: 1.4;
+
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+
+  /* Sem isto ele pisca ao nascer sob o cursor */
+  animation: cr-dica-entra .12s ease-out;
+}
+
+@keyframes cr-dica-entra {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   AJUSTES — a janela Camera Raw da Pós
+
+   Imagem à esquerda, controles à direita. Ela cobre a tela porque ajustar cor
+   exige VER a imagem grande: num painel lateral não se enxerga o que a curva
+   está fazendo com as sombras.
+   ══════════════════════════════════════════════════════════════ */
+
+.aj-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(0, 0, 0, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.aj-win {
+  width: 100%;
+  max-width: 1240px;
+  height: 100%;
+  max-height: 860px;
+  background: var(--paper);
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.aj-topo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.aj-titulo { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.aj-esticar { flex: 1; }
+
+.aj-corpo {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.aj-previa {
+  flex: 1;
+  min-width: 0;
+  background: var(--wash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: hidden;
+}
+.aj-previa canvas {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  box-shadow: 0 2px 24px rgba(0, 0, 0, .12);
+}
+
+.aj-lado {
+  width: 330px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* As seis abas. Numa coluna de 330px elas não cabem em fila: rolam. */
+.aj-abas {
+  display: flex;
+  gap: 5px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+.aj-abas::-webkit-scrollbar { display: none; }
+
+.aj-aba {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  background: var(--paper);
+  color: var(--ink3);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.aj-aba:hover { border-color: var(--accent); color: var(--accent); }
+.aj-aba--on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+  font-weight: 600;
+}
+
+.aj-painel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px 24px;
+}
+
+.aj-cab {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+.aj-cab-t {
+  flex: 1;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink2);
+}
+.aj-reset {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11.5px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+.aj-reset:hover { text-decoration: underline; }
+
+/* ── Um slider ── */
+.aj-sl { margin-bottom: 15px; }
+
+.aj-sl-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+.aj-sl-topo span {
+  font-size: 12px;
+  color: var(--ink2);
+}
+
+/* O número é um BOTÃO: clicar nele volta ao padrão. Sem isso, desfazer um
+   slider exigiria acertar o zero no arrasto — coisa que ninguém acerta. */
+.aj-sl-v {
+  border: none;
+  background: transparent;
+  color: var(--ink3);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 5px;
+  min-width: 34px;
+  text-align: right;
+}
+.aj-sl-v:hover { background: var(--wash); color: var(--accent); }
+
+.aj-sl input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* Os filhos (ponto médio, tamanho do grão) são recuados: eles pertencem ao
+   slider de cima, e a hierarquia precisa ser visível. */
+.aj-sl--filho {
+  margin-left: 14px;
+  padding-left: 12px;
+  border-left: 1px solid var(--line);
+}
+
+/* Sem o pai ligado, o filho não tem o que ajustar */
+.aj-sl--off {
+  opacity: .35;
+  pointer-events: none;
+}
+
+/* ── A curva ── */
+.aj-canais {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+.aj-canal {
+  flex: 1;
+  padding: 5px;
+  border-radius: 8px;
+  border: 1px solid var(--line2);
+  background: var(--paper);
+  color: var(--ink3);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+.aj-canal:hover { border-color: var(--line2); color: var(--ink2); }
+.aj-canal--on { font-weight: 600; }
+
+.aj-curva {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: var(--wash);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: crosshair;
+  touch-action: none;
+}
+.aj-curva-grade  { stroke: var(--line2); stroke-width: .5; }
+.aj-curva-neutra { stroke: var(--line2); stroke-width: 1; stroke-dasharray: 3 3; }
+.aj-curva-no     { cursor: grab; }
+.aj-curva-no:active { cursor: grabbing; }
+
+.aj-dica {
+  margin: 10px 0 18px;
+  font-size: 11px;
+  color: var(--ink3);
+  line-height: 1.5;
+}
+
+/* ── O misturador ── */
+.aj-cores {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.aj-cor {
+  width: 28px;
+  height: 28px;
+  border-radius: 100px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: all .15s;
+}
+.aj-cor:hover { transform: scale(1.08); }
+.aj-cor--on {
+  border-color: var(--paper);
+  box-shadow: 0 0 0 2px var(--accent);
 }
