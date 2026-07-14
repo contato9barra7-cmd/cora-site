@@ -14,7 +14,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-export default function MenuCamada({ x, y, camada, quantas, aoEscolher, aoFechar }) {
+export default function MenuCamada({ x, y, camada, quantas, emGrupo, aoEscolher, aoFechar }) {
   const ref = useRef(null);
   const [pos, setPos] = useState({ x, y });
 
@@ -101,6 +101,10 @@ export default function MenuCamada({ x, y, camada, quantas, aoEscolher, aoFechar
             </It>
           )}
           {!ehGrupo && <It acao="duplicar">Duplicar camada</It>}
+
+          {/* Só aparece se houver grupo de onde sair. Um item que não faz nada é
+              pior que um item ausente: ele promete e não cumpre. */}
+          {emGrupo && <It acao="tirar-grupo">Tirar do grupo</It>}
 
           <It acao="mesclar-copia">Mesclar em cópia (Ctrl+Alt+E)</It>
           <It acao="agrupar">Agrupar em novo grupo</It>

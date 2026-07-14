@@ -42,7 +42,7 @@ const GRUPOS = [
       ['Alt', 'Subtrair da seleção (segure enquanto desenha)'],
       ['Ctrl+A', 'Selecionar tudo'],
       ['Ctrl+D', 'Desmarcar'],
-      ['Ctrl+Shift+I', 'Inverter a seleção'],
+      ['Ctrl+Shift+X', 'Inverter a seleção'],
       ['Esc', 'Desmarcar / cancelar o que está em curso']
     ]
   },
@@ -51,6 +51,7 @@ const GRUPOS = [
     itens: [
       ['Ctrl+J', 'Duplicar a camada'],
       ['Ctrl+G', 'Agrupar as selecionadas'],
+      ['Ctrl+Shift+I', 'Converter em Objeto Inteligente'],
       ['Ctrl+Shift+R', 'Rasterizar'],
       ['Ctrl+Alt+E', 'Mesclar tudo numa camada nova'],
       ['Ctrl+Shift+A', 'Abrir os Ajustes'],
@@ -65,6 +66,7 @@ const GRUPOS = [
       ['Ctrl+Z', 'Desfazer'],
       ['Enter', 'Confirmar o corte'],
       ['Roda do mouse', 'Zoom'],
+      ['Espaço + arrastar', 'Arrastar a tela (sem largar a ferramenta)'],
       ['Botão do meio', 'Arrastar a tela']
     ]
   }

@@ -9186,3 +9186,32 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* Dentro do rótulo, o nome não estica: a coluna é vertical, e um `flex:1` ali
    o faria ocupar a altura toda e empurrar a tag para fora. */
 .ps-rotulo .ps-nome { flex: 0 0 auto; }
+
+
+/* ── A mão (barra de espaço) ──
+   Ela cobre a tela inteira, não só a imagem: arrastar a partir do vazio ao redor
+   também move a vista. */
+.ps-tela[data-mao] { cursor: grab; }
+.ps-tela[data-mao]:active { cursor: grabbing; }
+.ps-tela[data-mao] .ps-folha { cursor: inherit; }
+
+/* ── A caixinha do corte ── */
+.ps-caixa {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  font-size: 11.5px;
+  color: var(--ink2);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+.ps-caixa input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  margin: 0;
+}
+.ps-caixa:hover { color: var(--ink); }

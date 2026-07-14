@@ -26,7 +26,7 @@ import Confirma from './Confirma';
 import {
   carregarCanvas, canvasVazio, clonarCanvas, novaCamada, novoGrupo,
   compor, thumb, thumbMascara, mascaraBranca, rasterizar, mesclarCopia,
-  exportar, fonteDaCamada, largura, altura, areaVisivel, cortarCamada,
+  exportar, fonteDaCamada, largura, altura, apagarForaDoDoc,
   BLENDS, RATIOS_CROP
 } from '../lib/pos';
 import {
@@ -168,6 +168,12 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
   // ── O aviso de que abrir fecha o trabalho ──
   const [confirmando, setConfirmando] = useState(false);
+
+  // ── A caixinha do corte ──
+  // Marcada por padrão, como no Photoshop: cortar normalmente APAGA o excesso.
+  // Desmarcada, o pixel de fora fica guardado e a camada pode ser arrastada
+  // para revelá-lo de novo.
+  const [apagarCortado, setApagarCortado] = useState(true);
   const [ratio, setRatio] = useState('livre');
 
   // ── O histórico ──
@@ -752,7 +758,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     setAlvoSolta(null);
 
     if (origem == null || !alvo) return;
-    if (alvo.onde !== 'fim' && origem === alvo.i) return;
+    if (origem === alvo.i) return;
 
     guardar();
 
@@ -769,16 +775,6 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
       const ids = new Set(bloco.map((x) => x.id));
       const resto = c.filter((x) => !ids.has(x.id));
-
-      // A zona de fuga: vai para o fim da pilha, e FORA de qualquer grupo.
-      if (alvo.onde === 'fim') {
-        const livres = bloco.map((x) => {
-          if (x.tipo === 'grupo') return x;
-          if (l.tipo === 'grupo' && x.grupo === l.id) return x;   // filho segue o pai
-          return { ...x, grupo: null };
-        });
-        return [...resto, ...livres];
-      }
 
       // O índice de destino é recalculado DEPOIS de tirar o bloco: os índices
       // antigos já não valem, e usá-los jogaria a camada no lugar errado.
@@ -848,6 +844,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     if (acao === 'mesclar-copia') { mesclar(); return; }
     if (acao === 'agrupar')       { agrupar(); return; }
     if (acao === 'nova-vazia')    { novaVazia(); return; }
+    if (acao === 'tirar-grupo')   { tirarDoGrupo(); return; }
     if (acao === 'excluir')       { excluir(); return; }
   }
 
@@ -879,6 +876,32 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     });
   }
 
+  // Tirar do grupo sem arrastar. A camada sobe para logo acima da barra do
+  // grupo: é onde ela estaria se tivesse sido arrastada para fora.
+  function tirarDoGrupo() {
+    if (!sel.length) return;
+    guardar();
+
+    setCamadas((cs) => {
+      const saindo = cs.filter((l) => sel.includes(l.id) && l.grupo);
+      if (!saindo.length) return cs;
+
+      const ids = new Set(saindo.map((l) => l.id));
+      const resto = cs.filter((l) => !ids.has(l.id));
+
+      // Cada uma sai para logo acima do grupo em que estava
+      let saida = [...resto];
+
+      for (const l of saindo.slice().reverse()) {
+        const i = saida.findIndex((x) => x.id === l.grupo);
+        const onde = i < 0 ? 0 : i;
+        saida = [...saida.slice(0, onde), { ...l, grupo: null }, ...saida.slice(onde)];
+      }
+
+      return saida;
+    });
+  }
+
   function renomear(id, nome) {
     const n = (nome || '').trim();
     if (n) mudar(id, { nome: n });
@@ -902,17 +925,10 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   }, []);
 
   // Do documento para o pixel DAQUELA camada, que pode estar escalada e movida.
-  //
-  // Num objeto inteligente cortado, o canvas guarda mais do que se vê: a moldura
-  // desloca a origem. Sem somá-la, o pincel pintaria a uma distância exata do
-  // corte — sempre errado, e sempre pelo mesmo tanto.
   function paraCamada(p, l) {
-    const a = areaVisivel(l);
-    const ey = l.escalaY != null ? l.escalaY : l.escala;
-
     return {
-      x: a.x + (p.x - l.x) / l.escala,
-      y: a.y + (p.y - l.y) / ey
+      x: (p.x - l.x) / l.escala,
+      y: (p.y - l.y) / (l.escalaY != null ? l.escalaY : l.escala)
     };
   }
 
@@ -952,6 +968,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   // ═══ O mouse na tela ═══
   function descer(e) {
     if (e.button === 1) return;          // o botão do meio é do pan
+    if (espaco.current) return;          // e com o espaço, o esquerdo também é
     if (!temImagem || !med) return;
 
     const p = paraDoc(e);
@@ -1665,19 +1682,26 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
     guardar();
 
-    // Cortar CORTA. Antes eu só deslocava as camadas e encolhia o documento — e
-    // os pixels de fora continuavam lá, no canvas: bastava arrastar a camada
-    // para eles reaparecerem. O corte era mentira.
+    // Cortar muda o DOCUMENTO, não cada camada.
     //
-    // Agora depende do tipo:
-    //   rasterizada        -> o pixel de fora é jogado fora, de verdade
-    //   objeto inteligente -> o pixel fica guardado, mas a moldura encolhe
+    // As camadas são deslocadas e o documento encolhe. Elas continuam inteiras,
+    // transbordando para fora da nova borda — e a composição, que é desenhada
+    // num canvas do tamanho do documento, simplesmente não pinta o que passa.
     //
-    // É a diferença entre cortar o papel e cobrir parte dele.
-    setCamadas((cs) => cs
-      .map((l) => cortarCamada(l, x, y, w, h))
-      .filter(Boolean)                       // as que sobraram inteiras de fora somem
-    );
+    // Quem decide se o excesso morre é a caixinha, exatamente como no Photoshop:
+    //   marcada    -> `apagarForaDoDoc` reescreve o canvas de cada camada
+    //   desmarcada -> o pixel fica guardado; arrastar a camada o revela de novo
+    setCamadas((cs) => {
+      const movidas = cs.map((l) => (
+        l.tipo === 'grupo' ? l : { ...l, x: l.x - x, y: l.y - y }
+      ));
+
+      if (!apagarCortado) return movidas;
+
+      return movidas
+        .map((l) => apagarForaDoDoc(l, w, h))
+        .filter(Boolean);                    // as que ficaram inteiras de fora somem
+    });
 
     setMed({ w, h });
 
@@ -1699,6 +1723,51 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   const panRef = useRef({ x: 0, y: 0 });
   useEffect(() => { panRef.current = pan; }, [pan]);
 
+  // ── A barra de espaço ──
+  //
+  // Segurar espaço vira a mão: o botão esquerdo passa a arrastar a tela, sem
+  // largar a ferramenta que está na mão. É o gesto do Photoshop, e o único que
+  // funciona num trackpad — onde não existe botão do meio.
+  //
+  // É um REF, não estado: o `descer` precisa lê-lo no instante do clique, e um
+  // estado ainda não teria chegado lá.
+  const espaco = useRef(false);
+  const [comEspaco, setComEspaco] = useState(false);   // só para o cursor
+
+  useEffect(() => {
+    const desce = (e) => {
+      if (e.code !== 'Space' || espaco.current) return;
+
+      const alvo = e.target.tagName;
+      if (alvo === 'INPUT' || alvo === 'TEXTAREA' || alvo === 'SELECT') return;
+
+      // Sem isto a página rola: o espaço é o "page down" do navegador.
+      e.preventDefault();
+      espaco.current = true;
+      setComEspaco(true);
+    };
+
+    const sobe = (e) => {
+      if (e.code !== 'Space') return;
+      espaco.current = false;
+      setComEspaco(false);
+    };
+
+    // Se a janela perde o foco com o espaço apertado, o `keyup` nunca chega — e
+    // a mão ficaria presa para sempre.
+    const perdeu = () => { espaco.current = false; setComEspaco(false); };
+
+    window.addEventListener('keydown', desce);
+    window.addEventListener('keyup', sobe);
+    window.addEventListener('blur', perdeu);
+
+    return () => {
+      window.removeEventListener('keydown', desce);
+      window.removeEventListener('keyup', sobe);
+      window.removeEventListener('blur', perdeu);
+    };
+  }, []);
+
   useEffect(() => {
     const el = telaRef.current;
     if (!el) return;
@@ -1713,7 +1782,10 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     let ini = null;
 
     const desce = (e) => {
-      if (e.button !== 1) return;
+      // Duas formas de arrastar a tela: o botão do meio, e o espaço + esquerdo.
+      const meio    = e.button === 1;
+      const comMao  = e.button === 0 && espaco.current;
+      if (!meio && !comMao) return;
 
       // Sem isto, o botão do meio dispara o AUTOSCROLL do navegador: aparece o
       // ícone de rolagem, a página tenta se mover sozinha, e o arraste nunca
@@ -1787,8 +1859,11 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         // As combinações mais específicas vêm PRIMEIRO. Testar Ctrl+A antes de
         // Ctrl+Shift+A faz o segundo nunca chegar — o primeiro casa e retorna.
         if (e.shiftKey && tecla === 'a') { e.preventDefault(); setAjustando(true); return; }
-        if (e.shiftKey && tecla === 'i') { e.preventDefault(); inverterSel(); return; }
+        // Ctrl+Shift+I é OBJETO INTELIGENTE — é o do plugin, e a mão já sabe.
+        if (e.shiftKey && tecla === 'i') { e.preventDefault(); virarSmart(); return; }
         if (e.shiftKey && tecla === 'r') { e.preventDefault(); rasterizarAtiva(); return; }
+        // Inverter a seleção fica no X: o I já tem dono.
+        if (e.shiftKey && tecla === 'x') { e.preventDefault(); inverterSel(); return; }
         if (e.altKey   && tecla === 'e') { e.preventDefault(); mesclar(); return; }
 
         if (tecla === 'z') { e.preventDefault(); desfazer(); return; }
@@ -2032,6 +2107,17 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
               <button className="ps-b" onClick={limparCrop}>Limpar</button>
 
+              <Dica texto="Desmarque para poder arrastar a camada e revelar o que ficou de fora">
+                <label className="ps-caixa">
+                  <input
+                    type="checkbox"
+                    checked={apagarCortado}
+                    onChange={(e) => setApagarCortado(e.target.checked)}
+                  />
+                  <span>Apagar pixels cortados</span>
+                </label>
+              </Dica>
+
               <span className="ps-esticar" />
 
               <button className="ps-b" onClick={() => { setCrop(null); setFerr('mover'); }}>
@@ -2131,7 +2217,9 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         <div
           className="ps-tela"
           ref={telaRef}
+          data-mao={comEspaco ? '1' : undefined}
           onMouseDown={(e) => {
+            if (espaco.current) return;   // com o espaço, o clique é da mão
             if (e.target === e.currentTarget && ferr === 'mover') {
               setSel([]);
               setAlvo(null);
@@ -2410,21 +2498,6 @@ export default function PainelPos({ aoSair, aoUpscale }) {
               );
             })}
 
-            {/* A zona de fuga.
-                Sem ela, uma camada presa no fim de um grupo não teria para onde
-                ir: soltar abaixo da última irmã a mantém no grupo (e está
-                certo), e se o grupo for o último item da coluna, não sobra
-                lugar nenhum. Este vão é o "fora de tudo". */}
-            {temImagem && (
-              <div
-                className={'ps-fuga' + (alvoSolta?.onde === 'fim' ? ' ps-fuga--on' : '')}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  if (arrastando.current == null) return;
-                  if (alvoSolta?.onde !== 'fim') setAlvoSolta({ i: -1, onde: 'fim' });
-                }}
-              />
-            )}
           </div>
         </aside>
       </div>
@@ -2465,6 +2538,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           y={menu.y}
           camada={camadas.find((l) => l.id === menu.id)}
           quantas={sel.length}
+          emGrupo={!!camadas.find((l) => l.id === menu.id)?.grupo}
           aoEscolher={acaoDoMenu}
           aoFechar={() => setMenu(null)}
         />
