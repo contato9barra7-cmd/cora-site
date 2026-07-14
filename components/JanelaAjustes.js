@@ -26,8 +26,11 @@ import {
 
 const LADO_PREVIA = 1400;
 
-export default function JanelaAjustes({ camada, aoAplicar, aoFechar }) {
-  const [p, setP]     = useState(() => camada.ajustes || paramsPadrao());
+export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) {
+  // Reabrindo um filtro de Ajustes, os controles nascem com os valores DELE.
+  // O `camada.ajustes` é o caminho antigo, das camadas rasterizadas — ali o
+  // ajuste é único e vive na própria camada.
+  const [p, setP]     = useState(() => inicial || camada.ajustes || paramsPadrao());
   const [aba, setAba] = useState('luz');
   const [canal, setCanal] = useState('rgb');
   const [cor, setCor]     = useState('vermelho');

@@ -25,6 +25,7 @@ import MenuCamada from './MenuCamada';
 import Confirma from './Confirma';
 import Nomear from './Nomear';
 import JanelaDesfoque from './JanelaDesfoque';
+import { aplicarFiltros, mascaraDoFiltro, nomeDoFiltro, novoIdFiltro } from '../lib/filtros';
 import {
   carregarCanvas, canvasVazio, clonarCanvas, novaCamada, novoGrupo,
   compor, thumb, thumbMascara, mascaraBranca, rasterizar, mesclarCopia,
@@ -213,6 +214,11 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
   // A janela de desfoque: 'desfGauss' | 'desfMov' | null
   const [desfocando, setDesfocando] = useState(null);
+
+  // Qual filtro está sendo REEDITADO. Quando não é nulo, o OK substitui aquele
+  // filtro na lista em vez de acrescentar um novo — senão reabrir um desfoque
+  // para ajustar o raio criaria um segundo desfoque por cima do primeiro.
+  const [editandoFiltro, setEditandoFiltro] = useState(null);
 
   // A prévia do desfoque vive num canvas à parte, e some ao cancelar. Aplicar na
   // camada a cada movimento do slider a destruiria — e o Cancelar não teria o
@@ -1717,9 +1723,30 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
     g.tracoRemove = false;
 
-    // A camada mudou de verdade: o objeto inteligente perde o pixel virgem, e a
-    // tela é recomposta a partir dela.
-    if (ativa) mudar(ativa.id, {});
+    // ── A pincelada ASSA a receita ──
+    //
+    // O canvas de uma camada com filtros é o RESULTADO de aplicá-los ao
+    // original. Pintar nele e deixar a receita de pé é uma armadilha: ao reabrir
+    // qualquer filtro, o canvas seria recalculado do original — e a pincelada
+    // sumiria, sem aviso.
+    //
+    // Então pintar torna os filtros permanentes: o resultado atual vira o novo
+    // original, a lista é esvaziada, e a tinta entra por cima. A camada continua
+    // inteligente; ela só perde o histórico de filtros que já não pode honrar.
+    //
+    // (O Photoshop simplesmente PROÍBE pintar num objeto inteligente. Preferi
+    // deixar pintar e assumir o custo — é o que a mão espera.)
+    if (ativa) {
+      if (ativa.smart && ativa.filtros?.length) {
+        mudar(ativa.id, {
+          original: clonarCanvas(alvo),
+          filtros: []
+        });
+      } else {
+        mudar(ativa.id, {});      // só avisa que o canvas mudou
+      }
+    }
+
     if (canvasRef.current) compor(camadas, med.w, med.h, canvasRef.current);
   }
 
@@ -1756,15 +1783,78 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
 
   // ═══ O desfoque ═══
+  // ═══ Os filtros inteligentes ═══
+
+  // De onde a janela de Ajustes parte.
+  //
+  // Reeditando um filtro, ela parte do original com todos os OUTROS aplicados:
+  // o desfoque que veio antes continua valendo, e só o ajuste em questão é
+  // recalculado. Partir do canvas atual empilharia o ajuste sobre ele mesmo.
+  function baseParaAjustes() {
+    if (!ativa) return null;
+
+    if (ativa.smart && ativa.original) {
+      const outros = (ativa.filtros || []).filter((f) => f.id !== editandoFiltro);
+      return aplicarFiltros(ativa.original, outros);
+    }
+
+    return ativa.original || ativa.canvas;
+  }
+
+
+  // Reabrir um filtro: a janela volta com os valores dele, e o OK o SUBSTITUI.
+  function reabrirFiltro(idCamada, f) {
+    setSel([idCamada]);
+    setEditandoFiltro(f.id);
+
+    if (f.tipo === 'ajustes') setAjustando(true);
+    else setDesfocando(f.tipo);
+  }
+
+  // O olho do filtro. Ele não apaga a receita: só a pula ao recalcular. É como
+  // se compara "com" e "sem" sem perder o que se ajustou.
+  function ligarFiltro(idCamada, idFiltro) {
+    const l = camadas.find((x) => x.id === idCamada);
+    if (!l?.original) return;
+
+    guardar();
+
+    const lista = l.filtros.map((f) => (
+      f.id === idFiltro ? { ...f, desligado: !f.desligado } : f
+    ));
+
+    mudar(idCamada, {
+      filtros: lista,
+      canvas: aplicarFiltros(l.original, lista)
+    });
+  }
+
+  function tirarFiltro(idCamada, idFiltro) {
+    const l = camadas.find((x) => x.id === idCamada);
+    if (!l?.original) return;
+
+    guardar();
+
+    const lista = l.filtros.filter((f) => f.id !== idFiltro);
+
+    mudar(idCamada, {
+      filtros: lista,
+      canvas: aplicarFiltros(l.original, lista)
+    });
+  }
+
   // ── O desfoque ──
   //
-  // Ele não é mais aplicado às cegas. A janela mostra o resultado ao vivo, e a
-  // camada só é tocada quando se aperta OK.
+  // A janela mostra o resultado ao vivo, e a camada só é tocada no OK.
   //
-  // `firmar = false` é a PRÉVIA: o resultado é composto na tela, mas a camada
-  // continua intacta — é o que permite cancelar sem perder nada.
-  // `firmar = true` é o OK: aí sim a camada muda, e o Ctrl+Z passa a valer.
-  function aplicarDesfoque(params, firmar) {
+  // `firmar = false` é a PRÉVIA: composta na tela, mas a camada continua intacta
+  // — é o que permite cancelar sem perder nada.
+  // `firmar = true` é o OK: aí a camada muda e o Ctrl+Z passa a valer.
+  //
+  // O `useCallback` NÃO é enfeite. A janela tem um efeito que depende desta
+  // função; se ela nascesse de novo a cada render do painel, o efeito dispararia
+  // a cada quadro — e um desfoque por quadro é uma aba travada.
+  const aplicarDesfoque = useCallback((params, firmar) => {
     if (!ativa || ativa.tipo === 'grupo') return;
 
     // Sem parâmetros: a prévia foi desligada, ou a janela cancelada. Devolve a
@@ -1775,47 +1865,123 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       return;
     }
 
-    const c = clonarCanvas(ativa.canvas);
+    // ── De onde partir ──
+    //
+    // Reeditando um filtro de um objeto inteligente, parte-se do que existiria
+    // SEM ele: o original com todos os OUTROS filtros aplicados. Partir do
+    // canvas atual desfocaria por cima do desfoque que se está justamente
+    // tentando corrigir — e baixar o raio de 8 para 4 sairia MAIS borrado.
+    let base = ativa.canvas;
+
+    if (ativa.smart && ativa.original) {
+      const outros = (ativa.filtros || []).filter((f) => f.id !== editandoFiltro);
+      base = aplicarFiltros(ativa.original, outros);
+    }
+
+    // ── A prévia trabalha numa CÓPIA REDUZIDA ──
+    //
+    // Uma camada 4K tem 9 milhões de pixels. Desfocá-la inteira leva segundos —
+    // e o slider dispara um novo desfoque a cada 80ms, empilhando trabalho que
+    // nunca termina. Foi assim que a janela travou a aba.
+    //
+    // Mas a prévia é vista NA TELA, que tem uns mil pixels de largura. Calcular
+    // os outros oito milhões é jogar fora. O OK, sim, trabalha na resolução
+    // cheia — ali o resultado é definitivo e vale a espera.
+    const TETO = 1400;
+    const reduz = firmar ? 1 : Math.min(1, TETO / base.width);
+
+    const cw = Math.max(1, Math.round(base.width  * reduz));
+    const ch = Math.max(1, Math.round(base.height * reduz));
+
+    const c = canvasVazio(cw, ch);
+    c.getContext('2d').drawImage(base, 0, 0, cw, ch);
 
     // A seleção precisa vir para o espaço da camada, ou o desfoque vazaria por
     // fora dela.
-    let s = null;
+    let sl = null;
     if (temSel && selRef.current) {
-      s = canvasVazio(c.width, c.height);
-      const sc = s.getContext('2d');
+      sl = canvasVazio(cw, ch);
+      const sc = sl.getContext('2d');
       sc.save();
-      sc.scale(c.width / largura(ativa), c.height / altura(ativa));
+      sc.scale(cw / largura(ativa), ch / altura(ativa));
       sc.translate(-ativa.x, -ativa.y);
       sc.drawImage(selRef.current, 0, 0);
       sc.restore();
     }
 
-    // O raio é dado em pixels da TELA. Numa camada escalada, ele precisa ser
-    // convertido para pixels da camada — senão um desfoque de 10px numa camada
-    // exibida a 50% sairia com o dobro da força.
-    const fator = c.width / largura(ativa);
+    // O raio é dado em pixels da TELA. Aqui ele vira pixels DESTE canvas — que
+    // pode estar reduzido. É por isso que a prévia bate com o resultado final:
+    // o raio encolhe junto com a imagem.
+    const fator = cw / largura(ativa);
     const r = Math.max(0.5, params.raio * fator);
 
-    if (desfocando === 'desfGauss') desfocar(c, r, s);
-    else desfoqueMovimento(c, r, params.angulo || 0, s);
+    if (desfocando === 'desfGauss') desfocar(c, r, sl);
+    else desfoqueMovimento(c, r, params.angulo || 0, sl);
 
+    // ── A PRÉVIA: só a tela muda ──
     if (!firmar) {
-      // A PRÉVIA: só a tela muda.
       previaRef.current = c;
 
       if (canvasRef.current) {
-        // Compõe tudo, mas trocando a camada ativa pelo canvas desfocado.
-        const finge = camadas.map((l) => (l.id === ativa.id ? { ...l, canvas: c } : l));
+        // O canvas reduzido é esticado de volta ao tamanho da camada. O borrão
+        // disfarça a perda de resolução — que é justamente o ponto.
+        const finge = camadas.map((l) => (
+          l.id === ativa.id ? { ...l, canvas: c } : l
+        ));
         compor(finge, med.w, med.h, canvasRef.current);
       }
       return;
     }
 
-    // O OK: agora a camada muda de verdade.
+    // ── O OK ──
     guardar();
     previaRef.current = null;
+
+    // Num OBJETO INTELIGENTE, o filtro não é carimbado no pixel: ele é anotado
+    // numa lista, e o resultado é recalculado a partir do original.
+    //
+    // É o que torna a edição não-destrutiva: amanhã se pode voltar neste
+    // desfoque, mudar o raio, e tudo o mais continua de pé.
+    if (ativa.smart) {
+      const virgem = ativa.original || ativa.canvas;
+      const antigos = ativa.filtros || [];
+
+      // Reabrindo um filtro que já existe? Ele é SUBSTITUÍDO no lugar, e a
+      // máscara dele é mantida — mexer no raio não deveria mudar onde ele age.
+      const velho = editandoFiltro
+        ? antigos.find((f) => f.id === editandoFiltro)
+        : null;
+
+      const filtro = {
+        id: velho ? velho.id : novoIdFiltro(),
+        tipo: desfocando,
+        raio: params.raio,
+        angulo: params.angulo || 0,
+        mascara: velho
+          ? velho.mascara
+          : (temSel && selRef.current
+              ? mascaraDoFiltro(selRef.current, ativa, largura(ativa), altura(ativa))
+              : null)
+      };
+
+      const lista = velho
+        ? antigos.map((f) => (f.id === velho.id ? filtro : f))
+        : [...antigos, filtro];
+
+      mudar(ativa.id, {
+        original: virgem,                        // o virgem, guardado
+        filtros: lista,                          // a receita
+        canvas: aplicarFiltros(virgem, lista)    // o resultado
+      });
+
+      setEditandoFiltro(null);
+      return;
+    }
+
+    // Numa camada comum, o filtro carimba o pixel. Sem volta — é o que
+    // "rasterizado" quer dizer.
     mudar(ativa.id, { canvas: c, original: null });
-  }
+  }, [ativa, camadas, med, temSel, desfocando, editandoFiltro, guardar, mudar]);
 
   // ═══ O crop ═══
   //
@@ -3007,6 +3173,51 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                       {l.smart && <span className="ps-tag">Objeto Inteligente</span>}
                     </span>
                   )}
+
+                  {/* ── Os filtros inteligentes ──
+                      Eles pendem da camada, como no Photoshop. Cada um é
+                      CLICÁVEL: abre a janela dele, com os valores que se
+                      escolheu, e o OK substitui em vez de empilhar.
+
+                      O olho liga e desliga o filtro sem apagá-lo — é como se
+                      compara "com" e "sem" sem perder a receita. */}
+                  {l.smart && l.filtros?.length > 0 && (
+                    <div className="ps-filtros">
+                      {l.filtros.map((f) => (
+                        <div
+                          key={f.id}
+                          className={'ps-filtro' + (f.desligado ? ' ps-filtro--off' : '')}
+                          onClick={(e) => { e.stopPropagation(); reabrirFiltro(l.id, f); }}
+                          title="Clique para editar"
+                        >
+                          <button
+                            className="ps-filtro-olho"
+                            onClick={(e) => { e.stopPropagation(); ligarFiltro(l.id, f.id); }}
+                            aria-label={f.desligado ? 'Ligar filtro' : 'Desligar filtro'}
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+                              {f.desligado
+                                ? <path d="M3 3l18 18" />
+                                : <circle cx="12" cy="12" r="3" />}
+                            </svg>
+                          </button>
+
+                          <span className="ps-filtro-nome">{nomeDoFiltro(f)}</span>
+
+                          <button
+                            className="ps-filtro-x"
+                            onClick={(e) => { e.stopPropagation(); tirarFiltro(l.id, f.id); }}
+                            aria-label="Remover filtro"
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+                              <path d="M6 6l12 12M18 6L6 18" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -3015,20 +3226,71 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         </aside>
       </div>
 
-      {/* A janela de Ajustes recebe o pixel VIRGEM (`original`): sem isso,
-          reabri-la partiria da imagem já processada e os efeitos se
-          empilhariam sem volta. */}
+      {/* ── A janela de Ajustes ──
+          Ela recebe o pixel VIRGEM, e não o já processado: partir da imagem
+          ajustada empilharia os efeitos sem volta — subir o contraste duas
+          vezes daria um resultado que nenhum valor de contraste reproduz.
+
+          Reabrindo um filtro de Ajustes, ela parte do original com todos os
+          OUTROS filtros — o desfoque que veio antes continua valendo. */}
       {ajustando && ativa && (
         <JanelaAjustes
-          camada={{ ...ativa, canvas: ativa.original || ativa.canvas }}
-          aoFechar={() => setAjustando(false)}
+          camada={{ ...ativa, canvas: baseParaAjustes() }}
+          inicial={
+            editandoFiltro
+              ? (ativa.filtros || []).find((f) => f.id === editandoFiltro)?.params
+              : ativa.ajustes
+          }
+          aoFechar={() => { setAjustando(false); setEditandoFiltro(null); }}
           aoAplicar={(canvas, params) => {
             guardar();
+
+            // ── Objeto inteligente: o ajuste vira um FILTRO ──
+            //
+            // Ele não carimba o pixel. Fica anotado na receita, e pode ser
+            // reaberto, mexido, desligado ou removido — amanhã, ou daqui a um
+            // mês, com o resto do trabalho intacto.
+            if (ativa.smart) {
+              const virgem = ativa.original || ativa.canvas;
+              const antigos = ativa.filtros || [];
+
+              const velho = editandoFiltro
+                ? antigos.find((f) => f.id === editandoFiltro)
+                : null;
+
+              const filtro = {
+                id: velho ? velho.id : novoIdFiltro(),
+                tipo: 'ajustes',
+                params,
+                mascara: velho
+                  ? velho.mascara
+                  : (temSel && selRef.current
+                      ? mascaraDoFiltro(selRef.current, ativa, largura(ativa), altura(ativa))
+                      : null)
+              };
+
+              const lista = velho
+                ? antigos.map((f) => (f.id === velho.id ? filtro : f))
+                : [...antigos, filtro];
+
+              mudar(ativa.id, {
+                original: virgem,
+                filtros: lista,
+                canvas: aplicarFiltros(virgem, lista)
+              });
+
+              setAjustando(false);
+              setEditandoFiltro(null);
+              return;
+            }
+
+            // Camada comum: o ajuste carimba o pixel.
             mudar(ativa.id, {
               canvas,
               original: ativa.original || ativa.canvas,
               ajustes: params
             });
+
             setAjustando(false);
           }}
         />
@@ -3039,8 +3301,14 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       {desfocando && (
         <JanelaDesfoque
           tipo={desfocando}
+          // Reabrindo um filtro, os controles nascem com os valores DELE.
+          inicial={
+            editandoFiltro
+              ? (ativa?.filtros || []).find((f) => f.id === editandoFiltro)
+              : null
+          }
           aoAplicar={aplicarDesfoque}
-          aoFechar={() => setDesfocando(null)}
+          aoFechar={() => { setDesfocando(null); setEditandoFiltro(null); }}
         />
       )}
 

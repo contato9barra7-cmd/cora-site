@@ -9534,23 +9534,42 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    AS JANELAS DE DESFOQUE
    ══════════════════════════════════════════════════════════════ */
 
+/* A janela FLUTUA sobre a imagem, sem véu por trás.
+
+   Um fundo escurecido falsearia as cores que a pessoa está justamente tentando
+   julgar — e prenderia a janela no centro, tapando a parte da imagem que se
+   quer ver.
+
+   Ela nasce no alto, à direita: longe do meio, que é onde a imagem costuma
+   estar. E arrasta-se pela barra do título. */
 .df {
-  width: 440px;
+  position: fixed;
+  top: 92px;
+  right: 40px;
+  z-index: 60;
+
+  width: 430px;
   max-width: calc(100vw - 32px);
+
   background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  box-shadow: 0 14px 50px rgba(0, 0, 0, .16);
+  border: 1px solid var(--line2);
+  border-radius: 16px;
+  box-shadow: 0 18px 56px rgba(0, 0, 0, .18);
   overflow: hidden;
 }
 
+/* A barra do título é a alça: o cursor a anuncia, e o `user-select: none`
+   impede que arrastar a janela marque o texto do título. */
 .df-topo {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
+  padding: 15px 18px;
   border-bottom: 1px solid var(--line);
+  cursor: grab;
+  user-select: none;
 }
+.df-topo:active { cursor: grabbing; }
 .df-tit {
   font-size: 12px;
   letter-spacing: .07em;
@@ -9702,3 +9721,77 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border-top: 1px solid var(--line);
   background: var(--wash);
 }
+
+
+/* ══════════════════════════════════════════════════════════════
+   OS FILTROS INTELIGENTES
+   ══════════════════════════════════════════════════════════════
+
+   Eles pendem da camada, como no Photoshop: a receita fica à vista, e cada
+   linha é um passo que se pode reabrir, desligar ou jogar fora.
+
+   É a diferença entre um efeito e uma DECISÃO — a primeira é permanente, a
+   segunda pode ser revista. */
+
+.ps-filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 6px 0 0 30px;      /* recuado: eles pertencem à camada de cima */
+  padding-left: 8px;
+  border-left: 1px solid var(--line);
+}
+
+.ps-filtro {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 6px;
+  border-radius: 7px;
+  font-size: 11px;
+  color: var(--ink3);
+  cursor: pointer;
+}
+.ps-filtro:hover {
+  background: var(--wash2);
+  color: var(--ink2);
+}
+
+/* O filtro desligado continua ali, apenas mudo. Apagá-lo da lista seria perder
+   a receita — e o ponto do olho é justamente poder voltar atrás. */
+.ps-filtro--off .ps-filtro-nome {
+  opacity: .45;
+  text-decoration: line-through;
+}
+
+.ps-filtro-nome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ps-filtro-olho,
+.ps-filtro-x {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  flex: 0 0 auto;
+  border: none;
+  background: none;
+  color: var(--ink3);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.ps-filtro-olho svg { width: 13px; height: 13px; }
+.ps-filtro-x svg    { width: 11px; height: 11px; }
+
+.ps-filtro-olho:hover { color: var(--ink); }
+.ps-filtro-x:hover    { color: var(--ink); }
+
+/* O X só aparece quando o mouse está sobre a linha: uma coluna de "x" sempre
+   visível vira ruído, e convida ao clique errado. */
+.ps-filtro-x { opacity: 0; }
+.ps-filtro:hover .ps-filtro-x { opacity: 1; }
