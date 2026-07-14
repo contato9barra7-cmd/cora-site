@@ -2331,7 +2331,11 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico }) {
 
   // ═══ O arquivo .crd ═══
 
-  function exportar() {
+  // ATENÇÃO: esta função NÃO se chama `exportar`. Havia uma `exportar` local
+  // aqui que sombreava a `exportar` importada do lib/pos — e todo "baixar
+  // imagem" e "salvar no histórico", que chamam a importada, acabavam abrindo
+  // a janela de salvar .crd em vez de gerar o PNG. Era ESTE o bug.
+  function salvarProjeto() {
     if (!temImagem || !med) return;
 
     // O nome sugerido é o da camada de baixo — quase sempre a imagem original,
@@ -2801,14 +2805,14 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico }) {
         </Dica>
 
         <Dica texto="Salvar o projeto (.crd)">
-          <button className="ps-ic" onClick={exportar}
+          <button className="ps-ic" onClick={salvarProjeto}
                   disabled={!temImagem || ocupado} aria-label="Salvar projeto">
             <Svg d={IC.disquete} />
           </button>
         </Dica>
 
         <button className="ps-b" onClick={salvarNoHist} disabled={!temImagem || salvandoHist}>
-          {salvandoHist ? 'Salvando…' : 'Salvar no Histórico ✓v2'}
+          {salvandoHist ? 'Salvando…' : 'Salvar no Histórico'}
         </button>
 
         <button className="ps-b" onClick={paraUpscale} disabled={!temImagem}>
