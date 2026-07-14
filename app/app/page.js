@@ -184,11 +184,30 @@ export default function AppPage() {
 
     setPincel(null);          // sai do pincel JÁ: o feed mostra o "gerando"
     setOcupado(true);
+    // A forma do resultado é conhecida — 'auto' cairia no 4/3 padrão e
+    // deitaria uma expansão vertical.
+    //
+    //   expansão      → a moldura (pnMed traz as medidas em pixels)
+    //   preenchimento → a própria base, que não muda de forma
+    const forma = (modo === 'expansao' && pnMed?.w && pnMed?.h)
+      ? `${pnMed.w}:${pnMed.h}`
+      : null;
+
     setProgresso({
       feito: 0, total: 1, estado: 'processando',
-      proporcao: 'auto',
+      proporcao: forma,          // null → mede-se a base logo abaixo
       base: previa
     });
+
+    // Preenchimento: a forma é a da própria base
+    if (!forma) {
+      const img = new Image();
+      img.onload = () => {
+        const f = `${img.naturalWidth}:${img.naturalHeight}`;
+        setProgresso((p) => (p ? { ...p, proporcao: f } : p));
+      };
+      img.src = previa;
+    }
 
     try {
       await gerarGenerativa({ modo, imagem, mascara, texto });

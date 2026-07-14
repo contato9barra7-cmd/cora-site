@@ -74,6 +74,7 @@ export default function Precos() {
   const [salvandoCpf, setSalvandoCpf] = useState(false);
   const [conta, setConta] = useState(null);
   const [modalUpgrade, setModalUpgrade] = useState(false);
+  const [avisoRecarga, setAvisoRecarga] = useState(false);
   const [planoAlvo, setPlanoAlvo] = useState('');
   const router = useRouter();
 
@@ -131,13 +132,27 @@ export default function Precos() {
     }
   }
 
+  // Recarga só faz sentido com plano ativo: ela é usada DEPOIS que os créditos
+  // do plano acabam. Sem plano não há créditos para acabar — o dinheiro ficaria
+  // parado. É a mesma regra do texto da seção, agora valendo de fato.
+  const temPlanoAtivo = conta && conta.plano && conta.plano !== 'free'
+                        && conta.status === 'ativo';
+
   async function comprarRecarga(recargaId) {
     const priceId = STRIPE_PRICES.recargas[recargaId];
     if (!priceId) return;
-    // Só abre a guia se já estiver logada (senão vira about:blank; sem login vai pro cadastro).
+
+    // Sem conta: a recarga não teria onde cair
     const logada = typeof window !== 'undefined' && localStorage.getItem('cora_token');
-    const guia = null;
-    await comprar(priceId, guia);
+    if (!logada) { router.push('/cadastro'); return; }
+
+    // Com conta, mas sem plano: manda escolher um antes
+    if (!temPlanoAtivo) {
+      setAvisoRecarga(true);
+      return;
+    }
+
+    await comprar(priceId, null);
   }
 
   async function assinarPlano(planoId) {
@@ -347,7 +362,11 @@ export default function Precos() {
       <div className="sec">
         <div className="container">
           <h2>Acabaram os créditos no meio do projeto?</h2>
-          <p className="sub">Compre uma recarga avulsa. Elas valem por 1 ano e só são usadas depois que os créditos do plano acabam.</p>
+          <p className="sub">
+            Compre uma recarga avulsa. Elas valem por 1 ano e só são usadas
+            depois que os créditos do plano acabam
+            {!temPlanoAtivo && ' — por isso, exigem um plano ativo'}.
+          </p>
           <div className="recargas">
             {recargas.map((r) => (
               <div key={r.n} className={'recarga' + (r.popular ? ' recarga--pop' : '')}>
@@ -355,7 +374,13 @@ export default function Precos() {
                 <div className="recarga__cred">{r.creditos.toLocaleString('pt-BR')} créditos</div>
                 <div className="recarga__p">{brlInt(r.preco)}</div>
                 <div className="recarga__u">{brl(r.preco / r.creditos)} por crédito</div>
-                <button className="btn btn--roxo" style={{ marginTop: 14 }} onClick={() => comprarRecarga(r.id)}>Comprar</button>
+                <button
+                  className={'btn ' + (temPlanoAtivo ? 'btn--roxo' : 'btn--linha')}
+                  style={{ marginTop: 14 }}
+                  onClick={() => comprarRecarga(r.id)}
+                >
+                  {temPlanoAtivo ? 'Comprar' : 'Requer um plano'}
+                </button>
               </div>
             ))}
           </div>
@@ -380,6 +405,30 @@ export default function Precos() {
       <div className="container">
         <div className="foot">© {new Date().getFullYear()} Cora Render · 9barra7 Academy</div>
       </div>
+
+      {avisoRecarga && (
+        <div className="foto-overlay" onClick={() => setAvisoRecarga(false)}>
+          <div className="foto-modal" onClick={(e) => e.stopPropagation()} style={{ width: 400 }}>
+            <div className="foto-titulo">Recargas precisam de um plano</div>
+            <div className="foto-orient">
+              Os créditos de recarga são usados <strong>depois</strong> que os do
+              plano acabam. Sem um plano ativo eles ficariam parados na conta,
+              sem servir para nada.
+            </div>
+            <button
+              className="btn btn--verde"
+              style={{ width: '100%', marginTop: 18, padding: '12px' }}
+              onClick={() => {
+                setAvisoRecarga(false);
+                document.querySelector('.planos')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Ver os planos
+            </button>
+            <div className="foto-cancelar" onClick={() => setAvisoRecarga(false)}>Agora não</div>
+          </div>
+        </div>
+      )}
 
       {modalUpgrade && (
         <div className="modal-overlay" onClick={() => setModalUpgrade(false)}>

@@ -5553,6 +5553,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 
 
+
 .pn-lado span {
   font-size: 11.5px;
   color: var(--ink3);
@@ -6844,7 +6845,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* A pill da proporção ocupa a linha toda: é o único controle daquela linha */
 .cr-pill-cfg--larga {
   width: 100%;
+  height: 38px;
   justify-content: flex-start;
+
+  /* A pill padrão centraliza o conteúdo e por isso nunca precisou de padding.
+     Alinhada à esquerda, sem padding, o ícone encosta na borda. */
+  padding: 0 14px;
+  gap: 9px;
 }
 
 .cr-pill-cfg--larga > span { flex: 1; text-align: left; }
@@ -6978,4 +6985,52 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-style: normal;
   font-size: 11px;
   color: var(--ink3);
+}
+
+
+/* ── A imagem se move dentro da moldura ──
+   A moldura diz o TAMANHO do resultado; a posição da imagem dentro dela diz
+   o que a IA vai inventar de cada lado. */
+.pn-canvas--move {
+  cursor: grab;
+  position: relative;
+  z-index: 1;
+}
+
+.pn-canvas--move:active { cursor: grabbing; }
+
+/* As guias do centro: o ímã agindo em silêncio seria mágica sem explicação */
+.pn-guia {
+  position: absolute;
+  z-index: 3;
+  background: var(--accent);
+  pointer-events: none;
+  opacity: .85;
+}
+
+.pn-guia--v {
+  left: 50%;
+  top: -10%;
+  bottom: -10%;
+  width: 1px;
+}
+
+.pn-guia--h {
+  top: 50%;
+  left: -10%;
+  right: -10%;
+  height: 1px;
+}
+
+/* O botão de recarga sem plano: não promete o que não entrega. Leva ao aviso,
+   não ao pagamento — e a aparência precisa dizer isso antes do clique. */
+.btn--linha {
+  background: transparent;
+  border: 1px solid var(--line2);
+  color: var(--ink3);
+}
+
+.btn--linha:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }

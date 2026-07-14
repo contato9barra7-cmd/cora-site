@@ -73,6 +73,11 @@ export default function TelaPincel({
   // A moldura da expansão, em % de cada lado (0 = encostada na imagem)
   const [m, setM] = useState({ cima: 0, baixo: 0, esq: 0, dir: 0 });
 
+  // A imagem pode sair do centro: arrastá-la escolhe o que a IA vai inventar
+  // de cada lado. Em % do tamanho da imagem, relativo ao centro da moldura.
+  const [desl, setDesl] = useState({ x: 0, y: 0 });
+  const [imanado, setImanado] = useState(false);   // grudou no centro?
+
   const ferrRef = useRef(ferramenta);
   const tamRef  = useRef(tamanho);
   const zoomRef = useRef(100);
@@ -327,6 +332,67 @@ export default function TelaPincel({
   //
   //  Arrastar a borda é como se pensa em enquadramento. Sliders de "42% para
   //  cima" não são — ninguém pensa assim.
+  // ── Arrastar a imagem dentro da moldura ──
+  //
+  //  A moldura diz o TAMANHO do resultado; a posição da imagem dentro dela diz
+  //  o que a IA vai inventar de cada lado. Encostar a imagem à esquerda pede
+  //  muito cenário à direita e pouco à esquerda.
+  //
+  //  O centro tem ímã: é para onde se volta, e acertá-lo no olho é impossível.
+  function pegarImagem(e) {
+    if (!ehExpansao) return;
+    if (e.button !== 0) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const bc = baseRef.current;
+    if (!bc) return;
+
+    const x0 = e.clientX;
+    const y0 = e.clientY;
+    const d0 = { ...desl };
+    const larg = bc.clientWidth;
+    const alt  = bc.clientHeight;
+
+    function mover(ev) {
+      const dx = (ev.clientX - x0) / larg * 100;
+      const dy = (ev.clientY - y0) / alt  * 100;
+
+      // O quanto a imagem pode andar: metade da folga de cada eixo
+      const folgaX = (m.esq  + m.dir)   / 2;
+      const folgaY = (m.cima + m.baixo) / 2;
+
+      let x = Math.max(-folgaX, Math.min(folgaX, d0.x + dx));
+      let y = Math.max(-folgaY, Math.min(folgaY, d0.y + dy));
+
+      // O ímã do centro: dentro de 2% ele gruda
+      const IMA = 2;
+      const noX = Math.abs(x) < IMA;
+      const noY = Math.abs(y) < IMA;
+      if (noX) x = 0;
+      if (noY) y = 0;
+
+      setImanado(noX && noY);
+      setDesl({ x, y });
+    }
+
+    function soltar() {
+      window.removeEventListener('mousemove', mover);
+      window.removeEventListener('mouseup', soltar);
+    }
+
+    window.addEventListener('mousemove', mover);
+    window.addEventListener('mouseup', soltar);
+  }
+
+  // ── Puxar uma alça expande por igual, com a imagem no centro ──
+  //
+  //  Antes cada lado crescia sozinho: puxar a esquerda deixava a imagem
+  //  encostada na direita. Mas o resultado de uma expansão é uma moldura
+  //  ao redor da imagem — o normal é querer o mesmo tanto de cada lado.
+  //
+  //  Quem quiser a imagem fora do centro, arrasta a imagem depois.
   function pegarAlca(e, lados) {
     e.preventDefault();
     e.stopPropagation();
@@ -344,15 +410,25 @@ export default function TelaPincel({
       const dx = (ev.clientX - x0) / larg * 100;
       const dy = (ev.clientY - y0) / alt  * 100;
 
-      const novo = { ...m0 };
+      // O quanto a alça pediu para crescer, no seu próprio eixo
+      let cresceH = 0;
+      let cresceV = 0;
 
-      // Cada lado cresce para FORA: puxar a esquerda para a esquerda aumenta.
-      if (lados.includes('esq'))   novo.esq   = Math.max(0, m0.esq   - dx);
-      if (lados.includes('dir'))   novo.dir   = Math.max(0, m0.dir   + dx);
-      if (lados.includes('cima'))  novo.cima  = Math.max(0, m0.cima  - dy);
-      if (lados.includes('baixo')) novo.baixo = Math.max(0, m0.baixo + dy);
+      if (lados.includes('esq'))   cresceH = -dx;
+      if (lados.includes('dir'))   cresceH =  dx;
+      if (lados.includes('cima'))  cresceV = -dy;
+      if (lados.includes('baixo')) cresceV =  dy;
 
-      setM(travar(novo, lados));
+      // Simétrico: o que se pede de um lado vale para o oposto.
+      const h = Math.max(0, (lados.includes('esq') || lados.includes('dir'))
+        ? (m0.esq + m0.dir) / 2 + cresceH
+        : (m0.esq + m0.dir) / 2);
+
+      const v = Math.max(0, (lados.includes('cima') || lados.includes('baixo'))
+        ? (m0.cima + m0.baixo) / 2 + cresceV
+        : (m0.cima + m0.baixo) / 2);
+
+      setM(travar({ esq: h, dir: h, cima: v, baixo: v }, lados));
     }
 
     function soltar() {
@@ -363,6 +439,7 @@ export default function TelaPincel({
     window.addEventListener('mousemove', mover);
     window.addEventListener('mouseup', soltar);
   }
+
 
   // ── A proporção manda: o eixo livre acompanha o que se arrasta ──
   //
@@ -546,10 +623,14 @@ export default function TelaPincel({
     if (ehExpansao) {
       // O inverso do preenchimento: a imagem original fica PRETA (preservada),
       // a moldura ao redor, BRANCA (a criar).
-      const mx = Math.round(W * (m.esq  / 100));
-      const my = Math.round(H * (m.cima / 100));
       const mw = Math.round(W * ((m.esq  + m.dir)   / 100));
       const mh = Math.round(H * ((m.cima + m.baixo) / 100));
+
+      // Onde a imagem cai dentro da moldura. O deslocamento entra aqui: sem
+      // isto, arrastá-la na tela não mudaria nada no resultado — a IA
+      // receberia a imagem centrada de qualquer jeito.
+      const mx = Math.round(W * ((m.esq  + desl.x) / 100));
+      const my = Math.round(H * ((m.cima + desl.y) / 100));
 
       out.width  = W + mw;
       out.height = H + mh;
@@ -601,10 +682,13 @@ export default function TelaPincel({
     if (!ehExpansao) return base;
 
     const { w: W, h: H } = nativo.current;
-    const mx = Math.round(W * (m.esq  / 100));
-    const my = Math.round(H * (m.cima / 100));
     const mw = Math.round(W * ((m.esq  + m.dir)   / 100));
     const mh = Math.round(H * ((m.cima + m.baixo) / 100));
+
+    // O MESMO offset da máscara. Se os dois divergirem, a IA preserva um
+    // pedaço deslocado do que a máscara mandou preservar.
+    const mx = Math.round(W * ((m.esq  + desl.x) / 100));
+    const my = Math.round(H * ((m.cima + desl.y) / 100));
 
     const out = document.createElement('canvas');
     out.width  = W + mw;
@@ -681,7 +765,23 @@ export default function TelaPincel({
             </div>
           )}
 
-          <canvas ref={baseRef} className="pn-canvas" />
+          <canvas
+            ref={baseRef}
+            className={'pn-canvas' + (ehExpansao ? ' pn-canvas--move' : '')}
+            style={ehExpansao
+              ? { transform: `translate(${desl.x}%, ${desl.y}%)` }
+              : undefined}
+            onMouseDown={pegarImagem}
+          />
+
+          {/* As guias do centro: aparecem só quando a imagem grudou nele.
+              Sem elas, o ímã age sem dizer que agiu. */}
+          {ehExpansao && imanado && (m.esq + m.dir + m.cima + m.baixo) > 0 && (
+            <>
+              <span className="pn-guia pn-guia--v" />
+              <span className="pn-guia pn-guia--h" />
+            </>
+          )}
 
           {!ehExpansao && (
             <canvas ref={drawRef} className="pn-canvas pn-draw" />

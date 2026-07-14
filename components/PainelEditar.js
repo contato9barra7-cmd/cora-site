@@ -134,6 +134,7 @@ export default function PainelEditar({
   ferramentas, ehAdmin, onAbrirPincel
 }) {
   const [base, setBase]     = useState(null);
+  const [propBase, setPropBase] = useState(null);   // a proporção real da base
   const [previa, setPrevia] = useState(null);
   const [modo, setModo]     = useState(null);   // null = mostra a grade
 
@@ -155,6 +156,11 @@ export default function PainelEditar({
     if (!imagemInicial) return;
     setBase(imagemInicial.base64);
     setPrevia(imagemInicial.previa);
+
+    // A imagem também chega pronta (vinda do feed) — este caminho precisa
+    // medir tanto quanto o de escolher no picker.
+    medirBase(imagemInicial.previa ||
+              ('data:image/png;base64,' + imagemInicial.base64));
   }, [imagemInicial]);
 
   // Fecha os popovers ao clicar fora
@@ -179,8 +185,20 @@ export default function PainelEditar({
     } else {
       setBase(base64);
       setPrevia(p);
+      medirBase(p || ('data:image/png;base64,' + base64));
     }
     setPicker(null);
+  }
+
+  // Mede a base para que "Auto" tenha uma forma de verdade. Sem isto o slot
+  // de "gerando" cai no 4/3 padrão e deita toda imagem vertical.
+  function medirBase(src) {
+    const img = new Image();
+    img.onload = () => {
+      const r = img.naturalWidth / img.naturalHeight;
+      setPropBase(`${img.naturalWidth}:${img.naturalHeight}`);
+    };
+    img.src = src;
   }
 
   function abrir(mod) {
@@ -216,7 +234,9 @@ export default function PainelEditar({
     setOcupado(true);
 
     onProgresso({
-      feito: 0, total: quantidade, estado: 'processando', proporcao,
+      feito: 0, total: quantidade, estado: 'processando',
+      // 'auto' = a forma da própria base, não um 4/3 genérico
+      proporcao: (proporcao === 'auto' && propBase) ? propBase : proporcao,
       base: previa
     });
 
