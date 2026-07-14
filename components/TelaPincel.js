@@ -1,5 +1,4 @@
 'use client';
-
 // ═══════════════════════════════════════════════════════════
 //  TelaPincel — a área de trabalho do preenchimento e da expansão
 //
@@ -13,9 +12,7 @@
 //  EXPANSÃO — arrasta-se uma moldura para FORA da imagem. O que sobra ao
 //  redor é o que a IA cria. A máscara é o inverso.
 // ═══════════════════════════════════════════════════════════
-
 import { useState, useRef, useEffect } from 'react';
-
 // ── Dilatação binária ──
 //
 //  A borda pintada nunca é exata: sobra um halo de pixels meio-transparentes
@@ -23,7 +20,6 @@ import { useState, useRef, useEffect } from 'react';
 //  entre o gerado e o preservado.
 function dilatar(on, W, H, r) {
   if (r <= 0) return on;
-
   const tmp = new Uint8Array(W * H);
   for (let y = 0; y < H; y++) {
     const linha = y * W;
@@ -36,7 +32,6 @@ function dilatar(on, W, H, r) {
       tmp[linha + x] = hit;
     }
   }
-
   const out = new Uint8Array(W * H);
   for (let x = 0; x < W; x++) {
     for (let y = 0; y < H; y++) {
@@ -50,7 +45,6 @@ function dilatar(on, W, H, r) {
   }
   return out;
 }
-
 export default function TelaPincel({
   modo, base,
   ferramenta, tamanho,        // do painel: pincel | borracha, e o calibre
@@ -58,8 +52,6 @@ export default function TelaPincel({
   setProporcao,               // o inverter troca o rótulo também
   aoLimpar,                   // o painel pede para limpar
   aoMudarMoldura,             // devolve as dimensões ao painel
-  aoDigitar,                  // o painel digita um número
-  aoInverter,                 // o painel troca os eixos
   onGerar                     // a página pede os bytes
 }) {
   const wrapRef   = useRef(null);
@@ -67,29 +59,57 @@ export default function TelaPincel({
   const baseRef   = useRef(null);
   const drawRef   = useRef(null);
   const cursorRef = useRef(null);
-
   const [zoom, setZoom]     = useState(100);
   const [pintou, setPintou] = useState(false);
-
   // A moldura da expansão, em % de cada lado (0 = encostada na imagem)
   const [m, setM] = useState({ cima: 0, baixo: 0, esq: 0, dir: 0 });
-
   // A imagem pode sair do centro: arrastá-la escolhe o que a IA vai inventar
   // de cada lado. Em % do tamanho da imagem, relativo ao centro da moldura.
   const [desl, setDesl] = useState({ x: 0, y: 0 });
-  const [imanado, setImanado] = useState(false);   // grudou no centro?
 
+  // ── Desfazer (Ctrl+Z) ──
+  //
+  //  A pilha guarda o estado ANTES de cada gesto — não durante. Empilhar a
+  //  cada pixel arrastado faria um Ctrl+Z desfazer meio pixel, e seriam
+  //  centenas de passos para voltar um arraste.
+  const historico = useRef([]);
+
+  function empilhar() {
+    historico.current.push({ m: { ...m }, desl: { ...desl } });
+    if (historico.current.length > 50) historico.current.shift();
+  }
+
+  useEffect(() => {
+    if (!ehExpansao) return;
+
+    const tecla = (e) => {
+      const z = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z';
+      if (!z) return;
+
+      // Se o foco está num campo de texto, o Ctrl+Z é dele.
+      const alvo = e.target;
+      if (alvo && /^(INPUT|TEXTAREA)$/.test(alvo.tagName)) return;
+
+      const ant = historico.current.pop();
+      if (!ant) return;
+
+      e.preventDefault();
+      setM(ant.m);
+      setDesl(ant.desl);
+    };
+
+    window.addEventListener('keydown', tecla);
+    return () => window.removeEventListener('keydown', tecla);
+  }, [ehExpansao]);
+  const [imanado, setImanado] = useState(false);   // grudou no centro?
   const ferrRef = useRef(ferramenta);
   const tamRef  = useRef(tamanho);
   const zoomRef = useRef(100);
   const panRef  = useRef({ x: 0, y: 0 });
   const nativo  = useRef({ w: 0, h: 0 });
-
   const ehExpansao = modo === 'expansao';
-
   useEffect(() => { ferrRef.current = ferramenta; }, [ferramenta]);
   useEffect(() => { tamRef.current = tamanho; }, [tamanho]);
-
   // ── Zoom e pan ──
   function aplicarTransform() {
     const p = pilhaRef.current;
@@ -97,7 +117,6 @@ export default function TelaPincel({
     const { x, y } = panRef.current;
     p.style.transform = `translate(${x}px, ${y}px) scale(${zoomRef.current / 100})`;
   }
-
   function mudarZoom(v) {
     const z = Math.max(100, Math.min(400, v));
     zoomRef.current = z;
@@ -105,9 +124,7 @@ export default function TelaPincel({
     if (z <= 100) panRef.current = { x: 0, y: 0 };
     aplicarTransform();
   }
-
   const imgRef = useRef(null);
-
   // ── O ajuste ao palco ──
   //
   //  Isto é o `edExpFit` do plugin. Sem ele, arrastar uma alça faz a moldura
@@ -121,30 +138,23 @@ export default function TelaPincel({
     const bc = baseRef.current;
     const img = imgRef.current;
     if (!wrap || !bc || !img) return;
-
     const { w: W, h: H } = nativo.current;
     if (!W) return;
-
     // O bounding box, em pixels nativos
     const bbW = W * (1 + (m.esq  + m.dir)   / 100);
     const bbH = H * (1 + (m.cima + m.baixo) / 100);
-
     const folga = ehExpansao ? 90 : 32;
     const maxW = Math.max(80, wrap.clientWidth  - folga);
     const maxH = Math.max(80, wrap.clientHeight - folga);
-
     // A escala que faz TUDO caber
     const esc = Math.min(maxW / bbW, maxH / bbH, 1);
-
     const w = Math.max(1, Math.round(W * esc));
     const h = Math.max(1, Math.round(H * esc));
-
     bc.width = w;
     bc.height = h;
     bc.style.width = w + 'px';
     bc.style.height = h + 'px';
     bc.getContext('2d').drawImage(img, 0, 0, w, h);
-
     const dc = drawRef.current;
     if (dc && !ehExpansao) {
       // Preserva o que já foi pintado ao redimensionar
@@ -160,40 +170,32 @@ export default function TelaPincel({
       }
     }
   }
-
   // ── Carrega a imagem ──
   useEffect(() => {
     const img = new Image();
-
     img.onload = () => {
       imgRef.current = img;
       nativo.current = { w: img.width, h: img.height };
       ajustar();
     };
-
     img.src = 'data:image/png;base64,' + base;
   }, [base, ehExpansao]);
-
   // A moldura mudou (ou a janela): reescala tudo para caber
   useEffect(() => {
     ajustar();
   }, [m, ehExpansao]);
-
   useEffect(() => {
     const r = () => ajustar();
     window.addEventListener('resize', r);
     return () => window.removeEventListener('resize', r);
   });
-
   // ── Pintar (só no preenchimento) ──
   useEffect(() => {
     const dc = drawRef.current;
     if (!dc || ehExpansao) return;
-
     const ctx = dc.getContext('2d');
     let desenhando = false;
     let ultimo = null;
-
     function ponto(e) {
       const r = dc.getBoundingClientRect();
       return {
@@ -201,13 +203,11 @@ export default function TelaPincel({
         y: (e.clientY - r.top)  * (dc.height / r.height)
       };
     }
-
     function traco(a, b) {
       // SÓLIDA. A transparência vem do CSS (opacity do canvas) — com rgba()
       // a tinta acumularia a cada passada.
       const cor = getComputedStyle(document.documentElement)
         .getPropertyValue('--accent').trim() || '#A4A1F3';
-
       ctx.globalCompositeOperation =
         ferrRef.current === 'borracha' ? 'destination-out' : 'source-over';
       ctx.strokeStyle = cor;
@@ -215,22 +215,18 @@ export default function TelaPincel({
       ctx.lineWidth = tamRef.current;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-
       // O círculo: sem ele, um clique parado não marca nada.
       ctx.beginPath();
       ctx.arc(b.x, b.y, tamRef.current / 2, 0, Math.PI * 2);
       ctx.fill();
-
       if (a) {
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
         ctx.stroke();
       }
-
       setPintou(true);
     }
-
     function down(e) {
       if (e.button !== 0) return;
       e.preventDefault();
@@ -238,7 +234,6 @@ export default function TelaPincel({
       ultimo = ponto(e);
       traco(null, ultimo);
     }
-
     function move(e) {
       // O alvo segue o mouse, no tamanho real do pincel na tela
       const cur = cursorRef.current;
@@ -251,25 +246,21 @@ export default function TelaPincel({
         cur.style.top = e.clientY + 'px';
         cur.style.display = 'block';
       }
-
       if (!desenhando) return;
       e.preventDefault();
       const p = ponto(e);
       traco(ultimo, p);
       ultimo = p;
     }
-
     function up() { desenhando = false; ultimo = null; }
     function sair() {
       const cur = cursorRef.current;
       if (cur) cur.style.display = 'none';
     }
-
     dc.addEventListener('mousedown', down);
     dc.addEventListener('mousemove', move);
     dc.addEventListener('mouseleave', sair);
     window.addEventListener('mouseup', up);
-
     return () => {
       dc.removeEventListener('mousedown', down);
       dc.removeEventListener('mousemove', move);
@@ -278,25 +269,20 @@ export default function TelaPincel({
       sair();
     };
   }, [ehExpansao]);
-
   // ── Zoom com a roda, pan com o botão do meio ──
   useEffect(() => {
     const wrap = wrapRef.current;
     const pilha = pilhaRef.current;
     if (!wrap) return;
-
     function roda(e) {
       e.preventDefault();
       mudarZoom(zoomRef.current + (e.deltaY < 0 ? 15 : -15));
     }
-
     // No wrap E na pilha: com o cursor sobre a imagem, o evento nasce nela.
     wrap.addEventListener('wheel', roda, { passive: false });
     if (pilha) pilha.addEventListener('wheel', roda, { passive: false });
-
     let arrastando = false;
     let sx = 0, sy = 0, ox = 0, oy = 0;
-
     function down(e) {
       if (e.button !== 1) return;              // só o botão do meio
       if (zoomRef.current <= 100) return;
@@ -306,20 +292,16 @@ export default function TelaPincel({
       wrap.style.cursor = 'grabbing';
       e.preventDefault();
     }
-
     function move(e) {
       if (!arrastando) return;
       panRef.current = { x: ox + (e.clientX - sx), y: oy + (e.clientY - sy) };
       aplicarTransform();
     }
-
     function up() { arrastando = false; wrap.style.cursor = ''; }
-
     wrap.addEventListener('mousedown', down);
     wrap.addEventListener('contextmenu', (e) => e.preventDefault());
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', up);
-
     return () => {
       wrap.removeEventListener('wheel', roda);
       if (pilha) pilha.removeEventListener('wheel', roda);
@@ -328,7 +310,6 @@ export default function TelaPincel({
       window.removeEventListener('mouseup', up);
     };
   }, []);
-
   // ── As alças da moldura (expansão) ──
   //
   //  Arrastar a borda é como se pensa em enquadramento. Sliders de "42% para
@@ -343,50 +324,40 @@ export default function TelaPincel({
   function pegarImagem(e) {
     if (!ehExpansao) return;
     if (e.button !== 0) return;
-
     e.preventDefault();
     e.stopPropagation();
-
+    empilhar();
     const bc = baseRef.current;
     if (!bc) return;
-
     const x0 = e.clientX;
     const y0 = e.clientY;
     const d0 = { ...desl };
     const larg = bc.clientWidth;
     const alt  = bc.clientHeight;
-
     function mover(ev) {
       const dx = (ev.clientX - x0) / larg * 100;
       const dy = (ev.clientY - y0) / alt  * 100;
-
       // O quanto a imagem pode andar: metade da folga de cada eixo
       const folgaX = (m.esq  + m.dir)   / 2;
       const folgaY = (m.cima + m.baixo) / 2;
-
       let x = Math.max(-folgaX, Math.min(folgaX, d0.x + dx));
       let y = Math.max(-folgaY, Math.min(folgaY, d0.y + dy));
-
       // O ímã do centro: dentro de 2% ele gruda
       const IMA = 2;
       const noX = Math.abs(x) < IMA;
       const noY = Math.abs(y) < IMA;
       if (noX) x = 0;
       if (noY) y = 0;
-
       setImanado(noX && noY);
       setDesl({ x, y });
     }
-
     function soltar() {
       window.removeEventListener('mousemove', mover);
       window.removeEventListener('mouseup', soltar);
     }
-
     window.addEventListener('mousemove', mover);
     window.addEventListener('mouseup', soltar);
   }
-
   // ── Puxar uma alça expande por igual, com a imagem no centro ──
   //
   //  Antes cada lado crescia sozinho: puxar a esquerda deixava a imagem
@@ -397,51 +368,40 @@ export default function TelaPincel({
   function pegarAlca(e, lados) {
     e.preventDefault();
     e.stopPropagation();
-
+    empilhar();
     const bc = baseRef.current;
     if (!bc) return;
-
     const x0 = e.clientX;
     const y0 = e.clientY;
     const m0 = { ...m };
     const larg = bc.clientWidth;
     const alt  = bc.clientHeight;
-
     function mover(ev) {
       const dx = (ev.clientX - x0) / larg * 100;
       const dy = (ev.clientY - y0) / alt  * 100;
-
       // O quanto a alça pediu para crescer, no seu próprio eixo
       let cresceH = 0;
       let cresceV = 0;
-
       if (lados.includes('esq'))   cresceH = -dx;
       if (lados.includes('dir'))   cresceH =  dx;
       if (lados.includes('cima'))  cresceV = -dy;
       if (lados.includes('baixo')) cresceV =  dy;
-
       // Simétrico: o que se pede de um lado vale para o oposto.
       const h = Math.max(0, (lados.includes('esq') || lados.includes('dir'))
         ? (m0.esq + m0.dir) / 2 + cresceH
         : (m0.esq + m0.dir) / 2);
-
       const v = Math.max(0, (lados.includes('cima') || lados.includes('baixo'))
         ? (m0.cima + m0.baixo) / 2 + cresceV
         : (m0.cima + m0.baixo) / 2);
-
       setM(travar({ esq: h, dir: h, cima: v, baixo: v }, lados));
     }
-
     function soltar() {
       window.removeEventListener('mousemove', mover);
       window.removeEventListener('mouseup', soltar);
     }
-
     window.addEventListener('mousemove', mover);
     window.addEventListener('mouseup', soltar);
   }
-
-
   // ── A proporção manda: o eixo livre acompanha o que se arrasta ──
   //
   //  A versão anterior recalculava SEMPRE o eixo vertical a partir da largura.
@@ -457,24 +417,18 @@ export default function TelaPincel({
   //  a largura.
   function travar(novo, lados = []) {
     if (!proporcao || proporcao === 'livre') return novo;
-
     const [pw, ph] = proporcao.split(':').map(Number);
     if (!pw || !ph) return novo;
-
     const { w: W, h: H } = nativo.current;
     if (!W) return novo;
-
     const alvo = pw / ph;
-
     // Qual eixo a pessoa está movendo?
     const mexeH = lados.includes('esq')  || lados.includes('dir');
     const mexeV = lados.includes('cima') || lados.includes('baixo');
-
     // Num canto, os dois se movem: a largura manda, e a altura acompanha.
     if (mexeH || (!mexeH && !mexeV)) {
       let larg = W * (1 + (novo.esq + novo.dir) / 100);
       let alt  = larg / alvo;
-
       // A moldura não corta a imagem: ela só cresce. Se a altura que a
       // proporção pede for menor que a imagem, é a LARGURA que precisa
       // crescer para fechar a conta.
@@ -484,26 +438,21 @@ export default function TelaPincel({
         const sobraW = (larg - W) / W * 100;
         return { ...novo, esq: sobraW / 2, dir: sobraW / 2, cima: 0, baixo: 0 };
       }
-
       const sobra = (alt - H) / H * 100;
       return { ...novo, cima: sobra / 2, baixo: sobra / 2 };
     }
-
     // Puxou o topo ou a base: a altura manda, e a largura acompanha.
     let alt  = H * (1 + (novo.cima + novo.baixo) / 100);
     let larg = alt * alvo;
-
     if (larg < W) {
       larg = W;
       alt  = W / alvo;
       const sobraH = (alt - H) / H * 100;
       return { ...novo, cima: sobraH / 2, baixo: sobraH / 2, esq: 0, dir: 0 };
     }
-
     const sobra = (larg - W) / W * 100;
     return { ...novo, esq: sobra / 2, dir: sobra / 2 };
   }
-
   // ── Escolher a proporção já monta a moldura ──
   //
   //  Escolher "16:9" e nada acontecer na tela é um controle morto. A
@@ -514,21 +463,16 @@ export default function TelaPincel({
   //  os dois seria pedir à IA que inventasse mais do que o necessário.
   useEffect(() => {
     if (!ehExpansao) return;
-
     const { w: W, h: H } = nativo.current;
     if (!W || !proporcao || proporcao === 'livre') return;
-
     const [pw, ph] = proporcao.split(':').map(Number);
     if (!pw || !ph) return;
-
     const atual = W / H;
     const alvo  = pw / ph;
-
     if (Math.abs(atual - alvo) < 0.01) {
       setM({ cima: 0, baixo: 0, esq: 0, dir: 0 });   // já está na proporção
       return;
     }
-
     if (alvo > atual) {
       // Mais larga: cresce nas laterais
       const sobra = ((H * alvo) - W) / W * 100;
@@ -539,7 +483,6 @@ export default function TelaPincel({
       setM({ cima: sobra / 2, baixo: sobra / 2, esq: 0, dir: 0 });
     }
   }, [proporcao, ehExpansao, base]);
-
   // O painel manda limpar
   useEffect(() => {
     if (!aoLimpar) return;
@@ -553,126 +496,42 @@ export default function TelaPincel({
       }
     };
   });
-
   // O painel mostra as dimensões da moldura
   useEffect(() => {
     if (!aoMudarMoldura || !ehExpansao) return;
     const { w: W, h: H } = nativo.current;
     if (!W) return;
-
     aoMudarMoldura({
       w: Math.round(W * (1 + (m.esq + m.dir) / 100)),
       h: Math.round(H * (1 + (m.cima + m.baixo) / 100))
     });
   }, [m, ehExpansao, aoMudarMoldura]);
-
-  // ── Digitar o número move a moldura ──
-  //
-  //  A moldura e a caixa de número são a MESMA coisa vista de dois jeitos:
-  //  arrastar muda o número, digitar move a moldura. Quem sabe o tamanho
-  //  exato que quer não deveria ter de acertá-lo no olho.
-  useEffect(() => {
-    if (!aoDigitar || !ehExpansao) return;
-
-    aoDigitar.current = (eixo, valor) => {
-      const { w: W, h: H } = nativo.current;
-      if (!W) return;
-
-      const txt = String(valor ?? '').trim();
-
-      // "2:1" — uma proporção. Vira o rótulo do botão, e o efeito da proporção
-      // recalcula a moldura sozinho.
-      const razao = txt.match(/^(\d+)\s*[:/]\s*(\d+)$/);
-      if (razao && setProporcao) {
-        const [, a, b] = razao;
-        if (+a > 0 && +b > 0) setProporcao(`${a}:${b}`);
-        return;
-      }
-
-      // Um número — pixels.
-      const px = parseInt(txt, 10);
-      if (!px || px < 1) return;
-
-      // Digitar um tamanho é escolher uma forma: a proporção fixa passa a
-      // brigar com o número. Solta para 'livre'.
-      if (proporcao && proporcao !== 'livre' && setProporcao) setProporcao('livre');
-
-      setM((v) => {
-        if (eixo === 'w') {
-          // A sobra se divide igual dos dois lados: quem digita "2048" quer
-          // a imagem centrada, não encostada num canto.
-          const sobra = Math.max(0, (px - W) / W * 100);
-          return { ...v, esq: sobra / 2, dir: sobra / 2 };
-        }
-        const sobra = Math.max(0, (px - H) / H * 100);
-        return { ...v, cima: sobra / 2, baixo: sobra / 2 };
-      });
-    };
-  });
-
-  // Inverter: troca os eixos da moldura
-  useEffect(() => {
-    if (!aoInverter || !ehExpansao) return;
-
-    aoInverter.current = () => {
-      const { w: W, h: H } = nativo.current;
-      if (!W) return;
-
-      const larg = W * (1 + (m.esq  + m.dir)   / 100);
-      const alt  = H * (1 + (m.cima + m.baixo) / 100);
-
-      // O que era largura vira altura, e vice-versa
-      const sobraW = Math.max(0, (alt  - W) / W * 100);
-      const sobraH = Math.max(0, (larg - H) / H * 100);
-
-      setM({
-        esq:   sobraW / 2, dir:   sobraW / 2,
-        cima:  sobraH / 2, baixo: sobraH / 2
-      });
-
-      // O rótulo tem de virar junto: sem isto a moldura fica 5:4 mas o botão
-      // continua dizendo "4:5" — e o efeito da proporção desfaz a inversão.
-      if (proporcao && proporcao !== 'livre' && setProporcao) {
-        const [a, b] = proporcao.split(':');
-        if (a && b) setProporcao(`${b}:${a}`);
-      }
-    };
-  });
-
   // ── Os bytes que vão para o servidor ──
   function montarMascara() {
     const { w: W, h: H } = nativo.current;
     if (!W || !H) return null;
-
     const out = document.createElement('canvas');
     const oc = out.getContext('2d');
-
     if (ehExpansao) {
       // O inverso do preenchimento: a imagem original fica PRETA (preservada),
       // a moldura ao redor, BRANCA (a criar).
       const mw = Math.round(W * ((m.esq  + m.dir)   / 100));
       const mh = Math.round(H * ((m.cima + m.baixo) / 100));
-
       // Onde a imagem cai dentro da moldura. O deslocamento entra aqui: sem
       // isto, arrastá-la na tela não mudaria nada no resultado — a IA
       // receberia a imagem centrada de qualquer jeito.
       const mx = Math.round(W * ((m.esq  + desl.x) / 100));
       const my = Math.round(H * ((m.cima + desl.y) / 100));
-
       out.width  = W + mw;
       out.height = H + mh;
-
       oc.fillStyle = '#FFF';
       oc.fillRect(0, 0, out.width, out.height);
       oc.fillStyle = '#000';
       oc.fillRect(mx, my, W, H);
-
       return out.toDataURL('image/png').split(',')[1];
     }
-
     out.width = W;
     out.height = H;
-
     // 1. Escala o que foi pintado para o tamanho nativo
     const esc = document.createElement('canvas');
     esc.width = W;
@@ -680,18 +539,15 @@ export default function TelaPincel({
     const ec = esc.getContext('2d');
     const dc = drawRef.current;
     ec.drawImage(dc, 0, 0, dc.width, dc.height, 0, 0, W, H);
-
     // 2. Binariza no alpha
     const a = ec.getImageData(0, 0, W, H).data;
     const on = new Uint8Array(W * H);
     for (let p = 0, j = 0; p < a.length; p += 4, j++) {
       on[j] = a[p + 3] > 8 ? 1 : 0;
     }
-
     // 3. Dilata — mata o halo da borda
     const raio = Math.max(6, Math.round(Math.min(W, H) * 0.018));
     const dil = dilatar(on, W, H, raio);
-
     // 4. Preto-e-branco
     const img = oc.createImageData(W, H);
     for (let k = 0, m2 = 0; k < dil.length; k++, m2 += 4) {
@@ -700,37 +556,28 @@ export default function TelaPincel({
       img.data[m2 + 3] = 255;
     }
     oc.putImageData(img, 0, 0);
-
     return out.toDataURL('image/png').split(',')[1];
   }
-
   // Na expansão a imagem base também cresce: a original, dentro da moldura.
   function montarBase() {
     if (!ehExpansao) return base;
-
     const { w: W, h: H } = nativo.current;
     const mw = Math.round(W * ((m.esq  + m.dir)   / 100));
     const mh = Math.round(H * ((m.cima + m.baixo) / 100));
-
     // O MESMO offset da máscara. Se os dois divergirem, a IA preserva um
     // pedaço deslocado do que a máscara mandou preservar.
     const mx = Math.round(W * ((m.esq  + desl.x) / 100));
     const my = Math.round(H * ((m.cima + desl.y) / 100));
-
     const out = document.createElement('canvas');
     out.width  = W + mw;
     out.height = H + mh;
-
     const oc = out.getContext('2d');
     oc.fillStyle = '#7F7F7F';           // cinza neutro na área a criar
     oc.fillRect(0, 0, out.width, out.height);
-
     const bc = baseRef.current;
     oc.drawImage(bc, 0, 0, bc.width, bc.height, mx, my, W, H);
-
     return out.toDataURL('image/png').split(',')[1];
   }
-
   useEffect(() => {
     if (!onGerar) return;
     onGerar.current = () => ({
@@ -741,11 +588,9 @@ export default function TelaPincel({
         : pintou
     });
   });
-
   const { w: W, h: H } = nativo.current;
   const molW = W ? Math.round(W * (1 + (m.esq + m.dir) / 100)) : 0;
   const molH = H ? Math.round(H * (1 + (m.cima + m.baixo) / 100)) : 0;
-
   // As oito alças: quatro cantos, quatro bordas
   const ALCAS = [
     ['cima',  ['cima']],
@@ -757,13 +602,10 @@ export default function TelaPincel({
     ['be',    ['baixo', 'esq']],
     ['bd',    ['baixo', 'dir']]
   ];
-
   return (
     <div className="pn-tela">
-
       <div className="pn-area" ref={wrapRef}>
         <div className="pn-pilha" ref={pilhaRef}>
-
           {/* A moldura da expansão cresce ao redor da imagem */}
           {ehExpansao && (
             <div
@@ -782,7 +624,6 @@ export default function TelaPincel({
                   onMouseDown={(e) => pegarAlca(e, lados)}
                 />
               ))}
-
               {molW > 0 && (
                 <span className="pn-medida">
                   {molW} × {molH}
@@ -791,7 +632,6 @@ export default function TelaPincel({
               )}
             </div>
           )}
-
           <canvas
             ref={baseRef}
             className={'pn-canvas' + (ehExpansao ? ' pn-canvas--move' : '')}
@@ -800,7 +640,6 @@ export default function TelaPincel({
               : undefined}
             onMouseDown={pegarImagem}
           />
-
           {/* As guias do centro: aparecem só quando a imagem grudou nele.
               Sem elas, o ímã age sem dizer que agiu. */}
           {ehExpansao && imanado && (m.esq + m.dir + m.cima + m.baixo) > 0 && (
@@ -809,12 +648,10 @@ export default function TelaPincel({
               <span className="pn-guia pn-guia--h" />
             </>
           )}
-
           {!ehExpansao && (
             <canvas ref={drawRef} className="pn-canvas pn-draw" />
           )}
         </div>
-
         {/* O zoom flutua: não come espaço do trabalho */}
         <div className="pn-zoombar">
           <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
@@ -829,7 +666,6 @@ export default function TelaPincel({
           <span>{zoom}%</span>
         </div>
       </div>
-
       {/* O alvo: um círculo do tamanho do pincel, seguindo o mouse */}
       {!ehExpansao && <div className="pn-cursor" ref={cursorRef} />}
     </div>

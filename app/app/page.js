@@ -149,8 +149,6 @@ export default function AppPage() {
   const [pincel, setPincel]         = useState(null);   // {modo, base, previa}
   const montarPincel                = useRef(null);     // a tela devolve os bytes
   const limparPincel                = useRef(null);     // o painel manda limpar
-  const digitarPincel               = useRef(null);     // o painel digita uma medida
-  const inverterPincel              = useRef(null);     // o painel troca os eixos
 
   // O painel comanda, a tela obedece. O estado mora aqui, no meio dos dois.
   const [pnFerr, setPnFerr]   = useState('pincel');
@@ -163,6 +161,16 @@ export default function AppPage() {
   // é o que permite editá-los.
   const [pnRw, setPnRw]       = useState('');
   const [pnRh, setPnRh]       = useState('');
+
+  // edExpRatioSel: escolher uma proporção PREENCHE os campos. Sem isto eles
+  // ficam vazios, e o inverter não tem o que trocar.
+  function escolherRatio(v) {
+    setPnRatio(v);
+    if (v === 'livre') { setPnRw(''); setPnRh(''); return; }
+    const [a, b] = v.split(':');
+    setPnRw(a || '');
+    setPnRh(b || '');
+  }
   const [ocupado, setOcupado]       = useState(false);
   // O progresso aceita função: os painéis ACUMULAM as falhas nele
   // (setProgresso(p => ({...p, falhas}))), em vez de sobrescrever.
@@ -605,7 +613,7 @@ export default function AppPage() {
               onGerar={gerarComPincel}
               ferramenta={pnFerr}   setFerramenta={setPnFerr}
               tamanho={pnTam}       setTamanho={setPnTam}
-              proporcao={pnRatio}   setProporcao={setPnRatio}
+              proporcao={pnRatio}   setProporcao={escolherRatio}
               medidas={pnMed}
               rw={pnRw}
               rh={pnRh}
@@ -672,11 +680,9 @@ export default function AppPage() {
               ferramenta={pnFerr}
               tamanho={pnTam}
               proporcao={pnRatio}
-              setProporcao={setPnRatio}
+              setProporcao={escolherRatio}
               aoLimpar={limparPincel}
               aoMudarMoldura={setPnMed}
-              aoDigitar={digitarPincel}
-              aoInverter={inverterPincel}
               onGerar={montarPincel}
             />
           ) : (

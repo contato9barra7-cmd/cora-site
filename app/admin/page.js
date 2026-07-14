@@ -352,6 +352,14 @@ export default function Admin() {
     }
   }
 
+  // Trocar de aba, filtrar ou buscar recomeça da primeira página: continuar na
+  // página 7 de uma lista que agora tem 2 mostraria uma tela vazia.
+  //
+  // Tem de ficar ANTES do `if (carregando) return`: um hook depois de um return
+  // condicional roda em algumas renderizações e em outras não — e o React quebra.
+  useEffect(() => { setPag(1); }, [aba, busca, filtroData, anoFiltro, dataDe, dataAte,
+    filtroStatus, filtroProfissao, filtroOrigem, filtroRender, filtroEstado, filtroPais]);
+
   if (carregando) return <AppShell><div className="admin-wrap"><p>Carregando...</p></div></AppShell>;
 
   if (negado) {
@@ -466,8 +474,6 @@ export default function Admin() {
 
   // Trocar de aba, filtrar ou buscar recomeça da primeira página: continuar na
   // página 7 de uma lista que agora tem 2 mostraria uma tela vazia.
-  useEffect(() => { setPag(1); }, [aba, busca, filtroData, anoFiltro, dataDe, dataAte,
-    filtroStatus, filtroProfissao, filtroOrigem, filtroRender, filtroEstado, filtroPais]);
 
   const totalConvidados = assinantes.filter(a => a.eh_convidado && a.id !== meuId).length;
   const totalTrial = assinantes.filter(a => a.eh_trial && a.id !== meuId).length;
