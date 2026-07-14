@@ -2605,8 +2605,8 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico }) {
 
   // ── Exporta a imagem final no formato escolhido ──
   //
-  // O `showSaveFilePicker` abre o Salvar-como do sistema (Chrome/Edge), onde a
-  // pessoa escolhe a pasta. Onde ele não existe, cai no download comum.
+  // Vai direto para a pasta Downloads, como os botões do feed. PNG ou JPEG,
+  // nunca .crd — o .crd é só do disquete (salvarCora).
   async function exportarImagem(formato) {
     if (!med) return;
 
@@ -2633,12 +2633,8 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico }) {
 
     const blob = await new Promise((res) => flat.toBlob(res, tipo, qual));
 
-    // ── O download vai direto para a pasta Downloads ──
-    //
-    // Igual aos botões do feed. O `showSaveFilePicker` (que abre a árvore de
-    // pastas) foi tirado de propósito: além de o feed não usar, ele herdava o
-    // filtro de arquivo da última janela — e depois de salvar um .crd pelo
-    // disquete, o download da imagem saía teimando em .crd.
+    // Vai direto para a pasta Downloads, igual aos botões do feed — sem janela
+    // de escolher pasta.
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -2812,7 +2808,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico }) {
         </Dica>
 
         <button className="ps-b" onClick={salvarNoHist} disabled={!temImagem || salvandoHist}>
-          {salvandoHist ? 'Salvando…' : 'Salvar no Histórico'}
+          {salvandoHist ? 'Salvando…' : 'Salvar no Histórico ✓v2'}
         </button>
 
         <button className="ps-b" onClick={paraUpscale} disabled={!temImagem}>
