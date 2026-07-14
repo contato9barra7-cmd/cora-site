@@ -23,6 +23,7 @@ import JanelaAjustes from './JanelaAjustes';
 import JanelaAtalhos from './JanelaAtalhos';
 import MenuCamada from './MenuCamada';
 import Confirma from './Confirma';
+import Nomear from './Nomear';
 import {
   carregarCanvas, canvasVazio, clonarCanvas, novaCamada, novoGrupo,
   compor, thumb, thumbMascara, mascaraBranca, rasterizar, mesclarCopia,
@@ -45,7 +46,7 @@ import {
 
 // Os ícones são os do plugin (posIconeSVG) — quem usa os dois reconhece.
 const IC = {
-  // Abrir e salvar um .cora
+  // Abrir e salvar um .crd
   pasta:    'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
   disquete: 'M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z|M7 3v5h8V3|M7 20v-6h10v6',
 
@@ -193,9 +194,14 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   const [salvando, setSalvando] = useState(false);
   const turno = useRef(0);          // qual salvamento é o mais recente
 
-  // O seletor de arquivo .cora, escondido: um <input type=file> nativo é feio,
+  // O seletor de arquivo .crd, escondido: um <input type=file> nativo é feio,
   // e o botão da barra o aciona por baixo dos panos.
   const arquivoCora = useRef(null);
+
+  // O nome do arquivo, perguntado antes de salvar. Só quando o navegador não
+  // tem o seletor nativo — ele já pergunta o nome sozinho, e perguntar duas
+  // vezes seria um passo a mais sem motivo.
+  const [nomeando, setNomeando] = useState(null);
   const [ratio, setRatio] = useState('livre');
 
   // ── O histórico ──
@@ -236,9 +242,14 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
       // A folga deixa a imagem respirar: encostada nas bordas, ela parece
       // espremida, e não há onde pegar para arrastar a tela.
+      // A barra de opções flutua sobre o topo da tela (44px + 10 de folga). Sem
+      // reservar esse espaço, a imagem encaixada nasceria com a borda de cima
+      // escondida atrás dos botões.
       const FOLGA = 72;
+      const BARRA = 56;
+
       const w = el.clientWidth  - FOLGA;
-      const h = el.clientHeight - FOLGA;
+      const h = el.clientHeight - FOLGA - BARRA;
       if (w <= 0 || h <= 0) return;
 
       // Nunca AMPLIA: uma imagem pequena não deve ser esticada até encher a
@@ -296,32 +307,29 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         }
 
         // ── O laço à mão livre ──
+        //
+        // Só o traço percorrido. A reta de fechamento NÃO é desenhada durante o
+        // gesto: ela ficaria ancorada no ponto inicial, varrendo a imagem atrás
+        // do cursor como um elástico — poluindo justamente a área que se está
+        // tentando contornar. O laço fecha sozinho ao soltar; até lá, o que se
+        // vê é o que a mão fez.
         if (ferr === 'laco' && g.pts.length > 1) {
           cx.moveTo(g.pts[0].x, g.pts[0].y);
           for (let i = 1; i < g.pts.length; i++) cx.lineTo(g.pts[i].x, g.pts[i].y);
-
-          // A reta que FECHA. Ela é desenhada durante o traço porque é ela que
-          // vai existir: o laço fecha sozinho, e ver isso antes de soltar evita
-          // a surpresa de um contorno cortado por onde não se esperava.
-          cx.lineTo(g.pts[0].x, g.pts[0].y);
         }
 
         // ── O poligonal ──
         //
-        // Bastava UM vértice para a linha elástica valer a pena: ela mostra onde
-        // a próxima aresta vai cair. Antes ela só aparecia a partir do segundo
-        // clique — e o primeiro parecia não ter feito nada.
+        // As arestas já fixadas, mais UMA linha elástica do último vértice até o
+        // cursor: é a aresta que o próximo clique vai criar.
+        //
+        // Sem a reta de volta ao primeiro ponto, pelo mesmo motivo do laço: ela
+        // cruzaria a imagem inteira a cada movimento do mouse.
         if (ferr === 'lacoPoli' && g.poli.length) {
           cx.moveTo(g.poli[0].x, g.poli[0].y);
           for (let i = 1; i < g.poli.length; i++) cx.lineTo(g.poli[i].x, g.poli[i].y);
 
-          if (g.ultimo) {
-            cx.lineTo(g.ultimo.x, g.ultimo.y);
-
-            // E a reta de volta ao começo: é o contorno que se está prestes a
-            // fechar, e vê-lo é o que permite mirar o último clique.
-            if (g.poli.length > 1) cx.lineTo(g.poli[0].x, g.poli[0].y);
-          }
+          if (g.ultimo) cx.lineTo(g.ultimo.x, g.ultimo.y);
         }
 
         cx.strokeStyle = '#000';
@@ -1947,14 +1955,32 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     }
   }
 
-  // ═══ O arquivo .cora ═══
+  // ═══ O arquivo .crd ═══
 
-  async function exportar() {
+  function exportar() {
     if (!temImagem || !med) return;
+
+    // O nome sugerido é o da camada de baixo — quase sempre a imagem original,
+    // e o que a pessoa reconhece como "o projeto".
+    const sugerido = camadas.length
+      ? camadas[camadas.length - 1].nome
+      : 'trabalho';
+
+    // O seletor nativo do sistema já pergunta o nome e a pasta. Onde ele não
+    // existe, perguntamos aqui — senão o arquivo cairia em Downloads com um
+    // nome que ninguém escolheu.
+    if (window.showSaveFilePicker) {
+      salvarCora(sugerido);
+    } else {
+      setNomeando(sugerido);
+    }
+  }
+
+  async function salvarCora(nome) {
+    setNomeando(null);
     setOcupado(true);
 
     try {
-      const nome = camadas.length ? camadas[camadas.length - 1].nome : 'trabalho';
       await exportarCora(camadas, med, temSel ? selRef.current : null, nome);
     } catch (e) {
       setErro('Não foi possível salvar o arquivo.');
@@ -2235,17 +2261,17 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           </button>
         </Dica>
 
-        {/* Abrir um .cora. Ele fica colado no + porque as duas coisas trazem
+        {/* Abrir um .crd. Ele fica colado no + porque as duas coisas trazem
             trabalho para dentro: uma imagem nova, ou um trabalho já começado. */}
-        <Dica texto="Abrir um arquivo .cora">
+        <Dica texto="Abrir um projeto (.crd)">
           <button className="ps-ic" onClick={() => arquivoCora.current?.click()}
-                  disabled={ocupado} aria-label="Abrir arquivo .cora">
+                  disabled={ocupado} aria-label="Abrir projeto">
             <Svg d={IC.pasta} />
           </button>
         </Dica>
 
         <input
-          type="file" ref={arquivoCora} accept=".cora"
+          type="file" ref={arquivoCora} accept=".crd,.coraproj,.cora"
           onChange={importar} style={{ display: 'none' }}
         />
 
@@ -2353,9 +2379,9 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           </button>
         </Dica>
 
-        <Dica texto="Salvar o trabalho num arquivo .cora">
+        <Dica texto="Salvar o projeto (.crd)">
           <button className="ps-ic" onClick={exportar}
-                  disabled={!temImagem || ocupado} aria-label="Salvar arquivo .cora">
+                  disabled={!temImagem || ocupado} aria-label="Salvar projeto">
             <Svg d={IC.disquete} />
           </button>
         </Dica>
@@ -2376,151 +2402,6 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         </Dica>
       </header>
 
-      {/* ══ A barra de opções ══
-          Ela existe quando a ferramenta tem o que ajustar — ou quando há uma
-          seleção ativa, que precisa de algum lugar de onde ser invertida ou
-          desfeita, mesmo que a mão já tenha trocado de ferramenta. */}
-      {temImagem && (mostraOpcoes || crop || temSel) && (
-        <div className="ps-opts">
-
-          {crop ? (
-            <>
-              <select
-                className="ps-sel ps-sel--min"
-                value={ratio}
-                onChange={(e) => trocarRatio(e.target.value)}
-              >
-                {RATIOS_CROP.map((r) => (
-                  <option key={r} value={r}>{r === 'livre' ? 'Livre' : r}</option>
-                ))}
-              </select>
-
-              {/* Os números. Cortar "no olho" não serve quando o destino tem
-                  medida certa — um post, um slide, uma impressão. */}
-              <input
-                type="number"
-                className="ps-num"
-                value={Math.round(Math.abs(crop.x1 - crop.x0))}
-                onChange={(e) => cropPorNumero(+e.target.value, null)}
-                aria-label="Largura"
-              />
-
-              <Dica texto="Inverter largura e altura">
-                <button className="ps-troca" onClick={inverterCrop} aria-label="Inverter">
-                  ⇄
-                </button>
-              </Dica>
-
-              <input
-                type="number"
-                className="ps-num"
-                value={Math.round(Math.abs(crop.y1 - crop.y0))}
-                onChange={(e) => cropPorNumero(null, +e.target.value)}
-                aria-label="Altura"
-              />
-
-              <button className="ps-b" onClick={limparCrop}>Limpar</button>
-
-              <Dica texto="Desmarque para poder arrastar a camada e revelar o que ficou de fora">
-                <label className="ps-caixa">
-                  <input
-                    type="checkbox"
-                    checked={apagarCortado}
-                    onChange={(e) => setApagarCortado(e.target.checked)}
-                  />
-                  <span>Apagar pixels cortados</span>
-                </label>
-              </Dica>
-
-              <span className="ps-esticar" />
-
-              <button className="ps-b" onClick={() => { setCrop(null); setFerr('mover'); }}>
-                Cancelar
-              </button>
-              <button className="ps-b ps-b--on" onClick={aplicarCrop}>
-                Aplicar corte
-              </button>
-            </>
-          ) : (
-            <>
-              {SELECAO.includes(ferr) && (
-                <>
-                  <div className="ps-modos">
-                    {[
-                      ['novo', 'Nova'],
-                      ['somar', 'Somar (Ctrl)'],
-                      ['subtrair', 'Subtrair (Alt)']
-                    ].map(([k, n]) => (
-                      <button
-                        key={k}
-                        className={'ps-modo' + (opts.modo === k ? ' ps-modo--on' : '')}
-                        onClick={() => setOpts((o) => ({ ...o, modo: k }))}
-                        title={n}
-                      >
-                        {k === 'novo' && <ModoNovo />}
-                        {k === 'somar' && <ModoSomar />}
-                        {k === 'subtrair' && <ModoSub />}
-                      </button>
-                    ))}
-                  </div>
-                  <span className="ps-sep" />
-                </>
-              )}
-
-              {(ferr === 'varinha' || ferr === 'selRapida') && (
-                <Faixa nome="Tolerância" v={opts.tolerancia} min={1} max={100}
-                       set={(v) => setOpts((o) => ({ ...o, tolerancia: v }))} />
-              )}
-
-              {(PINTAM.includes(ferr) || ferr === 'selRapida') && (
-                <Faixa nome="Tamanho" v={opts.tamanho} min={1} max={300}
-                       set={(v) => setOpts((o) => ({ ...o, tamanho: v }))} />
-              )}
-
-              {PINTAM.includes(ferr) && (
-                <>
-                  <Faixa nome="Dureza" v={opts.dureza} min={0} max={100}
-                         set={(v) => setOpts((o) => ({ ...o, dureza: v }))} />
-                  <Faixa nome="Opacidade" v={opts.opacidade} min={1} max={100}
-                         set={(v) => setOpts((o) => ({ ...o, opacidade: v }))} />
-                  <Faixa nome="Fluxo" v={opts.fluxo} min={1} max={100}
-                         set={(v) => setOpts((o) => ({ ...o, fluxo: v }))} />
-                </>
-              )}
-
-              {/* A cor só importa quando se pinta numa máscara: ali o branco
-                  revela e o preto esconde. No pixel, o pincel usa a cor
-                  escolhida como tinta mesmo. */}
-              {ferr === 'pincel' && (
-                <>
-                  <span className="ps-sep" />
-                  <Dica texto={naMasc ? 'Branco revela, preto esconde (X troca)' : 'Cor do pincel (X troca)'}>
-                    <button
-                      className="ps-cor"
-                      style={{ background: cor }}
-                      onClick={() => setCor((c) => (c === '#ffffff' ? '#000000' : '#ffffff'))}
-                      aria-label="Trocar cor"
-                    />
-                  </Dica>
-                </>
-              )}
-
-            </>
-          )}
-
-          {/* ── As ações da seleção ──
-              Elas ficam FORA do bloco da ferramenta: uma seleção continua ativa
-              depois de trocar para a Mover, e os botões sumirem junto com o
-              letreiro deixava a seleção sem como ser invertida ou desfeita. */}
-          {!crop && temSel && (
-            <>
-              <span className="ps-esticar" />
-              <button className="ps-b" onClick={inverterSel}>Inverter seleção</button>
-              <button className="ps-b" onClick={desmarcar}>Desmarcar</button>
-            </>
-          )}
-        </div>
-      )}
 
       <div className="ps-main">
 
@@ -2545,6 +2426,152 @@ export default function PainelPos({ aoSair, aoUpscale }) {
             }
           }}
         >
+
+        {/* ══ A barra de opções ══
+            Ela existe quando a ferramenta tem o que ajustar — ou quando há uma
+            seleção ativa, que precisa de algum lugar de onde ser invertida ou
+            desfeita, mesmo que a mão já tenha trocado de ferramenta. */}
+        {temImagem && (mostraOpcoes || crop || temSel) && (
+          <div className="ps-opts">
+
+            {crop ? (
+              <>
+                <select
+                  className="ps-sel ps-sel--min"
+                  value={ratio}
+                  onChange={(e) => trocarRatio(e.target.value)}
+                >
+                  {RATIOS_CROP.map((r) => (
+                    <option key={r} value={r}>{r === 'livre' ? 'Livre' : r}</option>
+                  ))}
+                </select>
+
+                {/* Os números. Cortar "no olho" não serve quando o destino tem
+                    medida certa — um post, um slide, uma impressão. */}
+                <input
+                  type="number"
+                  className="ps-num"
+                  value={Math.round(Math.abs(crop.x1 - crop.x0))}
+                  onChange={(e) => cropPorNumero(+e.target.value, null)}
+                  aria-label="Largura"
+                />
+
+                <Dica texto="Inverter largura e altura">
+                  <button className="ps-troca" onClick={inverterCrop} aria-label="Inverter">
+                    ⇄
+                  </button>
+                </Dica>
+
+                <input
+                  type="number"
+                  className="ps-num"
+                  value={Math.round(Math.abs(crop.y1 - crop.y0))}
+                  onChange={(e) => cropPorNumero(null, +e.target.value)}
+                  aria-label="Altura"
+                />
+
+                <button className="ps-b" onClick={limparCrop}>Limpar</button>
+
+                <Dica texto="Desmarque para poder arrastar a camada e revelar o que ficou de fora">
+                  <label className="ps-caixa">
+                    <input
+                      type="checkbox"
+                      checked={apagarCortado}
+                      onChange={(e) => setApagarCortado(e.target.checked)}
+                    />
+                    <span>Apagar pixels cortados</span>
+                  </label>
+                </Dica>
+
+                <span className="ps-esticar" />
+
+                <button className="ps-b" onClick={() => { setCrop(null); setFerr('mover'); }}>
+                  Cancelar
+                </button>
+                <button className="ps-b ps-b--on" onClick={aplicarCrop}>
+                  Aplicar corte
+                </button>
+              </>
+            ) : (
+              <>
+                {SELECAO.includes(ferr) && (
+                  <>
+                    <div className="ps-modos">
+                      {[
+                        ['novo', 'Nova'],
+                        ['somar', 'Somar (Ctrl)'],
+                        ['subtrair', 'Subtrair (Alt)']
+                      ].map(([k, n]) => (
+                        <button
+                          key={k}
+                          className={'ps-modo' + (opts.modo === k ? ' ps-modo--on' : '')}
+                          onClick={() => setOpts((o) => ({ ...o, modo: k }))}
+                          title={n}
+                        >
+                          {k === 'novo' && <ModoNovo />}
+                          {k === 'somar' && <ModoSomar />}
+                          {k === 'subtrair' && <ModoSub />}
+                        </button>
+                      ))}
+                    </div>
+                    <span className="ps-sep" />
+                  </>
+                )}
+
+                {(ferr === 'varinha' || ferr === 'selRapida') && (
+                  <Faixa nome="Tolerância" v={opts.tolerancia} min={1} max={100}
+                         set={(v) => setOpts((o) => ({ ...o, tolerancia: v }))} />
+                )}
+
+                {(PINTAM.includes(ferr) || ferr === 'selRapida') && (
+                  <Faixa nome="Tamanho" v={opts.tamanho} min={1} max={300}
+                         set={(v) => setOpts((o) => ({ ...o, tamanho: v }))} />
+                )}
+
+                {PINTAM.includes(ferr) && (
+                  <>
+                    <Faixa nome="Dureza" v={opts.dureza} min={0} max={100}
+                           set={(v) => setOpts((o) => ({ ...o, dureza: v }))} />
+                    <Faixa nome="Opacidade" v={opts.opacidade} min={1} max={100}
+                           set={(v) => setOpts((o) => ({ ...o, opacidade: v }))} />
+                    <Faixa nome="Fluxo" v={opts.fluxo} min={1} max={100}
+                           set={(v) => setOpts((o) => ({ ...o, fluxo: v }))} />
+                  </>
+                )}
+
+                {/* A cor só importa quando se pinta numa máscara: ali o branco
+                    revela e o preto esconde. No pixel, o pincel usa a cor
+                    escolhida como tinta mesmo. */}
+                {ferr === 'pincel' && (
+                  <>
+                    <span className="ps-sep" />
+                    <Dica texto={naMasc ? 'Branco revela, preto esconde (X troca)' : 'Cor do pincel (X troca)'}>
+                      <button
+                        className="ps-cor"
+                        style={{ background: cor }}
+                        onClick={() => setCor((c) => (c === '#ffffff' ? '#000000' : '#ffffff'))}
+                        aria-label="Trocar cor"
+                      />
+                    </Dica>
+                  </>
+                )}
+
+              </>
+            )}
+
+            {/* ── As ações da seleção ──
+                Elas ficam FORA do bloco da ferramenta: uma seleção continua ativa
+                depois de trocar para a Mover, e os botões sumirem junto com o
+                letreiro deixava a seleção sem como ser invertida ou desfeita. */}
+            {!crop && temSel && (
+              <>
+                <span className="ps-esticar" />
+                <button className="ps-b" onClick={inverterSel}>Inverter seleção</button>
+                <button className="ps-b" onClick={desmarcar}>Desmarcar</button>
+              </>
+            )}
+          </div>
+        )}
 
           {!temImagem ? (
             <div className="ps-vazio">
@@ -2866,6 +2893,14 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       {atalhos && <JanelaAtalhos aoFechar={() => setAtalhos(false)} />}
 
       {confirmando && (
+        {nomeando !== null && (
+          <Nomear
+            inicial={nomeando}
+            aoSalvar={salvarCora}
+            aoCancelar={() => setNomeando(null)}
+          />
+        )}
+
         <Confirma
           texto="Abrir uma nova imagem vai fechar o trabalho atual. Tem certeza?"
           ok="Abrir mesmo assim"

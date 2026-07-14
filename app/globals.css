@@ -8732,27 +8732,43 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* ── A barra de opções ──
    Ela só aparece quando a ferramenta tem o que ajustar: uma barra sempre
    presente, mas vazia metade do tempo, seria só um vão morto. */
+/* ── A barra de opções ──
+   Ela FLUTUA sobre a imagem, colada no topo da tela.
+
+   Antes ela vivia no fluxo, acima da viewport: aparecer ou sumir mudava a
+   altura da coluna e empurrava a imagem para cima e para baixo. A tela pulava
+   sempre que uma ferramenta era escolhida ou uma seleção nascia.
+
+   Tentei consertar com altura fixa e `overflow: hidden` — e aí os botões que
+   não coubessem eram simplesmente CORTADOS. Foi assim que "Inverter seleção"
+   sumiu: ele estava lá, fora da tela.
+
+   Flutuando, ela não empurra nada e não precisa ser cortada. */
 .ps-opts {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 5;
+
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--line);
-  background: var(--wash);
+  padding: 0 12px;
+  height: 44px;
 
-  /* ── Altura FIXA ──
-     A barra tinha `flex-wrap: wrap` e altura livre: bastava um botão a mais
-     para os controles quebrarem numa segunda linha, a barra dobrar de altura e
-     empurrar a imagem para baixo. A tela pulava sempre que uma seleção nascia.
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: var(--paper);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, .07);
 
-     Agora ela não quebra e não cresce. Se algum dia não couber, o que sobrar
-     transborda — mas a imagem não se mexe. */
-  height: 48px;
-  flex: 0 0 48px;
-  flex-wrap: nowrap;
-  overflow: hidden;
-  row-gap: 8px;
+  /* Se um dia não couber, o excesso ROLA — nunca some. Um botão cortado é pior
+     que um botão que exige um empurrãozinho para alcançar. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
 }
+.ps-opts::-webkit-scrollbar { display: none; }
 
 .ps-opt-l {
   font-size: 11.5px;
@@ -9279,4 +9295,46 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-size: 12px;
   flex: 0 0 auto;
   white-space: nowrap;
+}
+
+
+/* A imagem respira por baixo da barra flutuante: sem esta folga, o topo dela
+   nasceria escondido atrás dos botões. */
+.ps-tela { padding-top: 8px; }
+
+
+/* ── Nomear o arquivo ── */
+.nm-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 8px;
+}
+.nm-campo {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  outline: none;
+}
+.nm-campo:focus { border-color: var(--accent); }
+
+/* A extensão não é editável: ela É o formato, e deixá-la digitável só convida a
+   salvar um arquivo que o Cora não vai reconhecer depois. */
+.nm-ext {
+  font-size: 13px;
+  color: var(--ink3);
+  flex: 0 0 auto;
+}
+
+.nm-nota {
+  font-size: 11.5px;
+  color: var(--ink3);
+  margin: 0 0 4px;
 }
