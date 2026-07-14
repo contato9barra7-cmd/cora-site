@@ -157,6 +157,12 @@ export default function AppPage() {
   const [pnTam, setPnTam]     = useState(38);
   const [pnRatio, setPnRatio] = useState('livre');
   const [pnMed, setPnMed]     = useState(null);   // as dimensões da moldura
+
+  // Os campos L/A: texto LIVRE (como st.rw/st.rh no plugin). Digitar "4" e "5"
+  // dá a razão 4:5. Guardar o que foi digitado — e não recalcular por cima —
+  // é o que permite editá-los.
+  const [pnRw, setPnRw]       = useState('');
+  const [pnRh, setPnRh]       = useState('');
   const [ocupado, setOcupado]       = useState(false);
   // O progresso aceita função: os painéis ACUMULAM as falhas nele
   // (setProgresso(p => ({...p, falhas}))), em vez de sobrescrever.
@@ -601,8 +607,23 @@ export default function AppPage() {
               tamanho={pnTam}       setTamanho={setPnTam}
               proporcao={pnRatio}   setProporcao={setPnRatio}
               medidas={pnMed}
-              aoDigitarMedida={(eixo, v) => digitarPincel.current?.(eixo, v)}
-              aoInverter={() => inverterPincel.current?.()}
+              rw={pnRw}
+              rh={pnRh}
+              aoDigitarRazao={(eixo, v) => {
+                // aceita só dígitos, como o plugin
+                const lim = v.replace(/[^\d]/g, '').slice(0, 5);
+                const rw = eixo === 'w' ? lim : pnRw;
+                const rh = eixo === 'h' ? lim : pnRh;
+                if (eixo === 'w') setPnRw(lim); else setPnRh(lim);
+                // dois campos preenchidos = uma razão
+                setPnRatio(rw && rh ? `${rw}:${rh}` : 'livre');
+              }}
+              aoInverter={() => {
+                // edExpSwap: troca os dois valores e a razão vai junto
+                setPnRw(pnRh);
+                setPnRh(pnRw);
+                setPnRatio(pnRh && pnRw ? `${pnRh}:${pnRw}` : 'livre');
+              }}
               limpar={limparPincel}
             />
           )}

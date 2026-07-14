@@ -43,7 +43,8 @@ export default function PainelPincel({
   tamanho, setTamanho,
   proporcao, setProporcao,
   medidas,                       // {w, h} da moldura, vindas da tela
-  aoDigitarMedida,               // os campos mandam de volta
+  rw, rh,                        // o que está ESCRITO nos campos (texto livre)
+  aoDigitarRazao,                // os campos mandam de volta
   aoInverter,
   limpar                         // a tela expõe o "limpar"
 }) {
@@ -138,12 +139,11 @@ export default function PainelPincel({
               className={'cr-pill-cfg cr-pill-cfg--larga' + (pop ? ' cr-pill-cfg--on' : '')}
               onClick={(e) => { e.stopPropagation(); setPop((v) => !v); }}
             >
-              {/* Os retângulos ficavam em x=1 / y=2 num viewBox de 20 — quase
-                  colados na borda, e o traço de 1.5 (centrado) transbordava.
-                  Centralizados com folga real de cada lado. */}
+              {/* O mesmo SVG do plugin (#pill-ratio-icon). O desenho nunca foi
+                  o problema: era o pill sem padding lateral. */}
               <svg viewBox="0 0 20 20" width="15" height="15" fill="none">
-                <rect x="2.5" y="6" width="12" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
-                <rect x="6.5" y="4" width="11" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
               </svg>
               <span>{proporcao === 'livre' ? 'Livre' : proporcao}</span>
               <Seta aberto={pop} />
@@ -173,15 +173,15 @@ export default function PainelPincel({
             )}
           </div>
 
-          {/* As dimensões: dá para arrastar a moldura OU digitar o número.
-              Quem sabe o tamanho exato que quer não deveria ter de acertá-lo
-              no olho. */}
+          {/* Como no plugin (edExpNumInput): os dois campos SÃO a razão.
+              Digitar 4 e 5 dá 4:5; digitar 2 e 1 dá 2:1. O que é digitado fica
+              — nada recalcula por cima, que era o que impedia de editá-los. */}
           <div className="pn-medidas">
             <input
               type="text"
               inputMode="numeric"
-              value={medidas?.w || ''}
-              onChange={(e) => aoDigitarMedida?.('w', e.target.value)}
+              value={rw ?? ''}
+              onChange={(e) => aoDigitarRazao?.('w', e.target.value)}
               placeholder="L"
             />
 
@@ -201,8 +201,8 @@ export default function PainelPincel({
             <input
               type="text"
               inputMode="numeric"
-              value={medidas?.h || ''}
-              onChange={(e) => aoDigitarMedida?.('h', e.target.value)}
+              value={rh ?? ''}
+              onChange={(e) => aoDigitarRazao?.('h', e.target.value)}
               placeholder="A"
             />
           </div>

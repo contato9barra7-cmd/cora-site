@@ -28,6 +28,11 @@ export default function Admin() {
   const [negado, setNegado] = useState(false);
   const [assinantes, setAssinantes] = useState([]);
   const [painelFiltros, setPainelFiltros] = useState(false);
+
+  // Paginação: com centenas de assinantes a página fica pesada e não há como
+  // chegar ao fim da lista.
+  const [porPag, setPorPag] = useState(50);
+  const [pag, setPag]       = useState(1);
   const [busca, setBusca] = useState('');
   const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'trial' | 'convidados'
   const [filtroData, setFiltroData] = useState('todos'); // todos | mes | 12meses | ano | periodo
@@ -454,6 +459,15 @@ export default function Admin() {
     if (aba === 'trial')      return !!a.eh_trial;
     return !a.eh_convidado && !a.eh_trial;
   }).length;
+
+  const nPags   = Math.max(1, Math.ceil(filtrados.length / porPag));
+  const pagAtual = Math.min(pag, nPags);   // filtrar pode encolher a lista sob os pés
+  const pagina  = filtrados.slice((pagAtual - 1) * porPag, pagAtual * porPag);
+
+  // Trocar de aba, filtrar ou buscar recomeça da primeira página: continuar na
+  // página 7 de uma lista que agora tem 2 mostraria uma tela vazia.
+  useEffect(() => { setPag(1); }, [aba, busca, filtroData, anoFiltro, dataDe, dataAte,
+    filtroStatus, filtroProfissao, filtroOrigem, filtroRender, filtroEstado, filtroPais]);
 
   const totalConvidados = assinantes.filter(a => a.eh_convidado && a.id !== meuId).length;
   const totalTrial = assinantes.filter(a => a.eh_trial && a.id !== meuId).length;
@@ -984,7 +998,7 @@ export default function Admin() {
             </tr>
           </thead>
           <tbody>
-            {filtrados.map(a => (
+            {pagina.map(a => (
               <tr key={a.id}>
                 <td>
                   <div className="admin-nome">{a.nome || '—'}</div>
@@ -1062,6 +1076,69 @@ export default function Admin() {
           </tbody>
         </table>
         {filtrados.length === 0 && <p className="admin-vazio">Nenhuma conta encontrada.</p>}
+
+        {filtrados.length > 0 && (
+          <div className="admin-pag">
+            <div className="admin-pag-qtd">
+              <span>Mostrar</span>
+              <select
+                value={porPag}
+                onChange={(e) => { setPorPag(+e.target.value); setPag(1); }}
+              >
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+                <option value={500}>500</option>
+              </select>
+              <span>de {filtrados.length}</span>
+            </div>
+
+            {nPags > 1 && (
+              <div className="admin-pag-nums">
+                <button
+                  className="admin-pag-seta"
+                  onClick={() => setPag(pagAtual - 1)}
+                  disabled={pagAtual === 1}
+                  aria-label="Página anterior"
+                >
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
+                       stroke="currentColor" strokeWidth="1.8">
+                    <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+
+                {/* Com 40 páginas, mostrar as 40 seria pior que não mostrar
+                    nenhuma. Uma janela ao redor da atual: sempre 5 números. */}
+                {(() => {
+                  const ini = Math.max(1, Math.min(pagAtual - 2, nPags - 4));
+                  const fim = Math.min(nPags, ini + 4);
+                  const ns  = [];
+                  for (let k = ini; k <= fim; k++) ns.push(k);
+                  return ns.map((n) => (
+                    <button
+                      key={n}
+                      className={'admin-pag-n' + (n === pagAtual ? ' admin-pag-n--on' : '')}
+                      onClick={() => setPag(n)}
+                    >
+                      {n}
+                    </button>
+                  ));
+                })()}
+
+                <button
+                  className="admin-pag-seta"
+                  onClick={() => setPag(pagAtual + 1)}
+                  disabled={pagAtual === nPags}
+                  aria-label="Próxima página"
+                >
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
+                       stroke="currentColor" strokeWidth="1.8">
+                    <path d="M8 4l5 6-5 6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       )}
     </div>

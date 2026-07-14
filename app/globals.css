@@ -2154,6 +2154,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   align-items: center;
   justify-content: center;
   gap: 5px;
+  padding: 0 13px;   /* sem isto o ícone encosta na borda arredondada */
   border: 1px solid var(--line2);
   border-radius: 100px;
   background: var(--paper);
@@ -5875,17 +5876,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   padding: 24px;
   overflow: hidden;
   position: relative;
-
-  /* O xadrez mostra o que é VAZIO — a área que a IA vai preencher. Em fundo
-     sólido, o vazio não se distinguia da imagem. */
-  background-color: var(--wash);
-  background-image:
-    linear-gradient(45deg,  var(--line) 25%, transparent 25%),
-    linear-gradient(-45deg, var(--line) 25%, transparent 25%),
-    linear-gradient(45deg,  transparent 75%, var(--line) 75%),
-    linear-gradient(-45deg, transparent 75%, var(--line) 75%);
-  background-size: 16px 16px;
-  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background: var(--wash);
 }
 
 .pn-pilha {
@@ -5932,6 +5923,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border: 1.5px dashed var(--accent);
   border-radius: 4px;
   background: color-mix(in srgb, var(--accent) 9%, transparent);
+
+  /* Como no plugin (edExpRedraw): o xadrez preenche a MOLDURA e a imagem é
+     desenhada POR CIMA — ele só aparece onde NÃO há imagem, que é exatamente
+     a área que a IA vai preencher. A área em volta fica lisa. */
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(45deg,  var(--wash2) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--wash2) 25%, transparent 25%),
+    linear-gradient(45deg,  transparent 75%, var(--wash2) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--wash2) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
 }
 
 /* As oito alças. Arrastar a borda é como se pensa em enquadramento —
@@ -6862,6 +6865,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .cr-pill-cfg--larga {
   width: 100%;
   justify-content: flex-start;
+  padding-left: 13px;
 }
 
 .cr-pill-cfg--larga > span { flex: 1; text-align: left; }
@@ -7765,4 +7769,89 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border-color: var(--alerta);
   background: var(--alerta);
   color: #FFF;
+}
+
+/* ── Paginação ──
+   Com centenas de assinantes a página fica pesada, e sem paginar não há como
+   chegar ao fim da lista. */
+.admin-pag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--wash);
+}
+
+.admin-pag-qtd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--ink3);
+}
+
+.admin-pag-qtd select {
+  height: 28px;
+  padding: 0 8px 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 11.5px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.admin-pag-nums {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-pag-seta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink2);
+  cursor: pointer;
+}
+
+.admin-pag-seta:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.admin-pag-seta:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.admin-pag-n {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 100px;
+  background: transparent;
+  color: var(--ink2);
+  font-size: 11.5px;
+  font-family: inherit;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-pag-n:hover { background: var(--accent-bg); }
+
+.admin-pag-n--on {
+  background: var(--accent);
+  color: var(--accent-txt);
+  font-weight: 600;
 }
