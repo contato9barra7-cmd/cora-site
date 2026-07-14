@@ -115,6 +115,13 @@ const GRUPOS = [
 ];
 
 const PINTAM   = ['pincel', 'borracha'];
+
+// As ferramentas que têm uma PONTA: elas pintam com um círculo, e precisam do
+// anel que mostra onde a tinta (ou a seleção) vai cair.
+//
+// A seleção rápida é uma delas. Ela é um pincel que pinta seleção em vez de
+// cor — e sem o anel, pintar com ela é adivinhar o alcance.
+const TEM_PONTA = ['pincel', 'borracha', 'selRapida'];
 const SELECAO  = ['ret', 'elip', 'laco', 'lacoPoli', 'selRapida', 'varinha'];
 
 export default function PainelPos({ aoSair, aoUpscale }) {
@@ -502,7 +509,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       // Ele mostra o TAMANHO REAL da ponta, no lugar exato onde a tinta vai
       // cair. É desenhado em duas cores — preto por dentro, branco por fora —
       // porque um anel de cor única desaparece sobre imagens da mesma cor.
-      if (PINTAM.includes(ferr) && pincelEm && !crop) {
+      if (TEM_PONTA.includes(ferr) && pincelEm && !crop) {
         const r = opts.tamanho;
 
         cx.save();
@@ -1192,6 +1199,18 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     g.pts = [p];
     g.ultimo = null;
 
+    // ── A seleção rápida SOMA por natureza ──
+    //
+    // Ela é um pincel: pinta-se um trecho, solta-se, pinta-se outro, e a seleção
+    // cresce. Exigir Ctrl entre cada pincelada tornaria inútil justamente o
+    // gesto que a define — e no Photoshop ela também é aditiva por padrão.
+    //
+    // O Alt continua subtraindo: é como se corrige o que a ferramenta pegou a
+    // mais, e sem isso não haveria conserto.
+    if (ferr === 'selRapida' && g.modo === 'novo' && temSel) {
+      g.modo = 'somar';
+    }
+
     // ── A seleção antiga sai NA HORA ──
     //
     // Ela só era limpa ao soltar o botão. Durante o arraste, a antiga continuava
@@ -1239,7 +1258,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
     // O anel do pincel segue o mouse mesmo sem botão apertado: é uma MIRA, e
     // uma mira que só aparece depois do disparo não serve para nada.
-    if (PINTAM.includes(ferr)) {
+    if (TEM_PONTA.includes(ferr)) {
       setPincelEm(paraDoc(e));
     }
 
@@ -2545,14 +2564,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                 {ferr === 'pincel' && (
                   <>
                     <span className="ps-sep" />
-                    <Dica texto={naMasc ? 'Branco revela, preto esconde (X troca)' : 'Cor do pincel (X troca)'}>
-                      <button
-                        className="ps-cor"
-                        style={{ background: cor }}
-                        onClick={() => setCor((c) => (c === '#ffffff' ? '#000000' : '#ffffff'))}
-                        aria-label="Trocar cor"
-                      />
-                    </Dica>
+                    <LinhaCor cor={cor} setCor={setCor} naMasc={naMasc} />
                   </>
                 )}
 
@@ -2604,7 +2616,11 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           ) : (
             <div
               className="ps-folha"
-              style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${escala})` }}
+              style={{
+                transform: `translate(${pan.x}px, ${pan.y}px) scale(${escala})`,
+                // O xadrez é dividido pela escala para não crescer com o zoom
+                '--xadrez': `${10 / escala}px`
+              }}
               onMouseDown={descer}
               onMouseMove={mover}
               onMouseLeave={() => setPincelEm(null)}
@@ -2684,7 +2700,11 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           <div className="ps-cab">
             <span className="cr-sec ps-sec">Camadas</span>
 
-            <Dica texto={ativa?.mascara ? 'Remover máscara' : 'Adicionar máscara'}>
+            <Dica texto={
+              ativa?.mascara ? 'Remover máscara'
+              : temSel       ? 'A seleção vira máscara'
+              :                'Adicionar máscara'
+            }>
               <button className="ps-mini" onClick={toggleMascara}
                       disabled={!ativa || ativa.tipo === 'grupo'} aria-label="Máscara">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
@@ -2954,6 +2974,61 @@ function IconeItem({ it }) {
         <path key={i} d={p} strokeDasharray={it.tracejado ? '3 2' : undefined} />
       ))}
     </svg>
+  );
+}
+
+// ── A cor do pincel ──
+//
+// Um anel com o espectro inteiro, que abre o seletor do sistema, mais três
+// atalhos para as cores que a mão pede o tempo todo.
+//
+// Numa MÁSCARA, o branco e o preto não são cores: são o revelar e o esconder.
+// É por isso que eles vêm primeiro, e o cinza — que revela pela metade — logo
+// atrás. O X troca entre os dois extremos sem tirar a mão da imagem.
+function LinhaCor({ cor, setCor, naMasc }) {
+  const ATALHOS = [
+    ['#ffffff', naMasc ? 'Branco: revela' : 'Branco'],
+    ['#000000', naMasc ? 'Preto: esconde' : 'Preto'],
+    ['#8e8e88', naMasc ? 'Cinza: revela pela metade' : 'Cinza']
+  ];
+
+  return (
+    <>
+      <Dica texto="Escolher a cor">
+        <span className="ps-cor-envelope">
+          <button className="ps-cor-picker" aria-hidden="true" tabIndex={-1}>
+            <i style={{ background: cor }} />
+          </button>
+
+          {/* O seletor do sistema, invisível, esticado por cima do anel. É ele
+              que recebe o clique — o botão de baixo é só a aparência.
+
+              Um <input type=color> não pode ser estilizado: cada navegador
+              desenha o seu, e todos são feios. Escondê-lo e mostrar o anel por
+              baixo dá o seletor nativo com a nossa cara. */}
+          <input
+            type="color"
+            className="ps-cor-real"
+            value={cor}
+            onChange={(e) => setCor(e.target.value)}
+            aria-label="Cor do pincel"
+          />
+        </span>
+      </Dica>
+
+      <span className="ps-cores">
+        {ATALHOS.map(([c, nome]) => (
+          <Dica key={c} texto={nome}>
+            <button
+              className={'ps-cor-at' + (cor.toLowerCase() === c ? ' ps-cor-at--on' : '')}
+              style={{ background: c }}
+              onClick={() => setCor(c)}
+              aria-label={nome}
+            />
+          </Dica>
+        ))}
+      </span>
+    </>
   );
 }
 

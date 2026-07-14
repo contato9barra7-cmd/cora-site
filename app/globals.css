@@ -8119,11 +8119,33 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   box-shadow: 0 2px 24px rgba(0, 0, 0, .10);
   line-height: 0;
 
-  /* O branco é da FOLHA, não dos canvas.
-     Ele estava em `.ps-folha canvas` — e como o overlay das formiguinhas também
-     é um canvas dentro da folha, ele ganhava fundo branco opaco e, deitado por
-     cima com `inset:0`, tapava a imagem inteira. A viewport ficava em branco. */
-  background: var(--paper);
+  /* ── O XADREZ ──
+     Onde a imagem é transparente, aparece o quadriculado. É a convenção de todo
+     editor, e ela CARREGA INFORMAÇÃO: sem ele, um buraco na camada e uma área
+     pintada de branco são indistinguíveis — e a pessoa só descobre a diferença
+     ao exportar em PNG e ver o fundo sumir.
+
+     O fundo vive na FOLHA, não nos canvas. Estava em `.ps-folha canvas` — e
+     como o overlay das formiguinhas também é um canvas dentro da folha, ele
+     ganhava o fundo opaco e, deitado por cima com `inset:0`, tapava a imagem
+     inteira. A viewport ficava em branco.
+
+     Os dois gradientes cruzados fazem o tabuleiro: cada um desenha duas
+     casas na diagonal, e juntos fecham o quadrado.
+
+     O tamanho vem do JSX, já DIVIDIDO pela escala. A folha é escalada pelo
+     `transform`, e o fundo escalaria junto: no zoom de 8x os quadrados virariam
+     um tabuleiro gigante; a 25%, um cinza chapado. Compensando pela escala, o
+     xadrez fica do mesmo tamanho aparente em qualquer zoom — como no Photoshop,
+     onde ele é uma propriedade da TELA, não da imagem. */
+  --xadrez: 10px;
+
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(45deg,  #e6e6e2 25%, transparent 25%, transparent 75%, #e6e6e2 75%),
+    linear-gradient(45deg,  #e6e6e2 25%, transparent 25%, transparent 75%, #e6e6e2 75%);
+  background-size: calc(var(--xadrez) * 2) calc(var(--xadrez) * 2);
+  background-position: 0 0, var(--xadrez) var(--xadrez);
 }
 .ps-folha canvas {
   display: block;
@@ -8868,7 +8890,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-folha[data-ferr="laco"],
 .ps-folha[data-ferr="lacoPoli"]  { cursor: crosshair; }
 .ps-folha[data-ferr="varinha"],
-.ps-folha[data-ferr="selRapida"] { cursor: crosshair; }
+/* A seleção rápida tem PONTA: o anel É o cursor. Deixar a cruzinha do sistema
+   por cima dele só empilharia dois cursores concorrentes. */
+.ps-folha[data-ferr="selRapida"] { cursor: none; }
 /* O pincel e a borracha NÃO têm cursor: o anel desenhado no overlay É o cursor.
    Deixar a setinha por cima só atrapalharia a mira. */
 .ps-folha[data-ferr="pincel"],
@@ -9337,4 +9361,170 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-size: 11.5px;
   color: var(--ink3);
   margin: 0 0 4px;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   OS DESLIZANTES DA BARRA
+   ══════════════════════════════════════════════════════════════
+
+   Eles não tinham CSS nenhum: usavam o controle padrão do navegador, cujo
+   thumb é uma lasquinha de poucos pixels. Mirar nele era um exercício de
+   pontaria — daí a sensação de que "não são sensíveis".
+
+   Esta é a receita do plugin: trilho de 4px, thumb de 14px com borda branca e
+   um anel sutil que o descola do fundo. A área de pega quadruplica. */
+
+.ps-opts input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 20px;             /* a área CLICÁVEL, maior que o trilho que se vê */
+  width: 82px;
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.ps-opts input[type=range]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line2);
+}
+.ps-opts input[type=range]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line2);
+}
+
+.ps-opts input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .18);
+  cursor: pointer;
+  margin-top: -5px;         /* centra o thumb no trilho de 4px */
+}
+.ps-opts input[type=range]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .18);
+  cursor: pointer;
+}
+
+.ps-opts input[type=range]:disabled { opacity: .4; cursor: default; }
+
+/* Um deslizante e o seu rótulo */
+.ps-faixa {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.ps-opt-l {
+  font-size: 11.5px;
+  color: var(--ink3);
+  white-space: nowrap;
+}
+.ps-opt-v {
+  font-size: 11.5px;
+  color: var(--ink);
+  min-width: 26px;
+  text-align: right;
+  /* Os algarismos têm todos a mesma largura: sem isso o número dança na tela
+     enquanto se arrasta, e o olho persegue um alvo que não devia se mexer. */
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   A COR DO PINCEL
+   ══════════════════════════════════════════════════════════════ */
+
+/* O picker: um anel com o espectro inteiro, e o miolo mostrando a cor ativa.
+   `appearance: none` é obrigatório — sem ele, o Firefox e o Safari desenham o
+   botão nativo por baixo, e o círculo sai um retângulo arredondado. */
+.ps-cor-picker {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  flex: 0 0 auto;
+  position: relative;
+  border-radius: 50%;
+  border: 1px solid var(--line2);
+  cursor: pointer;
+  background: conic-gradient(#ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+}
+.ps-cor-picker i {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, .28);
+}
+.ps-cor-picker:hover { border-color: var(--ink3); }
+
+/* Os três atalhos: branco, preto, cinza */
+.ps-cores { display: flex; gap: 6px; flex: 0 0 auto; }
+
+.ps-cor-at {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 19px;
+  height: 19px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line2);
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.ps-cor-at:hover { border-color: var(--ink3); }
+
+/* A cor ativa ganha um anel, para se saber qual está na mão */
+.ps-cor-at--on {
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--accent);
+}
+
+/* O envelope do picker: o <input type=color> real, invisível, fica esticado por
+   cima do anel. Ele recebe o clique; o anel só aparece. */
+.ps-cor-envelope {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.ps-cor-real {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Uma linha fina entre deslizantes vizinhos.
+
+   Ela é desenhada pelo CSS, e não posta à mão no JSX: assim vale para toda
+   ferramenta que tenha deslizantes, agora e depois, sem repetir um <span/> em
+   cada uma delas. E o irmão adjacente `+` só acerta quando há de fato dois
+   lado a lado — o primeiro nunca ganha um separador solto à esquerda. */
+.ps-faixa + .ps-faixa::before {
+  content: '';
+  width: 1px;
+  height: 22px;
+  margin-right: 4px;
+  background: var(--line);
+  flex: 0 0 auto;
 }
