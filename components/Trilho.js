@@ -3,13 +3,15 @@
 // ═══════════════════════════════════════════════════════════
 //  Trilho — as pills das abas
 //
-//  Enquanto eram quatro, cabiam: cada uma tomava um quarto da largura
-//  (`flex: 1`) e pronto. Com oito, essa divisão espremeria o texto até sumir.
+//  Enquanto eram quatro, cabiam: cada uma tomava um quarto da largura e
+//  pronto. Com mais, essa divisão espremeria o texto até sumir. Então as pills
+//  passam a ter a largura do próprio rótulo, e o trilho ANDA.
 //
-//  Então as pills passam a ter a largura do próprio rótulo, e o trilho ANDA:
-//  uma seta em cada ponta o empurra. A trava é o detalhe que importa — o
-//  trilho para sempre no COMEÇO de uma pill, nunca no meio de um rótulo.
-//  Meia palavra aparecendo é pior do que não aparecer nenhuma.
+//  ── A trava ──
+//  Andar não é somar N pixels. O trilho para de modo que a ÚLTIMA pill visível
+//  caiba INTEIRA — nada de meia palavra assomando na borda. Para isso não basta
+//  alinhar pela esquerda da próxima: é preciso olhar a DIREITA dela e recuar o
+//  bastante para que ela caiba no sulco.
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -21,7 +23,7 @@ export default function Trilho({ abas, ativa, onTrocar }) {
   const [x, setX]     = useState(0);
   const [max, setMax] = useState(0);
 
-  // Quanto dá para andar. Se tudo cabe, é zero — e as setas somem.
+  // Quanto dá para andar. Se tudo cabe, é zero — e as setas se apagam.
   const medir = useCallback(() => {
     const s = sulcoRef.current;
     const t = trilhoRef.current;
@@ -29,7 +31,7 @@ export default function Trilho({ abas, ativa, onTrocar }) {
 
     const m = Math.max(0, t.scrollWidth - s.clientWidth);
     setMax(m);
-    setX((v) => Math.min(v, m));   // se a janela cresceu, não deixa sobrar vão
+    setX((v) => Math.min(v, m));   // a janela cresceu: não deixa sobrar vão
   }, []);
 
   useEffect(() => {
@@ -39,38 +41,58 @@ export default function Trilho({ abas, ativa, onTrocar }) {
     return () => ob.disconnect();
   }, [medir, abas]);
 
-  // ── A trava ──
-  // Andar não é somar N pixels: é ir até a borda esquerda da PRÓXIMA pill.
-  // É isso que garante que nenhum rótulo fique cortado ao meio.
+  // ── Para a direita ──
+  //
+  // Queremos a PRÓXIMA pill que hoje está cortada (ou de fora) inteiramente à
+  // vista. O deslocamento certo não é o offsetLeft dela: é a borda DIREITA dela
+  // menos a largura do sulco. Alinhar pela esquerda era o que deixava um
+  // pedacinho da seguinte espiando.
   function proxima() {
     const t = trilhoRef.current;
-    if (!t) return;
+    const s = sulcoRef.current;
+    if (!t || !s) return;
+
+    const larguraSulco = s.clientWidth;
+    const bordaVisivel = x + larguraSulco;
 
     for (const p of t.children) {
-      if (p.offsetLeft > x + 2) {
-        setX(Math.min(p.offsetLeft, max));
+      const dir = p.offsetLeft + p.offsetWidth;
+
+      // A primeira que ainda não cabe por inteiro
+      if (dir > bordaVisivel + 1) {
+        setX(Math.min(max, Math.max(0, dir - larguraSulco)));
         return;
       }
     }
-    setX(max);   // não há próxima: vai até o fim
+
+    setX(max);
   }
 
+  // ── Para a esquerda ──
+  // Simétrico: a última pill cortada à esquerda deve encostar na borda.
   function anterior() {
     const t = trilhoRef.current;
     if (!t) return;
 
     const ps = [...t.children];
     for (let i = ps.length - 1; i >= 0; i--) {
-      if (ps[i].offsetLeft < x - 2) {
+      if (ps[i].offsetLeft < x - 1) {
         setX(Math.max(0, ps[i].offsetLeft));
         return;
       }
     }
+
     setX(0);
   }
 
-  // Trocar de aba pela pill: se ela estiver fora de vista, o trilho a traz.
-  // Sem isto, clicar numa aba pelo teclado a deixaria escondida.
+  // ── Trazer a aba ativa para dentro ──
+  //
+  // Trocar de aba por outro caminho (um botão vindo de outra tela) não deve
+  // deixar a pill escondida.
+  //
+  // CUIDADO: `x` NÃO entra nas dependências. Se entrasse, este efeito rodaria a
+  // cada passo da seta e puxaria o trilho de volta — que era exatamente o
+  // travamento. Ele só corre quando a ABA muda, não quando o trilho anda.
   useEffect(() => {
     const t = trilhoRef.current;
     const s = sulcoRef.current;
@@ -82,26 +104,39 @@ export default function Trilho({ abas, ativa, onTrocar }) {
 
     const esq = p.offsetLeft;
     const dir = esq + p.offsetWidth;
+    const larguraSulco = s.clientWidth;
 
-    if (esq < x)                     setX(Math.max(0, esq));
-    else if (dir > x + s.clientWidth) setX(Math.min(max, dir - s.clientWidth));
-  }, [ativa, abas, x, max]);
+    setX((atual) => {
+      if (esq < atual) return Math.max(0, esq);
+      if (dir > atual + larguraSulco) {
+        return Math.max(0, Math.min(max, dir - larguraSulco));
+      }
+      return atual;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ativa, abas, max]);
 
-  const temEsq = x > 2;
-  const temDir = x < max - 2;
+  const temEsq = x > 1;
+  const temDir = x < max - 1;
 
   return (
     <div className="cr-pills">
 
-      {temEsq && (
-        <button className="cr-seta" onClick={anterior} aria-label="Abas anteriores">
-          <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
-               stroke="currentColor" strokeWidth="1.7"
-               strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 4l-5 6 5 6" />
-          </svg>
-        </button>
-      )}
+      {/* As setas ocupam lugar mesmo quando não servem: aparecendo e sumindo,
+          elas fariam o sulco mudar de largura a cada passo — e o trilho
+          pularia sozinho debaixo do dedo. */}
+      <button
+        className={'cr-seta' + (temEsq ? '' : ' cr-seta--off')}
+        onClick={anterior}
+        disabled={!temEsq}
+        aria-label="Abas anteriores"
+      >
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
+             stroke="currentColor" strokeWidth="1.7"
+             strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 4l-5 6 5 6" />
+        </svg>
+      </button>
 
       <div className="cr-sulco" ref={sulcoRef}>
         <div
@@ -119,15 +154,18 @@ export default function Trilho({ abas, ativa, onTrocar }) {
         </div>
       </div>
 
-      {temDir && (
-        <button className="cr-seta" onClick={proxima} aria-label="Mais abas">
-          <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
-               stroke="currentColor" strokeWidth="1.7"
-               strokeLinecap="round" strokeLinejoin="round">
-            <path d="M8 4l5 6-5 6" />
-          </svg>
-        </button>
-      )}
+      <button
+        className={'cr-seta' + (temDir ? '' : ' cr-seta--off')}
+        onClick={proxima}
+        disabled={!temDir}
+        aria-label="Mais abas"
+      >
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
+             stroke="currentColor" strokeWidth="1.7"
+             strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 4l5 6-5 6" />
+        </svg>
+      </button>
     </div>
   );
 }

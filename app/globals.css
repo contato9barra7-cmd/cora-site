@@ -1327,7 +1327,14 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   cursor: pointer;
   transition: all .15s;
 }
-.cr-seta:hover { background: var(--wash2); color: var(--ink); }
+.cr-seta:hover:not(:disabled) { background: var(--wash2); color: var(--ink); }
+
+/* Sem seta para aquele lado. Ela NÃO some: sumindo, o sulco mudaria de largura
+   e o trilho pularia sozinho a cada passo. Fica só invisível e sem alvo. */
+.cr-seta--off {
+  opacity: 0;
+  pointer-events: none;
+}
 
 
 .cr-pill {
@@ -7984,12 +7991,34 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border-bottom: 1px solid var(--line);
   flex-shrink: 0;
 
-  /* Numa janela estreita a barra rola em vez de quebrar em duas linhas:
-     uma topbar de duas alturas empurraria a tela para baixo. */
-  overflow-x: auto;
-  scrollbar-width: none;
+  /* SEM overflow.
+     `overflow-x: auto` recortaria nos DOIS eixos — o navegador ignora um
+     `overflow-y: visible` ao lado dele — e decapitaria o tooltip, que nasce
+     abaixo do botão. Não existe "corta na horizontal, deixa passar na
+     vertical".
+
+     Então nada recorta: numa janela apertada a barra QUEBRA em duas linhas em
+     vez de rolar. Duas linhas custam altura uma vez; um tooltip cortado atrapalha
+     a cada uso. */
+  flex-wrap: wrap;
+  row-gap: 8px;
 }
-.ps-top::-webkit-scrollbar { display: none; }
+
+/* O tooltip precisa passar por cima da tela e da coluna de camadas */
+.ps-top [data-tip]:hover::after {
+  white-space: nowrap;
+  max-width: none;
+  width: auto;
+  z-index: 200;
+}
+
+/* Nos últimos botões ele sairia pela direita da janela: ali se alinha pela
+   borda direita do botão, não pelo centro. */
+.ps-top > *:nth-last-child(-n+3)[data-tip]:hover::after {
+  left: auto;
+  right: 0;
+  transform: none;
+}
 
 .ps-sep {
   flex-shrink: 0;
