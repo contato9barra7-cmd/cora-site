@@ -155,7 +155,9 @@ export default function PainelPincel({
                       className={'cr-pop-b' + (proporcao === p.val ? ' cr-pop-b--on' : '')}
                       onClick={() => { setProporcao(p.val); setPop(false); }}
                     >
-                      <svg viewBox="0 0 28 28" fill="none">
+                      {/* viewBox folgado: as coordenadas vão até a borda,
+                          e o traço (1.5) é centrado — metade dele cairia fora. */}
+                      <svg viewBox="-3 -3 34 34" fill="none">
                         <rect x={p.x} y={p.y} width={p.w} height={p.h} rx="1"
                               stroke="currentColor" strokeWidth="1.5"
                               strokeDasharray={p.val === 'livre' ? '3 2' : undefined}/>

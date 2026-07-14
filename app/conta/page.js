@@ -303,7 +303,8 @@ function ContaConteudo() {
             {!comoInstalar && <em>6 passos</em>}
           </button>
 
-          <div className="dash-plugin-passos" hidden={!comoInstalar}>
+          {comoInstalar && (
+          <div className="dash-plugin-passos">
             <div className="dash-passo">
               <span>1</span>
               <div>
@@ -347,6 +348,7 @@ function ContaConteudo() {
               </div>
             </div>
           </div>
+          )}
         </div>
       </div>
     </div>

@@ -352,7 +352,7 @@ export default function TelaPincel({
       if (lados.includes('cima'))  novo.cima  = Math.max(0, m0.cima  - dy);
       if (lados.includes('baixo')) novo.baixo = Math.max(0, m0.baixo + dy);
 
-      setM(travar(novo));
+      setM(travar(novo, lados));
     }
 
     function soltar() {
@@ -364,9 +364,20 @@ export default function TelaPincel({
     window.addEventListener('mouseup', soltar);
   }
 
-  // Com uma proporção escolhida, a moldura obedece a ela: crescer de um lado
-  // faz o outro eixo acompanhar.
-  function travar(novo) {
+  // ── A proporção manda: o eixo livre acompanha o que se arrasta ──
+  //
+  //  A versão anterior recalculava SEMPRE o eixo vertical a partir da largura.
+  //  Duas consequências ruins:
+  //
+  //    1. Puxar a alça de cima não fazia nada — o valor arrastado era
+  //       sobrescrito na mesma hora.
+  //    2. A conta só crescia o vertical. Puxar a esquerda numa imagem 4:3
+  //       travada em 16:9 dava 1760x1200, que não é 16:9.
+  //
+  //  Agora: quem arrasta manda no seu eixo, e o OUTRO eixo é calculado para
+  //  fechar a proporção. Puxar a lateral ajusta a altura; puxar o topo ajusta
+  //  a largura.
+  function travar(novo, lados = []) {
     if (!proporcao || proporcao === 'livre') return novo;
 
     const [pw, ph] = proporcao.split(':').map(Number);
@@ -375,14 +386,44 @@ export default function TelaPincel({
     const { w: W, h: H } = nativo.current;
     if (!W) return novo;
 
-    // As dimensões que a moldura teria
-    const larg = W * (1 + (novo.esq + novo.dir) / 100);
-    const alvoH = larg * (ph / pw);
+    const alvo = pw / ph;
 
-    // Quanto o eixo vertical precisa crescer para bater a proporção
-    const sobra = Math.max(0, (alvoH - H) / H * 100);
+    // Qual eixo a pessoa está movendo?
+    const mexeH = lados.includes('esq')  || lados.includes('dir');
+    const mexeV = lados.includes('cima') || lados.includes('baixo');
 
-    return { ...novo, cima: sobra / 2, baixo: sobra / 2 };
+    // Num canto, os dois se movem: a largura manda, e a altura acompanha.
+    if (mexeH || (!mexeH && !mexeV)) {
+      let larg = W * (1 + (novo.esq + novo.dir) / 100);
+      let alt  = larg / alvo;
+
+      // A moldura não corta a imagem: ela só cresce. Se a altura que a
+      // proporção pede for menor que a imagem, é a LARGURA que precisa
+      // crescer para fechar a conta.
+      if (alt < H) {
+        alt = H;
+        larg = H * alvo;
+        const sobraW = (larg - W) / W * 100;
+        return { ...novo, esq: sobraW / 2, dir: sobraW / 2, cima: 0, baixo: 0 };
+      }
+
+      const sobra = (alt - H) / H * 100;
+      return { ...novo, cima: sobra / 2, baixo: sobra / 2 };
+    }
+
+    // Puxou o topo ou a base: a altura manda, e a largura acompanha.
+    let alt  = H * (1 + (novo.cima + novo.baixo) / 100);
+    let larg = alt * alvo;
+
+    if (larg < W) {
+      larg = W;
+      alt  = W / alvo;
+      const sobraH = (alt - H) / H * 100;
+      return { ...novo, cima: sobraH / 2, baixo: sobraH / 2, esq: 0, dir: 0 };
+    }
+
+    const sobra = (larg - W) / W * 100;
+    return { ...novo, esq: sobra / 2, dir: sobra / 2 };
   }
 
   // ── Escolher a proporção já monta a moldura ──
