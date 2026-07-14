@@ -21,6 +21,8 @@ import PainelEditar from '../../components/PainelEditar';
 import TelaPincel from '../../components/TelaPincel';
 import PainelPincel from '../../components/PainelPincel';
 import PainelAnalises from '../../components/PainelAnalises';
+import PainelPos from '../../components/PainelPos';
+import Trilho from '../../components/Trilho';
 import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
 import Card, { proporcaoCss } from '../../components/Card';
@@ -34,6 +36,19 @@ import {
   listarGeracoes, alternarFavorito, alternarAprovado, apagarGeracao,
   bytesDaGeracao, ROTULO_FERRAMENTA, tempoRelativo, diasAteExpirar
 } from '../../lib/geracoes';
+
+// As abas do trilho. A Pós não é como as outras: em vez de encher o painel,
+// ela toma o corpo inteiro (ver `ehTelaCheia` mais abaixo).
+const ABAS = [
+  { id: 'render',   rotulo: 'Render' },
+  { id: 'batch',    rotulo: 'Batch' },
+  { id: 'editar',   rotulo: 'Editar' },
+  { id: 'pos',      rotulo: 'Pós-produção' },
+  { id: 'analises', rotulo: 'Análises' }
+];
+
+// As que engolem a tela — o painel e o feed saem de cena enquanto durarem.
+const TELA_CHEIA = ['pos'];
 
 const FILTROS = [
   {
@@ -542,37 +557,46 @@ export default function AppPage() {
   const porMes = agruparPorMes(lotes);
   const vazio  = !carregando && porMes.length === 0 && !progresso;
 
+  // A Pós não cabe num painel de 380px: um editor de camadas espremido numa
+  // coluna seria inútil. Enquanto ela está aberta, o painel e o feed saem.
+  const ehTelaCheia = TELA_CHEIA.includes(ferramenta);
+
+  if (ehTelaCheia) {
+    return (
+      <AppShell>
+        <div className="cr-tela">
+          <PainelPos
+            aoSair={() => setFerramenta('render')}
+            aoUpscale={(dataUrl) => {
+              // O Upscale entra depois; por ora a imagem composta volta para
+              // o Editar, que já sabe recebê-la.
+              setImagemDeOutraAba({
+                para: 'editar',
+                base64: dataUrl.split(',')[1],
+                previa: dataUrl
+              });
+              setFerramenta('editar');
+            }}
+          />
+        </div>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <div className="cr-tela">
 
         {/* ═══ Painel ═══ */}
         <aside className="cr-painel">
-          <div className="cr-pills">
-            {/* O trilho: as pills correm num sulco, e a ativa é a placa que
-                sobe dele. */}
-            <div className="cr-trilho">
-              {/* Sem `disabled={ocupado}`: a geração roda no servidor, e não
-                  há razão para prender a pessoa aqui. Ela pode trocar de aba e
-                  preparar o próximo trabalho enquanto este sai. */}
-              <button
-                className={'cr-pill' + (ferramenta === 'render' ? ' cr-pill--on' : '')}
-                onClick={() => setFerramenta('render')}
-              >Render</button>
-              <button
-                className={'cr-pill' + (ferramenta === 'batch' ? ' cr-pill--on' : '')}
-                onClick={() => setFerramenta('batch')}
-              >Batch</button>
-              <button
-                className={'cr-pill' + (ferramenta === 'editar' ? ' cr-pill--on' : '')}
-                onClick={() => setFerramenta('editar')}
-              >Editar</button>
-              <button
-                className={'cr-pill' + (ferramenta === 'analises' ? ' cr-pill--on' : '')}
-                onClick={() => setFerramenta('analises')}
-              >Análises</button>
-            </div>
-          </div>
+          {/* Sem `disabled={ocupado}`: a geração roda no servidor, e não há
+              razão para prender a pessoa aqui. Ela pode trocar de aba e
+              preparar o próximo trabalho enquanto este sai. */}
+          <Trilho
+            abas={ABAS}
+            ativa={ferramenta}
+            onTrocar={setFerramenta}
+          />
 
           {/* ── Os painéis ficam MONTADOS, escondidos ──
               Renderizar só o da aba ativa desmontava os outros — e o React

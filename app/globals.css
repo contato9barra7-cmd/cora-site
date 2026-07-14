@@ -1287,17 +1287,54 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
   /* Preparado para MAIS de 4 abas: passando disso, o trilho rola em vez de
      espremer as pills até o texto sumir. Enquanto couberem, nada muda. */
-  overflow-x: auto;
-  scrollbar-width: none;              /* a barra some: rola-se pelo gesto */
-  scroll-behavior: smooth;
+  /* O trilho ANDA (transform), não rola: assim ele pode travar no começo de
+     uma pill, e nenhum rótulo fica cortado ao meio. Quem controla é o
+     componente Trilho; aqui só se declara a transição. */
+  transition: transform .32s cubic-bezier(.4, 0, .2, 1);
+  width: max-content;
 }
 
-.cr-trilho::-webkit-scrollbar { display: none; }
+/* O sulco é a janela por onde se vê o trilho. Ele é que tem a moldura e o
+   fundo; o trilho, por baixo, desliza. */
+.cr-sulco {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 100px;
+  background: var(--wash2);
+  padding: 3px;
+}
+
+/* O sulco já tem o fundo — o trilho fica nu */
+.cr-sulco .cr-trilho {
+  background: transparent;
+  padding: 0;
+  width: max-content;
+}
+
+.cr-seta {
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--ink3);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.cr-seta:hover { background: var(--wash2); color: var(--ink); }
 
 
 .cr-pill {
-  flex: 1;
-  padding: 7px 0;
+  /* Com oito abas, dividir a largura igualmente espremeria o texto até sumir.
+     Cada pill passa a ter o tamanho do próprio rótulo, e o trilho anda. */
+  flex: 0 0 auto;
+  padding: 7px 16px;
   border-radius: 100px;
   border: none;
   background: transparent;
@@ -7917,3 +7954,392 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .app-side-toggle--so:hover .app-side-seta { opacity: 1; }
 
 .app-side-toggle--so:hover { background: var(--wash2); }
+
+
+/* ══════════════════════════════════════════════════════════════
+   PÓS-PRODUÇÃO — a aba que toma a janela inteira
+
+   Ao contrário das outras, esta não cabe num painel de 380px: um editor de
+   camadas espremido numa coluna seria inútil. Ela ocupa o corpo todo — o
+   painel e o feed saem de cena enquanto ela está aberta.
+
+   Nada de vocabulário novo: os botões são a MESMA pílula do .cr-chip, e as
+   cores são as mesmas variáveis. Quem conhece o app reconhece a Pós.
+   ══════════════════════════════════════════════════════════════ */
+
+.ps {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--paper);
+}
+
+/* ── A topbar ── */
+.ps-top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+
+  /* Numa janela estreita a barra rola em vez de quebrar em duas linhas:
+     uma topbar de duas alturas empurraria a tela para baixo. */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ps-top::-webkit-scrollbar { display: none; }
+
+.ps-sep {
+  flex-shrink: 0;
+  width: 1px;
+  height: 22px;
+  background: var(--line);
+  margin: 0 3px;
+}
+.ps-esticar { flex: 1; }
+
+/* ── Os botões ──
+   O mesmo .cr-chip: 34px, pílula, borda --line2. Ativo = accent-bg. */
+.ps-b {
+  flex-shrink: 0;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink2);
+  font-size: 12.5px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.ps-b:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.ps-b:disabled { opacity: .4; cursor: default; }
+
+.ps-b--on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.ps-b--largo {
+  width: 100%;
+  height: 40px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.ps-b svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* O botão só de ícone: o mesmo, redondo */
+.ps-ic {
+  position: relative;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink2);
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ps-ic:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.ps-ic:disabled { opacity: .4; cursor: default; }
+
+.ps-ic--on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.ps-ic svg { width: 16px; height: 16px; }
+
+/* O triângulo dos grupos de ferramenta — o .pos-tool-tri do plugin */
+.ps-tri {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 0;
+  height: 0;
+  border-left: 3.5px solid transparent;
+  border-bottom: 3.5px solid currentColor;
+  opacity: .5;
+}
+
+/* ── O corpo ── */
+.ps-main {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* ── A tela ──
+   No plugin o fundo é #3a3a3a. Aqui o app é claro, e um cinza escuro seria
+   um corpo estranho: --wash já isola a imagem do resto sem destoar. */
+.ps-tela {
+  flex: 1;
+  min-width: 0;
+  background: var(--wash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ps-folha {
+  /* O zoom e o pan vivem no transform: mexer no tamanho do canvas a cada
+     scroll re-renderizaria a imagem inteira. */
+  transform-origin: center;
+  box-shadow: 0 2px 24px rgba(0, 0, 0, .10);
+  line-height: 0;
+}
+.ps-folha canvas {
+  display: block;
+  max-width: none;
+  background: var(--paper);
+}
+
+.ps-zoom {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  font-size: 11.5px;
+  color: var(--ink3);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 6px 13px;
+  border-radius: 100px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+.ps-zoom:hover { border-color: var(--accent); color: var(--accent); }
+
+.ps-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--ink3);
+  text-align: center;
+  padding: 40px;
+}
+.ps-vazio svg {
+  width: 46px;
+  height: 46px;
+  stroke: var(--line2);
+}
+.ps-vazio p {
+  font-size: 13px;
+  line-height: 1.55;
+  max-width: 290px;
+  margin: 0;
+}
+
+.ps-erro {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--alerta);
+  color: #fff;
+  font-size: 12.5px;
+  padding: 8px 16px;
+  border-radius: 100px;
+}
+
+/* ── A coluna de camadas ── */
+.ps-col {
+  width: 296px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--paper);
+}
+
+.ps-bloco {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+/* O .cr-sec já existe; aqui só se tira a margem que ele traz de fábrica */
+.ps-sec { margin: 0 0 12px; }
+
+.ps-linha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ps-linha + .ps-linha { margin-top: 12px; }
+
+.ps-linha label {
+  font-size: 12px;
+  color: var(--ink3);
+  flex: 0 0 62px;
+}
+
+.ps-sel {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 13px;
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink2);
+  font-size: 12.5px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.ps-sel:hover { border-color: var(--accent); }
+
+.ps-linha input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.ps-val {
+  font-size: 12px;
+  color: var(--ink2);
+  flex: 0 0 34px;
+  text-align: right;
+}
+
+/* O cabeçalho da pilha, com as ações */
+.ps-cab {
+  display: flex;
+  align-items: center;
+  padding: 16px 18px 10px;
+  flex-shrink: 0;
+}
+.ps-cab .ps-sec { flex: 1; margin: 0; }
+
+.ps-mini {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--ink3);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.ps-mini:hover:not(:disabled) { background: var(--wash); color: var(--accent); }
+.ps-mini:disabled { opacity: .35; cursor: default; }
+.ps-mini--perigo:hover:not(:disabled) { color: var(--alerta); }
+.ps-mini svg { width: 15px; height: 15px; }
+
+/* ── A pilha ── */
+.ps-camadas {
+  padding: 0 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ps-cam {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+  cursor: pointer;
+  transition: all .15s;
+  user-select: none;
+}
+.ps-cam:hover { border-color: var(--line2); }
+
+.ps-cam--on {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+.ps-cam--on .ps-nome { color: var(--accent); font-weight: 500; }
+.ps-cam--on .ps-olho { color: var(--accent); }
+
+.ps-cam--off { opacity: .45; }
+
+/* Dentro de um grupo: recuada, com o fio do accent ligando ao pai */
+.ps-cam--dentro {
+  margin-left: 16px;
+  border-left: 2px solid var(--accent);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.ps-olho {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ps-olho:hover { color: var(--accent); }
+.ps-olho svg { width: 16px; height: 16px; }
+
+.ps-thumb {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: var(--wash2) center / cover no-repeat;
+  border: 1px solid var(--line2);
+  cursor: pointer;
+}
+/* Qual dos dois está escolhido — a imagem ou a máscara. É o que diz onde a
+   próxima pincelada vai cair. */
+.ps-thumb--sel {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-bg);
+}
+.ps-thumb--masc { background-color: #000; }
+
+.ps-pasta {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+.ps-pasta svg { width: 18px; height: 18px; }
+
+.ps-nome {
+  font-size: 12.5px;
+  color: var(--ink2);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
