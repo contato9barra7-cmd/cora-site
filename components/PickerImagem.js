@@ -165,12 +165,31 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
     img.src = url;
   }
 
-  function confirmar() {
+  async function confirmar() {
     if (!pendente) return;
+
+    let { base64, previa, geracaoId } = pendente;
+
+    // Se veio do feed, é AGORA que os bytes são baixados — no momento em que
+    // vão de fato ser usados, e não lá atrás, só para acender a barra.
+    //
+    // Eles vêm do servidor, e não por um fetch() direto na URL: o R2 não manda
+    // CORS, e o fetch falharia com "Failed to fetch".
+    if (!base64 && geracaoId) {
+      setPegando(geracaoId);
+      setErro('');
+      try {
+        base64 = await bytesDaGeracao(geracaoId);
+      } catch (e) {
+        setErro(e.message);
+        setPegando(null);
+        return;                       // a barra fica de pé: dá para tentar de novo
+      }
+      setPegando(null);
+    }
 
     // Só os campos que o chamador espera — o resto (nome, peso, dimensões)
     // era só para a tela de confirmação.
-    const { base64, previa, geracaoId } = pendente;
     onEscolher({ base64, previa, geracaoId });
 
     setPendente(null);
@@ -179,27 +198,24 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
 
   // Do histórico também se confirma: a miniatura tem 100px, e ninguém
   // consegue ter certeza de que é a imagem certa a esse tamanho.
-  async function escolherDoFeed(item) {
-    setPegando(item.id);
+  //
+  // Os BYTES não são baixados aqui. Baixá-los agora — só para acender uma barra
+  // que já poderia ser desenhada com a URL que temos em mãos — é o que fazia a
+  // barra demorar a aparecer: a pessoa clicava e ficava esperando megabytes
+  // chegarem antes de qualquer sinal de que o clique funcionou.
+  //
+  // Eles vêm no `confirmar()`, quando de fato serão usados.
+  function escolherDoFeed(item) {
     setErro('');
-    try {
-      // Os bytes vêm do servidor: o R2 não manda CORS, então o fetch()
-      // direto na URL da imagem falha ("Failed to fetch").
-      const base64 = await bytesDaGeracao(item.id);
+    setPendente({
+      base64: null,             // vem depois
+      previa: item.url,
+      geracaoId: item.id,
+      de: 'feed',
+      id: item.id
+    });
 
-      // O `geracaoId` viaja junto: com ele, a leitura de materiais aponta
-      // para a imagem que JÁ está no R2, em vez de guardar outra cópia.
-      setPendente({
-        base64,
-        previa: item.url,
-        geracaoId: item.id,
-        de: 'feed',
-        id: item.id
-      });
-
-      medir(item.url);
-    } catch (e) { setErro(e.message); }
-    finally { setPegando(null); }
+    medir(item.url);
   }
 
   // Fechar limpa o que estava pendente
@@ -383,8 +399,15 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
                 </button>
               )}
 
-              <button className="pk-ok-btn" onClick={confirmar}>
-                Usar esta imagem
+              {/* Agora é aqui que os bytes chegam — então é aqui que a espera
+                  aparece. Antes ela ficava escondida no clique da grade, sem
+                  nada na tela dizendo que algo estava acontecendo. */}
+              <button
+                className="pk-ok-btn"
+                onClick={confirmar}
+                disabled={pegando !== null}
+              >
+                {pegando !== null ? 'Abrindo...' : 'Usar esta imagem'}
               </button>
             </footer>
           )}

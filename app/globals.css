@@ -8643,3 +8643,273 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border-color: var(--paper);
   box-shadow: 0 0 0 2px var(--accent);
 }
+
+
+/* ══════════════════════════════════════════════════════════════
+   PÓS — as ferramentas
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Os grupos de ferramenta (flyout) ── */
+.ps-grupo {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* O triângulo é um alvo próprio, colado no canto do botão. Clicar no botão usa
+   a ferramenta; clicar no triângulo mostra as irmãs dela. */
+.ps-tri-btn {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 13px;
+  height: 13px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+.ps-tri-btn:disabled { opacity: .4; cursor: default; }
+
+.ps-tri {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-bottom: 4px solid var(--ink3);
+  opacity: .65;
+}
+.ps-tri-btn:hover .ps-tri { border-bottom-color: var(--accent); opacity: 1; }
+
+/* O véu fecha o flyout ao clicar fora. Sem ele, o menu ficaria preso aberto —
+   e um menu que não fecha é pior que um menu que não abre. */
+.ps-veu {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+}
+
+.ps-fly {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 0;
+  z-index: 301;
+  min-width: 210px;
+  background: var(--paper);
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  padding: 5px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .13);
+}
+
+.ps-fly-it {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink2);
+  font-size: 12.5px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: all .12s;
+}
+.ps-fly-it:hover { background: var(--wash); color: var(--ink); }
+.ps-fly-it--on   { background: var(--accent-bg); color: var(--accent); font-weight: 500; }
+.ps-fly-it svg   { width: 15px; height: 15px; flex-shrink: 0; }
+
+/* ── A barra de opções ──
+   Ela só aparece quando a ferramenta tem o que ajustar: uma barra sempre
+   presente, mas vazia metade do tempo, seria só um vão morto. */
+.ps-opts {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--wash);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+.ps-opt-l {
+  font-size: 11.5px;
+  color: var(--ink3);
+  white-space: nowrap;
+}
+.ps-opt-v {
+  font-size: 11.5px;
+  color: var(--ink2);
+  min-width: 26px;
+  text-align: right;
+}
+
+.ps-faixa {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+.ps-faixa input[type="range"] {
+  width: 92px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.ps-sel--min {
+  height: 30px;
+  font-size: 12px;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 90px;
+}
+
+/* ── Os três modos de seleção ── */
+.ps-modos {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--wash2);
+  border-radius: 100px;
+  flex-shrink: 0;
+}
+
+.ps-modo {
+  width: 28px;
+  height: 26px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--ink3);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all .13s;
+}
+.ps-modo:hover { color: var(--ink); }
+.ps-modo--on {
+  background: var(--paper);
+  color: var(--accent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .07);
+}
+.ps-modo svg { width: 15px; height: 15px; }
+
+/* A cor do pincel: numa máscara, o branco revela e o preto esconde. */
+.ps-cor {
+  width: 26px;
+  height: 26px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06);
+}
+.ps-cor:hover { border-color: var(--accent); }
+
+/* ── O overlay ──
+   As formiguinhas e o crop vivem num canvas SEPARADO, exatamente por cima do
+   da imagem. Separá-los é o que permite animar o tracejado sem redesenhar a
+   imagem inteira sessenta vezes por segundo. */
+.ps-folha { position: relative; }
+
+.ps-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;   /* o mouse é do canvas de baixo */
+}
+
+/* ── O cursor conta o que a ferramenta faz ── */
+.ps-folha[data-ferr="mover"]     { cursor: move; }
+.ps-folha[data-ferr="ret"],
+.ps-folha[data-ferr="elip"],
+.ps-folha[data-ferr="laco"],
+.ps-folha[data-ferr="lacoPoli"]  { cursor: crosshair; }
+.ps-folha[data-ferr="varinha"],
+.ps-folha[data-ferr="selRapida"] { cursor: crosshair; }
+.ps-folha[data-ferr="pincel"],
+.ps-folha[data-ferr="borracha"]  { cursor: crosshair; }
+.ps-folha[data-ferr="crop"]      { cursor: crosshair; }
+
+/* Rasterizar e afins, no bloco da camada */
+.ps-acoes2 {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+.ps-acoes2 .ps-b { flex: 1; }
+
+/* ══════════════════════════════════════════════════════════════
+   ATALHOS — a janela
+   ══════════════════════════════════════════════════════════════ */
+
+.at-win {
+  width: 100%;
+  max-width: 620px;
+  max-height: 80vh;
+  background: var(--paper);
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.at-corpo {
+  overflow-y: auto;
+  padding: 20px 24px 26px;
+}
+
+.at-grupo + .at-grupo { margin-top: 24px; }
+.at-grupo .cr-sec { margin: 0 0 10px; }
+
+.at-linha {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+}
+.at-linha:last-child { border-bottom: none; }
+
+.at-tecla {
+  flex: 0 0 128px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink2);
+  background: var(--wash2);
+  border: 1px solid var(--line2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.at-o-que {
+  font-size: 12.5px;
+  color: var(--ink2);
+  line-height: 1.45;
+}
+
+
+/* ── O cursor sobre a moldura de corte ──
+   Ele anuncia o que a alça faz ANTES do clique. Sem isso não há como saber que
+   a moldura é agarrável, e a pessoa desenharia uma nova sem querer. */
+.ps-folha[data-alca="no"], .ps-folha[data-alca="se"] { cursor: nwse-resize; }
+.ps-folha[data-alca="ne"], .ps-folha[data-alca="so"] { cursor: nesw-resize; }
+.ps-folha[data-alca="n"],  .ps-folha[data-alca="s"]  { cursor: ns-resize; }
+.ps-folha[data-alca="o"],  .ps-folha[data-alca="l"]  { cursor: ew-resize; }
+.ps-folha[data-alca="mover"] { cursor: move; }
+.ps-folha[data-alca="novo"]  { cursor: crosshair; }
