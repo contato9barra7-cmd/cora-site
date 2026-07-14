@@ -9035,3 +9035,135 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-weight: 600;
 }
 .ps-cam--on .ps-conta { background: var(--paper); }
+
+
+/* ══════════════════════════════════════════════════════════════
+   CONFIRMAÇÃO
+   ══════════════════════════════════════════════════════════════ */
+
+.cf-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(20, 20, 18, .38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.cf {
+  width: 100%;
+  max-width: 380px;
+  padding: 26px 26px 20px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 14px 50px rgba(0, 0, 0, .2);
+  animation: cf-abre .13s ease-out;
+}
+@keyframes cf-abre {
+  from { opacity: 0; transform: translateY(6px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+.cf-txt {
+  margin: 0 0 20px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  text-align: center;
+}
+
+.cf-botoes {
+  display: flex;
+  gap: 9px;
+  justify-content: center;
+}
+.cf-botoes .ps-b { flex: 1; }
+
+/* O botão que destrói é VERMELHO. Ele não deve parecer o caminho natural. */
+.cf-perigo {
+  flex: 1;
+  height: 36px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 100px;
+  background: #E7534B;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .13s;
+}
+.cf-perigo:hover { background: #D6453D; }
+
+/* ── A barra do crop ── */
+.ps-num {
+  width: 74px;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 12px;
+  text-align: center;
+  outline: none;
+  flex: 0 0 auto;
+}
+.ps-num:focus { border-color: var(--accent); }
+
+/* As setinhas do number são feias e não cabem num campo redondo */
+.ps-num::-webkit-outer-spin-button,
+.ps-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.ps-num { -moz-appearance: textfield; }
+
+.ps-troca {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink2);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .13s;
+}
+.ps-troca:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── A zona de fuga do grupo ── */
+.ps-fuga {
+  margin-top: 8px;
+  padding: 14px 10px;
+  border: 1.5px dashed var(--line2);
+  border-radius: 12px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--ink3);
+  transition: all .13s;
+  opacity: .55;
+}
+.ps-fuga--on {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent);
+  opacity: 1;
+}
+
+/* O bloco da Camada sem camada nenhuma: presente, mas apagado. */
+.ps-bloco--inerte { opacity: .42; pointer-events: none; }
+
+/* A marca do objeto inteligente */
+.ps-smart {
+  margin-left: 6px;
+  color: var(--accent);
+  font-size: 9px;
+  vertical-align: middle;
+}

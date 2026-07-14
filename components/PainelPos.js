@@ -22,6 +22,7 @@ import Dica from './Dica';
 import JanelaAjustes from './JanelaAjustes';
 import JanelaAtalhos from './JanelaAtalhos';
 import MenuCamada from './MenuCamada';
+import Confirma from './Confirma';
 import {
   carregarCanvas, canvasVazio, clonarCanvas, novaCamada, novoGrupo,
   compor, thumb, thumbMascara, mascaraBranca, rasterizar, mesclarCopia,
@@ -163,6 +164,9 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   // Um círculo do TAMANHO REAL da ponta. Sem ele, pintar é adivinhar: a pessoa
   // não sabe onde a tinta vai cair nem quanto vai cobrir, e erra o alvo.
   const [pincelEm, setPincelEm] = useState(null);   // { x, y } em coords do doc
+
+  // ── O aviso de que abrir fecha o trabalho ──
+  const [confirmando, setConfirmando] = useState(false);
   const [ratio, setRatio] = useState('livre');
 
   // ── O histórico ──
@@ -182,7 +186,6 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   const telaRef   = useRef(null);
   const canvasRef = useRef(null);
   const overlayRef = useRef(null);
-  const arquivoRef = useRef(null);
   const arrastando = useRef(null);
 
   // Estado vivo do gesto em curso. Refs, não estado: eles mudam a cada
@@ -527,14 +530,6 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     setPicker(null);
   }
 
-  function escolheuArquivo(e) {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    const r = new FileReader();
-    r.onload = () => abrir(r.result, f.name.replace(/\.[^.]+$/, ''), temImagem);
-    r.readAsDataURL(f);
-    e.target.value = '';
-  }
 
   // ═══ O histórico ═══
   const guardar = useCallback(() => {
@@ -624,6 +619,8 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       blend: ativa.blend, opacidade: ativa.opacidade,
       mascara: ativa.mascara ? clonarCanvas(ativa.mascara) : null,
       original: ativa.original ? clonarCanvas(ativa.original) : null,
+      smart: ativa.smart,          // a cópia de um objeto inteligente também é um
+      ajustes: ativa.ajustes,
       grupo: ativa.grupo
     });
 
@@ -644,6 +641,23 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
     setSel([]);
     setAlvo(null);
+  }
+
+  // ── Objeto inteligente ──
+  //
+  // Rasterizada, a camada É os pixels: um ajuste os reescreve, e não há volta.
+  // Como objeto inteligente, o pixel original fica guardado — os Ajustes viram
+  // uma receita reaplicável, e escalar e voltar não degrada a imagem.
+  function virarSmart() {
+    if (!ativa || ativa.tipo === 'grupo' || ativa.smart) return;
+    guardar();
+
+    mudar(ativa.id, {
+      smart: true,
+      // O original é o que torna tudo reversível. Se a camada já foi ajustada,
+      // ele já existe; senão, o pixel de agora é o original.
+      original: ativa.original || clonarCanvas(ativa.canvas)
+    });
   }
 
   function rasterizarAtiva() {
@@ -710,7 +724,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     setAlvoSolta(null);
 
     if (origem == null || !alvo) return;
-    if (origem === alvo.i) return;
+    if (alvo.onde !== 'fim' && origem === alvo.i) return;
 
     guardar();
 
@@ -727,6 +741,16 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
       const ids = new Set(bloco.map((x) => x.id));
       const resto = c.filter((x) => !ids.has(x.id));
+
+      // A zona de fuga: vai para o fim da pilha, e FORA de qualquer grupo.
+      if (alvo.onde === 'fim') {
+        const livres = bloco.map((x) => {
+          if (x.tipo === 'grupo') return x;
+          if (l.tipo === 'grupo' && x.grupo === l.id) return x;   // filho segue o pai
+          return { ...x, grupo: null };
+        });
+        return [...resto, ...livres];
+      }
 
       // O índice de destino é recalculado DEPOIS de tirar o bloco: os índices
       // antigos já não valem, e usá-los jogaria a camada no lugar errado.
@@ -788,6 +812,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     const l = camadas.find((x) => x.id === menu?.id);
 
     if (acao === 'renomear')      { setRenomeando(menu.id); return; }
+    if (acao === 'smart')         { virarSmart(); return; }
     if (acao === 'rasterizar')    { rasterizarAtiva(); return; }
     if (acao === 'mascara')       { toggleMascara(); return; }
     if (acao === 'duplicar')      { duplicar(); return; }
@@ -816,6 +841,8 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           blend: l.blend, opacidade: l.opacidade,
           mascara:  l.mascara  ? clonarCanvas(l.mascara)  : null,
           original: l.original ? clonarCanvas(l.original) : null,
+          smart: l.smart,
+          ajustes: l.ajustes,
           grupo: l.grupo
         }));
       }
@@ -1464,6 +1491,94 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       : { x0, y0, x1: x0 + w, y1: y0 + h };
   }
 
+  // ── A barra do crop ──
+
+  function trocarRatio(r) {
+    setRatio(r);
+    if (!crop || r === 'livre') return;
+
+    // Trocar a proporção reenquadra a moldura NA HORA. Esperar o próximo
+    // arraste deixaria o select mentindo sobre o que está na tela.
+    const [a, b] = r.split(':').map(Number);
+
+    const x0 = Math.min(crop.x0, crop.x1);
+    const y0 = Math.min(crop.y0, crop.y1);
+    const w0 = Math.abs(crop.x1 - crop.x0);
+    const h0 = Math.abs(crop.y1 - crop.y0);
+
+    // Mantém a ÁREA aproximada e o centro: encolher tudo para um cantinho
+    // obrigaria a refazer o enquadramento do zero.
+    const cx = x0 + w0 / 2;
+    const cy = y0 + h0 / 2;
+
+    let w = Math.sqrt(w0 * h0 * (a / b));
+    let h = w * (b / a);
+
+    // E não deixa escapar da imagem
+    const cabe = Math.min(1, med.w / w, med.h / h);
+    w *= cabe;
+    h *= cabe;
+
+    const nx = Math.max(0, Math.min(med.w - w, cx - w / 2));
+    const ny = Math.max(0, Math.min(med.h - h, cy - h / 2));
+
+    setCrop({ x0: nx, y0: ny, x1: nx + w, y1: ny + h });
+  }
+
+  // Digitar um número muda a moldura a partir do canto de cima-esquerda: é o
+  // ponto que a pessoa está vendo como origem.
+  function cropPorNumero(w, h) {
+    if (!crop) return;
+
+    const x0 = Math.min(crop.x0, crop.x1);
+    const y0 = Math.min(crop.y0, crop.y1);
+
+    let nw = w != null ? w : Math.abs(crop.x1 - crop.x0);
+    let nh = h != null ? h : Math.abs(crop.y1 - crop.y0);
+
+    // Com proporção travada, mexer num lado arrasta o outro junto — senão o
+    // select diria "16:9" e a moldura seria outra coisa.
+    if (ratio !== 'livre') {
+      const [a, b] = ratio.split(':').map(Number);
+      if (w != null) nh = (nw * b) / a;
+      else           nw = (nh * a) / b;
+    }
+
+    nw = Math.max(8, Math.min(med.w - x0, nw));
+    nh = Math.max(8, Math.min(med.h - y0, nh));
+
+    setCrop({ x0, y0, x1: x0 + nw, y1: y0 + nh });
+  }
+
+  // Inverter é o gesto de quem tinha 16:9 e quer 9:16 sem procurar no select.
+  function inverterCrop() {
+    if (!crop) return;
+
+    const x0 = Math.min(crop.x0, crop.x1);
+    const y0 = Math.min(crop.y0, crop.y1);
+    const w = Math.abs(crop.x1 - crop.x0);
+    const h = Math.abs(crop.y1 - crop.y0);
+
+    // A proporção acompanha: 16:9 vira 9:16.
+    if (ratio !== 'livre') {
+      const [a, b] = ratio.split(':');
+      const virado = `${b}:${a}`;
+      if (RATIOS_CROP.includes(virado)) setRatio(virado);
+    }
+
+    const nw = Math.min(h, med.w - x0);
+    const nh = Math.min(w, med.h - y0);
+
+    setCrop({ x0, y0, x1: x0 + nw, y1: y0 + nh });
+  }
+
+  // Limpar devolve a moldura à imagem inteira — sem sair do modo de corte.
+  function limparCrop() {
+    if (!med) return;
+    setRatio('livre');
+    setCrop({ x0: 0, y0: 0, x1: med.w, y1: med.h });
+  }
+
   function abrirCrop() {
     if (!med) return;
     if (crop) { setCrop(null); setFerr('mover'); return; }
@@ -1632,24 +1747,16 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           </button>
         </Dica>
 
-        <button className="ps-b ps-b--on" onClick={() => setPicker('nova')} disabled={ocupado}>
-          Abrir imagem
-        </button>
+        <button
+          className="ps-b ps-b--on"
+          onClick={() => (temImagem ? setConfirmando(true) : setPicker('nova'))}
+          disabled={ocupado}
+        >Abrir imagem</button>
 
         <Dica texto="Adicionar camada">
           <button className="ps-ic" onClick={() => setPicker('camada')}
                   disabled={!temImagem} aria-label="Adicionar camada">
             <Svg d={IC.mais} />
-          </button>
-        </Dica>
-
-        <Dica texto="Do computador">
-          <button className="ps-ic" onClick={() => arquivoRef.current?.click()}
-                  aria-label="Do computador">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
-                 strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 16V4M8 8l4-4 4 4M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/>
-            </svg>
           </button>
         </Dica>
 
@@ -1773,14 +1880,41 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
           {crop ? (
             <>
-              <label className="ps-opt-l">Proporção</label>
-              <select className="ps-sel ps-sel--min" value={ratio}
-                      onChange={(e) => {
-                        setRatio(e.target.value);
-                        if (crop) setCrop((c) => comRatio({ ...c }));
-                      }}>
-                {RATIOS_CROP.map((r) => <option key={r} value={r}>{r}</option>)}
+              <select
+                className="ps-sel ps-sel--min"
+                value={ratio}
+                onChange={(e) => trocarRatio(e.target.value)}
+              >
+                {RATIOS_CROP.map((r) => (
+                  <option key={r} value={r}>{r === 'livre' ? 'Livre' : r}</option>
+                ))}
               </select>
+
+              {/* Os números. Cortar "no olho" não serve quando o destino tem
+                  medida certa — um post, um slide, uma impressão. */}
+              <input
+                type="number"
+                className="ps-num"
+                value={Math.round(Math.abs(crop.x1 - crop.x0))}
+                onChange={(e) => cropPorNumero(+e.target.value, null)}
+                aria-label="Largura"
+              />
+
+              <Dica texto="Inverter largura e altura">
+                <button className="ps-troca" onClick={inverterCrop} aria-label="Inverter">
+                  ⇄
+                </button>
+              </Dica>
+
+              <input
+                type="number"
+                className="ps-num"
+                value={Math.round(Math.abs(crop.y1 - crop.y0))}
+                onChange={(e) => cropPorNumero(null, +e.target.value)}
+                aria-label="Altura"
+              />
+
+              <button className="ps-b" onClick={limparCrop}>Limpar</button>
 
               <span className="ps-esticar" />
 
@@ -1788,7 +1922,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                 Cancelar
               </button>
               <button className="ps-b ps-b--on" onClick={aplicarCrop}>
-                Cortar
+                Aplicar corte
               </button>
             </>
           ) : (
@@ -1875,7 +2009,19 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       <div className="ps-main">
 
         {/* ══ A tela ══ */}
-        <div className="ps-tela" ref={telaRef}>
+        {/* Clicar no VAZIO ao redor da imagem desmarca. Este handler tem que
+            estar aqui, na tela, e não na folha: a folha É a imagem, e o branco
+            em volta dela nunca receberia o clique. */}
+        <div
+          className="ps-tela"
+          ref={telaRef}
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget && ferr === 'mover') {
+              setSel([]);
+              setAlvo(null);
+            }
+          }}
+        >
 
           {!temImagem ? (
             <div className="ps-vazio">
@@ -1931,34 +2077,36 @@ export default function PainelPos({ aoSair, aoUpscale }) {
             >Ajustes</button>
           </div>
 
-          {ativa && (
-            <div className="ps-bloco">
-              <div className="cr-sec ps-sec">Camada</div>
+          {/* O bloco da Camada é FIXO. Ele sumir quando nada está marcado faria a
+              coluna inteira saltar — e apagar uma camada empurraria os Ajustes
+              para cima debaixo do cursor. Sem camada, ele só fica inerte. */}
+          <div className={'ps-bloco' + (!ativa ? ' ps-bloco--inerte' : '')}>
+            <div className="cr-sec ps-sec">Camada</div>
 
-              <div className="ps-linha">
-                <label>Mesclagem</label>
-                <select className="ps-sel" value={ativa.blend}
-                        onChange={(e) => mudar(ativa.id, { blend: e.target.value })}>
-                  {BLENDS.map((b) => <option key={b.val} value={b.val}>{b.rotulo}</option>)}
-                </select>
-              </div>
-
-              <div className="ps-linha">
-                <label>Opacidade</label>
-                <input type="range" min="0" max="100" value={ativa.opacidade}
-                       onChange={(e) => mudar(ativa.id, { opacidade: +e.target.value })}
-                       aria-label="Opacidade" />
-                <span className="ps-val">{ativa.opacidade}%</span>
-              </div>
-
-              <div className="ps-acoes2">
-                <button className="ps-b" onClick={rasterizarAtiva}
-                        disabled={ativa.tipo === 'grupo'}>
-                  Rasterizar
-                </button>
-              </div>
+            <div className="ps-linha">
+              <label>Mesclagem</label>
+              <select
+                className="ps-sel"
+                value={ativa ? ativa.blend : 'source-over'}
+                disabled={!ativa}
+                onChange={(e) => mudar(ativa.id, { blend: e.target.value })}
+              >
+                {BLENDS.map((b) => <option key={b.val} value={b.val}>{b.rotulo}</option>)}
+              </select>
             </div>
-          )}
+
+            <div className="ps-linha">
+              <label>Opacidade</label>
+              <input
+                type="range" min="0" max="100"
+                value={ativa ? ativa.opacidade : 100}
+                disabled={!ativa}
+                onChange={(e) => mudar(ativa.id, { opacidade: +e.target.value })}
+                aria-label="Opacidade"
+              />
+              <span className="ps-val">{ativa ? ativa.opacidade : 100}%</span>
+            </div>
+          </div>
 
           <div className="ps-cab">
             <span className="cr-sec ps-sec">Camadas</span>
@@ -2012,7 +2160,11 @@ export default function PainelPos({ aoSair, aoUpscale }) {
             </Dica>
           </div>
 
-          <div className="ps-camadas">
+          <div
+            className="ps-camadas"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={soltar}
+          >
             {camadas.map((l, i) => {
               // Uma camada dentro de um grupo FECHADO não aparece. É esse o
               // sentido de fechar: recolher, não só recuar um pouco.
@@ -2043,7 +2195,6 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                   onDragStart={() => { arrastando.current = i; setVoando(i); }}
                   onDragEnd={() => { arrastando.current = null; setVoando(null); setAlvoSolta(null); }}
                   onDragOver={(e) => arrastaSobre(e, i, l)}
-                  onDrop={soltar}
                 >
                   {/* A seta abre e fecha o grupo. Só o grupo a tem — nas outras,
                       um vão do mesmo tamanho mantém tudo alinhado. */}
@@ -2130,17 +2281,35 @@ export default function PainelPos({ aoSair, aoUpscale }) {
                     >
                       {l.nome}
                       {filhos > 0 && <span className="ps-conta">{filhos}</span>}
+                      {/* O objeto inteligente se anuncia: sem a marca, não haveria
+                          como saber que aquela camada é reversível e a vizinha não. */}
+                      {l.smart && <span className="ps-smart" title="Objeto inteligente">◆</span>}
                     </span>
                   )}
                 </div>
               );
             })}
+
+            {/* A zona de fuga.
+                Sem ela, uma camada presa no fim de um grupo não teria para onde
+                ir: soltar abaixo da última irmã a mantém no grupo (e está
+                certo), e se o grupo for o último item da coluna, não sobra
+                lugar nenhum. Este vão é o "fora de tudo". */}
+            {temImagem && (
+              <div
+                className={'ps-fuga' + (alvoSolta?.onde === 'fim' ? ' ps-fuga--on' : '')}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  if (arrastando.current == null) return;
+                  if (alvoSolta?.onde !== 'fim') setAlvoSolta({ i: -1, onde: 'fim' });
+                }}
+              >
+                <span>Soltar aqui para tirar do grupo</span>
+              </div>
+            )}
           </div>
         </aside>
       </div>
-
-      <input type="file" ref={arquivoRef} accept="image/*"
-             onChange={escolheuArquivo} style={{ display: 'none' }} />
 
       {/* A janela de Ajustes recebe o pixel VIRGEM (`original`): sem isso,
           reabri-la partiria da imagem já processada e os efeitos se
@@ -2162,6 +2331,15 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       )}
 
       {atalhos && <JanelaAtalhos aoFechar={() => setAtalhos(false)} />}
+
+      {confirmando && (
+        <Confirma
+          texto="Abrir uma nova imagem vai fechar o trabalho atual. Tem certeza?"
+          ok="Abrir mesmo assim"
+          aoOk={() => { setConfirmando(false); setPicker('nova'); }}
+          aoCancelar={() => setConfirmando(false)}
+        />
+      )}
 
       {menu && (
         <MenuCamada

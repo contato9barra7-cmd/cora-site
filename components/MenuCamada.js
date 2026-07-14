@@ -79,7 +79,19 @@ export default function MenuCamada({ x, y, camada, quantas, aoEscolher, aoFechar
       ) : (
         <>
           <It acao="renomear">Renomear</It>
-          {!ehGrupo && <It acao="rasterizar">Rasterizar camada</It>}
+
+          {/* Um dos dois, nunca os dois. Uma camada é rasterizada OU é um objeto
+              inteligente — oferecer "rasterizar" numa que já é rasterizada não
+              faria nada, e é só ruído.
+
+              A imagem nasce rasterizada. Converter em objeto inteligente guarda
+              o pixel original: os Ajustes passam a ser reversíveis, e a camada
+              pode ser escalada e voltar ao tamanho sem perder qualidade. */}
+          {!ehGrupo && (
+            camada?.smart
+              ? <It acao="rasterizar">Rasterizar camada</It>
+              : <It acao="smart">Converter em Objeto Inteligente</It>
+          )}
 
           <span className="mc-sep" />
 
