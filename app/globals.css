@@ -9979,3 +9979,15 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--accent);
   margin: 0 0 8px;
 }
+
+
+/* O rodapé da janela de atalhos: Cancelar / Salvar, para nada mudar sem a
+   pessoa confirmar. */
+.at-pe {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--line);
+  background: var(--wash);
+}

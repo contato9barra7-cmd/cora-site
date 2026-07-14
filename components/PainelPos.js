@@ -2500,7 +2500,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       // Num campo de texto, "V" é a letra V — não a ferramenta Mover.
       const alvo = e.target.tagName;
       if (alvo === 'INPUT' || alvo === 'TEXTAREA' || alvo === 'SELECT') return;
-      if (ajustando || atalhos) return;
+      if (ajustando || mostraAtalhos || baixando || desfocando) return;
 
       const ctrl = e.ctrlKey || e.metaKey;
 
@@ -2512,24 +2512,24 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       //
       // O `code` é a tecla FÍSICA. Ela não muda com o modificador nem com o
       // layout.
-      const tecla = (e.code || '').replace('Key', '').toLowerCase();
+      const k = (e.code || '').replace('Key', '').toLowerCase();
 
       if (ctrl) {
         // As combinações mais específicas vêm PRIMEIRO. Testar Ctrl+A antes de
         // Ctrl+Shift+A faz o segundo nunca chegar — o primeiro casa e retorna.
-        if (e.shiftKey && tecla === 'a') { e.preventDefault(); setAjustando(true); return; }
+        if (e.shiftKey && k === 'a') { e.preventDefault(); setAjustando(true); return; }
         // Ctrl+Shift+I é OBJETO INTELIGENTE — é o do plugin, e a mão já sabe.
-        if (e.shiftKey && tecla === 'i') { e.preventDefault(); virarSmart(); return; }
-        if (e.shiftKey && tecla === 'r') { e.preventDefault(); rasterizarAtiva(); return; }
+        if (e.shiftKey && k === 'i') { e.preventDefault(); virarSmart(); return; }
+        if (e.shiftKey && k === 'r') { e.preventDefault(); rasterizarAtiva(); return; }
         // Inverter a seleção fica no X: o I já tem dono.
-        if (e.shiftKey && tecla === 'x') { e.preventDefault(); inverterSel(); return; }
-        if (e.altKey   && tecla === 'e') { e.preventDefault(); mesclar(); return; }
+        if (e.shiftKey && k === 'x') { e.preventDefault(); inverterSel(); return; }
+        if (e.altKey   && k === 'e') { e.preventDefault(); mesclar(); return; }
 
-        if (tecla === 'z') { e.preventDefault(); desfazer(); return; }
-        if (tecla === 'a') { e.preventDefault(); selecionarTudo(); return; }
-        if (tecla === 'd') { e.preventDefault(); desmarcar(); return; }
-        if (tecla === 'j') { e.preventDefault(); duplicar(); return; }
-        if (tecla === 'g') { e.preventDefault(); agrupar(); return; }
+        if (k === 'z') { e.preventDefault(); desfazer(); return; }
+        if (k === 'a') { e.preventDefault(); selecionarTudo(); return; }
+        if (k === 'd') { e.preventDefault(); desmarcar(); return; }
+        if (k === 'j') { e.preventDefault(); duplicar(); return; }
+        if (k === 'g') { e.preventDefault(); agrupar(); return; }
         return;
       }
 

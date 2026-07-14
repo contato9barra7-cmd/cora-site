@@ -66,9 +66,16 @@ const FIXOS = [
 ];
 
 export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
-  // Qual ferramenta está capturando uma tecla nova (ou null).
+  // ── Um RASCUNHO ──
+  //
+  // As mudanças ficam aqui, e só valem quando a pessoa aperta Salvar. Gravar na
+  // hora seria uma armadilha: um toque errado de tecla mudaria um atalho sem
+  // volta, e não haveria como recuar sem redescobrir o que era.
+  const [rascunho, setRascunho] = useState(atalhos);
   const [gravando, setGravando] = useState(null);
   const [aviso, setAviso] = useState('');
+
+  const mudou = JSON.stringify(rascunho) !== JSON.stringify(atalhos);
 
   // ── Captura da tecla ──
   //
@@ -90,7 +97,7 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
       if (soMod) return;
 
       // A tecla já pertence a outra ferramenta?
-      const dono = Object.entries(atalhos).find(
+      const dono = Object.entries(rascunho).find(
         ([id, t]) => t === code && id !== gravando
       );
 
@@ -100,17 +107,22 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
         return;
       }
 
-      aoSalvar({ ...atalhos, [gravando]: code });
+      setRascunho((r) => ({ ...r, [gravando]: code }));
       setGravando(null);
       setAviso('');
     };
 
     window.addEventListener('keydown', capturar, true);
     return () => window.removeEventListener('keydown', capturar, true);
-  }, [gravando, atalhos, aoSalvar]);
+  }, [gravando, rascunho]);
 
   function limpar(id) {
-    aoSalvar({ ...atalhos, [id]: '' });
+    setRascunho((r) => ({ ...r, [id]: '' }));
+  }
+
+  function salvar() {
+    aoSalvar(rascunho);
+    aoFechar();
   }
 
   return (
@@ -120,7 +132,11 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
         <header className="aj-topo">
           <span className="aj-titulo">Atalhos de teclado</span>
           <span className="aj-esticar" />
-          <button className="ps-b" onClick={aoFechar}>Fechar</button>
+          <button className="df-x" onClick={aoFechar} aria-label="Fechar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
         </header>
 
         <div className="at-corpo">
@@ -132,7 +148,7 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
             {aviso && <p className="at-aviso">{aviso}</p>}
 
             {FERRAMENTAS.map((f) => {
-              const tecla = atalhos[f.id];
+              const tecla = rascunho[f.id];
               const nesta = gravando === f.id;
 
               return (
@@ -183,6 +199,13 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
           ))}
 
         </div>
+
+        <footer className="at-pe">
+          <button className="ps-b" onClick={aoFechar}>Cancelar</button>
+          <button className="ps-b ps-b--on" onClick={salvar} disabled={!mudou}>
+            Salvar
+          </button>
+        </footer>
       </div>
     </div>
   );
