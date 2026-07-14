@@ -3246,6 +3246,24 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 /* Grade: colunas de largura fixa; a altura de cada card vem da sua
    proporção. Assim uma 4:5 fica alta e uma 21:9 fica larga, e elas se
    encaixam sem buracos — em vez de todas serem espremidas na mesma caixa. */
+/* ── Masonry: a grade contínua do feed ──
+   Colunas de verdade, não linhas. Cada card entra na coluna mais curta (quem
+   decide é o JS), e por isso não há buraco ao lado das imagens verticais.
+   O CSS aqui só empilha: a distribuição é do componente Masonry. */
+.cr-mas {
+  display: flex;
+  align-items: flex-start;
+}
+
+.cr-mas-col {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Os slots de "gerando" continuam em CSS Grid: ali todos têm a MESMA
+   proporção (a da geração em curso), então não há buraco a evitar. */
 .cr-cards--grade {
   display: grid;
   gap: 8px;

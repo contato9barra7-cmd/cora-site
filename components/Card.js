@@ -48,10 +48,28 @@ const Check = () => (
 
 export default function Card({
   it, modoAB, ladoA, ladoB, onClick,
-  onFavoritar, onAprovar, onBaixar, onExcluir, onEnviarPara, onDetalhes
+  onFavoritar, onAprovar, onBaixar, onExcluir, onEnviarPara, onDetalhes,
+  onMedir, razao
 }) {
   const ehA = ladoA?.id === it.id;
   const ehB = ladoB?.id === it.id;
+
+  // A proporção que o card VAI usar. Na grade, o Masonry mede a imagem de
+  // verdade e devolve a razão em `razao` — é ela que manda, porque só ela
+  // encaixa o card na coluna sem sobra. Enquanto não chega (e sempre, na
+  // lista), vale a proporção declarada da geração.
+  const forma = razao ? `${razao} / 1` : proporcaoCss(it.proporcao);
+
+  // A imagem carregou: avisa o Masonry da proporção real. É aqui que o
+  // upscale e a geração 'auto' — que não têm proporção declarada — ganham
+  // a forma certa.
+  const carregou = (e) => {
+    if (!onMedir) return;
+    const img = e.currentTarget;
+    if (img.naturalWidth && img.naturalHeight) {
+      onMedir(it.id, img.naturalWidth / img.naturalHeight);
+    }
+  };
 
   // Um clique numa ação não deve abrir a imagem também
   const so = (fn) => (e) => { e.stopPropagation(); fn(); };
@@ -61,7 +79,7 @@ export default function Card({
       className={'cr-card'
         + (ehA || ehB ? ' cr-card--sel' : '')
         + (it.aprovado ? ' cr-card--aprovada' : '')}
-      style={{ aspectRatio: proporcaoCss(it.proporcao) }}
+      style={{ aspectRatio: forma }}
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -70,7 +88,12 @@ export default function Card({
       {/* A miniatura (600px, ~60 KB), não a original (2K, 4 MB). Sem isto
           o navegador baixaria a imagem inteira para mostrar num card de
           330px. As gerações antigas não têm thumb — ali cai na original. */}
-      <img src={it.thumb || it.url} alt="" loading="lazy" />
+      <img
+        src={it.thumb || it.url}
+        alt=""
+        loading="lazy"
+        onLoad={carregou}
+      />
 
       {/* Qual lado esta imagem ocupa na comparação */}
       {modoAB && ehA && <span className="cr-card-ab">A</span>}

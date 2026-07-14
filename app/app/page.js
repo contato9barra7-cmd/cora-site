@@ -24,6 +24,7 @@ import PainelAnalises from '../../components/PainelAnalises';
 import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
 import Card, { proporcaoCss } from '../../components/Card';
+import Masonry from '../../components/Masonry';
 import ModalDownload from '../../components/ModalDownload';
 import ModalDetalhes from '../../components/ModalDetalhes';
 import { lerConta, creditosMudaram } from '../../lib/auth';
@@ -1005,14 +1006,19 @@ export default function AppPage() {
                   })()}
                 </h3>
 
-                <div className={`cr-cards cr-cards--grade cr-cards--${tamanho}`}>
-                  {mes.itens.map((it) => (
+                {/* Sem CSS Grid: as linhas rígidas deixavam buracos ao lado
+                    das imagens verticais. O Masonry joga cada card na coluna
+                    mais curta e o vazio some. */}
+                <Masonry itens={mes.itens} tamanho={tamanho}>
+                  {(it, i, medir, razao) => (
                     <Card
                       key={it.id}
                       it={it}
                       modoAB={modoAB}
                       ladoA={ladoA}
                       ladoB={ladoB}
+                      onMedir={medir}
+                      razao={razao}
                       onClick={() => {
                         if (modoAB) { escolherAB(it); return; }
                         setVendo({ loteId: it.loteId, itemId: it.id });
@@ -1024,8 +1030,8 @@ export default function AppPage() {
                       onEnviarPara={enviarPara}
                       onDetalhes={(item) => setDetalhes({ lote: loteDoItem(item.id), item })}
                     />
-                  ))}
-                </div>
+                  )}
+                </Masonry>
               </section>
             ))}
 
