@@ -9542,10 +9542,21 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
    Ela nasce no alto, à direita: longe do meio, que é onde a imagem costuma
    estar. E arrasta-se pela barra do título. */
+/* A janela nasce no CENTRO da viewport e se move dali.
+
+   `left/top: 50%` leva o canto ao meio; o `translate(-50%, -50%)` do próprio
+   CSS não serve, porque o arrasto usa o `transform` para mover a janela e o
+   sobrescreveria. Em vez disso, margens negativas de meia-janela fazem a
+   centragem — e o `transform` fica livre para o arrasto, partindo do zero.
+
+   Não há véu por trás: um fundo escurecido falsearia as cores que a pessoa
+   está justamente tentando julgar. */
 .df {
   position: fixed;
-  top: 92px;
-  right: 40px;
+  left: 50%;
+  top: 50%;
+  margin-left: -215px;      /* metade da largura */
+  margin-top: -120px;       /* aprox. metade da altura */
   z-index: 60;
 
   width: 430px;
@@ -9822,3 +9833,149 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-filtro-x { opacity: 0; }
 .ps-filtro:hover .ps-filtro-x { opacity: .7; }
 .ps-filtro:hover .ps-filtro-x:hover { opacity: 1; }
+
+
+/* ══════════════════════════════════════════════════════════════
+   A JANELA DE DOWNLOAD
+   ══════════════════════════════════════════════════════════════
+
+   Ao contrário das de desfoque, esta tem véu: não há nada por trás dela que
+   precise ser julgado a olho, e o véu ajuda a focar na escolha do formato. */
+.bx {
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  background: var(--paper);
+  border: 1px solid var(--line2);
+  border-radius: 16px;
+  box-shadow: 0 18px 56px rgba(0, 0, 0, .18);
+  overflow: hidden;
+}
+
+.bx-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.bx-tit {
+  font-size: 12px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.bx-corpo {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Cada formato é um cartão que se pode escolher. O nome grande, a explicação
+   miúda embaixo — a diferença entre PNG e JPEG não é óbvia para todo mundo, e
+   uma linha resolve a dúvida sem obrigar a sabê-la de cor. */
+.bx-fmt {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  cursor: pointer;
+  transition: border-color .12s, background .12s;
+}
+.bx-fmt:hover { border-color: var(--line2); }
+
+.bx-fmt--on {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.bx-fmt-nome {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.bx-fmt--on .bx-fmt-nome { color: var(--accent); }
+
+.bx-fmt-sub {
+  font-size: 11.5px;
+  color: var(--ink3);
+}
+
+.bx-pe {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--line);
+  background: var(--wash);
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   ATALHOS EDITÁVEIS
+   ══════════════════════════════════════════════════════════════ */
+
+.at-linha--edit {
+  justify-content: space-between;
+}
+
+.at-controles {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* A tecla é um BOTÃO: clicar entra em modo de captura. Ela imita a aparência de
+   uma tampa de tecla, para se reconhecer o que é. */
+.at-tecla-btn {
+  min-width: 40px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-family: ui-monospace, monospace;
+  color: var(--ink);
+  background: var(--wash);
+  border: 1px solid var(--line2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .12s;
+}
+.at-tecla-btn:hover { border-color: var(--ink3); }
+
+/* Capturando: o botão pulsa na cor de destaque, e o texto vira "pressione…". */
+.at-tecla-btn--grav {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent);
+}
+
+/* Sem atalho: traço tracejado, discreto — um convite a preencher, não um erro. */
+.at-tecla-btn--vazio {
+  color: var(--ink3);
+  border-style: dashed;
+}
+
+.at-limpar {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ink3);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  opacity: .6;
+}
+.at-limpar svg { width: 12px; height: 12px; }
+.at-limpar:hover { opacity: 1; color: var(--ink); }
+
+.at-aviso {
+  font-size: 11.5px;
+  color: var(--accent);
+  margin: 0 0 8px;
+}

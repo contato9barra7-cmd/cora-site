@@ -3,35 +3,27 @@
 // ═══════════════════════════════════════════════════════════
 //  JanelaAtalhos — o mapa do teclado
 //
-//  Um editor de imagem sem atalhos é um editor lento: quem pinta não quer
-//  soltar o mouse para caçar um botão. Mas atalho que ninguém conhece não
-//  serve de nada — daí esta lista.
+//  As FERRAMENTAS são editáveis: cada uma tem uma tecla, e a pessoa pode trocar.
+//  Clicar no atalho entra em modo "pressione…", e a próxima tecla vira o novo.
+//  Uma tecla já usada por outra ferramenta é recusada — dois donos para a mesma
+//  tecla deixaria o comportamento imprevisível.
 //
-//  São os mesmos do plugin, e os mesmos do Photoshop onde faz sentido: a mão
-//  de quem já edita não deveria ter que reaprender nada.
+//  O resto (gestos do mouse, combinações com Ctrl) é fixo e serve de referência.
+//  São coisas que não conflitam entre si e que a mão de quem edita já conhece.
 // ═══════════════════════════════════════════════════════════
 
-const GRUPOS = [
-  {
-    nome: 'Ferramentas',
-    itens: [
-      ['V', 'Mover'],
-      ['M', 'Letreiro (alterna retangular / elíptico)'],
-      ['L', 'Laço (alterna livre / poligonal)'],
-      ['W', 'Seleção inteligente (alterna rápida / varinha)'],
-      ['B', 'Pincel'],
-      ['E', 'Borracha'],
-      ['C', 'Cortar'],
-      ['X', 'Trocar a cor do pincel (branco / preto)']
-    ]
-  },
+import { useEffect, useState } from 'react';
+import { FERRAMENTAS, nomeDaTecla } from '../lib/atalhos';
+
+// Os gestos e combinações fixos, só para consulta.
+const FIXOS = [
   {
     nome: 'Na imagem',
     itens: [
-      ['Clique', 'Pega a camada que está sob o cursor (com a Mover)'],
-      ['Arrastar', 'Move a camada — ela encaixa no centro e nas bordas'],
+      ['Clique', 'Pega a camada sob o cursor (com a Mover)'],
+      ['Arrastar', 'Move a camada — encaixa no centro e nas bordas'],
       ['Alt', 'Solta as travas magnéticas enquanto arrasta'],
-      ['Shift', 'Nos cantos: redimensiona livre, sem manter a proporção'],
+      ['Shift', 'Nos cantos: redimensiona sem manter a proporção'],
       ['Shift + clique', 'Soma a camada à seleção']
     ]
   },
@@ -51,12 +43,11 @@ const GRUPOS = [
   {
     nome: 'Camadas',
     itens: [
-      ['Ctrl+J', 'Duplicar (só a seleção, se houver uma)'],
+      ['Ctrl+J', 'Duplicar (só a seleção, se houver)'],
       ['Ctrl+G', 'Agrupar as selecionadas'],
       ['Ctrl+Shift+I', 'Converter em Objeto Inteligente'],
       ['Ctrl+Shift+R', 'Rasterizar'],
       ['Ctrl+Alt+E', 'Mesclar tudo numa camada nova'],
-      ['Ctrl+Shift+A', 'Abrir os Ajustes'],
       ['Duplo clique', 'Renomear a camada'],
       ['Botão direito', 'Abre o menu da camada'],
       ['Delete', 'Excluir']
@@ -68,13 +59,60 @@ const GRUPOS = [
       ['Ctrl+Z', 'Desfazer'],
       ['Enter', 'Confirmar o corte'],
       ['Roda do mouse', 'Zoom'],
-      ['Espaço + arrastar', 'Arrastar a tela (sem largar a ferramenta)'],
+      ['Espaço + arrastar', 'Arrastar a tela'],
       ['Botão do meio', 'Arrastar a tela']
     ]
   }
 ];
 
-export default function JanelaAtalhos({ aoFechar }) {
+export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
+  // Qual ferramenta está capturando uma tecla nova (ou null).
+  const [gravando, setGravando] = useState(null);
+  const [aviso, setAviso] = useState('');
+
+  // ── Captura da tecla ──
+  //
+  // Enquanto uma ferramenta grava, a próxima tecla vira o atalho dela. Modifica-
+  // dores sozinhos (Ctrl, Shift…) são ignorados: um atalho de ferramenta é uma
+  // tecla única, e "só Shift" não seleciona ferramenta nenhuma.
+  useEffect(() => {
+    if (!gravando) return;
+
+    const capturar = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (e.key === 'Escape') { setGravando(null); setAviso(''); return; }
+
+      const code = e.code;
+      const soMod = ['ControlLeft', 'ControlRight', 'ShiftLeft', 'ShiftRight',
+                     'AltLeft', 'AltRight', 'MetaLeft', 'MetaRight'].includes(code);
+      if (soMod) return;
+
+      // A tecla já pertence a outra ferramenta?
+      const dono = Object.entries(atalhos).find(
+        ([id, t]) => t === code && id !== gravando
+      );
+
+      if (dono) {
+        const nome = FERRAMENTAS.find((f) => f.id === dono[0])?.nome || dono[0];
+        setAviso(`${nomeDaTecla(code)} já é de "${nome}".`);
+        return;
+      }
+
+      aoSalvar({ ...atalhos, [gravando]: code });
+      setGravando(null);
+      setAviso('');
+    };
+
+    window.addEventListener('keydown', capturar, true);
+    return () => window.removeEventListener('keydown', capturar, true);
+  }, [gravando, atalhos, aoSalvar]);
+
+  function limpar(id) {
+    aoSalvar({ ...atalhos, [id]: '' });
+  }
+
   return (
     <div className="aj-fundo" onClick={aoFechar}>
       <div className="at-win" onClick={(e) => e.stopPropagation()}>
@@ -86,18 +124,64 @@ export default function JanelaAtalhos({ aoFechar }) {
         </header>
 
         <div className="at-corpo">
-          {GRUPOS.map((g) => (
+
+          {/* ── As ferramentas, editáveis ── */}
+          <section className="at-grupo">
+            <h3 className="cr-sec">Ferramentas</h3>
+
+            {aviso && <p className="at-aviso">{aviso}</p>}
+
+            {FERRAMENTAS.map((f) => {
+              const tecla = atalhos[f.id];
+              const nesta = gravando === f.id;
+
+              return (
+                <div key={f.id} className="at-linha at-linha--edit">
+                  <span className="at-o-que">{f.nome}</span>
+
+                  <span className="at-controles">
+                    <button
+                      className={'at-tecla-btn'
+                        + (nesta ? ' at-tecla-btn--grav' : '')
+                        + (!tecla && !nesta ? ' at-tecla-btn--vazio' : '')}
+                      onClick={() => { setGravando(nesta ? null : f.id); setAviso(''); }}
+                    >
+                      {nesta ? 'pressione…' : (tecla ? nomeDaTecla(tecla) : '—')}
+                    </button>
+
+                    {/* Limpar só aparece quando há o que limpar. */}
+                    {tecla && !nesta && (
+                      <button
+                        className="at-limpar"
+                        onClick={() => limpar(f.id)}
+                        aria-label="Remover atalho"
+                        title="Remover atalho"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+                          <path d="M6 6l12 12M18 6L6 18" />
+                        </svg>
+                      </button>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
+          </section>
+
+          {/* ── O resto, fixo, para consulta ── */}
+          {FIXOS.map((g) => (
             <section key={g.nome} className="at-grupo">
               <h3 className="cr-sec">{g.nome}</h3>
 
-              {g.itens.map(([tecla, o_que]) => (
-                <div key={tecla} className="at-linha">
+              {g.itens.map(([tecla, oQue]) => (
+                <div key={tecla + oQue} className="at-linha">
                   <kbd className="at-tecla">{tecla}</kbd>
-                  <span className="at-o-que">{o_que}</span>
+                  <span className="at-o-que">{oQue}</span>
                 </div>
               ))}
             </section>
           ))}
+
         </div>
       </div>
     </div>

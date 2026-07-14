@@ -25,6 +25,8 @@ import MenuCamada from './MenuCamada';
 import Confirma from './Confirma';
 import Nomear from './Nomear';
 import JanelaDesfoque from './JanelaDesfoque';
+import JanelaBaixar from './JanelaBaixar';
+import { lerAtalhos, salvarAtalhos } from '../lib/atalhos';
 import { aplicarFiltros, mascaraDoFiltro, nomeDoFiltro, novoIdFiltro } from '../lib/filtros';
 import {
   carregarCanvas, canvasVazio, clonarCanvas, novaCamada, novoGrupo,
@@ -140,7 +142,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   const [zoom, setZoom]   = useState(1);
   const [pan, setPan]     = useState({ x: 0, y: 0 });
   const [ajustando, setAjustando] = useState(false);
-  const [atalhos, setAtalhos] = useState(false);
+  const [mostraAtalhos, setMostraAtalhos] = useState(false);
   const [erro, setErro]   = useState('');
   const [ocupado, setOcupado] = useState(false);
 
@@ -214,6 +216,13 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
   // A janela de desfoque: 'desfGauss' | 'desfMov' | null
   const [desfocando, setDesfocando] = useState(null);
+
+  // A janela de download (escolher formato e pasta).
+  const [baixando, setBaixando] = useState(false);
+
+  // O mapa de atalhos { ferramenta: tecla }. Nasce do que a pessoa salvou; a
+  // janela de atalhos o edita, e a mudança vale na hora.
+  const [atalhos, setAtalhos] = useState(() => lerAtalhos());
 
   // Qual filtro está sendo REEDITADO. Quando não é nulo, o OK substitui aquele
   // filtro na lista em vez de acrescentar um novo — senão reabrir um desfoque
@@ -826,6 +835,20 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
   function excluir() {
     if (!sel.length) return;
+
+    // ── Com a máscara selecionada, apaga só a máscara ──
+    //
+    // Clicar no quadro da máscara e mandar excluir é pedir para tirar a máscara,
+    // não a camada inteira. Apagar a camada ali seria destruir a imagem por um
+    // gesto que pedia bem menos — o equivalente a "remover máscara" do
+    // Photoshop.
+    if (alvoMasc && ativa && alvoMasc === ativa.id && ativa.mascara) {
+      guardar();
+      mudar(ativa.id, { mascara: null });
+      setAlvo(null);
+      return;
+    }
+
     guardar();
 
     setCamadas((cs) => {
@@ -2523,16 +2546,26 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       }
       if (e.key === 'Enter' && crop) { aplicarCrop(); return; }
 
-      if (tecla === 'v') setFerr('mover');
-      if (tecla === 'm') setFerr((f) => (f === 'ret' ? 'elip' : 'ret'));
-      if (tecla === 'l') setFerr((f) => (f === 'laco' ? 'lacoPoli' : 'laco'));
-      if (tecla === 'w') setFerr((f) => (f === 'selRapida' ? 'varinha' : 'selRapida'));
-      if (tecla === 'b') setFerr('pincel');
-      if (tecla === 'e') setFerr('borracha');
-      if (tecla === 'c') abrirCrop();
-      // X troca a cor do pincel: é o gesto de quem pinta numa máscara e precisa
-      // alternar entre esconder e revelar sem tirar a mão do teclado.
-      if (tecla === 'x') setCor((c) => (c === '#ffffff' ? '#000000' : '#ffffff'));
+      // ── Os atalhos de ferramenta, do mapa editável ──
+      //
+      // Em vez de teclas fixas no código, cada ferramenta consulta o atalho que
+      // a pessoa escolheu. `bate(id)` diz se a tecla física pressionada é a
+      // desse id.
+      const bate = (id) => atalhos[id] && e.code === atalhos[id];
+
+      if (bate('mover'))     setFerr('mover');
+      if (bate('letreiro'))  setFerr((f) => (f === 'ret' ? 'elip' : 'ret'));
+      if (bate('laco'))      setFerr((f) => (f === 'laco' ? 'lacoPoli' : 'laco'));
+      if (bate('selInt'))    setFerr((f) => (f === 'selRapida' ? 'varinha' : 'selRapida'));
+      if (bate('pincel'))    setFerr('pincel');
+      if (bate('borracha'))  setFerr('borracha');
+      if (bate('cortar'))    abrirCrop();
+      if (bate('desfGauss')) setDesfocando('desfGauss');
+      if (bate('desfMov'))   setDesfocando('desfMov');
+      if (bate('ajustes'))   setAjustando(true);
+      // X (ou o que a pessoa puser) troca a cor do pincel: o gesto de quem
+      // pinta numa máscara e alterna entre esconder e revelar.
+      if (bate('trocarCor')) setCor((c) => (c === '#ffffff' ? '#000000' : '#ffffff'));
     }
 
     window.addEventListener('keydown', tecla);
@@ -2541,11 +2574,68 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
   // ═══ Sair ═══
   function baixar() {
+    if (!temImagem) return;
+    setBaixando(true);
+  }
+
+  // ── Exporta a imagem final no formato escolhido ──
+  //
+  // O `showSaveFilePicker` abre o Salvar-como do sistema (Chrome/Edge), onde a
+  // pessoa escolhe a pasta. Onde ele não existe, cai no download comum.
+  async function exportarImagem(formato) {
     if (!med) return;
+
+    // A imagem final, achatada. Para JPEG, um fundo branco primeiro — o formato
+    // não guarda transparência, e sem isso o transparente sairia preto.
+    const flat = canvasVazio(med.w, med.h);
+    const fc = flat.getContext('2d');
+
+    if (formato === 'jpeg') {
+      fc.fillStyle = '#FFFFFF';
+      fc.fillRect(0, 0, med.w, med.h);
+    }
+
+    const composto = new Image();
+    await new Promise((ok) => {
+      composto.onload = ok;
+      composto.src = exportar(camadas, med.w, med.h);
+    });
+    fc.drawImage(composto, 0, 0);
+
+    const tipo = formato === 'jpeg' ? 'image/jpeg' : 'image/png';
+    const ext  = formato === 'jpeg' ? 'jpg' : 'png';
+    const qual = formato === 'jpeg' ? 0.9 : undefined;
+
+    const blob = await new Promise((res) => flat.toBlob(res, tipo, qual));
+    const nome = `cora-render-${Date.now()}.${ext}`;
+
+    // O Salvar-como nativo, com a árvore de pastas.
+    if (window.showSaveFilePicker) {
+      try {
+        const alvo = await window.showSaveFilePicker({
+          suggestedName: nome,
+          types: [{
+            description: formato === 'jpeg' ? 'Imagem JPEG' : 'Imagem PNG',
+            accept: { [tipo]: [`.${ext}`] }
+          }]
+        });
+        const fluxo = await alvo.createWritable();
+        await fluxo.write(blob);
+        await fluxo.close();
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return;   // a pessoa cancelou
+        // qualquer outra falha cai no download comum, abaixo
+      }
+    }
+
+    // Sem o picker: vai para a pasta Downloads.
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.download = 'cora-pos.png';
-    a.href = exportar(camadas, med.w, med.h);
+    a.href = url;
+    a.download = nome;
     a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   function paraUpscale() {
@@ -2696,7 +2786,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         </Dica>
 
         <Dica texto="Atalhos de teclado">
-          <button className="ps-ic" onClick={() => setAtalhos(true)} aria-label="Atalhos">
+          <button className="ps-ic" onClick={() => setMostraAtalhos(true)} aria-label="Atalhos">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
                  strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="6" width="20" height="12" rx="2"/>
@@ -3330,7 +3420,20 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         />
       )}
 
-      {atalhos && <JanelaAtalhos aoFechar={() => setAtalhos(false)} />}
+      {mostraAtalhos && (
+        <JanelaAtalhos
+          atalhos={atalhos}
+          aoSalvar={(m) => { setAtalhos(m); salvarAtalhos(m); }}
+          aoFechar={() => setMostraAtalhos(false)}
+        />
+      )}
+
+      {baixando && (
+        <JanelaBaixar
+          aoBaixar={exportarImagem}
+          aoFechar={() => setBaixando(false)}
+        />
+      )}
 
       {desfocando && (
         <JanelaDesfoque
