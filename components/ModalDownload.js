@@ -23,19 +23,21 @@ function pesar(w, h, formato) {
     : Math.round(bytes / 1024) + ' KB';
 }
 
-export default function ModalDownload({ item, onFechar }) {
+export default function ModalDownload({ item, dim: dimFixa, aoBaixar, onFechar }) {
   const [formato, setFormato]   = useState('png');
   const [baixando, setBaixando] = useState(false);
   const [erro, setErro]         = useState('');
-  const [dim, setDim]           = useState(null);
+  const [dim, setDim]           = useState(dimFixa || null);
 
-  // Mede a imagem para estimar o peso
+  // Mede a imagem para estimar o peso. Na pós, as dimensões já vêm prontas
+  // (`dimFixa`) — não há `item.url` de onde medir.
   useEffect(() => {
+    if (dimFixa) { setDim(dimFixa); return; }
     if (!item?.url) return;
     const img = new Image();
     img.onload = () => setDim({ w: img.naturalWidth, h: img.naturalHeight });
     img.src = item.thumb || item.url;
-  }, [item]);
+  }, [item, dimFixa]);
 
   useEffect(() => {
     const esc = (e) => { if (e.key === 'Escape') onFechar(); };
@@ -47,7 +49,9 @@ export default function ModalDownload({ item, onFechar }) {
     setBaixando(true);
     setErro('');
     try {
-      await baixarGeracao(item.id, formato);
+      // A pós passa a própria função (imagem local); o feed baixa por id.
+      if (aoBaixar) await aoBaixar(formato);
+      else await baixarGeracao(item.id, formato);
       onFechar();
     } catch (e) {
       setErro(e.message);

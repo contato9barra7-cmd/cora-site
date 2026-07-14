@@ -25,7 +25,7 @@ import MenuCamada from './MenuCamada';
 import Confirma from './Confirma';
 import Nomear from './Nomear';
 import JanelaDesfoque from './JanelaDesfoque';
-import JanelaBaixar from './JanelaBaixar';
+import ModalDownload from './ModalDownload';
 import { lerAtalhos, salvarAtalhos } from '../lib/atalhos';
 import { aplicarFiltros, mascaraDoFiltro, nomeDoFiltro, novoIdFiltro } from '../lib/filtros';
 import {
@@ -128,7 +128,7 @@ const PINTAM   = ['pincel', 'borracha'];
 const TEM_PONTA = ['pincel', 'borracha', 'selRapida'];
 const SELECAO  = ['ret', 'elip', 'laco', 'lacoPoli', 'selRapida', 'varinha'];
 
-export default function PainelPos({ aoSair, aoUpscale }) {
+export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico }) {
   // ── A pilha ──
   // A ordem é de CIMA para baixo, como na coluna. camadas[0] é a do topo.
   const [camadas, setCamadas] = useState([]);
@@ -219,6 +219,10 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
   // A janela de download (escolher formato e pasta).
   const [baixando, setBaixando] = useState(false);
+
+  // Um aviso passageiro no rodapé — "Salvo no histórico", e some sozinho.
+  const [toast, setToast] = useState(null);
+  const [salvandoHist, setSalvandoHist] = useState(false);
 
   // O mapa de atalhos { ferramenta: tecla }. Nasce do que a pessoa salvou; a
   // janela de atalhos o edita, e a mudança vale na hora.
@@ -892,6 +896,27 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     const l = mesclarCopia(camadas, med.w, med.h);
     setCamadas((cs) => [l, ...cs]);
     setSel([l.id]);
+  }
+
+  // ── Salvar no histórico ──
+  //
+  // A imagem final, achatada, vai para o feed das gerações — não como uma
+  // camada. A pessoa continua na pós; um aviso confirma que foi.
+  async function salvarNoHist() {
+    if (!med || !aoSalvarHistorico || salvandoHist) return;
+
+    setSalvandoHist(true);
+    try {
+      const dataUrl = exportar(camadas, med.w, med.h);
+      await aoSalvarHistorico(dataUrl, { largura: med.w, altura: med.h });
+      setToast('Salvo no histórico');
+      setTimeout(() => setToast(null), 3200);
+    } catch (e) {
+      setToast(e.message || 'Não foi possível salvar');
+      setTimeout(() => setToast(null), 4000);
+    } finally {
+      setSalvandoHist(false);
+    }
   }
 
   // ═══ Arrastar na coluna ═══
@@ -2607,33 +2632,17 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     const qual = formato === 'jpeg' ? 0.9 : undefined;
 
     const blob = await new Promise((res) => flat.toBlob(res, tipo, qual));
-    const nome = `cora-render-${Date.now()}.${ext}`;
 
-    // O Salvar-como nativo, com a árvore de pastas.
-    if (window.showSaveFilePicker) {
-      try {
-        const alvo = await window.showSaveFilePicker({
-          suggestedName: nome,
-          types: [{
-            description: formato === 'jpeg' ? 'Imagem JPEG' : 'Imagem PNG',
-            accept: { [tipo]: [`.${ext}`] }
-          }]
-        });
-        const fluxo = await alvo.createWritable();
-        await fluxo.write(blob);
-        await fluxo.close();
-        return;
-      } catch (e) {
-        if (e.name === 'AbortError') return;   // a pessoa cancelou
-        // qualquer outra falha cai no download comum, abaixo
-      }
-    }
-
-    // Sem o picker: vai para a pasta Downloads.
+    // ── O download vai direto para a pasta Downloads ──
+    //
+    // Igual aos botões do feed. O `showSaveFilePicker` (que abre a árvore de
+    // pastas) foi tirado de propósito: além de o feed não usar, ele herdava o
+    // filtro de arquivo da última janela — e depois de salvar um .crd pelo
+    // disquete, o download da imagem saía teimando em .crd.
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = nome;
+    a.download = `cora-render-${Date.now()}.${ext}`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
@@ -2802,8 +2811,8 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           </button>
         </Dica>
 
-        <button className="ps-b" onClick={mesclar} disabled={!temImagem}>
-          Salvar no Histórico
+        <button className="ps-b" onClick={salvarNoHist} disabled={!temImagem || salvandoHist}>
+          {salvandoHist ? 'Salvando…' : 'Salvar no Histórico'}
         </button>
 
         <button className="ps-b" onClick={paraUpscale} disabled={!temImagem}>
@@ -3428,10 +3437,22 @@ export default function PainelPos({ aoSair, aoUpscale }) {
         />
       )}
 
+      {toast && (
+        <div className="ps-toast" role="status">
+          <span>{toast}</span>
+          {toast === 'Salvo no histórico' && aoSair && (
+            <button className="ps-toast-link" onClick={aoSair}>
+              Ver no histórico
+            </button>
+          )}
+        </div>
+      )}
+
       {baixando && (
-        <JanelaBaixar
+        <ModalDownload
+          dim={med ? { w: med.w, h: med.h } : null}
           aoBaixar={exportarImagem}
-          aoFechar={() => setBaixando(false)}
+          onFechar={() => setBaixando(false)}
         />
       )}
 

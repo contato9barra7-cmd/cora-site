@@ -9991,3 +9991,37 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border-top: 1px solid var(--line);
   background: var(--wash);
 }
+
+
+/* O aviso passageiro: "Salvo no histórico", flutuando no rodapé. Some sozinho.
+   Não rouba o foco nem interrompe o trabalho — só confirma. */
+.ps-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 70;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 18px;
+
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 13px;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .22);
+}
+
+/* O atalho para o feed: quem quer ir, vai; quem quer ficar, ignora. */
+.ps-toast-link {
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
+.ps-toast-link:hover { text-decoration: underline; }

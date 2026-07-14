@@ -34,7 +34,8 @@ import { gerarGenerativa } from '../../lib/render';
 
 import {
   listarGeracoes, alternarFavorito, alternarAprovado, apagarGeracao,
-  bytesDaGeracao, ROTULO_FERRAMENTA, tempoRelativo, diasAteExpirar
+  bytesDaGeracao, ROTULO_FERRAMENTA, tempoRelativo, diasAteExpirar,
+  salvarNoHistorico
 } from '../../lib/geracoes';
 
 // As abas do trilho. A Pós não é como as outras: em vez de encher o painel,
@@ -567,6 +568,14 @@ export default function AppPage() {
         <div className="cr-tela">
           <PainelPos
             aoSair={() => setFerramenta('render')}
+            aoSalvarHistorico={async (dataUrl, extras) => {
+              // A imagem editada vai para o feed, ao lado das gerações de IA.
+              // A pessoa FICA na pós — pode continuar editando, baixar, salvar de
+              // novo. O feed a terá quando ela voltar. Um toast confirma, com um
+              // atalho para quem quiser ir ver.
+              await salvarNoHistorico(dataUrl, extras);
+              recarregarComFolga();
+            }}
             aoUpscale={(dataUrl) => {
               // O Upscale entra depois; por ora a imagem composta volta para
               // o Editar, que já sabe recebê-la.
