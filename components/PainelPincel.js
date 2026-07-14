@@ -10,7 +10,7 @@
 import { useState } from 'react';
 import IconeCredito from './IconeCredito';
 import Seta from './Seta';
-import { custoGenerativa } from '../lib/render';
+import { custoGenerativa, PROPORCOES } from '../lib/render';
 
 const TEXTOS = {
   preenchimento: {
@@ -27,21 +27,15 @@ const TEXTOS = {
   }
 };
 
-// As mesmas do plugin, com o desenho da proporção (como no PainelRender:
-// o retângulo diz mais que o número).
-const RATIOS = [
-  { val: 'livre', x: 5,   y: 5,   w: 18,   h: 18   },
-  { val: '1:1',   x: 6,   y: 6,   w: 16,   h: 16   },
-  { val: '16:9',  x: 2,   y: 8,   w: 24,   h: 13.5 },
-  { val: '9:16',  x: 8,   y: 2,   w: 13.5, h: 24   },
-  { val: '4:3',   x: 4,   y: 6.5, w: 20,   h: 15   },
-  { val: '3:4',   x: 6.5, y: 4,   w: 15,   h: 20   },
-  { val: '3:2',   x: 3,   y: 7,   w: 22,   h: 14.5 },
-  { val: '2:3',   x: 7,   y: 3,   w: 14.5, h: 22   },
-  { val: '21:9',  x: 1,   y: 9.5, w: 26,   h: 11   },
-  { val: '5:7',   x: 7,   y: 4,   w: 14,   h: 20   },
-  { val: '4:5',   x: 6,   y: 4.5, w: 16,   h: 19   }
-];
+// A lista OFICIAL, a mesma que o Render usa. Duplicá-la aqui com coordenadas
+// próprias foi o que fez os desenhos encostarem na borda do viewBox.
+//
+// No Render o primeiro item é 'auto' (a proporção da imagem de origem);
+// aqui ele é 'livre' (a moldura não obedece a proporção nenhuma) — mesmo
+// papel, nome diferente.
+const RATIOS = PROPORCOES.map((p) =>
+  p.val === 'auto' ? { ...p, val: 'livre' } : p
+);
 
 export default function PainelPincel({
   modo, ocupado, onVoltar, onGerar,

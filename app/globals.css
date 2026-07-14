@@ -889,6 +889,13 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   min-width: 0;
 }
 
+/* O cabeçalho é fixed e tem 60px. Sem isto, pular para "#sec-prefs" alinha
+   a seção no topo da JANELA — e o cabeçalho fica por cima, comendo o começo
+   dela. A margem empurra o alvo para baixo do cabeçalho. */
+.perfil-sec {
+  scroll-margin-top: calc(var(--header-h) + 22px);
+}
+
 /* No mobile o índice vira só o título: esconder a <nav> inteira levaria o
    "Minha conta" junto, já que ele mora lá dentro. */
 @media (max-width: 820px) {
@@ -1168,11 +1175,6 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .tm-toggle-tag { font-size: 12.5px; background: var(--accent); color: #143d0a; padding: 2px 8px; border-radius: 100px; font-weight: 600; }
 
 /* Modal de recarga */
-.recarga-opcoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-.recarga-op { display: flex; flex-direction: column; gap: 2px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); cursor: pointer; font-family: inherit; }
-.recarga-op.ativa { border-color: var(--roxo); background: var(--wash2); }
-.recarga-op-cred { font-size: 16px; font-weight: 600; color: var(--ink); }
-.recarga-op-preco { font-size: 14.5px; color: var(--ink3); }
 
 .admin-filtro-limpar { background: none; border: none; color: var(--roxo); font-size: 14.5px; cursor: pointer; padding: 8px 6px; font-family: inherit; text-decoration: underline; }
 
@@ -6490,9 +6492,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 18px 22px;
-  margin-top: 20px;
+  margin-top: 0;
   padding-top: 18px;
-  border-top: 1px solid var(--line);
 }
 
 .dash-passo {
@@ -6822,9 +6823,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   flex: 1;
   min-width: 0;
   height: 38px;
-  padding: 0 12px;
+  padding: 0 15px;
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: 100px;
   background: var(--paper);
   color: var(--ink);
   font-size: 13.5px;
@@ -6897,3 +6898,134 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 .cr-pill-cfg--larga > span { flex: 1; text-align: left; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   Recarga — os pacotes à vista
+
+   "Comprar créditos" abria um modal para só então perguntar QUANTO. Uma
+   decisão dentro de outra. Os pacotes ficam na página, e o botão diz o que
+   vai acontecer.
+   ═══════════════════════════════════════════════════════════ */
+.rec-destino {
+  margin-bottom: 16px;
+  max-width: 340px;
+}
+
+.rec-grade {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+  margin: 16px 0;
+}
+
+.rec-op {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.rec-op:hover { border-color: var(--line2); }
+
+.rec-op--on {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.rec-nome {
+  font-size: 10px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+
+.rec-op--on .rec-nome { color: var(--accent); font-weight: 600; }
+
+.rec-op strong {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.rec-preco {
+  font-size: 11.5px;
+  color: var(--ink3);
+}
+
+.rec-tag {
+  position: absolute;
+  top: -8px;
+  right: 10px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: var(--accent);
+  color: var(--accent-txt);
+  font-size: 9.5px;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: .03em;
+}
+
+.rec-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 42px;
+  border: none;
+  border-radius: 100px;
+  background: var(--accent);
+  color: var(--accent-txt);
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.rec-btn:disabled { opacity: .5; cursor: default; }
+
+/* ── A gaveta do passo a passo ──
+   Quem já instalou não precisa ver os seis passos todo dia. */
+.dash-plugin-abre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 11px 0 0;
+  border: none;
+  border-top: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink3);
+  font-size: 12.5px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dash-plugin-abre:hover { color: var(--ink2); }
+
+.dash-plugin-abre svg { transition: transform .18s; }
+
+.dash-plugin-abre--on {
+  color: var(--accent);
+}
+
+.dash-plugin-abre--on svg { transform: rotate(180deg); }
+
+.dash-plugin-abre em {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--ink3);
+}

@@ -385,6 +385,42 @@ export default function TelaPincel({
     return { ...novo, cima: sobra / 2, baixo: sobra / 2 };
   }
 
+  // ── Escolher a proporção já monta a moldura ──
+  //
+  //  Escolher "16:9" e nada acontecer na tela é um controle morto. A
+  //  proporção define a FORMA; os pixels saem dela e do tamanho da imagem.
+  //
+  //  A moldura cresce apenas no eixo que precisa: uma imagem 4:3 virando
+  //  16:9 ganha largura, não altura. O outro eixo fica como está — expandir
+  //  os dois seria pedir à IA que inventasse mais do que o necessário.
+  useEffect(() => {
+    if (!ehExpansao) return;
+
+    const { w: W, h: H } = nativo.current;
+    if (!W || !proporcao || proporcao === 'livre') return;
+
+    const [pw, ph] = proporcao.split(':').map(Number);
+    if (!pw || !ph) return;
+
+    const atual = W / H;
+    const alvo  = pw / ph;
+
+    if (Math.abs(atual - alvo) < 0.01) {
+      setM({ cima: 0, baixo: 0, esq: 0, dir: 0 });   // já está na proporção
+      return;
+    }
+
+    if (alvo > atual) {
+      // Mais larga: cresce nas laterais
+      const sobra = ((H * alvo) - W) / W * 100;
+      setM({ cima: 0, baixo: 0, esq: sobra / 2, dir: sobra / 2 });
+    } else {
+      // Mais alta: cresce em cima e embaixo
+      const sobra = ((W / alvo) - H) / H * 100;
+      setM({ cima: sobra / 2, baixo: sobra / 2, esq: 0, dir: 0 });
+    }
+  }, [proporcao, ehExpansao, base]);
+
   // O painel manda limpar
   useEffect(() => {
     if (!aoLimpar) return;

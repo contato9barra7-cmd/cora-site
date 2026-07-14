@@ -19,8 +19,10 @@ export default function Assinatura() {
   const [erro, setErro] = useState('');
   const [abrindo, setAbrindo] = useState(false);
   // modal de recarga
-  const [modalRecarga, setModalRecarga] = useState(false);
-  const [recargaSel, setRecargaSel] = useState('g');
+  const [recargaSel, setRecargaSel] = useState('g');   // o popular, por padrão
+
+  // O pacote escolhido, para o botão poder dizer o que vai comprar
+  const recargaEscolhida = recargas.find((r) => r.id === recargaSel);
   const [assentoSel, setAssentoSel] = useState('');
   const [comprando, setComprando] = useState(false);
 
@@ -154,57 +156,65 @@ export default function Assinatura() {
           <div className="conta-card">
             <h2 className="conta-h2">Precisa de mais créditos?</h2>
             <p className="conta-p">
-              {conta.eh_dono_equipe
-                ? 'Compre recargas avulsas e direcione para um membro da equipe. Valem por 1 ano.'
-                : 'Compre recargas avulsas que valem por 1 ano.'}
+              Recargas avulsas valem por 1 ano e são usadas depois que os
+              créditos do plano acabam.
             </p>
-            <button className="btn btn--roxo" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={() => setModalRecarga(true)}>
-              Comprar créditos
+
+            {/* O dono escolhe para QUEM vai a recarga: numa equipe, comprar
+                crédito sem dizer o destino não quer dizer nada. */}
+            {conta.eh_dono_equipe && (
+              membros.length ? (
+                <div className="rec-destino">
+                  <label className="login-label">Enviar para</label>
+                  <select
+                    className="login-input"
+                    value={assentoSel}
+                    onChange={(e) => setAssentoSel(e.target.value)}
+                  >
+                    {membros.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.email}{m.eh_dono ? ' (você)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <p className="conta-p" style={{ color: 'var(--alerta)' }}>
+                  Nenhum membro ativo. Convide alguém primeiro.
+                </p>
+              )
+            )}
+
+            <div className="rec-grade">
+              {recargas.map((r) => (
+                <button
+                  key={r.id}
+                  className={'rec-op' + (recargaSel === r.id ? ' rec-op--on' : '')}
+                  onClick={() => setRecargaSel(r.id)}
+                >
+                  {r.popular && <em className="rec-tag">POPULAR</em>}
+                  <span className="rec-nome">{r.n}</span>
+                  <strong>{r.creditos.toLocaleString('pt-BR')}</strong>
+                  <span className="rec-preco">R$ {r.preco}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* O botão diz o que vai acontecer. "Comprar créditos" sozinho
+                não diz quantos nem por quanto. */}
+            <button
+              className="rec-btn"
+              onClick={comprarRecarga}
+              disabled={comprando || (conta.eh_dono_equipe && !membros.length)}
+            >
+              {comprando
+                ? 'Abrindo o pagamento...'
+                : `Comprar ${(recargaEscolhida?.creditos || 0).toLocaleString('pt-BR')} créditos · R$ ${recargaEscolhida?.preco || 0}`}
             </button>
           </div>
         )}
       </div>
 
-      {modalRecarga && (
-        <div className="foto-overlay" onClick={() => setModalRecarga(false)}>
-          <div className="foto-modal" onClick={(e) => e.stopPropagation()} style={{ width: 400 }}>
-            <div className="foto-titulo">Comprar créditos</div>
-            <div className="foto-orient">Recargas avulsas valem por 1 ano e são usadas depois que os créditos do plano acabam.</div>
-
-            {conta.eh_dono_equipe && (
-              <div style={{ marginBottom: 16 }}>
-                <label className="login-label">Enviar créditos para</label>
-                {membros.length ? (
-                  <select className="login-input" value={assentoSel} onChange={(e) => setAssentoSel(e.target.value)}>
-                    {membros.map(m => <option key={m.id} value={m.id}>{m.email}{m.eh_dono ? ' (você)' : ''}</option>)}
-                  </select>
-                ) : (
-                  <p className="conta-p" style={{ color: 'var(--alerta)' }}>Nenhum membro ativo. Convide alguém primeiro.</p>
-                )}
-              </div>
-            )}
-
-            <label className="login-label">Tamanho da recarga</label>
-            <div className="recarga-opcoes">
-              {recargas.map(r => (
-                <button key={r.id}
-                  className={'recarga-op' + (recargaSel === r.id ? ' ativa' : '')}
-                  onClick={() => setRecargaSel(r.id)}>
-                  <span className="recarga-op-cred">{r.creditos.toLocaleString('pt-BR')}</span>
-                  <span className="recarga-op-preco">R$ {r.preco}</span>
-                </button>
-              ))}
-            </div>
-
-            <button className="btn btn--verde" style={{ width: '100%', marginTop: 18, padding: '12px' }}
-              onClick={comprarRecarga}
-              disabled={comprando || (conta.eh_dono_equipe && !membros.length)}>
-              {comprando ? 'Abrindo...' : 'Ir para o pagamento'}
-            </button>
-            <div className="foto-cancelar" onClick={() => setModalRecarga(false)}>Cancelar</div>
-          </div>
-        </div>
-      )}
     </AppShell>
   );
 }

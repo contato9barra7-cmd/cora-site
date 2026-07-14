@@ -15,6 +15,10 @@ function ContaConteudo() {
   const [aviso, setAviso] = useState('');
   const [erro, setErro] = useState('');
   const [baixando, setBaixando] = useState(false);
+
+  // Fechado por padrão: quem já instalou não precisa ver os seis passos
+  // todo dia. Quem não instalou tem o convite logo abaixo do botão.
+  const [comoInstalar, setComoInstalar] = useState(false);
   const [equipeMembro, setEquipeMembro] = useState(null);
   const [saindo, setSaindo] = useState(false);
 
@@ -211,7 +215,9 @@ function ContaConteudo() {
               </div>
               <div className="dash-eq-uso">
                 <strong>{(m.creditos_usados ?? 0).toLocaleString('pt-BR')}</strong>
-                <span>usados</span>
+                <span>
+                  de {(m.creditos_total ?? 0).toLocaleString('pt-BR')} usados
+                </span>
               </div>
             </div>
           ))}
@@ -285,7 +291,19 @@ function ContaConteudo() {
             </button>
           </div>
 
-          <div className="dash-plugin-passos">
+          <button
+            className={'dash-plugin-abre' + (comoInstalar ? ' dash-plugin-abre--on' : '')}
+            onClick={() => setComoInstalar((v) => !v)}
+          >
+            <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
+                 stroke="currentColor" strokeWidth="1.6">
+              <path d="M5 8l5 5 5-5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span>{comoInstalar ? 'Como instalar' : 'Clique para ver como instalar'}</span>
+            {!comoInstalar && <em>6 passos</em>}
+          </button>
+
+          <div className="dash-plugin-passos" hidden={!comoInstalar}>
             <div className="dash-passo">
               <span>1</span>
               <div>
