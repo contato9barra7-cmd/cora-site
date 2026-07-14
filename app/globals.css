@@ -8118,11 +8118,16 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transform-origin: center;
   box-shadow: 0 2px 24px rgba(0, 0, 0, .10);
   line-height: 0;
+
+  /* O branco é da FOLHA, não dos canvas.
+     Ele estava em `.ps-folha canvas` — e como o overlay das formiguinhas também
+     é um canvas dentro da folha, ele ganhava fundo branco opaco e, deitado por
+     cima com `inset:0`, tapava a imagem inteira. A viewport ficava em branco. */
+  background: var(--paper);
 }
 .ps-folha canvas {
   display: block;
   max-width: none;
-  background: var(--paper);
 }
 
 .ps-zoom {

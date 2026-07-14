@@ -207,8 +207,19 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, titulo }) {
   // Eles vêm no `confirmar()`, quando de fato serão usados.
   function escolherDoFeed(item) {
     setErro('');
+
+    // Clicar de novo na MESMA imagem desmarca. Sem isso não haveria como
+    // desfazer a escolha sem fechar o picker inteiro — e o gesto natural de
+    // quem se arrependeu é clicar outra vez no que clicou.
+    const desmarcando = pendente && pendente.id === item.id;
+
+    if (desmarcando) {
+      setPendente(null);
+      return;
+    }
+
     setPendente({
-      base64: null,             // vem depois
+      base64: null,             // vem depois, no confirmar
       previa: item.url,
       geracaoId: item.id,
       de: 'feed',
