@@ -166,19 +166,32 @@ export default function AppShell({ children }) {
       {/* MENU LATERAL FIXO */}
       <aside className="app-side">
         <div className="app-side-topo">
-          {/* O logo leva à landing (corarender.com). Para voltar ao painel,
-              o caminho é o item "Cora Render" do menu. */}
-          <Link href="/" className="app-logo">
-            {recolhido ? 'C' : 'Cora Render'}
-          </Link>
-          <button
-            className="app-side-toggle"
-            onClick={toggleMenu}
-            title={recolhido ? 'Expandir menu' : 'Recolher menu'}
-            aria-label={recolhido ? 'Expandir menu' : 'Recolher menu'}
-          >
-            {recolhido ? Icone.expandir : Icone.recolher}
-          </button>
+          {recolhido ? (
+            <button
+              className="app-side-toggle app-side-toggle--so"
+              onClick={toggleMenu}
+              title="Expandir menu"
+              aria-label="Expandir menu"
+            >
+              <span className="app-side-c">C</span>
+              <span className="app-side-seta">{Icone.expandir}</span>
+            </button>
+          ) : (
+            <>
+              {/* O logo leva à landing (corarender.com). Para voltar ao painel,
+                  o caminho é o item "Cora Render" do menu. */}
+              <Link href="/" className="app-logo">Cora Render</Link>
+
+              <button
+                className="app-side-toggle"
+                onClick={toggleMenu}
+                title="Recolher menu"
+                aria-label="Recolher menu"
+              >
+                {Icone.recolher}
+              </button>
+            </>
+          )}
         </div>
         <nav className="app-nav">
           {itens.map(i => (

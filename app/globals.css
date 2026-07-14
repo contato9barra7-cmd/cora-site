@@ -590,13 +590,19 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   padding: 0 14px; border-bottom: 1px solid var(--line);
 }
 .app-logo { font-weight: 700; font-size: 18px; color: var(--ink); text-decoration: none; white-space: nowrap; }
-.app-shell.recolhido .app-logo { font-size: 20px; }
+
 .app-side-toggle {
   background: none; border: none; cursor: pointer; color: var(--ink3); padding: 6px; border-radius: 8px;
   display: flex; align-items: center;
 }
 .app-side-toggle:hover { background: var(--paper); color: var(--ink); }
-.app-shell.recolhido .app-side-topo { flex-direction: column; gap: 8px; height: auto; padding: 12px 0; }
+/* Recolhido, o topo NÃO vira coluna: mantém a altura do cabeçalho e centra o
+   único filho (o botão). Era o `flex-direction: column` que empurrava o botão
+   para baixo do logo, e o `height: auto` que o tirava da linha do cabeçalho. */
+.app-shell.recolhido .app-side-topo {
+  justify-content: center;
+  padding: 0;
+}
 
 .app-nav { padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; }
 /* ── O menu lateral ──
@@ -3742,8 +3748,8 @@ html.menu-recolhido {
 }
 
 html.menu-recolhido .app-side      { width: var(--side-w-min); }
-html.menu-recolhido .app-logo      { font-size: 20px; }
-html.menu-recolhido .app-side-topo { flex-direction: column; gap: 8px; height: auto; padding: 12px 0; }
+/* Espelha a regra do React (.app-shell.recolhido): sem coluna, sem height auto */
+html.menu-recolhido .app-side-topo { justify-content: center; padding: 0; }
 html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 /* A transição continua valendo para o clique no botão — o que não pode é
@@ -7855,3 +7861,41 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--accent-txt);
   font-weight: 600;
 }
+
+
+/* ── Recolhido: o "C" É o botão ──
+   Ali existe só o botão — o logo não. Se os dois dividissem o pixel, um clique
+   errado levaria a pessoa para a landing e para fora do app. */
+.app-side-toggle--so {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+}
+
+.app-side-c,
+.app-side-seta {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .14s;
+}
+
+.app-side-c {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  opacity: 1;
+}
+
+.app-side-seta { opacity: 0; }
+
+/* No hover, o C dá lugar à seta: o mesmo alvo, e fica claro o que o clique faz */
+.app-side-toggle--so:hover .app-side-c   { opacity: 0; }
+.app-side-toggle--so:hover .app-side-seta { opacity: 1; }
+
+.app-side-toggle--so:hover { background: var(--wash2); }
