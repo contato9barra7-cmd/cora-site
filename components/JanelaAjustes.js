@@ -21,10 +21,25 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   paramsPadrao, temAjuste, aplicarPixels, aplicarEmCanvas,
-  ABAS_AJUSTE, CORES_MIXER, CANAIS_CURVA
+  ABAS_AJUSTE, CORES_MIXER, CANAIS_CURVA, curvaLUT
 } from '../lib/ajustes';
 
 const LADO_PREVIA = 1400;
+
+// ── A trava magnética do meio ──
+//
+// Em sliders que vão de -N a +N, o zero é o "sem efeito", e é onde a mão mais
+// quer parar. Sem uma trava, acertar exatamente 0 no arraste é sorte. Perto do
+// centro, o valor gruda no zero — como no Lightroom.
+//
+// Só vale para sliders simétricos (min negativo): num de 0 a 100 não há meio
+// que mereça ímã.
+function comTrava(valor, min, max) {
+  if (min >= 0) return valor;                 // sem centro-zero, sem trava
+  const alcance = max - min;
+  const zona = Math.max(1, Math.round(alcance * 0.04));   // ~4% de cada lado
+  return Math.abs(valor) <= zona ? 0 : valor;
+}
 
 export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) {
   // Reabrindo um filtro de Ajustes, os controles nascem com os valores DELE.
@@ -222,7 +237,8 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                         min={s.min} max={s.max}
                         value={p[abaAtual.grupo][s.k]}
                         disabled={morto}
-                        onChange={(e) => mexer(abaAtual.grupo, s.k, +e.target.value)}
+                        onChange={(e) => mexer(abaAtual.grupo, s.k, comTrava(+e.target.value, s.min, s.max))}
+                        onDoubleClick={() => mexer(abaAtual.grupo, s.k, paramsPadrao()[abaAtual.grupo][s.k])}
                         aria-label={s.nome}
                       />
                     </div>
@@ -284,7 +300,8 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                       <input
                         type="range" min="-100" max="100"
                         value={p.mixer[cor][k]}
-                        onChange={(e) => mexerMixer(cor, k, +e.target.value)}
+                        onChange={(e) => mexerMixer(cor, k, comTrava(+e.target.value, -100, 100))}
+                        onDoubleClick={() => mexerMixer(cor, k, 0)}
                         aria-label={nome}
                       />
                     </div>
@@ -376,9 +393,12 @@ function Curva({ pontos, cor, onMudar }) {
   const px = (v) => (v / 255) * L;
   const py = (v) => L - (v / 255) * L;
 
-  const linha = [...pontos]
-    .sort((a, b) => a.x - b.x)
-    .map((p, i) => `${i ? 'L' : 'M'} ${px(p.x)} ${py(p.y)}`)
+  // A linha é traçada a partir da LUT — a MESMA que aplica o efeito. Assim o que
+  // se vê é exatamente o que acontece com a imagem, e a curva sai suave (spline
+  // monotônica), não em segmentos retos.
+  const lut = curvaLUT(pontos);
+  const linha = lut
+    .map((y, x) => `${x ? 'L' : 'M'} ${px(x)} ${py(y)}`)
     .join(' ');
 
   return (

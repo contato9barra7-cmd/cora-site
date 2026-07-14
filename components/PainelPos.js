@@ -908,7 +908,15 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico }) {
     setSalvandoHist(true);
     try {
       const dataUrl = exportar(camadas, med.w, med.h);
-      await aoSalvarHistorico(dataUrl, { largura: med.w, altura: med.h });
+
+      // A proporção REAL da imagem, reduzida (1920×1080 → "16:9"). Sem ela, o
+      // feed cai no 4:3 padrão e a miniatura sai achatada até a imagem carregar
+      // e ser medida — e às vezes nem corrige.
+      const mdc = (a, b) => (b ? mdc(b, a % b) : a);
+      const g = mdc(med.w, med.h) || 1;
+      const proporcao = `${med.w / g}:${med.h / g}`;
+
+      await aoSalvarHistorico(dataUrl, { largura: med.w, altura: med.h, proporcao });
       setToast('Salvo no histórico');
       setTimeout(() => setToast(null), 3200);
     } catch (e) {

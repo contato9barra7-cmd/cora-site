@@ -8496,8 +8496,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* As seis abas. Numa coluna de 330px elas não cabem em fila: rolam. */
 .aj-abas {
   display: flex;
-  gap: 5px;
-  padding: 12px 14px;
+  gap: 4px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--line);
   overflow-x: auto;
   scrollbar-width: none;
@@ -8507,12 +8507,12 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .aj-aba {
   flex: 0 0 auto;
-  padding: 6px 12px;
+  padding: 6px 9px;
   border-radius: 100px;
   border: 1px solid var(--line2);
   background: var(--paper);
   color: var(--ink3);
-  font-size: 12px;
+  font-size: 10.5px;
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
@@ -8587,10 +8587,47 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .aj-sl-v:hover { background: var(--wash); color: var(--accent); }
 
 .aj-sl input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
   width: 100%;
-  accent-color: var(--accent);
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line2);
+  cursor: pointer;
+  margin: 4px 0;
+}
+.aj-sl input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line2);
+}
+.aj-sl input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line2);
+}
+.aj-sl input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .15);
+  cursor: pointer;
+  margin-top: -5px;
+}
+.aj-sl input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .15);
   cursor: pointer;
 }
+.aj-sl input[type="range"]:disabled { opacity: .4; cursor: default; }
 
 /* Os filhos (ponto médio, tamanho do grão) são recuados: eles pertencem ao
    slider de cima, e a hierarquia precisa ser visível. */
