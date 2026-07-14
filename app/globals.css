@@ -8736,11 +8736,21 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 16px;
+  padding: 0 16px;
   border-bottom: 1px solid var(--line);
   background: var(--wash);
-  flex-shrink: 0;
-  flex-wrap: wrap;
+
+  /* ── Altura FIXA ──
+     A barra tinha `flex-wrap: wrap` e altura livre: bastava um botão a mais
+     para os controles quebrarem numa segunda linha, a barra dobrar de altura e
+     empurrar a imagem para baixo. A tela pulava sempre que uma seleção nascia.
+
+     Agora ela não quebra e não cresce. Se algum dia não couber, o que sobrar
+     transborda — mas a imagem não se mexe. */
+  height: 48px;
+  flex: 0 0 48px;
+  flex-wrap: nowrap;
+  overflow: hidden;
   row-gap: 8px;
 }
 
@@ -9257,4 +9267,16 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 @keyframes ps-pisca {
   0%, 100% { opacity: .45; }
   50%      { opacity: .9; }
+}
+
+
+/* Os botões DA BARRA são menores que os do topo: 30px, a mesma altura dos
+   outros controles dela. A 36px eles eram o item mais alto e definiam a altura
+   da barra sozinhos. */
+.ps-opts .ps-b {
+  height: 30px;
+  padding: 0 14px;
+  font-size: 12px;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }

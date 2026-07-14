@@ -37,6 +37,7 @@ import {
 } from '../lib/selecao';
 import { tirar, empilhar } from '../lib/historico';
 import * as guardarTrabalho from '../lib/guardar';
+import { exportarCora, importarCora } from '../lib/cora';
 import {
   camadaNoPonto, alcaNoPonto, pontosDasAlcas, moverComEncaixe,
   redimensionar, centralizar, ALCAS
@@ -44,6 +45,14 @@ import {
 
 // Os ícones são os do plugin (posIconeSVG) — quem usa os dois reconhece.
 const IC = {
+  // Abrir e salvar um .cora
+  pasta:    'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+  disquete: 'M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z|M7 3v5h8V3|M7 20v-6h10v6',
+
+  // A máscara de camada: o círculo dentro do quadrado. É o ícone do Photoshop —
+  // quem vem de lá reconhece sem ler.
+  mascara:  'M3 3h18v18H3z|M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
+
   mover:    'M12 2v20M2 12h20M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3M2 12l3-3M2 12l3 3M22 12l-3-3M22 12l-3 3',
   pincel:   'M20.5 3.5c-1 0-3 1-6 3.5C10 11 6.5 14.5 6.5 14.5l3 3s3.5-3.5 7.5-8c2.5-3 3.5-5 3.5-6z|M6.5 14.5c-2 0-3.5 1-4 3-.3 1.3-.5 2.8-2 3.2 1.5 1 4 1.3 5.5 1 2-.4 3.5-2 4-4z',
   borracha: 'M7 21h13|M5.5 16.5L13 9l5 5-5 5H8z|M11 7l5 5',
@@ -183,6 +192,10 @@ export default function PainelPos({ aoSair, aoUpscale }) {
   const [rascunho, setRascunho] = useState(null);   // { quando } ou null
   const [salvando, setSalvando] = useState(false);
   const turno = useRef(0);          // qual salvamento é o mais recente
+
+  // O seletor de arquivo .cora, escondido: um <input type=file> nativo é feio,
+  // e o botão da barra o aciona por baixo dos panos.
+  const arquivoCora = useRef(null);
   const [ratio, setRatio] = useState('livre');
 
   // ── O histórico ──
@@ -282,11 +295,33 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           else cx.rect(x, y, w, h);
         }
 
-        const pts = g.poli.length ? g.poli : g.pts;
-        if ((ferr === 'laco' || ferr === 'lacoPoli') && pts.length > 1) {
-          cx.moveTo(pts[0].x, pts[0].y);
-          for (let i = 1; i < pts.length; i++) cx.lineTo(pts[i].x, pts[i].y);
-          if (ferr === 'lacoPoli' && g.ultimo) cx.lineTo(g.ultimo.x, g.ultimo.y);
+        // ── O laço à mão livre ──
+        if (ferr === 'laco' && g.pts.length > 1) {
+          cx.moveTo(g.pts[0].x, g.pts[0].y);
+          for (let i = 1; i < g.pts.length; i++) cx.lineTo(g.pts[i].x, g.pts[i].y);
+
+          // A reta que FECHA. Ela é desenhada durante o traço porque é ela que
+          // vai existir: o laço fecha sozinho, e ver isso antes de soltar evita
+          // a surpresa de um contorno cortado por onde não se esperava.
+          cx.lineTo(g.pts[0].x, g.pts[0].y);
+        }
+
+        // ── O poligonal ──
+        //
+        // Bastava UM vértice para a linha elástica valer a pena: ela mostra onde
+        // a próxima aresta vai cair. Antes ela só aparecia a partir do segundo
+        // clique — e o primeiro parecia não ter feito nada.
+        if (ferr === 'lacoPoli' && g.poli.length) {
+          cx.moveTo(g.poli[0].x, g.poli[0].y);
+          for (let i = 1; i < g.poli.length; i++) cx.lineTo(g.poli[i].x, g.poli[i].y);
+
+          if (g.ultimo) {
+            cx.lineTo(g.ultimo.x, g.ultimo.y);
+
+            // E a reta de volta ao começo: é o contorno que se está prestes a
+            // fechar, e vê-lo é o que permite mirar o último clique.
+            if (g.poli.length > 1) cx.lineTo(g.poli[0].x, g.poli[0].y);
+          }
         }
 
         cx.strokeStyle = '#000';
@@ -626,10 +661,41 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     if (ativa.mascara) {
       mudar(ativa.id, { mascara: null });
       if (alvoMasc === ativa.id) setAlvo(null);
-    } else {
-      mudar(ativa.id, { mascara: mascaraBranca(ativa.canvas.width, ativa.canvas.height) });
-      setAlvo(ativa.id);
+      return;
     }
+
+    // ── Com uma seleção ativa, ela VIRA a máscara ──
+    //
+    // É o gesto do Photoshop: seleciona-se o sofá, clica-se na máscara, e o
+    // fundo some — sem ter sido apagado. O pixel continua lá, e um pincel de
+    // branco na máscara o traz de volta.
+    //
+    // Ignorar a seleção aqui obrigaria a pessoa a apagar com Delete, e aí o
+    // recorte 3px curto no braço do sofá não teria conserto.
+    if (temSel && selRef.current) {
+      const m  = canvasVazio(ativa.canvas.width, ativa.canvas.height);
+      const mc = m.getContext('2d');
+
+      // Preto esconde. A seleção pinta de branco por cima o que deve aparecer.
+      mc.fillStyle = '#000';
+      mc.fillRect(0, 0, m.width, m.height);
+
+      mc.save();
+      mc.scale(m.width / largura(ativa), m.height / altura(ativa));
+      mc.translate(-ativa.x, -ativa.y);
+      mc.drawImage(selRef.current, 0, 0);
+      mc.restore();
+
+      mudar(ativa.id, { mascara: m });
+      setAlvo(ativa.id);
+      desmarcar();
+      return;
+    }
+
+    // Sem seleção, a máscara nasce toda branca: nada escondido, pronta para ser
+    // pintada do zero.
+    mudar(ativa.id, { mascara: mascaraBranca(ativa.canvas.width, ativa.canvas.height) });
+    setAlvo(ativa.id);
   }
 
   function agrupar() {
@@ -1118,6 +1184,19 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     g.pts = [p];
     g.ultimo = null;
 
+    // ── A seleção antiga sai NA HORA ──
+    //
+    // Ela só era limpa ao soltar o botão. Durante o arraste, a antiga continuava
+    // na tela junto com a nova — e o que se via não era o que ia acontecer.
+    //
+    // Só no modo `novo`: com Ctrl (somar) ou Alt (subtrair), a antiga é
+    // justamente a base sobre a qual se desenha.
+    if (SELECAO.includes(ferr) && g.modo === 'novo' && temSel) {
+      selRef.current = novaSelecao(med.w, med.h);
+      contornoRef.current = null;
+      setTemSel(false);
+    }
+
     if (ferr === 'ret' || ferr === 'elip') {
       g.ret = { x0: p.x, y0: p.y, x1: p.x, y1: p.y };
       return;
@@ -1568,27 +1647,7 @@ export default function PainelPos({ aoSair, aoUpscale }) {
 
   // A seleção vira máscara: o que estava selecionado fica visível, o resto some.
   // É o caminho mais curto entre "recortei isto" e "só isto aparece".
-  function selParaMascara() {
-    if (!ativa || !temSel || !selRef.current) return;
-    guardar();
 
-    const m = canvasVazio(ativa.canvas.width, ativa.canvas.height);
-    const mc = m.getContext('2d');
-
-    // Preto = escondido. A seleção pinta de branco por cima.
-    mc.fillStyle = '#000';
-    mc.fillRect(0, 0, m.width, m.height);
-
-    mc.save();
-    mc.scale(m.width / largura(ativa), m.height / altura(ativa));
-    mc.translate(-ativa.x, -ativa.y);
-    mc.drawImage(selRef.current, 0, 0);
-    mc.restore();
-
-    mudar(ativa.id, { mascara: m });
-    setAlvo(ativa.id);
-    desmarcar();
-  }
 
   // ═══ O desfoque ═══
   function aplicarDesfoque(tipo) {
@@ -1806,6 +1865,13 @@ export default function PainelPos({ aoSair, aoUpscale }) {
     setPan({ x: 0, y: 0 });
   }
 
+  // A dica de cursor é escrita pela Mover e pelo corte. Ao trocar de ferramenta
+  // ela ficava grudada — e o laço herdava a setinha de "mover", porque a regra
+  // do `data-alca` no CSS vence a do `data-ferr`.
+  useEffect(() => {
+    if (ferr !== 'mover' && ferr !== 'crop') setSobreAlca(null);
+  }, [ferr]);
+
   // ═══ O trabalho guardado ═══
 
   // Ao entrar, procura um rascunho da sessão passada.
@@ -1876,6 +1942,53 @@ export default function PainelPos({ aoSair, aoUpscale }) {
       setPan({ x: 0, y: 0 });
     } catch (e) {
       setErro('Não foi possível recuperar o trabalho guardado.');
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  // ═══ O arquivo .cora ═══
+
+  async function exportar() {
+    if (!temImagem || !med) return;
+    setOcupado(true);
+
+    try {
+      const nome = camadas.length ? camadas[camadas.length - 1].nome : 'trabalho';
+      await exportarCora(camadas, med, temSel ? selRef.current : null, nome);
+    } catch (e) {
+      setErro('Não foi possível salvar o arquivo.');
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  async function importar(e) {
+    const f = e.target.files?.[0];
+    e.target.value = '';          // permite reabrir o MESMO arquivo depois
+    if (!f) return;
+
+    setOcupado(true);
+    setErro('');
+
+    try {
+      const t = await importarCora(f);
+
+      setCamadas(t.camadas);
+      setMed(t.med);
+
+      selRef.current = t.selecao || novaSelecao(t.med.w, t.med.h);
+      contornoRef.current = null;
+      setTemSel(t.selecao ? !selecaoVazia(t.selecao) : false);
+
+      setSel(t.camadas.length ? [t.camadas[0].id] : []);
+      setPilha([]);
+      setFerr('mover');
+      setZoom(1);
+      setPan({ x: 0, y: 0 });
+      setRascunho(null);
+    } catch (err) {
+      setErro(err.message || 'Não foi possível abrir o arquivo.');
     } finally {
       setOcupado(false);
     }
@@ -2122,6 +2235,20 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           </button>
         </Dica>
 
+        {/* Abrir um .cora. Ele fica colado no + porque as duas coisas trazem
+            trabalho para dentro: uma imagem nova, ou um trabalho já começado. */}
+        <Dica texto="Abrir um arquivo .cora">
+          <button className="ps-ic" onClick={() => arquivoCora.current?.click()}
+                  disabled={ocupado} aria-label="Abrir arquivo .cora">
+            <Svg d={IC.pasta} />
+          </button>
+        </Dica>
+
+        <input
+          type="file" ref={arquivoCora} accept=".cora"
+          onChange={importar} style={{ display: 'none' }}
+        />
+
         <Dica texto="Cortar (C)">
           <button className={'ps-ic' + (crop ? ' ps-ic--on' : '')} onClick={abrirCrop}
                   disabled={!temImagem} aria-label="Cortar">
@@ -2223,6 +2350,13 @@ export default function PainelPos({ aoSair, aoUpscale }) {
               <rect x="2" y="6" width="20" height="12" rx="2"/>
               <path d={IC.teclado} />
             </svg>
+          </button>
+        </Dica>
+
+        <Dica texto="Salvar o trabalho num arquivo .cora">
+          <button className="ps-ic" onClick={exportar}
+                  disabled={!temImagem || ocupado} aria-label="Salvar arquivo .cora">
+            <Svg d={IC.disquete} />
           </button>
         </Dica>
 
@@ -2382,10 +2516,6 @@ export default function PainelPos({ aoSair, aoUpscale }) {
             <>
               <span className="ps-esticar" />
               <button className="ps-b" onClick={inverterSel}>Inverter seleção</button>
-              <button className="ps-b" onClick={selParaMascara}
-                      disabled={!ativa || ativa.tipo === 'grupo'}>
-                Virar máscara
-              </button>
               <button className="ps-b" onClick={desmarcar}>Desmarcar</button>
             </>
           )}
@@ -2404,7 +2534,12 @@ export default function PainelPos({ aoSair, aoUpscale }) {
           data-mao={comEspaco ? '1' : undefined}
           onMouseDown={(e) => {
             if (espaco.current) return;   // com o espaço, o clique é da mão
-            if (e.target === e.currentTarget && ferr === 'mover') {
+            if (e.target !== e.currentTarget) return;   // caiu na imagem, não aqui
+
+            // O branco em volta da imagem é o "fora". Clicar nele larga o que
+            // estiver marcado — a seleção, ou a camada.
+            if (temSel) desmarcar();
+            else if (ferr === 'mover') {
               setSel([]);
               setAlvo(null);
             }
