@@ -8471,6 +8471,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .aj-previa {
   flex: 1;
   min-width: 0;
+  position: relative;
   background: var(--wash);
   display: flex;
   align-items: center;
@@ -8718,7 +8719,38 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 /* Com o conta-gotas ativo, a prévia vira alvo de clique. */
 .aj-previa--wb canvas { cursor: crosshair; }
-.aj-previa--pincel canvas { cursor: crosshair; }
+.aj-previa--pincel canvas { cursor: none; }
+
+/* O círculo que mostra o tamanho do pincel, seguindo o mouse. */
+.aj-cursor-pincel {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid rgba(164, 161, 243, .9);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .3);
+}
+
+/* Checkbox da máscara automática. */
+.aj-msk-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--ink2);
+  cursor: pointer;
+  margin-top: 12px;
+}
+.aj-msk-box {
+  width: 15px; height: 15px;
+  border-radius: 4px;
+  border: 1px solid var(--line2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.aj-msk-box--on { background: var(--accent); border-color: var(--accent); }
 
 /* ═══════════ Painel de máscaras ═══════════ */
 .aj-msk {
