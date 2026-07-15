@@ -357,14 +357,7 @@ export default function AppPage() {
       if (avancados.baixadas)  f.baixadas  = true;
       if (avancados.favoritos) f.favoritos = true;
 
-      const doServidor = await listarGeracoes(f);
-      // Preserva upscales locais (ainda não salvos no servidor) que não tenham
-      // sido substituídos por uma versão real do banco.
-      setLotes((atuais) => {
-        const locais = atuais.filter((l) => l._local);
-        if (locais.length === 0) return doServidor;
-        return [...locais, ...doServidor];
-      });
+      setLotes(await listarGeracoes(f));
     } catch (e) {
       setErro(e.message);
     } finally {
@@ -721,27 +714,7 @@ export default function AppPage() {
               ocupado={ocupado}
               setOcupado={setOcupado}
               onProgresso={setProgresso}
-              onPronto={(res) => {
-                setProgresso(null);
-                // Mostra o resultado na hora, sem esperar o banco. O servidor é
-                // a fonte de verdade — quando ele salvar, a recarga confirma.
-                if (res && res.imagens && res.imagens[0]) {
-                  const img = res.imagens[0];
-                  const src = img.startsWith('data:') ? img : 'data:image/png;base64,' + img;
-                  const agora = new Date().toISOString();
-                  const loteLocal = {
-                    loteId: 'up_local_' + Date.now(),
-                    ferramenta: 'upscale',
-                    tipo: 'imagem',
-                    proporcao: null,
-                    criadoEm: agora,
-                    _local: true,
-                    itens: [{ id: 'up_local_' + Date.now(), thumb: src, url: src, render: src, prompt: res.prompt || 'Upscale' }]
-                  };
-                  setLotes((ls) => [loteLocal, ...ls]);
-                }
-                recarregarComFolga();
-              }}
+              onPronto={() => { setProgresso(null); recarregarComFolga(); }}
             />
           )}
 
