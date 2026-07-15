@@ -73,6 +73,9 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   const refAutoRef = useRef(null);     // cor de referência do automask
   const undoRef = useRef([]);          // pilha de snapshots das máscaras
   const [zoom, setZoom] = useState(1); // zoom da prévia (scroll com pincel)
+  const rafRef = useRef(0);            // frame agendado, para não redesenhar demais
+  const arrasteHandle = useRef(null);  // {tipo, compIdx, ...} do pino sendo arrastado
+  const [, forcarRender] = useState(0);
 
   const telaRef  = useRef(null);
   const baseRef  = useRef(null);   // a cópia reduzida, já pronta
@@ -119,7 +122,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   // Aplica os ajustes GLOBAIS e, por cima, os de cada máscara (só onde o alpha
   // dela incide). Se uma máscara está sendo editada, pinta um overlay vermelho
   // mostrando a região dela.
-  const desenhar = useCallback((params, masks, ativa, verOverlay, forcarOverlay) => {
+  const desenhar = useCallback((params, masks, ativa, verOverlay, forcarOverlay, leve) => {
     const base = baseRef.current;
     const tela = telaRef.current;
     if (!base || !tela) return;
@@ -131,6 +134,19 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     cx.drawImage(base, 0, 0);
 
     const lista = masks || [];
+    const mAtiva = ativa != null ? lista[ativa] : null;
+
+    // Modo leve (usado durante a pincelada): mostra só a imagem + o overlay
+    // vermelho da máscara ativa. Reaplicar todos os ajustes a cada frame é o que
+    // travava; isso fica para quando a pessoa solta o mouse.
+    if (leve) {
+      if (mAtiva && mAtiva.componentes.length) {
+        const ov = overlayVermelho(mAtiva, w, h);
+        cx.drawImage(ov, 0, 0);
+      }
+      return;
+    }
+
     const temGlobal = temAjuste(params);
     const temMasc = lista.some((m) => m.visivel !== false && temAjuste(m.params));
 
@@ -144,7 +160,6 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     // O overlay vermelho: aparece só enquanto a máscara está sendo DESENHADA e
     // ainda não recebeu ajuste. Assim que um slider mexe, o vermelho some e dá
     // lugar ao efeito real. Máscara oculta não mostra overlay.
-    const mAtiva = ativa != null ? lista[ativa] : null;
     const mostrarOverlay = mAtiva
       && mAtiva.visivel !== false
       && mAtiva.componentes.length
@@ -458,13 +473,13 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     const comp = compRef.current;
     if (comp.tipo === 'linear') {
       comp.bx = x; comp.by = y;
-      desenhar(p, mascarasRef.current, mascaraAtiva, true, true);
+      desenharAoVivo();
       return;
     }
     if (comp.tipo === 'radial') {
       comp.rx = Math.max(1, Math.abs(x - comp.cx));
       comp.ry = Math.max(1, Math.abs(y - comp.cy));
-      desenhar(p, mascarasRef.current, mascaraAtiva, true, true);
+      desenharAoVivo();
       return;
     }
 
@@ -474,7 +489,17 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     } else {
       pincelar(comp, x, y, brush.tamanho, brush.difusao, brush.fluxo, base.width, base.height);
     }
-    desenhar(p, mascarasRef.current, mascaraAtiva, true, true);
+    desenharAoVivo();
+  }
+
+  // Redesenho durante a pintura, limitado a um por frame — sem isso, mover o
+  // mouse rápido dispara dezenas de recomposições por segundo e trava.
+  function desenharAoVivo() {
+    if (rafRef.current) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = 0;
+      desenhar(p, mascarasRef.current, mascaraAtiva, true, true, true);
+    });
   }
 
   function soltarPincel() {
@@ -485,6 +510,58 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     refAutoRef.current = null;
     // Força um re-render para o React "enxergar" o componente recém-pintado
     // (ele foi mutado por referência) e o preview reflita o estado final.
+    setMascaras((ms) => ms.slice());
+    redesenhar();
+  }
+
+  // ── Arraste dos pinos dos degradês (linear e radial) ──
+  function comecarHandle(tipo, compIdx, e) {
+    e.stopPropagation();
+    snapshotMascaras();
+    const pt = pontoNaBase(e);
+    const comp = mascaras[mascaraAtiva].componentes[compIdx];
+    arrasteHandle.current = { tipo, compIdx, ox: pt.x, oy: pt.y, r0x: comp.rx, r0y: comp.ry };
+    window.addEventListener('mousemove', moverHandle);
+    window.addEventListener('mouseup', soltarHandle);
+  }
+
+  function moverHandle(e) {
+    const ah = arrasteHandle.current;
+    if (!ah) return;
+    const pt = pontoNaBase(e);
+    const comp = mascaras[mascaraAtiva].componentes[ah.compIdx];
+    if (!comp) return;
+
+    if (comp.tipo === 'linear') {
+      if (ah.tipo === 'A') { comp.ax = pt.x; comp.ay = pt.y; }
+      else if (ah.tipo === 'B') { comp.bx = pt.x; comp.by = pt.y; }
+      else if (ah.tipo === 'mover') {
+        const dx = pt.x - ah.ox, dy = pt.y - ah.oy;
+        comp.ax += dx; comp.ay += dy; comp.bx += dx; comp.by += dy;
+        ah.ox = pt.x; ah.oy = pt.y;
+      }
+    } else if (comp.tipo === 'radial') {
+      if (ah.tipo === 'mover') { comp.cx = pt.x; comp.cy = pt.y; }
+      else if (ah.tipo === 'rx') comp.rx = Math.max(1, Math.abs(pt.x - comp.cx));
+      else if (ah.tipo === 'ry') comp.ry = Math.max(1, Math.abs(pt.y - comp.cy));
+      else if (ah.tipo === 'feather') {
+        const d = Math.abs(pt.y - comp.cy);
+        comp.feather = Math.max(0, Math.min(0.95, 1 - d / Math.max(1, comp.ry)));
+      } else if (ah.tipo === 'escala') {
+        const f = Math.max(0.2, (comp.cy - pt.y) / Math.max(1, ah.r0y * 0.707));
+        comp.rx = Math.max(1, ah.r0x * f);
+        comp.ry = Math.max(1, ah.r0y * f);
+      }
+    }
+
+    forcarRender((n) => n + 1);   // reposiciona os pinos na tela
+    desenharAoVivo();
+  }
+
+  function soltarHandle() {
+    arrasteHandle.current = null;
+    window.removeEventListener('mousemove', moverHandle);
+    window.removeEventListener('mouseup', soltarHandle);
     setMascaras((ms) => ms.slice());
     redesenhar();
   }
@@ -547,6 +624,14 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                 />
               </span>
             )}
+
+            <HandlesDegrade
+              mascara={mascaraAtiva != null ? mascaras[mascaraAtiva] : null}
+              ferramenta={ferramenta}
+              rect={telaRef.current ? retanguloDaImagem() : null}
+              previaRef={telaRef}
+              onArrastarInicio={comecarHandle}
+            />
           </div>
 
           <aside className="aj-lado">
@@ -1030,6 +1115,85 @@ function IconeFerr({ nome }) {
         if (parte.startsWith('path:')) return <path key={i} d={parte.slice(5)} />;
         return <path key={i} d={parte} />;
       })}
+    </svg>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Os pinos arrastáveis dos degradês linear e radial.
+//  Ficam sobre a prévia, em coordenadas de tela (convertidas da base).
+// ═══════════════════════════════════════════════════════════
+function HandlesDegrade({ mascara, ferramenta, rect, previaRef, onArrastarInicio }) {
+  if (!mascara || !rect) return null;
+  if (ferramenta !== 'linear' && ferramenta !== 'radial') return null;
+
+  const prev = previaRef.current?.parentElement;
+  if (!prev) return null;
+  const pr = prev.getBoundingClientRect();
+
+  // Converte um ponto da base para px relativos à prévia.
+  const base = previaRef.current;
+  if (!base || !base.width) return null;
+  const bw = base.width, bh = base.height;
+  const px = (x) => (rect.left - pr.left) + (x / bw) * rect.w;
+  const py = (y) => (rect.top - pr.top) + (y / bh) * rect.h;
+
+  const Pino = ({ x, y, cor, tipo, ci }) => (
+    <circle
+      cx={px(x)} cy={py(y)} r="6"
+      fill={cor} stroke="#fff" strokeWidth="1.5"
+      style={{ cursor: 'grab', pointerEvents: 'all' }}
+      onMouseDown={(e) => onArrastarInicio(tipo, ci, e)}
+    />
+  );
+
+  const elementos = [];
+  mascara.componentes.forEach((comp, ci) => {
+    if (comp.tipo === 'linear') {
+      const ax = px(comp.ax), ay = py(comp.ay);
+      const bx = px(comp.bx), by = py(comp.by);
+      const mx = (ax + bx) / 2, my = (ay + by) / 2;
+      const dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1;
+      const ux = -dy / len, uy = dx / len;
+      const L = Math.max(rect.w, rect.h);
+      const linha = (cxp, cyp, op) => (
+        <line key={`l${ci}-${cxp}-${cyp}`}
+          x1={cxp - ux * L} y1={cyp - uy * L}
+          x2={cxp + ux * L} y2={cyp + uy * L}
+          stroke={`rgba(255,255,255,${op})`} strokeWidth="1" />
+      );
+      elementos.push(
+        <g key={`lin${ci}`}>
+          {linha(ax, ay, 0.9)}
+          {linha(mx, my, 0.35)}
+          {linha(bx, by, 0.9)}
+          <line x1={ax} y1={ay} x2={bx} y2={by} stroke="rgba(255,255,255,0.5)" strokeWidth="1" />
+          <Pino x={comp.ax} y={comp.ay} cor="#e25555" tipo="A" ci={ci} />
+          <Pino x={(comp.ax + comp.bx) / 2} y={(comp.ay + comp.by) / 2} cor="#7aa7ff" tipo="mover" ci={ci} />
+          <Pino x={comp.bx} y={comp.by} cor="#fff" tipo="B" ci={ci} />
+        </g>
+      );
+    } else if (comp.tipo === 'radial') {
+      const cx = px(comp.cx), cy = py(comp.cy);
+      const rx = (comp.rx / bw) * rect.w, ry = (comp.ry / bh) * rect.h;
+      const fin = 1 - (comp.feather != null ? comp.feather : 0.5);
+      elementos.push(
+        <g key={`rad${ci}`}>
+          <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" />
+          <ellipse cx={cx} cy={cy} rx={rx * fin} ry={ry * fin} fill="none" stroke="rgba(255,255,255,0.5)" strokeDasharray="4 3" strokeWidth="1.2" />
+          <Pino x={comp.cx} y={comp.cy} cor="#7aa7ff" tipo="mover" ci={ci} />
+          <Pino x={comp.cx + comp.rx} y={comp.cy} cor="#fff" tipo="rx" ci={ci} />
+          <Pino x={comp.cx} y={comp.cy + comp.ry} cor="#fff" tipo="ry" ci={ci} />
+          <Pino x={comp.cx} y={comp.cy - comp.ry * fin} cor="#9ad27a" tipo="feather" ci={ci} />
+          <Pino x={comp.cx + comp.rx * 0.707} y={comp.cy - comp.ry * 0.707} cor="#ffd24a" tipo="escala" ci={ci} />
+        </g>
+      );
+    }
+  });
+
+  return (
+    <svg className="aj-handles" style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible' }}>
+      {elementos}
     </svg>
   );
 }
