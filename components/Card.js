@@ -95,6 +95,12 @@ export default function Card({
         onLoad={carregou}
       />
 
+      {(it.tipo === 'video' || /\.(mp4|webm)(\?|$)/i.test(it.url || '')) && (
+        <span className="cr-card-play" aria-label="Vídeo">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><polygon points="7 4 20 12 7 20 7 4"/></svg>
+        </span>
+      )}
+
       {/* Qual lado esta imagem ocupa na comparação */}
       {modoAB && ehA && <span className="cr-card-ab">A</span>}
       {modoAB && ehB && <span className="cr-card-ab">B</span>}

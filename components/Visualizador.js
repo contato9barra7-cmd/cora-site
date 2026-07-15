@@ -159,6 +159,33 @@ export default function Visualizador({
 
   if (!item) return null;
 
+  // Vídeo (animação): mostra o player, sem os modos de comparação.
+  const ehVideo = item.tipo === 'video' || /\.(mp4|webm)(\?|$)/i.test(item.url || '');
+  if (ehVideo) {
+    return (
+      <div className="cr-overlay" onClick={onFechar}>
+        <div className="vz" onClick={(e) => e.stopPropagation()}>
+          <button className="vz-x" onClick={onFechar} aria-label="Fechar">
+            <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
+            </svg>
+          </button>
+          <div className="vz-area">
+            <video
+              className="vz-video"
+              src={item.url}
+              poster={item.thumb || undefined}
+              controls
+              autoPlay
+              loop
+              playsInline
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // No A/B a "esquerda" é a imagem A que a pessoa escolheu; no normal, é o
   // print do SketchUp. Os rótulos vêm de fora justamente por isso.
   const esquerda = original;

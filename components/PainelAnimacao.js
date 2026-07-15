@@ -66,9 +66,24 @@ export default function PainelAnimacao({
   // Imagem vinda de outra aba (ex.: "Enviar para Animação").
   useEffect(() => {
     if (imagemInicial && imagemInicial.base64) {
-      setInicio({ base64: imagemInicial.base64.replace(/^data:[^,]+,/, '') });
+      definirInicio(imagemInicial.base64.replace(/^data:[^,]+,/, ''));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imagemInicial]);
+
+  // Mede a imagem para guardar w/h (a proporção do vídeo segue a inicial).
+  function definirInicio(b64) {
+    const img = new Image();
+    img.onload = () => setInicio({ base64: b64, w: img.naturalWidth, h: img.naturalHeight });
+    img.onerror = () => setInicio({ base64: b64, w: 0, h: 0 });
+    img.src = 'data:image/png;base64,' + b64;
+  }
+  function definirFim(b64) {
+    const img = new Image();
+    img.onload = () => setFim({ base64: b64, w: img.naturalWidth, h: img.naturalHeight });
+    img.onerror = () => setFim({ base64: b64, w: 0, h: 0 });
+    img.src = 'data:image/png;base64,' + b64;
+  }
 
   // Ao trocar de modelo, corrige duração/resolução/áudio para o que ele suporta.
   useEffect(() => {
@@ -108,7 +123,8 @@ export default function PainelAnimacao({
     setErro('');
 
     const iniB64 = inicio.base64;
-    const ativoId = onIniciar ? onIniciar('data:image/png;base64,' + iniB64) : null;
+    const prop = (inicio.w && inicio.h) ? (inicio.w + ':' + inicio.h) : null;
+    const ativoId = onIniciar ? onIniciar('data:image/png;base64,' + iniB64, prop) : null;
 
     try {
       const r = await animarKling({
@@ -269,8 +285,8 @@ export default function PainelAnimacao({
         titulo={picker === 'fim' ? 'Imagem final' : 'Imagem inicial'}
         onEscolher={(img) => {
           const b64 = (img.base64 || img).replace(/^data:[^,]+,/, '');
-          if (picker === 'fim') setFim({ base64: b64 });
-          else setInicio({ base64: b64 });
+          if (picker === 'fim') definirFim(b64);
+          else definirInicio(b64);
           setPicker(null);
         }}
       />

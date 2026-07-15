@@ -15,6 +15,7 @@ const FERRAMENTAS = [
   { val: 'editar',   rotulo: 'Editar' },
   { val: 'batch',    rotulo: 'Batch' },
   { val: 'upscale',  rotulo: 'Upscale' },
+  { val: 'pos',      rotulo: 'Pós-produção' },
   { val: '360',      rotulo: '360°' },
   { val: 'animacao', rotulo: 'Animação' }
 ];
