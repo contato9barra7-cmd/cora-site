@@ -43,7 +43,7 @@ const AUDIO_SUP = { 'v2-1': false, 'v2-5': false, 'v2-6': true, 'v3': true };
 export default function PainelAnimacao({
   imagemInicial, ehAdmin, onIniciar, onTerminar
 }) {
-  const [modelo, setModelo]   = useState('v2-1');
+  const [modelo, setModelo]   = useState('');
   const [inicio, setInicio]   = useState(null);   // { base64 }
   const [fim, setFim]         = useState(null);
   const [timelapse, setTimelapse] = useState(false);
@@ -52,6 +52,7 @@ export default function PainelAnimacao({
   const [resolucao, setResolucao] = useState('720p');
   const [audio, setAudio]     = useState(false);
   const [picker, setPicker]   = useState(null);    // 'inicio' | 'fim' | null
+  const [pop, setPop]         = useState(null);     // 'dur' | 'res' | null
   const [erro, setErro]       = useState('');
 
   // Imagem vinda de outra aba (ex.: "Enviar para Animação").
@@ -63,6 +64,7 @@ export default function PainelAnimacao({
 
   // Ao trocar de modelo, corrige duração/resolução/áudio para o que ele suporta.
   useEffect(() => {
+    if (!modelo) return;
     const durs = DURACOES[modelo] || ['5'];
     if (!durs.includes(duracao)) setDuracao(durs[0]);
     const res = RESOLUCOES[modelo] || ['720p'];
@@ -71,18 +73,29 @@ export default function PainelAnimacao({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelo]);
 
-  const durOpcoes = (DURACOES[modelo] || ['5']).map((d) => ({ v: d, n: d + 's' }));
-  const resOpcoes = (RESOLUCOES[modelo] || ['720p']).map((r) => ({ v: r, n: r }));
   const temAudio  = AUDIO_SUP[modelo];
 
   const custo = custoAnimacao(modelo, resolucao, audio, duracao);
 
-  function inverter() {
-    setInicio(fim);
-    setFim(inicio);
-  }
+  function inverter() { const a = inicio; setInicio(fim); setFim(a); }
+  function copiarParaFim() { if (inicio) setFim({ base64: inicio.base64 }); }
+  function copiarParaInicio() { if (fim) setInicio({ base64: fim.base64 }); }
+
+  // A seta entre os cards muda conforme o que já foi preenchido:
+  //  - só inicial → seta → que COPIA a inicial para a final
+  //  - só final   → seta ← que COPIA a final para a inicial
+  //  - as duas    → seta ⇄ que INVERTE as posições
+  const SETA_DIR = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 12h14" strokeLinecap="round"/><path d="M14 7l5 5-5 5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+  const SETA_ESQ = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 12H6" strokeLinecap="round"/><path d="M10 7l-5 5 5 5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+  const SETA_DUPLA = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M7 4L4 7l3 3" strokeLinecap="round" strokeLinejoin="round"/><path d="M4 7h13a3 3 0 0 1 3 3" strokeLinecap="round"/><path d="M17 20l3-3-3-3" strokeLinecap="round" strokeLinejoin="round"/><path d="M20 17H7a3 3 0 0 1-3-3" strokeLinecap="round"/></svg>;
+
+  let seta = null;
+  if (inicio && fim)      seta = { icone: SETA_DUPLA, acao: inverter, tip: 'Inverter início e fim' };
+  else if (inicio)        seta = { icone: SETA_DIR, acao: copiarParaFim, tip: 'Copiar imagem inicial para a final' };
+  else if (fim)           seta = { icone: SETA_ESQ, acao: copiarParaInicio, tip: 'Copiar imagem final para a inicial' };
 
   async function gerar() {
+    if (!modelo) { setErro('Escolha um modelo primeiro'); return; }
     if (!inicio) { setErro('Suba a imagem inicial primeiro'); return; }
     setErro('');
 
@@ -116,55 +129,59 @@ export default function PainelAnimacao({
       <section className="up-bloco">
         <div className="cr-sec">Animação</div>
         <label className="up-lbl">Modelo</label>
-        <DropdownCora valor={modelo} opcoes={MODELOS} onEscolher={setModelo} />
+        <DropdownCora valor={modelo} opcoes={[{ v: '', n: 'Escolher modelo' }, ...MODELOS]} onEscolher={setModelo} />
       </section>
 
       {/* ── Imagem inicial e final ── */}
       <section className="up-bloco">
         <div className="cr-sec">Imagens</div>
-        <div className="anim-pares">
-          <div className="anim-slot">
+        <div className="anim-refs">
+          <button
+            className={'anim-card' + (inicio ? ' anim-card--img' : '') + (!inicio ? ' anim-card--obrig' : '')}
+            onClick={() => setPicker('inicio')}
+          >
             {inicio ? (
-              <div className="cr-ref">
+              <>
                 <img src={'data:image/png;base64,' + inicio.base64} alt="" />
-                <button className="cr-ref-x" onClick={() => setInicio(null)} aria-label="Remover imagem inicial">×</button>
-              </div>
+                <span className="anim-card-x" onClick={(e) => { e.stopPropagation(); setInicio(null); }} aria-label="Remover">×</span>
+              </>
             ) : (
-              <button className="cr-ref cr-ref--add" onClick={() => setPicker('inicio')}>
-                <span className="cr-ref-mais">+</span>
-              </button>
+              <>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                <span className="anim-card-lbl">Imagem inicial</span>
+              </>
             )}
-            <span className="anim-slot-lbl">Imagem inicial</span>
-          </div>
+          </button>
 
-          {inicio && fim && (
-            <button className="anim-inverter" onClick={inverter} title="Inverter início e fim" aria-label="Inverter início e fim">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M7 4l-3 3 3 3M4 7h13M17 20l3-3-3-3M20 17H7" />
-              </svg>
+          {seta && (
+            <button className="anim-seta" onClick={seta.acao} title={seta.tip} aria-label={seta.tip}>
+              {seta.icone}
             </button>
           )}
 
-          <div className="anim-slot">
+          <button
+            className={'anim-card' + (fim ? ' anim-card--img' : '')}
+            onClick={() => setPicker('fim')}
+          >
             {fim ? (
-              <div className="cr-ref">
+              <>
                 <img src={'data:image/png;base64,' + fim.base64} alt="" />
-                <button className="cr-ref-x" onClick={() => setFim(null)} aria-label="Remover imagem final">×</button>
-              </div>
+                <span className="anim-card-x" onClick={(e) => { e.stopPropagation(); setFim(null); }} aria-label="Remover">×</span>
+              </>
             ) : (
-              <button className="cr-ref cr-ref--add" onClick={() => setPicker('fim')}>
-                <span className="cr-ref-mais">+</span>
-              </button>
+              <>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                <span className="anim-card-lbl">Imagem final</span>
+              </>
             )}
-            <span className="anim-slot-lbl">Imagem final</span>
-          </div>
+          </button>
         </div>
       </section>
 
       {/* ── Modo timelapse ── */}
       <section className="up-bloco">
         <label className="anim-check">
-          <input type="checkbox" checked={timelapse} onChange={(e) => setTimelapse(e.target.checked)} />
+          <input type="checkbox" className="cora-check-bola" checked={timelapse} onChange={(e) => setTimelapse(e.target.checked)} />
           <span>Modo timelapse de obra</span>
         </label>
         <p className="cr-hint">Use apenas para timelapse de obra. Para qualquer outra animação, deixe desligado — a descrição abaixo cria o movimento.</p>
@@ -190,30 +207,50 @@ export default function PainelAnimacao({
       {/* ── Opções ── */}
       <section className="up-bloco">
         <div className="cr-sec">Opções</div>
-        <div className="anim-opcoes">
-          <div className="anim-op">
-            <label className="up-lbl">Duração</label>
-            <DropdownCora valor={duracao} opcoes={durOpcoes} onEscolher={setDuracao} />
+        <div className="anim-pills">
+          <div className="anim-pill-wrap">
+            <button className="anim-pill" onClick={() => setPop(pop === 'dur' ? null : 'dur')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" strokeLinecap="round"/></svg>
+              <span>{duracao}s</span>
+            </button>
+            {pop === 'dur' && (
+              <div className="anim-pop">
+                {(DURACOES[modelo] || ['5']).map((d) => (
+                  <button key={d} className={d === duracao ? 'sel' : ''} onClick={() => { setDuracao(d); setPop(null); }}>{d}s</button>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="anim-op">
-            <label className="up-lbl">Resolução</label>
-            <DropdownCora valor={resolucao} opcoes={resOpcoes} onEscolher={setResolucao} />
+
+          <div className="anim-pill-wrap">
+            <button className="anim-pill" onClick={() => setPop(pop === 'res' ? null : 'res')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+              <span>{resolucao}</span>
+            </button>
+            {pop === 'res' && (
+              <div className="anim-pop">
+                {(RESOLUCOES[modelo] || ['720p']).map((r) => (
+                  <button key={r} className={r === resolucao ? 'sel' : ''} onClick={() => { setResolucao(r); setPop(null); }}>{r}</button>
+                ))}
+              </div>
+            )}
           </div>
+
+          {temAudio && (
+            <button className={'anim-pill' + (audio ? ' anim-pill--on' : '')} onClick={() => setAudio(!audio)}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 5L6 9H2v6h4l5 4V5z"/>{audio && <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" strokeLinecap="round"/>}</svg>
+              <span>{audio ? 'Áudio ON' : 'Áudio OFF'}</span>
+            </button>
+          )}
         </div>
-        {temAudio && (
-          <label className="anim-check" style={{ marginTop: 12 }}>
-            <input type="checkbox" checked={audio} onChange={(e) => setAudio(e.target.checked)} />
-            <span>Áudio</span>
-          </label>
-        )}
       </section>
 
       {erro && <p className="up-erro">{erro}</p>}
 
       {/* ── Gerar ── */}
-      <button className="cr-btn-gerar up-gerar" onClick={gerar} disabled={!inicio}>
+      <button className="cr-btn-gerar up-gerar" onClick={gerar} disabled={!inicio || !modelo}>
         <span>Gerar animação</span>
-        {inicio && custo > 0 && (
+        {inicio && modelo && custo > 0 && (
           <span className="cr-custo-tag"><IconeCredito /> {custo}</span>
         )}
       </button>

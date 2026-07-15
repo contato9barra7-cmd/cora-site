@@ -5257,22 +5257,70 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .dt-up-linha span:first-child { color: var(--ink3); }
 .dt-up-linha span:last-child { color: var(--ink); font-weight: 500; text-align: right; }
 
-/* ── Painel de Animação ── */
-.anim-pares { display: flex; align-items: flex-start; gap: 10px; }
-.anim-slot { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 84px; }
-.anim-slot .cr-ref, .anim-slot .cr-ref--add { width: 84px; height: 84px; }
-.anim-slot-lbl { font-size: 11px; color: var(--ink3); text-align: center; }
-.anim-inverter {
-  margin-top: 30px; width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%;
-  border: 1px solid var(--line2); background: var(--wash); color: var(--ink2);
-  display: flex; align-items: center; justify-content: center; cursor: pointer;
+/* ── Painel de Animação (igual ao plugin) ── */
+.anim-refs { display: flex; align-items: center; gap: 10px; position: relative; }
+.anim-card {
+  flex: 1; min-width: 0; aspect-ratio: 1 / 1; position: relative;
+  border: 1.5px dashed var(--line2); border-radius: 12px; background: var(--wash);
+  color: var(--ink3); cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px; padding: 0;
 }
-.anim-inverter:hover { border-color: var(--accent); color: var(--accent); }
+.anim-card:hover { border-color: var(--accent); color: var(--ink2); }
+.anim-card svg { width: 26px; height: 26px; }
+.anim-card-lbl { font-size: 11.5px; font-weight: 500; }
+.anim-card--obrig .anim-card-lbl::after { content: ' *'; color: var(--accent); }
+.anim-card--img { border-style: solid; }
+.anim-card--img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 11px; }
+.anim-card-x {
+  position: absolute; top: 5px; right: 5px; width: 20px; height: 20px; z-index: 2;
+  border-radius: 50%; background: var(--paper); border: 1px solid var(--line2);
+  color: var(--ink2); font-size: 14px; display: flex; align-items: center;
+  justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+.anim-seta {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5;
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line2);
+  background: var(--paper); color: var(--ink2); display: flex; align-items: center;
+  justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.anim-seta:hover { border-color: var(--accent); color: var(--accent); }
+.anim-seta svg { width: 18px; height: 18px; }
+
 .anim-check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink); cursor: pointer; font-weight: 500; }
-.anim-check input { accent-color: var(--accent); width: 15px; height: 15px; }
+.cora-check-bola {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  border: 1.5px solid var(--line2); background: transparent; cursor: pointer; position: relative;
+  flex-shrink: 0; transition: background .12s, border-color .12s;
+}
+.cora-check-bola:checked { background: var(--accent); border-color: var(--accent); }
+.cora-check-bola:checked::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px;
+  border-radius: 50%; background: var(--accent-txt, #111); transform: translate(-50%, -50%);
+}
 .anim-contador { text-align: right; font-size: 11px; color: var(--ink3); margin: 4px 0 0; }
-.anim-opcoes { display: flex; gap: 10px; }
-.anim-op { flex: 1; }
+
+.anim-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.anim-pill-wrap { position: relative; }
+.anim-pill {
+  display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 100px;
+  border: 1px solid var(--line2); background: var(--wash); color: var(--ink2);
+  font-size: 12.5px; font-family: inherit; cursor: pointer; white-space: nowrap;
+}
+.anim-pill:hover { border-color: var(--accent); }
+.anim-pill svg { width: 14px; height: 14px; opacity: .8; }
+.anim-pill--on { border-color: var(--accent); color: var(--accent); }
+.anim-pop {
+  position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 30;
+  background: var(--paper); border: 1px solid var(--line2); border-radius: 12px;
+  padding: 6px; display: flex; flex-direction: column; gap: 2px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.16); max-height: 240px; overflow-y: auto; min-width: 90px;
+}
+.anim-pop button {
+  background: transparent; border: none; color: var(--ink2); font-family: inherit;
+  font-size: 12.5px; padding: 8px 12px; border-radius: 9px; cursor: pointer; text-align: left; white-space: nowrap;
+}
+.anim-pop button:hover { background: var(--accent-bg); color: var(--accent); }
+.anim-pop button.sel { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
 
 /* As imagens que entraram na geração: o print e as referências.
    Miniaturas, não retratos — servem para RECONHECER, não para admirar. */
