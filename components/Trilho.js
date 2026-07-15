@@ -24,16 +24,12 @@ export default function Trilho({ abas, ativa, onTrocar }) {
   const [max, setMax] = useState(0);
 
   // Quanto dá para andar. Se tudo cabe, é zero — e as setas se apagam.
-  // FOLGA: a pill selecionada é branca e arredondada; se ela colar na borda
-  // curva do sulco, o canto é cortado. Uma folga de alguns px nas pontas
-  // garante que a pill sempre pare dentro da parte reta do sulco.
-  const FOLGA = 6;
   const medir = useCallback(() => {
     const s = sulcoRef.current;
     const t = trilhoRef.current;
     if (!s || !t) return;
 
-    const m = Math.max(0, t.scrollWidth - s.clientWidth + FOLGA);
+    const m = Math.max(0, t.scrollWidth - s.clientWidth);
     setMax(m);
     setX((v) => Math.min(v, m));   // a janela cresceu: não deixa sobrar vão
   }, []);

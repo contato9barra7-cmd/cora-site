@@ -1332,9 +1332,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  border-radius: 100px;
+  border-radius: 12px;
   background: var(--wash2);
-  padding: 3px 8px;
+  padding: 3px 6px;
 }
 
 /* O sulco já tem o fundo — o trilho fica nu */
@@ -10416,7 +10416,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* ═══════════════════════════════════════════════════════════
    Aba Upscale
    ═══════════════════════════════════════════════════════════ */
-.up-painel { display: flex; flex-direction: column; gap: 4px; }
+.up-painel { display: flex; flex-direction: column; gap: 4px; padding: 16px 14px 20px; overflow-y: auto; }
 .up-bloco { margin-bottom: 16px; }
 
 /* Imagem base */
@@ -10501,18 +10501,38 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* O "?" com dica — a bolha não é cortada (posição fixa acima, largura folgada) */
 .up-ajuda { position: relative; display: inline-flex; color: var(--ink4); cursor: help; }
 .up-ajuda-bolha {
-  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
-  width: max-content; max-width: 240px; padding: 8px 11px; border-radius: 10px;
+  position: absolute; bottom: calc(100% + 8px); left: -8px;
+  width: max-content; max-width: 230px; padding: 8px 11px; border-radius: 10px;
   background: var(--ink); color: var(--paper); font-size: 11.5px; font-weight: 400;
   line-height: 1.4; text-align: left; white-space: normal; opacity: 0; visibility: hidden;
   transition: opacity .15s; z-index: 50; pointer-events: none;
   box-shadow: 0 6px 20px rgba(0,0,0,.22);
 }
 .up-ajuda-bolha::after {
-  content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  content: ''; position: absolute; top: 100%; left: 14px;
   border: 5px solid transparent; border-top-color: var(--ink);
 }
 .up-ajuda:hover .up-ajuda-bolha, .up-ajuda:focus .up-ajuda-bolha { opacity: 1; visibility: visible; }
 
 .up-erro { font-size: 12px; color: #e0405a; margin: 6px 0; }
 .up-gerar { margin-top: 8px; }
+
+/* Presets */
+.up-preset-row { display: flex; gap: 6px; align-items: center; }
+.up-preset-row .up-select { flex: 1; }
+.up-mini {
+  width: 38px; height: 38px; flex-shrink: 0; border-radius: 50%;
+  border: 1px solid var(--line2); background: var(--wash); color: var(--ink2);
+  font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.up-mini:hover { border-color: var(--accent); color: var(--accent); }
+.up-mini--danger:hover { border-color: #e0405a; color: #e0405a; }
+.up-mini:disabled { opacity: .4; cursor: default; }
+
+/* Descrição do modo criativo */
+.up-textarea {
+  width: 100%; box-sizing: border-box; padding: 10px 13px; border-radius: 12px;
+  border: 1px solid var(--line2); background: var(--wash); color: var(--ink);
+  font-size: 13px; font-family: inherit; resize: vertical; min-height: 54px;
+}
+.up-textarea:focus { outline: none; border-color: var(--accent); }

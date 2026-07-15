@@ -85,6 +85,46 @@ export default function PainelUpscale({
   const [picker, setPicker] = useState(false);
   const [erro, setErro]   = useState('');
 
+  // Presets: nome -> conjunto de campos. Guardados no navegador.
+  const [presets, setPresets] = useState({});
+  const [presetAtual, setPresetAtual] = useState('');
+
+  useEffect(() => {
+    try {
+      const salvo = JSON.parse(localStorage.getItem('cora-up-presets') || '{}');
+      setPresets(salvo && typeof salvo === 'object' ? salvo : {});
+    } catch { setPresets({}); }
+  }, []);
+
+  function guardarPresets(obj) {
+    setPresets(obj);
+    try { localStorage.setItem('cora-up-presets', JSON.stringify(obj)); } catch {}
+  }
+
+  function aplicarPreset(nome) {
+    setPresetAtual(nome);
+    if (!nome || !presets[nome]) return;
+    const p = presets[nome];
+    if (p.modo) setModo(p.modo);
+    setSt((s) => ({ ...s, ...p.campos }));
+  }
+
+  function salvarPreset() {
+    const nome = (window.prompt('Nome do preset:') || '').trim();
+    if (!nome) return;
+    const novo = { ...presets, [nome]: { modo, campos: { ...st } } };
+    guardarPresets(novo);
+    setPresetAtual(nome);
+  }
+
+  function excluirPreset() {
+    if (!presetAtual || !presets[presetAtual]) return;
+    const novo = { ...presets };
+    delete novo[presetAtual];
+    guardarPresets(novo);
+    setPresetAtual('');
+  }
+
   // Imagem vinda de outra aba (ex.: "Enviar para Upscale" do visualizador).
   useEffect(() => {
     if (imagemInicial && imagemInicial.base64) {
@@ -144,43 +184,51 @@ export default function PainelUpscale({
 
       {/* ── A imagem ── */}
       <section className="up-bloco">
-        <h3 className="cr-sec">Imagem base</h3>
+        <div className="cr-sec">Imagem base</div>
 
-        {!base ? (
-          <button className="up-dropzone" onClick={() => setPicker(true)}>
-            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.3">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <path d="M21 15l-5-5L5 21" />
-            </svg>
-            <span>Suba uma imagem do Histórico, Favoritos, Pós-produção ou do seu computador.</span>
-          </button>
-        ) : (
-          <div className="up-preview">
-            <img src={'data:image/png;base64,' + base.base64} alt="" />
-            {base.w > 0 && <span className="up-dim">{base.w} × {base.h}</span>}
-            <button className="up-trocar" onClick={() => setPicker(true)}>Trocar imagem</button>
-            <button className="up-remover" onClick={() => setBase(null)} aria-label="Remover">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-              </svg>
+        <div className="cr-refs">
+          {base ? (
+            <div className="cr-ref">
+              <img src={'data:image/png;base64,' + base.base64} alt="" />
+              <button className="cr-ref-x" onClick={() => setBase(null)} aria-label="Remover imagem base">×</button>
+            </div>
+          ) : (
+            <button className="cr-ref cr-ref--add" onClick={() => setPicker(true)}>
+              <span className="cr-ref-mais">+</span>
             </button>
-          </div>
-        )}
+          )}
+        </div>
+
+        {base && base.w > 0 && <p className="cr-hint">{base.w} × {base.h} px</p>}
       </section>
 
       {/* ── Modo ── */}
       <section className="up-bloco">
-        <h3 className="cr-sec">Upscale de imagem</h3>
+        <div className="cr-sec">Upscale de imagem</div>
         <div className="up-modo-row">
           <button className={'up-modo' + (modo === 'precision' ? ' up-modo--on' : '')} onClick={() => setModo('precision')}>Precisão</button>
           <button className={'up-modo' + (modo === 'creative' ? ' up-modo--on' : '')} onClick={() => setModo('creative')}>Criativo</button>
         </div>
       </section>
 
+      {/* ── Presets ── */}
+      <section className="up-bloco">
+        <div className="cr-sec">Preset</div>
+        <div className="up-preset-row">
+          <select className="up-select" value={presetAtual} onChange={(e) => aplicarPreset(e.target.value)}>
+            <option value="">Custom</option>
+            {Object.keys(presets).map((n) => <option key={n} value={n}>{n}</option>)}
+          </select>
+          <button className="up-mini" onClick={salvarPreset} title="Salvar preset atual" aria-label="Salvar preset">+</button>
+          <button className="up-mini up-mini--danger" onClick={excluirPreset} title="Excluir preset" aria-label="Excluir preset" disabled={!presetAtual}>
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m3 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+          </button>
+        </div>
+      </section>
+
       {/* ── Fator de escala ── */}
       <section className="up-bloco">
-        <h3 className="cr-sec">Fator de escala</h3>
+        <div className="cr-sec">Fator de escala</div>
         <div className="up-scale-row">
           {[2, 4, 8, 16].map((s) => (
             <button key={s} className={'up-scale' + (st.scale === s ? ' up-scale--on' : '')} onClick={() => campo('scale', s)}>{s}x</button>
@@ -238,10 +286,20 @@ export default function PainelUpscale({
             <span>{st.fractality}</span>
           </div>
 
-          <label className="up-lbl">Engine <Ajuda texto={AJUDA.engine} /></label>
+          <label className="up-lbl">Motor <Ajuda texto={AJUDA.engine} /></label>
           <select className="up-select" value={st.engine} onChange={(e) => campo('engine', e.target.value)}>
             {ENGINES.map((en) => <option key={en.v} value={en.v}>{en.n}</option>)}
           </select>
+
+          <label className="up-lbl">Descrição (opcional)</label>
+          <textarea
+            className="up-textarea"
+            rows={2}
+            value={st.prompt}
+            onChange={(e) => campo('prompt', e.target.value)}
+            placeholder="Ex: fachada arquitetônica com madeira e pedra verde"
+            spellCheck={false}
+          />
         </section>
       )}
 
