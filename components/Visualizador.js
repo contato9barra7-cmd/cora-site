@@ -163,13 +163,23 @@ export default function Visualizador({
   const ehVideo = item.tipo === 'video' || /\.(mp4|webm)(\?|$)/i.test(item.url || '');
   if (ehVideo) {
     // Baixar vídeo é direto: sem a janela de escolha de resolução (não há).
-    const baixarVideo = () => {
-      const a = document.createElement('a');
-      a.href = item.url;
-      a.download = 'cora-animacao.mp4';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+    // Busca como blob para forçar o download (a URL do R2 é cross-origin, e
+    // <a download> sozinho abriria numa guia em vez de baixar).
+    const baixarVideo = async () => {
+      try {
+        const resp = await fetch(item.url);
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cora-animacao.mp4';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+      } catch (e) {
+        window.open(item.url, '_blank');
+      }
     };
     return (
       <div className="cr-overlay" onClick={onFechar}>

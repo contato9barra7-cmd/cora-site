@@ -31,6 +31,12 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
     try { upCfg = JSON.parse(lote.observacoes.slice('UPSCALE_CFG:'.length)); } catch {}
   }
 
+  // Animação guarda o modelo em observacoes (ANIM_CFG:{...}).
+  let animCfg = null;
+  if (lote.ferramenta === 'animacao' && typeof lote.observacoes === 'string' && lote.observacoes.startsWith('ANIM_CFG:')) {
+    try { animCfg = JSON.parse(lote.observacoes.slice('ANIM_CFG:'.length)); } catch {}
+  }
+
   const OTIM_ROTULO = {
     standard: 'Standard Ultra', portrait_soft: 'Portrait (Soft)', portrait_hard: 'Portrait (Hard)',
     art: 'Art & Illustration', videogame_assets: 'Videogame Assets', nature_n_landscapes: 'Nature & Landscapes',
@@ -83,6 +89,7 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
                 {lote.resolucao && <span className="dt-pill">{lote.resolucao.toUpperCase()}</span>}
               </>
             )}
+            {animCfg && animCfg.modeloLabel && <span className="dt-pill">{animCfg.modeloLabel}</span>}
             {lote.duracaoSeg && <span className="dt-pill">{lote.duracaoSeg}s</span>}
           </div>
 

@@ -93,6 +93,15 @@ const FILTROS = [
     )
   },
   {
+    id: 'pos', rotulo: 'Pós-produção',
+    icone: (
+      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <path d="M3 5h8M3 10h13M3 15h6" strokeLinecap="round"/>
+        <circle cx="14.5" cy="5" r="1.7"/><circle cx="11" cy="15" r="1.7"/>
+      </svg>
+    )
+  },
+  {
     id: 'favoritos', rotulo: 'Favoritos',
     icone: (
       <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -129,6 +138,7 @@ function agruparPorMes(lotes) {
         ferramenta: lote.ferramenta,
         proporcao:  lote.proporcao,
         tipo:       lote.tipo,
+        plataforma: lote.plataforma,
         criadoEm:   lote.criadoEm
       });
     });
@@ -360,6 +370,7 @@ export default function AppPage() {
       if (filtro === 'imagem' || filtro === 'video') f.tipo = filtro;
       if (filtro === 'favoritos') f.favorito = true;
       if (filtro === 'upscale')   f.ferramenta = 'upscale';
+      if (filtro === 'pos')       f.ferramenta = 'pos';
       if (buscaAtiva) f.busca = buscaAtiva;
 
       // Os avançados (do painel de ajustes) somam aos rápidos
@@ -1173,7 +1184,7 @@ export default function AppPage() {
                     {lote.itens.map((item) => (
                       <Card
                         key={item.id}
-                        it={{ ...item, loteId: lote.loteId, proporcao: lote.proporcao, ferramenta: lote.ferramenta, criadoEm: lote.criadoEm }}
+                        it={{ ...item, loteId: lote.loteId, proporcao: lote.proporcao, ferramenta: lote.ferramenta, plataforma: lote.plataforma, criadoEm: lote.criadoEm }}
                         modoAB={modoAB}
                         ladoA={ladoA}
                         ladoB={ladoB}
