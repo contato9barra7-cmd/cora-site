@@ -540,8 +540,9 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     refAutoRef.current = null;
     // Força um re-render para o React "enxergar" o componente recém-pintado
     // (ele foi mutado por referência) e o preview reflita o estado final.
-    setMascaras((ms) => ms.slice());
-    redesenhar();
+    const nm = mascarasRef.current.slice();
+    setMascaras(nm);
+    desenhar(p, nm, mascaraAtiva, true, false);
   }
 
   // ── Arraste dos pinos dos degradês (linear e radial) ──
@@ -602,12 +603,25 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     } else if (comp.tipo === 'radial') {
       if (ah.tipo === 'rx_ry_novo') {
         // Recém-criado: o arraste define os dois raios de uma vez.
-        comp.rx = Math.max(1, Math.abs(pt.x - comp.cx));
-        comp.ry = Math.max(1, Math.abs(pt.y - comp.cy));
+        // Com Shift, vira um círculo perfeito (raios iguais).
+        const dx = Math.abs(pt.x - comp.cx), dy = Math.abs(pt.y - comp.cy);
+        if (e.shiftKey) {
+          const r = Math.max(1, Math.max(dx, dy));
+          comp.rx = r; comp.ry = r;
+        } else {
+          comp.rx = Math.max(1, dx);
+          comp.ry = Math.max(1, dy);
+        }
       }
       else if (ah.tipo === 'mover') { comp.cx = pt.x; comp.cy = pt.y; }
-      else if (ah.tipo === 'rx') comp.rx = Math.max(1, Math.abs(pt.x - comp.cx));
-      else if (ah.tipo === 'ry') comp.ry = Math.max(1, Math.abs(pt.y - comp.cy));
+      else if (ah.tipo === 'rx') {
+        comp.rx = Math.max(1, Math.abs(pt.x - comp.cx));
+        if (e.shiftKey) comp.ry = comp.rx;
+      }
+      else if (ah.tipo === 'ry') {
+        comp.ry = Math.max(1, Math.abs(pt.y - comp.cy));
+        if (e.shiftKey) comp.rx = comp.ry;
+      }
       else if (ah.tipo === 'feather') {
         const d = Math.abs(pt.y - comp.cy);
         comp.feather = Math.max(0, Math.min(0.95, 1 - d / Math.max(1, comp.ry)));
@@ -626,8 +640,11 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     arrasteHandle.current = null;
     window.removeEventListener('mousemove', moverHandle);
     window.removeEventListener('mouseup', soltarHandle);
-    setMascaras((ms) => ms.slice());
-    redesenhar();
+    const nm = mascarasRef.current.slice();
+    setMascaras(nm);
+    // Redesenha já com o degradê final; o overlay vermelho aparece enquanto a
+    // máscara não tiver ajuste (a lógica normal do desenhar cuida disso).
+    desenhar(p, nm, mascaraAtiva, true, false);
   }
 
   const abaAtual = ABAS_AJUSTE.find((a) => a.id === aba);
