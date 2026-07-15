@@ -714,7 +714,26 @@ export default function AppPage() {
               ocupado={ocupado}
               setOcupado={setOcupado}
               onProgresso={setProgresso}
-              onPronto={() => { setProgresso(null); recarregarComFolga(); }}
+              onPronto={(res) => {
+                setProgresso(null);
+                // Mostra o resultado na hora, sem esperar o banco. O servidor é
+                // a fonte de verdade — quando ele salvar, a recarga confirma.
+                if (res && res.imagens && res.imagens[0]) {
+                  const img = res.imagens[0];
+                  const src = img.startsWith('data:') ? img : 'data:image/png;base64,' + img;
+                  const agora = new Date().toISOString();
+                  const loteLocal = {
+                    loteId: 'up_local_' + Date.now(),
+                    ferramenta: 'upscale',
+                    proporcao: null,
+                    criadoEm: agora,
+                    _local: true,
+                    itens: [{ id: 'up_local_' + Date.now(), thumb: src, url: src, render: src, prompt: res.prompt || 'Upscale' }]
+                  };
+                  setLotes((ls) => [loteLocal, ...ls]);
+                }
+                recarregarComFolga();
+              }}
             />
           )}
 

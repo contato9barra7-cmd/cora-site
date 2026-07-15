@@ -1334,7 +1334,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   overflow: hidden;
   border-radius: 100px;
   background: var(--wash2);
-  padding: 3px 12px;
+  padding: 3px 20px;
 }
 
 /* O sulco já tem o fundo — o trilho fica nu */
