@@ -25,7 +25,7 @@ import {
 } from '../lib/ajustes';
 import {
   novaMascara, pincelar, comporAlpha, aplicarMascaras, overlayVermelho,
-  automascara, BRUSH_PADRAO
+  pincelarAuto, BRUSH_PADRAO
 } from '../lib/mascaras';
 
 const LADO_PREVIA = 1400;
@@ -69,6 +69,10 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   const compRef = useRef(null);   // componente sendo pintado agora
   const mascarasRef = useRef([]); // espelho de `mascaras` para a pintura ao vivo
   const [cursorPincel, setCursorPincel] = useState(null);   // {x,y,d} em px de tela
+  const pixelsBaseRef = useRef(null);  // pixels da base, para o automask
+  const refAutoRef = useRef(null);     // cor de referência do automask
+  const undoRef = useRef([]);          // pilha de snapshots das máscaras
+  const [zoom, setZoom] = useState(1); // zoom da prévia (scroll com pincel)
 
   const telaRef  = useRef(null);
   const baseRef  = useRef(null);   // a cópia reduzida, já pronta
@@ -94,6 +98,21 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   // O ref acompanha o estado para a pintura ao vivo ler a versão mais recente
   // sem esperar o React re-renderizar.
   useEffect(() => { mascarasRef.current = mascaras; }, [mascaras]);
+
+  // Ctrl+Z desfaz a última pincelada/degradê enquanto se edita máscara.
+  useEffect(() => {
+    function onKey(e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+        if (mascaraAtiva != null) {
+          e.preventDefault();
+          desfazer();
+        }
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mascaraAtiva, p, mascaras]);
 
   // ── Desenhar ──
   //
@@ -197,15 +216,11 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   function clicarWB(e) {
     if (!pegandoWB) return;
     const base = baseRef.current;
-    const tela = telaRef.current;
-    if (!base || !tela) return;
+    if (!base) return;
 
-    const r = tela.getBoundingClientRect();
-    const x = Math.round((e.clientX - r.left) / r.width  * base.width);
-    const y = Math.round((e.clientY - r.top)  / r.height * base.height);
-
-    const bx = Math.max(0, Math.min(base.width  - 1, x));
-    const by = Math.max(0, Math.min(base.height - 1, y));
+    const pt = pontoNaBase(e);
+    const bx = Math.max(0, Math.min(base.width  - 1, Math.round(pt.x)));
+    const by = Math.max(0, Math.min(base.height - 1, Math.round(pt.y)));
     const px = base.getContext('2d').getImageData(bx, by, 1, 1).data;
 
     const { temp, tint } = equilibrioDeBranco(px[0], px[1], px[2]);
@@ -261,6 +276,37 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   }
 
   // ═══════════ Ações de máscara ═══════════
+  // ── Desfazer (Ctrl+Z) ──
+  // Antes de cada pincelada/degradê, guardamos uma cópia das máscaras. O
+  // Ctrl+Z restaura a última. Clona os bitmaps para o desfazer ser de verdade.
+  function snapshotMascaras() {
+    try {
+      const snap = mascaras.map((m) => ({
+        ...m,
+        params: JSON.parse(JSON.stringify(m.params)),
+        componentes: (m.componentes || []).map((c) => {
+          if (c.tipo === 'pincel' && c.bitmap) {
+            const bm = document.createElement('canvas');
+            bm.width = c.bitmap.width; bm.height = c.bitmap.height;
+            bm.getContext('2d').drawImage(c.bitmap, 0, 0);
+            return { ...c, bitmap: bm };
+          }
+          return { ...c };
+        })
+      }));
+      undoRef.current.push({ mascaras: snap, ativa: mascaraAtiva });
+      if (undoRef.current.length > 30) undoRef.current.shift();
+    } catch (e) { /* ignora falha de snapshot */ }
+  }
+
+  function desfazer() {
+    if (!undoRef.current.length) return;
+    const s = undoRef.current.pop();
+    setMascaras(s.mascaras);
+    setMascaraAtiva(s.ativa);
+    desenhar(p, s.mascaras, s.ativa, s.ativa != null);
+  }
+
   function criarMascara() {
     const base = baseRef.current;
     const nm = [...mascaras, novaMascara(base.width, base.height, mascaras.length + 1)];
@@ -307,20 +353,48 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   // Cada arrasto do mouse cria (ou continua) um componente 'pincel' na máscara
   // ativa, escrevendo círculos macios no bitmap dele. O preview atualiza ao
   // vivo, com o overlay vermelho mostrando onde a máscara incide.
-  function pontoNaBase(e) {
+  // Onde a imagem REALMENTE está desenhada dentro do elemento canvas. Como o
+  // canvas usa object-fit:contain, ele pode ser menor que a caixa e ficar
+  // centralizado — sem isso, o clique cai deslocado do pincel.
+  function retanguloDaImagem() {
     const base = baseRef.current;
     const tela = telaRef.current;
     const r = tela.getBoundingClientRect();
+
+    const escala = Math.min(r.width / base.width, r.height / base.height);
+    const w = base.width * escala;
+    const h = base.height * escala;
     return {
-      x: (e.clientX - r.left) / r.width  * base.width,
-      y: (e.clientY - r.top)  / r.height * base.height
+      left: r.left + (r.width - w) / 2,
+      top: r.top + (r.height - h) / 2,
+      w, h, escala
     };
+  }
+
+  function pontoNaBase(e) {
+    const base = baseRef.current;
+    const ri = retanguloDaImagem();
+    return {
+      x: (e.clientX - ri.left) / ri.w * base.width,
+      y: (e.clientY - ri.top)  / ri.h * base.height
+    };
+  }
+
+  // Scroll dá/tira zoom quando se está editando máscara (para pintar detalhes).
+  function aoRolar(e) {
+    if (mascaraAtiva == null) return;   // sem máscara, rola normal
+    e.preventDefault();
+    setZoom((z) => {
+      const nz = e.deltaY < 0 ? z * 1.12 : z / 1.12;
+      return Math.max(1, Math.min(6, nz));
+    });
   }
 
   function comecarPincel(e) {
     if (pegandoWB) return;   // o conta-gotas tem prioridade
     if (mascaraAtiva == null || !ferramenta) return;
 
+    snapshotMascaras();   // para o Ctrl+Z
     const base = baseRef.current;
 
     // ── Degradês: linear e radial ──
@@ -346,16 +420,16 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
       i === mascaraAtiva ? { ...m, componentes: [...m.componentes, comp] } : m
     ));
 
-    // Máscara automática: um clique seleciona a área de cor parecida e pronto.
+    // No modo automático, guarda os pixels da base e a cor do ponto inicial —
+    // toda a pincelada vai se confinar a cores parecidas com ELA.
     if (brush.automatica) {
+      pixelsBaseRef.current = base.getContext('2d').getImageData(0, 0, base.width, base.height).data;
       const { x, y } = pontoNaBase(e);
       const bx = Math.max(0, Math.min(base.width - 1, Math.round(x)));
       const by = Math.max(0, Math.min(base.height - 1, Math.round(y)));
-      const px = base.getContext('2d').getImageData(0, 0, base.width, base.height).data;
-      automascara(comp, px, base.width, base.height, bx, by, brush.difusao || 30);
-      desenhar(p, mascarasRef.current, mascaraAtiva, true, true);
-      compRef.current = null;
-      return;
+      const ii = (by * base.width + bx) * 4;
+      const d = pixelsBaseRef.current;
+      refAutoRef.current = [d[ii], d[ii + 1], d[ii + 2]];
     }
 
     pintandoRef.current = true;
@@ -365,12 +439,15 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   function pintarEm(e) {
     // Acompanha o cursor com o círculo do pincel (mesmo sem estar pintando).
     if (mascaraAtiva != null && ferramenta === 'pincel') {
-      const tela = telaRef.current;
-      const bs = baseRef.current;
-      if (tela && bs) {
-        const r = tela.getBoundingClientRect();
-        const escala = r.width / bs.width;
-        setCursorPincel({ x: e.clientX - r.left, y: e.clientY - r.top, d: brush.tamanho * escala });
+      const prev = telaRef.current?.parentElement;
+      if (prev) {
+        const ri = retanguloDaImagem();
+        const pr = prev.getBoundingClientRect();
+        setCursorPincel({
+          x: e.clientX - pr.left,
+          y: e.clientY - pr.top,
+          d: brush.tamanho * ri.escala
+        });
       }
     }
 
@@ -391,13 +468,25 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
       return;
     }
 
-    pincelar(comp, x, y, brush.tamanho, brush.difusao, brush.fluxo, base.width, base.height);
+    if (brush.automatica && pixelsBaseRef.current && refAutoRef.current) {
+      pincelarAuto(comp, pixelsBaseRef.current, base.width, base.height, x, y,
+        refAutoRef.current, brush.tamanho, brush.difusao, brush.fluxo, brush.densidade);
+    } else {
+      pincelar(comp, x, y, brush.tamanho, brush.difusao, brush.fluxo, base.width, base.height);
+    }
     desenhar(p, mascarasRef.current, mascaraAtiva, true, true);
   }
 
   function soltarPincel() {
+    if (!pintandoRef.current) return;
     pintandoRef.current = false;
     compRef.current = null;
+    pixelsBaseRef.current = null;
+    refAutoRef.current = null;
+    // Força um re-render para o React "enxergar" o componente recém-pintado
+    // (ele foi mutado por referência) e o preview reflita o estado final.
+    setMascaras((ms) => ms.slice());
+    redesenhar();
   }
 
   const abaAtual = ABAS_AJUSTE.find((a) => a.id === aba);
@@ -423,10 +512,13 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
 
         <div className="aj-corpo">
 
-          <div className={'aj-previa'
-            + (pegandoWB ? ' aj-previa--wb' : '')
-            + (mascaraAtiva != null && ferramenta === 'pincel' ? ' aj-previa--pincel' : '')
-            + (mascaraAtiva != null && (ferramenta === 'linear' || ferramenta === 'radial') ? ' aj-previa--wb' : '')}>
+          <div
+            className={'aj-previa'
+              + (pegandoWB ? ' aj-previa--wb' : '')
+              + (mascaraAtiva != null && ferramenta === 'pincel' ? ' aj-previa--pincel' : '')
+              + (mascaraAtiva != null && (ferramenta === 'linear' || ferramenta === 'radial') ? ' aj-previa--wb' : '')}
+            onWheel={aoRolar}
+          >
             <canvas
               ref={telaRef}
               onClick={clicarWB}
@@ -434,6 +526,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
               onMouseMove={pintarEm}
               onMouseUp={soltarPincel}
               onMouseLeave={() => { soltarPincel(); setCursorPincel(null); }}
+              style={{ transform: `scale(${zoom})` }}
             />
             {cursorPincel && (
               <span
@@ -444,7 +537,15 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                   width: cursorPincel.d,
                   height: cursorPincel.d
                 }}
-              />
+              >
+                <span
+                  className="aj-cursor-int"
+                  style={{
+                    width: cursorPincel.d * (1 - brush.difusao / 100),
+                    height: cursorPincel.d * (1 - brush.difusao / 100)
+                  }}
+                />
+              </span>
             )}
           </div>
 
@@ -626,7 +727,15 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
 
               {/* ── Os sliders ── */}
               {abaAtual && aba !== 'curva' && aba !== 'mixer' &&
-                abaAtual.sliders.map((s) => {
+                abaAtual.sliders
+                  .filter((s) => {
+                    // Vinheta e granulado são efeitos da imagem inteira — não
+                    // fazem sentido restritos a uma máscara. Some com eles ali.
+                    if (mascaraAtiva == null) return true;
+                    const daMascara = /^(vinheta|grao)/.test(s.k);
+                    return !daMascara;
+                  })
+                  .map((s) => {
                   // Os filhos (ponto médio, tamanho do grão) só fazem sentido
                   // com o pai ligado — sem ele não há vinheta nem grão a ajustar.
                   const pai = s.filho ? pAtivo[abaAtual.grupo][s.filho] : null;
@@ -900,7 +1009,7 @@ function IconeAba({ nome }) {
 const ICONES_FERR = {
   brush:  'M9.5 14.5l-2 2c-1 1-3 1.2-3.5.5s-.5-2.5.5-3.5l2-2|path:M14 4l6 6-7 7-6-6z',
   linear: 'M3 6h18M3 12h18M3 18h18|path:M4 4l16 16',
-  radial: 'circle:12,12,9|circle:12,12,4'
+  radial: 'circleo:12,12,9,0.4|circle:12,12,4'
 };
 function IconeFerr({ nome }) {
   const def = ICONES_FERR[nome];
@@ -910,6 +1019,10 @@ function IconeFerr({ nome }) {
          stroke="currentColor" strokeWidth="1.6"
          strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       {def.split('|').map((parte, i) => {
+        if (parte.startsWith('circleo:')) {
+          const [cx, cy, r, op] = parte.slice(8).split(',').map(Number);
+          return <circle key={i} cx={cx} cy={cy} r={r} opacity={op} />;
+        }
         if (parte.startsWith('circle:')) {
           const [cx, cy, r] = parte.slice(7).split(',').map(Number);
           return <circle key={i} cx={cx} cy={cy} r={r} />;
