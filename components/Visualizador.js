@@ -162,6 +162,15 @@ export default function Visualizador({
   // Vídeo (animação): mostra o player, sem os modos de comparação.
   const ehVideo = item.tipo === 'video' || /\.(mp4|webm)(\?|$)/i.test(item.url || '');
   if (ehVideo) {
+    // Baixar vídeo é direto: sem a janela de escolha de resolução (não há).
+    const baixarVideo = () => {
+      const a = document.createElement('a');
+      a.href = item.url;
+      a.download = 'cora-animacao.mp4';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    };
     return (
       <div className="cr-overlay" onClick={onFechar}>
         <div className="vz" onClick={(e) => e.stopPropagation()}>
@@ -171,16 +180,35 @@ export default function Visualizador({
             </svg>
           </button>
           <div className="vz-area">
-            <video
-              className="vz-video"
-              src={item.url}
-              poster={item.thumb || undefined}
-              controls
-              autoPlay
-              loop
-              playsInline
-            />
+            <video className="vz-video" src={item.url} poster={item.thumb || undefined} controls autoPlay loop playsInline />
           </div>
+          <footer className="vz-acoes">
+            <button
+              className={'vz-ico' + (item.favorito ? ' vz-ico--fav' : '')}
+              onClick={() => onFavoritar(item)}
+              data-tip={item.favorito ? 'Desfavoritar' : 'Favoritos'}
+              aria-label={item.favorito ? 'Desfavoritar' : 'Favoritar'}
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill={item.favorito ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.6">
+                <path d="M12 20.3l-1.5-1.4C5.2 14.1 2 11.2 2 7.6A4.6 4.6 0 016.6 3c1.6 0 3.1.7 4.1 1.9l1.3 1.5 1.3-1.5A5.4 5.4 0 0117.4 3 4.6 4.6 0 0122 7.6c0 3.6-3.2 6.5-8.5 11.3L12 20.3z" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button className="vz-ico" onClick={baixarVideo} data-tip="Baixar" aria-label="Baixar">
+              <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3.5 15v1.5h13V15" strokeLinecap="round"/>
+              </svg>
+            </button>
+            {onDetalhes && (
+              <button className="vz-ico" onClick={onDetalhes} data-tip="Detalhes" aria-label="Ver detalhes desta geração">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M12 11v5" strokeLinecap="round"/>
+                  <circle cx="12" cy="7.8" r=".9" fill="currentColor" stroke="none"/>
+                </svg>
+              </button>
+            )}
+          </footer>
         </div>
       </div>
     );

@@ -65,10 +65,10 @@ export default function Card({
   // a forma certa.
   const carregou = (e) => {
     if (!onMedir) return;
-    const img = e.currentTarget;
-    if (img.naturalWidth && img.naturalHeight) {
-      onMedir(it.id, img.naturalWidth / img.naturalHeight);
-    }
+    const el = e.currentTarget;
+    const w = el.naturalWidth || el.videoWidth;
+    const h = el.naturalHeight || el.videoHeight;
+    if (w && h) onMedir(it.id, w / h);
   };
 
   // Um clique numa ação não deve abrir a imagem também
@@ -88,12 +88,27 @@ export default function Card({
       {/* A miniatura (600px, ~60 KB), não a original (2K, 4 MB). Sem isto
           o navegador baixaria a imagem inteira para mostrar num card de
           330px. As gerações antigas não têm thumb — ali cai na original. */}
-      <img
-        src={it.thumb || it.url}
-        alt=""
-        loading="lazy"
-        onLoad={carregou}
-      />
+      {(it.tipo === 'video' || /\.(mp4|webm)(\?|$)/i.test(it.url || '')) ? (
+        <video
+          className="cr-card-video"
+          src={it.url}
+          poster={it.thumb || undefined}
+          muted
+          loop
+          playsInline
+          preload="none"
+          onMouseEnter={(e) => { e.currentTarget.play().catch(() => {}); }}
+          onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+          onLoadedData={carregou}
+        />
+      ) : (
+        <img
+          src={it.thumb || it.url}
+          alt=""
+          loading="lazy"
+          onLoad={carregou}
+        />
+      )}
 
       {(it.tipo === 'video' || /\.(mp4|webm)(\?|$)/i.test(it.url || '')) && (
         <span className="cr-card-play" aria-label="Vídeo">
