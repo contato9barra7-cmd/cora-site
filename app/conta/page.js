@@ -27,6 +27,11 @@ function ContaConteudo() {
   // fatura maior sem explicação.
   const [equipe, setEquipe] = useState(null);
 
+  // "Ver como": só admins. Permite visualizar as 3 dashes (normal, dono de
+  // equipe, membro convidado) sem trocar de conta. Não muda nada no servidor —
+  // apenas força como a dash é renderizada.
+  const [verComo, setVerComo] = useState('real');   // real | normal | dono | membro
+
   async function sairEquipe() {
     if (!confirm('Tem certeza que deseja sair da equipe? Você perderá o acesso ao plano fornecido por ela.')) return;
     setSaindo(true);
@@ -91,20 +96,30 @@ function ContaConteudo() {
   if (!conta) return null;
 
   const ehAdmin = conta.is_admin === true;
+
+  // Flags efetivas: no modo "Ver como" (admin), sobrescrevem o estado real
+  // para renderizar a dash como cada tipo de conta.
+  const modo = ehAdmin ? verComo : 'real';
+  const ehDono = modo === 'dono' ? true
+               : modo === 'normal' || modo === 'membro' ? false
+               : conta.eh_dono_equipe;
+  const ehMembroVis = modo === 'membro' ? true
+                    : modo === 'normal' || modo === 'dono' ? false
+                    : !!equipeMembro;
   const ehPago = conta.plano && conta.plano !== 'free';
   const nomePlano = ehAdmin ? 'Admin'
-    : conta.eh_dono_equipe ? `Teams (${NOME_PLANO[conta.equipe_plano] || conta.equipe_plano || 'Pro'})`
-    : equipeMembro ? `${NOME_PLANO[conta.plano] || conta.plano} (equipe)`
+    : ehDono ? `Teams (${NOME_PLANO[conta.equipe_plano] || conta.equipe_plano || 'Pro'})`
+    : ehMembroVis ? `${NOME_PLANO[conta.plano] || conta.plano} (equipe)`
     : (NOME_PLANO[conta.plano] || conta.plano);
   const creditos = (conta.creditos_total === -1 || ehAdmin) ? 'Ilimitado'
-    : conta.eh_dono_equipe ? (conta.equipe_creditos_total ?? 0).toLocaleString('pt-BR')
+    : ehDono ? (conta.equipe_creditos_total ?? 0).toLocaleString('pt-BR')
     : (conta.creditos_restantes ?? 0).toLocaleString('pt-BR');
   const totalCreditos = (conta.creditos_total === -1 || ehAdmin) ? null
-    : conta.eh_dono_equipe ? null
+    : ehDono ? null
     : (conta.creditos_total ?? 0).toLocaleString('pt-BR');
   // data mostrada: renovação da equipe (dono) ou validade individual
-  const dataRenov = conta.eh_dono_equipe ? conta.equipe_renova_em : conta.expira_em;
-  const rotuloData = (ehPago || conta.eh_dono_equipe) ? 'Renova em' : 'Válido até';
+  const dataRenov = ehDono ? conta.equipe_renova_em : conta.expira_em;
+  const rotuloData = (ehPago || ehDono) ? 'Renova em' : 'Válido até';
 
   // Quanto ainda resta, em %
   const pctCreditos = (conta.creditos_total > 0 && !ehAdmin)
@@ -125,6 +140,25 @@ function ContaConteudo() {
   return (
     <AppShell>
     <div className="admin-wrap">
+      {ehAdmin && (
+        <div className="vercomo">
+          <span className="vercomo-lbl">Ver dashboard como</span>
+          <div className="vercomo-opcoes">
+            {[
+              { v: 'real',   n: 'Real (admin)' },
+              { v: 'normal', n: 'Conta normal' },
+              { v: 'dono',   n: 'Dono de equipe' },
+              { v: 'membro', n: 'Membro convidado' }
+            ].map((o) => (
+              <button
+                key={o.v}
+                className={'vercomo-btn' + (verComo === o.v ? ' vercomo-btn--on' : '')}
+                onClick={() => setVerComo(o.v)}
+              >{o.n}</button>
+            ))}
+          </div>
+        </div>
+      )}
       {aviso && <div className="conta-aviso">{aviso}</div>}
       {erro && <div className="login-erro" style={{ marginBottom: 18 }}>{erro}</div>}
 
@@ -136,14 +170,14 @@ function ContaConteudo() {
         <div className="dash-faixa-txt">
           <div className="dash-faixa-plano">
             <span>{nomePlano}</span>
-            {conta.eh_dono_equipe && <em>PROPRIETÁRIO</em>}
-            {equipeMembro && !conta.eh_dono_equipe && <em className="dash-tag--sec">EQUIPE</em>}
+            {ehDono && <em>PROPRIETÁRIO</em>}
+            {ehMembroVis && !ehDono && <em className="dash-tag--sec">EQUIPE</em>}
           </div>
 
           <div className="dash-faixa-num">
             <strong>{creditos}</strong>
             {totalCreditos && <span>créditos de {totalCreditos}</span>}
-            {conta.eh_dono_equipe && <span>créditos da equipe</span>}
+            {ehDono && <span>créditos da equipe</span>}
           </div>
 
           {totalCreditos && !ehAdmin && (
@@ -162,19 +196,19 @@ function ContaConteudo() {
 
         <div className="dash-faixa-acoes">
           {/* O membro não compra: quem paga é a equipe. */}
-          {!equipeMembro || conta.eh_dono_equipe ? (
+          {!ehMembroVis || ehDono ? (
             <button className="dash-btn-cta" onClick={() => router.push('/assinatura')}>
               Comprar créditos
             </button>
           ) : null}
 
-          {conta.eh_dono_equipe && (
+          {ehDono && (
             <button className="dash-btn-sec" onClick={() => router.push('/workspace')}>
               Gerenciar equipe
             </button>
           )}
 
-          {!equipeMembro && !conta.eh_dono_equipe && (
+          {!ehMembroVis && !ehDono && (
             <button className="dash-btn-sec" onClick={() => router.push('/assinatura')}>
               Ver assinatura
             </button>
@@ -184,7 +218,7 @@ function ContaConteudo() {
 
       {/* ── A equipe ──
           Só para quem tem. Quem assina sozinho não vê nada disto. */}
-      {conta.eh_dono_equipe && equipe?.equipe && (
+      {ehDono && equipe?.equipe && (
         <div className="dash-eq">
           <div className="dash-eq-cab">
             {equipe.equipe.foto && (
@@ -226,18 +260,18 @@ function ContaConteudo() {
 
       {/* O membro convidado vê o estúdio — mas sem consumo alheio nem
           botão de gerenciar: não é conta dele. */}
-      {equipeMembro && !conta.eh_dono_equipe && (
+      {ehMembroVis && !ehDono && (
         <div className="dash-eq">
           <div className="dash-eq-cab">
-            {equipeMembro.foto && (
+            {equipeMembro?.foto && (
               <div className="dash-eq-foto"
                    style={{ backgroundImage: `url(${equipeMembro.foto})` }} />
             )}
             <div className="dash-eq-id">
-              <strong>{equipeMembro.nome || 'Sua equipe'}</strong>
+              <strong>{equipeMembro?.nome || 'Sua equipe'}</strong>
               <span>
                 Você faz parte desta equipe · convidado por{' '}
-                {equipeMembro.dono_nome || equipeMembro.dono_email}
+                {equipeMembro?.dono_nome || equipeMembro?.dono_email || '—'}
               </span>
             </div>
             <button className="dash-eq-btn dash-eq-btn--sair"
@@ -251,7 +285,7 @@ function ContaConteudo() {
       {/* ── Assinatura e consumo ── */}
       <div className="dash-cartoes">
         {/* O membro não paga: no lugar da assinatura, o consumo dele. */}
-        {(!equipeMembro || conta.eh_dono_equipe) && !ehAdmin && (
+        {(!ehMembroVis || ehDono) && !ehAdmin && (
           <div className="dash-cartao">
             <span className="dash-cartao-rot">Assinatura</span>
             <strong className="dash-cartao-num">
