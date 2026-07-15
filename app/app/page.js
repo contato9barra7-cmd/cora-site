@@ -172,6 +172,18 @@ export default function AppPage() {
   // Botão "voltar ao topo": aparece quando o feed rola para baixo, some no topo.
   const listaRef                    = useRef(null);
   const [mostrarTopo, setMostrarTopo] = useState(false);
+
+  // Upscales em andamento — canal próprio, para vários ao mesmo tempo sem
+  // depender do `progresso` (que é único e serve as abas normais).
+  const [upsAtivos, setUpsAtivos] = useState([]);   // [{ id, base }]
+  function iniciarUpscale(base) {
+    const id = 'up_ativo_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+    setUpsAtivos((l) => [...l, { id, base }]);
+    return id;
+  }
+  function terminarUpscale(id) {
+    setUpsAtivos((l) => l.filter((u) => u.id !== id));
+  }
   function aoRolarLista(e) {
     setMostrarTopo(e.target.scrollTop > 400);
   }
@@ -568,7 +580,7 @@ export default function AppPage() {
 
   // A grade contínua: todas as imagens, por mês (sem separar por lote)
   const porMes = agruparPorMes(lotes);
-  const vazio  = !carregando && porMes.length === 0 && !progresso;
+  const vazio  = !carregando && porMes.length === 0 && !progresso && upsAtivos.length === 0;
 
   // A Pós não cabe num painel de 380px: um editor de camadas espremido numa
   // coluna seria inútil. Enquanto ela está aberta, o painel e o feed saem.
@@ -711,10 +723,9 @@ export default function AppPage() {
             <PainelUpscale
               imagemInicial={imagemDeOutraAba?.para === 'upscale' ? imagemDeOutraAba : null}
               ehAdmin={ehAdmin}
-              ocupado={ocupado}
-              setOcupado={setOcupado}
-              onProgresso={setProgresso}
-              onPronto={() => { setProgresso(null); recarregarComFolga(); }}
+              ehTelaCheia={false}
+              onIniciar={iniciarUpscale}
+              onTerminar={(id) => { terminarUpscale(id); recarregarComFolga(); }}
             />
           )}
 
@@ -903,6 +914,25 @@ export default function AppPage() {
           <div className="cr-lista" ref={listaRef} onScroll={aoRolarLista}>
 
             {erro && <div className="cr-erro">{erro}</div>}
+
+            {upsAtivos.map((u) => (
+              <div className="cr-gerando" key={u.id}>
+                <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
+                  <div className="cr-slot cr-slot--agora" style={{ aspectRatio: '1 / 1' }}>
+                    {u.base && <img className="cr-slot-base" src={u.base} alt="" />}
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '13px', fontWeight: 500, textShadow: '0 1px 4px rgba(0,0,0,.5)' }}>Upscale…</div>
+                  </div>
+                </div>
+                <p className="cr-estorno">
+                  <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.4">
+                    <circle cx="8" cy="8" r="6.2"/>
+                    <path d="M8 5.2v3.4" strokeLinecap="round"/>
+                    <circle cx="8" cy="11" r=".7" fill="currentColor" stroke="none"/>
+                  </svg>
+                  Se falhar, os créditos voltam automaticamente.
+                </p>
+              </div>
+            ))}
 
             {/* ── Gerando ──
                 Sem cabeçalho solto: o contador vai PARA DENTRO do slot, sobre

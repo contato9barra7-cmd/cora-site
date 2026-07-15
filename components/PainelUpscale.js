@@ -78,7 +78,7 @@ function Ajuda({ texto }) {
 }
 
 export default function PainelUpscale({
-  imagemInicial, onPronto, onProgresso, ocupado, setOcupado, ehAdmin
+  imagemInicial, onIniciar, onTerminar, ehAdmin, ehTelaCheia
 }) {
   const [base, setBase]   = useState(null);     // { base64, w, h }
   const [modo, setModo]   = useState('precision');
@@ -158,14 +158,10 @@ export default function PainelUpscale({
     if (!base) { setErro('Suba uma imagem primeiro'); return; }
     setErro('');
 
-    // Não trava o botão: cada upscale segue por conta própria e o resultado
-    // cai no feed quando fica pronto. A pessoa pode disparar vários.
+    // Cada upscale ganha um id próprio e vai para o feed na hora, com seu
+    // próprio slot "gerando". Vários podem rodar ao mesmo tempo.
     const baseAtual = base.base64;
-
-    onProgresso && onProgresso({
-      feito: 0, total: 1, estado: 'processando',
-      base: 'data:image/png;base64,' + baseAtual
-    });
+    const ativoId = onIniciar ? onIniciar('data:image/png;base64,' + baseAtual) : null;
 
     try {
       const r = await upscaleImagem({
@@ -178,15 +174,11 @@ export default function PainelUpscale({
         engine: st.engine, prompt: st.prompt
       });
 
-      if (r.imagem) {
-        onPronto && onPronto({ imagens: [r.imagem], prompt: r.prompt, isUpscale: true, origem: baseAtual });
-      } else {
-        setErro('Não foi possível fazer o upscale');
-      }
+      if (!r.imagem) setErro('Não foi possível fazer o upscale');
     } catch (e) {
       setErro(e.message);
     } finally {
-      onProgresso && onProgresso(null);
+      onTerminar && onTerminar(ativoId);
     }
   }
 
