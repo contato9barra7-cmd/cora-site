@@ -65,6 +65,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   const [ferramenta, setFerramenta] = useState(null);
   const [modoComp, setModoComp] = useState('add');
   const [brush, setBrush] = useState(BRUSH_PADRAO);
+  const [slotAberto, setSlotAberto] = useState(false);  // pode criar novo degradê
   const pintandoRef = useRef(false);
   const compRef = useRef(null);   // componente sendo pintado agora
   const mascarasRef = useRef([]); // espelho de `mascaras` para a pintura ao vivo
@@ -330,6 +331,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     setMascaraAtiva(idx);
     setFerramenta('pincel');
     setModoComp('add');
+    setSlotAberto(true);
     setAba('luz');
     redesenhar(undefined, nm, idx);
   }
@@ -361,6 +363,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   }
   function escolherFerramenta(f) {
     setFerramenta(f);
+    setSlotAberto(true);   // trocar de ferramenta libera criar um novo componente
   }
 
   // ── Pintar a máscara com o pincel ──
@@ -414,12 +417,28 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
 
     // ── Degradês: linear e radial ──
     if (ferramenta === 'linear' || ferramenta === 'radial') {
-      const { x, y } = pontoNaBase(e);
+      const pt = pontoNaBase(e);
+
+      // Se já existe um degradê nesta máscara e o clique caiu num pino, arrasta
+      // esse pino em vez de criar outro degradê (senão vira um monte de bolas).
+      const hit = acharHandle(pt);
+      if (hit) {
+        comecarHandle(hit.tipo, hit.compIdx, e);
+        return;
+      }
+      // Se já há um degradê e o slot está fechado, não cria outro: só o botão
+      // Adicionar/Subtrair abre espaço para um novo.
+      const jaTem = mascaras[mascaraAtiva].componentes.some(
+        (c) => c.tipo === 'linear' || c.tipo === 'radial'
+      );
+      if (jaTem && !slotAberto) return;
+
       const comp = ferramenta === 'linear'
-        ? { tipo: 'linear', modo: modoComp, ax: x, ay: y, bx: x, by: y }
-        : { tipo: 'radial', modo: modoComp, cx: x, cy: y, rx: 1, ry: 1, ang: 0, feather: 0.5 };
+        ? { tipo: 'linear', modo: modoComp, ax: pt.x, ay: pt.y, bx: pt.x, by: pt.y }
+        : { tipo: 'radial', modo: modoComp, cx: pt.x, cy: pt.y, rx: 1, ry: 1, ang: 0, feather: 0.5 };
       compRef.current = comp;
       pintandoRef.current = true;
+      setSlotAberto(false);   // desenhou: fecha o slot
       setMascaras((ms) => ms.map((m, i) =>
         i === mascaraAtiva ? { ...m, componentes: [...m.componentes, comp] } : m
       ));
@@ -515,6 +534,34 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   }
 
   // ── Arraste dos pinos dos degradês (linear e radial) ──
+  // Qual pino está sob o ponto clicado (em coords da base). Tolerância ~18px
+  // de tela convertida para base.
+  function acharHandle(pt) {
+    const m = mascaras[mascaraAtiva];
+    if (!m) return null;
+    const ri = retanguloDaImagem();
+    const base = baseRef.current;
+    const tol = 18 / (ri.w / base.width || 1);
+    const dist = (ax, ay) => Math.hypot(pt.x - ax, pt.y - ay);
+
+    for (let i = m.componentes.length - 1; i >= 0; i--) {
+      const c = m.componentes[i];
+      if (c.tipo === 'linear') {
+        if (dist(c.ax, c.ay) < tol) return { tipo: 'A', compIdx: i };
+        if (dist(c.bx, c.by) < tol) return { tipo: 'B', compIdx: i };
+        if (dist((c.ax + c.bx) / 2, (c.ay + c.by) / 2) < tol) return { tipo: 'mover', compIdx: i };
+      } else if (c.tipo === 'radial') {
+        const fin = 1 - (c.feather != null ? c.feather : 0.5);
+        if (dist(c.cx + c.rx * 0.707, c.cy - c.ry * 0.707) < tol) return { tipo: 'escala', compIdx: i };
+        if (dist(c.cx + c.rx, c.cy) < tol) return { tipo: 'rx', compIdx: i };
+        if (dist(c.cx, c.cy + c.ry) < tol) return { tipo: 'ry', compIdx: i };
+        if (dist(c.cx, c.cy - c.ry * fin) < tol) return { tipo: 'feather', compIdx: i };
+        if (dist(c.cx, c.cy) < tol) return { tipo: 'mover', compIdx: i };
+      }
+    }
+    return null;
+  }
+
   function comecarHandle(tipo, compIdx, e) {
     e.stopPropagation();
     snapshotMascaras();
@@ -693,11 +740,11 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                     <div className="aj-msk-modo">
                       <button
                         className={'aj-msk-modo-b' + (modoComp === 'add' ? ' aj-msk-modo-b--on' : '')}
-                        onClick={() => setModoComp('add')}
+                        onClick={() => { setModoComp('add'); setSlotAberto(true); }}
                       >+ Adicionar</button>
                       <button
                         className={'aj-msk-modo-b' + (modoComp === 'sub' ? ' aj-msk-modo-b--on' : '')}
-                        onClick={() => setModoComp('sub')}
+                        onClick={() => { setModoComp('sub'); setSlotAberto(true); }}
                       >− Subtrair</button>
                     </div>
 
