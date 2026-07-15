@@ -55,6 +55,14 @@ export default function PainelAnimacao({
   const [pop, setPop]         = useState(null);     // 'dur' | 'res' | null
   const [erro, setErro]       = useState('');
 
+  // Fecha os popovers de opção ao clicar fora deles.
+  useEffect(() => {
+    if (!pop) return;
+    function fora(e) { if (!e.target.closest('.anim-pill-wrap')) setPop(null); }
+    document.addEventListener('mousedown', fora);
+    return () => document.removeEventListener('mousedown', fora);
+  }, [pop]);
+
   // Imagem vinda de outra aba (ex.: "Enviar para Animação").
   useEffect(() => {
     if (imagemInicial && imagemInicial.base64) {

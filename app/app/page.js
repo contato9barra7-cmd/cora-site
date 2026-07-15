@@ -175,15 +175,15 @@ export default function AppPage() {
   const listaRef                    = useRef(null);
   const [mostrarTopo, setMostrarTopo] = useState(false);
 
-  // Upscales em andamento — canal próprio, para vários ao mesmo tempo sem
-  // depender do `progresso` (que é único e serve as abas normais).
-  const [upsAtivos, setUpsAtivos] = useState([]);   // [{ id, base }]
-  function iniciarUpscale(base) {
-    const id = 'up_ativo_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-    setUpsAtivos((l) => [...l, { id, base }]);
+  // Gerações em andamento (upscale, animação) — canal próprio, para vários ao
+  // mesmo tempo sem depender do `progresso` (que é único e serve as abas normais).
+  const [upsAtivos, setUpsAtivos] = useState([]);   // [{ id, base, rotulo, proporcao }]
+  function iniciarGeracaoAtiva(base, rotulo, proporcao) {
+    const id = 'ger_ativo_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+    setUpsAtivos((l) => [...l, { id, base, rotulo: rotulo || 'Gerando', proporcao: proporcao || null }]);
     return id;
   }
-  function terminarUpscale(id) {
+  function terminarGeracaoAtiva(id) {
     setUpsAtivos((l) => l.filter((u) => u.id !== id));
   }
   function aoRolarLista(e) {
@@ -725,8 +725,8 @@ export default function AppPage() {
             <PainelAnimacao
               imagemInicial={imagemDeOutraAba?.para === 'animacao' ? imagemDeOutraAba : null}
               ehAdmin={ehAdmin}
-              onIniciar={iniciarUpscale}
-              onTerminar={(id) => { terminarUpscale(id); recarregarComFolga(); }}
+              onIniciar={(base, prop) => iniciarGeracaoAtiva(base, 'Gerando animação', prop)}
+              onTerminar={(id) => { terminarGeracaoAtiva(id); recarregarComFolga(); }}
             />
           )}
 
@@ -735,8 +735,8 @@ export default function AppPage() {
               imagemInicial={imagemDeOutraAba?.para === 'upscale' ? imagemDeOutraAba : null}
               ehAdmin={ehAdmin}
               ehTelaCheia={false}
-              onIniciar={iniciarUpscale}
-              onTerminar={(id) => { terminarUpscale(id); recarregarComFolga(); }}
+              onIniciar={(base, prop) => iniciarGeracaoAtiva(base, 'Fazendo upscale', prop)}
+              onTerminar={(id) => { terminarGeracaoAtiva(id); recarregarComFolga(); }}
             />
           )}
 
@@ -929,9 +929,12 @@ export default function AppPage() {
             {upsAtivos.map((u) => (
               <div className="cr-gerando" key={u.id}>
                 <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
-                  <div className="cr-slot cr-slot--agora" style={{ aspectRatio: '1 / 1' }}>
+                  <div className="cr-slot cr-slot--agora" style={{ aspectRatio: u.proporcao ? proporcaoCss(u.proporcao) : '1 / 1' }}>
                     {u.base && <img className="cr-slot-base" src={u.base} alt="" />}
-                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '13px', fontWeight: 500, textShadow: '0 1px 4px rgba(0,0,0,.5)' }}>Upscale…</div>
+                    <div className="cr-ger-capa">
+                      <span className="cr-ger-spin" />
+                      <span className="cr-ger-txt">{u.rotulo}</span>
+                    </div>
                   </div>
                 </div>
                 <p className="cr-estorno">

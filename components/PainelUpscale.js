@@ -161,7 +161,8 @@ export default function PainelUpscale({
     // Cada upscale ganha um id próprio e vai para o feed na hora, com seu
     // próprio slot "gerando". Vários podem rodar ao mesmo tempo.
     const baseAtual = base.base64;
-    const ativoId = onIniciar ? onIniciar('data:image/png;base64,' + baseAtual) : null;
+    const prop = (base.w && base.h) ? (base.w + ':' + base.h) : null;
+    const ativoId = onIniciar ? onIniciar('data:image/png;base64,' + baseAtual, prop) : null;
 
     try {
       const r = await upscaleImagem({

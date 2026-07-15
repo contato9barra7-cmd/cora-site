@@ -5322,6 +5322,20 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .anim-pop button:hover { background: var(--accent-bg); color: var(--accent); }
 .anim-pop button.sel { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
 
+/* Capa "gerando" sobre o slot (upscale, animação) */
+.cr-ger-capa {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px;
+  background: rgba(0,0,0,.28);
+}
+.cr-ger-spin {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2.5px solid rgba(255,255,255,.4); border-top-color: #fff;
+  animation: cr-ger-girar .8s linear infinite;
+}
+.cr-ger-txt { color: #fff; font-size: 12.5px; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+@keyframes cr-ger-girar { to { transform: rotate(360deg); } }
+
 /* As imagens que entraram na geração: o print e as referências.
    Miniaturas, não retratos — servem para RECONHECER, não para admirar. */
 .dt-imgs {
