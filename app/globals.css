@@ -10416,7 +10416,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* ═══════════════════════════════════════════════════════════
    Aba Upscale
    ═══════════════════════════════════════════════════════════ */
-.up-painel { display: flex; flex-direction: column; gap: 4px; padding: 16px 14px 20px; overflow-y: auto; }
+.up-painel { display: flex; flex-direction: column; gap: 4px; padding: 16px 14px 20px; overflow-y: scroll; }
+/* Slot da imagem base com tamanho fixo — não muda ao trocar de modo */
+.up-refs { grid-template-columns: repeat(5, 1fr); }
+.up-refs .cr-ref { max-width: 72px; }
 .up-bloco { margin-bottom: 16px; }
 
 /* Imagem base */
@@ -10481,6 +10484,29 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .up-select:focus { outline: none; border-color: var(--accent); }
 
+/* Dropdown customizado (bordas arredondadas, hover/seleção na cor da marca) */
+.cora-dd { position: relative; width: 100%; }
+.cora-dd-btn {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 14px; border-radius: 100px; border: 1px solid var(--line2);
+  background: var(--wash); color: var(--ink); font-size: 13px; font-family: inherit;
+  cursor: pointer; text-align: left;
+}
+.cora-dd-btn:hover { border-color: var(--accent); }
+.cora-dd--aberto .cora-dd-btn { border-color: var(--accent); }
+.cora-dd-seta { flex-shrink: 0; color: var(--ink3); transition: transform .18s ease; }
+.cora-dd--aberto .cora-dd-seta { transform: rotate(180deg); }
+.cora-dd-lista {
+  position: absolute; top: calc(100% + 5px); left: 0; right: 0; z-index: 200;
+  background: var(--paper); border: 1px solid var(--line2); border-radius: 14px;
+  padding: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.16); max-height: 260px; overflow-y: auto;
+}
+.cora-dd-opt {
+  padding: 9px 12px; border-radius: 10px; font-size: 13px; color: var(--ink); cursor: pointer;
+}
+.cora-dd-opt:hover { background: var(--accent-bg); color: var(--accent); }
+.cora-dd-opt--sel { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+
 /* Sliders */
 .up-slider { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px; margin: 12px 0; }
 .up-slider label { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink2); }
@@ -10536,3 +10562,30 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-size: 13px; font-family: inherit; resize: vertical; min-height: 54px;
 }
 .up-textarea:focus { outline: none; border-color: var(--accent); }
+
+/* Modal de salvar preset (central) */
+.up-modal-fundo {
+  position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.up-modal {
+  width: 320px; max-width: 100%; background: var(--paper);
+  border-radius: 16px; padding: 20px; box-shadow: 0 16px 48px rgba(0,0,0,.28);
+}
+.up-modal-titulo { font-size: 14.5px; font-weight: 600; color: var(--ink); margin: 0 0 14px; }
+.up-modal-input {
+  width: 100%; box-sizing: border-box; padding: 10px 14px; border-radius: 100px;
+  border: 1px solid var(--line2); background: var(--wash); color: var(--ink);
+  font-size: 13px; font-family: inherit; margin-bottom: 16px;
+}
+.up-modal-input:focus { outline: none; border-color: var(--accent); }
+.up-modal-botoes { display: flex; gap: 8px; justify-content: center; }
+.up-modal-b {
+  flex: 1; padding: 9px 16px; border-radius: 100px; border: 1px solid var(--line2);
+  background: transparent; color: var(--ink2); font-size: 13px; font-weight: 500;
+  font-family: inherit; cursor: pointer;
+}
+.up-modal-b:hover { border-color: var(--accent); color: var(--accent); }
+.up-modal-b--on { background: var(--accent); color: var(--accent-txt, #111); border-color: var(--accent); }
+.up-modal-b--on:hover { color: var(--accent-txt, #111); opacity: .9; }
+.up-modal-b--on:disabled { opacity: .4; cursor: default; }

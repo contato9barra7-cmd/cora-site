@@ -15,6 +15,7 @@
 import { useState, useEffect } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
+import DropdownCora from './DropdownCora';
 import { upscaleImagem, custoUpscale } from '../lib/render';
 
 // ── Os modelos e engines, iguais aos do plugin ──
@@ -83,6 +84,8 @@ export default function PainelUpscale({
   const [modo, setModo]   = useState('precision');
   const [st, setSt]       = useState({ ...PADRAO });
   const [picker, setPicker] = useState(false);
+  const [modalPreset, setModalPreset] = useState(false);
+  const [nomePreset, setNomePreset] = useState('');
   const [erro, setErro]   = useState('');
 
   // Presets: nome -> conjunto de campos. Guardados no navegador.
@@ -109,12 +112,18 @@ export default function PainelUpscale({
     setSt((s) => ({ ...s, ...p.campos }));
   }
 
-  function salvarPreset() {
-    const nome = (window.prompt('Nome do preset:') || '').trim();
+  function abrirModalPreset() {
+    setNomePreset('');
+    setModalPreset(true);
+  }
+
+  function confirmarPreset() {
+    const nome = nomePreset.trim();
     if (!nome) return;
     const novo = { ...presets, [nome]: { modo, campos: { ...st } } };
     guardarPresets(novo);
     setPresetAtual(nome);
+    setModalPreset(false);
   }
 
   function excluirPreset() {
@@ -186,7 +195,7 @@ export default function PainelUpscale({
       <section className="up-bloco">
         <div className="cr-sec">Imagem base</div>
 
-        <div className="cr-refs">
+        <div className="cr-refs up-refs">
           {base ? (
             <div className="cr-ref">
               <img src={'data:image/png;base64,' + base.base64} alt="" />
@@ -215,11 +224,12 @@ export default function PainelUpscale({
       <section className="up-bloco">
         <div className="cr-sec">Preset</div>
         <div className="up-preset-row">
-          <select className="up-select" value={presetAtual} onChange={(e) => aplicarPreset(e.target.value)}>
-            <option value="">Custom</option>
-            {Object.keys(presets).map((n) => <option key={n} value={n}>{n}</option>)}
-          </select>
-          <button className="up-mini" onClick={salvarPreset} title="Salvar preset atual" aria-label="Salvar preset">+</button>
+          <DropdownCora
+            valor={presetAtual}
+            opcoes={[{ v: '', n: 'Personalizado' }, ...Object.keys(presets).map((n) => ({ v: n, n }))]}
+            onEscolher={aplicarPreset}
+          />
+          <button className="up-mini" onClick={abrirModalPreset} title="Salvar preset atual" aria-label="Salvar preset">+</button>
           <button className="up-mini up-mini--danger" onClick={excluirPreset} title="Excluir preset" aria-label="Excluir preset" disabled={!presetAtual}>
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m3 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
           </button>
@@ -240,9 +250,7 @@ export default function PainelUpscale({
       {modo === 'precision' && (
         <section className="up-bloco">
           <label className="up-lbl">Modelo <Ajuda texto={AJUDA.model} /></label>
-          <select className="up-select" value={st.flavor} onChange={(e) => campo('flavor', e.target.value)}>
-            {FLAVORS.map((f) => <option key={f.v} value={f.v}>{f.n}</option>)}
-          </select>
+          <DropdownCora valor={st.flavor} opcoes={FLAVORS} onEscolher={(v) => campo('flavor', v)} />
 
           <div className="up-slider">
             <label>Nitidez <Ajuda texto={AJUDA.sharpness} /></label>
@@ -261,9 +269,7 @@ export default function PainelUpscale({
       {modo === 'creative' && (
         <section className="up-bloco">
           <label className="up-lbl">Otimizado para <Ajuda texto={AJUDA.otimizado} /></label>
-          <select className="up-select" value={st.optimized_for} onChange={(e) => campo('optimized_for', e.target.value)}>
-            {OTIMIZADO.map((o) => <option key={o.v} value={o.v}>{o.n}</option>)}
-          </select>
+          <DropdownCora valor={st.optimized_for} opcoes={OTIMIZADO} onEscolher={(v) => campo('optimized_for', v)} />
 
           <div className="up-slider">
             <label>Criatividade <Ajuda texto={AJUDA.criatividade} /></label>
@@ -287,9 +293,7 @@ export default function PainelUpscale({
           </div>
 
           <label className="up-lbl">Motor <Ajuda texto={AJUDA.engine} /></label>
-          <select className="up-select" value={st.engine} onChange={(e) => campo('engine', e.target.value)}>
-            {ENGINES.map((en) => <option key={en.v} value={en.v}>{en.n}</option>)}
-          </select>
+          <DropdownCora valor={st.engine} opcoes={ENGINES} onEscolher={(v) => campo('engine', v)} />
 
           <label className="up-lbl">Descrição (opcional)</label>
           <textarea
@@ -319,6 +323,27 @@ export default function PainelUpscale({
         titulo="Imagem para upscale"
         onEscolher={(img) => { medirEDefinir(img.base64 || img); setPicker(false); }}
       />
+
+      {modalPreset && (
+        <div className="up-modal-fundo" onClick={() => setModalPreset(false)}>
+          <div className="up-modal" onClick={(e) => e.stopPropagation()}>
+            <p className="up-modal-titulo">Nome do preset</p>
+            <input
+              type="text"
+              className="up-modal-input"
+              value={nomePreset}
+              onChange={(e) => setNomePreset(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') confirmarPreset(); if (e.key === 'Escape') setModalPreset(false); }}
+              placeholder="Ex: Fachada madeira"
+              autoFocus
+            />
+            <div className="up-modal-botoes">
+              <button className="up-modal-b" onClick={() => setModalPreset(false)}>Cancelar</button>
+              <button className="up-modal-b up-modal-b--on" onClick={confirmarPreset} disabled={!nomePreset.trim()}>Salvar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
