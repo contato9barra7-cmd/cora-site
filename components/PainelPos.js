@@ -128,6 +128,28 @@ const PINTAM   = ['pincel', 'borracha'];
 const TEM_PONTA = ['pincel', 'borracha', 'selRapida'];
 const SELECAO  = ['ret', 'elip', 'laco', 'lacoPoli', 'selRapida', 'varinha'];
 
+// ── A proporção padrão mais próxima ──
+//
+// A pós pode gerar qualquer dimensão (a pessoa cortou, expandiu...). Mostrar a
+// razão crua no feed dá números feios como "29:36". Aqui a razão real é
+// comparada com as proporções que o app usa, e devolvemos a mais próxima.
+const PROPORCOES_PADRAO = [
+  '1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9', '4:5', '5:4', '5:7', '7:5'
+];
+function proporcaoMaisProxima(w, h) {
+  if (!w || !h) return null;
+  const alvo = w / h;
+
+  let melhor = PROPORCOES_PADRAO[0];
+  let menorDif = Infinity;
+  for (const p of PROPORCOES_PADRAO) {
+    const [a, b] = p.split(':').map(Number);
+    const dif = Math.abs(a / b - alvo);
+    if (dif < menorDif) { menorDif = dif; melhor = p; }
+  }
+  return melhor;
+}
+
 export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico }) {
   // ── A pilha ──
   // A ordem é de CIMA para baixo, como na coluna. camadas[0] é a do topo.
@@ -909,12 +931,10 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico }) {
     try {
       const dataUrl = exportar(camadas, med.w, med.h);
 
-      // A proporção REAL da imagem, reduzida (1920×1080 → "16:9"). Sem ela, o
-      // feed cai no 4:3 padrão e a miniatura sai achatada até a imagem carregar
-      // e ser medida — e às vezes nem corrige.
-      const mdc = (a, b) => (b ? mdc(b, a % b) : a);
-      const g = mdc(med.w, med.h) || 1;
-      const proporcao = `${med.w / g}:${med.h / g}`;
+      // A proporção da imagem, encaixada na proporção PADRÃO mais próxima.
+      // Sem isso, uma imagem 1160×1440 vira "29:36" no feed — um número que
+      // não diz nada. Arredondando, vira "4:5", que a pessoa reconhece.
+      const proporcao = proporcaoMaisProxima(med.w, med.h);
 
       await aoSalvarHistorico(dataUrl, { largura: med.w, altura: med.h, proporcao });
       setToast('Salvo no histórico');
