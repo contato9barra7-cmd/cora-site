@@ -8250,11 +8250,47 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-sel:hover { border-color: var(--accent); }
 
 .ps-linha input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
   flex: 1;
   min-width: 0;
-  accent-color: var(--accent);
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line2);
   cursor: pointer;
 }
+.ps-linha input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line2);
+}
+.ps-linha input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line2);
+}
+.ps-linha input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .15);
+  cursor: pointer;
+  margin-top: -5px;
+}
+.ps-linha input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .15);
+  cursor: pointer;
+}
+.ps-linha input[type="range"]:disabled { opacity: .4; cursor: default; }
 
 .ps-val {
   font-size: 12px;
