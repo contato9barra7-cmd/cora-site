@@ -1332,9 +1332,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 100px;
   background: var(--wash2);
-  padding: 3px 6px;
+  padding: 3px 12px;
 }
 
 /* O sulco já tem o fundo — o trilho fica nu */
@@ -10543,6 +10543,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .up-erro { font-size: 12px; color: #e0405a; margin: 6px 0; }
 .up-gerar { margin-top: 16px; width: 100%; flex-shrink: 0; min-height: 40px; }
 .up-dimensoes { text-align: center; font-size: 12px; color: var(--ink2); margin: 14px 0 0; font-variant-numeric: tabular-nums; }
+.up-dimensoes strong { font-weight: 700; color: var(--ink); }
+.up-dim-seta { color: var(--accent); font-weight: 700; }
 
 /* Presets */
 .up-preset-row { display: flex; gap: 6px; align-items: center; }

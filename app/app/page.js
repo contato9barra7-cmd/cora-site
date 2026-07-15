@@ -1015,7 +1015,7 @@ export default function AppPage() {
                 {/* Isto não é promessa: o servidor estorna de verdade ao
                     falhar (`estornarPedido`). Dizer isso ANTES tira o medo de
                     quem está vendo os créditos saírem da conta. */}
-                {ocupado && (
+                {progresso && (
                   <p className="cr-estorno">
                     <svg viewBox="0 0 16 16" width="11" height="11" fill="none"
                          stroke="currentColor" strokeWidth="1.4">

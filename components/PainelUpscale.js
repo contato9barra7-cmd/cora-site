@@ -313,7 +313,7 @@ export default function PainelUpscale({
 
       {base && base.w > 0 && (
         <p className="up-dimensoes">
-          {base.w} × {base.h} → {base.w * st.scale} × {base.h * st.scale} px
+          {base.w} × {base.h} <span className="up-dim-seta">→</span> <strong>{base.w * st.scale} × {base.h * st.scale}</strong> px
         </p>
       )}
 
