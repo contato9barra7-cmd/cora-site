@@ -18,6 +18,7 @@ import AppShell from '../../components/AppShell';
 import PainelRender from '../../components/PainelRender';
 import PainelBatch from '../../components/PainelBatch';
 import PainelEditar from '../../components/PainelEditar';
+import PainelUpscale from '../../components/PainelUpscale';
 import TelaPincel from '../../components/TelaPincel';
 import PainelPincel from '../../components/PainelPincel';
 import PainelAnalises from '../../components/PainelAnalises';
@@ -45,6 +46,7 @@ const ABAS = [
   { id: 'batch',    rotulo: 'Batch' },
   { id: 'editar',   rotulo: 'Editar' },
   { id: 'pos',      rotulo: 'Pós-produção' },
+  { id: 'upscale',  rotulo: 'Upscale' },
   { id: 'analises', rotulo: 'Análises' }
 ];
 
@@ -166,6 +168,16 @@ export default function AppPage() {
   const [pincel, setPincel]         = useState(null);   // {modo, base, previa}
   const montarPincel                = useRef(null);     // a tela devolve os bytes
   const limparPincel                = useRef(null);     // o painel manda limpar
+
+  // Botão "voltar ao topo": aparece quando o feed rola para baixo, some no topo.
+  const listaRef                    = useRef(null);
+  const [mostrarTopo, setMostrarTopo] = useState(false);
+  function aoRolarLista(e) {
+    setMostrarTopo(e.target.scrollTop > 400);
+  }
+  function voltarAoTopo() {
+    if (listaRef.current) listaRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   // O painel comanda, a tela obedece. O estado mora aqui, no meio dos dois.
   const [pnFerr, setPnFerr]   = useState('pincel');
@@ -695,8 +707,20 @@ export default function AppPage() {
             <PainelAnalises onUsar={usarLeitura} />
           )}
 
+          {ferramenta === 'upscale' && (
+            <PainelUpscale
+              imagemInicial={imagemDeOutraAba?.para === 'upscale' ? imagemDeOutraAba : null}
+              ehAdmin={ehAdmin}
+              ocupado={ocupado}
+              setOcupado={setOcupado}
+              onProgresso={setProgresso}
+              onPronto={() => { setProgresso(null); recarregarComFolga(); }}
+            />
+          )}
+
           {ferramenta !== 'render' && ferramenta !== 'batch' &&
-           ferramenta !== 'editar' && ferramenta !== 'analises' && (
+           ferramenta !== 'editar' && ferramenta !== 'analises' &&
+           ferramenta !== 'upscale' && (
             <div className="cr-painel-vazio">
               <p>A aba {ferramenta} entra em breve.</p>
             </div>
@@ -876,7 +900,7 @@ export default function AppPage() {
             </div>
           )}
 
-          <div className="cr-lista">
+          <div className="cr-lista" ref={listaRef} onScroll={aoRolarLista}>
 
             {erro && <div className="cr-erro">{erro}</div>}
 
@@ -1129,6 +1153,16 @@ export default function AppPage() {
           </div>
           </>
           )}
+
+          <button
+            className={'cr-voltar-topo' + (mostrarTopo ? ' cr-voltar-topo--on' : '')}
+            onClick={voltarAoTopo}
+            aria-label="Voltar ao topo"
+          >
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 19V5M5 12l7-7 7 7" />
+            </svg>
+          </button>
         </section>
       </div>
 
