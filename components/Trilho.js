@@ -23,13 +23,20 @@ export default function Trilho({ abas, ativa, onTrocar }) {
   const [x, setX]     = useState(0);
   const [max, setMax] = useState(0);
 
+  // FOLGA: a pill selecionada é branca e arredondada. Se ela parar colada na
+  // borda curva do sulco, a curva morde o canto dela. Toda parada deixa esta
+  // folga de respiro — assim a pill fica sempre na zona reta, sem corte, e
+  // cada passo da seta trava logo depois do fim de uma aba (nunca no meio).
+  const FOLGA = 16;
+
   // Quanto dá para andar. Se tudo cabe, é zero — e as setas se apagam.
+  // O +FOLGA garante que a última aba também apareça com respiro à direita.
   const medir = useCallback(() => {
     const s = sulcoRef.current;
     const t = trilhoRef.current;
     if (!s || !t) return;
 
-    const m = Math.max(0, t.scrollWidth - s.clientWidth);
+    const m = Math.max(0, t.scrollWidth - s.clientWidth + FOLGA);
     setMax(m);
     setX((v) => Math.min(v, m));   // a janela cresceu: não deixa sobrar vão
   }, []);
@@ -44,23 +51,21 @@ export default function Trilho({ abas, ativa, onTrocar }) {
   // ── Para a direita ──
   //
   // Queremos a PRÓXIMA pill que hoje está cortada (ou de fora) inteiramente à
-  // vista. O deslocamento certo não é o offsetLeft dela: é a borda DIREITA dela
-  // menos a largura do sulco. Alinhar pela esquerda era o que deixava um
-  // pedacinho da seguinte espiando.
+  // vista, com a folga de respiro depois dela.
   function proxima() {
     const t = trilhoRef.current;
     const s = sulcoRef.current;
     if (!t || !s) return;
 
     const larguraSulco = s.clientWidth;
-    const bordaVisivel = x + larguraSulco;
+    const bordaVisivel = x + larguraSulco - FOLGA;
 
     for (const p of t.children) {
       const dir = p.offsetLeft + p.offsetWidth;
 
-      // A primeira que ainda não cabe por inteiro
+      // A primeira que ainda não cabe por inteiro (contando a folga)
       if (dir > bordaVisivel + 1) {
-        setX(Math.min(max, Math.max(0, dir - larguraSulco)));
+        setX(Math.min(max, Math.max(0, dir - larguraSulco + FOLGA)));
         return;
       }
     }
@@ -69,7 +74,7 @@ export default function Trilho({ abas, ativa, onTrocar }) {
   }
 
   // ── Para a esquerda ──
-  // Simétrico: a última pill cortada à esquerda deve encostar na borda.
+  // Simétrico: a última pill cortada à esquerda encosta na borda, com folga.
   function anterior() {
     const t = trilhoRef.current;
     if (!t) return;
@@ -77,7 +82,7 @@ export default function Trilho({ abas, ativa, onTrocar }) {
     const ps = [...t.children];
     for (let i = ps.length - 1; i >= 0; i--) {
       if (ps[i].offsetLeft < x - 1) {
-        setX(Math.max(0, ps[i].offsetLeft));
+        setX(Math.max(0, ps[i].offsetLeft - FOLGA));
         return;
       }
     }
@@ -107,9 +112,9 @@ export default function Trilho({ abas, ativa, onTrocar }) {
     const larguraSulco = s.clientWidth;
 
     setX((atual) => {
-      if (esq < atual) return Math.max(0, esq);
+      if (esq < atual) return Math.max(0, esq - FOLGA);
       if (dir > atual + larguraSulco) {
-        return Math.max(0, Math.min(max, dir - larguraSulco));
+        return Math.max(0, Math.min(max, dir - larguraSulco + FOLGA));
       }
       return atual;
     });

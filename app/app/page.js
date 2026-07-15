@@ -357,7 +357,14 @@ export default function AppPage() {
       if (avancados.baixadas)  f.baixadas  = true;
       if (avancados.favoritos) f.favoritos = true;
 
-      setLotes(await listarGeracoes(f));
+      const doServidor = await listarGeracoes(f);
+      // Preserva upscales locais (ainda não salvos no servidor) que não tenham
+      // sido substituídos por uma versão real do banco.
+      setLotes((atuais) => {
+        const locais = atuais.filter((l) => l._local);
+        if (locais.length === 0) return doServidor;
+        return [...locais, ...doServidor];
+      });
     } catch (e) {
       setErro(e.message);
     } finally {
@@ -725,6 +732,7 @@ export default function AppPage() {
                   const loteLocal = {
                     loteId: 'up_local_' + Date.now(),
                     ferramenta: 'upscale',
+                    tipo: 'imagem',
                     proporcao: null,
                     criadoEm: agora,
                     _local: true,
