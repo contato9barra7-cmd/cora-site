@@ -3912,6 +3912,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border-radius: 100px;
   background: rgba(255, 255, 255, .22);
 }
+.cr-card-plugin {
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 100px;
+  background: var(--roxo);
+  color: #fff;
+}
 
 /* ── A/B: as duas imagens escolhidas no feed ── */
 .cr-ab-ico {

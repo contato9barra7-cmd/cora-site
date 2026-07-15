@@ -217,6 +217,7 @@ export default function Card({
         <span className="cr-card-fer">
           {ROTULO_FERRAMENTA[it.ferramenta] || it.ferramenta}
         </span>
+        {it.plataforma === 'plugin' && <span className="cr-card-plugin">Plugin</span>}
         {it.proporcao && <span>{it.proporcao}</span>}
         <span className="cr-card-quando">{tempoRelativo(it.criadoEm)}</span>
       </span>
