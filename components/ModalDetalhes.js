@@ -25,6 +25,20 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
 
   const quando = item?.criadoEm || lote.criadoEm;
 
+  // Upscale guarda as configurações usadas em observacoes (UPSCALE_CFG:{...}).
+  let upCfg = null;
+  if (lote.ferramenta === 'upscale' && typeof lote.observacoes === 'string' && lote.observacoes.startsWith('UPSCALE_CFG:')) {
+    try { upCfg = JSON.parse(lote.observacoes.slice('UPSCALE_CFG:'.length)); } catch {}
+  }
+
+  const OTIM_ROTULO = {
+    standard: 'Standard Ultra', portrait_soft: 'Portrait (Soft)', portrait_hard: 'Portrait (Hard)',
+    art: 'Art & Illustration', videogame_assets: 'Videogame Assets', nature_n_landscapes: 'Nature & Landscapes',
+    films_n_photography: 'Films & Photography', '3d_renders': '3D Renders', science_fiction_n_horror: 'Science Fiction & Horror'
+  };
+  const ENGINE_ROTULO = { automatic: 'Automatic', magnific_illusio: 'Illusio', magnific_sharpy: 'Sharpy', magnific_sparkle: 'Sparkle' };
+  const FLAVOR_ROTULO = { sublime: 'Magnific v2 (sublime)', photo_denoiser: 'Magnific v2 (photo denoiser)' };
+
   const dataCompleta = quando
     ? new Date(quando).toLocaleString('pt-BR', {
         day: '2-digit', month: 'long', year: 'numeric',
@@ -58,10 +72,49 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
               </span>
             )}
             {lote.plataforma === 'plugin' && <span className="dt-pill dt-pill--plugin">Plugin</span>}
-            {lote.proporcao && <span className="dt-pill">{lote.proporcao}</span>}
-            {lote.resolucao && <span className="dt-pill">{lote.resolucao.toUpperCase()}</span>}
+            {upCfg ? (
+              <>
+                <span className="dt-pill">{upCfg.modo === 'precision' ? 'Precisão' : 'Criativo'}</span>
+                {upCfg.scale && <span className="dt-pill">{upCfg.scale}x</span>}
+              </>
+            ) : (
+              <>
+                {lote.proporcao && <span className="dt-pill">{lote.proporcao}</span>}
+                {lote.resolucao && <span className="dt-pill">{lote.resolucao.toUpperCase()}</span>}
+              </>
+            )}
             {lote.duracaoSeg && <span className="dt-pill">{lote.duracaoSeg}s</span>}
           </div>
+
+          {upCfg && (upCfg.origW || upCfg.w) && (
+            <p className="dt-up-dim">
+              {upCfg.origW ? `${upCfg.origW} × ${upCfg.origH}` : '—'}
+              <span className="dt-up-seta"> → </span>
+              <strong>{upCfg.w} × {upCfg.h} px</strong>
+            </p>
+          )}
+
+          {upCfg && (
+            <div className="dt-up-cfg">
+              {upCfg.modo === 'precision' ? (
+                <>
+                  <div className="dt-up-linha"><span>Modelo</span><span>{FLAVOR_ROTULO[upCfg.flavor] || upCfg.flavor}</span></div>
+                  <div className="dt-up-linha"><span>Nitidez</span><span>{upCfg.sharpen}%</span></div>
+                  <div className="dt-up-linha"><span>Grão</span><span>{upCfg.smart_grain}%</span></div>
+                </>
+              ) : (
+                <>
+                  <div className="dt-up-linha"><span>Otimizado para</span><span>{OTIM_ROTULO[upCfg.optimized_for] || upCfg.optimized_for}</span></div>
+                  <div className="dt-up-linha"><span>Criatividade</span><span>{upCfg.creativity}</span></div>
+                  <div className="dt-up-linha"><span>HDR</span><span>{upCfg.hdr}</span></div>
+                  <div className="dt-up-linha"><span>Semelhança</span><span>{upCfg.resemblance}</span></div>
+                  <div className="dt-up-linha"><span>Fractalidade</span><span>{upCfg.fractality}</span></div>
+                  <div className="dt-up-linha"><span>Motor</span><span>{ENGINE_ROTULO[upCfg.engine] || upCfg.engine}</span></div>
+                  {upCfg.prompt && <div className="dt-up-linha"><span>Descrição</span><span>{upCfg.prompt}</span></div>}
+                </>
+              )}
+            </div>
+          )}
 
           {dataCompleta && <p className="dt-data">{dataCompleta}</p>}
 

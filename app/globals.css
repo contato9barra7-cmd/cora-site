@@ -5239,6 +5239,24 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink3);
 }
 
+.dt-up-dim {
+  margin: 12px 0 0; font-size: 13px; color: var(--ink2);
+  font-variant-numeric: tabular-nums;
+}
+.dt-up-dim strong { font-weight: 700; color: var(--ink); }
+.dt-up-seta { color: var(--accent); font-weight: 700; }
+.dt-up-cfg {
+  margin: 12px 0 0; border: 1px solid var(--line2); border-radius: 12px;
+  padding: 4px 12px; background: var(--wash);
+}
+.dt-up-linha {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 8px 0; font-size: 12.5px; border-bottom: 1px solid var(--line2);
+}
+.dt-up-linha:last-child { border-bottom: none; }
+.dt-up-linha span:first-child { color: var(--ink3); }
+.dt-up-linha span:last-child { color: var(--ink); font-weight: 500; text-align: right; }
+
 /* As imagens que entraram na geração: o print e as referências.
    Miniaturas, não retratos — servem para RECONHECER, não para admirar. */
 .dt-imgs {
