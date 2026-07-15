@@ -216,15 +216,16 @@ export default function AppShell({ children }) {
         <div className="app-header-dir">
           <div className="app-user-wrap">
             <button className="app-user-btn" onClick={() => setMenuUser(!menuUser)} title="Minha conta">
-              {/* anel de créditos ao redor do avatar (estilo Magnific) */}
-              {!ilimitado && conta && total > 0 && (
+              {/* anel de créditos ao redor do avatar (estilo Magnific).
+                  Admin/ilimitado mostra o anel SEMPRE CHEIO. */}
+              {conta && (ilimitado || total > 0) && (
                 <svg className="app-anel" width="46" height="46" viewBox="0 0 46 46">
                   <circle className="app-anel-bg" cx="23" cy="23" r="21" />
                   <circle
                     className="app-anel-fill"
                     cx="23" cy="23" r="21"
                     strokeDasharray={2 * Math.PI * 21}
-                    strokeDashoffset={(2 * Math.PI * 21) * (1 - pctRestante / 100)}
+                    strokeDashoffset={ilimitado ? 0 : (2 * Math.PI * 21) * (1 - pctRestante / 100)}
                     transform="rotate(-90 23 23)"
                   />
                 </svg>
