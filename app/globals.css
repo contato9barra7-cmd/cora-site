@@ -5290,6 +5290,12 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink);
   font-weight: 600;
 }
+.dt-pill--plugin {
+  border-color: var(--roxo);
+  background: var(--roxo);
+  color: #fff;
+  font-weight: 600;
+}
 
 /* ═══════════════════════════════════════════════════════════
    Quando a geração falha

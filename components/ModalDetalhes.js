@@ -57,6 +57,7 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
                 {ROTULO_FERRAMENTA[lote.ferramenta] || lote.ferramenta}
               </span>
             )}
+            {lote.plataforma === 'plugin' && <span className="dt-pill dt-pill--plugin">Plugin</span>}
             {lote.proporcao && <span className="dt-pill">{lote.proporcao}</span>}
             {lote.resolucao && <span className="dt-pill">{lote.resolucao.toUpperCase()}</span>}
             {lote.duracaoSeg && <span className="dt-pill">{lote.duracaoSeg}s</span>}
