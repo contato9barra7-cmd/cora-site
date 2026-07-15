@@ -222,7 +222,7 @@ export default function Card({
 
           <button
             className="cr-ca"
-            onClick={so(() => onEnviarPara('animar', it))}
+            onClick={so(() => onEnviarPara('animacao', it))}
             data-tip="Animar"
             aria-label="Enviar para Animação"
           >

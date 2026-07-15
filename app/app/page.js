@@ -37,7 +37,7 @@ import { gerarGenerativa } from '../../lib/render';
 import {
   listarGeracoes, alternarFavorito, alternarAprovado, apagarGeracao,
   bytesDaGeracao, ROTULO_FERRAMENTA, tempoRelativo, diasAteExpirar,
-  salvarNoHistorico
+  salvarNoHistorico, urlDownloadVideo
 } from '../../lib/geracoes';
 
 // As abas do trilho. A Pós não é como as outras: em vez de encher o painel,
@@ -232,6 +232,24 @@ export default function AppPage() {
   // O modal vive na PÁGINA, não no card: dentro da grade ele nasceria preso
   // ao recorte dela e ficaria cortado.
   const [baixando, setBaixando]     = useState(null);   // o item a baixar
+
+  // Baixar: vídeo vai direto para a pasta de downloads (não há resolução a
+  // escolher); imagem abre o modal de formato/resolução.
+  async function baixarItem(item) {
+    const ehVideo = item.tipo === 'video' || /\.(mp4|webm)(\?|$)/i.test(item.url || '');
+    if (!ehVideo) { setBaixando(item); return; }
+    try {
+      const url = await urlDownloadVideo(item.id);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cora-animacao.mp4';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (e) {
+      window.open(item.url, '_blank');
+    }
+  }
 
   // ── Gerar com o pincel ──
   //
@@ -1135,7 +1153,7 @@ export default function AppPage() {
                         if (modoAB) { escolherAB(it); return; }
                         setVendo({ loteId: it.loteId, itemId: it.id });
                       }}
-                      onBaixar={setBaixando}
+                      onBaixar={baixarItem}
                       onFavoritar={favoritar}
                       onAprovar={aprovar}
                       onExcluir={setExcluindo}
@@ -1192,7 +1210,7 @@ export default function AppPage() {
                           if (modoAB) { escolherAB({ ...item, loteId: lote.loteId }); return; }
                           setVendo({ loteId: lote.loteId, itemId: item.id });
                         }}
-                        onBaixar={setBaixando}
+                        onBaixar={baixarItem}
                         onFavoritar={favoritar}
                         onAprovar={aprovar}
                         onExcluir={setExcluindo}
@@ -1236,7 +1254,7 @@ export default function AppPage() {
               rotuloDir="B"
               ehAdmin={ehAdmin}
               onFechar={() => setVendo(null)}
-              onBaixar={setBaixando}
+              onBaixar={baixarItem}
               onFavoritar={favoritar}
               onExcluir={setExcluindo}
               onEnviarPara={enviarPara}
@@ -1257,7 +1275,7 @@ export default function AppPage() {
             prompt={lote.observacoes}
             ehAdmin={ehAdmin}
             onFechar={() => setVendo(null)}
-            onBaixar={setBaixando}
+            onBaixar={baixarItem}
             onFavoritar={favoritar}
             onAprovar={aprovar}
             onExcluir={setExcluindo}

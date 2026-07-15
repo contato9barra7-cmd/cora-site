@@ -163,24 +163,6 @@ export default function Visualizador({
   const ehVideo = item.tipo === 'video' || /\.(mp4|webm)(\?|$)/i.test(item.url || '');
   if (ehVideo) {
     // Baixar vídeo é direto: sem a janela de escolha de resolução (não há).
-    // Busca como blob para forçar o download (a URL do R2 é cross-origin, e
-    // <a download> sozinho abriria numa guia em vez de baixar).
-    const baixarVideo = async () => {
-      try {
-        const resp = await fetch(item.url);
-        const blob = await resp.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'cora-animacao.mp4';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 4000);
-      } catch (e) {
-        window.open(item.url, '_blank');
-      }
-    };
     return (
       <div className="cr-overlay" onClick={onFechar}>
         <div className="vz" onClick={(e) => e.stopPropagation()}>
@@ -203,7 +185,7 @@ export default function Visualizador({
                 <path d="M12 20.3l-1.5-1.4C5.2 14.1 2 11.2 2 7.6A4.6 4.6 0 016.6 3c1.6 0 3.1.7 4.1 1.9l1.3 1.5 1.3-1.5A5.4 5.4 0 0117.4 3 4.6 4.6 0 0122 7.6c0 3.6-3.2 6.5-8.5 11.3L12 20.3z" strokeLinejoin="round"/>
               </svg>
             </button>
-            <button className="vz-ico" onClick={baixarVideo} data-tip="Baixar" aria-label="Baixar">
+            <button className="vz-ico" onClick={() => onBaixar(item)} data-tip="Baixar" aria-label="Baixar">
               <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M3.5 15v1.5h13V15" strokeLinecap="round"/>
@@ -448,7 +430,7 @@ export default function Visualizador({
             Upscale
           </button>
 
-          <button className="vz-envia" onClick={() => onEnviarPara('animar', item)}
+          <button className="vz-envia" onClick={() => onEnviarPara('animacao', item)}
                   aria-label="Enviar para Animação">
             <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="2.5" y="5" width="10" height="10" rx="1.5"/>
