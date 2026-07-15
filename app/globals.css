@@ -5257,6 +5257,23 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .dt-up-linha span:first-child { color: var(--ink3); }
 .dt-up-linha span:last-child { color: var(--ink); font-weight: 500; text-align: right; }
 
+/* ── Painel de Animação ── */
+.anim-pares { display: flex; align-items: flex-start; gap: 10px; }
+.anim-slot { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 84px; }
+.anim-slot .cr-ref, .anim-slot .cr-ref--add { width: 84px; height: 84px; }
+.anim-slot-lbl { font-size: 11px; color: var(--ink3); text-align: center; }
+.anim-inverter {
+  margin-top: 30px; width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%;
+  border: 1px solid var(--line2); background: var(--wash); color: var(--ink2);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.anim-inverter:hover { border-color: var(--accent); color: var(--accent); }
+.anim-check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink); cursor: pointer; font-weight: 500; }
+.anim-check input { accent-color: var(--accent); width: 15px; height: 15px; }
+.anim-contador { text-align: right; font-size: 11px; color: var(--ink3); margin: 4px 0 0; }
+.anim-opcoes { display: flex; gap: 10px; }
+.anim-op { flex: 1; }
+
 /* As imagens que entraram na geração: o print e as referências.
    Miniaturas, não retratos — servem para RECONHECER, não para admirar. */
 .dt-imgs {

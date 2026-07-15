@@ -19,6 +19,7 @@ import PainelRender from '../../components/PainelRender';
 import PainelBatch from '../../components/PainelBatch';
 import PainelEditar from '../../components/PainelEditar';
 import PainelUpscale from '../../components/PainelUpscale';
+import PainelAnimacao from '../../components/PainelAnimacao';
 import TelaPincel from '../../components/TelaPincel';
 import PainelPincel from '../../components/PainelPincel';
 import PainelAnalises from '../../components/PainelAnalises';
@@ -46,6 +47,7 @@ const ABAS = [
   { id: 'batch',    rotulo: 'Batch' },
   { id: 'editar',   rotulo: 'Editar' },
   { id: 'pos',      rotulo: 'Pós-produção' },
+  { id: 'animacao', rotulo: 'Animação' },
   { id: 'upscale',  rotulo: 'Upscale' },
   { id: 'analises', rotulo: 'Análises' }
 ];
@@ -719,6 +721,15 @@ export default function AppPage() {
             <PainelAnalises onUsar={usarLeitura} />
           )}
 
+          {ferramenta === 'animacao' && (
+            <PainelAnimacao
+              imagemInicial={imagemDeOutraAba?.para === 'animacao' ? imagemDeOutraAba : null}
+              ehAdmin={ehAdmin}
+              onIniciar={iniciarUpscale}
+              onTerminar={(id) => { terminarUpscale(id); recarregarComFolga(); }}
+            />
+          )}
+
           {ferramenta === 'upscale' && (
             <PainelUpscale
               imagemInicial={imagemDeOutraAba?.para === 'upscale' ? imagemDeOutraAba : null}
@@ -731,7 +742,7 @@ export default function AppPage() {
 
           {ferramenta !== 'render' && ferramenta !== 'batch' &&
            ferramenta !== 'editar' && ferramenta !== 'analises' &&
-           ferramenta !== 'upscale' && (
+           ferramenta !== 'upscale' && ferramenta !== 'animacao' && (
             <div className="cr-painel-vazio">
               <p>A aba {ferramenta} entra em breve.</p>
             </div>
