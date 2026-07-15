@@ -436,12 +436,23 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
       const comp = ferramenta === 'linear'
         ? { tipo: 'linear', modo: modoComp, ax: pt.x, ay: pt.y, bx: pt.x, by: pt.y }
         : { tipo: 'radial', modo: modoComp, cx: pt.x, cy: pt.y, rx: 1, ry: 1, ang: 0, feather: 0.5 };
+      const idxNovo = mascaras[mascaraAtiva].componentes.length;
       compRef.current = comp;
-      pintandoRef.current = true;
       setSlotAberto(false);   // desenhou: fecha o slot
       setMascaras((ms) => ms.map((m, i) =>
         i === mascaraAtiva ? { ...m, componentes: [...m.componentes, comp] } : m
       ));
+      mascarasRef.current = mascarasRef.current.map((m, i) =>
+        i === mascaraAtiva ? { ...m, componentes: [...m.componentes, comp] } : m
+      );
+
+      // O arraste corre pela janela: assim o SVG dos pinos (que fica por cima)
+      // não "rouba" o movimento logo após criar o degradê.
+      arrasteHandle.current = ferramenta === 'linear'
+        ? { tipo: 'B', compIdx: idxNovo }
+        : { tipo: 'rx_ry_novo', compIdx: idxNovo, cx: pt.x, cy: pt.y };
+      window.addEventListener('mousemove', moverHandle);
+      window.addEventListener('mouseup', soltarHandle);
       return;
     }
 
@@ -566,7 +577,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     e.stopPropagation();
     snapshotMascaras();
     const pt = pontoNaBase(e);
-    const comp = mascaras[mascaraAtiva].componentes[compIdx];
+    const comp = mascarasRef.current[mascaraAtiva].componentes[compIdx];
     arrasteHandle.current = { tipo, compIdx, ox: pt.x, oy: pt.y, r0x: comp.rx, r0y: comp.ry };
     window.addEventListener('mousemove', moverHandle);
     window.addEventListener('mouseup', soltarHandle);
@@ -576,7 +587,8 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     const ah = arrasteHandle.current;
     if (!ah) return;
     const pt = pontoNaBase(e);
-    const comp = mascaras[mascaraAtiva].componentes[ah.compIdx];
+    const m = mascarasRef.current[mascaraAtiva];
+    const comp = m && m.componentes[ah.compIdx];
     if (!comp) return;
 
     if (comp.tipo === 'linear') {
@@ -588,7 +600,12 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
         ah.ox = pt.x; ah.oy = pt.y;
       }
     } else if (comp.tipo === 'radial') {
-      if (ah.tipo === 'mover') { comp.cx = pt.x; comp.cy = pt.y; }
+      if (ah.tipo === 'rx_ry_novo') {
+        // Recém-criado: o arraste define os dois raios de uma vez.
+        comp.rx = Math.max(1, Math.abs(pt.x - comp.cx));
+        comp.ry = Math.max(1, Math.abs(pt.y - comp.cy));
+      }
+      else if (ah.tipo === 'mover') { comp.cx = pt.x; comp.cy = pt.y; }
       else if (ah.tipo === 'rx') comp.rx = Math.max(1, Math.abs(pt.x - comp.cx));
       else if (ah.tipo === 'ry') comp.ry = Math.max(1, Math.abs(pt.y - comp.cy));
       else if (ah.tipo === 'feather') {
