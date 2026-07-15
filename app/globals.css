@@ -8443,8 +8443,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   height: 100%;
   max-height: 860px;
   background: var(--paper);
-  border-radius: 16px;
+  border-radius: 18px;
   border: 1px solid var(--line);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .28);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -8454,11 +8455,11 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 14px 18px;
+  padding: 15px 20px;
   border-bottom: 1px solid var(--line);
   flex-shrink: 0;
 }
-.aj-titulo { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.aj-titulo { font-size: 15px; font-weight: 500; color: var(--ink); letter-spacing: -.01em; }
 .aj-esticar { flex: 1; }
 
 .aj-corpo {
@@ -8496,31 +8497,32 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* As seis abas. Numa coluna de 330px elas não cabem em fila: rolam. */
 .aj-abas {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   padding: 10px 12px;
   border-bottom: 1px solid var(--line);
-  overflow-x: auto;
-  scrollbar-width: none;
   flex-shrink: 0;
 }
-.aj-abas::-webkit-scrollbar { display: none; }
 
 .aj-aba {
-  flex: 0 0 auto;
-  padding: 6px 9px;
-  border-radius: 100px;
-  border: 1px solid var(--line2);
-  background: var(--paper);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
   color: var(--ink3);
-  font-size: 10.5px;
+  font-size: 9.5px;
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
   transition: all .15s;
 }
-.aj-aba:hover { border-color: var(--accent); color: var(--accent); }
+.aj-aba-ic { width: 15px; height: 15px; }
+.aj-aba:hover { color: var(--accent); }
 .aj-aba--on {
-  border-color: var(--accent);
   color: var(--accent);
   background: var(--accent-bg);
   font-weight: 600;
@@ -8642,6 +8644,80 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   opacity: .35;
   pointer-events: none;
 }
+
+/* ── Sliders com trilho em gradiente (Cor e vinheta) ── */
+/* O gradiente vem inline (a cor de cada slider); aqui só a forma do trilho e
+   um thumb um pouco maior, para o gradiente respirar. */
+.aj-sl input[type="range"].aj-sl-grad {
+  height: 6px;
+  border-radius: 3px;
+}
+.aj-sl input[type="range"].aj-sl-grad::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: transparent;
+}
+.aj-sl input[type="range"].aj-sl-grad::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: transparent;
+}
+.aj-sl input[type="range"].aj-sl-grad::-webkit-slider-thumb {
+  width: 15px;
+  height: 15px;
+  margin-top: -4.5px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .25);
+}
+.aj-sl input[type="range"].aj-sl-grad::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .25);
+}
+
+/* ── Título de seção (Vinheta, Granulado) ── */
+.aj-sec {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--ink3);
+  margin: 16px 0 10px;
+}
+
+/* ── O botão de equilíbrio de branco ── */
+.aj-wb {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px;
+  margin-bottom: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  color: var(--ink2);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+.aj-wb:hover { border-color: var(--accent); color: var(--accent); }
+.aj-wb--on {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 500;
+}
+.aj-wb-dica {
+  font-size: 10.5px;
+  color: var(--ink3);
+  line-height: 1.45;
+  margin: 0 0 18px;
+}
+
+/* Com o conta-gotas ativo, a prévia vira alvo de clique. */
+.aj-previa--wb canvas { cursor: crosshair; }
 
 /* ── A curva ── */
 .aj-canais {
@@ -10047,7 +10123,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: var(--ink);
   color: var(--paper);
   font-size: 13px;
-  border-radius: 10px;
+  border-radius: 100px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, .22);
 }
 

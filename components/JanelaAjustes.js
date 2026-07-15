@@ -18,10 +18,10 @@
 //  dedo. 40ms bastam para a mão parar entre um passo e outro.
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, Fragment } from 'react';
 import {
   paramsPadrao, temAjuste, aplicarPixels, aplicarEmCanvas,
-  ABAS_AJUSTE, CORES_MIXER, CANAIS_CURVA, curvaLUT
+  ABAS_AJUSTE, CORES_MIXER, CANAIS_CURVA, curvaLUT, equilibrioDeBranco
 } from '../lib/ajustes';
 
 const LADO_PREVIA = 1400;
@@ -50,6 +50,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   const [canal, setCanal] = useState('rgb');
   const [cor, setCor]     = useState('vermelho');
   const [processando, setProc] = useState(false);
+  const [pegandoWB, setPegandoWB] = useState(false);   // conta-gotas ativo
 
   const telaRef  = useRef(null);
   const baseRef  = useRef(null);   // a cópia reduzida, já pronta
@@ -119,6 +120,32 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     timerRef.current = setTimeout(() => desenhar(novo), 40);
   }
 
+  // ── O conta-gotas do equilíbrio de branco ──
+  //
+  // Com ele ativo, clicar na prévia lê a cor ORIGINAL daquele ponto (da base
+  // reduzida, sem os ajustes atuais) e calcula a temperatura/tint que a tornam
+  // neutra. Depois desliga sozinho.
+  function clicarWB(e) {
+    if (!pegandoWB) return;
+    const base = baseRef.current;
+    const tela = telaRef.current;
+    if (!base || !tela) return;
+
+    const r = tela.getBoundingClientRect();
+    const x = Math.round((e.clientX - r.left) / r.width  * base.width);
+    const y = Math.round((e.clientY - r.top)  / r.height * base.height);
+
+    const bx = Math.max(0, Math.min(base.width  - 1, x));
+    const by = Math.max(0, Math.min(base.height - 1, y));
+    const px = base.getContext('2d').getImageData(bx, by, 1, 1).data;
+
+    const { temp, tint } = equilibrioDeBranco(px[0], px[1], px[2]);
+    const novo = { ...p, cor: { ...p.cor, temp, tint } };
+    setP(novo);
+    desenhar(novo);
+    setPegandoWB(false);
+  }
+
   function resetar() {
     const z = paramsPadrao();
     setP(z);
@@ -180,23 +207,26 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
 
         <div className="aj-corpo">
 
-          <div className="aj-previa">
-            <canvas ref={telaRef} />
+          <div className={'aj-previa' + (pegandoWB ? ' aj-previa--wb' : '')}>
+            <canvas ref={telaRef} onClick={clicarWB} />
           </div>
 
           <aside className="aj-lado">
 
             <nav className="aj-abas">
               {[...ABAS_AJUSTE.slice(0, 3),
-                { id: 'curva', nome: 'Curva' },
-                { id: 'mixer', nome: 'Misturador' },
+                { id: 'curva', nome: 'Curva', icone: 'curva' },
+                { id: 'mixer', nome: 'Color Mixer', icone: 'mixer' },
                 ABAS_AJUSTE[3]
               ].map((a) => (
                 <button
                   key={a.id}
                   className={'aj-aba' + (aba === a.id ? ' aj-aba--on' : '')}
                   onClick={() => setAba(a.id)}
-                >{a.nome}</button>
+                >
+                  <IconeAba nome={a.icone} />
+                  <span>{a.nome}</span>
+                </button>
               ))}
             </nav>
 
@@ -205,11 +235,33 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
               <div className="aj-cab">
                 <span className="aj-cab-t">
                   {aba === 'curva' ? 'Curva'
-                    : aba === 'mixer' ? 'Misturador'
+                    : aba === 'mixer' ? 'Color Mixer'
                     : abaAtual?.nome}
                 </span>
                 <button className="aj-reset" onClick={resetarAba}>Resetar</button>
               </div>
+
+              {/* ── O equilíbrio de branco, só na aba Cor ── */}
+              {aba === 'cor' && (
+                <>
+                  <button
+                    className={'aj-wb' + (pegandoWB ? ' aj-wb--on' : '')}
+                    onClick={() => setPegandoWB((v) => !v)}
+                  >
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                         stroke="currentColor" strokeWidth="1.7"
+                         strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M19 3l2 2-9 9-2-2 9-9z" />
+                      <path d="M10 12l-6.5 6.5a1.5 1.5 0 0 0 0 2.1l.9.9a1.5 1.5 0 0 0 2.1 0L13 15" />
+                      <path d="M14 7l3 3" />
+                    </svg>
+                    Equilíbrio de branco
+                  </button>
+                  <p className="aj-wb-dica">
+                    Clique num ponto que deveria ser cinza/branco neutro na imagem.
+                  </p>
+                </>
+              )}
 
               {/* ── Os sliders ── */}
               {abaAtual && aba !== 'curva' && aba !== 'mixer' &&
@@ -220,28 +272,35 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                   const morto = s.filho && !pai;
 
                   return (
-                    <div
-                      key={s.k}
-                      className={'aj-sl' + (s.filho ? ' aj-sl--filho' : '') + (morto ? ' aj-sl--off' : '')}
-                    >
-                      <div className="aj-sl-topo">
-                        <span>{s.nome}</span>
-                        <button
-                          className="aj-sl-v"
-                          onClick={() => mexer(abaAtual.grupo, s.k, paramsPadrao()[abaAtual.grupo][s.k])}
-                          title="Voltar ao padrão"
-                        >{p[abaAtual.grupo][s.k]}</button>
+                    <Fragment key={s.k}>
+                      {/* O título da seção (Vinheta, Granulado) vem antes do
+                          slider que o abre. */}
+                      {s.sec && <div className="aj-sec">{s.sec}</div>}
+
+                      <div
+                        className={'aj-sl' + (s.filho ? ' aj-sl--filho' : '') + (morto ? ' aj-sl--off' : '')}
+                      >
+                        <div className="aj-sl-topo">
+                          <span>{s.nome}</span>
+                          <button
+                            className="aj-sl-v"
+                            onClick={() => mexer(abaAtual.grupo, s.k, paramsPadrao()[abaAtual.grupo][s.k])}
+                            title="Voltar ao padrão"
+                          >{p[abaAtual.grupo][s.k]}</button>
+                        </div>
+                        <input
+                          type="range"
+                          className={s.grad ? 'aj-sl-grad' : ''}
+                          style={s.grad ? { background: s.grad } : null}
+                          min={s.min} max={s.max}
+                          value={p[abaAtual.grupo][s.k]}
+                          disabled={morto}
+                          onChange={(e) => mexer(abaAtual.grupo, s.k, comTrava(+e.target.value, s.min, s.max))}
+                          onDoubleClick={() => mexer(abaAtual.grupo, s.k, paramsPadrao()[abaAtual.grupo][s.k])}
+                          aria-label={s.nome}
+                        />
                       </div>
-                      <input
-                        type="range"
-                        min={s.min} max={s.max}
-                        value={p[abaAtual.grupo][s.k]}
-                        disabled={morto}
-                        onChange={(e) => mexer(abaAtual.grupo, s.k, comTrava(+e.target.value, s.min, s.max))}
-                        onDoubleClick={() => mexer(abaAtual.grupo, s.k, paramsPadrao()[abaAtual.grupo][s.k])}
-                        aria-label={s.nome}
-                      />
-                    </div>
+                    </Fragment>
                   );
                 })}
 
@@ -419,7 +478,8 @@ function Curva({ pontos, cor, onMudar }) {
       {/* A diagonal: onde a curva estaria se não fizesse nada */}
       <line x1="0" y1={L} x2={L} y2="0" className="aj-curva-neutra" />
 
-      <path d={linha} fill="none" stroke={cor} strokeWidth="2" />
+      <path d={linha} fill="none" stroke={cor} strokeWidth="2"
+            strokeLinejoin="round" strokeLinecap="round" />
 
       {pontos.map((p, i) => (
         <circle
@@ -431,6 +491,46 @@ function Curva({ pontos, cor, onMudar }) {
           onDoubleClick={(e) => remover(e, i)}
         />
       ))}
+    </svg>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Os ícones das abas — traços simples, sobre o texto (opção 4).
+// ═══════════════════════════════════════════════════════════
+const ICONES_ABA = {
+  sun:    'M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4l1.4-1.4M17 7l1.4-1.4|circle:12,12,4',
+  palette:'M12 3a9 9 0 1 0 0 18c1 0 1.5-.8 1.5-1.5 0-.5-.3-.9-.6-1.2-.3-.3-.5-.6-.5-1 0-.7.6-1.3 1.3-1.3H15a5 5 0 0 0 5-5c0-4.4-3.6-8-8-8z|dot:7.5,10.5|dot:12,8|dot:16.5,10.5',
+  sparkles:'M12 4l1.5 4.5L18 10l-4.5 1.5L12 16l-1.5-4.5L6 10l4.5-1.5z',
+  curva:  'M4 20C9 20 8 5 20 4',
+  mixer:  'M6 4v16M12 4v16M18 4v16|dot2:6,9|dot2:12,14|dot2:18,7',
+  adjustments:'M4 8h10M18 8h2M4 16h4M12 16h8|circle:15,8,2.2|circle:9,16,2.2'
+};
+
+function IconeAba({ nome }) {
+  const def = ICONES_ABA[nome];
+  if (!def) return null;
+
+  const partes = def.split('|');
+  return (
+    <svg className="aj-aba-ic" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" strokeWidth="1.7"
+         strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {partes.map((parte, i) => {
+        if (parte.startsWith('circle:')) {
+          const [cx, cy, r] = parte.slice(7).split(',').map(Number);
+          return <circle key={i} cx={cx} cy={cy} r={r} />;
+        }
+        if (parte.startsWith('dot:')) {
+          const [cx, cy] = parte.slice(4).split(',').map(Number);
+          return <circle key={i} cx={cx} cy={cy} r="1.2" fill="currentColor" stroke="none" />;
+        }
+        if (parte.startsWith('dot2:')) {
+          const [cx, cy] = parte.slice(5).split(',').map(Number);
+          return <circle key={i} cx={cx} cy={cy} r="2.4" fill="currentColor" stroke="none" />;
+        }
+        return <path key={i} d={parte} />;
+      })}
     </svg>
   );
 }
