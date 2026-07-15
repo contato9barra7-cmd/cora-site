@@ -311,6 +311,12 @@ export default function PainelUpscale({
 
       {erro && <p className="up-erro">{erro}</p>}
 
+      {base && base.w > 0 && (
+        <p className="up-dimensoes">
+          {base.w} × {base.h} → {base.w * st.scale} × {base.h * st.scale} px
+        </p>
+      )}
+
       {/* ── Gerar ── */}
       <button className="cr-btn-gerar up-gerar" onClick={gerar} disabled={!base}>
         <span>Fazer upscale</span>
