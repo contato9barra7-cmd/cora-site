@@ -10541,7 +10541,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .up-ajuda:hover .up-ajuda-bolha, .up-ajuda:focus .up-ajuda-bolha { opacity: 1; visibility: visible; }
 
 .up-erro { font-size: 12px; color: #e0405a; margin: 6px 0; }
-.up-gerar { margin-top: 8px; }
+.up-gerar { margin-top: 16px; width: 100%; }
 
 /* Presets */
 .up-preset-row { display: flex; gap: 6px; align-items: center; }

@@ -157,17 +157,20 @@ export default function PainelUpscale({
   async function gerar() {
     if (!base) { setErro('Suba uma imagem primeiro'); return; }
     setErro('');
-    setOcupado(true);
+
+    // Não trava o botão: cada upscale segue por conta própria e o resultado
+    // cai no feed quando fica pronto. A pessoa pode disparar vários.
+    const baseAtual = base.base64;
 
     onProgresso && onProgresso({
       feito: 0, total: 1, estado: 'processando',
-      base: 'data:image/png;base64,' + base.base64
+      base: 'data:image/png;base64,' + baseAtual
     });
 
     try {
       const r = await upscaleImagem({
         modo,
-        image: base.base64,
+        image: baseAtual,
         scale: st.scale,
         flavor: st.flavor, sharpen: st.sharpen, smart_grain: st.smart_grain,
         optimized_for: st.optimized_for, creativity: st.creativity, hdr: st.hdr,
@@ -176,14 +179,13 @@ export default function PainelUpscale({
       });
 
       if (r.imagem) {
-        onPronto && onPronto({ imagens: [r.imagem], prompt: r.prompt, isUpscale: true, origem: base.base64 });
+        onPronto && onPronto({ imagens: [r.imagem], prompt: r.prompt, isUpscale: true, origem: baseAtual });
       } else {
         setErro('Não foi possível fazer o upscale');
       }
     } catch (e) {
       setErro(e.message);
     } finally {
-      setOcupado(false);
       onProgresso && onProgresso(null);
     }
   }
@@ -310,9 +312,9 @@ export default function PainelUpscale({
       {erro && <p className="up-erro">{erro}</p>}
 
       {/* ── Gerar ── */}
-      <button className="cr-btn-gerar up-gerar" onClick={gerar} disabled={ocupado || !base}>
-        <span>{ocupado ? 'Processando...' : 'Fazer upscale'}</span>
-        {!ocupado && base && (
+      <button className="cr-btn-gerar up-gerar" onClick={gerar} disabled={!base}>
+        <span>Fazer upscale</span>
+        {base && (
           <span className="cr-custo-tag"><IconeCredito /> {custo}</span>
         )}
       </button>
