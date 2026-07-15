@@ -23,6 +23,10 @@ import {
   paramsPadrao, temAjuste, aplicarPixels, aplicarEmCanvas,
   ABAS_AJUSTE, CORES_MIXER, CANAIS_CURVA, curvaLUT, equilibrioDeBranco
 } from '../lib/ajustes';
+import {
+  novaMascara, pincelar, comporAlpha, aplicarMascaras, overlayVermelho,
+  BRUSH_PADRAO
+} from '../lib/mascaras';
 
 const LADO_PREVIA = 1400;
 
@@ -52,6 +56,19 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   const [processando, setProc] = useState(false);
   const [pegandoWB, setPegandoWB] = useState(false);   // conta-gotas ativo
 
+  // ── Máscaras ──
+  // `mascaras` é a lista; `mascaraAtiva` é o índice em edição (null = global,
+  // ajusta a imagem toda). `ferramenta` é pincel/linear/radial; `modoComp` diz
+  // se a próxima pincelada soma ou subtrai; `brush` guarda tamanho/fluxo/etc.
+  const [mascaras, setMascaras] = useState([]);
+  const [mascaraAtiva, setMascaraAtiva] = useState(null);
+  const [ferramenta, setFerramenta] = useState(null);
+  const [modoComp, setModoComp] = useState('add');
+  const [brush, setBrush] = useState(BRUSH_PADRAO);
+  const pintandoRef = useRef(false);
+  const compRef = useRef(null);   // componente sendo pintado agora
+  const mascarasRef = useRef([]); // espelho de `mascaras` para a pintura ao vivo
+
   const telaRef  = useRef(null);
   const baseRef  = useRef(null);   // a cópia reduzida, já pronta
   const timerRef = useRef(null);
@@ -69,55 +86,98 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
 
     baseRef.current = c;
-    desenhar(p);
+    desenhar(p, [], null, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [camada]);
 
+  // O ref acompanha o estado para a pintura ao vivo ler a versão mais recente
+  // sem esperar o React re-renderizar.
+  useEffect(() => { mascarasRef.current = mascaras; }, [mascaras]);
+
   // ── Desenhar ──
-  const desenhar = useCallback((params) => {
+  //
+  // Aplica os ajustes GLOBAIS e, por cima, os de cada máscara (só onde o alpha
+  // dela incide). Se uma máscara está sendo editada, pinta um overlay vermelho
+  // mostrando a região dela.
+  const desenhar = useCallback((params, masks, ativa, verOverlay) => {
     const base = baseRef.current;
     const tela = telaRef.current;
     if (!base || !tela) return;
 
-    tela.width  = base.width;
-    tela.height = base.height;
+    const w = base.width, h = base.height;
+    tela.width = w; tela.height = h;
 
     const cx = tela.getContext('2d');
     cx.drawImage(base, 0, 0);
 
-    if (!temAjuste(params)) return;
+    const lista = masks || [];
+    const temGlobal = temAjuste(params);
+    const temMasc = lista.some((m) => m.visivel !== false && temAjuste(m.params));
 
-    const img = cx.getImageData(0, 0, tela.width, tela.height);
-    aplicarPixels(img.data, tela.width, tela.height, params);
-    cx.putImageData(img, 0, 0);
+    if (temGlobal || temMasc) {
+      const img = cx.getImageData(0, 0, w, h);
+      if (temGlobal) aplicarPixels(img.data, w, h, params);
+      if (temMasc) aplicarMascaras(img.data, w, h, lista);
+      cx.putImageData(img, 0, 0);
+    }
+
+    // O overlay vermelho da máscara em edição.
+    if (verOverlay && ativa != null && lista[ativa] && lista[ativa].componentes.length) {
+      const ov = overlayVermelho(lista[ativa], w, h);
+      cx.drawImage(ov, 0, 0);
+    }
   }, []);
+
+  // Redesenha com o estado atual (atalho, para não repetir os 4 args).
+  const redesenhar = useCallback((np, nm, na) => {
+    desenhar(
+      np !== undefined ? np : p,
+      nm !== undefined ? nm : mascaras,
+      na !== undefined ? na : mascaraAtiva,
+      (na !== undefined ? na : mascaraAtiva) != null
+    );
+  }, [desenhar, p, mascaras, mascaraAtiva]);
+
+  // Grava uma mudança nos params CERTOS: os da máscara ativa, ou os globais.
+  // Devolve { p, mascaras } já atualizados, para redesenhar.
+  function comMudanca(muda) {
+    if (mascaraAtiva != null && mascaras[mascaraAtiva]) {
+      const nm = mascaras.map((m, i) =>
+        i === mascaraAtiva ? { ...m, params: muda(m.params) } : m
+      );
+      setMascaras(nm);
+      return { np: p, nm };
+    }
+    const np = muda(p);
+    setP(np);
+    return { np, nm: mascaras };
+  }
+
+  function agendarDesenho(np, nm) {
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(
+      () => desenhar(np, nm, mascaraAtiva, mascaraAtiva != null),
+      40
+    );
+  }
 
   // ── Mexer num slider ──
   function mexer(grupo, chave, valor) {
-    const novo = { ...p, [grupo]: { ...p[grupo], [chave]: valor } };
-    setP(novo);
-
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => desenhar(novo), 40);
+    const { np, nm } = comMudanca((pr) => ({ ...pr, [grupo]: { ...pr[grupo], [chave]: valor } }));
+    agendarDesenho(np, nm);
   }
 
   function mexerMixer(corK, campo, valor) {
-    const novo = {
-      ...p,
-      mixer: { ...p.mixer, [corK]: { ...p.mixer[corK], [campo]: valor } }
-    };
-    setP(novo);
-
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => desenhar(novo), 40);
+    const { np, nm } = comMudanca((pr) => ({
+      ...pr,
+      mixer: { ...pr.mixer, [corK]: { ...pr.mixer[corK], [campo]: valor } }
+    }));
+    agendarDesenho(np, nm);
   }
 
   function trocarCurva(pontos) {
-    const novo = { ...p, curva: { ...p.curva, [canal]: pontos } };
-    setP(novo);
-
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => desenhar(novo), 40);
+    const { np, nm } = comMudanca((pr) => ({ ...pr, curva: { ...pr.curva, [canal]: pontos } }));
+    agendarDesenho(np, nm);
   }
 
   // ── O conta-gotas do equilíbrio de branco ──
@@ -142,54 +202,149 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     const { temp, tint } = equilibrioDeBranco(px[0], px[1], px[2]);
     const novo = { ...p, cor: { ...p.cor, temp, tint } };
     setP(novo);
-    desenhar(novo);
+    desenhar(novo, mascaras, mascaraAtiva, mascaraAtiva != null);
     setPegandoWB(false);
   }
 
   function resetar() {
     const z = paramsPadrao();
     setP(z);
-    desenhar(z);
+    setMascaras([]);
+    setMascaraAtiva(null);
+    setFerramenta(null);
+    desenhar(z, [], null, false);
   }
 
-  // Zerar só a aba aberta. Quem passou meia hora na curva não quer perder tudo
-  // porque errou um slider da Luz.
+  // Zerar só a aba aberta — nos params ATIVOS (máscara ou global).
   function resetarAba() {
     const z = paramsPadrao();
-
-    if (aba === 'mixer') {
-      const novo = { ...p, mixer: z.mixer };
-      setP(novo); desenhar(novo); return;
-    }
-    if (aba === 'curva') {
-      const novo = { ...p, curva: z.curva };
-      setP(novo); desenhar(novo); return;
-    }
-
-    const g = ABAS_AJUSTE.find((a) => a.id === aba)?.grupo;
-    if (!g) return;
-
-    const novo = { ...p, [g]: z[g] };
-    setP(novo);
-    desenhar(novo);
+    const muda = (pr) => {
+      if (aba === 'mixer') return { ...pr, mixer: z.mixer };
+      if (aba === 'curva') return { ...pr, curva: z.curva };
+      const g = ABAS_AJUSTE.find((a) => a.id === aba)?.grupo;
+      return g ? { ...pr, [g]: z[g] } : pr;
+    };
+    const { np, nm } = comMudanca(muda);
+    desenhar(np, nm, mascaraAtiva, mascaraAtiva != null);
   }
 
   // ── OK ──
-  // Só aqui a conta corre no tamanho real. E corre uma vez.
+  // Só aqui a conta corre no tamanho real. E corre uma vez. Aplica globais e,
+  // por cima, as máscaras (em escala cheia).
   async function aplicar() {
-    if (!temAjuste(p)) { aoFechar(); return; }
+    const temMasc = mascaras.some((m) => m.visivel !== false && temAjuste(m.params));
+    if (!temAjuste(p) && !temMasc) { aoFechar(); return; }
 
     setProc(true);
-
-    // Deixa o navegador pintar o "processando" antes de travar na conta
     await new Promise((r) => setTimeout(r, 20));
 
+    // Em tamanho real: aplica global no canvas, depois as máscaras nos pixels.
     const c = aplicarEmCanvas(camada.canvas, p);
-    aoAplicar(c, p);
+    if (temMasc) {
+      const cx = c.getContext('2d');
+      const img = cx.getImageData(0, 0, c.width, c.height);
+      // As máscaras têm alpha do tamanho do preview; aplicarMascaras reescala.
+      aplicarMascaras(img.data, c.width, c.height, mascaras);
+      cx.putImageData(img, 0, 0);
+    }
+    aoAplicar(c, { ...p, _mascaras: mascaras });
     setProc(false);
   }
 
+  // ═══════════ Ações de máscara ═══════════
+  function criarMascara() {
+    const base = baseRef.current;
+    const nm = [...mascaras, novaMascara(base.width, base.height, mascaras.length + 1)];
+    const idx = nm.length - 1;
+    setMascaras(nm);
+    setMascaraAtiva(idx);
+    setFerramenta('pincel');
+    setModoComp('add');
+    setAba('luz');
+    redesenhar(undefined, nm, idx);
+  }
+  function selMascara(idx) {
+    setMascaraAtiva(idx);
+    setFerramenta(null);
+    redesenhar(undefined, mascaras, idx);
+  }
+  function sairMascara() {
+    setMascaraAtiva(null);
+    setFerramenta(null);
+    desenhar(p, mascaras, null, false);
+  }
+  function delMascara(idx, e) {
+    if (e) e.stopPropagation();
+    const nm = mascaras.filter((_, i) => i !== idx);
+    let na = mascaraAtiva;
+    if (mascaraAtiva === idx) na = null;
+    else if (mascaraAtiva != null && mascaraAtiva > idx) na = mascaraAtiva - 1;
+    setMascaras(nm);
+    setMascaraAtiva(na);
+    desenhar(p, nm, na, na != null);
+  }
+  function toggleVis(idx, e) {
+    if (e) e.stopPropagation();
+    const nm = mascaras.map((m, i) => i === idx ? { ...m, visivel: m.visivel === false } : m);
+    setMascaras(nm);
+    redesenhar(undefined, nm);
+  }
+  function escolherFerramenta(f) {
+    setFerramenta(f);
+  }
+
+  // ── Pintar a máscara com o pincel ──
+  //
+  // Cada arrasto do mouse cria (ou continua) um componente 'pincel' na máscara
+  // ativa, escrevendo círculos macios no bitmap dele. O preview atualiza ao
+  // vivo, com o overlay vermelho mostrando onde a máscara incide.
+  function pontoNaBase(e) {
+    const base = baseRef.current;
+    const tela = telaRef.current;
+    const r = tela.getBoundingClientRect();
+    return {
+      x: (e.clientX - r.left) / r.width  * base.width,
+      y: (e.clientY - r.top)  / r.height * base.height
+    };
+  }
+
+  function comecarPincel(e) {
+    if (pegandoWB) return;   // o conta-gotas tem prioridade
+    if (mascaraAtiva == null || ferramenta !== 'pincel') return;
+
+    pintandoRef.current = true;
+    const comp = { tipo: 'pincel', modo: modoComp, bitmap: null };
+    compRef.current = comp;
+
+    // adiciona o componente à máscara ativa
+    setMascaras((ms) => ms.map((m, i) =>
+      i === mascaraAtiva ? { ...m, componentes: [...m.componentes, comp] } : m
+    ));
+    pintarEm(e);
+  }
+
+  function pintarEm(e) {
+    if (!pintandoRef.current || !compRef.current) return;
+    const base = baseRef.current;
+    const { x, y } = pontoNaBase(e);
+
+    pincelar(compRef.current, x, y, brush.tamanho, brush.difusao, brush.fluxo, base.width, base.height);
+
+    // Redesenha com overlay, sem debounce (a pincelada precisa acompanhar o dedo)
+    desenhar(p, mascarasRef.current, mascaraAtiva, true);
+  }
+
+  function soltarPincel() {
+    pintandoRef.current = false;
+    compRef.current = null;
+  }
+
   const abaAtual = ABAS_AJUSTE.find((a) => a.id === aba);
+
+  // Os params que os sliders leem/escrevem: da máscara ativa, ou os globais.
+  const pAtivo = (mascaraAtiva != null && mascaras[mascaraAtiva])
+    ? mascaras[mascaraAtiva].params
+    : p;
 
   return (
     <div className="aj-fundo" onClick={aoFechar}>
@@ -207,8 +362,17 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
 
         <div className="aj-corpo">
 
-          <div className={'aj-previa' + (pegandoWB ? ' aj-previa--wb' : '')}>
-            <canvas ref={telaRef} onClick={clicarWB} />
+          <div className={'aj-previa'
+            + (pegandoWB ? ' aj-previa--wb' : '')
+            + (mascaraAtiva != null && ferramenta === 'pincel' ? ' aj-previa--pincel' : '')}>
+            <canvas
+              ref={telaRef}
+              onClick={clicarWB}
+              onMouseDown={comecarPincel}
+              onMouseMove={pintarEm}
+              onMouseUp={soltarPincel}
+              onMouseLeave={soltarPincel}
+            />
           </div>
 
           <aside className="aj-lado">
@@ -231,6 +395,118 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
             </nav>
 
             <div className="aj-painel">
+
+              {/* ═══════════ Máscaras ═══════════ */}
+              <div className="aj-msk">
+                {mascaraAtiva != null && (
+                  <button className="aj-msk-voltar" onClick={sairMascara}>
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none"
+                         stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
+                         strokeLinejoin="round" aria-hidden="true">
+                      <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                    Voltar aos ajustes
+                  </button>
+                )}
+
+                <button className="aj-msk-criar" onClick={criarMascara}>
+                  <span className="aj-msk-circ" />
+                  Criar máscara
+                </button>
+
+                {mascaras.length > 0 && (
+                  <div className="aj-msk-lista">
+                    <div
+                      className={'aj-msk-item' + (mascaraAtiva == null ? ' aj-msk-item--on' : '')}
+                      onClick={sairMascara}
+                    >
+                      <span className="aj-msk-thumb aj-msk-thumb--global" />
+                      <span className="aj-msk-nome">Imagem toda (global)</span>
+                    </div>
+
+                    {mascaras.map((m, i) => (
+                      <div
+                        key={i}
+                        className={'aj-msk-item' + (mascaraAtiva === i ? ' aj-msk-item--on' : '')}
+                        onClick={() => selMascara(i)}
+                      >
+                        <span className="aj-msk-thumb" />
+                        <span className="aj-msk-nome">{m.nome}</span>
+                        <button className="aj-msk-olho" onClick={(e) => toggleVis(i, e)}
+                                title="Mostrar/ocultar" aria-label="Mostrar/ocultar">
+                          {m.visivel === false
+                            ? <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M17.9 17.9A10 10 0 0 1 12 19c-7 0-11-7-11-7a18 18 0 0 1 5-5.9M9.9 4.2A9 9 0 0 1 12 4c7 0 11 7 11 7a18 18 0 0 1-2.2 3.2m-6.7-1.1a3 3 0 1 1-4.2-4.2" /><path d="M1 1l22 22" /></svg>
+                            : <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" /></svg>}
+                        </button>
+                        <button className="aj-msk-del" onClick={(e) => delMascara(i, e)}
+                                aria-label="Excluir">×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Com máscara ativa: modo, ferramentas e opções do pincel */}
+                {mascaraAtiva != null && (
+                  <>
+                    <div className="aj-msk-modo">
+                      <button
+                        className={'aj-msk-modo-b' + (modoComp === 'add' ? ' aj-msk-modo-b--on' : '')}
+                        onClick={() => setModoComp('add')}
+                      >+ Adicionar</button>
+                      <button
+                        className={'aj-msk-modo-b' + (modoComp === 'sub' ? ' aj-msk-modo-b--on' : '')}
+                        onClick={() => setModoComp('sub')}
+                      >− Subtrair</button>
+                    </div>
+
+                    <div className="aj-msk-ferrs">
+                      {[
+                        ['pincel', 'brush', 'Pincel'],
+                        ['linear', 'linear', 'Linear'],
+                        ['radial', 'radial', 'Radial']
+                      ].map(([id, ic, nome]) => (
+                        <button
+                          key={id}
+                          className={'aj-msk-ferr' + (ferramenta === id ? ' aj-msk-ferr--on' : '')}
+                          onClick={() => escolherFerramenta(id)}
+                        >
+                          <IconeFerr nome={ic} />
+                          <span>{nome}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {ferramenta === 'pincel' && (
+                      <div className="aj-msk-brush">
+                        {[
+                          ['tamanho', 'Tamanho', 1, 200],
+                          ['difusao', 'Difusão', 0, 100],
+                          ['fluxo', 'Fluxo', 1, 100]
+                        ].map(([k, nome, mn, mx]) => (
+                          <div key={k} className="aj-sl">
+                            <div className="aj-sl-topo">
+                              <span>{nome}</span>
+                              <span className="aj-sl-v">{brush[k]}</span>
+                            </div>
+                            <input
+                              type="range" min={mn} max={mx} value={brush[k]}
+                              onChange={(e) => setBrush({ ...brush, [k]: +e.target.value })}
+                              aria-label={nome}
+                            />
+                          </div>
+                        ))}
+                        <p className="aj-msk-dica">Arraste sobre a imagem para desenhar a máscara.</p>
+                      </div>
+                    )}
+
+                    {(ferramenta === 'linear' || ferramenta === 'radial') && (
+                      <p className="aj-msk-dica">
+                        O degradê {ferramenta === 'linear' ? 'linear' : 'radial'} chega em breve. Por ora, use o Pincel.
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
 
               <div className="aj-cab">
                 <span className="aj-cab-t">
@@ -268,7 +544,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                 abaAtual.sliders.map((s) => {
                   // Os filhos (ponto médio, tamanho do grão) só fazem sentido
                   // com o pai ligado — sem ele não há vinheta nem grão a ajustar.
-                  const pai = s.filho ? p[abaAtual.grupo][s.filho] : null;
+                  const pai = s.filho ? pAtivo[abaAtual.grupo][s.filho] : null;
                   const morto = s.filho && !pai;
 
                   return (
@@ -286,14 +562,14 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                             className="aj-sl-v"
                             onClick={() => mexer(abaAtual.grupo, s.k, paramsPadrao()[abaAtual.grupo][s.k])}
                             title="Voltar ao padrão"
-                          >{p[abaAtual.grupo][s.k]}</button>
+                          >{pAtivo[abaAtual.grupo][s.k]}</button>
                         </div>
                         <input
                           type="range"
                           className={s.grad ? 'aj-sl-grad' : ''}
                           style={s.grad ? { background: s.grad } : null}
                           min={s.min} max={s.max}
-                          value={p[abaAtual.grupo][s.k]}
+                          value={pAtivo[abaAtual.grupo][s.k]}
                           disabled={morto}
                           onChange={(e) => mexer(abaAtual.grupo, s.k, comTrava(+e.target.value, s.min, s.max))}
                           onDoubleClick={() => mexer(abaAtual.grupo, s.k, paramsPadrao()[abaAtual.grupo][s.k])}
@@ -319,7 +595,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                   </div>
 
                   <Curva
-                    pontos={p.curva[canal]}
+                    pontos={pAtivo.curva[canal]}
                     cor={CANAIS_CURVA.find((c) => c.k === canal).cor}
                     onMudar={trocarCurva}
                   />
@@ -354,11 +630,11 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                           className="aj-sl-v"
                           onClick={() => mexerMixer(cor, k, 0)}
                           title="Voltar a zero"
-                        >{p.mixer[cor][k]}</button>
+                        >{pAtivo.mixer[cor][k]}</button>
                       </div>
                       <input
                         type="range" min="-100" max="100"
-                        value={p.mixer[cor][k]}
+                        value={pAtivo.mixer[cor][k]}
                         onChange={(e) => mexerMixer(cor, k, comTrava(+e.target.value, -100, 100))}
                         onDoubleClick={() => mexerMixer(cor, k, 0)}
                         aria-label={nome}
@@ -529,6 +805,31 @@ function IconeAba({ nome }) {
           const [cx, cy] = parte.slice(5).split(',').map(Number);
           return <circle key={i} cx={cx} cy={cy} r="2.4" fill="currentColor" stroke="none" />;
         }
+        return <path key={i} d={parte} />;
+      })}
+    </svg>
+  );
+}
+
+// Ícones das ferramentas de máscara (pincel, linear, radial).
+const ICONES_FERR = {
+  brush:  'M9.5 14.5l-2 2c-1 1-3 1.2-3.5.5s-.5-2.5.5-3.5l2-2|path:M14 4l6 6-7 7-6-6z',
+  linear: 'M3 6h18M3 12h18M3 18h18|path:M4 4l16 16',
+  radial: 'circle:12,12,9|circle:12,12,4'
+};
+function IconeFerr({ nome }) {
+  const def = ICONES_FERR[nome];
+  if (!def) return null;
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+         stroke="currentColor" strokeWidth="1.6"
+         strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {def.split('|').map((parte, i) => {
+        if (parte.startsWith('circle:')) {
+          const [cx, cy, r] = parte.slice(7).split(',').map(Number);
+          return <circle key={i} cx={cx} cy={cy} r={r} />;
+        }
+        if (parte.startsWith('path:')) return <path key={i} d={parte.slice(5)} />;
         return <path key={i} d={parte} />;
       })}
     </svg>

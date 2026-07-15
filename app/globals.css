@@ -8718,6 +8718,159 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 /* Com o conta-gotas ativo, a prévia vira alvo de clique. */
 .aj-previa--wb canvas { cursor: crosshair; }
+.aj-previa--pincel canvas { cursor: crosshair; }
+
+/* ═══════════ Painel de máscaras ═══════════ */
+.aj-msk {
+  padding-bottom: 14px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.aj-msk-voltar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--ink3);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 10px;
+}
+.aj-msk-voltar:hover { color: var(--accent); }
+
+.aj-msk-criar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 10px;
+  background: var(--paper);
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  color: var(--ink2);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+.aj-msk-criar:hover { border-color: var(--accent); color: var(--accent); }
+.aj-msk-circ {
+  width: 15px; height: 15px;
+  border: 1.6px dashed var(--accent);
+  border-radius: 50%;
+}
+
+.aj-msk-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 12px;
+}
+.aj-msk-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 7px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .12s;
+}
+.aj-msk-item:hover { background: var(--wash); }
+.aj-msk-item--on { background: var(--accent-bg); }
+.aj-msk-thumb {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  background: #222;
+  background-image: radial-gradient(circle at 60% 40%, #fff, #000);
+  flex-shrink: 0;
+}
+.aj-msk-thumb--global {
+  background: linear-gradient(135deg, #555, #888);
+}
+.aj-msk-nome {
+  flex: 1;
+  font-size: 11px;
+  color: var(--ink2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aj-msk-item--on .aj-msk-nome { color: var(--accent); font-weight: 500; }
+.aj-msk-olho, .aj-msk-del {
+  background: none;
+  border: none;
+  color: var(--ink3);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+.aj-msk-del { font-size: 16px; line-height: 1; }
+.aj-msk-olho:hover, .aj-msk-del:hover { color: var(--accent); }
+
+.aj-msk-modo {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+.aj-msk-modo-b {
+  flex: 1;
+  padding: 7px;
+  border-radius: 8px;
+  border: 1px solid var(--line2);
+  background: var(--paper);
+  color: var(--ink3);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+.aj-msk-modo-b--on {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.aj-msk-ferrs {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+.aj-msk-ferr {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  border: 1px solid var(--line2);
+  background: var(--paper);
+  color: var(--ink3);
+  font-size: 9.5px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+.aj-msk-ferr--on {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.aj-msk-brush { margin-top: 14px; }
+.aj-msk-dica {
+  font-size: 10.5px;
+  color: var(--ink3);
+  line-height: 1.45;
+  margin: 8px 0 0;
+}
 
 /* ── A curva ── */
 .aj-canais {
