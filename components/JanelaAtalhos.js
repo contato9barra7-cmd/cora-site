@@ -125,6 +125,16 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
     aoFechar();
   }
 
+  // Volta todas as ferramentas às teclas de fábrica (só no rascunho — a pessoa
+  // ainda precisa Salvar para valer).
+  function restaurarPadrao() {
+    const p = {};
+    for (const f of FERRAMENTAS) p[f.id] = f.tecla;
+    setRascunho(p);
+    setGravando(null);
+    setAviso('');
+  }
+
   return (
     <div className="aj-fundo" onClick={aoFechar}>
       <div className="at-win" onClick={(e) => e.stopPropagation()}>
@@ -201,6 +211,8 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
         </div>
 
         <footer className="at-pe">
+          <button className="ps-b at-restaurar" onClick={restaurarPadrao}>Restaurar padrão</button>
+          <span className="aj-esticar" />
           <button className="ps-b" onClick={aoFechar}>Cancelar</button>
           <button className="ps-b ps-b--on" onClick={salvar} disabled={!mudou}>
             Salvar
