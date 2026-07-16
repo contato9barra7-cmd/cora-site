@@ -150,7 +150,7 @@ function proporcaoMaisProxima(w, h) {
   return melhor;
 }
 
-export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico }) {
+export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagemInicial }) {
   // ── A pilha ──
   // A ordem é de CIMA para baixo, como na coluna. camadas[0] é a do topo.
   const [camadas, setCamadas] = useState([]);
@@ -670,6 +670,16 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico }) {
     abrir(src, null, picker === 'camada');
     setPicker(null);
   }
+
+  // Imagem trazida de outra aba (ex.: uma etapa do timelapse "enviar para pós").
+  const posInicialRef = useRef(null);
+  useEffect(() => {
+    if (imagemInicial && imagemInicial.base64 && imagemInicial.base64 !== posInicialRef.current) {
+      posInicialRef.current = imagemInicial.base64;
+      abrir('data:image/png;base64,' + imagemInicial.base64, 'Imagem', false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imagemInicial]);
 
 
   // ═══ O histórico ═══

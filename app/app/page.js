@@ -322,8 +322,13 @@ export default function AppPage() {
   // Imagem vinda de outra aba (o botão "Editar" do visualizador)
   const [imagemDeOutraAba, setImagemDeOutraAba] = useState(null);
   // Guarda onde a pessoa estava dentro da aba Animação (seletor + ferramenta
-  // de sequência aberta), para não resetar ao trocar de aba e voltar.
-  const [navAnimacao, setNavAnimacao] = useState({ secao: 'animacao', ferramenta: null });
+  // de sequência aberta) E os dados do timelapse (imagem, sequência gerada),
+  // para não perder nada ao trocar de aba e voltar.
+  const [navAnimacao, setNavAnimacao] = useState({
+    secao: 'animacao',
+    ferramenta: null,
+    tl: { base: null, res: '2k', etapas: [], imgs: [] }
+  });
 
   const [filtro, setFiltro]         = useState('tudo');
   const [busca, setBusca]           = useState('');
@@ -574,6 +579,19 @@ export default function AppPage() {
     }
   }
 
+  // Envia uma imagem em base64 (que ainda não está no feed, ex.: uma etapa do
+  // timelapse) para outra aba. Aceita um "slot" opcional (ex.: 'fim' na
+  // animação) para a aba de destino saber onde colocar.
+  function enviarBase64Para(destino, base64, slot) {
+    setImagemDeOutraAba({
+      base64,
+      previa: 'data:image/png;base64,' + base64,
+      para: destino,
+      slot: slot || null
+    });
+    setFerramenta(destino);
+  }
+
   function aoGerar(r) {
     setUltimoLote({ loteId: r.loteId, assinatura: r.assinatura, prompt: r.prompt, quantas: r.quantas });
     recarregarComFolga();   // o banco pode não ter salvado ainda
@@ -625,6 +643,7 @@ export default function AppPage() {
       <AppShell>
         <div className="cr-tela">
           <PainelPos
+            imagemInicial={imagemDeOutraAba?.para === 'pos' ? imagemDeOutraAba : null}
             aoSair={() => setFerramenta('render')}
             aoSalvarHistorico={async (dataUrl, extras) => {
               // A imagem editada vai para o feed, ao lado das gerações de IA.
@@ -759,6 +778,7 @@ export default function AppPage() {
               ehAdmin={ehAdmin}
               nav={navAnimacao}
               onNav={setNavAnimacao}
+              onEnviarBase64={enviarBase64Para}
               onIniciar={(base, prop) => iniciarGeracaoAtiva(base, 'Gerando animação', prop)}
               onTerminar={(id) => { terminarGeracaoAtiva(id); recarregarComFolga(); }}
             />

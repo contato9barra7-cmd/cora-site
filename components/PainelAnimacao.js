@@ -43,24 +43,37 @@ const DURACOES = {
 const AUDIO_SUP = { 'v2-1': false, 'v2-5': false, 'v2-6': true, 'v3': true };
 
 export default function PainelAnimacao({
-  imagemInicial, ehAdmin, nav, onNav, onIniciar, onTerminar
+  imagemInicial, ehAdmin, nav, onNav, onEnviarBase64, onIniciar, onTerminar
 }) {
   // Seção e ferramenta vêm do pai (persistem ao trocar de aba e voltar).
   const secao = (nav && nav.secao) || 'animacao';
   const ferramenta = (nav && nav.ferramenta) || null;
   // Trocar de seção NÃO apaga a ferramenta aberta — ao voltar pra Sequências,
   // ela continua onde estava.
-  const setSecao = (s) => onNav && onNav({ secao: s, ferramenta });
-  const setFerramenta = (f) => onNav && onNav({ secao: 'sequencias', ferramenta: f });
+  const setSecao = (s) => onNav && onNav((a) => ({ ...(a || nav), secao: s }));
+  const setFerramenta = (f) => onNav && onNav((a) => ({ ...(a || nav), secao: 'sequencias', ferramenta: f }));
   // Timelapse Externo
-  const [tlBase, setTlBase]   = useState(null);   // { base64, proporcao }
-  const [tlRes, setTlRes]     = useState('2k');
+  // Dados do timelapse que NÃO podem se perder ao trocar de aba (vêm do pai).
+  const tlDados = (nav && nav.tl) || { base: null, res: '2k', etapas: [], imgs: [] };
+  const tlBase = tlDados.base;
+  const tlRes = tlDados.res || '2k';
+  const tlEtapas = tlDados.etapas || [];
+  const tlImgs = tlDados.imgs || [];
+  const patchTl = (patch) => onNav && onNav((atual) => {
+    const base = atual || nav || {};
+    const tlAtual = base.tl || tlDados;
+    return { ...base, tl: { ...tlAtual, ...patch } };
+  });
+  const setTlBase = (v) => patchTl({ base: typeof v === 'function' ? v(tlBase) : v });
+  const setTlRes = (v) => patchTl({ res: v });
+  // Transitórios (não precisam sobreviver à troca de aba).
   const [tlPopRes, setTlPopRes] = useState(false);
-  const [tlEtapas, setTlEtapas] = useState([]);   // plano de etapas (após fase 1)
-  const [tlImgs, setTlImgs]   = useState([]);     // base64 gerados, por índice
   const [tlStatus, setTlStatus] = useState('');   // texto de progresso
   const [tlRodando, setTlRodando] = useState(false);
   const [tlErro, setTlErro]   = useState('');
+  // Visualizador da imagem da sequência (índice aberto, ou null).
+  const [tlVer, setTlVer]     = useState(null);
+  const [tlFmt, setTlFmt]     = useState(false);   // popover PNG/JPEG
   const [modelo, setModelo]   = useState('');
   const [inicio, setInicio]   = useState(null);   // { base64 }
   const [fim, setFim]         = useState(null);
@@ -89,10 +102,15 @@ export default function PainelAnimacao({
     return () => document.removeEventListener('mousedown', fora);
   }, [tlPopRes]);
 
-  // Imagem vinda de outra aba (ex.: "Enviar para Animação").
+  // Imagem vinda de outra aba (ex.: "Enviar para Animação", ou uma etapa do
+  // timelapse). O slot diz se vai como início ou fim do vídeo.
   useEffect(() => {
     if (imagemInicial && imagemInicial.base64) {
-      definirInicio(imagemInicial.base64.replace(/^data:[^,]+,/, ''));
+      const b64 = imagemInicial.base64.replace(/^data:[^,]+,/, '');
+      if (imagemInicial.slot === 'fim') definirFim(b64);
+      else definirInicio(b64);
+      // garante que a pessoa cai na tela da animação (não em Sequências)
+      if (secao !== 'animacao') setSecao('animacao');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imagemInicial]);
@@ -177,28 +195,26 @@ export default function PainelAnimacao({
     if (!tlBase) { setTlErro('Suba a imagem base primeiro'); return; }
     setTlErro('');
     setTlRodando(true);
-    setTlEtapas([]);
-    setTlImgs([]);
     setTlStatus('Planejando a sequência...');
+    // Acumuladores locais: como o estado vive no pai, atualizar via closure
+    // repetido perderia escritas. Guardamos aqui e persistimos o array inteiro.
+    let etapasLocal = [];
+    let imgsLocal = [];
+    const baseB64 = tlBase.base64;
+    const prop = tlBase.proporcao || 'auto';
+    const res = tlRes;
     try {
       await gerarTimelapse(
-        {
-          image: tlBase.base64,
-          tipo: 'externo',
-          proporcao: tlBase.proporcao || 'auto',
-          resolucao: tlRes
-        },
+        { image: baseB64, tipo: 'externo', proporcao: prop, resolucao: res },
         {
           onEtapas: (etapas) => {
-            setTlEtapas(etapas);
-            setTlImgs(new Array(etapas.length).fill(null));
+            etapasLocal = etapas;
+            imgsLocal = new Array(etapas.length).fill(null);
+            patchTl({ etapas: etapasLocal, imgs: imgsLocal.slice() });
           },
           onImagem: (i, b64) => {
-            setTlImgs((prev) => {
-              const novo = prev.slice();
-              novo[i] = b64;
-              return novo;
-            });
+            imgsLocal[i] = b64;
+            patchTl({ etapas: etapasLocal, imgs: imgsLocal.slice() });
           },
           onStatus: (txt) => {
             if (txt === 'planejando') setTlStatus('Planejando a sequência...');
@@ -213,6 +229,27 @@ export default function PainelAnimacao({
     } finally {
       setTlRodando(false);
     }
+  }
+
+  // Baixa uma etapa no formato escolhido (png ou jpeg), convertendo via canvas.
+  function baixarEtapa(i, formato) {
+    const b64 = tlImgs[i];
+    if (!b64) return;
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const ctx = c.getContext('2d');
+      if (formato === 'jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); }
+      ctx.drawImage(img, 0, 0);
+      const mime = formato === 'jpeg' ? 'image/jpeg' : 'image/png';
+      const url = c.toDataURL(mime, formato === 'jpeg' ? 0.92 : undefined);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `timelapse-etapa-${i + 1}.${formato === 'jpeg' ? 'jpg' : 'png'}`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    };
+    img.src = 'data:image/png;base64,' + b64;
   }
 
   return (
@@ -486,22 +523,75 @@ export default function PainelAnimacao({
               </div>
             </div>
           )}
-          {tlRodando && <p className="seq-status">Gerando... aguarde.</p>}
+          {tlRodando && (
+            <div className="seq-gerando">
+              <p className="seq-status">{tlStatus || 'Gerando...'}</p>
+              <p className="seq-reembolso">Se falhar, os créditos voltam automaticamente.</p>
+            </div>
+          )}
 
           {/* ── Grid de resultados ── */}
           {tlEtapas.length > 0 && (
             <div className="seq-grid">
               {tlEtapas.map((et, i) => (
-                <div key={i} className="seq-slot">
-                  {tlImgs[i]
-                    ? <img src={`data:image/png;base64,${tlImgs[i]}`} alt={`Etapa ${i + 1}`} />
-                    : <div className="seq-slot-load"><span className="cr-ger-spin" /></div>}
-                  <span className="seq-slot-num">{i + 1}</span>
-                </div>
+                tlImgs[i] ? (
+                  <button key={i} className="seq-slot seq-slot--clic" onClick={() => setTlVer(i)}>
+                    <img src={`data:image/png;base64,${tlImgs[i]}`} alt={`Etapa ${i + 1}`} />
+                    <span className="seq-slot-num">{i + 1}</span>
+                  </button>
+                ) : (
+                  <div key={i} className="seq-slot">
+                    <div className="seq-slot-load"><span className="cr-ger-spin" /></div>
+                    <span className="seq-slot-num">{i + 1}</span>
+                  </div>
+                )
               ))}
             </div>
           )}
         </>
+      )}
+
+      {tlVer !== null && tlImgs[tlVer] && (
+        <div className="cr-overlay" onClick={() => { setTlVer(null); setTlFmt(false); }}>
+          <div className="vz" onClick={(e) => e.stopPropagation()}>
+            <button className="vz-x" onClick={() => { setTlVer(null); setTlFmt(false); }} aria-label="Fechar">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
+              </svg>
+            </button>
+            <div className="vz-area">
+              <img className="vz-img" src={`data:image/png;base64,${tlImgs[tlVer]}`} alt={`Etapa ${tlVer + 1}`} />
+            </div>
+            <footer className="vz-acoes">
+              <button className="vz-ico" data-tip="Imagem inicial" aria-label="Enviar como imagem inicial da animação"
+                onClick={() => { onEnviarBase64 && onEnviarBase64('animacao', tlImgs[tlVer], 'inicio'); setTlVer(null); }}>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="M4 15l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+              <button className="vz-ico" data-tip="Imagem final" aria-label="Enviar como imagem final da animação"
+                onClick={() => { onEnviarBase64 && onEnviarBase64('animacao', tlImgs[tlVer], 'fim'); setTlVer(null); }}>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="1.5"/><path d="M4 17l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 12 3.5)"/></svg>
+              </button>
+              <button className="vz-ico" data-tip="Pós-produção" aria-label="Enviar para pós-produção"
+                onClick={() => { onEnviarBase64 && onEnviarBase64('pos', tlImgs[tlVer]); setTlVer(null); }}>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 12l3-9 4 18 3-12 2 5h2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+              <div className="vz-pill-wrap">
+                <button className="vz-ico" data-tip="Baixar" aria-label="Baixar" onClick={() => setTlFmt((v) => !v)}>
+                  <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M3.5 15v1.5h13V15" strokeLinecap="round"/>
+                  </svg>
+                </button>
+                {tlFmt && (
+                  <div className="vz-fmt-pop" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={() => { baixarEtapa(tlVer, 'png'); setTlFmt(false); }}>PNG</button>
+                    <button onClick={() => { baixarEtapa(tlVer, 'jpeg'); setTlFmt(false); }}>JPEG</button>
+                  </div>
+                )}
+              </div>
+            </footer>
+          </div>
+        </div>
       )}
 
       <PickerImagem
