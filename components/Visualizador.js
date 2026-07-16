@@ -469,15 +469,21 @@ export default function Visualizador({
           ) : (
             <>
               <button className="vz-ico" onClick={() => onEnviarPara('tl-inicio', item)}
-                      data-tip="Imagem inicial" aria-label="Usar como imagem inicial da animação">
+                      data-tip="Animação - imagem inicial" aria-label="Usar como imagem inicial da animação">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="M4 15l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
               <button className="vz-ico" onClick={() => onEnviarPara('tl-fim', item)}
-                      data-tip="Imagem final" aria-label="Usar como imagem final da animação">
+                      data-tip="Animação - imagem final" aria-label="Usar como imagem final da animação">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="1.5"/><path d="M4 17l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 12 3.5)"/>
+                </svg>
+              </button>
+              <button className="vz-ico" onClick={() => onEnviarPara('posproducao', item)}
+                      data-tip="Pós-produção" aria-label="Enviar para Pós-produção">
+                <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <path d="M3 5h8M3 10h13M3 15h6" strokeLinecap="round"/><circle cx="14.5" cy="5" r="1.7"/><circle cx="11" cy="15" r="1.7"/>
                 </svg>
               </button>
             </>

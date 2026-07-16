@@ -36,7 +36,7 @@ import { gerarGenerativa } from '../../lib/render';
 
 import {
   listarGeracoes, alternarFavorito, alternarAprovado, apagarGeracao,
-  bytesDaGeracao, ROTULO_FERRAMENTA, tempoRelativo, diasAteExpirar,
+  bytesDaGeracao, substituirGeracao, ROTULO_FERRAMENTA, tempoRelativo, diasAteExpirar,
   salvarNoHistorico, urlDownloadVideo
 } from '../../lib/geracoes';
 
@@ -273,27 +273,33 @@ export default function AppPage() {
       const zip = new JSZip();
       const ext = formato === 'jpeg' ? 'jpg' : 'png';
       const todos = lotes.flatMap((l) => l.itens);
-      let nImg = 1, nVid = 1;
+      let nImg = 1, nVid = 1, ok = 0, falhas = 0;
+      console.log('[zip] selecionados:', selecionados);
       for (const id of selecionados) {
         const item = todos.find((i) => i.id === id);
         const ehVideo = item && (item.tipo === 'video' || /\.(mp4|webm)(\?|$)/i.test(item.url || ''));
+        console.log('[zip] processando', id, '| item?', !!item, '| video?', ehVideo);
         try {
           if (ehVideo) {
-            // vídeo: baixa o binário do mp4 e joga no zip como está
             const url = await urlDownloadVideo(id);
             const resp = await fetch(url);
             const buf = await resp.arrayBuffer();
             zip.file(`cora-video-${String(nVid).padStart(2, '0')}.mp4`, buf);
-            nVid++;
+            nVid++; ok++;
           } else {
-            let b64 = await bytesDaGeracao(id);     // base64 PNG do servidor
+            let b64 = await bytesDaGeracao(id);
             if (formato === 'jpeg') b64 = await pngParaJpeg(b64);
-            const bytes = base64ParaBytes(b64);     // converte p/ bytes (mais robusto que {base64:true})
+            const bytes = base64ParaBytes(b64);
             zip.file(`cora-${String(nImg).padStart(2, '0')}.${ext}`, bytes);
-            nImg++;
+            nImg++; ok++;
           }
-        } catch (e) { /* pula a que falhar */ }
+        } catch (e) {
+          falhas++;
+          console.error('[zip] falhou no id', id, ':', e && e.message);
+        }
       }
+      console.log('[zip] resultado: ok=' + ok + ' falhas=' + falhas);
+      if (!ok) throw new Error('nenhuma imagem pôde ser baixada');
       const blob = await zip.generateAsync({ type: 'blob' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -663,15 +669,27 @@ export default function AppPage() {
       let slot = null;
       if (destino === 'tl-inicio') { ferrDestino = 'animacao'; slot = 'inicio'; }
       else if (destino === 'tl-fim') { ferrDestino = 'animacao'; slot = 'fim'; }
-      else if (destino === 'pos') { ferrDestino = 'posproducao'; }
+      else if (destino === 'pos') {
+        // Pós de um item de timelapse aberto pelo FEED: abre a pós com o ciclo
+        // Pronto/Cancelar; ao concluir, SUBSTITUI a imagem no feed.
+        ferrDestino = 'pos';
+        setPosRetornoTL({ daFeed: true, geracaoId: item.id });
+      }
+      else if (destino === 'posproducao') {
+        // Pós de uma geração comum: pós normal, sem ciclo de retorno.
+        ferrDestino = 'pos';
+        setPosRetornoTL(null);
+      }
 
       // O DESTINO viaja junto: sem ele, o Render e o Editar recebiam a mesma
       // imagem, e "Enviar para Editar" a colocava nas duas abas.
+      // A Pós lê `para === 'pos'`.
+      const paraTag = ferrDestino;
       setImagemDeOutraAba({
         base64,
         previa: item.thumb || item.url,
         geracaoId: item.id,
-        para: ferrDestino,
+        para: paraTag,
         slot
       });
 
@@ -700,15 +718,30 @@ export default function AppPage() {
 
   // A Pós terminou de editar uma etapa do timelapse: guarda a imagem editada
   // para o painel de Animação recolocá-la no slot, e volta para lá.
-  function posTimelapsePronto(dataUrl) {
+  async function posTimelapsePronto(dataUrl) {
     const b64 = (dataUrl || '').split(',')[1] || '';
+    // Veio do FEED: substitui a imagem no histórico e volta pro feed.
+    if (posRetornoTL && posRetornoTL.daFeed && posRetornoTL.geracaoId) {
+      const gid = posRetornoTL.geracaoId;
+      setPosRetornoTL(null);
+      setFerramenta('render');
+      try {
+        await substituirGeracao(gid, b64);
+        recarregarComFolga();
+      } catch (e) {
+        setErro('Não foi possível substituir a imagem: ' + e.message);
+      }
+      return;
+    }
+    // Fluxo normal (painel de animação aberto): devolve ao slot.
     setPosImgEditada({ pos: posRetornoTL ? posRetornoTL.pos : null, base64: b64, ts: Date.now() });
     setPosRetornoTL(null);
     setFerramenta('animacao');
   }
   function posTimelapseCancelar() {
+    const voltaFeed = posRetornoTL && posRetornoTL.daFeed;
     setPosRetornoTL(null);
-    setFerramenta('animacao');
+    setFerramenta(voltaFeed ? 'render' : 'animacao');
   }
 
   function aoGerar(r) {

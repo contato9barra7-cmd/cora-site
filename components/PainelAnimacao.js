@@ -238,17 +238,24 @@ export default function PainelAnimacao({
   //  ocupa o slot pos = (N-1) - i.
   // Salva uma etapa no feed, com o loteId comum da sequência (para agrupar).
   // Best-effort: se falhar, a geração não é interrompida.
-  async function salvarEtapaNoFeed(b64, pos, seqId, refB64) {
+  const jaSalvasRef = useRef(new Set());
+  async function salvarEtapaNoFeed(b64, ordem, seqId, refB64) {
+    const chave = seqId + ':' + ordem;
+    if (jaSalvasRef.current.has(chave)) return;   // evita salvar a mesma 2x
+    jaSalvasRef.current.add(chave);
     try {
       await salvarEtapaTimelapse(b64, {
         loteId: seqId,
-        ordem: pos,
+        ordem: ordem,
         proporcao: tlBase && tlBase.proporcao,
         resolucao: tlRes,
         original: refB64 || null
       });
       onFeedAtualizar && onFeedAtualizar();   // recarrega o feed para a imagem aparecer na hora
-    } catch (e) { console.error('[timelapse] falha ao salvar no feed:', e && e.message); }
+    } catch (e) {
+      jaSalvasRef.current.delete(chave);   // falhou: libera pra tentar de novo
+      console.error('[timelapse] falha ao salvar no feed:', e && e.message);
+    }
   }
 
   async function rodarTimelapse(modo) {
@@ -267,8 +274,8 @@ export default function PainelAnimacao({
       const imgs = new Array(N + 1).fill(null);
       imgs[N] = baseB64;
       patchTl({ etapas, imgs: imgs.slice(), passo: 0, modo, seqId });
-      // salva a imagem enviada (a obra pronta) no feed — é a última da sequência
-      salvarEtapaNoFeed(baseB64, N, seqId);
+      // salva a imagem enviada (a obra pronta) — é o 1º card do lote (ordem 0)
+      salvarEtapaNoFeed(baseB64, 0, seqId);
 
       if (modo === 'passo') {
         // gera só a 1ª etapa e para para revisão
@@ -291,7 +298,7 @@ export default function PainelAnimacao({
           }
           acc[pos] = b64;
           patchTl({ etapas, imgs: acc.slice(), passo: i + 1, modo, seqId });
-          salvarEtapaNoFeed(b64, pos, seqId, base);
+          salvarEtapaNoFeed(b64, i + 1, seqId, base);
           base = b64;
         }
         setTlStatus('Sequência completa!');
@@ -323,7 +330,7 @@ export default function PainelAnimacao({
       const acc = imgsAtual.slice();
       acc[pos] = b64;
       patchTl({ etapas, imgs: acc, passo: i + 1, modo: 'passo', seqId: idSeq });
-      salvarEtapaNoFeed(b64, pos, idSeq, base);
+      salvarEtapaNoFeed(b64, i + 1, idSeq, base);
       setTlStatus(i + 1 >= N ? 'Sequência completa!' : `Etapa ${i + 1} pronta. Revise e gere a próxima.`);
     } catch (e) {
       setTlErro(e.message);
