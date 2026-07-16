@@ -15,7 +15,7 @@ import { useState, useEffect } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
-import { animarKling, custoAnimacao } from '../lib/render';
+import { animarKling, custoAnimacao, gerarTimelapse, custoTimelapseEtapa } from '../lib/render';
 
 const MODELOS = [
   { v: 'v2-1', n: 'Kling 2.1' },
@@ -44,6 +44,15 @@ export default function PainelAnimacao({
   imagemInicial, ehAdmin, onIniciar, onTerminar
 }) {
   const [secao, setSecao]     = useState('animacao'); // 'animacao' | 'sequencias'
+  const [ferramenta, setFerramenta] = useState(null); // null | 'tl-externo' | 'tl-interior' | 'narrativa'
+  // Timelapse Externo
+  const [tlBase, setTlBase]   = useState(null);   // { base64, proporcao }
+  const [tlRes, setTlRes]     = useState('2k');
+  const [tlEtapas, setTlEtapas] = useState([]);   // plano de etapas (após fase 1)
+  const [tlImgs, setTlImgs]   = useState([]);     // base64 gerados, por índice
+  const [tlStatus, setTlStatus] = useState('');   // texto de progresso
+  const [tlRodando, setTlRodando] = useState(false);
+  const [tlErro, setTlErro]   = useState('');
   const [modelo, setModelo]   = useState('');
   const [inicio, setInicio]   = useState(null);   // { base64 }
   const [fim, setFim]         = useState(null);
@@ -144,6 +153,49 @@ export default function PainelAnimacao({
       setErro(e.message);
     } finally {
       onTerminar && onTerminar(ativoId);
+    }
+  }
+
+  // ── Timelapse Externo: dispara a sequência inteira ──
+  async function rodarTimelapse() {
+    if (!tlBase) { setTlErro('Suba a imagem base primeiro'); return; }
+    setTlErro('');
+    setTlRodando(true);
+    setTlEtapas([]);
+    setTlImgs([]);
+    setTlStatus('Planejando a sequência...');
+    try {
+      await gerarTimelapse(
+        {
+          image: tlBase.base64,
+          tipo: 'externo',
+          proporcao: tlBase.proporcao || 'auto',
+          resolucao: tlRes
+        },
+        {
+          onEtapas: (etapas) => {
+            setTlEtapas(etapas);
+            setTlImgs(new Array(etapas.length).fill(null));
+          },
+          onImagem: (i, b64) => {
+            setTlImgs((prev) => {
+              const novo = prev.slice();
+              novo[i] = b64;
+              return novo;
+            });
+          },
+          onStatus: (txt) => {
+            if (txt === 'planejando') setTlStatus('Planejando a sequência...');
+            else if (txt === 'pronto') setTlStatus('Sequência completa!');
+            else if (txt.startsWith('etapa')) setTlStatus('Gerando ' + txt + '...');
+          }
+        }
+      );
+    } catch (e) {
+      setTlErro(e.message);
+      setTlStatus('');
+    } finally {
+      setTlRodando(false);
     }
   }
 
@@ -306,11 +358,11 @@ export default function PainelAnimacao({
 
       </>)}
 
-      {secao === 'sequencias' && (
+      {secao === 'sequencias' && !ferramenta && (
         <section className="up-bloco">
           <div className="cr-sec">Ferramentas</div>
           <div className="seq-cards">
-            <button className="seq-card" onClick={() => {}}>
+            <button className="seq-card" onClick={() => setFerramenta('tl-externo')}>
               <span className="seq-faixa" style={{ background: '#E6F1FB' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="#185FA5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V11l7-5 7 5v10"/><path d="M9 21v-6h6v6"/><path d="M2 11l10-7 10 7"/></svg>
               </span>
@@ -341,13 +393,97 @@ export default function PainelAnimacao({
         </section>
       )}
 
+      {secao === 'sequencias' && ferramenta === 'tl-externo' && (
+        <>
+          {/* ── Cabeçalho com voltar ── */}
+          <div className="seq-tela-head">
+            <button className="seq-voltar" onClick={() => !tlRodando && setFerramenta(null)} aria-label="Voltar">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <span className="cr-sec" style={{ margin: 0 }}>Timelapse Externo</span>
+          </div>
+
+          <p className="seq-hint">Gera a sequência de construção — do terreno à obra pronta — a partir de um render externo. Suba a imagem final e a IA reconstrói as etapas de trás pra frente.</p>
+
+          {/* ── Imagem base ── */}
+          <section className="up-bloco">
+            <div className="cr-sec">Imagem final (a obra pronta)</div>
+            <div className="anim-refs">
+              <button
+                className={'anim-card' + (tlBase ? ' anim-card--img' : ' anim-card--obrig')}
+                onClick={() => setPicker('tl-base')}
+              >
+                {tlBase ? (
+                  <>
+                    <img src={'data:image/png;base64,' + tlBase.base64} alt="" />
+                    <span className="anim-card-x" onClick={(e) => { e.stopPropagation(); setTlBase(null); }} aria-label="Remover">×</span>
+                  </>
+                ) : (
+                  <>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    <span className="anim-card-lbl">Imagem final</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </section>
+
+          {/* ── Resolução ── */}
+          <section className="up-bloco">
+            <div className="cr-sec">Resolução</div>
+            <div className="up-scale-row">
+              {['1k', '2k', '4k'].map((rk) => (
+                <button
+                  key={rk}
+                  className={'up-scale' + (tlRes === rk ? ' up-scale--on' : '')}
+                  onClick={() => setTlRes(rk)}
+                >{rk.toUpperCase()}</button>
+              ))}
+            </div>
+          </section>
+
+          {tlErro && <p className="up-erro">{tlErro}</p>}
+          {tlStatus && <p className="seq-status">{tlStatus}</p>}
+
+          {/* ── Gerar ── */}
+          <button className="cr-btn-gerar up-gerar" onClick={rodarTimelapse} disabled={!tlBase || tlRodando}>
+            <span>{tlRodando ? 'Gerando...' : 'Gerar sequência'}</span>
+            {tlBase && !tlRodando && (
+              <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}/etapa</span>
+            )}
+          </button>
+
+          {/* ── Grid de resultados ── */}
+          {tlEtapas.length > 0 && (
+            <div className="seq-grid">
+              {tlEtapas.map((et, i) => (
+                <div key={i} className="seq-slot">
+                  {tlImgs[i]
+                    ? <img src={`data:image/png;base64,${tlImgs[i]}`} alt={`Etapa ${i + 1}`} />
+                    : <div className="seq-slot-load"><span className="cr-ger-spin" /></div>}
+                  <span className="seq-slot-num">{i + 1}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
       <PickerImagem
         aberto={picker !== null}
         onFechar={() => setPicker(null)}
-        titulo={picker === 'fim' ? 'Imagem final' : 'Imagem inicial'}
+        titulo={picker === 'tl-base' ? 'Imagem final da obra' : picker === 'fim' ? 'Imagem final' : 'Imagem inicial'}
         onEscolher={(img) => {
           const b64 = (img.base64 || img).replace(/^data:[^,]+,/, '');
-          if (picker === 'fim') definirFim(b64);
+          if (picker === 'tl-base') {
+            const im = new Image();
+            im.onload = () => {
+              const prop = (im.naturalWidth && im.naturalHeight) ? (im.naturalWidth + ':' + im.naturalHeight) : 'auto';
+              setTlBase({ base64: b64, proporcao: prop });
+            };
+            im.onerror = () => setTlBase({ base64: b64, proporcao: 'auto' });
+            im.src = 'data:image/png;base64,' + b64;
+          } else if (picker === 'fim') definirFim(b64);
           else definirInicio(b64);
           setPicker(null);
         }}

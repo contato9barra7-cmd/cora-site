@@ -210,8 +210,18 @@ export default function PainelUpscale({
       <section className="up-bloco">
         <div className="cr-sec">Upscale de imagem</div>
         <div className="up-modo-row">
-          <button className={'up-modo' + (modo === 'precision' ? ' up-modo--on' : '')} onClick={() => setModo('precision')}>Precisão</button>
-          <button className={'up-modo' + (modo === 'creative' ? ' up-modo--on' : '')} onClick={() => setModo('creative')}>Criativo</button>
+          <button className={'up-modo up-modo--prec' + (modo === 'precision' ? ' up-modo--on' : '')} onClick={() => setModo('precision')}>
+            <span className="up-modo-faixa">
+              <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg>
+            </span>
+            <span className="up-modo-txt">Precisão</span>
+          </button>
+          <button className={'up-modo up-modo--criat' + (modo === 'creative' ? ' up-modo--on' : '')} onClick={() => setModo('creative')}>
+            <span className="up-modo-faixa">
+              <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z"/></svg>
+            </span>
+            <span className="up-modo-txt">Criativo</span>
+          </button>
         </div>
       </section>
 

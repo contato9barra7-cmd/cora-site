@@ -5678,10 +5678,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .anim-sel-faixa svg { width: 18px; height: 18px; }
 
 /* Inativo: bloco da esquerda na versão clarinha, ícone na cor forte. */
-.anim-sel-faixa--anim { background: #E9E8FC; }
-.anim-sel-faixa--anim svg { stroke: #A4A1F3; }
-.anim-sel-faixa--seq  { background: #FBE9E1; }
-.anim-sel-faixa--seq svg { stroke: #F0997B; }
+.anim-sel-faixa--anim { background: var(--wash); }
+.anim-sel-faixa--anim svg { stroke: var(--ink3); }
+.anim-sel-faixa--seq  { background: var(--wash); }
+.anim-sel-faixa--seq svg { stroke: var(--ink3); }
 
 /* Ativo: película fraquinha na cor + borda forte + bloco na cor cheia. */
 .anim-sel-btn--on { border-width: 1.5px; }
@@ -5744,6 +5744,68 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-size: 11.5px;
   line-height: 1.45;
   color: var(--ink3);
+}
+
+/* ── Tela de uma sequência (ex: Timelapse Externo) ── */
+.seq-tela-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.seq-voltar {
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border: 0.5px solid var(--line2);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink2);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.seq-voltar:hover { border-color: var(--accent); }
+.seq-hint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink3);
+  margin: 0 0 16px;
+}
+.seq-status {
+  font-size: 12px;
+  color: var(--accent);
+  line-height: 1.5;
+  margin: 4px 0 0;
+}
+.seq-grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.seq-slot {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--wash);
+  border: 0.5px solid var(--line2);
+}
+.seq-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.seq-slot-load {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+.seq-slot-num {
+  position: absolute;
+  top: 6px; left: 6px;
+  min-width: 18px; height: 18px;
+  padding: 0 5px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 100px;
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
 }
 
 .ed-card:hover:not(:disabled) {
@@ -10679,12 +10741,27 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* Modo Precisão / Criativo */
 .up-modo-row { display: flex; gap: 8px; }
 .up-modo {
-  flex: 1; padding: 9px 14px; border-radius: 100px; border: 1px solid var(--line2);
-  background: transparent; color: var(--ink2); font-size: 13px; font-weight: 600;
-  cursor: pointer; font-family: inherit; transition: all .15s;
+  flex: 1; display: flex; align-items: center; gap: 11px; padding: 0;
+  overflow: hidden; border-radius: 100px; border: 0.5px solid var(--line2);
+  background: var(--paper); cursor: pointer; font-family: inherit;
+  transition: border-color .15s, background .15s;
 }
-.up-modo:hover { border-color: var(--accent); }
-.up-modo--on { background: var(--accent); color: var(--accent-txt, #111); border-color: var(--accent); }
+.up-modo-faixa {
+  width: 42px; align-self: stretch; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 100px 0 0 100px;
+  background: var(--wash);
+}
+.up-modo-faixa svg { width: 18px; height: 18px; stroke: var(--ink3); }
+.up-modo-txt { font-size: 13px; font-weight: 500; color: var(--ink); padding: 10px 0; }
+.up-modo:hover:not(.up-modo--on) { border-color: var(--line); }
+/* Precisão = azul · Criativo = coral (só quando selecionado) */
+.up-modo--prec.up-modo--on  { border: 1.5px solid #378ADD; background: rgba(55,138,221,.14); }
+.up-modo--prec.up-modo--on .up-modo-faixa { background: #378ADD; }
+.up-modo--prec.up-modo--on .up-modo-faixa svg { stroke: #fff; }
+.up-modo--criat.up-modo--on { border: 1.5px solid #D85A30; background: rgba(216,90,48,.13); }
+.up-modo--criat.up-modo--on .up-modo-faixa { background: #D85A30; }
+.up-modo--criat.up-modo--on .up-modo-faixa svg { stroke: #fff; }
 
 /* Fator de escala */
 .up-scale-row { display: flex; gap: 8px; }
