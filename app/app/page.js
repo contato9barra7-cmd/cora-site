@@ -262,7 +262,8 @@ export default function AppPage() {
     setSelecionados([]);
     setFormatoZip(false);
   }
-  // Baixa todas as selecionadas num único .zip, no formato escolhido.
+  // Baixa todas as selecionadas num único .zip. Imagens no formato escolhido
+  // (png/jpeg); vídeos sempre como .mp4 (sem conversão).
   async function baixarZip(formato) {
     if (!selecionados.length) return;
     setFormatoZip(false);
@@ -271,16 +272,26 @@ export default function AppPage() {
       const JSZip = (await import('jszip')).default;
       const zip = new JSZip();
       const ext = formato === 'jpeg' ? 'jpg' : 'png';
-      let n = 1;
+      const todos = lotes.flatMap((l) => l.itens);
+      let nImg = 1, nVid = 1;
       for (const id of selecionados) {
+        const item = todos.find((i) => i.id === id);
+        const ehVideo = item && (item.tipo === 'video' || /\.(mp4|webm)(\?|$)/i.test(item.url || ''));
         try {
-          const b64 = await bytesDaGeracao(id);   // base64 PNG do servidor
-          let dados = b64;
-          if (formato === 'jpeg') {
-            dados = await pngParaJpeg(b64);        // converte via canvas
+          if (ehVideo) {
+            // vídeo: baixa o binário do mp4 e joga no zip como está
+            const url = await urlDownloadVideo(id);
+            const resp = await fetch(url);
+            const buf = await resp.arrayBuffer();
+            zip.file(`cora-video-${String(nVid).padStart(2, '0')}.mp4`, buf);
+            nVid++;
+          } else {
+            let b64 = await bytesDaGeracao(id);     // base64 PNG do servidor
+            if (formato === 'jpeg') b64 = await pngParaJpeg(b64);
+            const bytes = base64ParaBytes(b64);     // converte p/ bytes (mais robusto que {base64:true})
+            zip.file(`cora-${String(nImg).padStart(2, '0')}.${ext}`, bytes);
+            nImg++;
           }
-          zip.file(`cora-${String(n).padStart(2, '0')}.${ext}`, dados, { base64: true });
-          n++;
         } catch (e) { /* pula a que falhar */ }
       }
       const blob = await zip.generateAsync({ type: 'blob' });
@@ -296,6 +307,18 @@ export default function AppPage() {
     } finally {
       setBaixandoZip(false);
     }
+  }
+  // Converte base64 (com ou sem prefixo data:) em Uint8Array, limpando
+  // espaços e quebras que fazem o atob falhar silenciosamente.
+  function base64ParaBytes(b64) {
+    let limpo = String(b64 || '');
+    const virg = limpo.indexOf(',');
+    if (limpo.slice(0, 5) === 'data:' && virg !== -1) limpo = limpo.slice(virg + 1);
+    limpo = limpo.replace(/\s/g, '');
+    const bin = atob(limpo);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
   }
   // Converte um PNG base64 para JPEG base64 (fundo branco), via canvas.
   function pngParaJpeg(b64) {
@@ -634,16 +657,25 @@ export default function AppPage() {
     try {
       const base64 = await bytesDaGeracao(item.id);
 
+      // Destinos do timelapse: inicial/final vão para a Animação (com o slot
+      // certo); pós vai para a Pós-produção.
+      let ferrDestino = destino;
+      let slot = null;
+      if (destino === 'tl-inicio') { ferrDestino = 'animacao'; slot = 'inicio'; }
+      else if (destino === 'tl-fim') { ferrDestino = 'animacao'; slot = 'fim'; }
+      else if (destino === 'pos') { ferrDestino = 'posproducao'; }
+
       // O DESTINO viaja junto: sem ele, o Render e o Editar recebiam a mesma
       // imagem, e "Enviar para Editar" a colocava nas duas abas.
       setImagemDeOutraAba({
         base64,
         previa: item.thumb || item.url,
         geracaoId: item.id,
-        para: destino
+        para: ferrDestino,
+        slot
       });
 
-      setFerramenta(destino);
+      setFerramenta(ferrDestino);
     } catch (e) {
       setErro('Não foi possível carregar a imagem: ' + e.message);
     }
@@ -872,6 +904,9 @@ export default function AppPage() {
               imgEditadaPos={posImgEditada}
               onIniciar={(base, prop) => iniciarGeracaoAtiva(base, 'Gerando animação', prop)}
               onTerminar={(id) => { terminarGeracaoAtiva(id); recarregarComFolga(); }}
+              onFeedAtualizar={() => recarregarComFolga()}
+              onEtapaIniciar={(base, prop) => iniciarGeracaoAtiva('data:image/png;base64,' + base, 'Gerando etapa', prop)}
+              onEtapaTerminar={(id) => terminarGeracaoAtiva(id)}
             />
           )}
 
@@ -1402,6 +1437,16 @@ export default function AppPage() {
         const item = lote?.itens.find((i) => i.id === vendo.itemId);
         if (!item) return null;
 
+        // Navegação entre as imagens do MESMO lote (mesmo prompt).
+        const irmaos = lote.itens;
+        const idxAtual = irmaos.findIndex((i) => i.id === item.id);
+        const temAnterior = idxAtual > 0;
+        const temProximo = idxAtual < irmaos.length - 1;
+        const irPara = (novoIdx) => {
+          const alvo = irmaos[novoIdx];
+          if (alvo) setVendo({ loteId: lote.loteId, itemId: alvo.id });
+        };
+
         return (
           <Visualizador
             item={item}
@@ -1409,6 +1454,9 @@ export default function AppPage() {
             proporcao={lote.proporcao}
             prompt={lote.observacoes}
             ehAdmin={ehAdmin}
+            onAnterior={temAnterior ? () => irPara(idxAtual - 1) : null}
+            onProximo={temProximo ? () => irPara(idxAtual + 1) : null}
+            posicao={irmaos.length > 1 ? `${idxAtual + 1} / ${irmaos.length}` : null}
             onFechar={() => setVendo(null)}
             onBaixar={baixarItem}
             onFavoritar={favoritar}
@@ -1459,7 +1507,7 @@ export default function AppPage() {
               onClick={() => setFormatoZip(true)}
               disabled={!selecionados.length || baixandoZip}
             >
-              {baixandoZip ? 'Preparando...' : `Baixar (${selecionados.length})`}
+              {baixandoZip ? 'Preparando...' : `Download (${selecionados.length})`}
             </button>
           </div>
         </div>

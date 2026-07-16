@@ -2901,6 +2901,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .vz-acoes {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 3px;
   padding: 11px 14px;
   min-height: 56px;
@@ -3727,6 +3728,41 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  position: relative;
+}
+.vz-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, .38);
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background .15s;
+}
+.vz-nav:hover { background: rgba(0, 0, 0, .58); }
+.vz-nav--prev { left: 16px; }
+.vz-nav--next { right: 16px; }
+.vz-pos {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  background: rgba(0, 0, 0, .6);
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  pointer-events: none;
 }
 
 /* ═══════════════════════════════════════════════════════════

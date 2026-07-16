@@ -44,8 +44,26 @@ const DURACOES = {
 
 const AUDIO_SUP = { 'v2-1': false, 'v2-5': false, 'v2-6': true, 'v3': true };
 
+// Proporções padrão do sistema — o feed espera uma delas (ex "3:4"),
+// nunca as dimensões cruas em pixels ("1600:2846").
+const PROPORCOES_PADRAO_TL = [
+  '1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9', '4:5', '5:4', '5:7', '7:5'
+];
+function proporcaoMaisProximaTL(w, h) {
+  if (!w || !h) return 'auto';
+  const alvo = w / h;
+  let melhor = PROPORCOES_PADRAO_TL[0];
+  let menorDif = Infinity;
+  for (const p of PROPORCOES_PADRAO_TL) {
+    const [a, b] = p.split(':').map(Number);
+    const dif = Math.abs(a / b - alvo);
+    if (dif < menorDif) { menorDif = dif; melhor = p; }
+  }
+  return melhor;
+}
+
 export default function PainelAnimacao({
-  imagemInicial, ehAdmin, nav, onNav, onEnviarBase64, imgEditadaPos, onIniciar, onTerminar
+  imagemInicial, ehAdmin, nav, onNav, onEnviarBase64, imgEditadaPos, onIniciar, onTerminar, onFeedAtualizar, onEtapaIniciar, onEtapaTerminar
 }) {
   // Seção e ferramenta vêm do pai (persistem ao trocar de aba e voltar).
   const secao = (nav && nav.secao) || 'animacao';
@@ -189,7 +207,7 @@ export default function PainelAnimacao({
     setErro('');
 
     const iniB64 = inicio.base64;
-    const prop = (inicio.w && inicio.h) ? (inicio.w + ':' + inicio.h) : null;
+    const prop = proporcaoMaisProximaTL(inicio.w, inicio.h);
     const ativoId = onIniciar ? onIniciar('data:image/png;base64,' + iniB64, prop) : null;
 
     try {
@@ -220,14 +238,16 @@ export default function PainelAnimacao({
   //  ocupa o slot pos = (N-1) - i.
   // Salva uma etapa no feed, com o loteId comum da sequência (para agrupar).
   // Best-effort: se falhar, a geração não é interrompida.
-  async function salvarEtapaNoFeed(b64, pos, seqId) {
+  async function salvarEtapaNoFeed(b64, pos, seqId, refB64) {
     try {
       await salvarEtapaTimelapse(b64, {
         loteId: seqId,
         ordem: pos,
         proporcao: tlBase && tlBase.proporcao,
-        resolucao: tlRes
+        resolucao: tlRes,
+        original: refB64 || null
       });
+      onFeedAtualizar && onFeedAtualizar();   // recarrega o feed para a imagem aparecer na hora
     } catch (e) { console.error('[timelapse] falha ao salvar no feed:', e && e.message); }
   }
 
@@ -261,11 +281,17 @@ export default function PainelAnimacao({
           setTlStatus(`Gerando etapa ${i + 1} de ${N}...`);
           const et = etapas[i] || {};
           const promptEt = et.pt || et.prompt || '';
-          const b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res, primeira: i === 0 });
           const pos = (N - 1) - i;
+          const phId = onEtapaIniciar ? onEtapaIniciar(base, prop) : null;   // placeholder carregando no feed
+          let b64;
+          try {
+            b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res, primeira: i === 0 });
+          } finally {
+            onEtapaTerminar && phId && onEtapaTerminar(phId);
+          }
           acc[pos] = b64;
           patchTl({ etapas, imgs: acc.slice(), passo: i + 1, modo, seqId });
-          salvarEtapaNoFeed(b64, pos, seqId);
+          salvarEtapaNoFeed(b64, pos, seqId, base);
           base = b64;
         }
         setTlStatus('Sequência completa!');
@@ -290,18 +316,20 @@ export default function PainelAnimacao({
     const base = i === 0 ? baseInicial : (imgsAtual[posAnterior] || baseInicial);
     const et = etapas[i] || {};
     const promptEt = et.pt || et.prompt || '';
+    const phId = onEtapaIniciar ? onEtapaIniciar(base, prop) : null;   // placeholder carregando no feed
     try {
       const b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res, primeira: i === 0 });
       const pos = (N - 1) - i;
       const acc = imgsAtual.slice();
       acc[pos] = b64;
       patchTl({ etapas, imgs: acc, passo: i + 1, modo: 'passo', seqId: idSeq });
-      salvarEtapaNoFeed(b64, pos, idSeq);
+      salvarEtapaNoFeed(b64, pos, idSeq, base);
       setTlStatus(i + 1 >= N ? 'Sequência completa!' : `Etapa ${i + 1} pronta. Revise e gere a próxima.`);
     } catch (e) {
       setTlErro(e.message);
       setTlStatus('');
     } finally {
+      onEtapaTerminar && phId && onEtapaTerminar(phId);
       setTlRodando(false);
     }
   }
@@ -709,6 +737,27 @@ export default function PainelAnimacao({
             {/* barra de cima (igual ao visualizador do feed) */}
             <header className="vz-cab" />
             <div className="vz-area">
+              {tlImgs.filter(Boolean).length > 1 && (() => {
+                const cheios = tlImgs.map((im, idx) => im ? idx : -1).filter((x) => x >= 0);
+                const pos = cheios.indexOf(tlVer);
+                const anterior = pos > 0 ? cheios[pos - 1] : null;
+                const proximo = pos < cheios.length - 1 ? cheios[pos + 1] : null;
+                return (
+                  <>
+                    {anterior !== null && (
+                      <button className="vz-nav vz-nav--prev" onClick={() => setTlVer(anterior)} aria-label="Anterior">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      </button>
+                    )}
+                    {proximo !== null && (
+                      <button className="vz-nav vz-nav--next" onClick={() => setTlVer(proximo)} aria-label="Próxima">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      </button>
+                    )}
+                    <span className="vz-pos">{pos + 1} / {cheios.length}</span>
+                  </>
+                );
+              })()}
               <img className="vz-img-tl" src={`data:image/png;base64,${tlImgs[tlVer]}`} alt={`Etapa ${tlVer + 1}`} />
             </div>
             <footer className="vz-acoes">
@@ -754,7 +803,7 @@ export default function PainelAnimacao({
           if (picker === 'tl-base') {
             const im = new Image();
             im.onload = () => {
-              const prop = (im.naturalWidth && im.naturalHeight) ? (im.naturalWidth + ':' + im.naturalHeight) : 'auto';
+              const prop = proporcaoMaisProximaTL(im.naturalWidth, im.naturalHeight);
               setTlBase({ base64: b64, proporcao: prop });
             };
             im.onerror = () => setTlBase({ base64: b64, proporcao: 'auto' });
