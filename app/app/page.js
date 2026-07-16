@@ -196,6 +196,16 @@ export default function AppPage() {
   function terminarGeracaoAtiva(id) {
     setUpsAtivos((l) => l.filter((u) => u.id !== id));
   }
+  // Card "pronto" no bloco gerando: a imagem inicial do timelapse (a que a
+  // pessoa enviou) fica ao lado dos placeholders enquanto a sequência roda.
+  function mostrarInicialTimelapse(base, proporcao) {
+    const id = 'tl_inicial_' + Date.now();
+    setUpsAtivos((l) => [...l, { id, base, proporcao: proporcao || null, pronta: true }]);
+    return id;
+  }
+  function removerInicialTimelapse(id) {
+    setUpsAtivos((l) => l.filter((u) => u.id !== id));
+  }
   function aoRolarLista(e) {
     setMostrarTopo(e.target.scrollTop > 400);
   }
@@ -940,6 +950,8 @@ export default function AppPage() {
               onFeedAtualizar={() => recarregarComFolga()}
               onEtapaIniciar={(base, prop) => iniciarGeracaoAtiva('data:image/png;base64,' + base, 'Gerando etapa', prop)}
               onEtapaTerminar={(id) => terminarGeracaoAtiva(id)}
+              onMostrarInicial={(base, prop) => mostrarInicialTimelapse('data:image/png;base64,' + base, prop)}
+              onRemoverInicial={(id) => removerInicialTimelapse(id)}
             />
           )}
 
@@ -1154,21 +1166,25 @@ export default function AppPage() {
               <div className="cr-gerando" key={u.id}>
                 <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
                   <div className="cr-slot cr-slot--agora" style={{ aspectRatio: u.proporcao ? proporcaoCss(u.proporcao) : '1 / 1' }}>
-                    {u.base && <img className="cr-slot-base" src={u.base} alt="" />}
-                    <div className="cr-ger-capa">
-                      <span className="cr-ger-spin" />
-                      <span className="cr-ger-txt">{u.rotulo}</span>
-                    </div>
+                    {u.base && <img className={u.pronta ? '' : 'cr-slot-base'} src={u.base} alt="" style={u.pronta ? { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } : undefined} />}
+                    {!u.pronta && (
+                      <div className="cr-ger-capa">
+                        <span className="cr-ger-spin" />
+                        <span className="cr-ger-txt">{u.rotulo}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <p className="cr-estorno">
-                  <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.4">
-                    <circle cx="8" cy="8" r="6.2"/>
-                    <path d="M8 5.2v3.4" strokeLinecap="round"/>
-                    <circle cx="8" cy="11" r=".7" fill="currentColor" stroke="none"/>
-                  </svg>
-                  Se falhar, os créditos voltam automaticamente.
-                </p>
+                {!u.pronta && (
+                  <p className="cr-estorno">
+                    <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.4">
+                      <circle cx="8" cy="8" r="6.2"/>
+                      <path d="M8 5.2v3.4" strokeLinecap="round"/>
+                      <circle cx="8" cy="11" r=".7" fill="currentColor" stroke="none"/>
+                    </svg>
+                    Se falhar, os créditos voltam automaticamente.
+                  </p>
+                )}
               </div>
             ))}
 
@@ -1482,7 +1498,7 @@ export default function AppPage() {
 
         return (
           <Visualizador
-            item={item}
+            item={{ ...item, ferramenta: lote.ferramenta, loteId: lote.loteId }}
             original={lote.original}
             proporcao={lote.proporcao}
             prompt={lote.observacoes}

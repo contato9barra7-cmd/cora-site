@@ -128,11 +128,11 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
           {/* ── O que foi usado ──
               Tudo o que entrou nesta geração: o print de origem e as
               referências de estilo. Meses depois, ninguém lembra. */}
-          {lote.original && (
+          {(item?.original || lote.original) && (
             <>
               <div className="dt-sec">Imagem de origem</div>
               <div className="dt-imgs">
-                <img className="dt-img" src={lote.original} alt="" />
+                <img className="dt-img" src={item?.original || lote.original} alt="" />
               </div>
             </>
           )}
@@ -148,7 +148,7 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
             </>
           )}
 
-          {!lote.original && !lote.refs?.length && (
+          {!(item?.original || lote.original) && !lote.refs?.length && (
             <p className="dt-vazio">
               Esta geração não guardou as imagens que a originaram.
             </p>
