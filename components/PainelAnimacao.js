@@ -17,7 +17,7 @@ import ModalDownload from './ModalDownload';
 import { salvarEtapaTimelapse } from '../lib/geracoes';
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
-import { animarKling, custoAnimacao, custoTimelapseEtapa, custoTimelapseCompleto, custoTimelapsePrimeira, timelapsePrompts, gerarEtapaTimelapse, CREDITOS } from '../lib/render';
+import { animarKling, custoAnimacao, custoTimelapseEtapa, custoTimelapseCompleto, custoTimelapsePrimeira, timelapsePrompts, gerarEtapaTimelapse, narrativaOrdem, narrativaRoteiro, CREDITOS } from '../lib/render';
 
 const CUSTO_TL_PROMPTS = CREDITOS.tlPrompts;   // custo do planejamento (8)
 
@@ -115,6 +115,27 @@ export default function PainelAnimacao({
   const [picker, setPicker]   = useState(null);    // 'inicio' | 'fim' | null
   const [pop, setPop]         = useState(null);     // 'dur' | 'res' | null
   const [erro, setErro]       = useState('');
+
+  // ── Diretor de Narrativa ──
+  // Persistidos via nav (sobrevivem à troca de aba), igual ao timelapse.
+  const narrDados = (nav && nav.narr) || { imagens: [], ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '' };
+  const narrImagens = narrDados.imagens || [];   // [{ n, base64 }]
+  const narrOrdem = narrDados.ordem || [];        // ordem atual dos números
+  const narrConfirmado = !!narrDados.confirmado;
+  const narrTakes = narrDados.takes;              // null antes de gerar
+  const narrRitmo = narrDados.ritmo || '';
+  const narrTrilha = narrDados.trilha || '';
+  const patchNarr = (patch) => onNav && onNav((atual) => {
+    const base = atual || nav || {};
+    const nAtual = base.narr || narrDados;
+    return { ...base, narr: { ...nAtual, ...patch } };
+  });
+  // Transitórios
+  const [narrStatus, setNarrStatus] = useState('');
+  const [narrRodando, setNarrRodando] = useState(false);
+  const [narrErro, setNarrErro] = useState('');
+  const [narrDrag, setNarrDrag] = useState(null);   // índice sendo arrastado
+  const narrFileRef = useRef(null);
 
   // Fecha os popovers de opção ao clicar fora deles.
   useEffect(() => {
@@ -387,6 +408,130 @@ export default function PainelAnimacao({
     patchTl({ base: null, etapas: [], imgs: [], passo: 0, modo: null });
   }
 
+  // ── Diretor de Narrativa: funções ──
+  const NARR_MAX = 20;
+
+  // Adiciona imagens (do feed via picker, ou upload). Renumera 1..N.
+  function narrAddImagens(lista) {
+    const atuais = narrImagens.slice();
+    for (const b of lista) {
+      if (atuais.length >= NARR_MAX) break;
+      const base64 = (b || '').replace(/^data:[^,]+,/, '');
+      if (base64) atuais.push({ base64 });
+    }
+    const numeradas = atuais.map((im, i) => ({ ...im, n: i + 1 }));
+    patchNarr({ imagens: numeradas });
+  }
+
+  function narrRemover(n) {
+    const filtradas = narrImagens.filter((im) => im.n !== n).map((im, i) => ({ ...im, n: i + 1 }));
+    // remover imagem invalida a ordem/roteiro já gerados
+    patchNarr({ imagens: filtradas, ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '' });
+  }
+
+  function narrUpload(ev) {
+    const files = Array.from(ev.target.files || []);
+    ev.target.value = '';
+    if (!files.length) return;
+    const lidos = [];
+    let pendentes = files.length;
+    files.forEach((f) => {
+      const r = new FileReader();
+      r.onload = (e) => {
+        lidos.push(e.target.result);
+        if (--pendentes === 0) narrAddImagens(lidos);
+      };
+      r.onerror = () => { if (--pendentes === 0 && lidos.length) narrAddImagens(lidos); };
+      r.readAsDataURL(f);
+    });
+  }
+
+  // Etapa 1 → 2: pede a ordem à IA. Depois o usuário arrasta pra ajustar.
+  async function narrAnalisarOrdem() {
+    if (narrImagens.length < 2) { setNarrErro('Selecione pelo menos 2 imagens.'); return; }
+    setNarrErro('');
+    setNarrRodando(true);
+    setNarrStatus('Analisando o projeto e montando a sequência narrativa...');
+    try {
+      const ordem = await narrativaOrdem(narrImagens.map((im) => ({ n: im.n, base64: im.base64 })));
+      // valida: só números que existem; completa com os que faltarem
+      const validos = ordem.filter((n) => narrImagens.some((im) => im.n === n));
+      narrImagens.forEach((im) => { if (!validos.includes(im.n)) validos.push(im.n); });
+      patchNarr({ ordem: validos, confirmado: false, takes: null });
+    } catch (e) {
+      setNarrErro('Erro ao sugerir a ordem: ' + (e.message || ''));
+    } finally {
+      setNarrRodando(false);
+      setNarrStatus('');
+    }
+  }
+
+  // Drag-and-drop pra reordenar os números na etapa 2.
+  function narrDragStart(i) { setNarrDrag(i); }
+  function narrDragOver(i, ev) {
+    ev.preventDefault();
+    if (narrDrag === null || narrDrag === i) return;
+    const nova = narrOrdem.slice();
+    const [movido] = nova.splice(narrDrag, 1);
+    nova.splice(i, 0, movido);
+    setNarrDrag(i);
+    patchNarr({ ordem: nova });
+  }
+  function narrDragEnd() { setNarrDrag(null); }
+
+  // Etapa 2 → 3: confirma a ordem e gera o roteiro (takes + ritmo + trilha).
+  async function narrGerarRoteiro() {
+    setNarrErro('');
+    setNarrRodando(true);
+    setNarrStatus('Montando o roteiro de direção (câmera, closes, transições, ritmo)...');
+    try {
+      const naOrdem = narrOrdem.map((n) => narrImagens.find((im) => im.n === n)).filter(Boolean);
+      const r = await narrativaRoteiro(naOrdem.map((im) => ({ n: im.n, base64: im.base64 })), 'pt');
+      patchNarr({ confirmado: true, takes: r.takes, ritmo: r.ritmo, trilha: r.trilha });
+    } catch (e) {
+      setNarrErro('Erro ao gerar o roteiro: ' + (e.message || ''));
+    } finally {
+      setNarrRodando(false);
+      setNarrStatus('');
+    }
+  }
+
+  // Take → aba Animação: imagem inicial (+ final se frames=2) e câmera na descrição.
+  function narrAnimarTake(take) {
+    const imgIni = narrImagens.find((im) => im.n === take.imagem);
+    if (!imgIni) return;
+    definirInicio(imgIni.base64);
+    if (take.frames === 2 && take.imagem_fim) {
+      const imgFim = narrImagens.find((im) => im.n === take.imagem_fim);
+      if (imgFim) definirFim(imgFim.base64); else setFim(null);
+    } else {
+      setFim(null);
+    }
+    setDescricao(take.camera || '');
+    setSecao('animacao');
+  }
+
+  function narrCopiarTudo() {
+    if (!narrTakes) return;
+    let txt = 'ROTEIRO DE DIREÇÃO\n\n';
+    narrTakes.forEach((tk) => {
+      txt += `Take ${tk.n_take} — ${tk.momento || ''}\n`;
+      txt += `Câmera: ${tk.camera || ''}\n`;
+      if (tk.close) txt += `Close: ${tk.close}\n`;
+      if (tk.transicao) txt += `Transição: ${tk.transicao}\n`;
+      txt += '\n';
+    });
+    if (narrRitmo) txt += `Ritmo: ${narrRitmo}\n\n`;
+    if (narrTrilha) txt += `Trilha e som: ${narrTrilha}\n`;
+    try { navigator.clipboard.writeText(txt); } catch (e) {}
+  }
+
+  function narrResetar() {
+    setNarrErro('');
+    setNarrStatus('');
+    patchNarr({ imagens: [], ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '' });
+  }
+
   // Ações das imagens (usadas tanto na miniatura quanto no preview grande).
   function tlParaInicio(pos) { onEnviarBase64 && onEnviarBase64('animacao', tlImgs[pos], 'inicio'); setTlVer(null); }
   function tlParaFim(pos) { onEnviarBase64 && onEnviarBase64('animacao', tlImgs[pos], 'fim'); setTlVer(null); }
@@ -595,7 +740,7 @@ export default function PainelAnimacao({
                 <span>Sequência de construção de um ambiente interno.</span>
               </span>
             </button>
-            <button className="seq-card" onClick={() => {}}>
+            <button className="seq-card" onClick={() => setFerramenta('diretor')}>
               <span className="seq-faixa" style={{ background: '#FAEEDA' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="#854F0B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/></svg>
               </span>
@@ -780,6 +925,129 @@ export default function PainelAnimacao({
         </>
       )}
 
+      {secao === 'sequencias' && ferramenta === 'diretor' && (
+        <>
+          <button className="cr-voltar ed-voltar" style={{ alignSelf: 'flex-start' }} onClick={() => !narrRodando && setFerramenta(null)}>
+            <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Voltar
+          </button>
+
+          <div className="cr-sec" style={{ marginTop: 14 }}>Diretor de Narrativa</div>
+          <p className="seq-hint">Selecione as imagens do projeto (renders, plantas, fachada, closes). A IA vai sugerir uma ordem narrativa — você pode arrastar para ajustar. É um guia: a direção criativa final é sua.</p>
+
+          {/* ── Etapa 1: seleção de imagens ── */}
+          {!narrConfirmado && (
+            <section className="up-bloco">
+              <div className="cr-sec">
+                {narrImagens.length === 0 ? 'Imagens do projeto'
+                  : narrImagens.length === 1 ? '1 imagem selecionada'
+                  : narrImagens.length + ' imagens selecionadas'}
+              </div>
+              <div className="narr-grid">
+                {(narrOrdem.length ? narrOrdem.map((n) => narrImagens.find((im) => im.n === n)).filter(Boolean) : narrImagens).map((im, i) => (
+                  <div
+                    key={im.n}
+                    className={'narr-cel' + (narrOrdem.length ? ' narr-cel--drag' : '') + (narrDrag === i ? ' narr-cel--dragging' : '')}
+                    draggable={narrOrdem.length > 0 && !narrRodando}
+                    onDragStart={() => narrOrdem.length && narrDragStart(i)}
+                    onDragOver={(e) => narrOrdem.length && narrDragOver(i, e)}
+                    onDragEnd={narrDragEnd}
+                  >
+                    <img src={'data:image/png;base64,' + im.base64} alt={'Imagem ' + im.n} />
+                    <span className="narr-num">{narrOrdem.length ? i + 1 : im.n}</span>
+                    {!narrOrdem.length && (
+                      <button className="narr-x" onClick={() => narrRemover(im.n)} aria-label="Remover">×</button>
+                    )}
+                    {narrOrdem.length > 0 && (
+                      <span className="narr-grip" aria-hidden="true">
+                        <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><circle cx="7" cy="5" r="1.3"/><circle cx="13" cy="5" r="1.3"/><circle cx="7" cy="10" r="1.3"/><circle cx="13" cy="10" r="1.3"/><circle cx="7" cy="15" r="1.3"/><circle cx="13" cy="15" r="1.3"/></svg>
+                      </span>
+                    )}
+                  </div>
+                ))}
+                {!narrOrdem.length && narrImagens.length < NARR_MAX && (
+                  <>
+                    <button className="narr-add" onClick={() => setPicker('narr')}>
+                      <span className="narr-add-plus">+</span>
+                      <span className="narr-add-txt">Do feed</span>
+                    </button>
+                    <button className="narr-add" onClick={() => narrFileRef.current && narrFileRef.current.click()}>
+                      <span className="narr-add-plus">↑</span>
+                      <span className="narr-add-txt">Upload</span>
+                    </button>
+                    <input ref={narrFileRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={narrUpload} />
+                  </>
+                )}
+              </div>
+
+              {narrOrdem.length > 0 && (
+                <p className="seq-hint" style={{ marginTop: 6 }}>Ordem sugerida (arraste para ajustar)</p>
+              )}
+              {narrErro && <p className="up-erro">{narrErro}</p>}
+
+              {narrRodando && (
+                <div className="seq-gerando"><p className="seq-status">{narrStatus}</p><div className="seq-prog"><span style={{ width: '60%' }} /></div></div>
+              )}
+
+              {!narrRodando && (
+                <div className="seq-gerar-box" style={{ marginTop: 10 }}>
+                  {narrOrdem.length === 0 ? (
+                    <button className="cr-btn-gerar seq-gerar-fino" onClick={narrAnalisarOrdem} disabled={narrImagens.length < 2}>
+                      <span>Analisar ordem narrativa</span>
+                    </button>
+                  ) : (
+                    <button className="cr-btn-gerar seq-gerar-fino" onClick={narrGerarRoteiro}>
+                      <span>Confirmar ordem</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* ── Etapa 3: roteiro de direção ── */}
+          {narrConfirmado && narrTakes && (
+            <>
+              <div className="narr-roteiro-cab">
+                <div className="cr-sec" style={{ margin: 0 }}>Roteiro de direção</div>
+                <button className="narr-copiar" onClick={narrCopiarTudo}>Copiar tudo</button>
+              </div>
+
+              <div className="narr-takes">
+                {narrTakes.map((tk) => (
+                  <div key={tk.n_take} className="narr-take">
+                    <div className="narr-take-cab">
+                      <span className="narr-take-badge">Take {tk.n_take}{tk.momento ? ' · ' + tk.momento : ''}</span>
+                      <span className="narr-take-frames">{tk.frames === 2 ? '2 imagens' : '1 imagem'} · imagem {tk.imagem}{tk.frames === 2 && tk.imagem_fim ? '→' + tk.imagem_fim : ''}</span>
+                    </div>
+                    <p className="narr-take-linha"><b>Câmera:</b> {tk.camera}</p>
+                    {tk.close && <p className="narr-take-linha narr-take-sec"><b>Close:</b> {tk.close}</p>}
+                    {tk.transicao && <p className="narr-take-linha narr-take-sec"><b>Transição:</b> {tk.transicao}</p>}
+                    <button className="narr-take-anim" onClick={() => narrAnimarTake(tk)}>
+                      <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 4l10 6-10 6z"/></svg>
+                      Enviar para animação
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {(narrRitmo || narrTrilha) && (
+                <div className="narr-notas">
+                  {narrRitmo && <div className="narr-nota"><b>Ritmo</b><span>{narrRitmo}</span></div>}
+                  {narrTrilha && <div className="narr-nota"><b>Trilha e som</b><span>{narrTrilha}</span></div>}
+                </div>
+              )}
+
+              <div className="seq-reset-box">
+                <button className="seq-reset" onClick={narrResetar}>Resetar e fazer outro</button>
+              </div>
+            </>
+          )}
+        </>
+      )}
+
       {tlVer !== null && tlImgs[tlVer] && (
         <div className="cr-overlay" onClick={() => { setTlVer(null); setTlBaixar(false); }}>
           <div className="vz vz-tl" onClick={(e) => e.stopPropagation()}>
@@ -851,9 +1119,16 @@ export default function PainelAnimacao({
       <PickerImagem
         aberto={picker !== null}
         onFechar={() => setPicker(null)}
-        titulo={picker === 'tl-base' ? 'Imagem final da obra' : picker === 'fim' ? 'Imagem final' : 'Imagem inicial'}
+        titulo={picker === 'narr' ? 'Escolher do feed' : picker === 'tl-base' ? 'Imagem final da obra' : picker === 'fim' ? 'Imagem final' : 'Imagem inicial'}
         onEscolher={(img) => {
           const b64 = (img.base64 || img).replace(/^data:[^,]+,/, '');
+          if (picker === 'narr') {
+            narrAddImagens([b64]);
+            // mantém o picker aberto pra escolher várias em sequência? Não: fecha,
+            // e o usuário reabre. Simples e previsível.
+            setPicker(null);
+            return;
+          }
           if (picker === 'tl-base') {
             const im = new Image();
             im.onload = () => {
