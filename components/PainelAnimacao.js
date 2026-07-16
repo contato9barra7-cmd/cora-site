@@ -15,7 +15,9 @@ import { useState, useEffect } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
-import { animarKling, custoAnimacao, custoTimelapseEtapa, timelapsePrompts, gerarEtapaTimelapse } from '../lib/render';
+import { animarKling, custoAnimacao, custoTimelapseEtapa, timelapsePrompts, gerarEtapaTimelapse, CREDITOS } from '../lib/render';
+
+const CUSTO_TL_PROMPTS = CREDITOS.tlPrompts;   // custo do planejamento (8)
 
 const MODELOS = [
   { v: 'v2-1', n: 'Kling 2.1' },
@@ -562,14 +564,14 @@ export default function PainelAnimacao({
               <div className="seq-gerar-item">
                 <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('completo')} disabled={!tlBase}>
                   <span>Gerar sequência completa</span>
-                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}/etapa</span>}
+                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}</span>}
                 </button>
                 <p className="seq-gerar-aviso">Gera todas as etapas de uma vez. Pode haver leve perda de qualidade ao longo da sequência.</p>
               </div>
               <div className="seq-gerar-item">
                 <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('passo')} disabled={!tlBase}>
                   <span>Gerar uma a uma</span>
-                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}/etapa</span>}
+                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {CUSTO_TL_PROMPTS}</span>}
                 </button>
                 <p className="seq-gerar-aviso">Gera uma etapa por vez. Você pode revisar e ajustar cada imagem antes de gerar a próxima.</p>
               </div>
@@ -580,8 +582,8 @@ export default function PainelAnimacao({
           {(tlRodando || (tlStatus && tlEtapas.length > 0)) && (
             <div className="seq-gerando">
               <p className="seq-status">{tlStatus || 'Gerando...'}</p>
-              {tlEtapas.length > 0 && (
-                <div className="seq-prog"><span style={{ width: Math.round((tlPasso / tlEtapas.length) * 100) + '%' }} /></div>
+              {(tlRodando || tlEtapas.length > 0) && (
+                <div className="seq-prog"><span style={{ width: (tlEtapas.length ? Math.round((tlPasso / tlEtapas.length) * 100) : 0) + '%' }} /></div>
               )}
               {tlRodando && <p className="seq-reembolso">Se falhar, os créditos voltam automaticamente.</p>}
             </div>
