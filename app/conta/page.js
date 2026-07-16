@@ -103,29 +103,44 @@ function ContaConteudo() {
   // créditos viram "ilimitado", etc.).
   const modo = ehAdmin ? verComo : 'real';
   const ehAdminVis = modo === 'real' ? ehAdmin : false;
+  // No modo "Real" de um admin, mostramos a visão de admin pura — mesmo que a
+  // conta seja dona de equipe de verdade. A visão de dono fica na opção "Dono
+  // de equipe" do seletor. Para contas não-admin, tudo segue o estado real.
   const ehDono = modo === 'dono' ? true
                : (modo === 'normal' || modo === 'membro') ? false
+               : ehAdmin ? false
                : conta.eh_dono_equipe;
   const ehMembroVis = modo === 'membro' ? true
                     : (modo === 'normal' || modo === 'dono') ? false
+                    : ehAdmin ? false
                     : !!equipeMembro;
   const ehPago = conta.plano && conta.plano !== 'free';
-  const nomePlano = ehAdminVis ? 'Admin'
+  // A conta é ilimitada quando o backend diz que é (admin sem creditos_reais).
+  // Um admin com creditos_reais tem créditos de verdade, então NÃO é ilimitado.
+  const ilimitadoReal = conta.ilimitado === true || conta.creditos_total === -1;
+  const mostrarIlimitado = modo === 'real' ? ilimitadoReal : false;
+
+  const nomePlano = (ehAdminVis && ilimitadoReal) ? 'Admin'
     : ehDono ? `Teams (${NOME_PLANO[conta.equipe_plano] || conta.equipe_plano || 'Pro'})`
     : ehMembroVis ? `${NOME_PLANO[conta.plano] || conta.plano} (equipe)`
     : (NOME_PLANO[conta.plano] || conta.plano);
-  const creditos = (conta.creditos_total === -1 || ehAdminVis) ? 'Ilimitado'
+  // No "Ver como" de um admin, a conta é ilimitada de verdade; para o layout
+  // não mostrar "Ilimitado" nas visões simuladas, usamos um número de exemplo.
+  const demoCreditos = ehAdmin && modo !== 'real';
+  const creditos = mostrarIlimitado ? 'Ilimitado'
     : ehDono ? (conta.equipe_creditos_total ?? 0).toLocaleString('pt-BR')
+    : demoCreditos ? '14.320'
     : (conta.creditos_restantes ?? 0).toLocaleString('pt-BR');
-  const totalCreditos = (conta.creditos_total === -1 || ehAdminVis) ? null
+  const totalCreditos = mostrarIlimitado ? null
     : ehDono ? null
+    : demoCreditos ? '20.000'
     : (conta.creditos_total ?? 0).toLocaleString('pt-BR');
   // data mostrada: renovação da equipe (dono) ou validade individual
   const dataRenov = ehDono ? conta.equipe_renova_em : conta.expira_em;
   const rotuloData = (ehPago || ehDono) ? 'Renova em' : 'Válido até';
 
   // Quanto ainda resta, em %
-  const pctCreditos = (conta.creditos_total > 0 && !ehAdminVis)
+  const pctCreditos = (conta.creditos_total > 0 && !mostrarIlimitado)
     ? Math.max(0, Math.min(100,
         Math.round(((conta.creditos_restantes ?? 0) / conta.creditos_total) * 100)))
     : 0;
@@ -183,13 +198,13 @@ function ContaConteudo() {
             {ehDono && <span>créditos da equipe</span>}
           </div>
 
-          {totalCreditos && !ehAdminVis && (
+          {totalCreditos && !mostrarIlimitado && (
             <div className="dash-faixa-barra">
               <div style={{ width: pctCreditos + '%' }} />
             </div>
           )}
 
-          {dataRenov && !ehAdminVis && (
+          {dataRenov && !mostrarIlimitado && (
             <div className="dash-faixa-data">
               {rotuloData} <b>{new Date(dataRenov).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}</b>
               {diasAte != null && <> · {diasAte} dias</>}
@@ -288,24 +303,32 @@ function ContaConteudo() {
       {/* ── Assinatura e consumo ── */}
       <div className="dash-cartoes">
         {/* O membro não paga: no lugar da assinatura, o consumo dele. */}
-        {(!ehMembroVis || ehDono) && !ehAdminVis && (
+        {(!ehMembroVis || ehDono) && !mostrarIlimitado && (() => {
+          // Admin visualizando (Ver como): a conta não tem assinatura real, então
+          // mostramos valores de exemplo só para o layout não ficar vazio.
+          const demo = ehAdmin && modo !== 'real';
+          const valorCent = demo ? 4900 : (conta.valor_centavos || 0);
+          const assinouEm = demo ? '2025-01-15' : conta.assinou_em;
+          const proxCobranca = demo ? new Date(Date.now() + 20 * 86400000).toISOString() : dataRenov;
+          return (
           <div className="dash-cartao">
             <span className="dash-cartao-rot">Assinatura</span>
             <strong className="dash-cartao-num">
-              {conta.valor_centavos > 0
-                ? <>R$ {((conta.valor_centavos || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<em>/mês</em></>
+              {valorCent > 0
+                ? <>R$ {(valorCent / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<em>/mês</em></>
                 : '—'}
             </strong>
             <div className="dash-cartao-linhas">
-              {conta.assinou_em && (
-                <span>Cliente desde <b>{new Date(conta.assinou_em).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}</b></span>
+              {assinouEm && (
+                <span>Cliente desde <b>{new Date(assinouEm).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}</b></span>
               )}
-              {dataRenov && (
-                <span>Próxima cobrança <b>{new Date(dataRenov).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}</b></span>
+              {proxCobranca && (
+                <span>Próxima cobrança <b>{new Date(proxCobranca).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}</b></span>
               )}
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* ── O plugin ──
             É o produto, não um rodapé: fica na faixa escura, com os passos
