@@ -523,6 +523,7 @@ export default function AppPage() {
       if (avancados.favoritos) f.favoritos = true;
 
       const novos = await listarGeracoes(f);
+      console.log('[feed] recarregou:', novos.length, 'lotes | silencioso=', silencioso, '| loteIds:', novos.map((l) => l.loteId));
       // Num recarregar silencioso, se vier vazio mas já havia lotes, não
       // apaga a tela: provavelmente o banco ainda não persistiu a geração
       // recém-salva (salvamento é async). O próximo recarregar traz tudo.
@@ -1510,7 +1511,9 @@ export default function AppPage() {
         if (!item) return null;
 
         // Navegação entre as imagens do MESMO lote (mesmo prompt).
-        const irmaos = lote.itens;
+        // A navegação segue a MESMA ordem visual do feed. No timelapse os
+        // cards aparecem invertidos (novas à esquerda, inicial à direita).
+        const irmaos = lote.ferramenta === 'timelapse' ? [...lote.itens].reverse() : lote.itens;
         const idxAtual = irmaos.findIndex((i) => i.id === item.id);
         const temAnterior = idxAtual > 0;
         const temProximo = idxAtual < irmaos.length - 1;

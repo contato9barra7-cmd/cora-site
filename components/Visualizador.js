@@ -212,7 +212,9 @@ export default function Visualizador({
   const esquerda = original;
   const rotEsq   = rotuloEsq || 'Print';
   const rotDir   = rotuloDir || 'Render';
-  const compara  = Boolean(esquerda);
+  // Timelapse não compara: cada etapa é uma imagem final, não um "print vs
+  // render". O original ali é só a referência que aparece nos Detalhes.
+  const compara  = Boolean(esquerda) && item?.ferramenta !== 'timelapse';
 
   return (
     <div className="cr-overlay" onClick={onFechar}>
