@@ -43,6 +43,7 @@ const AUDIO_SUP = { 'v2-1': false, 'v2-5': false, 'v2-6': true, 'v3': true };
 export default function PainelAnimacao({
   imagemInicial, ehAdmin, onIniciar, onTerminar
 }) {
+  const [secao, setSecao]     = useState('animacao'); // 'animacao' | 'sequencias'
   const [modelo, setModelo]   = useState('');
   const [inicio, setInicio]   = useState(null);   // { base64 }
   const [fim, setFim]         = useState(null);
@@ -148,6 +149,30 @@ export default function PainelAnimacao({
 
   return (
     <div className="up-painel">
+
+      {/* ── Seletor Animação / Sequências (fixo no topo) ── */}
+      <div className="anim-seletor">
+        <button
+          className={'anim-sel-btn' + (secao === 'animacao' ? ' anim-sel-btn--on' : '')}
+          onClick={() => setSecao('animacao')}
+        >
+          <span className="anim-sel-faixa anim-sel-faixa--anim">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </span>
+          <span className="anim-sel-txt">Animação</span>
+        </button>
+        <button
+          className={'anim-sel-btn' + (secao === 'sequencias' ? ' anim-sel-btn--on' : '')}
+          onClick={() => setSecao('sequencias')}
+        >
+          <span className="anim-sel-faixa anim-sel-faixa--seq">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+          </span>
+          <span className="anim-sel-txt">Sequências</span>
+        </button>
+      </div>
+
+      {secao === 'animacao' && (<>
 
       {/* ── Modelo ── */}
       <section className="up-bloco">
@@ -278,6 +303,43 @@ export default function PainelAnimacao({
           <span className="cr-custo-tag"><IconeCredito /> {custo}</span>
         )}
       </button>
+
+      </>)}
+
+      {secao === 'sequencias' && (
+        <section className="up-bloco">
+          <div className="cr-sec">Ferramentas</div>
+          <div className="seq-cards">
+            <button className="seq-card" onClick={() => {}}>
+              <span className="seq-faixa" style={{ background: '#E6F1FB' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#185FA5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V11l7-5 7 5v10"/><path d="M9 21v-6h6v6"/><path d="M2 11l10-7 10 7"/></svg>
+              </span>
+              <span className="seq-corpo">
+                <strong>Timelapse Externo</strong>
+                <span>Gera a sequência de construção (do terreno à obra pronta) a partir de um render externo.</span>
+              </span>
+            </button>
+            <button className="seq-card" onClick={() => {}}>
+              <span className="seq-faixa" style={{ background: '#E1F5EE' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#0F6E56" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M4 21V8h16v13"/><rect x="9" y="13" width="6" height="8"/><path d="M4 8l8-5 8 5"/></svg>
+              </span>
+              <span className="seq-corpo">
+                <strong>Timelapse Interiores</strong>
+                <span>Sequência de construção de um ambiente interno.</span>
+              </span>
+            </button>
+            <button className="seq-card" onClick={() => {}}>
+              <span className="seq-faixa" style={{ background: '#FAEEDA' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#854F0B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/></svg>
+              </span>
+              <span className="seq-corpo">
+                <strong>Diretor de Narrativa</strong>
+                <span>Cria uma sequência de cenas com direção cinematográfica.</span>
+              </span>
+            </button>
+          </div>
+        </section>
+      )}
 
       <PickerImagem
         aberto={picker !== null}
