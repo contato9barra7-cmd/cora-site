@@ -5855,6 +5855,24 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border: 0.5px solid var(--line2);
 }
 .seq-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.seq-slot--clic { position: relative; }
+.seq-slot--clic img { cursor: pointer; }
+.seq-slot-acoes {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  display: flex; gap: 3px; justify-content: center;
+  padding: 5px 4px;
+  background: linear-gradient(to top, rgba(0,0,0,.6), transparent);
+  opacity: 0; transition: opacity .15s;
+}
+.seq-slot--clic:hover .seq-slot-acoes { opacity: 1; }
+.seq-acao {
+  width: 24px; height: 24px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; border: none;
+  background: rgba(255,255,255,.16); color: #fff; cursor: pointer;
+  backdrop-filter: blur(3px); transition: background .15s;
+}
+.seq-acao:hover { background: rgba(255,255,255,.32); }
 .seq-slot-load {
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;

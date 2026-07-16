@@ -17,7 +17,7 @@ import ModalDownload from './ModalDownload';
 import { salvarEtapaTimelapse } from '../lib/geracoes';
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
-import { animarKling, custoAnimacao, custoTimelapseEtapa, timelapsePrompts, gerarEtapaTimelapse, CREDITOS } from '../lib/render';
+import { animarKling, custoAnimacao, custoTimelapseEtapa, custoTimelapseCompleto, timelapsePrompts, gerarEtapaTimelapse, CREDITOS } from '../lib/render';
 
 const CUSTO_TL_PROMPTS = CREDITOS.tlPrompts;   // custo do planejamento (8)
 
@@ -330,6 +330,12 @@ export default function PainelAnimacao({
     patchTl({ base: null, etapas: [], imgs: [], passo: 0, modo: null });
   }
 
+  // Ações das imagens (usadas tanto na miniatura quanto no preview grande).
+  function tlParaInicio(pos) { onEnviarBase64 && onEnviarBase64('animacao', tlImgs[pos], 'inicio'); setTlVer(null); }
+  function tlParaFim(pos) { onEnviarBase64 && onEnviarBase64('animacao', tlImgs[pos], 'fim'); setTlVer(null); }
+  function tlParaPos(pos) { onEnviarBase64 && onEnviarBase64('pos', tlImgs[pos], null, { pos }); setTlVer(null); }
+  function tlBaixarPos(pos) { setTlVer(pos); setTlBaixar(true); }
+
   // Baixa uma etapa no formato escolhido (png ou jpeg), convertendo via canvas.
   function baixarEtapa(i, formato) {
     const b64 = tlImgs[i];
@@ -608,7 +614,7 @@ export default function PainelAnimacao({
               <div className="seq-gerar-item">
                 <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('completo')} disabled={!tlBase}>
                   <span>Gerar sequência completa</span>
-                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}</span>}
+                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseCompleto(tlRes, 7)}</span>}
                 </button>
                 <p className="seq-gerar-aviso">Gera todas as etapas de uma vez. Pode haver leve perda de qualidade ao longo da sequência.</p>
               </div>
@@ -652,9 +658,23 @@ export default function PainelAnimacao({
                 return (
                   <div key={pos} className="seq-cel">
                     {img ? (
-                      <button className="seq-slot seq-slot--clic" onClick={() => setTlVer(pos)}>
-                        <img src={`data:image/png;base64,${img}`} alt={titulo} />
-                      </button>
+                      <div className="seq-slot seq-slot--clic">
+                        <img src={`data:image/png;base64,${img}`} alt={titulo} onClick={() => setTlVer(pos)} />
+                        <div className="seq-slot-acoes">
+                          <button className="seq-acao" data-tip="Imagem inicial" aria-label="Imagem inicial" onClick={(e) => { e.stopPropagation(); tlParaInicio(pos); }}>
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="M4 15l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          </button>
+                          <button className="seq-acao" data-tip="Imagem final" aria-label="Imagem final" onClick={(e) => { e.stopPropagation(); tlParaFim(pos); }}>
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="1.5"/><path d="M4 17l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 12 3.5)"/></svg>
+                          </button>
+                          <button className="seq-acao" data-tip="Pós-produção" aria-label="Pós-produção" onClick={(e) => { e.stopPropagation(); tlParaPos(pos); }}>
+                            <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 5h8M3 10h13M3 15h6" strokeLinecap="round"/><circle cx="14.5" cy="5" r="1.7"/><circle cx="11" cy="15" r="1.7"/></svg>
+                          </button>
+                          <button className="seq-acao" data-tip="Baixar" aria-label="Baixar" onClick={(e) => { e.stopPropagation(); tlBaixarPos(pos); }}>
+                            <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M3.5 15v1.5h13V15" strokeLinecap="round"/></svg>
+                          </button>
+                        </div>
+                      </div>
                     ) : (
                       <div className="seq-slot">
                         <div className="seq-slot-load">{tlRodando ? <span className="cr-ger-spin" /> : null}</div>
