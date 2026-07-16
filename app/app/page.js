@@ -291,15 +291,20 @@ export default function AppPage() {
         console.log('[zip] processando', id, '| item?', !!item, '| video?', ehVideo);
         try {
           if (ehVideo) {
-            const url = await urlDownloadVideo(id);
-            const resp = await fetch(url);
-            const buf = await resp.arrayBuffer();
-            zip.file(`cora-video-${String(nVid).padStart(2, '0')}.mp4`, buf);
+            // Vídeo: busca os bytes pelo SERVIDOR (o R2 não manda CORS, então
+            // um fetch direto na URL assinada falharia).
+            const b64v = await bytesDaGeracao(id);
+            const bytesV = base64ParaBytes(b64v);
+            console.log('[zip] video', id, 'bytes=', bytesV.length);
+            if (!bytesV.length) throw new Error('vídeo vazio');
+            zip.file(`cora-video-${String(nVid).padStart(2, '0')}.mp4`, bytesV);
             nVid++; ok++;
           } else {
             let b64 = await bytesDaGeracao(id);
             if (formato === 'jpeg') b64 = await pngParaJpeg(b64);
             const bytes = base64ParaBytes(b64);
+            console.log('[zip] imagem', id, 'bytes=', bytes.length);
+            if (!bytes.length) throw new Error('imagem vazia');
             zip.file(`cora-${String(nImg).padStart(2, '0')}.${ext}`, bytes);
             nImg++; ok++;
           }

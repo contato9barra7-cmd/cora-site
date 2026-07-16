@@ -242,7 +242,8 @@ export default function PainelAnimacao({
   const inicialTlRef = useRef(null);   // { cardId, base64 } no modo passo
   async function salvarEtapaNoFeed(b64, ordem, seqId, refB64) {
     const chave = seqId + ':' + ordem;
-    if (jaSalvasRef.current.has(chave)) return;   // evita salvar a mesma 2x
+    console.log('[tl] salvando no feed loteId=' + seqId + ' ordem=' + ordem);
+    if (jaSalvasRef.current.has(chave)) { console.log('[tl] BLOQUEADO duplicata', chave); return; }
     jaSalvasRef.current.add(chave);
     try {
       await salvarEtapaTimelapse(b64, {
@@ -275,10 +276,9 @@ export default function PainelAnimacao({
       const imgs = new Array(N + 1).fill(null);
       imgs[N] = baseB64;
       patchTl({ etapas, imgs: imgs.slice(), passo: 0, modo, seqId });
-      // A imagem enviada (a obra pronta) fica no bloco "gerando", ao lado dos
-      // placeholders. Só entra no feed quando a sequência termina.
-      const inicialCardId = onMostrarInicial ? onMostrarInicial(baseB64, prop) : null;
-      inicialTlRef.current = { cardId: inicialCardId, base64: baseB64, seqId };
+      // A imagem enviada (a obra pronta) entra no feed JÁ, como 1º card do lote
+      // (ordem 0). As etapas entram ao lado conforme ficam prontas.
+      salvarEtapaNoFeed(baseB64, 0, seqId);
 
       if (modo === 'passo') {
         // gera só a 1ª etapa e para para revisão
@@ -304,10 +304,6 @@ export default function PainelAnimacao({
           salvarEtapaNoFeed(b64, i + 1, seqId, base);
           base = b64;
         }
-        // Sequência pronta: agora a inicial entra no feed (ordem 0) e o card
-        // do bloco "gerando" some.
-        onRemoverInicial && inicialCardId && onRemoverInicial(inicialCardId);
-        salvarEtapaNoFeed(baseB64, 0, seqId);
         setTlStatus('Sequência completa!');
       }
     } catch (e) {
@@ -338,13 +334,6 @@ export default function PainelAnimacao({
       acc[pos] = b64;
       patchTl({ etapas, imgs: acc, passo: i + 1, modo: 'passo', seqId: idSeq });
       salvarEtapaNoFeed(b64, i + 1, idSeq, base);
-      // Última etapa: a inicial entra no feed e o card do bloco "gerando" some.
-      if (i + 1 >= N && inicialTlRef.current) {
-        const ini = inicialTlRef.current;
-        onRemoverInicial && ini.cardId && onRemoverInicial(ini.cardId);
-        salvarEtapaNoFeed(ini.base64, 0, ini.seqId || idSeq);
-        inicialTlRef.current = null;
-      }
       setTlStatus(i + 1 >= N ? 'Sequência completa!' : `Etapa ${i + 1} pronta. Revise e gere a próxima.`);
     } catch (e) {
       setTlErro(e.message);
