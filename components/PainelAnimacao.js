@@ -15,7 +15,9 @@ import { useState, useEffect } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
-import { animarKling, custoAnimacao, gerarTimelapse, custoTimelapseEtapa } from '../lib/render';
+import { animarKling, custoAnimacao, gerarTimelapse, custoTimelapseEtapa, CREDITOS } from '../lib/render';
+
+const CUSTO_TL_PROMPTS = CREDITOS.tlPrompts;
 
 const MODELOS = [
   { v: 'v2-1', n: 'Kling 2.1' },
@@ -41,10 +43,13 @@ const DURACOES = {
 const AUDIO_SUP = { 'v2-1': false, 'v2-5': false, 'v2-6': true, 'v3': true };
 
 export default function PainelAnimacao({
-  imagemInicial, ehAdmin, onIniciar, onTerminar
+  imagemInicial, ehAdmin, nav, onNav, onIniciar, onTerminar
 }) {
-  const [secao, setSecao]     = useState('animacao'); // 'animacao' | 'sequencias'
-  const [ferramenta, setFerramenta] = useState(null); // null | 'tl-externo' | 'tl-interior' | 'narrativa'
+  // Seção e ferramenta vêm do pai (persistem ao trocar de aba e voltar).
+  const secao = (nav && nav.secao) || 'animacao';
+  const ferramenta = (nav && nav.ferramenta) || null;
+  const setSecao = (s) => onNav && onNav({ secao: s, ferramenta: null });
+  const setFerramenta = (f) => onNav && onNav({ secao: 'sequencias', ferramenta: f });
   // Timelapse Externo
   const [tlBase, setTlBase]   = useState(null);   // { base64, proporcao }
   const [tlRes, setTlRes]     = useState('2k');
@@ -157,7 +162,7 @@ export default function PainelAnimacao({
   }
 
   // ── Timelapse Externo: dispara a sequência inteira ──
-  async function rodarTimelapse() {
+  async function rodarTimelapse(modo) {
     if (!tlBase) { setTlErro('Suba a imagem base primeiro'); return; }
     setTlErro('');
     setTlRodando(true);
@@ -395,63 +400,71 @@ export default function PainelAnimacao({
 
       {secao === 'sequencias' && ferramenta === 'tl-externo' && (
         <>
-          {/* ── Cabeçalho com voltar ── */}
-          <div className="seq-tela-head">
-            <button className="seq-voltar" onClick={() => !tlRodando && setFerramenta(null)} aria-label="Voltar">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-            </button>
-            <span className="cr-sec" style={{ margin: 0 }}>Timelapse Externo</span>
-          </div>
+          {/* ── Voltar (igual ao Editar) ── */}
+          <button className="cr-voltar ed-voltar" onClick={() => !tlRodando && setFerramenta(null)}>
+            <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Voltar
+          </button>
 
-          <p className="seq-hint">Gera a sequência de construção — do terreno à obra pronta — a partir de um render externo. Suba a imagem final e a IA reconstrói as etapas de trás pra frente.</p>
+          <div className="cr-sec" style={{ marginTop: 14 }}>Timelapse Externo</div>
+          <p className="seq-hint">Escolha um render externo final. A IA vai gerar a sequência de desconstrução (da obra pronta até o terreno).</p>
 
-          {/* ── Imagem base ── */}
+          {/* ── Imagem final (pequena, ícone tipo batch) ── */}
           <section className="up-bloco">
-            <div className="cr-sec">Imagem final (a obra pronta)</div>
-            <div className="anim-refs">
-              <button
-                className={'anim-card' + (tlBase ? ' anim-card--img' : ' anim-card--obrig')}
-                onClick={() => setPicker('tl-base')}
-              >
-                {tlBase ? (
-                  <>
-                    <img src={'data:image/png;base64,' + tlBase.base64} alt="" />
-                    <span className="anim-card-x" onClick={(e) => { e.stopPropagation(); setTlBase(null); }} aria-label="Remover">×</span>
-                  </>
-                ) : (
-                  <>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                    <span className="anim-card-lbl">Imagem final</span>
-                  </>
-                )}
-              </button>
-            </div>
+            <div className="cr-sec">Imagem final</div>
+            <button
+              className={'seq-basecard' + (tlBase ? ' seq-basecard--img' : '')}
+              onClick={() => setPicker('tl-base')}
+            >
+              {tlBase ? (
+                <>
+                  <img src={'data:image/png;base64,' + tlBase.base64} alt="" />
+                  <span className="anim-card-x" onClick={(e) => { e.stopPropagation(); setTlBase(null); }} aria-label="Remover">×</span>
+                </>
+              ) : (
+                <span className="seq-basecard-vazio">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                  <span>Escolher imagem</span>
+                </span>
+              )}
+            </button>
           </section>
 
-          {/* ── Resolução ── */}
+          {/* ── Resolução (dropdown, igual ao resto da web) ── */}
           <section className="up-bloco">
             <div className="cr-sec">Resolução</div>
-            <div className="up-scale-row">
-              {['1k', '2k', '4k'].map((rk) => (
-                <button
-                  key={rk}
-                  className={'up-scale' + (tlRes === rk ? ' up-scale--on' : '')}
-                  onClick={() => setTlRes(rk)}
-                >{rk.toUpperCase()}</button>
-              ))}
-            </div>
+            <DropdownCora
+              valor={tlRes}
+              opcoes={[{ v: '1k', n: '1K' }, { v: '2k', n: '2K' }, { v: '4k', n: '4K' }]}
+              onEscolher={setTlRes}
+            />
           </section>
 
           {tlErro && <p className="up-erro">{tlErro}</p>}
           {tlStatus && <p className="seq-status">{tlStatus}</p>}
 
-          {/* ── Gerar ── */}
-          <button className="cr-btn-gerar up-gerar" onClick={rodarTimelapse} disabled={!tlBase || tlRodando}>
-            <span>{tlRodando ? 'Gerando...' : 'Gerar sequência'}</span>
-            {tlBase && !tlRodando && (
-              <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}/etapa</span>
-            )}
-          </button>
+          {/* ── Dois modos de gerar (igual ao plugin) ── */}
+          {!tlRodando && (
+            <div className="seq-gerar-box">
+              <button className="seq-gerar-btn" onClick={() => rodarTimelapse('completo')} disabled={!tlBase}>
+                <span className="seq-gerar-cab">
+                  <strong>Gerar sequência completa</strong>
+                  <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}</span>
+                </span>
+                <span className="seq-gerar-desc">Gera todas as etapas de uma vez. Pode haver leve perda de qualidade ao longo da sequência.</span>
+              </button>
+              <button className="seq-gerar-btn" onClick={() => rodarTimelapse('passo')} disabled={!tlBase}>
+                <span className="seq-gerar-cab">
+                  <strong>Gerar uma a uma</strong>
+                  <span className="cr-custo-tag"><IconeCredito /> {CUSTO_TL_PROMPTS}</span>
+                </span>
+                <span className="seq-gerar-desc">Gera uma etapa por vez. Você pode revisar e ajustar cada imagem antes de gerar a próxima.</span>
+              </button>
+            </div>
+          )}
+          {tlRodando && <p className="seq-status">Gerando... aguarde.</p>}
 
           {/* ── Grid de resultados ── */}
           {tlEtapas.length > 0 && (

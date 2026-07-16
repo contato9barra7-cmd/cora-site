@@ -321,6 +321,9 @@ export default function AppPage() {
 
   // Imagem vinda de outra aba (o botão "Editar" do visualizador)
   const [imagemDeOutraAba, setImagemDeOutraAba] = useState(null);
+  // Guarda onde a pessoa estava dentro da aba Animação (seletor + ferramenta
+  // de sequência aberta), para não resetar ao trocar de aba e voltar.
+  const [navAnimacao, setNavAnimacao] = useState({ secao: 'animacao', ferramenta: null });
 
   const [filtro, setFiltro]         = useState('tudo');
   const [busca, setBusca]           = useState('');
@@ -754,6 +757,8 @@ export default function AppPage() {
             <PainelAnimacao
               imagemInicial={imagemDeOutraAba?.para === 'animacao' ? imagemDeOutraAba : null}
               ehAdmin={ehAdmin}
+              nav={navAnimacao}
+              onNav={setNavAnimacao}
               onIniciar={(base, prop) => iniciarGeracaoAtiva(base, 'Gerando animação', prop)}
               onTerminar={(id) => { terminarGeracaoAtiva(id); recarregarComFolga(); }}
             />
