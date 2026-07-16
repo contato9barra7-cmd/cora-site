@@ -522,7 +522,14 @@ export default function AppPage() {
       if (avancados.baixadas)  f.baixadas  = true;
       if (avancados.favoritos) f.favoritos = true;
 
-      setLotes(await listarGeracoes(f));
+      const novos = await listarGeracoes(f);
+      // Num recarregar silencioso, se vier vazio mas já havia lotes, não
+      // apaga a tela: provavelmente o banco ainda não persistiu a geração
+      // recém-salva (salvamento é async). O próximo recarregar traz tudo.
+      setLotes((atual) => {
+        if (silencioso && (!novos || novos.length === 0) && atual.length > 0) return atual;
+        return novos;
+      });
     } catch (e) {
       setErro(e.message);
     } finally {
@@ -1419,7 +1426,18 @@ export default function AppPage() {
                   )}
 
                   <div className={`cr-cards cr-cards--linha cr-cards--${tamanho}`}>
-                    {lote.itens.map((item) => (
+                    {/* Etapas ainda gerando: no timelapse ficam À ESQUERDA,
+                        junto das novas que já ficaram prontas. */}
+                    {upsAtivos.filter((u) => u.loteId === lote.loteId).map((u) => (
+                      <div key={u.id} className="cr-slot cr-slot--agora" style={{ aspectRatio: lote.proporcao ? proporcaoCss(lote.proporcao) : '1 / 1' }}>
+                        {u.base && <img className="cr-slot-base" src={u.base} alt="" />}
+                        <div className="cr-ger-capa">
+                          <span className="cr-ger-spin" />
+                          <span className="cr-ger-txt">{u.rotulo}</span>
+                        </div>
+                      </div>
+                    ))}
+                    {(lote.ferramenta === 'timelapse' ? [...lote.itens].reverse() : lote.itens).map((item) => (
                       <Card
                         key={item.id}
                         it={{ ...item, loteId: lote.loteId, proporcao: lote.proporcao, ferramenta: lote.ferramenta, plataforma: lote.plataforma, criadoEm: lote.criadoEm }}
@@ -1441,17 +1459,6 @@ export default function AppPage() {
                         onEnviarPara={enviarPara}
                         onDetalhes={() => setDetalhes({ lote, item })}
                       />
-                    ))}
-                    {/* Etapas do timelapse ainda gerando: aparecem NESTE lote,
-                        ao lado das que já ficaram prontas. */}
-                    {upsAtivos.filter((u) => u.loteId === lote.loteId).map((u) => (
-                      <div key={u.id} className="cr-slot cr-slot--agora" style={{ aspectRatio: lote.proporcao ? proporcaoCss(lote.proporcao) : '1 / 1' }}>
-                        {u.base && <img className="cr-slot-base" src={u.base} alt="" />}
-                        <div className="cr-ger-capa">
-                          <span className="cr-ger-spin" />
-                          <span className="cr-ger-txt">{u.rotulo}</span>
-                        </div>
-                      </div>
                     ))}
                   </div>
                 </article>

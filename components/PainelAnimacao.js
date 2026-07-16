@@ -305,6 +305,12 @@ export default function PainelAnimacao({
           base = b64;
         }
         setTlStatus('Sequência completa!');
+        // Folga extra: a última etapa salva async no servidor. Recarrega de
+        // novo depois de um tempo para garantir que ela apareça no feed.
+        if (onFeedAtualizar) {
+          setTimeout(() => onFeedAtualizar(), 2500);
+          setTimeout(() => onFeedAtualizar(), 6000);
+        }
       }
     } catch (e) {
       setTlErro(e.message);
