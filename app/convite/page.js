@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Nav from '../../components/Nav';
-import { lerToken, aceitarConvite } from '../../lib/auth';
+import { lerToken, aceitarConvite, infoConvite } from '../../lib/auth';
 
 function ConviteConteudo() {
   const router = useRouter();
@@ -17,14 +17,21 @@ function ConviteConteudo() {
       if (!token) { setEstado('erro'); setMsg('Convite inválido.'); return; }
       const jwt = lerToken();
       if (!jwt) {
-        // guarda o token e manda logar/cadastrar
-        if (typeof window !== 'undefined') localStorage.setItem('cora_convite_token', token);
+        // guarda o token e o email convidado; manda logar/cadastrar
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('cora_convite_token', token);
+          const em = await infoConvite(token);
+          if (em) localStorage.setItem('cora_convite_email', em);
+        }
         setEstado('precisa_login');
         return;
       }
       try {
         await aceitarConvite(token);
-        if (typeof window !== 'undefined') localStorage.removeItem('cora_convite_token');
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('cora_convite_token');
+          localStorage.removeItem('cora_convite_email');
+        }
         setEstado('ok');
       } catch (e) {
         setEstado('erro');

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { registrar } from '../../lib/auth';
@@ -20,6 +20,14 @@ export default function Cadastro() {
   const [carregando, setCarregando] = useState(false);
 
   const [faltando, setFaltando] = useState({});
+  // Se veio de um convite, trava o email (a conta tem que ser desse email).
+  const [emailTravado, setEmailTravado] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const em = localStorage.getItem('cora_convite_email');
+      if (em) { setEmail(em); setEmailTravado(true); }
+    }
+  }, []);
 
   async function criarConta() {
     setErro('');
@@ -71,6 +79,7 @@ export default function Cadastro() {
         <input
           className={cls('email')} type="email" placeholder="voce@email.com"
           value={email} onChange={(e) => setEmail(e.target.value)}
+          readOnly={emailTravado} title={emailTravado ? 'Este é o email do convite e não pode ser alterado' : undefined}
         />
 
         <label className="login-label">Profissão <span className="obrig">*</span></label>

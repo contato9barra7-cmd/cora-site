@@ -139,6 +139,19 @@ function WorkspaceConteudo() {
 
   useEffect(() => { carregar(); /* eslint-disable-next-line */ }, []);
 
+  // Recarrega quando a aba volta ao foco: se um convidado aceitou enquanto o
+  // dono estava noutra aba, o status "pendente → ativo" aparece sem F5.
+  useEffect(() => {
+    function aoFocar() { if (document.visibilityState === 'visible') carregar(); }
+    document.addEventListener('visibilitychange', aoFocar);
+    window.addEventListener('focus', aoFocar);
+    return () => {
+      document.removeEventListener('visibilitychange', aoFocar);
+      window.removeEventListener('focus', aoFocar);
+    };
+    /* eslint-disable-next-line */
+  }, []);
+
   async function salvarNome() {
     setSalvandoNome(true); setErro(''); setAvisoNome('');
     try {
@@ -409,6 +422,9 @@ function WorkspaceConteudo() {
               <div className="ws-linha-input" style={{ flex: 1 }}>
                 <input
                   className="ws-input"
+                  name={'convite-slot-' + i}
+                  id={'convite-slot-' + i}
+                  autoComplete="off"
                   value={emailsSlot[i] || ''}
                   onChange={(e) => setEmailsSlot((s) => ({ ...s, [i]: e.target.value }))}
                   placeholder="email@da-pessoa.com"

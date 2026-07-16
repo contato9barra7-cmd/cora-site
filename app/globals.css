@@ -1002,7 +1002,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--wash);
 }
-.disp-nome { font-weight: 600; font-size: 15px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+.disp-nome { font-weight: 600; font-size: 15px; color: var(--ink); display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
 .disp-ativo {
   font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 10px;
   background: #eafaf0; color: #1b7a43;
@@ -6756,7 +6756,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    equipe de cinco, todas as linhas viravam a mesma coisa. */
 .ws-av {
   flex-shrink: 0;
+  flex-grow: 0;
   width: 34px;
+  min-width: 34px;
   height: 34px;
   display: flex;
   align-items: center;
@@ -6782,7 +6784,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink3);
 }
 
-.ws-slot-linha { display: flex; align-items: center; gap: 12px; }
+.ws-slot-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ws-slot-linha > .disp-nome { flex: 1; min-width: 0; }
 
 .ws-slot-vazio-topo { display: flex; align-items: center; gap: 12px; }
 

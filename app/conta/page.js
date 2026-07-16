@@ -98,23 +98,26 @@ function ContaConteudo() {
   const ehAdmin = conta.is_admin === true;
 
   // Flags efetivas: no modo "Ver como" (admin), sobrescrevem o estado real
-  // para renderizar a dash como cada tipo de conta.
+  // para renderizar a dash como cada tipo de conta. Nos modos simulados, a
+  // conta deixa de se comportar como admin (senão a assinatura some, os
+  // créditos viram "ilimitado", etc.).
   const modo = ehAdmin ? verComo : 'real';
+  const ehAdminVis = modo === 'real' ? ehAdmin : false;
   const ehDono = modo === 'dono' ? true
-               : modo === 'normal' || modo === 'membro' ? false
+               : (modo === 'normal' || modo === 'membro') ? false
                : conta.eh_dono_equipe;
   const ehMembroVis = modo === 'membro' ? true
-                    : modo === 'normal' || modo === 'dono' ? false
+                    : (modo === 'normal' || modo === 'dono') ? false
                     : !!equipeMembro;
   const ehPago = conta.plano && conta.plano !== 'free';
-  const nomePlano = ehAdmin ? 'Admin'
+  const nomePlano = ehAdminVis ? 'Admin'
     : ehDono ? `Teams (${NOME_PLANO[conta.equipe_plano] || conta.equipe_plano || 'Pro'})`
     : ehMembroVis ? `${NOME_PLANO[conta.plano] || conta.plano} (equipe)`
     : (NOME_PLANO[conta.plano] || conta.plano);
-  const creditos = (conta.creditos_total === -1 || ehAdmin) ? 'Ilimitado'
+  const creditos = (conta.creditos_total === -1 || ehAdminVis) ? 'Ilimitado'
     : ehDono ? (conta.equipe_creditos_total ?? 0).toLocaleString('pt-BR')
     : (conta.creditos_restantes ?? 0).toLocaleString('pt-BR');
-  const totalCreditos = (conta.creditos_total === -1 || ehAdmin) ? null
+  const totalCreditos = (conta.creditos_total === -1 || ehAdminVis) ? null
     : ehDono ? null
     : (conta.creditos_total ?? 0).toLocaleString('pt-BR');
   // data mostrada: renovação da equipe (dono) ou validade individual
@@ -122,7 +125,7 @@ function ContaConteudo() {
   const rotuloData = (ehPago || ehDono) ? 'Renova em' : 'Válido até';
 
   // Quanto ainda resta, em %
-  const pctCreditos = (conta.creditos_total > 0 && !ehAdmin)
+  const pctCreditos = (conta.creditos_total > 0 && !ehAdminVis)
     ? Math.max(0, Math.min(100,
         Math.round(((conta.creditos_restantes ?? 0) / conta.creditos_total) * 100)))
     : 0;
@@ -180,13 +183,13 @@ function ContaConteudo() {
             {ehDono && <span>créditos da equipe</span>}
           </div>
 
-          {totalCreditos && !ehAdmin && (
+          {totalCreditos && !ehAdminVis && (
             <div className="dash-faixa-barra">
               <div style={{ width: pctCreditos + '%' }} />
             </div>
           )}
 
-          {dataRenov && !ehAdmin && (
+          {dataRenov && !ehAdminVis && (
             <div className="dash-faixa-data">
               {rotuloData} <b>{new Date(dataRenov).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}</b>
               {diasAte != null && <> · {diasAte} dias</>}
@@ -285,7 +288,7 @@ function ContaConteudo() {
       {/* ── Assinatura e consumo ── */}
       <div className="dash-cartoes">
         {/* O membro não paga: no lugar da assinatura, o consumo dele. */}
-        {(!ehMembroVis || ehDono) && !ehAdmin && (
+        {(!ehMembroVis || ehDono) && !ehAdminVis && (
           <div className="dash-cartao">
             <span className="dash-cartao-rot">Assinatura</span>
             <strong className="dash-cartao-num">

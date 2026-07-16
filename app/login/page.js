@@ -12,10 +12,16 @@ export default function Login() {
   const [verSenha, setVerSenha] = useState(false);
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
+  // Se veio de um convite, o email fica travado (não pode trocar).
+  const [emailTravado, setEmailTravado] = useState(false);
 
   // Se já está logada, vai direto pra conta (não mostra login de novo).
   useEffect(() => {
-    if (lerConta()) router.push('/conta');
+    if (lerConta()) { router.push('/conta'); return; }
+    if (typeof window !== 'undefined') {
+      const em = localStorage.getItem('cora_convite_email');
+      if (em) { setEmail(em); setEmailTravado(true); }
+    }
   }, [router]);
 
   async function fazerLogin() {
@@ -62,6 +68,7 @@ export default function Login() {
         <input
           className="login-input" type="email" placeholder="voce@email.com"
           value={email} onChange={(e) => setEmail(e.target.value)}
+          readOnly={emailTravado} title={emailTravado ? 'Este é o email do convite e não pode ser alterado' : undefined}
           onKeyDown={(e) => e.key === 'Enter' && fazerLogin()}
         />
 
