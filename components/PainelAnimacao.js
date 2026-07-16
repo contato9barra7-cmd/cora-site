@@ -562,14 +562,14 @@ export default function PainelAnimacao({
               <div className="seq-gerar-item">
                 <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('completo')} disabled={!tlBase}>
                   <span>Gerar sequência completa</span>
-                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}</span>}
+                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}/etapa</span>}
                 </button>
                 <p className="seq-gerar-aviso">Gera todas as etapas de uma vez. Pode haver leve perda de qualidade ao longo da sequência.</p>
               </div>
               <div className="seq-gerar-item">
                 <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('passo')} disabled={!tlBase}>
                   <span>Gerar uma a uma</span>
-                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}</span>}
+                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}/etapa</span>}
                 </button>
                 <p className="seq-gerar-aviso">Gera uma etapa por vez. Você pode revisar e ajustar cada imagem antes de gerar a próxima.</p>
               </div>
@@ -626,14 +626,16 @@ export default function PainelAnimacao({
 
       {tlVer !== null && tlImgs[tlVer] && (
         <div className="cr-overlay" onClick={() => { setTlVer(null); setTlFmt(false); }}>
-          <div className="vz" onClick={(e) => e.stopPropagation()}>
+          <div className="vz vz-tl" onClick={(e) => e.stopPropagation()}>
             <button className="vz-x" onClick={() => { setTlVer(null); setTlFmt(false); }} aria-label="Fechar">
               <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
               </svg>
             </button>
+            {/* barra de cima (igual ao visualizador do feed) */}
+            <header className="vz-cab" />
             <div className="vz-area">
-              <img className="vz-img" src={`data:image/png;base64,${tlImgs[tlVer]}`} alt={`Etapa ${tlVer + 1}`} />
+              <img className="vz-img-tl" src={`data:image/png;base64,${tlImgs[tlVer]}`} alt={`Etapa ${tlVer + 1}`} />
             </div>
             <footer className="vz-acoes">
               <button className="vz-ico" data-tip="Imagem inicial" aria-label="Enviar como imagem inicial da animação"
@@ -646,7 +648,10 @@ export default function PainelAnimacao({
               </button>
               <button className="vz-ico" data-tip="Pós-produção" aria-label="Enviar para pós-produção"
                 onClick={() => { onEnviarBase64 && onEnviarBase64('pos', tlImgs[tlVer]); setTlVer(null); }}>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 12l3-9 4 18 3-12 2 5h2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <path d="M3 5h8M3 10h13M3 15h6" strokeLinecap="round"/>
+                  <circle cx="14.5" cy="5" r="1.7"/><circle cx="11" cy="15" r="1.7"/>
+                </svg>
               </button>
               <div className="vz-pill-wrap">
                 <button className="vz-ico" data-tip="Baixar" aria-label="Baixar" onClick={() => setTlFmt((v) => !v)}>
