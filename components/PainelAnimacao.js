@@ -82,6 +82,8 @@ export default function PainelAnimacao({
   const tlPasso = tlDados.passo || 0;      // próxima etapa a gerar (modo passo)
   const tlModo = tlDados.modo || null;     // 'completo' | 'passo'
   const tlSeqId = tlDados.seqId || null;   // loteId comum das etapas no feed
+  const tlTipo = tlDados.tipo || 'externo';        // 'externo' | 'interior'
+  const tlModoInt = tlDados.modoInterior || 'reforma';  // 'reforma' | 'obra_nova'
   const patchTl = (patch) => onNav && onNav((atual) => {
     const base = atual || nav || {};
     const tlAtual = base.tl || tlDados;
@@ -89,6 +91,11 @@ export default function PainelAnimacao({
   });
   const setTlBase = (v) => patchTl({ base: typeof v === 'function' ? v(tlBase) : v });
   const setTlRes = (v) => patchTl({ res: v });
+  const setTlTipo = (v) => patchTl({ tipo: v });
+  const setTlModoInt = (v) => patchTl({ modoInterior: v });
+  // Nº de etapas geradas por tipo (o servidor decide, mas o custo do botão
+  // "completo" precisa saber de antemão): externo=7, reforma=8, obra nova=7.
+  const tlNEtapas = (tlTipo === 'interior' && tlModoInt === 'reforma') ? 8 : 7;
   // Transitórios (não precisam sobreviver à troca de aba).
   const [tlPopRes, setTlPopRes] = useState(false);
   const [tlStatus, setTlStatus] = useState('');   // texto de progresso
@@ -270,7 +277,7 @@ export default function PainelAnimacao({
     const res = tlRes;
     const seqId = 'tl_' + Date.now();   // loteId comum de toda a sequência
     try {
-      const etapas = await timelapsePrompts({ image: baseB64, tipo: 'externo' });
+      const etapas = await timelapsePrompts({ image: baseB64, tipo: tlTipo, modoInterior: tlModoInt });
       const N = etapas.length;
       // slots na ordem do vídeo; o último (pos N) já é a imagem enviada
       const imgs = new Array(N + 1).fill(null);
@@ -570,7 +577,7 @@ export default function PainelAnimacao({
         <section className="up-bloco">
           <div className="cr-sec">Ferramentas</div>
           <div className="seq-cards">
-            <button className="seq-card" onClick={() => setFerramenta('tl-externo')}>
+            <button className="seq-card" onClick={() => { setTlTipo('externo'); setFerramenta('tl-externo'); }}>
               <span className="seq-faixa" style={{ background: '#E6F1FB' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="#185FA5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V11l7-5 7 5v10"/><path d="M9 21v-6h6v6"/><path d="M2 11l10-7 10 7"/></svg>
               </span>
@@ -579,7 +586,7 @@ export default function PainelAnimacao({
                 <span>Gera a sequência de construção (do terreno à obra pronta) a partir de um render externo.</span>
               </span>
             </button>
-            <button className="seq-card" onClick={() => {}}>
+            <button className="seq-card" onClick={() => { setTlTipo('interior'); setFerramenta('tl-interior'); }}>
               <span className="seq-faixa" style={{ background: '#E1F5EE' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="#0F6E56" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M4 21V8h16v13"/><rect x="9" y="13" width="6" height="8"/><path d="M4 8l8-5 8 5"/></svg>
               </span>
@@ -601,7 +608,7 @@ export default function PainelAnimacao({
         </section>
       )}
 
-      {secao === 'sequencias' && ferramenta === 'tl-externo' && (
+      {secao === 'sequencias' && (ferramenta === 'tl-externo' || ferramenta === 'tl-interior') && (
         <>
           {/* ── Voltar (igual ao Editar) ── */}
           <button className="cr-voltar ed-voltar" style={{ alignSelf: 'flex-start' }} onClick={() => !tlRodando && setFerramenta(null)}>
@@ -611,8 +618,35 @@ export default function PainelAnimacao({
             Voltar
           </button>
 
-          <div className="cr-sec" style={{ marginTop: 14 }}>Timelapse Externo</div>
-          <p className="seq-hint">Escolha um render externo final. A IA vai gerar a sequência de desconstrução (da obra pronta até o terreno).</p>
+          <div className="cr-sec" style={{ marginTop: 14 }}>{tlTipo === 'interior' ? 'Timelapse Interiores' : 'Timelapse Externo'}</div>
+          <p className="seq-hint">{tlTipo === 'interior'
+            ? 'Escolha o render final do ambiente. A IA vai gerar a sequência de desconstrução (do ambiente pronto até a estrutura).'
+            : 'Escolha um render externo final. A IA vai gerar a sequência de desconstrução (da obra pronta até o terreno).'}</p>
+
+          {/* ── Interior: escolha reforma / obra nova ── */}
+          {tlTipo === 'interior' && (
+            <section className="up-bloco">
+              <div className="cr-sec">Tipo de obra</div>
+              <div className="seq-modo-int">
+                <button
+                  className={'seq-modo-int-btn' + (tlModoInt === 'reforma' ? ' seq-modo-int-btn--on' : '')}
+                  onClick={() => !tlRodando && tlEtapas.length === 0 && setTlModoInt('reforma')}
+                  disabled={tlRodando || tlEtapas.length > 0}
+                >
+                  <strong>Reforma</strong>
+                  <span>Termina num ambiente simples existente, pronto para reformar.</span>
+                </button>
+                <button
+                  className={'seq-modo-int-btn' + (tlModoInt === 'obra_nova' ? ' seq-modo-int-btn--on' : '')}
+                  onClick={() => !tlRodando && tlEtapas.length === 0 && setTlModoInt('obra_nova')}
+                  disabled={tlRodando || tlEtapas.length > 0}
+                >
+                  <strong>Obra nova</strong>
+                  <span>Termina na estrutura bruta (concreto e alvenaria, sem acabamento).</span>
+                </button>
+              </div>
+            </section>
+          )}
 
           {/* ── Imagem final (mesmo seletor do Render) ── */}
           <section className="up-bloco">
@@ -664,7 +698,7 @@ export default function PainelAnimacao({
               <div className="seq-gerar-item">
                 <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('completo')} disabled={!tlBase}>
                   <span>Gerar sequência completa</span>
-                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseCompleto(tlRes, 7)}</span>}
+                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseCompleto(tlRes, tlNEtapas)}</span>}
                 </button>
                 <p className="seq-gerar-aviso">Gera todas as etapas de uma vez. Pode haver leve perda de qualidade ao longo da sequência.</p>
               </div>
