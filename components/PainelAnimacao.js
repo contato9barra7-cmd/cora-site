@@ -15,7 +15,6 @@ import { useState, useEffect } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
-import Seta from './Seta';
 import { animarKling, custoAnimacao, gerarTimelapse, custoTimelapseEtapa, CREDITOS } from '../lib/render';
 
 const CUSTO_TL_PROMPTS = CREDITOS.tlPrompts;
@@ -85,7 +84,7 @@ export default function PainelAnimacao({
   // Fecha o popover de resolução do timelapse ao clicar fora.
   useEffect(() => {
     if (!tlPopRes) return;
-    function fora(e) { if (!e.target.closest('.cr-pill-wrap')) setTlPopRes(false); }
+    function fora(e) { if (!e.target.closest('.tl-pill-wrap')) setTlPopRes(false); }
     document.addEventListener('mousedown', fora);
     return () => document.removeEventListener('mousedown', fora);
   }, [tlPopRes]);
@@ -413,7 +412,7 @@ export default function PainelAnimacao({
       {secao === 'sequencias' && ferramenta === 'tl-externo' && (
         <>
           {/* ── Voltar (igual ao Editar) ── */}
-          <button className="cr-voltar ed-voltar" onClick={() => !tlRodando && setFerramenta(null)}>
+          <button className="cr-voltar ed-voltar" style={{ alignSelf: 'flex-start' }} onClick={() => !tlRodando && setFerramenta(null)}>
             <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
               <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -442,24 +441,22 @@ export default function PainelAnimacao({
             )}
           </section>
 
-          {/* ── Resolução (pill, igual ao Render/plugin, sem título) ── */}
-          <div className="cr-pill-wrap" style={{ marginTop: 14 }}>
+          {/* ── Resolução (pill estilo plugin: pequeno, à esquerda, seta ▲) ── */}
+          <div className="tl-pill-wrap" style={{ marginTop: 14 }}>
             <button
-              className={'cr-pill-cfg' + (tlPopRes ? ' cr-pill-cfg--on' : '')}
+              className={'tl-pill' + (tlPopRes ? ' tl-pill--on' : '')}
               onClick={(e) => { e.stopPropagation(); setTlPopRes((v) => !v); }}
             >
-              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/>
-              </svg>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
               <span>{tlRes.toUpperCase()}</span>
-              <Seta aberto={tlPopRes} />
+              <span className="tl-pill-seta">▲</span>
             </button>
             {tlPopRes && (
-              <div className="cr-pop cr-pop--res" onClick={(e) => e.stopPropagation()}>
+              <div className="tl-pill-pop" onClick={(e) => e.stopPropagation()}>
                 {['1k', '2k', '4k'].map((rk) => (
                   <button
                     key={rk}
-                    className={'cr-pop-res' + (tlRes === rk ? ' cr-pop-res--on' : '')}
+                    className={'tl-pill-opt' + (tlRes === rk ? ' tl-pill-opt--on' : '')}
                     onClick={() => { setTlRes(rk); setTlPopRes(false); }}
                   >{rk.toUpperCase()}</button>
                 ))}

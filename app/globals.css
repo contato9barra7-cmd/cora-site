@@ -5759,6 +5759,31 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   line-height: 1.5;
   margin: 4px 0 0;
 }
+/* pill de resolução estilo plugin: pequeno, à esquerda, seta ▲ */
+.tl-pill-wrap { position: relative; display: inline-block; }
+.tl-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 11px; border-radius: 100px;
+  border: 1px solid var(--line2); background: var(--paper);
+  color: var(--ink2); font-size: 12px; font-family: inherit; cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.tl-pill:hover, .tl-pill--on { border-color: var(--accent); color: var(--accent); }
+.tl-pill > svg { opacity: .8; flex-shrink: 0; }
+.tl-pill-seta { font-size: 8px; opacity: .4; margin-left: 1px; transition: transform .15s; }
+.tl-pill--on .tl-pill-seta { transform: rotate(180deg); opacity: .7; }
+.tl-pill-pop {
+  position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 20;
+  display: flex; flex-direction: column; gap: 2px; padding: 4px;
+  border-radius: 10px; border: 0.5px solid var(--line2);
+  background: var(--paper); box-shadow: 0 6px 18px rgba(0,0,0,.12);
+}
+.tl-pill-opt {
+  padding: 5px 18px; border: none; background: none; border-radius: 6px;
+  font-size: 12px; color: var(--ink); cursor: pointer; text-align: left; font-family: inherit;
+}
+.tl-pill-opt:hover { background: var(--wash); }
+.tl-pill-opt--on { background: var(--accent-bg); color: var(--accent); }
 /* dois botões de gerar finos, com aviso abaixo (igual plugin) */
 .seq-gerar-box { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
 .seq-gerar-item { display: flex; flex-direction: column; gap: 6px; }
