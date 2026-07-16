@@ -17,7 +17,7 @@ import ModalDownload from './ModalDownload';
 import { salvarEtapaTimelapse } from '../lib/geracoes';
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
-import { animarKling, custoAnimacao, custoTimelapseEtapa, custoTimelapseCompleto, timelapsePrompts, gerarEtapaTimelapse, CREDITOS } from '../lib/render';
+import { animarKling, custoAnimacao, custoTimelapseEtapa, custoTimelapseCompleto, custoTimelapsePrimeira, timelapsePrompts, gerarEtapaTimelapse, CREDITOS } from '../lib/render';
 
 const CUSTO_TL_PROMPTS = CREDITOS.tlPrompts;   // custo do planejamento (8)
 
@@ -247,6 +247,8 @@ export default function PainelAnimacao({
       const imgs = new Array(N + 1).fill(null);
       imgs[N] = baseB64;
       patchTl({ etapas, imgs: imgs.slice(), passo: 0, modo, seqId });
+      // salva a imagem enviada (a obra pronta) no feed — é a última da sequência
+      salvarEtapaNoFeed(baseB64, N, seqId);
 
       if (modo === 'passo') {
         // gera só a 1ª etapa e para para revisão
@@ -259,7 +261,7 @@ export default function PainelAnimacao({
           setTlStatus(`Gerando etapa ${i + 1} de ${N}...`);
           const et = etapas[i] || {};
           const promptEt = et.pt || et.prompt || '';
-          const b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res });
+          const b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res, primeira: i === 0 });
           const pos = (N - 1) - i;
           acc[pos] = b64;
           patchTl({ etapas, imgs: acc.slice(), passo: i + 1, modo, seqId });
@@ -289,7 +291,7 @@ export default function PainelAnimacao({
     const et = etapas[i] || {};
     const promptEt = et.pt || et.prompt || '';
     try {
-      const b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res });
+      const b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res, primeira: i === 0 });
       const pos = (N - 1) - i;
       const acc = imgsAtual.slice();
       acc[pos] = b64;
@@ -621,7 +623,7 @@ export default function PainelAnimacao({
               <div className="seq-gerar-item">
                 <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('passo')} disabled={!tlBase}>
                   <span>Gerar uma a uma</span>
-                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {CUSTO_TL_PROMPTS}</span>}
+                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapsePrimeira(tlRes)}</span>}
                 </button>
                 <p className="seq-gerar-aviso">Gera uma etapa por vez. Você pode revisar e ajustar cada imagem antes de gerar a próxima.</p>
               </div>
@@ -644,6 +646,7 @@ export default function PainelAnimacao({
             <div className="seq-passo-box">
               <button className="cr-btn-gerar seq-gerar-fino" onClick={gerarProxima}>
                 <span>Gerar próxima etapa ({tlPasso + 1}/{tlEtapas.length})</span>
+                <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}</span>
               </button>
               <button className="seq-refazer" onClick={refazerEtapa}>Refazer esta etapa</button>
             </div>
