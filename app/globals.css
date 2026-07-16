@@ -5664,10 +5664,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   text-align: left;
   cursor: pointer;
   font-family: inherit;
-  transition: border-color .15s;
+  transition: border-color .15s, background .15s;
 }
-.anim-sel-btn--on { border: 1.5px solid var(--roxo); }
-.anim-sel-btn:hover:not(.anim-sel-btn--on) { border-color: var(--roxo); }
 .anim-sel-faixa {
   width: 42px;
   align-self: stretch;
@@ -5678,8 +5676,23 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   flex-shrink: 0;
 }
 .anim-sel-faixa svg { width: 18px; height: 18px; }
-.anim-sel-faixa--anim { background: var(--roxo); }
-.anim-sel-faixa--seq  { background: #F0997B; }
+
+/* Inativo: bloco da esquerda na versão clarinha, ícone na cor forte. */
+.anim-sel-faixa--anim { background: #E9E8FC; }
+.anim-sel-faixa--anim svg { stroke: #A4A1F3; }
+.anim-sel-faixa--seq  { background: #FBE9E1; }
+.anim-sel-faixa--seq svg { stroke: #F0997B; }
+
+/* Ativo: película fraquinha na cor + borda forte + bloco na cor cheia. */
+.anim-sel-btn--on { border-width: 1.5px; }
+.anim-sel-btn--anim-on { border-color: var(--roxo); background: rgba(164,161,243,.14); }
+.anim-sel-btn--anim-on .anim-sel-faixa--anim { background: var(--roxo); }
+.anim-sel-btn--anim-on .anim-sel-faixa--anim svg { stroke: #fff; }
+.anim-sel-btn--seq-on { border-color: #F0997B; background: rgba(240,153,123,.14); }
+.anim-sel-btn--seq-on .anim-sel-faixa--seq { background: #F0997B; }
+.anim-sel-btn--seq-on .anim-sel-faixa--seq svg { stroke: #fff; }
+
+.anim-sel-btn:hover:not(.anim-sel-btn--on) { border-color: var(--line); }
 .anim-sel-txt {
   font-size: 13px;
   font-weight: 500;
@@ -5710,6 +5723,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .seq-card:hover { border-color: var(--accent); transform: translateY(-1px); }
 .seq-faixa {
+  width: 100%;
   height: 54px;
   display: flex;
   align-items: center;

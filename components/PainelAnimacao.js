@@ -153,20 +153,20 @@ export default function PainelAnimacao({
       {/* ── Seletor Animação / Sequências (fixo no topo) ── */}
       <div className="anim-seletor">
         <button
-          className={'anim-sel-btn' + (secao === 'animacao' ? ' anim-sel-btn--on' : '')}
+          className={'anim-sel-btn' + (secao === 'animacao' ? ' anim-sel-btn--on anim-sel-btn--anim-on' : '')}
           onClick={() => setSecao('animacao')}
         >
           <span className="anim-sel-faixa anim-sel-faixa--anim">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           </span>
           <span className="anim-sel-txt">Animação</span>
         </button>
         <button
-          className={'anim-sel-btn' + (secao === 'sequencias' ? ' anim-sel-btn--on' : '')}
+          className={'anim-sel-btn' + (secao === 'sequencias' ? ' anim-sel-btn--on anim-sel-btn--seq-on' : '')}
           onClick={() => setSecao('sequencias')}
         >
           <span className="anim-sel-faixa anim-sel-faixa--seq">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
           </span>
           <span className="anim-sel-txt">Sequências</span>
         </button>
