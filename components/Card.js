@@ -48,6 +48,7 @@ const Check = () => (
 
 export default function Card({
   it, modoAB, ladoA, ladoB, onClick,
+  modoSelecao, selecionado, onSelecionar,
   onFavoritar, onAprovar, onBaixar, onExcluir, onEnviarPara, onDetalhes,
   onMedir, razao
 }) {
@@ -78,6 +79,7 @@ export default function Card({
     <div
       className={'cr-card'
         + (ehA || ehB ? ' cr-card--sel' : '')
+        + (modoSelecao && selecionado ? ' cr-card--marcado' : '')
         + (it.aprovado ? ' cr-card--aprovada' : '')}
       style={{ aspectRatio: forma }}
       onClick={onClick}
@@ -117,6 +119,15 @@ export default function Card({
       )}
 
       {/* Qual lado esta imagem ocupa na comparação */}
+      {modoSelecao && (
+        <span className={'cr-card-check' + (selecionado ? ' cr-card-check--on' : '')} aria-hidden="true">
+          {selecionado && (
+            <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="#fff" strokeWidth="2.4">
+              <path d="M5 10l3.2 3.2L15 6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          )}
+        </span>
+      )}
       {modoAB && ehA && <span className="cr-card-ab">A</span>}
       {modoAB && ehB && <span className="cr-card-ab">B</span>}
 

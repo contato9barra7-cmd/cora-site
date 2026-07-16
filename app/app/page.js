@@ -251,7 +251,68 @@ export default function AppPage() {
     }
   }
 
-  // ── Gerar com o pincel ──
+  // ── Seleção múltipla no feed ──
+  function alternarSelecao(id) {
+    setSelecionados((atual) =>
+      atual.includes(id) ? atual.filter((x) => x !== id) : [...atual, id]
+    );
+  }
+  function sairDaSelecao() {
+    setModoSelecao(false);
+    setSelecionados([]);
+    setFormatoZip(false);
+  }
+  // Baixa todas as selecionadas num único .zip, no formato escolhido.
+  async function baixarZip(formato) {
+    if (!selecionados.length) return;
+    setFormatoZip(false);
+    setBaixandoZip(true);
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      const ext = formato === 'jpeg' ? 'jpg' : 'png';
+      let n = 1;
+      for (const id of selecionados) {
+        try {
+          const b64 = await bytesDaGeracao(id);   // base64 PNG do servidor
+          let dados = b64;
+          if (formato === 'jpeg') {
+            dados = await pngParaJpeg(b64);        // converte via canvas
+          }
+          zip.file(`cora-${String(n).padStart(2, '0')}.${ext}`, dados, { base64: true });
+          n++;
+        } catch (e) { /* pula a que falhar */ }
+      }
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cora-imagens.zip';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      sairDaSelecao();
+    } catch (e) {
+      setErro('Não foi possível gerar o zip: ' + e.message);
+    } finally {
+      setBaixandoZip(false);
+    }
+  }
+  // Converte um PNG base64 para JPEG base64 (fundo branco), via canvas.
+  function pngParaJpeg(b64) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth; c.height = img.naturalHeight;
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0);
+        resolve(c.toDataURL('image/jpeg', 0.92).split(',')[1]);
+      };
+      img.onerror = () => reject(new Error('falha ao converter'));
+      img.src = 'data:image/png;base64,' + b64;
+    });
+  }
   //
   //  A tela devolve a imagem e a máscara já prontas (preto-e-branco, no
   //  tamanho nativo). Quem cobra é o servidor — e estorna se falhar.
@@ -359,6 +420,11 @@ export default function AppPage() {
   // Modo A/B: a pessoa escolhe AS DUAS imagens no feed. A que estava
   // aberta não entra sozinha — comparar deve valer para qualquer par.
   const [modoAB, setModoAB] = useState(false);
+  // Seleção múltipla no feed: modo ativo + ids marcados + modal de formato.
+  const [modoSelecao, setModoSelecao] = useState(false);
+  const [selecionados, setSelecionados] = useState([]);   // ids
+  const [baixandoZip, setBaixandoZip] = useState(false);
+  const [formatoZip, setFormatoZip] = useState(false);    // abre modal de formato
   const [ladoA, setLadoA]   = useState(null);
   const [ladoB, setLadoB]   = useState(null);
 
@@ -871,6 +937,17 @@ export default function AppPage() {
                 <span className="cr-ab-ico">A/B</span>
               </button>
 
+              <button
+                className={'cr-fbtn' + (modoSelecao ? ' cr-fbtn--on' : '')}
+                onClick={() => (modoSelecao ? sairDaSelecao() : setModoSelecao(true))}
+                data-tip="Selecionar várias"
+                aria-label="Selecionar"
+              >
+                <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <rect x="3" y="3" width="14" height="14" rx="2.5"/><path d="M7 10l2.2 2.2L14 7" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+
               {/* Como o feed se apresenta */}
               <div className="cr-seg-lay">
                 <button
@@ -1197,9 +1274,13 @@ export default function AppPage() {
                       modoAB={modoAB}
                       ladoA={ladoA}
                       ladoB={ladoB}
+                      modoSelecao={modoSelecao}
+                      selecionado={selecionados.includes(it.id)}
+                      onSelecionar={() => alternarSelecao(it.id)}
                       onMedir={medir}
                       razao={razao}
                       onClick={() => {
+                        if (modoSelecao) { alternarSelecao(it.id); return; }
                         if (modoAB) { escolherAB(it); return; }
                         setVendo({ loteId: it.loteId, itemId: it.id });
                       }}
@@ -1256,7 +1337,11 @@ export default function AppPage() {
                         modoAB={modoAB}
                         ladoA={ladoA}
                         ladoB={ladoB}
+                        modoSelecao={modoSelecao}
+                        selecionado={selecionados.includes(item.id)}
+                        onSelecionar={() => alternarSelecao(item.id)}
                         onClick={() => {
+                          if (modoSelecao) { alternarSelecao(item.id); return; }
                           if (modoAB) { escolherAB({ ...item, loteId: lote.loteId }); return; }
                           setVendo({ loteId: lote.loteId, itemId: item.id });
                         }}
@@ -1360,6 +1445,31 @@ export default function AppPage() {
         <ModalDownload
           item={baixando}
           onFechar={() => setBaixando(null)}
+        />
+      )}
+
+      {/* Barra flutuante da seleção múltipla */}
+      {modoSelecao && (
+        <div className="cr-selbar">
+          <span className="cr-selbar-n">{selecionados.length} selecionada{selecionados.length === 1 ? '' : 's'}</span>
+          <div className="cr-selbar-acoes">
+            <button className="cr-selbar-cancelar" onClick={sairDaSelecao}>Cancelar</button>
+            <button
+              className="cr-selbar-baixar"
+              onClick={() => setFormatoZip(true)}
+              disabled={!selecionados.length || baixandoZip}
+            >
+              {baixandoZip ? 'Preparando...' : `Baixar (${selecionados.length})`}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de formato para o zip */}
+      {formatoZip && (
+        <ModalDownload
+          aoBaixar={(formato) => baixarZip(formato)}
+          onFechar={() => setFormatoZip(false)}
         />
       )}
 

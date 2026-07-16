@@ -228,7 +228,7 @@ export default function PainelAnimacao({
         proporcao: tlBase && tlBase.proporcao,
         resolucao: tlRes
       });
-    } catch (e) { /* não trava a sequência */ }
+    } catch (e) { console.error('[timelapse] falha ao salvar no feed:', e && e.message); }
   }
 
   async function rodarTimelapse(modo) {
