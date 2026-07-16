@@ -327,8 +327,12 @@ export default function AppPage() {
   const [navAnimacao, setNavAnimacao] = useState({
     secao: 'animacao',
     ferramenta: null,
-    tl: { base: null, res: '2k', etapas: [], imgs: [], passo: 0, modo: null }
+    tl: { base: null, res: '2k', etapas: [], imgs: [], passo: 0, modo: null, seqId: null }
   });
+  // Quando uma etapa do timelapse é mandada para a Pós, guardamos para onde
+  // voltar (qual slot) — a Pós mostra os botões Pronto/Cancelar.
+  const [posRetornoTL, setPosRetornoTL] = useState(null);   // { pos } | null
+  const [posImgEditada, setPosImgEditada] = useState(null); // base64 que volta para o slot
 
   const [filtro, setFiltro]         = useState('tudo');
   const [busca, setBusca]           = useState('');
@@ -582,14 +586,31 @@ export default function AppPage() {
   // Envia uma imagem em base64 (que ainda não está no feed, ex.: uma etapa do
   // timelapse) para outra aba. Aceita um "slot" opcional (ex.: 'fim' na
   // animação) para a aba de destino saber onde colocar.
-  function enviarBase64Para(destino, base64, slot) {
+  function enviarBase64Para(destino, base64, slot, contexto) {
     setImagemDeOutraAba({
       base64,
       previa: 'data:image/png;base64,' + base64,
       para: destino,
       slot: slot || null
     });
+    // Se veio do timelapse para a Pós, guarda o retorno (qual slot atualizar).
+    if (destino === 'pos' && contexto && Number.isInteger(contexto.pos)) {
+      setPosRetornoTL({ pos: contexto.pos });
+    }
     setFerramenta(destino);
+  }
+
+  // A Pós terminou de editar uma etapa do timelapse: guarda a imagem editada
+  // para o painel de Animação recolocá-la no slot, e volta para lá.
+  function posTimelapsePronto(dataUrl) {
+    const b64 = (dataUrl || '').split(',')[1] || '';
+    setPosImgEditada({ pos: posRetornoTL ? posRetornoTL.pos : null, base64: b64, ts: Date.now() });
+    setPosRetornoTL(null);
+    setFerramenta('animacao');
+  }
+  function posTimelapseCancelar() {
+    setPosRetornoTL(null);
+    setFerramenta('animacao');
   }
 
   function aoGerar(r) {
@@ -644,6 +665,9 @@ export default function AppPage() {
         <div className="cr-tela">
           <PainelPos
             imagemInicial={imagemDeOutraAba?.para === 'pos' ? imagemDeOutraAba : null}
+            timelapseRetorno={posRetornoTL}
+            aoConcluirTimelapse={posTimelapsePronto}
+            aoCancelarTimelapse={posTimelapseCancelar}
             aoSair={() => setFerramenta('render')}
             aoSalvarHistorico={async (dataUrl, extras) => {
               // A imagem editada vai para o feed, ao lado das gerações de IA.
@@ -779,6 +803,7 @@ export default function AppPage() {
               nav={navAnimacao}
               onNav={setNavAnimacao}
               onEnviarBase64={enviarBase64Para}
+              imgEditadaPos={posImgEditada}
               onIniciar={(base, prop) => iniciarGeracaoAtiva(base, 'Gerando animação', prop)}
               onTerminar={(id) => { terminarGeracaoAtiva(id); recarregarComFolga(); }}
             />

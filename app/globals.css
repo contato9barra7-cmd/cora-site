@@ -5839,6 +5839,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: transparent; color: var(--ink2); font-size: 12.5px; font-family: inherit; cursor: pointer;
 }
 .seq-refazer:hover { border-color: var(--accent); color: var(--accent); }
+.seq-reset-box { margin-top: 16px; text-align: right; }
+.seq-reset {
+  background: transparent; border: none; padding: 0; cursor: pointer;
+  color: var(--ink3); font-size: 11px; font-weight: 600; font-family: inherit;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.seq-reset:hover { color: var(--accent); }
 .seq-slot {
   position: relative;
   aspect-ratio: 1;
@@ -8370,6 +8377,20 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   flex-direction: column;
   min-width: 0;
   background: var(--paper);
+  position: relative;
+}
+.ps-tl-acoes {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  z-index: 40;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--paper);
+  border: 0.5px solid var(--line);
+  box-shadow: 0 6px 20px rgba(0,0,0,.16);
 }
 
 /* ── A topbar ── */

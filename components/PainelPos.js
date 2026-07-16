@@ -150,7 +150,7 @@ function proporcaoMaisProxima(w, h) {
   return melhor;
 }
 
-export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagemInicial }) {
+export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagemInicial, timelapseRetorno, aoConcluirTimelapse, aoCancelarTimelapse }) {
   // ── A pilha ──
   // A ordem é de CIMA para baixo, como na coluna. camadas[0] é a do topo.
   const [camadas, setCamadas] = useState([]);
@@ -928,6 +928,18 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     const l = mesclarCopia(camadas, med.w, med.h);
     setCamadas((cs) => [l, ...cs]);
     setSel([l.id]);
+  }
+
+  // "Pronto" (fluxo timelapse): exporta a imagem editada e devolve ao slot.
+  function concluirTimelapse() {
+    if (!med || !aoConcluirTimelapse) return;
+    try {
+      const dataUrl = exportar(camadas, med.w, med.h);
+      aoConcluirTimelapse(dataUrl);
+    } catch (e) {
+      setToast(e.message || 'Não foi possível concluir');
+      setTimeout(() => setToast(null), 3200);
+    }
   }
 
   // ── Salvar no histórico ──
@@ -3543,6 +3555,13 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
         onEscolher={escolheuDoPicker}
         titulo={picker === 'camada' ? 'Adicionar camada' : 'Abrir imagem'}
       />
+
+      {timelapseRetorno && (
+        <div className="ps-tl-acoes">
+          <button className="ps-b" onClick={() => aoCancelarTimelapse && aoCancelarTimelapse()}>Cancelar</button>
+          <button className="ps-b ps-b--on" onClick={concluirTimelapse} disabled={!temImagem}>Pronto</button>
+        </div>
+      )}
     </section>
   );
 }

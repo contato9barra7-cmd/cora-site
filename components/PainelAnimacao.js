@@ -11,8 +11,10 @@
 //  Narrativa) entram numa próxima rodada.
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PickerImagem from './PickerImagem';
+import ModalDownload from './ModalDownload';
+import { salvarEtapaTimelapse } from '../lib/geracoes';
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
 import { animarKling, custoAnimacao, custoTimelapseEtapa, timelapsePrompts, gerarEtapaTimelapse, CREDITOS } from '../lib/render';
@@ -43,7 +45,7 @@ const DURACOES = {
 const AUDIO_SUP = { 'v2-1': false, 'v2-5': false, 'v2-6': true, 'v3': true };
 
 export default function PainelAnimacao({
-  imagemInicial, ehAdmin, nav, onNav, onEnviarBase64, onIniciar, onTerminar
+  imagemInicial, ehAdmin, nav, onNav, onEnviarBase64, imgEditadaPos, onIniciar, onTerminar
 }) {
   // Seção e ferramenta vêm do pai (persistem ao trocar de aba e voltar).
   const secao = (nav && nav.secao) || 'animacao';
@@ -61,6 +63,7 @@ export default function PainelAnimacao({
   const tlImgs = tlDados.imgs || [];
   const tlPasso = tlDados.passo || 0;      // próxima etapa a gerar (modo passo)
   const tlModo = tlDados.modo || null;     // 'completo' | 'passo'
+  const tlSeqId = tlDados.seqId || null;   // loteId comum das etapas no feed
   const patchTl = (patch) => onNav && onNav((atual) => {
     const base = atual || nav || {};
     const tlAtual = base.tl || tlDados;
@@ -75,7 +78,7 @@ export default function PainelAnimacao({
   const [tlErro, setTlErro]   = useState('');
   // Visualizador da imagem da sequência (índice aberto, ou null).
   const [tlVer, setTlVer]     = useState(null);
-  const [tlFmt, setTlFmt]     = useState(false);   // popover PNG/JPEG
+  const [tlBaixar, setTlBaixar] = useState(false);   // modal de download
   const [modelo, setModelo]   = useState('');
   const [inicio, setInicio]   = useState(null);   // { base64 }
   const [fim, setFim]         = useState(null);
@@ -116,6 +119,23 @@ export default function PainelAnimacao({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imagemInicial]);
+
+  // Imagem editada que voltou da Pós (fluxo "enviar para pós" de uma etapa):
+  // recoloca no slot correspondente e salva a versão editada no feed.
+  const posEditRef = useRef(null);
+  useEffect(() => {
+    if (imgEditadaPos && imgEditadaPos.ts && imgEditadaPos.ts !== posEditRef.current && imgEditadaPos.base64) {
+      posEditRef.current = imgEditadaPos.ts;
+      const pos = imgEditadaPos.pos;
+      if (Number.isInteger(pos)) {
+        const acc = tlImgs.slice();
+        acc[pos] = imgEditadaPos.base64;
+        patchTl({ imgs: acc });
+        salvarEtapaNoFeed(imgEditadaPos.base64, pos, tlSeqId);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imgEditadaPos]);
 
   // Mede a imagem para guardar w/h (a proporção do vídeo segue a inicial).
   function definirInicio(b64) {
@@ -198,6 +218,19 @@ export default function PainelAnimacao({
   //  etapa) ... pos N = a imagem enviada (obra pronta, já preenchida).
   //  A etapa i (0..N-1) desconstrói a partir da imagem da etapa anterior e
   //  ocupa o slot pos = (N-1) - i.
+  // Salva uma etapa no feed, com o loteId comum da sequência (para agrupar).
+  // Best-effort: se falhar, a geração não é interrompida.
+  async function salvarEtapaNoFeed(b64, pos, seqId) {
+    try {
+      await salvarEtapaTimelapse(b64, {
+        loteId: seqId,
+        ordem: pos,
+        proporcao: tlBase && tlBase.proporcao,
+        resolucao: tlRes
+      });
+    } catch (e) { /* não trava a sequência */ }
+  }
+
   async function rodarTimelapse(modo) {
     if (!tlBase) { setTlErro('Suba a imagem base primeiro'); return; }
     setTlErro('');
@@ -206,17 +239,18 @@ export default function PainelAnimacao({
     const baseB64 = tlBase.base64;
     const prop = tlBase.proporcao || 'auto';
     const res = tlRes;
+    const seqId = 'tl_' + Date.now();   // loteId comum de toda a sequência
     try {
       const etapas = await timelapsePrompts({ image: baseB64, tipo: 'externo' });
       const N = etapas.length;
       // slots na ordem do vídeo; o último (pos N) já é a imagem enviada
       const imgs = new Array(N + 1).fill(null);
       imgs[N] = baseB64;
-      patchTl({ etapas, imgs: imgs.slice(), passo: 0, modo });
+      patchTl({ etapas, imgs: imgs.slice(), passo: 0, modo, seqId });
 
       if (modo === 'passo') {
         // gera só a 1ª etapa e para para revisão
-        await gerarEtapaPasso(0, etapas, imgs, baseB64, prop, res);
+        await gerarEtapaPasso(0, etapas, imgs, baseB64, prop, res, seqId);
       } else {
         // completo: gera todas em cadeia
         let base = baseB64;
@@ -228,7 +262,8 @@ export default function PainelAnimacao({
           const b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res });
           const pos = (N - 1) - i;
           acc[pos] = b64;
-          patchTl({ etapas, imgs: acc.slice(), passo: i + 1, modo });
+          patchTl({ etapas, imgs: acc.slice(), passo: i + 1, modo, seqId });
+          salvarEtapaNoFeed(b64, pos, seqId);
           base = b64;
         }
         setTlStatus('Sequência completa!');
@@ -243,8 +278,9 @@ export default function PainelAnimacao({
 
   // Gera uma etapa específica (modo passo). Usa a imagem da etapa anterior
   // como base (ou a enviada, se for a primeira).
-  async function gerarEtapaPasso(i, etapas, imgsAtual, baseInicial, prop, res) {
+  async function gerarEtapaPasso(i, etapas, imgsAtual, baseInicial, prop, res, seqId) {
     const N = etapas.length;
+    const idSeq = seqId || tlSeqId || ('tl_' + Date.now());
     setTlRodando(true);
     setTlStatus(`Gerando etapa ${i + 1} de ${N}...`);
     // base = imagem da etapa anterior (pos maior) ou a enviada
@@ -257,7 +293,8 @@ export default function PainelAnimacao({
       const pos = (N - 1) - i;
       const acc = imgsAtual.slice();
       acc[pos] = b64;
-      patchTl({ etapas, imgs: acc, passo: i + 1, modo: 'passo' });
+      patchTl({ etapas, imgs: acc, passo: i + 1, modo: 'passo', seqId: idSeq });
+      salvarEtapaNoFeed(b64, pos, idSeq);
       setTlStatus(i + 1 >= N ? 'Sequência completa!' : `Etapa ${i + 1} pronta. Revise e gere a próxima.`);
     } catch (e) {
       setTlErro(e.message);
@@ -270,7 +307,7 @@ export default function PainelAnimacao({
   // Botão "gerar próxima etapa" (modo passo).
   async function gerarProxima() {
     if (!tlBase) return;
-    await gerarEtapaPasso(tlPasso, tlEtapas, tlImgs, tlBase.base64, tlBase.proporcao || 'auto', tlRes);
+    await gerarEtapaPasso(tlPasso, tlEtapas, tlImgs, tlBase.base64, tlBase.proporcao || 'auto', tlRes, tlSeqId);
   }
 
   // Botão "refazer esta etapa": regenera a última etapa gerada.
@@ -283,7 +320,14 @@ export default function PainelAnimacao({
     const acc = tlImgs.slice();
     acc[pos] = null;         // limpa o slot
     patchTl({ imgs: acc, passo: i });
-    await gerarEtapaPasso(i, tlEtapas, acc, tlBase.base64, tlBase.proporcao || 'auto', tlRes);
+    await gerarEtapaPasso(i, tlEtapas, acc, tlBase.base64, tlBase.proporcao || 'auto', tlRes, tlSeqId);
+  }
+
+  // "Resetar e fazer outra": zera a sequência inteira (volta ao estado inicial).
+  function resetarTimelapse() {
+    setTlErro('');
+    setTlStatus('');
+    patchTl({ base: null, etapas: [], imgs: [], passo: 0, modo: null });
   }
 
   // Baixa uma etapa no formato escolhido (png ou jpeg), convertendo via canvas.
@@ -594,7 +638,6 @@ export default function PainelAnimacao({
             <div className="seq-passo-box">
               <button className="cr-btn-gerar seq-gerar-fino" onClick={gerarProxima}>
                 <span>Gerar próxima etapa ({tlPasso + 1}/{tlEtapas.length})</span>
-                <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}</span>
               </button>
               <button className="seq-refazer" onClick={refazerEtapa}>Refazer esta etapa</button>
             </div>
@@ -623,13 +666,19 @@ export default function PainelAnimacao({
               })}
             </div>
           )}
+
+          {tlEtapas.length > 0 && !tlRodando && (
+            <div className="seq-reset-box">
+              <button className="seq-reset" onClick={resetarTimelapse}>Resetar e fazer outra</button>
+            </div>
+          )}
         </>
       )}
 
       {tlVer !== null && tlImgs[tlVer] && (
-        <div className="cr-overlay" onClick={() => { setTlVer(null); setTlFmt(false); }}>
+        <div className="cr-overlay" onClick={() => { setTlVer(null); setTlBaixar(false); }}>
           <div className="vz vz-tl" onClick={(e) => e.stopPropagation()}>
-            <button className="vz-x" onClick={() => { setTlVer(null); setTlFmt(false); }} aria-label="Fechar">
+            <button className="vz-x" onClick={() => { setTlVer(null); setTlBaixar(false); }} aria-label="Fechar">
               <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
               </svg>
@@ -649,29 +698,28 @@ export default function PainelAnimacao({
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="1.5"/><path d="M4 17l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 12 3.5)"/></svg>
               </button>
               <button className="vz-ico" data-tip="Pós-produção" aria-label="Enviar para pós-produção"
-                onClick={() => { onEnviarBase64 && onEnviarBase64('pos', tlImgs[tlVer]); setTlVer(null); }}>
+                onClick={() => { onEnviarBase64 && onEnviarBase64('pos', tlImgs[tlVer], null, { pos: tlVer }); setTlVer(null); }}>
                 <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <path d="M3 5h8M3 10h13M3 15h6" strokeLinecap="round"/>
                   <circle cx="14.5" cy="5" r="1.7"/><circle cx="11" cy="15" r="1.7"/>
                 </svg>
               </button>
-              <div className="vz-pill-wrap">
-                <button className="vz-ico" data-tip="Baixar" aria-label="Baixar" onClick={() => setTlFmt((v) => !v)}>
-                  <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M3.5 15v1.5h13V15" strokeLinecap="round"/>
-                  </svg>
-                </button>
-                {tlFmt && (
-                  <div className="vz-fmt-pop" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={() => { baixarEtapa(tlVer, 'png'); setTlFmt(false); }}>PNG</button>
-                    <button onClick={() => { baixarEtapa(tlVer, 'jpeg'); setTlFmt(false); }}>JPEG</button>
-                  </div>
-                )}
-              </div>
+              <button className="vz-ico" data-tip="Baixar" aria-label="Baixar" onClick={() => setTlBaixar(true)}>
+                <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3.5 15v1.5h13V15" strokeLinecap="round"/>
+                </svg>
+              </button>
             </footer>
           </div>
         </div>
+      )}
+
+      {tlBaixar && tlVer !== null && tlImgs[tlVer] && (
+        <ModalDownload
+          aoBaixar={(formato) => baixarEtapa(tlVer, formato)}
+          onFechar={() => setTlBaixar(false)}
+        />
       )}
 
       <PickerImagem
