@@ -63,7 +63,7 @@ function proporcaoMaisProximaTL(w, h) {
 }
 
 export default function PainelAnimacao({
-  imagemInicial, ehAdmin, nav, onNav, onEnviarBase64, imgEditadaPos, onIniciar, onTerminar, onFeedAtualizar, onEtapaIniciar, onEtapaTerminar, onMostrarInicial, onRemoverInicial
+  imagemInicial, ehAdmin, nav, onNav, onEnviarBase64, imgEditadaPos, onIniciar, onTerminar, onFeedAtualizar, onEtapaIniciar, onEtapaTerminar, onEtapaPronta, onMostrarInicial, onRemoverInicial
 }) {
   // Seção e ferramenta vêm do pai (persistem ao trocar de aba e voltar).
   const secao = (nav && nav.secao) || 'animacao';
@@ -296,9 +296,12 @@ export default function PainelAnimacao({
           let b64;
           try {
             b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res, primeira: i === 0 });
-          } finally {
-            onEtapaTerminar && phId && onEtapaTerminar(phId);
+          } catch (e) {
+            onEtapaTerminar && phId && onEtapaTerminar(phId);   // falhou: tira o placeholder
+            throw e;
           }
+          // Pronta: o placeholder vira a imagem na hora (sem esperar o feed).
+          onEtapaPronta && phId && onEtapaPronta(phId, b64, i + 1);
           acc[pos] = b64;
           patchTl({ etapas, imgs: acc.slice(), passo: i + 1, modo, seqId });
           salvarEtapaNoFeed(b64, i + 1, seqId, base);
@@ -338,14 +341,15 @@ export default function PainelAnimacao({
       const pos = (N - 1) - i;
       const acc = imgsAtual.slice();
       acc[pos] = b64;
+      onEtapaPronta && phId && onEtapaPronta(phId, b64, i + 1);   // vira imagem na hora
       patchTl({ etapas, imgs: acc, passo: i + 1, modo: 'passo', seqId: idSeq });
       salvarEtapaNoFeed(b64, i + 1, idSeq, base);
       setTlStatus(i + 1 >= N ? 'Sequência completa!' : `Etapa ${i + 1} pronta. Revise e gere a próxima.`);
     } catch (e) {
+      onEtapaTerminar && phId && onEtapaTerminar(phId);   // falhou: tira o placeholder
       setTlErro(e.message);
       setTlStatus('');
     } finally {
-      onEtapaTerminar && phId && onEtapaTerminar(phId);
       setTlRodando(false);
     }
   }

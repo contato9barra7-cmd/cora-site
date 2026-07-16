@@ -196,6 +196,14 @@ export default function AppPage() {
   function terminarGeracaoAtiva(id) {
     setUpsAtivos((l) => l.filter((u) => u.id !== id));
   }
+  // Converte um placeholder "gerando" em card PRONTO na hora, mostrando o
+  // base64 recém-gerado — sem esperar o feed voltar do servidor. Some sozinho
+  // quando o recarregar traz a imagem real (o lote passa a ter a etapa).
+  function etapaProntaAtiva(id, base64, ordem) {
+    setUpsAtivos((l) => l.map((u) => u.id === id
+      ? { ...u, pronta: true, base: 'data:image/png;base64,' + base64, ordem }
+      : u));
+  }
   // Card "pronto" no bloco gerando: a imagem inicial do timelapse (a que a
   // pessoa enviou) fica ao lado dos placeholders enquanto a sequência roda.
   function mostrarInicialTimelapse(base, proporcao) {
@@ -531,6 +539,16 @@ export default function AppPage() {
         if (silencioso && (!novos || novos.length === 0) && atual.length > 0) return atual;
         return novos;
       });
+      // Limpa os cards "prontos" (timelapse) cujo lote já veio do servidor com
+      // aquela etapa: o feed real assume, sem piscar. Conta os itens do lote.
+      setUpsAtivos((ativos) => ativos.filter((u) => {
+        if (!u.pronta || !u.loteId) return true;
+        const lote = novos.find((l) => l.loteId === u.loteId);
+        if (!lote) return true;   // lote ainda não veio: segura o card pronto
+        // O card representa uma etapa (ordem >= 1). Se o lote já tem essa ordem
+        // entre os itens salvos, o card pode sair.
+        return !lote.itens.some((it) => it.ordem === u.ordem);
+      }));
     } catch (e) {
       setErro(e.message);
     } finally {
@@ -963,6 +981,7 @@ export default function AppPage() {
               onFeedAtualizar={() => recarregarComFolga()}
               onEtapaIniciar={(base, prop, loteId) => iniciarGeracaoAtiva('data:image/png;base64,' + base, 'Gerando etapa', prop, loteId)}
               onEtapaTerminar={(id) => terminarGeracaoAtiva(id)}
+              onEtapaPronta={(id, b64, ordem) => etapaProntaAtiva(id, b64, ordem)}
               onMostrarInicial={(base, prop) => mostrarInicialTimelapse('data:image/png;base64,' + base, prop)}
               onRemoverInicial={(id) => removerInicialTimelapse(id)}
             />
@@ -1431,11 +1450,13 @@ export default function AppPage() {
                         junto das novas que já ficaram prontas. */}
                     {upsAtivos.filter((u) => u.loteId === lote.loteId).map((u) => (
                       <div key={u.id} className="cr-slot cr-slot--agora" style={{ aspectRatio: lote.proporcao ? proporcaoCss(lote.proporcao) : '1 / 1' }}>
-                        {u.base && <img className="cr-slot-base" src={u.base} alt="" />}
-                        <div className="cr-ger-capa">
-                          <span className="cr-ger-spin" />
-                          <span className="cr-ger-txt">{u.rotulo}</span>
-                        </div>
+                        {u.base && <img className={u.pronta ? '' : 'cr-slot-base'} src={u.base} alt="" style={u.pronta ? { width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: 'inherit' } : undefined} />}
+                        {!u.pronta && (
+                          <div className="cr-ger-capa">
+                            <span className="cr-ger-spin" />
+                            <span className="cr-ger-txt">{u.rotulo}</span>
+                          </div>
+                        )}
                       </div>
                     ))}
                     {(lote.ferramenta === 'timelapse' ? [...lote.itens].reverse() : lote.itens).map((item) => (
