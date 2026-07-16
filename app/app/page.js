@@ -188,9 +188,9 @@ export default function AppPage() {
   // Gerações em andamento (upscale, animação) — canal próprio, para vários ao
   // mesmo tempo sem depender do `progresso` (que é único e serve as abas normais).
   const [upsAtivos, setUpsAtivos] = useState([]);   // [{ id, base, rotulo, proporcao }]
-  function iniciarGeracaoAtiva(base, rotulo, proporcao) {
+  function iniciarGeracaoAtiva(base, rotulo, proporcao, loteId) {
     const id = 'ger_ativo_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-    setUpsAtivos((l) => [...l, { id, base, rotulo: rotulo || 'Gerando', proporcao: proporcao || null }]);
+    setUpsAtivos((l) => [...l, { id, base, rotulo: rotulo || 'Gerando', proporcao: proporcao || null, loteId: loteId || null }]);
     return id;
   }
   function terminarGeracaoAtiva(id) {
@@ -953,7 +953,7 @@ export default function AppPage() {
               onIniciar={(base, prop) => iniciarGeracaoAtiva(base, 'Gerando animação', prop)}
               onTerminar={(id) => { terminarGeracaoAtiva(id); recarregarComFolga(); }}
               onFeedAtualizar={() => recarregarComFolga()}
-              onEtapaIniciar={(base, prop) => iniciarGeracaoAtiva('data:image/png;base64,' + base, 'Gerando etapa', prop)}
+              onEtapaIniciar={(base, prop, loteId) => iniciarGeracaoAtiva('data:image/png;base64,' + base, 'Gerando etapa', prop, loteId)}
               onEtapaTerminar={(id) => terminarGeracaoAtiva(id)}
               onMostrarInicial={(base, prop) => mostrarInicialTimelapse('data:image/png;base64,' + base, prop)}
               onRemoverInicial={(id) => removerInicialTimelapse(id)}
@@ -1167,7 +1167,7 @@ export default function AppPage() {
 
             {erro && <div className="cr-erro">{erro}</div>}
 
-            {upsAtivos.map((u) => (
+            {upsAtivos.filter((u) => !u.loteId).map((u) => (
               <div className="cr-gerando" key={u.id}>
                 <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
                   <div className="cr-slot cr-slot--agora" style={{ aspectRatio: u.proporcao ? proporcaoCss(u.proporcao) : '1 / 1' }}>
@@ -1441,6 +1441,17 @@ export default function AppPage() {
                         onEnviarPara={enviarPara}
                         onDetalhes={() => setDetalhes({ lote, item })}
                       />
+                    ))}
+                    {/* Etapas do timelapse ainda gerando: aparecem NESTE lote,
+                        ao lado das que já ficaram prontas. */}
+                    {upsAtivos.filter((u) => u.loteId === lote.loteId).map((u) => (
+                      <div key={u.id} className="cr-slot cr-slot--agora" style={{ aspectRatio: lote.proporcao ? proporcaoCss(lote.proporcao) : '1 / 1' }}>
+                        {u.base && <img className="cr-slot-base" src={u.base} alt="" />}
+                        <div className="cr-ger-capa">
+                          <span className="cr-ger-spin" />
+                          <span className="cr-ger-txt">{u.rotulo}</span>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </article>

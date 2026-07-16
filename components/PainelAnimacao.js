@@ -292,7 +292,7 @@ export default function PainelAnimacao({
           const et = etapas[i] || {};
           const promptEt = et.pt || et.prompt || '';
           const pos = (N - 1) - i;
-          const phId = onEtapaIniciar ? onEtapaIniciar(base, prop) : null;   // placeholder carregando no feed
+          const phId = onEtapaIniciar ? onEtapaIniciar(base, prop, seqId) : null;   // placeholder carregando no feed
           let b64;
           try {
             b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res, primeira: i === 0 });
@@ -326,7 +326,7 @@ export default function PainelAnimacao({
     const base = i === 0 ? baseInicial : (imgsAtual[posAnterior] || baseInicial);
     const et = etapas[i] || {};
     const promptEt = et.pt || et.prompt || '';
-    const phId = onEtapaIniciar ? onEtapaIniciar(base, prop) : null;   // placeholder carregando no feed
+    const phId = onEtapaIniciar ? onEtapaIniciar(base, prop, idSeq) : null;   // placeholder carregando no feed
     try {
       const b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res, primeira: i === 0 });
       const pos = (N - 1) - i;
