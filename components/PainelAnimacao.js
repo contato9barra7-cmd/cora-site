@@ -15,9 +15,7 @@ import { useState, useEffect } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
-import { animarKling, custoAnimacao, gerarTimelapse, custoTimelapseEtapa, CREDITOS } from '../lib/render';
-
-const CUSTO_TL_PROMPTS = CREDITOS.tlPrompts;
+import { animarKling, custoAnimacao, custoTimelapseEtapa, timelapsePrompts, gerarEtapaTimelapse } from '../lib/render';
 
 const MODELOS = [
   { v: 'v2-1', n: 'Kling 2.1' },
@@ -54,11 +52,13 @@ export default function PainelAnimacao({
   const setFerramenta = (f) => onNav && onNav((a) => ({ ...(a || nav), secao: 'sequencias', ferramenta: f }));
   // Timelapse Externo
   // Dados do timelapse que NÃO podem se perder ao trocar de aba (vêm do pai).
-  const tlDados = (nav && nav.tl) || { base: null, res: '2k', etapas: [], imgs: [] };
+  const tlDados = (nav && nav.tl) || { base: null, res: '2k', etapas: [], imgs: [], passo: 0, modo: null };
   const tlBase = tlDados.base;
   const tlRes = tlDados.res || '2k';
   const tlEtapas = tlDados.etapas || [];
   const tlImgs = tlDados.imgs || [];
+  const tlPasso = tlDados.passo || 0;      // próxima etapa a gerar (modo passo)
+  const tlModo = tlDados.modo || null;     // 'completo' | 'passo'
   const patchTl = (patch) => onNav && onNav((atual) => {
     const base = atual || nav || {};
     const tlAtual = base.tl || tlDados;
@@ -190,45 +190,98 @@ export default function PainelAnimacao({
     }
   }
 
-  // ── Timelapse Externo: dispara a sequência inteira ──
+  // ── Timelapse Externo ──
+  //
+  //  N etapas geram N+1 slots na ORDEM DO VÍDEO: pos 0 = terreno (primeira
+  //  etapa) ... pos N = a imagem enviada (obra pronta, já preenchida).
+  //  A etapa i (0..N-1) desconstrói a partir da imagem da etapa anterior e
+  //  ocupa o slot pos = (N-1) - i.
   async function rodarTimelapse(modo) {
     if (!tlBase) { setTlErro('Suba a imagem base primeiro'); return; }
     setTlErro('');
     setTlRodando(true);
-    setTlStatus('Planejando a sequência...');
-    // Acumuladores locais: como o estado vive no pai, atualizar via closure
-    // repetido perderia escritas. Guardamos aqui e persistimos o array inteiro.
-    let etapasLocal = [];
-    let imgsLocal = [];
+    setTlStatus('Planejando etapas...');
     const baseB64 = tlBase.base64;
     const prop = tlBase.proporcao || 'auto';
     const res = tlRes;
     try {
-      await gerarTimelapse(
-        { image: baseB64, tipo: 'externo', proporcao: prop, resolucao: res },
-        {
-          onEtapas: (etapas) => {
-            etapasLocal = etapas;
-            imgsLocal = new Array(etapas.length).fill(null);
-            patchTl({ etapas: etapasLocal, imgs: imgsLocal.slice() });
-          },
-          onImagem: (i, b64) => {
-            imgsLocal[i] = b64;
-            patchTl({ etapas: etapasLocal, imgs: imgsLocal.slice() });
-          },
-          onStatus: (txt) => {
-            if (txt === 'planejando') setTlStatus('Planejando a sequência...');
-            else if (txt === 'pronto') setTlStatus('Sequência completa!');
-            else if (txt.startsWith('etapa')) setTlStatus('Gerando ' + txt + '...');
-          }
+      const etapas = await timelapsePrompts({ image: baseB64, tipo: 'externo' });
+      const N = etapas.length;
+      // slots na ordem do vídeo; o último (pos N) já é a imagem enviada
+      const imgs = new Array(N + 1).fill(null);
+      imgs[N] = baseB64;
+      patchTl({ etapas, imgs: imgs.slice(), passo: 0, modo });
+
+      if (modo === 'passo') {
+        // gera só a 1ª etapa e para para revisão
+        await gerarEtapaPasso(0, etapas, imgs, baseB64, prop, res);
+      } else {
+        // completo: gera todas em cadeia
+        let base = baseB64;
+        const acc = imgs.slice();
+        for (let i = 0; i < N; i++) {
+          setTlStatus(`Gerando etapa ${i + 1} de ${N}...`);
+          const et = etapas[i] || {};
+          const promptEt = et.pt || et.prompt || '';
+          const b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res });
+          const pos = (N - 1) - i;
+          acc[pos] = b64;
+          patchTl({ etapas, imgs: acc.slice(), passo: i + 1, modo });
+          base = b64;
         }
-      );
+        setTlStatus('Sequência completa!');
+      }
     } catch (e) {
       setTlErro(e.message);
       setTlStatus('');
     } finally {
       setTlRodando(false);
     }
+  }
+
+  // Gera uma etapa específica (modo passo). Usa a imagem da etapa anterior
+  // como base (ou a enviada, se for a primeira).
+  async function gerarEtapaPasso(i, etapas, imgsAtual, baseInicial, prop, res) {
+    const N = etapas.length;
+    setTlRodando(true);
+    setTlStatus(`Gerando etapa ${i + 1} de ${N}...`);
+    // base = imagem da etapa anterior (pos maior) ou a enviada
+    const posAnterior = (N - 1) - (i - 1);       // pos do slot da etapa i-1
+    const base = i === 0 ? baseInicial : (imgsAtual[posAnterior] || baseInicial);
+    const et = etapas[i] || {};
+    const promptEt = et.pt || et.prompt || '';
+    try {
+      const b64 = await gerarEtapaTimelapse({ image: base, prompt: promptEt, proporcao: prop, resolucao: res });
+      const pos = (N - 1) - i;
+      const acc = imgsAtual.slice();
+      acc[pos] = b64;
+      patchTl({ etapas, imgs: acc, passo: i + 1, modo: 'passo' });
+      setTlStatus(i + 1 >= N ? 'Sequência completa!' : `Etapa ${i + 1} pronta. Revise e gere a próxima.`);
+    } catch (e) {
+      setTlErro(e.message);
+      setTlStatus('');
+    } finally {
+      setTlRodando(false);
+    }
+  }
+
+  // Botão "gerar próxima etapa" (modo passo).
+  async function gerarProxima() {
+    if (!tlBase) return;
+    await gerarEtapaPasso(tlPasso, tlEtapas, tlImgs, tlBase.base64, tlBase.proporcao || 'auto', tlRes);
+  }
+
+  // Botão "refazer esta etapa": regenera a última etapa gerada.
+  async function refazerEtapa() {
+    if (!tlBase) return;
+    const i = tlPasso - 1;   // última etapa gerada
+    if (i < 0) return;
+    const N = tlEtapas.length;
+    const pos = (N - 1) - i;
+    const acc = tlImgs.slice();
+    acc[pos] = null;         // limpa o slot
+    patchTl({ imgs: acc, passo: i });
+    await gerarEtapaPasso(i, tlEtapas, acc, tlBase.base64, tlBase.proporcao || 'auto', tlRes);
   }
 
   // Baixa uma etapa no formato escolhido (png ou jpeg), convertendo via canvas.
@@ -502,10 +555,9 @@ export default function PainelAnimacao({
           </div>
 
           {tlErro && <p className="up-erro">{tlErro}</p>}
-          {tlStatus && <p className="seq-status">{tlStatus}</p>}
 
-          {/* ── Dois modos de gerar (finos, com aviso abaixo — igual plugin) ── */}
-          {!tlRodando && (
+          {/* ── Dois modos de gerar (só antes de começar uma sequência) ── */}
+          {!tlRodando && tlEtapas.length === 0 && (
             <div className="seq-gerar-box">
               <div className="seq-gerar-item">
                 <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('completo')} disabled={!tlBase}>
@@ -517,35 +569,56 @@ export default function PainelAnimacao({
               <div className="seq-gerar-item">
                 <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('passo')} disabled={!tlBase}>
                   <span>Gerar uma a uma</span>
-                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {CUSTO_TL_PROMPTS}</span>}
+                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}</span>}
                 </button>
                 <p className="seq-gerar-aviso">Gera uma etapa por vez. Você pode revisar e ajustar cada imagem antes de gerar a próxima.</p>
               </div>
             </div>
           )}
-          {tlRodando && (
+
+          {/* ── Progresso + aviso de reembolso ── */}
+          {(tlRodando || (tlStatus && tlEtapas.length > 0)) && (
             <div className="seq-gerando">
               <p className="seq-status">{tlStatus || 'Gerando...'}</p>
-              <p className="seq-reembolso">Se falhar, os créditos voltam automaticamente.</p>
+              {tlEtapas.length > 0 && (
+                <div className="seq-prog"><span style={{ width: Math.round((tlPasso / tlEtapas.length) * 100) + '%' }} /></div>
+              )}
+              {tlRodando && <p className="seq-reembolso">Se falhar, os créditos voltam automaticamente.</p>}
             </div>
           )}
 
-          {/* ── Grid de resultados ── */}
+          {/* ── Controles do modo uma a uma ── */}
+          {tlModo === 'passo' && !tlRodando && tlPasso > 0 && tlPasso < tlEtapas.length && (
+            <div className="seq-passo-box">
+              <button className="cr-btn-gerar seq-gerar-fino" onClick={gerarProxima}>
+                <span>Gerar próxima etapa ({tlPasso + 1}/{tlEtapas.length})</span>
+                <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}</span>
+              </button>
+              <button className="seq-refazer" onClick={refazerEtapa}>Refazer esta etapa</button>
+            </div>
+          )}
+
+          {/* ── Grid de resultados (N+1 slots, ordem do vídeo) ── */}
           {tlEtapas.length > 0 && (
             <div className="seq-grid">
-              {tlEtapas.map((et, i) => (
-                tlImgs[i] ? (
-                  <button key={i} className="seq-slot seq-slot--clic" onClick={() => setTlVer(i)}>
-                    <img src={`data:image/png;base64,${tlImgs[i]}`} alt={`Etapa ${i + 1}`} />
-                    <span className="seq-slot-num">{i + 1}</span>
-                  </button>
-                ) : (
-                  <div key={i} className="seq-slot">
-                    <div className="seq-slot-load"><span className="cr-ger-spin" /></div>
-                    <span className="seq-slot-num">{i + 1}</span>
+              {tlImgs.map((img, pos) => {
+                const N = tlEtapas.length;
+                const titulo = pos === N ? 'Imagem final' : ((tlEtapas[(N - 1) - pos] || {}).titulo || '');
+                return (
+                  <div key={pos} className="seq-cel">
+                    {img ? (
+                      <button className="seq-slot seq-slot--clic" onClick={() => setTlVer(pos)}>
+                        <img src={`data:image/png;base64,${img}`} alt={titulo} />
+                      </button>
+                    ) : (
+                      <div className="seq-slot">
+                        <div className="seq-slot-load">{tlRodando ? <span className="cr-ger-spin" /> : null}</div>
+                      </div>
+                    )}
+                    <span className="seq-cel-cap"><b>{pos + 1}</b> {titulo}</span>
                   </div>
-                )
-              ))}
+                );
+              })}
             </div>
           )}
         </>

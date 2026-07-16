@@ -327,7 +327,7 @@ export default function AppPage() {
   const [navAnimacao, setNavAnimacao] = useState({
     secao: 'animacao',
     ferramenta: null,
-    tl: { base: null, res: '2k', etapas: [], imgs: [] }
+    tl: { base: null, res: '2k', etapas: [], imgs: [], passo: 0, modo: null }
   });
 
   const [filtro, setFiltro]         = useState('tudo');

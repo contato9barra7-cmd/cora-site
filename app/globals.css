@@ -5810,8 +5810,21 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   margin-top: 16px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 10px;
 }
+.seq-cel { display: flex; flex-direction: column; gap: 4px; }
+.seq-cel-cap { font-size: 10px; line-height: 1.3; color: var(--ink3); padding: 0 1px; }
+.seq-cel-cap b { color: var(--ink2); font-weight: 600; }
+/* barra de progresso */
+.seq-prog { height: 5px; border-radius: 100px; background: var(--wash); overflow: hidden; margin: 8px 0 0; }
+.seq-prog > span { display: block; height: 100%; background: var(--accent); border-radius: 100px; transition: width .3s; }
+/* controles do modo uma a uma */
+.seq-passo-box { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.seq-refazer {
+  padding: 9px 0; border-radius: 100px; border: 1px solid var(--line2);
+  background: transparent; color: var(--ink2); font-size: 12.5px; font-family: inherit; cursor: pointer;
+}
+.seq-refazer:hover { border-color: var(--accent); color: var(--accent); }
 .seq-slot {
   position: relative;
   aspect-ratio: 1;
