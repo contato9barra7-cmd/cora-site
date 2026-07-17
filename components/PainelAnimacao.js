@@ -15,6 +15,7 @@ import { useState, useEffect, useRef } from 'react';
 import PickerImagem from './PickerImagem';
 import ModalDownload from './ModalDownload';
 import { salvarEtapaTimelapse } from '../lib/geracoes';
+import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
 import { animarKling, custoAnimacao, custoTimelapseEtapa, custoTimelapseCompleto, custoTimelapsePrimeira, timelapsePrompts, gerarEtapaTimelapse, narrativaOrdem, narrativaRoteiro, CREDITOS } from '../lib/render';
@@ -63,7 +64,7 @@ function proporcaoMaisProximaTL(w, h) {
 }
 
 export default function PainelAnimacao({
-  imagemInicial, ehAdmin, nav, onNav, onEnviarBase64, imgEditadaPos, onIniciar, onTerminar, onFeedAtualizar, onEtapaIniciar, onEtapaTerminar, onEtapaPronta, onMostrarInicial, onRemoverInicial
+  imagemInicial, ehAdmin, nav, onNav, onEnviarBase64, imgEditadaPos, onIniciar, onTerminar, onFeedAtualizar, onEtapaIniciar, onEtapaTerminar, onEtapaPronta, onMostrarInicial, onRemoverInicial, lotes
 }) {
   // Seção e ferramenta vêm do pai (persistem ao trocar de aba e voltar).
   const secao = (nav && nav.secao) || 'animacao';
@@ -101,6 +102,93 @@ export default function PainelAnimacao({
   const [tlStatus, setTlStatus] = useState('');   // texto de progresso
   const [tlRodando, setTlRodando] = useState(false);
   const [tlErro, setTlErro]   = useState('');
+  // ── Continuar de onde parei (sobrevive ao reload) ──
+  // Guarda no localStorage só o estado LEVE (prompts das etapas, passo, tipo…).
+  // As imagens já geradas ficam no feed (servidor) e voltam ao continuar.
+  const [tlRascunho, setTlRascunho] = useState(null);   // {etapas, passo, ...} ou null
+  const [tlRestaurando, setTlRestaurando] = useState(false);
+  // Persiste enquanto a sequência estiver EM ANDAMENTO (tem etapas e ainda falta gerar).
+  useEffect(() => {
+    if (tlEtapas.length > 0 && tlSeqId && tlPasso < tlEtapas.length) {
+      salvarRascunho('timelapse', {
+        etapas: tlEtapas, passo: tlPasso, modo: tlModo, seqId: tlSeqId,
+        tipo: tlTipo, modoInterior: tlModoInt, res: tlRes,
+        proporcao: (tlBase && tlBase.proporcao) || 'auto'
+      });
+    } else if (tlEtapas.length > 0 && tlPasso >= tlEtapas.length) {
+      limparRascunho('timelapse');   // concluiu: não oferece continuar
+    }
+  }, [tlEtapas, tlPasso, tlSeqId, tlModo, tlTipo, tlModoInt, tlRes]);
+  // Ao montar, se há um rascunho não finalizado, oferece continuar.
+  useEffect(() => {
+    const r = lerRascunho('timelapse');
+    if (r && Array.isArray(r.etapas) && r.etapas.length > 0 && (r.passo || 0) < r.etapas.length) {
+      setTlRascunho(r);
+    }
+  }, []);
+  // Busca uma imagem do feed (URL) e devolve o base64 puro (sem o prefixo data:).
+  async function urlParaBase64(url) {
+    try {
+      const resp = await fetch(url);
+      const blob = await resp.blob();
+      return await new Promise((ok, no) => {
+        const fr = new FileReader();
+        fr.onload = () => ok(String(fr.result).replace(/^data:[^,]+,/, ''));
+        fr.onerror = no;
+        fr.readAsDataURL(blob);
+      });
+    } catch (e) { return null; }
+  }
+  // Continuar: remonta o grid puxando as imagens já geradas do feed (pelo seqId)
+  // e reabre a sequência no ponto onde parou.
+  async function continuarTimelapse() {
+    const r = tlRascunho;
+    if (!r) return;
+    setTlRestaurando(true);
+    setTlErro('');
+    try {
+      const N = r.etapas.length;
+      const imgs = new Array(N + 1).fill(null);
+      const lote = (lotes || []).find((l) => l.loteId === r.seqId);
+      if (lote && Array.isArray(lote.itens)) {
+        // ordem 0 = imagem enviada (pos N); etapa k (1..N) → pos N-k.
+        await Promise.all(lote.itens.map(async (it) => {
+          if (typeof it.ordem !== 'number') return;
+          const pos = N - it.ordem;
+          if (pos < 0 || pos > N) return;
+          const src = it.url || it.thumb;
+          if (!src) return;
+          const b64 = await urlParaBase64(src);
+          if (b64) imgs[pos] = b64;
+        }));
+      }
+      // base p/ a próxima etapa = imagem já gerada na posição N-passo (ou a enviada).
+      const baseNext = imgs[N - r.passo] || imgs[N] || null;
+      if (!baseNext) {
+        setTlErro('Não consegui recuperar as imagens desta sequência. Tente recarregar a página.');
+        setTlRestaurando(false);
+        return;
+      }
+      patchTl({
+        // Continua sempre em modo "uma a uma" pra mostrar o botão "gerar próxima
+        // etapa" — mesmo que a sequência original fosse "completo".
+        etapas: r.etapas, imgs, passo: r.passo, modo: 'passo', seqId: r.seqId,
+        tipo: r.tipo, modoInterior: r.modoInterior,
+        res: r.res || '2k',
+        base: { base64: baseNext, proporcao: r.proporcao || 'auto' }
+      });
+      setTlRascunho(null);
+      setFerramenta(r.tipo === 'interior' ? 'tl-interior' : 'tl-externo');
+    } catch (e) {
+      setTlErro('Falha ao continuar: ' + (e && e.message));
+    } finally {
+      setTlRestaurando(false);
+    }
+  }
+  function descartarRascunhoTl() {
+    limparRascunho('timelapse');
+    setTlRascunho(null);
+  }
   // Visualizador da imagem da sequência (índice aberto, ou null).
   const [tlVer, setTlVer]     = useState(null);
   const [tlBaixar, setTlBaixar] = useState(false);   // modal de download
@@ -405,6 +493,8 @@ export default function PainelAnimacao({
   function resetarTimelapse() {
     setTlErro('');
     setTlStatus('');
+    limparRascunho('timelapse');
+    setTlRascunho(null);
     patchTl({ base: null, etapas: [], imgs: [], passo: 0, modo: null });
   }
 
@@ -717,6 +807,21 @@ export default function PainelAnimacao({
       </button>
 
       </>)}
+
+      {secao === 'sequencias' && !ferramenta && tlRascunho && (
+        <div className="seq-retomar">
+          <div className="seq-retomar-txt">
+            <strong>Você tem um timelapse não finalizado</strong>
+            <span>{(tlRascunho.tipo === 'interior') ? 'Timelapse Interiores' : 'Timelapse Externo'} · etapa {(tlRascunho.passo || 0) + 1} de {tlRascunho.etapas.length}</span>
+          </div>
+          <div className="seq-retomar-acoes">
+            <button className="seq-retomar-btn" onClick={continuarTimelapse} disabled={tlRestaurando}>
+              {tlRestaurando ? 'Recuperando...' : 'Continuar de onde parei'}
+            </button>
+            <button className="seq-retomar-descartar" onClick={descartarRascunhoTl} disabled={tlRestaurando}>Descartar</button>
+          </div>
+        </div>
+      )}
 
       {secao === 'sequencias' && !ferramenta && (
         <section className="up-bloco">

@@ -984,6 +984,7 @@ export default function AppPage() {
               onEtapaPronta={(id, b64, ordem) => etapaProntaAtiva(id, b64, ordem)}
               onMostrarInicial={(base, prop) => mostrarInicialTimelapse('data:image/png;base64,' + base, prop)}
               onRemoverInicial={(id) => removerInicialTimelapse(id)}
+              lotes={lotes}
             />
           )}
 

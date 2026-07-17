@@ -1008,7 +1008,7 @@ export default function Admin() {
               {dadosFiscais && <th>Telefone</th>}
               {dadosFiscais && <th>CEP</th>}
               {dadosFiscais && <th>Endereço</th>}
-              <th>Plano</th>
+              {!mostrarPerfil && <th>Plano</th>}
               {aba === 'convidados' && <th>Equipe</th>}
               {mostrarPerfil && <th>Gênero</th>}
               {mostrarPerfil && <th>Profissão</th>}
@@ -1025,7 +1025,7 @@ export default function Admin() {
               {mostrarCobranca && <th>Renova em</th>}
               {mostrarCobranca && <th>Renov.</th>}
               <th>Status</th>
-              <th>Créditos</th>
+              {!mostrarPerfil && <th>Créditos</th>}
               <th>Ações</th>
             </tr>
           </thead>
@@ -1040,6 +1040,7 @@ export default function Admin() {
                 {dadosFiscais && <td>{dadosFiscais[a.email]?.telefone || '—'}</td>}
                 {dadosFiscais && <td>{dadosFiscais[a.email]?.cep || '—'}</td>}
                 {dadosFiscais && <td style={{ fontSize: 13, maxWidth: 220 }}>{dadosFiscais[a.email]?.endereco || '—'}</td>}
+                {!mostrarPerfil && (
                 <td>
                   {a.eh_dono_equipe ? (
                     <span className="admin-badge" style={{ background: '#eef0ff', color: '#4b46b3' }}>
@@ -1056,6 +1057,7 @@ export default function Admin() {
                     </select>
                   )}
                 </td>
+                )}
                 {aba === 'convidados' && (
                   <td style={{ fontSize: 13 }}>
                     <div>{a.equipe_participa_nome || '—'}</div>
@@ -1077,7 +1079,7 @@ export default function Admin() {
                 {mostrarCobranca && <td>{fmtData(a.renova_em)}</td>}
                 {mostrarCobranca && <td style={{ textAlign: 'center' }}>{a.renovacoes || 0}</td>}
                 <td><span className={'admin-badge ' + (a.assinatura_status === 'cancelado' ? 'off' : (a.status === 'ativo' ? 'ok' : 'off'))}>{a.assinatura_status === 'cancelado' ? 'cancelado' : a.status}</span></td>
-                <td>{a.plano === 'free' && !a.eh_dono_equipe ? '—' : `${a.creditos_restantes}/${a.creditos_total}`}</td>
+                {!mostrarPerfil && <td>{a.plano === 'free' && !a.eh_dono_equipe ? '—' : `${a.creditos_restantes}/${a.creditos_total}`}</td>}
                 <td>
                   <div className="admin-acoes">
                     {a.plano !== 'free' && (
