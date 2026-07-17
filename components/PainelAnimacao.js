@@ -134,7 +134,7 @@ export default function PainelAnimacao({
   async function recarregarNarrRascunhos() {
     try {
       const lista = await listarNarrativas(40);
-      setNarrRascunhos((lista || []).filter((n) => !n.finalizado));
+      setNarrRascunhos(lista || []);   // todas (finalizadas e não) — ficam aqui na Sequências
     } catch (e) {}
   }
   useEffect(() => { recarregarNarrRascunhos(); }, []);
@@ -924,12 +924,12 @@ export default function PainelAnimacao({
         <div className="seq-retomar" key={'narr-' + n.id}>
           {n.thumb && <img className="seq-retomar-thumb" src={n.thumb} alt="" />}
           <div className="seq-retomar-txt">
-            <strong>Você tem uma narrativa não finalizada</strong>
+            <strong>{n.finalizado ? 'Narrativa salva' : 'Você tem uma narrativa não finalizada'}</strong>
             <span>Diretor de Narrativa · {n.qtdImagens} imagem{n.qtdImagens === 1 ? '' : 's'}</span>
           </div>
           <div className="seq-retomar-acoes">
             <button className="seq-retomar-btn" onClick={() => continuarNarrativa(n.id)} disabled={narrRestaurando}>
-              {narrRestaurando ? 'Recuperando...' : 'Continuar de onde parei'}
+              {narrRestaurando ? 'Recuperando...' : (n.finalizado ? 'Abrir' : 'Continuar de onde parei')}
             </button>
             <button className="seq-retomar-descartar" onClick={() => descartarNarrativa(n.id)} disabled={narrRestaurando}>Descartar</button>
           </div>

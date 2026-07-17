@@ -970,7 +970,7 @@ export default function AppPage() {
           </div>
 
           {ferramenta === 'analises' && (
-            <PainelAnalises onUsar={usarLeitura} onAbrirNarrativa={abrirNarrativaDoAnalises} />
+            <PainelAnalises onUsar={usarLeitura} />
           )}
 
           {ferramenta === 'animacao' && (
