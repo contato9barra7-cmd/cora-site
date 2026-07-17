@@ -17,6 +17,7 @@ import ModalDownload from './ModalDownload';
 import { salvarEtapaTimelapse } from '../lib/geracoes';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import { creditosMudaram } from '../lib/auth';
+import { listarNarrativas, criarNarrativa, atualizarNarrativa, pegarNarrativa, apagarNarrativa } from '../lib/narrativas';
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
 import { animarKling, custoAnimacao, custoTimelapseEtapa, custoTimelapseCompleto, custoTimelapsePrimeira, timelapsePrompts, gerarEtapaTimelapse, narrativaOrdem, narrativaRoteiro, CREDITOS } from '../lib/render';
@@ -127,6 +128,16 @@ export default function PainelAnimacao({
       setTlRascunho(r);
     }
   }, []);
+  // ── Narrativas não finalizadas (salvas no servidor) → banner "continuar" ──
+  const [narrRascunhos, setNarrRascunhos] = useState([]);   // [{id, thumb, qtdImagens, ...}]
+  const [narrRestaurando, setNarrRestaurando] = useState(false);
+  async function recarregarNarrRascunhos() {
+    try {
+      const lista = await listarNarrativas(40);
+      setNarrRascunhos((lista || []).filter((n) => !n.finalizado));
+    } catch (e) {}
+  }
+  useEffect(() => { recarregarNarrRascunhos(); }, []);
   // Busca uma imagem do feed (URL) e devolve o base64 puro (sem o prefixo data:).
   async function urlParaBase64(url) {
     try {
@@ -214,6 +225,7 @@ export default function PainelAnimacao({
   const narrTakes = narrDados.takes;              // null antes de gerar
   const narrRitmo = narrDados.ritmo || '';
   const narrTrilha = narrDados.trilha || '';
+  const narrSrvId = narrDados.srvId || null;   // id no servidor (salvo p/ continuar/Análises)
   const patchNarr = (patch) => onNav && onNav((atual) => {
     const base = atual || nav || {};
     const nAtual = base.narr || narrDados;
@@ -224,6 +236,7 @@ export default function PainelAnimacao({
   const [narrRodando, setNarrRodando] = useState(false);
   const [narrErro, setNarrErro] = useState('');
   const [narrDrag, setNarrDrag] = useState(null);   // índice sendo arrastado
+  const [narrAlvo, setNarrAlvo] = useState(null);   // { i, lado:'antes'|'depois' } — onde vai cair
   const narrFileRef = useRef(null);
 
   // Fecha os popovers de opção ao clicar fora deles.
@@ -549,6 +562,17 @@ export default function PainelAnimacao({
       const validos = ordem.filter((n) => narrImagens.some((im) => im.n === n));
       narrImagens.forEach((im) => { if (!validos.includes(im.n)) validos.push(im.n); });
       patchNarr({ ordem: validos, confirmado: false, takes: null });
+      // Salva no servidor (imagens + ordem) p/ poder continuar depois de sair/recarregar.
+      (async () => {
+        try {
+          if (!narrSrvId) {
+            const id = await criarNarrativa({ imagens: narrImagens.map((im) => im.base64), ordem: validos, finalizado: false });
+            if (id) patchNarr({ srvId: id });
+          } else {
+            atualizarNarrativa(narrSrvId, { ordem: validos, finalizado: false });
+          }
+        } catch (e) {}
+      })();
     } catch (e) {
       setNarrErro('Erro ao sugerir a ordem: ' + (e.message || ''));
     } finally {
@@ -558,18 +582,32 @@ export default function PainelAnimacao({
     }
   }
 
-  // Drag-and-drop pra reordenar os números na etapa 2.
+  // Drag-and-drop pra reordenar (etapa 2). Igual à Pós: a linha ROXA se anuncia
+  // onde a imagem vai cair (antes/depois da célula), e a reordenação só acontece
+  // ao SOLTAR — não fica embaralhando ao vivo.
   function narrDragStart(i) { setNarrDrag(i); }
   function narrDragOver(i, ev) {
     ev.preventDefault();
-    if (narrDrag === null || narrDrag === i) return;
-    const nova = narrOrdem.slice();
-    const [movido] = nova.splice(narrDrag, 1);
-    nova.splice(i, 0, movido);
-    setNarrDrag(i);
-    patchNarr({ ordem: nova });
+    if (narrDrag === null) return;
+    const r = ev.currentTarget.getBoundingClientRect();
+    const lado = (ev.clientX < r.left + r.width / 2) ? 'antes' : 'depois';
+    setNarrAlvo((a) => (a && a.i === i && a.lado === lado) ? a : { i, lado });
   }
-  function narrDragEnd() { setNarrDrag(null); }
+  function narrDragEnd() {
+    const de = narrDrag, alvo = narrAlvo;
+    setNarrDrag(null); setNarrAlvo(null);
+    if (de === null || !alvo) return;
+    const arr = narrOrdem.slice();
+    const item = arr[de];
+    if (item === undefined) return;
+    arr.splice(de, 1);
+    let destino = alvo.i + (alvo.lado === 'depois' ? 1 : 0);
+    if (de < destino) destino -= 1;           // removemos antes: reindexa
+    destino = Math.max(0, Math.min(arr.length, destino));
+    arr.splice(destino, 0, item);
+    patchNarr({ ordem: arr });
+    if (narrSrvId) { try { atualizarNarrativa(narrSrvId, { ordem: arr, finalizado: false }); } catch (e) {} }
+  }
 
   // Etapa 2 → 3: confirma a ordem e gera o roteiro (takes + ritmo + trilha).
   async function narrGerarRoteiro() {
@@ -580,6 +618,9 @@ export default function PainelAnimacao({
       const naOrdem = narrOrdem.map((n) => narrImagens.find((im) => im.n === n)).filter(Boolean);
       const r = await narrativaRoteiro(naOrdem.map((im) => ({ n: im.n, base64: im.base64 })), 'pt');
       patchNarr({ confirmado: true, takes: r.takes, ritmo: r.ritmo, trilha: r.trilha });
+      // Roteiro pronto → marca finalizada no servidor (sai do "não finalizado").
+      if (narrSrvId) { try { await atualizarNarrativa(narrSrvId, { ordem: narrOrdem, takes: r.takes, ritmo: r.ritmo, trilha: r.trilha, finalizado: true }); } catch (e) {} }
+      recarregarNarrRascunhos();
     } catch (e) {
       setNarrErro('Erro ao gerar o roteiro: ' + (e.message || ''));
     } finally {
@@ -622,7 +663,41 @@ export default function PainelAnimacao({
   function narrResetar() {
     setNarrErro('');
     setNarrStatus('');
-    patchNarr({ imagens: [], ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '' });
+    if (narrSrvId) { try { apagarNarrativa(narrSrvId); } catch (e) {} }
+    patchNarr({ imagens: [], ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '', srvId: null });
+    setTimeout(recarregarNarrRascunhos, 400);
+  }
+  // Continuar uma narrativa não finalizada (do servidor): remonta o painel.
+  async function continuarNarrativa(id) {
+    setNarrRestaurando(true);
+    try {
+      const n = await pegarNarrativa(id);
+      if (!n || !Array.isArray(n.imagens) || !n.imagens.length) {
+        setNarrErro('Não consegui recuperar essa narrativa.');
+        setNarrRestaurando(false);
+        return;
+      }
+      // Reconstrói as imagens com n = posição de seleção (1..N), igual a como foram salvas.
+      const imgs = n.imagens.map((b64, i) => ({ n: i + 1, base64: b64 }));
+      patchNarr({
+        imagens: imgs,
+        ordem: (n.ordem && n.ordem.length) ? n.ordem : [],
+        confirmado: !!(n.takes && n.takes.length),
+        takes: n.takes || null,
+        ritmo: n.ritmo || '',
+        trilha: n.trilha || '',
+        srvId: n.id
+      });
+      setFerramenta('diretor');
+    } catch (e) {
+      setNarrErro('Falha ao continuar: ' + (e && e.message));
+    } finally {
+      setNarrRestaurando(false);
+    }
+  }
+  async function descartarNarrativa(id) {
+    try { await apagarNarrativa(id); } catch (e) {}
+    recarregarNarrRascunhos();
   }
 
   // Ações das imagens (usadas tanto na miniatura quanto no preview grande).
@@ -825,6 +900,22 @@ export default function PainelAnimacao({
           </div>
         </div>
       )}
+
+      {secao === 'sequencias' && !ferramenta && narrRascunhos.map((n) => (
+        <div className="seq-retomar" key={'narr-' + n.id}>
+          {n.thumb && <img className="seq-retomar-thumb" src={n.thumb} alt="" />}
+          <div className="seq-retomar-txt">
+            <strong>Você tem uma narrativa não finalizada</strong>
+            <span>Diretor de Narrativa · {n.qtdImagens} imagem{n.qtdImagens === 1 ? '' : 's'}</span>
+          </div>
+          <div className="seq-retomar-acoes">
+            <button className="seq-retomar-btn" onClick={() => continuarNarrativa(n.id)} disabled={narrRestaurando}>
+              {narrRestaurando ? 'Recuperando...' : 'Continuar de onde parei'}
+            </button>
+            <button className="seq-retomar-descartar" onClick={() => descartarNarrativa(n.id)} disabled={narrRestaurando}>Descartar</button>
+          </div>
+        </div>
+      ))}
 
       {secao === 'sequencias' && !ferramenta && (
         <section className="up-bloco">
@@ -1057,7 +1148,7 @@ export default function PainelAnimacao({
                 {(narrOrdem.length ? narrOrdem.map((n) => narrImagens.find((im) => im.n === n)).filter(Boolean) : narrImagens).map((im, i) => (
                   <div
                     key={im.n}
-                    className={'narr-cel' + (narrOrdem.length ? ' narr-cel--drag' : '') + (narrDrag === i ? ' narr-cel--dragging' : '')}
+                    className={'narr-cel' + (narrOrdem.length ? ' narr-cel--drag' : '') + (narrDrag === i ? ' narr-cel--dragging' : '') + (narrAlvo && narrAlvo.i === i ? (narrAlvo.lado === 'antes' ? ' narr-cel--alvo-antes' : ' narr-cel--alvo-depois') : '')}
                     draggable={narrOrdem.length > 0 && !narrRodando}
                     onDragStart={() => narrOrdem.length && narrDragStart(i)}
                     onDragOver={(e) => narrOrdem.length && narrDragOver(i, e)}
@@ -1077,7 +1168,7 @@ export default function PainelAnimacao({
                 ))}
                 {!narrOrdem.length && narrImagens.length < NARR_MAX && (
                   <button className={'narr-add' + (narrImagens.length === 0 ? ' narr-add--full' : '')} onClick={() => setPicker('narr')}>
-                    <svg viewBox="0 0 20 20" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.4">
+                    <svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.4">
                       <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/>
                       <path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>
                     </svg>
@@ -1108,6 +1199,11 @@ export default function PainelAnimacao({
                       <span className="cr-custo-tag"><IconeCredito /> {CREDITOS.narrativa}</span>
                     </button>
                   )}
+                </div>
+              )}
+              {narrImagens.length > 0 && !narrRodando && (
+                <div className="seq-reset-box">
+                  <button className="seq-reset" onClick={narrResetar}>Resetar tudo</button>
                 </div>
               )}
             </section>

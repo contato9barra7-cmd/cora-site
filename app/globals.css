@@ -5783,6 +5783,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   padding: 14px 16px; margin-bottom: 16px; flex-wrap: wrap;
   border: 1px solid var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
+.seq-retomar-thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
 .seq-retomar-txt { display: flex; flex-direction: column; gap: 2px; }
 .seq-retomar-txt strong { font-size: 14px; font-weight: 600; }
 .seq-retomar-txt span { font-size: 12.5px; color: var(--ink3); }
@@ -5810,13 +5811,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: var(--surface-1, #f1efe8);
 }
 .narr-cel img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.narr-cel--drag { cursor: grab; transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease; }
+.narr-cel--drag { cursor: grab; transition: transform .12s ease, opacity .12s ease; }
 .narr-cel--drag:active { cursor: grabbing; }
-/* Arraste fluido (estilo Pós): a célula arrastada "levanta" e as outras deslizam. */
-.narr-cel--dragging {
-  opacity: .92; transform: scale(1.06); z-index: 5;
-  box-shadow: 0 8px 22px rgba(0,0,0,.28); cursor: grabbing;
-}
+/* A célula arrastada some um pouco (fica "fantasma"), como na Pós. */
+.narr-cel--dragging { opacity: .35; }
+/* A linha ROXA de destino: aparece no vão, antes ou depois da célula. */
+.narr-cel--alvo-antes  { box-shadow: -5px 0 0 0 var(--accent); }
+.narr-cel--alvo-depois { box-shadow:  5px 0 0 0 var(--accent); }
 .narr-num {
   position: absolute; top: 4px; left: 5px;
   font-size: 11px; font-weight: 600; color: #fff;
@@ -5841,11 +5842,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .narr-add:hover { border-color: var(--roxo); color: var(--roxo); }
 .narr-add-plus { font-size: 18px; line-height: 1; }
 .narr-add-txt { font-size: 10px; }
-/* Estado vazio: ocupa a largura toda, igual ao seletor do timelapse */
+/* Estado vazio: mesma caixa do seletor do timelapse (.cr-drop) */
 .narr-add--full {
-  grid-column: 1 / -1; aspect-ratio: auto; padding: 34px 16px; gap: 8px;
+  grid-column: 1 / -1; aspect-ratio: auto; height: 88px; padding: 0; gap: 6px;
+  border: 1px dashed var(--line2); border-radius: 12px; background: var(--wash); color: var(--ink3);
 }
-.narr-add--full .narr-add-txt { font-size: 14px; }
+.narr-add--full:hover { border-color: var(--accent); color: var(--accent); }
+.narr-add--full .narr-add-txt { font-size: 12px; }
 
 .narr-roteiro-cab { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
 .narr-copiar {
