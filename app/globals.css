@@ -5854,6 +5854,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: color-mix(in srgb, var(--roxo) 15%, transparent); color: var(--roxo-esc, #8582E8);
 }
 .narr-take-frames { font-size: 11px; color: var(--text-muted, #888); }
+.narr-take-thumbs { display: flex; align-items: center; gap: 6px; margin: 4px 0 8px; }
+.narr-take-thumbs img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); }
+.narr-take-seta { color: var(--text-muted, #888); font-size: 13px; }
 .narr-take-linha { font-size: 12.5px; margin: 3px 0; line-height: 1.4; }
 .narr-take-linha b { font-weight: 500; }
 .narr-take-sec { color: var(--text-2, #666); }

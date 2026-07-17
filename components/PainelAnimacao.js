@@ -1074,7 +1074,10 @@ export default function PainelAnimacao({
                 ))}
                 {!narrOrdem.length && narrImagens.length < NARR_MAX && (
                   <button className="narr-add" onClick={() => setPicker('narr')}>
-                    <span className="narr-add-plus">+</span>
+                    <svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.4">
+                      <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/>
+                      <path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>
+                    </svg>
                     <span className="narr-add-txt">Adicionar</span>
                   </button>
                 )}
@@ -1120,6 +1123,17 @@ export default function PainelAnimacao({
                       <span className="narr-take-badge">Take {tk.n_take}{tk.momento ? ' · ' + tk.momento : ''}</span>
                       <span className="narr-take-frames">{tk.frames === 2 ? '2 imagens' : '1 imagem'} · imagem {tk.imagem}{tk.frames === 2 && tk.imagem_fim ? '→' + tk.imagem_fim : ''}</span>
                     </div>
+                    {(() => {
+                      const im1 = narrImagens.find((im) => im.n === tk.imagem);
+                      const im2 = tk.frames === 2 ? narrImagens.find((im) => im.n === tk.imagem_fim) : null;
+                      if (!im1 && !im2) return null;
+                      return (
+                        <div className="narr-take-thumbs">
+                          {im1 && <img src={'data:image/png;base64,' + im1.base64} alt={'Imagem ' + tk.imagem} />}
+                          {im2 && <><span className="narr-take-seta">→</span><img src={'data:image/png;base64,' + im2.base64} alt={'Imagem ' + tk.imagem_fim} /></>}
+                        </div>
+                      );
+                    })()}
                     <p className="narr-take-linha"><b>Câmera:</b> {tk.camera}</p>
                     {tk.close && <p className="narr-take-linha narr-take-sec"><b>Close:</b> {tk.close}</p>}
                     {tk.transicao && <p className="narr-take-linha narr-take-sec"><b>Transição:</b> {tk.transicao}</p>}

@@ -141,7 +141,10 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
   // Adiciona um ou mais arquivos no modo múltiplo (upload do PC).
   async function adicionarArquivosMulti(files) {
     setErro('');
-    for (const file of files) {
+    // Snapshot ANTES de qualquer await: o chamador limpa o input (e.target.value='')
+    // logo após, o que esvaziaria a FileList no meio do loop e só a 1ª entraria.
+    const lista = Array.from(files || []);
+    for (const file of lista) {
       if (!file || !file.type || !file.type.startsWith('image/')) continue;
       try {
         const base64 = await arquivoParaBase64(file);
