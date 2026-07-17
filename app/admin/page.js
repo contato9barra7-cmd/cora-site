@@ -51,6 +51,7 @@ export default function Admin() {
   const [exportando, setExportando] = useState(false);
   const [dadosFiscais, setDadosFiscais] = useState(null); // { email: {telefone, endereco} }
   const [carregandoFiscais, setCarregandoFiscais] = useState(false);
+  const [verPerfil, setVerPerfil] = useState(false); // troca colunas de cobrança pelas respostas do cadastro
   const [meuId, setMeuId] = useState(null);
 
   async function mostrarFiscais() {
@@ -211,12 +212,13 @@ export default function Admin() {
       }
 
       baixarCSV('assinantes-fiscais',
-        ['Nome', 'Email', 'CPF', 'Telefone', 'CEP', 'Endereço', 'Plano', 'Assentos', 'Assinou em', 'Renova em', 'Renovações', 'Valor (R$)'],
+        ['Nome', 'Email', 'CPF', 'Telefone', 'CEP', 'Endereço', 'Cidade', 'Estado', 'País', 'Plano', 'Assentos', 'Assinou em', 'Renova em', 'Renovações', 'Valor (R$)'],
         pagantes.map(a => [
           a.nome, a.email, a.cpf,
           mapa[a.email]?.telefone || '',
           mapa[a.email]?.cep || '',
           mapa[a.email]?.endereco || '',
+          a.cidade || '', a.estado || '', a.pais || '',
           a.eh_dono_equipe ? `Teams (${a.plano_exibicao === 'teams' ? 'equipe' : a.plano})` : a.plano,
           a.assentos || 1,
           a.assinou_em ? new Date(a.assinou_em).toLocaleDateString('pt-BR') : '',
@@ -263,7 +265,7 @@ export default function Admin() {
     else { lista = base.filter(a => a.eh_convidado); nome = 'trafego-membros'; }
     if (!lista.length) { setErro('Nenhuma conta nessa categoria.'); return; }
     baixarCSV(nome,
-      ['Nome', 'Email', 'Gênero', 'Profissão', 'Origem', 'Renderizador', 'Tamanho equipe', 'Projetos/ano', 'Cidade', 'Estado', 'País', 'Cadastro'],
+      ['Nome', 'Email', 'Gênero', 'Profissão', 'Origem', 'Renderizador', 'Tamanho equipe', 'Projetos/ano', 'Cadastro'],
       lista.map(a => [
         a.nome, a.email,
         GENERO_LBL[a.genero] || a.genero || '',
@@ -272,7 +274,6 @@ export default function Admin() {
         RENDER_LBL[a.usa_render] || a.usa_render,
         TAMANHO_LBL[a.tamanho] || a.tamanho,
         VOLUME_LBL[a.volume] || a.volume,
-        a.cidade || '', a.estado || '', a.pais || '',
         a.criado_em ? new Date(a.criado_em).toLocaleDateString('pt-BR') : '',
       ]));
   }
@@ -473,6 +474,10 @@ export default function Admin() {
   const nPags   = Math.max(1, Math.ceil(filtrados.length / porPag));
   const pagAtual = Math.min(pag, nPags);   // filtrar pode encolher a lista sob os pés
   const pagina  = filtrados.slice((pagAtual - 1) * porPag, pagAtual * porPag);
+  // Visão da tabela: perfil (respostas do cadastro) x cobrança. No Trial o perfil
+  // já é o padrão; nas outras abas o botão "Ver respostas do cadastro" liga isso.
+  const mostrarPerfil   = (aba === 'trial' || verPerfil);
+  const mostrarCobranca = (aba === 'pagantes' && !verPerfil);
 
   // Trocar de aba, filtrar ou buscar recomeça da primeira página: continuar na
   // página 7 de uma lista que agora tem 2 mostraria uma tela vazia.
@@ -538,6 +543,21 @@ export default function Admin() {
             )}
           </button>
 
+          <button
+            className={'admin-ico' + (verPerfil ? ' admin-ico--on' : '')}
+            onClick={() => setVerPerfil(v => !v)}
+            data-tip={verPerfil ? 'Ver dados de cobrança' : 'Ver respostas do cadastro'}
+            aria-label={verPerfil ? 'Ver dados de cobrança' : 'Ver respostas do cadastro'}
+          >
+            <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
+                 stroke="currentColor" strokeWidth="1.5">
+              <path d="M7 4h9M7 10h9M7 16h9" strokeLinecap="round"/>
+              <circle cx="3.5" cy="4" r="1.2"/>
+              <circle cx="3.5" cy="10" r="1.2"/>
+              <circle cx="3.5" cy="16" r="1.2"/>
+            </svg>
+          </button>
+
           {geo.totalClientes > 0 && (
             <button
               className={'admin-ico' + (verGeo ? ' admin-ico--on' : '')}
@@ -586,11 +606,6 @@ export default function Admin() {
                   <em>Compras avulsas, com dados do comprador</em>
                 </button>
 
-                <button className="admin-export-item" onClick={exportarGeo}>
-                  <strong>Origem geográfica</strong>
-                  <em>Clientes e receita por país, estado e cidade</em>
-                </button>
-
                 <div className="admin-export-sep" />
                 <div className="admin-export-grupo">Tráfego</div>
 
@@ -605,6 +620,11 @@ export default function Admin() {
 
                 <button className="admin-export-item" onClick={() => exportarTrafego('trial')}>
                   <strong>Trial</strong>
+                </button>
+
+                <button className="admin-export-item" onClick={exportarGeo}>
+                  <strong>Origem geográfica</strong>
+                  <em>Clientes e receita por país, estado e cidade</em>
                 </button>
               </div>
             )}
@@ -990,16 +1010,20 @@ export default function Admin() {
               {dadosFiscais && <th>Endereço</th>}
               <th>Plano</th>
               {aba === 'convidados' && <th>Equipe</th>}
-              {aba === 'trial' && <th>Profissão</th>}
-              {aba === 'trial' && <th>Origem</th>}
-              {aba === 'trial' && <th>Usa render</th>}
-              {aba === 'trial' && <th>Equipe</th>}
-              {aba === 'trial' && <th>Projetos/ano</th>}
-              {aba === 'trial' && <th>Cadastro</th>}
-              {aba === 'pagantes' && <th>Valor</th>}
-              {aba === 'pagantes' && <th>Assinou</th>}
-              {aba === 'pagantes' && <th>Renova em</th>}
-              {aba === 'pagantes' && <th>Renov.</th>}
+              {mostrarPerfil && <th>Gênero</th>}
+              {mostrarPerfil && <th>Profissão</th>}
+              {mostrarPerfil && <th>Origem</th>}
+              {mostrarPerfil && <th>Usa render</th>}
+              {mostrarPerfil && <th>Tamanho equipe</th>}
+              {mostrarPerfil && <th>Projetos/ano</th>}
+              {mostrarPerfil && <th>Cidade</th>}
+              {mostrarPerfil && <th>Estado</th>}
+              {mostrarPerfil && <th>País</th>}
+              {mostrarPerfil && <th>Cadastro</th>}
+              {mostrarCobranca && <th>Valor</th>}
+              {mostrarCobranca && <th>Assinou</th>}
+              {mostrarCobranca && <th>Renova em</th>}
+              {mostrarCobranca && <th>Renov.</th>}
               <th>Status</th>
               <th>Créditos</th>
               <th>Ações</th>
@@ -1038,16 +1062,20 @@ export default function Admin() {
                     <div className="admin-email">{a.equipe_dono_email || ''}</div>
                   </td>
                 )}
-                {aba === 'trial' && <td style={{ fontSize: 13 }}>{PROFISSAO_LBL[a.profissao] || a.profissao || '—'}</td>}
-                {aba === 'trial' && <td style={{ fontSize: 13 }}>{ORIGEM_LBL[a.origem] || a.origem || '—'}</td>}
-                {aba === 'trial' && <td style={{ fontSize: 13 }}>{RENDER_LBL[a.usa_render] || a.usa_render || '—'}</td>}
-                {aba === 'trial' && <td style={{ fontSize: 13 }}>{TAMANHO_LBL[a.tamanho] || a.tamanho || '—'}</td>}
-                {aba === 'trial' && <td style={{ fontSize: 13 }}>{VOLUME_LBL[a.volume] || a.volume || '—'}</td>}
-                {aba === 'trial' && <td>{fmtData(a.criado_em)}</td>}
-                {aba === 'pagantes' && <td>{a.valor_centavos ? fmtValor(a.valor_centavos, a.moeda) : '—'}</td>}
-                {aba === 'pagantes' && <td>{fmtData(a.assinou_em)}</td>}
-                {aba === 'pagantes' && <td>{fmtData(a.renova_em)}</td>}
-                {aba === 'pagantes' && <td style={{ textAlign: 'center' }}>{a.renovacoes || 0}</td>}
+                {mostrarPerfil && <td style={{ fontSize: 13 }}>{GENERO_LBL[a.genero] || a.genero || '—'}</td>}
+                {mostrarPerfil && <td style={{ fontSize: 13 }}>{PROFISSAO_LBL[a.profissao] || a.profissao || '—'}</td>}
+                {mostrarPerfil && <td style={{ fontSize: 13 }}>{ORIGEM_LBL[a.origem] || a.origem || '—'}</td>}
+                {mostrarPerfil && <td style={{ fontSize: 13 }}>{RENDER_LBL[a.usa_render] || a.usa_render || '—'}</td>}
+                {mostrarPerfil && <td style={{ fontSize: 13 }}>{TAMANHO_LBL[a.tamanho] || a.tamanho || '—'}</td>}
+                {mostrarPerfil && <td style={{ fontSize: 13 }}>{VOLUME_LBL[a.volume] || a.volume || '—'}</td>}
+                {mostrarPerfil && <td style={{ fontSize: 13 }}>{a.cidade || '—'}</td>}
+                {mostrarPerfil && <td style={{ fontSize: 13 }}>{a.estado || '—'}</td>}
+                {mostrarPerfil && <td style={{ fontSize: 13 }}>{a.pais || '—'}</td>}
+                {mostrarPerfil && <td>{fmtData(a.criado_em)}</td>}
+                {mostrarCobranca && <td>{a.valor_centavos ? fmtValor(a.valor_centavos, a.moeda) : '—'}</td>}
+                {mostrarCobranca && <td>{fmtData(a.assinou_em)}</td>}
+                {mostrarCobranca && <td>{fmtData(a.renova_em)}</td>}
+                {mostrarCobranca && <td style={{ textAlign: 'center' }}>{a.renovacoes || 0}</td>}
                 <td><span className={'admin-badge ' + (a.assinatura_status === 'cancelado' ? 'off' : (a.status === 'ativo' ? 'ok' : 'off'))}>{a.assinatura_status === 'cancelado' ? 'cancelado' : a.status}</span></td>
                 <td>{a.plano === 'free' && !a.eh_dono_equipe ? '—' : `${a.creditos_restantes}/${a.creditos_total}`}</td>
                 <td>
