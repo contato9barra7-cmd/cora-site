@@ -188,6 +188,7 @@ export default function Admin() {
   const ORIGEM_LBL = { instagram: 'Instagram', youtube: 'YouTube', google: 'Google', indicacao: 'Indicação', tiktok: 'TikTok', anuncio: 'Anúncio', outro: 'Outro' };
   const TAMANHO_LBL = { autonomo: 'Só eu (autônomo)', '2a5': '2 a 5 pessoas', '6a20': '6 a 20 pessoas', '20mais': 'Mais de 20 pessoas' };
   const VOLUME_LBL = { menos10: 'Menos de 10', '10a20': 'Entre 10 e 20', mais20: 'Mais de 20' };
+  const GENERO_LBL = { feminino: 'Feminino', masculino: 'Masculino', nao_binario: 'Não-binário', nao_informar: 'Prefiro não informar' };
 
   async function exportarFiscais() {
     setMenuExport(false); setExportando(true); setErro('');
@@ -210,13 +211,12 @@ export default function Admin() {
       }
 
       baixarCSV('assinantes-fiscais',
-        ['Nome', 'Email', 'CPF', 'Telefone', 'CEP', 'Endereço', 'Cidade', 'Estado', 'País', 'Plano', 'Assentos', 'Assinou em', 'Renova em', 'Renovações', 'Valor (R$)'],
+        ['Nome', 'Email', 'CPF', 'Telefone', 'CEP', 'Endereço', 'Plano', 'Assentos', 'Assinou em', 'Renova em', 'Renovações', 'Valor (R$)'],
         pagantes.map(a => [
           a.nome, a.email, a.cpf,
           mapa[a.email]?.telefone || '',
           mapa[a.email]?.cep || '',
           mapa[a.email]?.endereco || '',
-          a.cidade || '', a.estado || '', a.pais || '',
           a.eh_dono_equipe ? `Teams (${a.plano_exibicao === 'teams' ? 'equipe' : a.plano})` : a.plano,
           a.assentos || 1,
           a.assinou_em ? new Date(a.assinou_em).toLocaleDateString('pt-BR') : '',
@@ -263,14 +263,16 @@ export default function Admin() {
     else { lista = base.filter(a => a.eh_convidado); nome = 'trafego-membros'; }
     if (!lista.length) { setErro('Nenhuma conta nessa categoria.'); return; }
     baixarCSV(nome,
-      ['Nome', 'Email', 'Profissão', 'Origem', 'Renderizador', 'Tamanho equipe', 'Projetos/ano', 'Cadastro'],
+      ['Nome', 'Email', 'Gênero', 'Profissão', 'Origem', 'Renderizador', 'Tamanho equipe', 'Projetos/ano', 'Cidade', 'Estado', 'País', 'Cadastro'],
       lista.map(a => [
         a.nome, a.email,
+        GENERO_LBL[a.genero] || a.genero || '',
         PROFISSAO_LBL[a.profissao] || a.profissao,
         ORIGEM_LBL[a.origem] || a.origem,
         RENDER_LBL[a.usa_render] || a.usa_render,
         TAMANHO_LBL[a.tamanho] || a.tamanho,
         VOLUME_LBL[a.volume] || a.volume,
+        a.cidade || '', a.estado || '', a.pais || '',
         a.criado_em ? new Date(a.criado_em).toLocaleDateString('pt-BR') : '',
       ]));
   }

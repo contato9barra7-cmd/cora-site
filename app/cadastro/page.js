@@ -10,6 +10,7 @@ export default function Cadastro() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [genero, setGenero] = useState('');
   const [profissao, setProfissao] = useState('');
   const [origem, setOrigem] = useState('');
   const [usaRender, setUsaRender] = useState('');
@@ -34,6 +35,7 @@ export default function Cadastro() {
     const falta = {};
     if (!nome.trim()) falta.nome = true;
     if (!email) falta.email = true;
+    if (!genero) falta.genero = true;
     if (!profissao) falta.profissao = true;
     if (!origem) falta.origem = true;
     if (!usaRender) falta.usaRender = true;
@@ -51,7 +53,7 @@ export default function Cadastro() {
     setFaltando({});
     setCarregando(true);
     try {
-      await registrar({ email, senha, nome, profissao, origem, usa_render: usaRender, tamanho, volume });
+      await registrar({ email, senha, nome, genero, profissao, origem, usa_render: usaRender, tamanho, volume });
       router.push('/verificar?email=' + encodeURIComponent(email));
     } catch (e) {
       setErro(e.message);
@@ -81,6 +83,15 @@ export default function Cadastro() {
           value={email} onChange={(e) => setEmail(e.target.value)}
           readOnly={emailTravado} title={emailTravado ? 'Este é o email do convite e não pode ser alterado' : undefined}
         />
+
+        <label className="login-label">Gênero <span className="obrig">*</span></label>
+        <select className={cls('genero')} value={genero} onChange={(e) => setGenero(e.target.value)}>
+          <option value="">Selecione...</option>
+          <option value="feminino">Feminino</option>
+          <option value="masculino">Masculino</option>
+          <option value="nao_binario">Não-binário</option>
+          <option value="nao_informar">Prefiro não informar</option>
+        </select>
 
         <label className="login-label">Profissão <span className="obrig">*</span></label>
         <select className={cls('profissao')} value={profissao} onChange={(e) => setProfissao(e.target.value)}>
