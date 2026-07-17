@@ -16,6 +16,7 @@
 
 import { useState, useEffect } from 'react';
 import { listarLeituras, apagarLeitura, bytesDaLeitura, refsDaLeitura } from '../lib/leituras';
+import { listarNarrativas, apagarNarrativa } from '../lib/narrativas';
 import { bytesDaGeracao } from '../lib/geracoes';
 
 function quando(iso) {
@@ -68,8 +69,10 @@ function Escolha({ rotulo, valor, opcoes, onMudar, aberto, onAbrir }) {
   );
 }
 
-export default function PainelAnalises({ onUsar }) {
+export default function PainelAnalises({ onUsar, onAbrirNarrativa }) {
   const [itens, setItens]       = useState([]);
+  const [narrs, setNarrs]       = useState([]);        // narrativas salvas (Diretor)
+  const [apagandoNarr, setApagandoNarr] = useState(null);
   const [carregando, setCarreg] = useState(true);
   const [busca, setBusca]       = useState('');
   // Dois níveis: DE ONDE veio (web | plugin) e QUAL ferramenta (render | batch)
@@ -137,8 +140,19 @@ export default function PainelAnalises({ onUsar }) {
       .then((l) => { if (vivo) { setItens(l); setCarreg(false); } })
       .catch(() => { if (vivo) setCarreg(false); });
 
+    listarNarrativas(40)
+      .then((n) => { if (vivo) setNarrs(n || []); })
+      .catch(() => {});
+
     return () => { vivo = false; };
   }, []);
+
+  async function apagarNarr(id) {
+    setApagandoNarr(id);
+    try { await apagarNarrativa(id); setNarrs((l) => l.filter((n) => n.id !== id)); }
+    catch (e) {}
+    setApagandoNarr(null);
+  }
 
   // Fecha o dropdown ao clicar fora
   useEffect(() => {
@@ -185,6 +199,49 @@ export default function PainelAnalises({ onUsar }) {
 
   return (
     <div className="cr-form">
+
+      {narrs.length > 0 && (
+        <div className="an-narrs">
+          <div className="cr-sec">Narrativas salvas</div>
+          <p className="cr-hint cr-hint--topo">
+            As narrativas do Diretor ficam guardadas aqui — abra para continuar ou revisar o roteiro.
+          </p>
+          {narrs.map((n) => (
+            <div key={'n' + n.id} className="an-item">
+              <div className="an-cab" style={{ cursor: 'default' }}>
+                {n.thumb
+                  ? <img src={n.thumb} alt="" className="an-thumb" />
+                  : <span className="an-thumb an-thumb--vazia" />}
+                <span className="an-txt">
+                  <span className="an-topo">
+                    <span className="an-tit">Narrativa · {n.qtdImagens} {n.qtdImagens === 1 ? 'imagem' : 'imagens'}</span>
+                    <span className="an-tag">{n.finalizado ? 'Roteiro pronto' : 'Não finalizada'}</span>
+                    <span className={'an-tag an-tag--' + (n.plataforma || 'web')}>
+                      {(n.plataforma || 'web') === 'plugin' ? 'Plugin' : 'Web'}
+                    </span>
+                  </span>
+                  <span className="an-quando">{quando(n.atualizadoEm || n.criadoEm)}</span>
+                </span>
+              </div>
+              <div className="an-corpo">
+                <div className="an-acoes">
+                  <button className="cr-b-conf" onClick={() => onAbrirNarrativa && onAbrirNarrativa(n.id)}>
+                    {n.finalizado ? 'Abrir' : 'Continuar'}
+                  </button>
+                  <button className="an-lixo" onClick={() => apagarNarr(n.id)} aria-label="Apagar narrativa">
+                    {apagandoNarr === n.id ? '...' : (
+                      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
+                        <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="cr-sec">Análises de materiais</div>
       <p className="cr-hint cr-hint--topo">

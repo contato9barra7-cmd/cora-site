@@ -174,6 +174,11 @@ export default function AppPage() {
   const [erro, setErro]             = useState('');
 
   const [ferramenta, setFerramenta] = useState('render');
+  const [abrirNarrId, setAbrirNarrId] = useState(null);   // narrativa a reabrir (Análises → Diretor)
+  function abrirNarrativaDoAnalises(id) {
+    setAbrirNarrId(id);
+    setFerramenta('animacao');
+  }
 
   // Preenchimento e expansão tomam o FEED: pintar máscara num painel de
   // 380px seria impossível. Ao sair, o feed volta — com o resultado nele.
@@ -965,7 +970,7 @@ export default function AppPage() {
           </div>
 
           {ferramenta === 'analises' && (
-            <PainelAnalises onUsar={usarLeitura} />
+            <PainelAnalises onUsar={usarLeitura} onAbrirNarrativa={abrirNarrativaDoAnalises} />
           )}
 
           {ferramenta === 'animacao' && (
@@ -985,6 +990,8 @@ export default function AppPage() {
               onMostrarInicial={(base, prop) => mostrarInicialTimelapse('data:image/png;base64,' + base, prop)}
               onRemoverInicial={(id) => removerInicialTimelapse(id)}
               lotes={lotes}
+              abrirNarrativaId={abrirNarrId}
+              onNarrativaAberta={() => setAbrirNarrId(null)}
             />
           )}
 

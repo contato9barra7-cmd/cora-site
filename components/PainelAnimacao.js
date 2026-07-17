@@ -66,7 +66,7 @@ function proporcaoMaisProximaTL(w, h) {
 }
 
 export default function PainelAnimacao({
-  imagemInicial, ehAdmin, nav, onNav, onEnviarBase64, imgEditadaPos, onIniciar, onTerminar, onFeedAtualizar, onEtapaIniciar, onEtapaTerminar, onEtapaPronta, onMostrarInicial, onRemoverInicial, lotes
+  imagemInicial, ehAdmin, nav, onNav, onEnviarBase64, imgEditadaPos, onIniciar, onTerminar, onFeedAtualizar, onEtapaIniciar, onEtapaTerminar, onEtapaPronta, onMostrarInicial, onRemoverInicial, lotes, abrirNarrativaId, onNarrativaAberta
 }) {
   // Seção e ferramenta vêm do pai (persistem ao trocar de aba e voltar).
   const secao = (nav && nav.secao) || 'animacao';
@@ -138,6 +138,14 @@ export default function PainelAnimacao({
     } catch (e) {}
   }
   useEffect(() => { recarregarNarrRascunhos(); }, []);
+  // Pedido vindo da aba Análises: reabrir uma narrativa salva no Diretor.
+  useEffect(() => {
+    if (abrirNarrativaId) {
+      continuarNarrativa(abrirNarrativaId);
+      if (onNarrativaAberta) onNarrativaAberta();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [abrirNarrativaId]);
   // Busca uma imagem do feed (URL) e devolve o base64 puro (sem o prefixo data:).
   async function urlParaBase64(url) {
     try {
@@ -237,6 +245,7 @@ export default function PainelAnimacao({
   const [narrErro, setNarrErro] = useState('');
   const [narrDrag, setNarrDrag] = useState(null);   // índice sendo arrastado
   const [narrAlvo, setNarrAlvo] = useState(null);   // { i, lado:'antes'|'depois' } — onde vai cair
+  const narrArrastando = useRef(null);              // índice sendo arrastado (ref, p/ não cancelar o drag)
   const narrFileRef = useRef(null);
 
   // Fecha os popovers de opção ao clicar fora deles.
@@ -585,18 +594,28 @@ export default function PainelAnimacao({
   // Drag-and-drop pra reordenar (etapa 2). Igual à Pós: a linha ROXA se anuncia
   // onde a imagem vai cair (antes/depois da célula), e a reordenação só acontece
   // ao SOLTAR — não fica embaralhando ao vivo.
-  function narrDragStart(i) { setNarrDrag(i); }
+  function narrDragStart(i) { narrArrastando.current = i; setNarrDrag(i); }
   function narrDragOver(i, ev) {
     ev.preventDefault();
-    if (narrDrag === null) return;
+    if (narrArrastando.current === null) return;
     const r = ev.currentTarget.getBoundingClientRect();
     const lado = (ev.clientX < r.left + r.width / 2) ? 'antes' : 'depois';
     setNarrAlvo((a) => (a && a.i === i && a.lado === lado) ? a : { i, lado });
   }
   function narrDragEnd() {
-    const de = narrDrag, alvo = narrAlvo;
-    setNarrDrag(null); setNarrAlvo(null);
-    if (de === null || !alvo) return;
+    narrArrastando.current = null;
+    setNarrDrag(null);
+    setNarrAlvo(null);
+  }
+  // Reordena AO SOLTAR (onDrop do container), igual à Pós. Usa o ref (não o
+  // state) como origem, para o re-render durante o arraste não cancelar nada.
+  function narrSoltar() {
+    const de = narrArrastando.current;
+    const alvo = narrAlvo;
+    narrArrastando.current = null;
+    setNarrDrag(null);
+    setNarrAlvo(null);
+    if (de === null || de === undefined || !alvo) return;
     const arr = narrOrdem.slice();
     const item = arr[de];
     if (item === undefined) return;
@@ -1144,7 +1163,7 @@ export default function PainelAnimacao({
                   : narrImagens.length === 1 ? '1 imagem selecionada'
                   : narrImagens.length + ' imagens selecionadas'}
               </div>
-              <div className="narr-grid">
+              <div className="narr-grid" onDragOver={(e) => e.preventDefault()} onDrop={narrSoltar}>
                 {(narrOrdem.length ? narrOrdem.map((n) => narrImagens.find((im) => im.n === n)).filter(Boolean) : narrImagens).map((im, i) => (
                   <div
                     key={im.n}
@@ -1225,8 +1244,9 @@ export default function PainelAnimacao({
                       <span className="narr-take-frames">{tk.frames === 2 ? '2 imagens' : '1 imagem'} · imagem {tk.imagem}{tk.frames === 2 && tk.imagem_fim ? '→' + tk.imagem_fim : ''}</span>
                     </div>
                     {(() => {
+                      const doisFrames = Number(tk.frames) === 2 && (tk.imagem_fim != null);
                       const im1 = narrImagens.find((im) => im.n === tk.imagem);
-                      const im2 = tk.frames === 2 ? narrImagens.find((im) => im.n === tk.imagem_fim) : null;
+                      const im2 = doisFrames ? narrImagens.find((im) => im.n === tk.imagem_fim) : null;
                       if (!im1 && !im2) return null;
                       return (
                         <div className="narr-take-thumbs">
