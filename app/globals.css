@@ -529,6 +529,15 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .admin-tabela-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
 .admin-tabela { width: 100%; border-collapse: collapse; font-size: 15px; }
+/* Visão "respostas do cadastro": muitas colunas — compacta pra caber sem barra horizontal. */
+.admin-tabela--compacto { font-size: 13px; table-layout: fixed; }
+.admin-tabela--compacto th, .admin-tabela--compacto td { padding: 8px 8px; }
+.admin-tabela--compacto th { font-size: 11.5px; letter-spacing: .03em; }
+.admin-tabela--compacto .admin-email { font-size: 12px; }
+.admin-tabela--compacto .admin-btn-cancelar,
+.admin-tabela--compacto .admin-btn-stripe,
+.admin-tabela--compacto .admin-btn-deletar { padding: 4px 8px; font-size: 12px; }
+.admin-tabela--compacto .admin-acoes { gap: 4px; }
 .admin-tabela th {
   text-align: left; padding: 12px 14px; background: var(--paper);
   border-bottom: 1px solid var(--line); font-weight: 600; font-size: 13.5px;

@@ -1000,11 +1000,11 @@ export default function Admin() {
         </div>
       ) : (
       <div className="admin-tabela-wrap">
-        <table className="admin-tabela">
+        <table className={'admin-tabela' + (mostrarPerfil ? ' admin-tabela--compacto' : '')}>
           <thead>
             <tr>
               <th>Nome / Email</th>
-              <th>CPF</th>
+              {!mostrarPerfil && <th>CPF</th>}
               {dadosFiscais && <th>Telefone</th>}
               {dadosFiscais && <th>CEP</th>}
               {dadosFiscais && <th>Endereço</th>}
@@ -1036,7 +1036,7 @@ export default function Admin() {
                   <div className="admin-nome">{a.nome || '—'}</div>
                   <div className="admin-email">{a.email}{!a.email_verificado && <span className="admin-tag-nv">não verificado</span>}</div>
                 </td>
-                <td>{fmtCpf(a.cpf)}</td>
+                {!mostrarPerfil && <td>{fmtCpf(a.cpf)}</td>}
                 {dadosFiscais && <td>{dadosFiscais[a.email]?.telefone || '—'}</td>}
                 {dadosFiscais && <td>{dadosFiscais[a.email]?.cep || '—'}</td>}
                 {dadosFiscais && <td style={{ fontSize: 13, maxWidth: 220 }}>{dadosFiscais[a.email]?.endereco || '—'}</td>}
