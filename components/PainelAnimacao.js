@@ -16,6 +16,7 @@ import PickerImagem from './PickerImagem';
 import ModalDownload from './ModalDownload';
 import { salvarEtapaTimelapse } from '../lib/geracoes';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
+import { creditosMudaram } from '../lib/auth';
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
 import { animarKling, custoAnimacao, custoTimelapseEtapa, custoTimelapseCompleto, custoTimelapsePrimeira, timelapsePrompts, gerarEtapaTimelapse, narrativaOrdem, narrativaRoteiro, CREDITOS } from '../lib/render';
@@ -553,6 +554,7 @@ export default function PainelAnimacao({
     } finally {
       setNarrRodando(false);
       setNarrStatus('');
+      try { creditosMudaram(); } catch (e) {}   // atualiza o saldo (cobrança/estorno)
     }
   }
 
@@ -583,6 +585,7 @@ export default function PainelAnimacao({
     } finally {
       setNarrRodando(false);
       setNarrStatus('');
+      try { creditosMudaram(); } catch (e) {}   // atualiza o saldo (cobrança/estorno)
     }
   }
 
@@ -1073,12 +1076,12 @@ export default function PainelAnimacao({
                   </div>
                 ))}
                 {!narrOrdem.length && narrImagens.length < NARR_MAX && (
-                  <button className="narr-add" onClick={() => setPicker('narr')}>
-                    <svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.4">
+                  <button className={'narr-add' + (narrImagens.length === 0 ? ' narr-add--full' : '')} onClick={() => setPicker('narr')}>
+                    <svg viewBox="0 0 20 20" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.4">
                       <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/>
                       <path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>
                     </svg>
-                    <span className="narr-add-txt">Adicionar</span>
+                    <span className="narr-add-txt">Adicionar imagens</span>
                   </button>
                 )}
               </div>
@@ -1097,10 +1100,12 @@ export default function PainelAnimacao({
                   {narrOrdem.length === 0 ? (
                     <button className="cr-btn-gerar seq-gerar-fino" onClick={narrAnalisarOrdem} disabled={narrImagens.length < 2}>
                       <span>Analisar ordem narrativa</span>
+                      <span className="cr-custo-tag"><IconeCredito /> {CREDITOS.narrativa}</span>
                     </button>
                   ) : (
                     <button className="cr-btn-gerar seq-gerar-fino" onClick={narrGerarRoteiro}>
                       <span>Confirmar ordem</span>
+                      <span className="cr-custo-tag"><IconeCredito /> {CREDITOS.narrativa}</span>
                     </button>
                   )}
                 </div>

@@ -5810,8 +5810,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: var(--surface-1, #f1efe8);
 }
 .narr-cel img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.narr-cel--drag { cursor: grab; }
-.narr-cel--dragging { opacity: .5; }
+.narr-cel--drag { cursor: grab; transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease; }
+.narr-cel--drag:active { cursor: grabbing; }
+/* Arraste fluido (estilo Pós): a célula arrastada "levanta" e as outras deslizam. */
+.narr-cel--dragging {
+  opacity: .92; transform: scale(1.06); z-index: 5;
+  box-shadow: 0 8px 22px rgba(0,0,0,.28); cursor: grabbing;
+}
 .narr-num {
   position: absolute; top: 4px; left: 5px;
   font-size: 11px; font-weight: 600; color: #fff;
@@ -5836,6 +5841,11 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .narr-add:hover { border-color: var(--roxo); color: var(--roxo); }
 .narr-add-plus { font-size: 18px; line-height: 1; }
 .narr-add-txt { font-size: 10px; }
+/* Estado vazio: ocupa a largura toda, igual ao seletor do timelapse */
+.narr-add--full {
+  grid-column: 1 / -1; aspect-ratio: auto; padding: 34px 16px; gap: 8px;
+}
+.narr-add--full .narr-add-txt { font-size: 14px; }
 
 .narr-roteiro-cab { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
 .narr-copiar {
