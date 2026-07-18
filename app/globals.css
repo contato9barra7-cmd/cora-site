@@ -2827,8 +2827,11 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   align-items: center;
   justify-content: center;
   gap: 9px;
-  min-height: 300px;
-  height: 100%;
+  /* Altura FIXA (não 100%): senão o campo de arraste ocupa a tela toda e empurra
+     as imagens escolhidas pra baixo, obrigando a rolar. Assim elas ficam à vista. */
+  height: 210px;
+  min-height: 210px;
+  flex: none;
   border: 1px dashed var(--line2);
   border-radius: 12px;
   background: var(--wash);
