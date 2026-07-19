@@ -23,7 +23,10 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body>{children}<RodapeGlobal /></body>
+      <body>
+        <div className="site-conteudo">{children}</div>
+        <RodapeGlobal />
+      </body>
     </html>
   );
 }

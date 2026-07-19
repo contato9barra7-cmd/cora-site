@@ -323,7 +323,10 @@ export default function AppShell({ children }) {
       </header>
 
       {/* CONTEÚDO */}
-      <main className="app-main">{children}<RodapeLegal /></main>
+      <main className="app-main">
+        <div className="app-main-conteudo">{children}</div>
+        <RodapeLegal />
+      </main>
     </div>
   );
 }

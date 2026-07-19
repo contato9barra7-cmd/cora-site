@@ -200,16 +200,14 @@ export default function Assinatura() {
               ))}
             </div>
 
-            {/* O botão diz o que vai acontecer. "Comprar créditos" sozinho
-                não diz quantos nem por quanto. */}
+            {/* Botão compacto, alinhado à esquerda (mesmo padrão do "Gerenciar
+                assinatura"). Quantidade e preço já aparecem no card selecionado. */}
             <button
               className="rec-btn"
               onClick={comprarRecarga}
               disabled={comprando || (conta.eh_dono_equipe && !membros.length)}
             >
-              {comprando
-                ? 'Abrindo o pagamento...'
-                : `Comprar ${(recargaEscolhida?.creditos || 0).toLocaleString('pt-BR')} créditos · R$ ${recargaEscolhida?.preco || 0}`}
+              {comprando ? 'Abrindo o pagamento...' : 'Comprar'}
             </button>
           </div>
         )}
