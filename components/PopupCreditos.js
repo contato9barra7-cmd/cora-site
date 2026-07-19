@@ -35,7 +35,7 @@ export default function PopupCreditos() {
         <div className="cred-sub">
           Faça upgrade do seu plano ou compre uma recarga avulsa para continuar gerando.
         </div>
-        <button className="cred-btn cred-btn--verde" onClick={() => router.push('/precos')}>
+        <button className="cred-btn cred-btn--verde" onClick={() => router.push('/assinatura')}>
           Fazer upgrade
         </button>
         <button className="cred-btn cred-btn--linha" onClick={() => router.push('/assinatura')}>
