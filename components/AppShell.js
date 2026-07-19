@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta , EVENTO_CREDITOS } from '../lib/auth';
+import RodapeLegal from './RodapeLegal';
 
 // Ícones simples em SVG (sem dependência externa)
 function rotuloPlano(c) {
@@ -322,7 +323,7 @@ export default function AppShell({ children }) {
       </header>
 
       {/* CONTEÚDO */}
-      <main className="app-main">{children}</main>
+      <main className="app-main">{children}<RodapeLegal /></main>
     </div>
   );
 }

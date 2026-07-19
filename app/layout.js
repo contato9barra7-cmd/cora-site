@@ -1,4 +1,5 @@
 import './globals.css';
+import RodapeGlobal from '../components/RodapeGlobal';
 
 export const metadata = {
   title: 'Cora Render — Render com IA para SketchUp',
@@ -22,7 +23,7 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>{children}<RodapeGlobal /></body>
     </html>
   );
 }

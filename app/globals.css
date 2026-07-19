@@ -11241,7 +11241,15 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .cad-aceite--erro { color: #c0392b; }
 .cad-aceite--erro input { outline: 2px solid #c0392b; outline-offset: 1px; border-radius: 3px; }
 
-/* ===== Links legais no rodapé ===== */
-.foot-link { color: inherit; text-decoration: none; opacity: .85; }
-.foot-link:hover { opacity: 1; text-decoration: underline; }
-.foot-sep { margin: 0 8px; opacity: .5; }
+/* ===== Rodapé legal global (público + painel) ===== */
+.rodape-legal {
+  border-top: 1px solid var(--line);
+  padding: 22px 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink3);
+  background: transparent;
+}
+.rodape-legal .rl-link { color: inherit; text-decoration: none; opacity: .9; }
+.rodape-legal .rl-link:hover { opacity: 1; text-decoration: underline; }
+.rodape-legal .rl-sep { margin: 0 8px; opacity: .5; }

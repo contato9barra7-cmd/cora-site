@@ -402,10 +402,6 @@ export default function Precos() {
         </div>
       </div>
 
-      <div className="container">
-        <div className="foot">© {new Date().getFullYear()} Cora Render · 9barra7 Academy</div>
-      </div>
-
       {avisoRecarga && (
         <div className="foto-overlay" onClick={() => setAvisoRecarga(false)}>
           <div className="foto-modal" onClick={(e) => e.stopPropagation()} style={{ width: 400 }}>

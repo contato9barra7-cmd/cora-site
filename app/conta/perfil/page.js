@@ -272,8 +272,8 @@ export default function Perfil() {
             </button>
           </div>
           <p className="perfil-legal">
-            O 9barra7 usa seus dados para enviar novidades, promoções e dicas, com base em interesse
-            legítimo. Não compartilhamos com terceiros, e você pode desativar quando quiser. Mais na{' '}
+            O 9BARRA7 usa seus dados para enviar novidades, promoções e dicas, com base em interesse legítimo.<br />
+            Não compartilhamos com terceiros, e você pode desativar quando quiser. Mais na{' '}
             <a href="/privacidade" className="perfil-link">política de privacidade</a>.
           </p>
         </section>

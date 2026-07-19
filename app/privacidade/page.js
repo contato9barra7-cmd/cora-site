@@ -73,21 +73,19 @@ export default function Privacidade() {
         <h2 className="legal-h2">4. Com quem compartilhamos</h2>
         <p className="legal-p">
           Não vendemos os seus dados. Compartilhamos o mínimo necessário com prestadores que operam
-          o serviço em nosso nome (operadores), sempre limitados à finalidade contratada:
+          o serviço em nosso nome (operadores), por categoria e sempre limitados à finalidade contratada:
         </p>
         <ul className="legal-lista">
-          <li><strong>Stripe</strong> — processamento de pagamentos.</li>
-          <li><strong>Google</strong> — geração de imagens por IA (Gemini) e análise de tráfego (Google Analytics).</li>
-          <li><strong>Meta</strong> — medição e marketing (Meta Pixel).</li>
-          <li><strong>Freepik / Magnific</strong> — aumento de resolução (upscale) das imagens.</li>
-          <li><strong>Replicate</strong> e <strong>Kling AI</strong> — modelos de IA para imagem e vídeo.</li>
-          <li><strong>OpenAI</strong> — processamento de texto e descrições (prompts).</li>
-          <li><strong>Resend</strong> — envio de e-mails (confirmação de conta, recuperação de senha e newsletter).</li>
-          <li><strong>Infraestrutura:</strong> Railway (servidor), Vercel (site), armazenamento em
-            nuvem compatível com S3 (imagens) e banco de dados PostgreSQL.</li>
+          <li><strong>Processador de pagamentos</strong> — para processar assinaturas e cobranças com segurança.</li>
+          <li><strong>Provedores de inteligência artificial</strong> — para gerar imagens, vídeos e textos a partir do conteúdo que você envia.</li>
+          <li><strong>Ferramentas de análise e marketing</strong> — para medir o uso e divulgar o serviço.</li>
+          <li><strong>Serviço de envio de e-mails</strong> — para mensagens da conta (confirmação, recuperação de senha) e newsletter.</li>
+          <li><strong>Provedores de infraestrutura e armazenamento em nuvem</strong> — hospedagem, banco de dados e guarda das imagens geradas.</li>
         </ul>
         <p className="legal-p">
-          Também podemos compartilhar dados quando exigido por lei, ordem judicial ou autoridade competente.
+          Esses prestadores tratam os dados apenas conforme as nossas instruções e não podem usá-los
+          para fins próprios. Também podemos compartilhar dados quando exigido por lei, ordem judicial
+          ou autoridade competente.
         </p>
       </section>
 

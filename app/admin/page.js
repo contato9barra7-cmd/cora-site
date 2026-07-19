@@ -34,7 +34,7 @@ export default function Admin() {
   const [porPag, setPorPag] = useState(50);
   const [pag, setPag]       = useState(1);
   const [busca, setBusca] = useState('');
-  const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'trial' | 'convidados'
+  const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'trial' | 'convidados' | 'cancelados' | 'compras'
   const [filtroData, setFiltroData] = useState('todos'); // todos | mes | 12meses | ano | periodo
   const [anoFiltro, setAnoFiltro] = useState(String(new Date().getFullYear()));
   const [dataDe, setDataDe] = useState('');
@@ -384,7 +384,8 @@ export default function Admin() {
     // separa por aba
     if (aba === 'convidados') { if (!a.eh_convidado) return false; }
     else if (aba === 'trial') { if (!a.eh_trial) return false; }
-    else if (aba === 'pagantes') { if (a.eh_convidado || a.eh_trial) return false; }
+    else if (aba === 'pagantes') { if (a.eh_convidado || a.eh_trial || a.assinatura_status === 'cancelado') return false; }
+    else if (aba === 'cancelados') { if (a.eh_convidado || a.eh_trial || a.assinatura_status !== 'cancelado') return false; }
     // filtro de data
     if (!passaFiltroData(a)) return false;
     // status (quase vencendo / cancelado)
@@ -487,7 +488,8 @@ export default function Admin() {
   // contas "reais" = exclui a própria conta admin e os convidados de equipe
   const contasReais = assinantes.filter(a => a.id !== meuId && !a.eh_convidado);
   const totalContas = contasReais.length;
-  const pagos = contasReais.filter(a => (a.plano !== 'free' || a.eh_dono_equipe) && a.status === 'ativo').length;
+  const pagos = contasReais.filter(a => (a.plano !== 'free' || a.eh_dono_equipe) && a.status === 'ativo' && a.assinatura_status !== 'cancelado').length;
+  const totalCancelados = contasReais.filter(a => a.assinatura_status === 'cancelado').length;
 
   // filtro de data (aplicado sobre assinou_em pra pagantes, criado_em pra trial)
   function passaFiltroData(a) {
@@ -754,6 +756,9 @@ export default function Admin() {
         <button className={'admin-aba' + (aba === 'convidados' ? ' ativa' : '')} onClick={() => setAba('convidados')}>
           Membros de equipe ({totalConvidados})
         </button>
+        <button className={'admin-aba' + (aba === 'cancelados' ? ' ativa' : '')} onClick={() => setAba('cancelados')}>
+          Cancelados ({totalCancelados})
+        </button>
         <button className={'admin-aba' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
           Recargas ({compras.length})
         </button>
@@ -877,7 +882,6 @@ export default function Admin() {
                   <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)}>
                     <option value="">Todos</option>
                     <option value="vencendo">Quase vencendo</option>
-                    <option value="cancelado">Cancelados</option>
                   </select>
                 </div>
               )}
@@ -1024,6 +1028,7 @@ export default function Admin() {
               {mostrarCobranca && <th>Assinou</th>}
               {mostrarCobranca && <th>Renova em</th>}
               {mostrarCobranca && <th>Renov.</th>}
+              {aba === 'cancelados' && <th>Cancelado em</th>}
               <th>Status</th>
               {!mostrarPerfil && <th>Créditos</th>}
               <th>Ações</th>
@@ -1078,6 +1083,7 @@ export default function Admin() {
                 {mostrarCobranca && <td>{fmtData(a.assinou_em)}</td>}
                 {mostrarCobranca && <td>{fmtData(a.renova_em)}</td>}
                 {mostrarCobranca && <td style={{ textAlign: 'center' }}>{a.renovacoes || 0}</td>}
+                {aba === 'cancelados' && <td>{a.cancelado_em ? fmtData(a.cancelado_em) : '—'}</td>}
                 <td><span className={'admin-badge ' + (a.assinatura_status === 'cancelado' ? 'off' : (a.status === 'ativo' ? 'ok' : 'off'))}>{a.assinatura_status === 'cancelado' ? 'cancelado' : a.status}</span></td>
                 {!mostrarPerfil && <td>{a.plano === 'free' && !a.eh_dono_equipe ? '—' : `${a.creditos_restantes}/${a.creditos_total}`}</td>}
                 <td>
