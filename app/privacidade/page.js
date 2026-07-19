@@ -29,7 +29,7 @@ export default function Privacidade() {
         </p>
         <p className="legal-p">
           Para qualquer assunto relacionado a privacidade e proteção de dados, o contato é{' '}
-          <a href="mailto:contato@9barra7.com" className="legal-link">contato@9barra7.com</a>.
+          <a href="mailto:cora@corarender.com" className="legal-link">cora@corarender.com</a>.
         </p>
       </section>
 
@@ -131,7 +131,7 @@ export default function Privacidade() {
         </ul>
         <p className="legal-p">
           Para exercer qualquer um desses direitos, escreva para{' '}
-          <a href="mailto:contato@9barra7.com" className="legal-link">contato@9barra7.com</a>.
+          <a href="mailto:cora@corarender.com" className="legal-link">cora@corarender.com</a>.
         </p>
       </section>
 
@@ -166,7 +166,7 @@ export default function Privacidade() {
         <h2 className="legal-h2">12. Contato</h2>
         <p className="legal-p">
           Dúvidas, pedidos ou reclamações sobre privacidade e proteção de dados:{' '}
-          <a href="mailto:contato@9barra7.com" className="legal-link">contato@9barra7.com</a>.
+          <a href="mailto:cora@corarender.com" className="legal-link">cora@corarender.com</a>.
         </p>
         <p className="legal-p">
           9BARRA7 STUDIO LTDA. — CNPJ 43.879.950/0001-40 — R. Vera Cruz, 152, Arroio Grande,

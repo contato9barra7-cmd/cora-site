@@ -180,8 +180,9 @@ export default function Termos() {
       <section className="legal-sec">
         <h2 className="legal-h2">14. Contato</h2>
         <p className="legal-p">
-          Dúvidas sobre estes Termos:{' '}
-          <a href="mailto:contato@9barra7.com" className="legal-link">contato@9barra7.com</a>.
+          Dúvidas sobre estes Termos ou suporte:{' '}
+          <a href="mailto:cora@corarender.com" className="legal-link">cora@corarender.com</a>.
+          Respondemos as solicitações de suporte em até <strong>3 (três) dias úteis</strong>.
         </p>
         <p className="legal-p">
           9BARRA7 STUDIO LTDA. — CNPJ 43.879.950/0001-40 — R. Vera Cruz, 152, Arroio Grande,

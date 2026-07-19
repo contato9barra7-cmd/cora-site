@@ -7,6 +7,8 @@ export default function RodapeLegal() {
     <footer className="rodape-legal">
       <span>© {new Date().getFullYear()} Cora Render · 9BARRA7 Academy</span>
       <span className="rl-sep">·</span>
+      <Link href="/suporte" className="rl-link">Suporte</Link>
+      <span className="rl-sep">·</span>
       <Link href="/termos" className="rl-link">Termos de Uso</Link>
       <span className="rl-sep">·</span>
       <Link href="/privacidade" className="rl-link">Política de Privacidade</Link>
