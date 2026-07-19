@@ -363,9 +363,9 @@ export default function Precos() {
         <div className="container">
           <h2>Acabaram os créditos no meio do projeto?</h2>
           <p className="sub">
-            Compre uma recarga avulsa. Elas valem por 1 ano e só são usadas
-            depois que os créditos do plano acabam
-            {!temPlanoAtivo && ' — por isso, exigem um plano ativo'}.
+            Compre uma recarga avulsa dentro da sua conta — elas exigem um plano
+            ativo, valem por 1 ano e só são usadas depois que os créditos do
+            plano acabam.
           </p>
           <div className="recargas">
             {recargas.map((r) => (
@@ -374,13 +374,13 @@ export default function Precos() {
                 <div className="recarga__cred">{r.creditos.toLocaleString('pt-BR')} créditos</div>
                 <div className="recarga__p">{brlInt(r.preco)}</div>
                 <div className="recarga__u">{brl(r.preco / r.creditos)} por crédito</div>
-                <button
-                  className={'btn ' + (temPlanoAtivo ? 'btn--roxo' : 'btn--linha')}
-                  style={{ marginTop: 14 }}
-                  onClick={() => comprarRecarga(r.id)}
+                {/* Página pública: só informa os valores. A compra de recarga
+                    acontece logado, na plataforma (página Assinatura). */}
+                <div
+                  style={{ marginTop: 14, fontSize: 13, fontWeight: 600, color: '#8a8a8a', textAlign: 'center' }}
                 >
-                  {temPlanoAtivo ? 'Comprar' : 'Requer um plano'}
-                </button>
+                  Comprar na sua conta
+                </div>
               </div>
             ))}
           </div>
