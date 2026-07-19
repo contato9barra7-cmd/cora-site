@@ -217,7 +217,13 @@ export default function Home() {
       </section>
 
       <div className="container">
-        <div className="foot">© {new Date().getFullYear()} Cora Render · 9barra7 Academy</div>
+        <div className="foot">
+          © {new Date().getFullYear()} Cora Render · 9barra7 Academy
+          <span className="foot-sep">·</span>
+          <Link href="/termos" className="foot-link">Termos de Uso</Link>
+          <span className="foot-sep">·</span>
+          <Link href="/privacidade" className="foot-link">Política de Privacidade</Link>
+        </div>
       </div>
     </>
   );

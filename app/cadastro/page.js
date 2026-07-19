@@ -17,6 +17,7 @@ export default function Cadastro() {
   const [tamanho, setTamanho] = useState('');
   const [volume, setVolume] = useState('');
   const [verSenha, setVerSenha] = useState(false);
+  const [aceite, setAceite] = useState(false);
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
 
@@ -42,12 +43,19 @@ export default function Cadastro() {
     if (!tamanho) falta.tamanho = true;
     if (!volume) falta.volume = true;
     if (!senha || senha.length < 6) falta.senha = true;
+    if (!aceite) falta.aceite = true;
 
     if (Object.keys(falta).length) {
       setFaltando(falta);
-      setErro(!senha || senha.length < 6
-        ? 'Preencha todos os campos. A senha precisa de ao menos 6 caracteres.'
-        : 'Preencha todos os campos obrigatórios.');
+      let msg;
+      if (falta.aceite && Object.keys(falta).length === 1) {
+        msg = 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.';
+      } else if (!senha || senha.length < 6) {
+        msg = 'Preencha todos os campos. A senha precisa de ao menos 6 caracteres.';
+      } else {
+        msg = 'Preencha todos os campos obrigatórios.';
+      }
+      setErro(msg);
       return;
     }
     setFaltando({});
@@ -164,7 +172,15 @@ export default function Cadastro() {
 
         {erro && <p className="login-erro">{erro}</p>}
 
-        <button className="btn btn--verde" style={{ marginTop: 18 }} onClick={criarConta} disabled={carregando}>
+        <label className={'cad-aceite' + (faltando.aceite ? ' cad-aceite--erro' : '')}>
+          <input type="checkbox" checked={aceite} onChange={(e) => setAceite(e.target.checked)} />
+          <span>
+            Li e aceito os <Link href="/termos" target="_blank">Termos de Uso</Link> e a{' '}
+            <Link href="/privacidade" target="_blank">Política de Privacidade</Link>.
+          </span>
+        </label>
+
+        <button className="btn btn--verde" style={{ marginTop: 14 }} onClick={criarConta} disabled={carregando}>
           {carregando ? 'Criando...' : 'Criar conta grátis'}
         </button>
 
