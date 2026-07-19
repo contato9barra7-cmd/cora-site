@@ -34,6 +34,12 @@ function ConviteConteudo() {
         }
         setEstado('ok');
       } catch (e) {
+        // Convite inválido/expirado: limpa o token guardado, senão o site fica
+        // redirecionando pra cá em todo login/verificação (loop do "Convite indisponível").
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('cora_convite_token');
+          localStorage.removeItem('cora_convite_email');
+        }
         setEstado('erro');
         setMsg(e.message);
       }

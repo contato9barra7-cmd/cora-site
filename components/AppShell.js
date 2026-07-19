@@ -162,6 +162,11 @@ export default function AppShell({ children }) {
 
   const inicial = (conta?.nome || conta?.email || '?').charAt(0).toUpperCase();
 
+  // Trial: conta free de até 7 dias. Mostra o contador; ao expirar, bloqueia a tela.
+  const ehTrial = conta?.eh_trial === true;
+  const trialExpirado = conta?.trial_expirado === true;
+  const trialDiaAtual = Math.min(7, Math.max(1, 8 - (conta?.trial_dias_restantes ?? 7)));
+
   return (
     <div className={'app-shell' + (recolhido ? ' recolhido' : '')}>
       {/* MENU LATERAL FIXO */}
@@ -327,6 +332,30 @@ export default function AppShell({ children }) {
         <div className="app-main-conteudo">{children}</div>
         <RodapeLegal />
       </main>
+
+      {/* Contador do trial (enquanto ativo) */}
+      {ehTrial && !trialExpirado && (
+        <div className="trial-card">
+          <div className="trial-card-info">
+            <span className="trial-card-txt"><strong>Dia {trialDiaAtual} de 7</strong> <small>do seu teste grátis</small></span>
+            <div className="trial-card-prog"><i style={{ width: (trialDiaAtual / 7 * 100) + '%' }} /></div>
+          </div>
+          <button className="trial-card-btn" onClick={() => router.push('/precos')}>Assinar</button>
+        </div>
+      )}
+
+      {/* Bloqueio de tela cheia (trial expirado) */}
+      {ehTrial && trialExpirado && (
+        <div className="trial-bloqueio">
+          <div className="trial-bloqueio-card">
+            <span className="trial-bloqueio-eb">Teste encerrado</span>
+            <h1>Seu teste de 7 dias terminou</h1>
+            <p>Assine para continuar criando com o Cora Render — seus projetos e histórico continuam salvos.</p>
+            <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/precos')}>Ver planos e assinar</button>
+            <button className="trial-bloqueio-sair" onClick={logout}>Sair</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

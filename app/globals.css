@@ -11289,3 +11289,35 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 .sup-ok-tit { font-size: 20px; font-weight: 700; margin: 0 0 8px; }
 .sup-ok-txt { font-size: 14.5px; color: var(--ink2); line-height: 1.6; margin: 0; }
 @media (max-width: 560px) { .sup-row2 { grid-template-columns: 1fr; } }
+
+/* ===== Trial: card contador + bloqueio de tela ===== */
+.trial-card {
+  position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+  z-index: 60; display: flex; align-items: center; gap: 14px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 16px;
+  padding: 12px 14px 12px 18px; box-shadow: 0 12px 34px rgba(40,38,60,.16); min-width: 330px;
+}
+.trial-card-info { flex: 1; }
+.trial-card-txt { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.trial-card-txt small { color: var(--ink3); font-weight: 500; }
+.trial-card-prog { height: 5px; border-radius: 5px; background: var(--line); overflow: hidden; margin-top: 8px; }
+.trial-card-prog i { display: block; height: 100%; background: linear-gradient(90deg, #A4A1F3, #B3FF9F); }
+.trial-card-btn {
+  border: none; border-radius: 100px; background: var(--accent); color: var(--accent-txt);
+  font-weight: 700; font-size: 13px; padding: 9px 18px; cursor: pointer; font-family: inherit; white-space: nowrap;
+}
+@media (max-width: 560px) { .trial-card { left: 12px; right: 12px; transform: none; min-width: 0; } }
+
+.trial-bloqueio {
+  position: fixed; inset: 0; z-index: 200; padding: 20px;
+  background: rgba(20,18,26,.55); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+}
+.trial-bloqueio-card {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 20px;
+  padding: 40px 44px; max-width: 460px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.28);
+}
+.trial-bloqueio-eb { font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-esc); }
+.trial-bloqueio-card h1 { font-size: 25px; font-weight: 800; margin: 12px 0 8px; color: var(--ink); }
+.trial-bloqueio-card p { color: var(--ink2); font-size: 15px; line-height: 1.6; margin: 0 0 24px; }
+.trial-bloqueio-sair { display: block; margin: 14px auto 0; background: none; border: none; color: var(--ink3); font-size: 14px; cursor: pointer; font-family: inherit; text-decoration: underline; }
