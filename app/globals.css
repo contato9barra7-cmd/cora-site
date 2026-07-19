@@ -11321,3 +11321,22 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 .trial-bloqueio-card h1 { font-size: 25px; font-weight: 800; margin: 12px 0 8px; color: var(--ink); }
 .trial-bloqueio-card p { color: var(--ink2); font-size: 15px; line-height: 1.6; margin: 0 0 24px; }
 .trial-bloqueio-sair { display: block; margin: 14px auto 0; background: none; border: none; color: var(--ink3); font-size: 14px; cursor: pointer; font-family: inherit; text-decoration: underline; }
+
+/* ── Popup "créditos acabaram" (opção A) ── */
+.cred-overlay {
+  position: fixed; inset: 0; z-index: 210; padding: 20px;
+  background: rgba(20,18,26,.55); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+}
+.cred-modal {
+  background: #fff; border-radius: 20px; width: 328px; max-width: 100%;
+  padding: 30px 26px; text-align: center; box-shadow: 0 22px 60px rgba(0,0,0,.4);
+}
+.cred-ico { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; background: #f0eefe; }
+.cred-ico svg { width: 26px; height: 26px; }
+.cred-tit { color: #14141a; font-size: 22px; font-weight: 800; line-height: 1.15; margin-bottom: 10px; }
+.cred-sub { color: #666; font-size: 13.5px; line-height: 1.5; margin-bottom: 22px; }
+.cred-btn { display: block; width: 100%; border: 0; border-radius: 100px; font-size: 14px; font-weight: 700; padding: 13px; cursor: pointer; font-family: inherit; }
+.cred-btn--verde { background: #B3FF9F; color: #0d2b06; margin-bottom: 10px; }
+.cred-btn--linha { background: #fff; color: #2A2A2E; border: 1.5px solid #dcdce0; }
+.cred-agora { margin-top: 14px; color: #8a8a8a; font-size: 12.5px; text-decoration: underline; cursor: pointer; }

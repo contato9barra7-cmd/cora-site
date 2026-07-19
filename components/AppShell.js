@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta , EVENTO_CREDITOS } from '../lib/auth';
 import RodapeLegal from './RodapeLegal';
+import PopupCreditos from './PopupCreditos';
 
 // Ícones simples em SVG (sem dependência externa)
 function rotuloPlano(c) {
@@ -166,6 +167,13 @@ export default function AppShell({ children }) {
   const ehTrial = conta?.eh_trial === true;
   const trialExpirado = conta?.trial_expirado === true;
   const trialDiaAtual = Math.min(7, Math.max(1, 8 - (conta?.trial_dias_restantes ?? 7)));
+
+  // Plano pago vencido / cartão falhou: o servidor marca status != 'ativo'.
+  // Bloqueia SÓ o /app (onde se gera); minha conta e assinatura seguem abertas
+  // para a pessoa poder renovar. Trial e free não entram aqui (status 'ativo').
+  const planoExpirado = !!(conta && !conta.is_admin && !ehTrial
+    && conta.status && conta.status !== 'ativo');
+  const naApp = pathname === '/app';
 
   return (
     <div className={'app-shell' + (recolhido ? ' recolhido' : '')}>
@@ -356,6 +364,22 @@ export default function AppShell({ children }) {
           </div>
         </div>
       )}
+
+      {/* Bloqueio do /app quando o plano vence / cartão falha (conta e
+          assinatura continuam acessíveis pela navegação lateral) */}
+      {planoExpirado && naApp && (
+        <div className="trial-bloqueio">
+          <div className="trial-bloqueio-card">
+            <span className="trial-bloqueio-eb">Plano inativo</span>
+            <h1>Seu plano expirou</h1>
+            <p>Sua assinatura não está ativa — renove para voltar a gerar. Seus projetos e histórico continuam salvos.</p>
+            <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/assinatura')}>Renovar assinatura</button>
+          </div>
+        </div>
+      )}
+
+      {/* Popup "créditos acabaram" — dispara ao receber 402 de uma geração */}
+      <PopupCreditos />
     </div>
   );
 }
