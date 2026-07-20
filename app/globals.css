@@ -11384,7 +11384,7 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 /* ═══════════════════════════════════════════════════════════
    PROMPTADORES — aba de agentes de GPT (layout A) + modal admin
    ═══════════════════════════════════════════════════════════ */
-.promp-wrap { max-width: 860px; }
+.promp-wrap { max-width: 940px; padding: 32px 40px; }
 .promp-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .promp-top h1 { font-size: 26px; font-weight: 800; color: var(--ink); }
 .promp-sub { color: var(--ink3); font-size: 13.5px; margin-top: 4px; }
