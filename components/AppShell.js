@@ -85,6 +85,7 @@ export default function AppShell({ children }) {
     return localStorage.getItem('cora_menu_recolhido') === '1';
   });
   const [menuUser, setMenuUser] = useState(false);
+  const [credCardVisivel, setCredCardVisivel] = useState(false);
 
   useEffect(() => {
     const c = lerConta();
@@ -151,7 +152,12 @@ export default function AppShell({ children }) {
   const pctRestante = ilimitado || total === 0 ? 0 : Math.max(0, Math.min(100, Math.round(((total - usados) / total) * 100)));
 
   const restantes = Math.max(0, total - usados);
-  const acabando  = !ilimitado && total > 0 && pctRestante <= 10;
+  const acabando  = !ilimitado && total > 0 && pctRestante <= 10;   // usado só p/ cor da barra no menu
+
+  // Card de crédito baixo: aparece quando restarem 1000 créditos ou menos
+  // (número fixo, vale para qualquer plano).
+  const LIMIAR_CRED_CARD = 1000;
+  const credBaixo = !ilimitado && total > 0 && restantes <= LIMIAR_CRED_CARD;
 
   // Quantos dias até renovar? (só mostra quando faz sentido)
   const dataRenov = conta?.eh_dono_equipe ? conta?.equipe_renova_em : conta?.expira_em;
@@ -173,6 +179,26 @@ export default function AppShell({ children }) {
   // para a pessoa poder renovar. Trial e free não entram aqui (status 'ativo').
   const planoExpirado = !!(conta && !conta.is_admin && !ehTrial
     && conta.status && conta.status !== 'ativo');
+
+  // Card de crédito baixo (mesmo canto do "Dia X de 7"). NÃO fica fixo: aparece
+  // no máximo 1x a cada 6h. Só para conta paga (não trial, não ilimitada) com
+  // saldo <= 10%. Ao zerar, vira o estado "acabaram".
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (ehTrial || ilimitado || !(total > 0) || !credBaixo || planoExpirado) {
+      setCredCardVisivel(false);
+      return;
+    }
+    const SEIS_H = 6 * 60 * 60 * 1000;
+    let ultimo = 0;
+    try { ultimo = parseInt(localStorage.getItem('cora_cred_card_visto') || '0', 10) || 0; } catch (e) {}
+    if (Date.now() - ultimo > SEIS_H) setCredCardVisivel(true);
+  }, [conta, credBaixo, ehTrial, ilimitado, total, planoExpirado]);
+
+  function fecharCredCard() {
+    setCredCardVisivel(false);
+    try { localStorage.setItem('cora_cred_card_visto', String(Date.now())); } catch (e) {}
+  }
   const naApp = pathname === '/app';
 
   return (
@@ -279,15 +305,6 @@ export default function AppShell({ children }) {
                         <span>renova em {diasRenov} {diasRenov === 1 ? 'dia' : 'dias'}</span>
                       )}
                     </div>
-                    {acabando && (
-                      <div className="cred-aviso">
-                        <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
-                          <path d="M10 3.5l7 12.5H3l7-12.5z" strokeLinejoin="round"/>
-                          <path d="M10 8v3.5M10 13.5v.5" strokeLinecap="round"/>
-                        </svg>
-                        <span>Seus créditos estão acabando</span>
-                      </div>
-                    )}
                   </div>
                 )}
 
@@ -352,6 +369,27 @@ export default function AppShell({ children }) {
         </div>
       )}
 
+      {/* Card de crédito baixo/zerado — mesmo canto do trial, aparece de 6 em 6h */}
+      {credCardVisivel && !ehTrial && !ilimitado && total > 0 && credBaixo && !planoExpirado && (
+        <div className="trial-card cred-nudge">
+          <button className="cred-nudge-x" onClick={fecharCredCard} aria-label="Fechar">×</button>
+          <div className="trial-card-info">
+            {restantes <= 0 ? (
+              <span className="trial-card-txt"><strong>Seus créditos acabaram</strong> <small>recarregue para continuar gerando</small></span>
+            ) : (
+              <span className="trial-card-txt"><strong>{restantes.toLocaleString('pt-BR')} créditos restantes</strong> <small>de {total.toLocaleString('pt-BR')}</small></span>
+            )}
+            <div className="trial-card-prog">
+              <i className={restantes <= 0 ? 'cred-bar-zero' : 'cred-bar-baixo'}
+                 style={{ width: (restantes <= 0 ? 100 : Math.max(4, pctRestante)) + '%' }} />
+            </div>
+          </div>
+          <button className="trial-card-btn" onClick={() => router.push('/assinatura')}>
+            {restantes <= 0 ? 'Recarregar' : 'Comprar créditos'}
+          </button>
+        </div>
+      )}
+
       {/* Bloqueio de tela cheia (trial expirado) */}
       {ehTrial && trialExpirado && (
         <div className="trial-bloqueio">
@@ -374,6 +412,7 @@ export default function AppShell({ children }) {
             <h1>Seu plano expirou</h1>
             <p>Sua assinatura não está ativa — renove para voltar a gerar. Seus projetos e histórico continuam salvos.</p>
             <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/assinatura')}>Renovar assinatura</button>
+            <button className="trial-bloqueio-sair" onClick={() => router.push('/conta')}>Sair</button>
           </div>
         </div>
       )}

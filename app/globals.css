@@ -11308,6 +11308,13 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 }
 @media (max-width: 560px) { .trial-card { left: 12px; right: 12px; transform: none; min-width: 0; } }
 
+/* Card de crédito baixo/zerado (reusa o .trial-card) */
+.cred-nudge { padding-right: 26px; }
+.cred-nudge-x { position: absolute; top: 6px; right: 9px; background: none; border: 0; color: var(--ink3); font-size: 16px; line-height: 1; cursor: pointer; font-family: inherit; padding: 0; }
+.cred-nudge-x:hover { color: var(--ink); }
+.trial-card-prog i.cred-bar-baixo { background: #F2B84B; }
+.trial-card-prog i.cred-bar-zero { background: #E86A5E; }
+
 .trial-bloqueio {
   position: fixed; inset: 0; z-index: 200; padding: 20px;
   background: rgba(20,18,26,.55); backdrop-filter: blur(4px);
