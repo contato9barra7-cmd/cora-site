@@ -124,7 +124,7 @@ export default function Promptadores() {
     if (arrastando.current == null) return;
     e.preventDefault();
     const r = e.currentTarget.getBoundingClientRect();
-    const side = (e.clientX < r.left + r.width / 2) ? 'antes' : 'depois';
+    const side = (e.clientY < r.top + r.height / 2) ? 'antes' : 'depois';
     const novo = { index: i, side };
     alvoRef.current = novo;
     setAlvo(prev => (prev && prev.index === i && prev.side === side) ? prev : novo);

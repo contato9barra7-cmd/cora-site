@@ -11384,7 +11384,7 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 /* ═══════════════════════════════════════════════════════════
    PROMPTADORES — aba de agentes de GPT (layout A) + modal admin
    ═══════════════════════════════════════════════════════════ */
-.promp-wrap { max-width: 1120px; padding: 32px 40px; }
+.promp-wrap { max-width: 100%; padding: 32px 40px; }
 .promp-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .promp-top h1 { font-size: 26px; font-weight: 800; color: var(--ink); }
 .promp-sub { color: var(--ink3); font-size: 13.5px; margin-top: 4px; }
@@ -11420,13 +11420,13 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 }
 /* Card sendo arrastado: fica discreto (não some do lugar). */
 .promp-row--voando { opacity: .4; }
-/* Risco roxo indicando a NOVA posição (no vão, antes/depois do card). */
+/* Risco roxo horizontal indicando a NOVA posição (no vão, acima/abaixo do card). */
 .promp-row--linha-antes::before,
 .promp-row--linha-depois::after {
-  content: ""; position: absolute; top: 6px; bottom: 6px; width: 4px; border-radius: 4px; background: var(--roxo);
+  content: ""; position: absolute; left: 0; right: 0; height: 4px; border-radius: 4px; background: var(--roxo);
 }
-.promp-row--linha-antes::before { left: -9px; }
-.promp-row--linha-depois::after { right: -9px; }
+.promp-row--linha-antes::before { top: -9px; }
+.promp-row--linha-depois::after { bottom: -9px; }
 /* handle de arraste (6 pontinhos) — só admin */
 .promp-grip { flex: none; width: 20px; height: 30px; margin: -6px -4px -6px -6px; display: flex; align-items: center; justify-content: center; color: var(--ink3); cursor: grab; border-radius: 8px; }
 .promp-grip svg { width: 16px; height: 16px; opacity: .55; }
