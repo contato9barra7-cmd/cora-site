@@ -124,10 +124,16 @@ export default function Promptadores() {
     if (arrastando.current == null) return;
     e.preventDefault();
     const r = e.currentTarget.getBoundingClientRect();
-    const side = (e.clientY < r.top + r.height / 2) ? 'antes' : 'depois';
-    const novo = { index: i, side };
+    // Eixo dominante decide se o card entra por cima/baixo (troca de linha)
+    // ou pela lateral (troca de coluna). `side` = antes/depois no array plano.
+    const dx = e.clientX - (r.left + r.width / 2);
+    const dy = e.clientY - (r.top + r.height / 2);
+    let side, orient;
+    if (Math.abs(dx) > Math.abs(dy)) { orient = 'v'; side = dx < 0 ? 'antes' : 'depois'; }
+    else { orient = 'h'; side = dy < 0 ? 'antes' : 'depois'; }
+    const novo = { index: i, side, orient };
     alvoRef.current = novo;
-    setAlvo(prev => (prev && prev.index === i && prev.side === side) ? prev : novo);
+    setAlvo(prev => (prev && prev.index === i && prev.side === side && prev.orient === orient) ? prev : novo);
   }
 
   async function soltar() {
@@ -262,8 +268,10 @@ export default function Promptadores() {
               <div
                 className={'promp-row'
                   + (voando === i ? ' promp-row--voando' : '')
-                  + (alvo && alvo.index === i && alvo.side === 'antes' ? ' promp-row--linha-antes' : '')
-                  + (alvo && alvo.index === i && alvo.side === 'depois' ? ' promp-row--linha-depois' : '')}
+                  + (alvo && alvo.index === i && alvo.orient === 'h' && alvo.side === 'antes' ? ' promp-row--linha-topo' : '')
+                  + (alvo && alvo.index === i && alvo.orient === 'h' && alvo.side === 'depois' ? ' promp-row--linha-baixo' : '')
+                  + (alvo && alvo.index === i && alvo.orient === 'v' && alvo.side === 'antes' ? ' promp-row--linha-esq' : '')
+                  + (alvo && alvo.index === i && alvo.orient === 'v' && alvo.side === 'depois' ? ' promp-row--linha-dir' : '')}
                 key={p.id}
                 onDragOver={(e) => podeArrastar && arrastaSobre(e, i)}
               >

@@ -11420,13 +11420,20 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 }
 /* Card sendo arrastado: fica discreto (não some do lugar). */
 .promp-row--voando { opacity: .4; }
-/* Risco roxo horizontal indicando a NOVA posição (no vão, acima/abaixo do card). */
-.promp-row--linha-antes::before,
-.promp-row--linha-depois::after {
+/* Risco roxo indicando a NOVA posição. Horizontal (troca de linha) ou
+   vertical no vão entre colunas (troca de coluna), conforme o eixo do arraste. */
+.promp-row--linha-topo::before,
+.promp-row--linha-baixo::after {
   content: ""; position: absolute; left: 0; right: 0; height: 4px; border-radius: 4px; background: var(--roxo);
 }
-.promp-row--linha-antes::before { top: -9px; }
-.promp-row--linha-depois::after { bottom: -9px; }
+.promp-row--linha-topo::before { top: -9px; }
+.promp-row--linha-baixo::after { bottom: -9px; }
+.promp-row--linha-esq::before,
+.promp-row--linha-dir::after {
+  content: ""; position: absolute; top: 4px; bottom: 4px; width: 4px; border-radius: 4px; background: var(--roxo);
+}
+.promp-row--linha-esq::before { left: -9px; }
+.promp-row--linha-dir::after { right: -9px; }
 /* handle de arraste (6 pontinhos) — só admin */
 .promp-grip { flex: none; width: 20px; height: 30px; margin: -6px -4px -6px -6px; display: flex; align-items: center; justify-content: center; color: var(--ink3); cursor: grab; border-radius: 8px; }
 .promp-grip svg { width: 16px; height: 16px; opacity: .55; }
