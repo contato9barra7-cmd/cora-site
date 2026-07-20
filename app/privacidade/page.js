@@ -112,9 +112,18 @@ export default function Privacidade() {
         <h2 className="legal-h2">7. Cookies e tecnologias de rastreamento</h2>
         <p className="legal-p">
           Usamos cookies essenciais, necessários para o login e o funcionamento do site, e cookies de
-          análise e marketing (Google Analytics e Meta Pixel) para entender o uso e divulgar o serviço.
-          Você pode gerenciar ou bloquear cookies nas configurações do seu navegador; os essenciais são
-          necessários para o serviço funcionar.
+          análise e marketing, usados para entender como o site é utilizado e para divulgar o serviço.
+          Esses cookies são carregados por meio de um gerenciador de tags.
+        </p>
+        <p className="legal-p">
+          <strong>Consentimento:</strong> ao acessar o site, você vê um aviso de cookies e pode
+          <strong> aceitar</strong> ou <strong>recusar</strong> os cookies de análise e marketing.
+          Eles só são ativados <strong>depois</strong> do seu aceite — antes disso, ficam desligados.
+          Os cookies essenciais são sempre carregados, por serem necessários ao funcionamento do serviço.
+        </p>
+        <p className="legal-p">
+          Você pode mudar sua escolha a qualquer momento, limpando os cookies do site pelo seu navegador
+          (o aviso aparece de novo) ou bloqueando cookies nas configurações do navegador.
         </p>
       </section>
 

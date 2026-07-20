@@ -543,6 +543,24 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .admin-tabela-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
 .admin-tabela { width: 100%; border-collapse: collapse; font-size: 15px; }
+/* ── Banner de cookies (LGPD) — barra inferior ── */
+.cookie-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 3000;
+  background: #fff; border-top: 1px solid #ececee; box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+  padding: 16px 22px; display: flex; align-items: center; gap: 20px;
+}
+.cookie-txt { flex: 1; font-size: 13px; color: #5a5a60; line-height: 1.5; }
+.cookie-txt a { color: #6d6ae0; text-decoration: underline; }
+.cookie-acoes { display: flex; gap: 10px; }
+.cookie-btn { border: 0; border-radius: 100px; font-size: 13px; font-weight: 700; padding: 11px 22px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.cookie-btn--verde { background: #B3FF9F; color: #0d2b06; }
+.cookie-btn--ghost { background: #fff; color: #2A2A2E; border: 1.5px solid #dcdce0; }
+@media (max-width: 560px) {
+  .cookie-bar { flex-direction: column; align-items: stretch; gap: 12px; }
+  .cookie-acoes { display: flex; }
+  .cookie-btn { flex: 1; }
+}
+
 /* Célula CPF / ID */
 .idcel { font-variant-numeric: tabular-nums; }
 .admin-pais-tag { display: inline-block; margin-left: 8px; font-size: 11px; font-weight: 700; color: var(--roxo-escuro, #4b48c7); background: var(--roxo-suave, #f3f2fe); border-radius: 100px; padding: 2px 8px; vertical-align: middle; }
