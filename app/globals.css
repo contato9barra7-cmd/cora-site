@@ -11411,8 +11411,17 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 .promp-toggle button.on { background: var(--paper); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 
 .promp-lista { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 6px 22px rgba(0,0,0,.05); overflow: hidden; }
-.promp-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.promp-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--line); background: var(--paper); }
 .promp-row:last-child { border-bottom: 0; }
+.promp-row--voando { opacity: .55; }
+/* handle de arraste (6 pontinhos) — só admin */
+.promp-grip { flex: none; width: 20px; height: 30px; margin: -6px -4px -6px -6px; display: flex; align-items: center; justify-content: center; color: var(--ink3); cursor: grab; border-radius: 8px; }
+.promp-grip svg { width: 16px; height: 16px; opacity: .55; }
+.promp-grip:hover { background: var(--wash2); }
+.promp-grip:hover svg { opacity: .9; }
+.promp-grip:active { cursor: grabbing; }
+.promp-grip--off { cursor: default; opacity: .35; }
+.promp-grip--off:hover { background: transparent; }
 .promp-cir {
   width: 40px; height: 40px; border-radius: 50%; flex: none;
   background: linear-gradient(135deg, var(--verde), var(--roxo));

@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta, listarPromptadores, salvarPromptador, excluirPromptador } from '../../lib/auth';
+import { lerConta, listarPromptadores, salvarPromptador, excluirPromptador, reordenarPromptadores } from '../../lib/auth';
 
 function fmtData(d) {
   if (!d) return '';
@@ -68,6 +68,12 @@ export default function Promptadores() {
   const [salvando, setSalvando] = useState(false);
   const fileRef = useRef(null);
 
+  // reordenar por arraste (admin) — mesmo esquema das camadas do Pós
+  const arrastando = useRef(null);          // índice pego
+  const [voando, setVoando] = useState(null);
+  const listaRef = useRef([]);
+  useEffect(() => { listaRef.current = lista; }, [lista]);
+
   useEffect(() => {
     const c = lerConta();
     if (!c) { router.push('/login'); return; }
@@ -105,6 +111,32 @@ export default function Promptadores() {
   function abrir(p) {
     const link = idioma === 'es' ? (p.link_es || p.link_pt) : p.link_pt;
     if (link) window.open(link, '_blank', 'noopener');
+  }
+
+  // ── reordenar (admin): só na lista completa, sem busca ──
+  const podeArrastar = isAdmin && !busca.trim();
+
+  function arrastaSobre(e, i) {
+    if (arrastando.current == null) return;
+    e.preventDefault();
+    const de = arrastando.current;
+    if (de === i) return;
+    setLista(prev => {
+      const arr = [...prev];
+      const [m] = arr.splice(de, 1);
+      arr.splice(i, 0, m);
+      return arr;
+    });
+    arrastando.current = i;
+  }
+
+  async function soltar() {
+    const de = arrastando.current;
+    arrastando.current = null;
+    setVoando(null);
+    if (de == null) return;
+    try { await reordenarPromptadores(listaRef.current.map(p => p.id)); }
+    catch (e) { setErro('Não foi possível salvar a ordem: ' + e.message); }
   }
 
   // ── admin: editar/novo ──
@@ -214,9 +246,28 @@ export default function Promptadores() {
               : 'Nenhum resultado para a sua busca.'}
           </div>
         ) : (
-          <div className="promp-lista">
-            {filtrados.map(p => (
-              <div className="promp-row" key={p.id}>
+          <div className="promp-lista" onDragOver={(e) => e.preventDefault()} onDrop={soltar}>
+            {filtrados.map((p, i) => (
+              <div
+                className={'promp-row' + (voando === i ? ' promp-row--voando' : '')}
+                key={p.id}
+                onDragOver={(e) => podeArrastar && arrastaSobre(e, i)}
+              >
+                {isAdmin && (
+                  <span
+                    className={'promp-grip' + (podeArrastar ? '' : ' promp-grip--off')}
+                    title={podeArrastar ? 'Arraste para reordenar' : 'Limpe a busca para reordenar'}
+                    draggable={podeArrastar}
+                    onDragStart={() => { arrastando.current = i; setVoando(i); }}
+                    onDragEnd={soltar}
+                  >
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <circle cx="6" cy="4" r="1.3" /><circle cx="10" cy="4" r="1.3" />
+                      <circle cx="6" cy="8" r="1.3" /><circle cx="10" cy="8" r="1.3" />
+                      <circle cx="6" cy="12" r="1.3" /><circle cx="10" cy="12" r="1.3" />
+                    </svg>
+                  </span>
+                )}
                 <div className="promp-cir" style={p.avatar ? { backgroundImage: `url(${p.avatar})` } : undefined}>
                   {!p.avatar && inicial(p)}
                 </div>
