@@ -51,6 +51,15 @@ const Icone = {
       <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/>
     </svg>
   ),
+  // Robozinho — aba Promptadores (distinto do ícone "pessoa" de Minha conta).
+  promptadores: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="5" y="8" width="14" height="11" rx="3"/>
+      <path d="M12 8V4M9 4h6"/>
+      <circle cx="9.5" cy="13" r="1"/><circle cx="14.5" cy="13" r="1"/>
+      <path d="M3 12v3M21 12v3"/>
+    </svg>
+  ),
   // A barra lateral, desenhada. A seta aponta para onde o clique leva: para
   // dentro quando vai recolher, para fora quando vai abrir.
   recolher: (
@@ -139,11 +148,15 @@ export default function AppShell({ children }) {
   const itens = [
     { href: '/conta', rotulo: 'Dashboard', icone: Icone.dashboard, admin: false },
     { href: '/app', rotulo: 'Cora Render', icone: Icone.studio, admin: false },
+    { href: '/promptadores', rotulo: 'Promptadores', icone: Icone.promptadores, admin: false, soPromptador: true },
     { href: '/conta/perfil', rotulo: 'Minha conta', icone: Icone.conta, admin: false, divisor: true },
     { href: '/workspace', rotulo: 'Equipe', icone: Icone.equipe, admin: false, soDono: true },
     { href: '/assinatura', rotulo: 'Assinatura', icone: Icone.assinatura, admin: false, soPagante: true },
     { href: '/admin', rotulo: 'Admin', icone: Icone.admin, admin: true },
-  ].filter(i => (!i.admin || (conta && conta.is_admin)) && (!i.soDono || (conta && conta.eh_dono_equipe)) && (!i.soPagante || !(conta && conta.eh_membro_equipe)));
+  ].filter(i => (!i.admin || (conta && conta.is_admin))
+    && (!i.soDono || (conta && conta.eh_dono_equipe))
+    && (!i.soPagante || !(conta && conta.eh_membro_equipe))
+    && (!i.soPromptador || (conta && conta.promptador_acesso)));
 
   // créditos para o anel do avatar (mostra o quanto RESTA)
   const ilimitado = conta && (conta.creditos_total === -1 || conta.is_admin);
