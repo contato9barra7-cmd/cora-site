@@ -68,9 +68,11 @@ export default function Promptadores() {
   const [salvando, setSalvando] = useState(false);
   const fileRef = useRef(null);
 
-  // reordenar por arraste (admin) — mesmo esquema das camadas do Pós
+  // reordenar por arraste (admin) — item fica parado; um risco roxo indica onde vai cair
   const arrastando = useRef(null);          // índice pego
   const [voando, setVoando] = useState(null);
+  const [alvo, setAlvo] = useState(null);   // { index, side:'antes'|'depois' }
+  const alvoRef = useRef(null);
   const listaRef = useRef([]);
   useEffect(() => { listaRef.current = lista; }, [lista]);
 
@@ -116,26 +118,35 @@ export default function Promptadores() {
   // ── reordenar (admin): só na lista completa, sem busca ──
   const podeArrastar = isAdmin && !busca.trim();
 
+  // Enquanto arrasta: NÃO move o item. Só calcula de que lado do card sob o
+  // cursor o risco roxo deve aparecer (antes/depois), pela metade horizontal.
   function arrastaSobre(e, i) {
     if (arrastando.current == null) return;
     e.preventDefault();
-    const de = arrastando.current;
-    if (de === i) return;
-    setLista(prev => {
-      const arr = [...prev];
-      const [m] = arr.splice(de, 1);
-      arr.splice(i, 0, m);
-      return arr;
-    });
-    arrastando.current = i;
+    const r = e.currentTarget.getBoundingClientRect();
+    const side = (e.clientX < r.left + r.width / 2) ? 'antes' : 'depois';
+    const novo = { index: i, side };
+    alvoRef.current = novo;
+    setAlvo(prev => (prev && prev.index === i && prev.side === side) ? prev : novo);
   }
 
   async function soltar() {
     const de = arrastando.current;
+    const al = alvoRef.current;
     arrastando.current = null;
+    alvoRef.current = null;
     setVoando(null);
-    if (de == null) return;
-    try { await reordenarPromptadores(listaRef.current.map(p => p.id)); }
+    setAlvo(null);
+    if (de == null || !al) return;
+    let ins = al.side === 'antes' ? al.index : al.index + 1;
+    const arr = [...listaRef.current];
+    const [m] = arr.splice(de, 1);
+    const target = ins > de ? ins - 1 : ins;
+    if (target === de) return;                 // não mudou de lugar
+    arr.splice(target, 0, m);
+    listaRef.current = arr;
+    setLista(arr);
+    try { await reordenarPromptadores(arr.map(p => p.id)); }
     catch (e) { setErro('Não foi possível salvar a ordem: ' + e.message); }
   }
 
@@ -249,7 +260,10 @@ export default function Promptadores() {
           <div className="promp-lista" onDragOver={(e) => e.preventDefault()} onDrop={soltar}>
             {filtrados.map((p, i) => (
               <div
-                className={'promp-row' + (voando === i ? ' promp-row--voando' : '')}
+                className={'promp-row'
+                  + (voando === i ? ' promp-row--voando' : '')
+                  + (alvo && alvo.index === i && alvo.side === 'antes' ? ' promp-row--linha-antes' : '')
+                  + (alvo && alvo.index === i && alvo.side === 'depois' ? ' promp-row--linha-depois' : '')}
                 key={p.id}
                 onDragOver={(e) => podeArrastar && arrastaSobre(e, i)}
               >
