@@ -48,8 +48,8 @@ export default function CookieConsent() {
   return (
     <div className="cookie-bar" role="dialog" aria-label="Aviso de cookies">
       <div className="cookie-txt">
-        Usamos cookies para analisar o uso do site e melhorar sua experiência. Veja a{' '}
-        <Link href="/privacidade">Política de Privacidade</Link>.
+        Usamos cookies para analisar o uso do site e melhorar sua experiência.<br />
+        Veja a <Link href="/privacidade">Política de Privacidade</Link>.
       </div>
       <div className="cookie-acoes">
         <button className="cookie-btn cookie-btn--ghost" onClick={() => decidir(false)}>Recusar</button>
