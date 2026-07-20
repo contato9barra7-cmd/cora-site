@@ -16,6 +16,20 @@ function fmtCpf(c) {
   if (!c || c.length !== 11) return c || '—';
   return c.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
+// Célula "CPF / ID": CPF formatado (Brasil) ou o documento internacional + país.
+function DocFiscal({ cpf, doc_intl, doc_pais }) {
+  if (cpf && cpf.length === 11) return <span className="idcel">{fmtCpf(cpf)}</span>;
+  if (doc_intl) return (
+    <span className="idcel">{doc_intl}{doc_pais ? <span className="admin-pais-tag">{doc_pais}</span> : null}</span>
+  );
+  return <span>—</span>;
+}
+// Texto plano do documento (para CSV/busca).
+function docFiscalTexto(o) {
+  if (o.cpf && o.cpf.length === 11) return o.cpf;
+  if (o.doc_intl) return o.doc_intl + (o.doc_pais ? ` (${o.doc_pais})` : '');
+  return '';
+}
 function fmtValor(centavos, moeda) {
   if (!centavos) return '—';
   const v = (centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
@@ -212,9 +226,9 @@ export default function Admin() {
       }
 
       baixarCSV('assinantes-fiscais',
-        ['Nome', 'Email', 'CPF', 'Telefone', 'CEP', 'Endereço', 'Cidade', 'Estado', 'País', 'Plano', 'Assentos', 'Assinou em', 'Renova em', 'Renovações', 'Valor (R$)'],
+        ['Nome', 'Email', 'CPF/ID', 'Telefone', 'CEP', 'Endereço', 'Cidade', 'Estado', 'País', 'Plano', 'Assentos', 'Assinou em', 'Renova em', 'Renovações', 'Valor (R$)'],
         pagantes.map(a => [
-          a.nome, a.email, a.cpf,
+          a.nome, a.email, docFiscalTexto(a),
           mapa[a.email]?.telefone || '',
           mapa[a.email]?.cep || '',
           mapa[a.email]?.endereco || '',
@@ -242,10 +256,10 @@ export default function Admin() {
         linhas.forEach(l => { mapa[l.email] = { telefone: l.telefone, cep: l.cep, endereco: l.endereco }; });
       }
       baixarCSV('recargas-fiscais',
-        ['Data', 'Comprador', 'Email', 'CPF', 'Telefone', 'CEP', 'Endereço', 'Compra', 'Créditos', 'Destino', 'Valor (R$)'],
+        ['Data', 'Comprador', 'Email', 'CPF/ID', 'Telefone', 'CEP', 'Endereço', 'Compra', 'Créditos', 'Destino', 'Valor (R$)'],
         compras.map(c => [
           c.criado_em ? new Date(c.criado_em).toLocaleDateString('pt-BR') : '',
-          c.nome, c.email, c.cpf,
+          c.nome, c.email, docFiscalTexto(c),
           mapa[c.email]?.telefone || '',
           mapa[c.email]?.cep || '',
           mapa[c.email]?.endereco || '',
@@ -407,7 +421,9 @@ export default function Admin() {
     if (!q) return true;
     return (a.nome || '').toLowerCase().includes(q)
       || (a.email || '').toLowerCase().includes(q)
-      || (a.cpf || '').includes(q);
+      || (a.cpf || '').includes(q)
+      || (a.doc_intl || '').toLowerCase().includes(q)
+      || (a.doc_pais || '').toLowerCase().includes(q);
   }).sort((a, b) => {
     // na aba de membros, agrupa por equipe (mesmo time junto)
     if (aba === 'convidados') {
@@ -966,7 +982,7 @@ export default function Admin() {
               <tr>
                 <th>Data</th>
                 <th>Comprador</th>
-                <th>CPF</th>
+                <th>CPF / ID</th>
                 {dadosFiscais && <th>Telefone</th>}
                 {dadosFiscais && <th>CEP</th>}
                 {dadosFiscais && <th>Endereço</th>}
@@ -988,7 +1004,7 @@ export default function Admin() {
                     <div className="admin-nome">{c.nome || '—'}</div>
                     <div className="admin-email">{c.email}</div>
                   </td>
-                  <td>{fmtCpf(c.cpf)}</td>
+                  <td><DocFiscal cpf={c.cpf} doc_intl={c.doc_intl} doc_pais={c.doc_pais} /></td>
                   {dadosFiscais && <td>{dadosFiscais[c.email]?.telefone || '—'}</td>}
                   {dadosFiscais && <td>{dadosFiscais[c.email]?.cep || '—'}</td>}
                   {dadosFiscais && <td style={{ fontSize: 13, maxWidth: 220 }}>{dadosFiscais[c.email]?.endereco || '—'}</td>}
@@ -1008,7 +1024,7 @@ export default function Admin() {
           <thead>
             <tr>
               <th>Nome / Email</th>
-              {!mostrarPerfil && <th>CPF</th>}
+              {!mostrarPerfil && <th>CPF / ID</th>}
               {dadosFiscais && <th>Telefone</th>}
               {dadosFiscais && <th>CEP</th>}
               {dadosFiscais && <th>Endereço</th>}
@@ -1041,7 +1057,7 @@ export default function Admin() {
                   <div className="admin-nome">{a.nome || '—'}</div>
                   <div className="admin-email">{a.email}{!a.email_verificado && <span className="admin-tag-nv">não verificado</span>}</div>
                 </td>
-                {!mostrarPerfil && <td>{fmtCpf(a.cpf)}</td>}
+                {!mostrarPerfil && <td><DocFiscal cpf={a.cpf} doc_intl={a.doc_intl} doc_pais={a.doc_pais} /></td>}
                 {dadosFiscais && <td>{dadosFiscais[a.email]?.telefone || '—'}</td>}
                 {dadosFiscais && <td>{dadosFiscais[a.email]?.cep || '—'}</td>}
                 {dadosFiscais && <td style={{ fontSize: 13, maxWidth: 220 }}>{dadosFiscais[a.email]?.endereco || '—'}</td>}

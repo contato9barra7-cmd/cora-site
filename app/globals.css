@@ -504,19 +504,29 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
 }
 .modal-cpf {
-  background: var(--paper); border-radius: 16px; padding: 30px; max-width: 420px; width: 100%;
+  background: var(--paper); border-radius: 20px; padding: 30px; max-width: 440px; width: 100%;
   box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  min-height: 360px; display: flex; flex-direction: column;
 }
-.modal-cpf h3 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
-.modal-cpf p { color: var(--ink2); font-size: 16px; margin-bottom: 18px; }
+.modal-cpf h3 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.modal-cpf-desc { color: var(--ink2); font-size: 13.5px; line-height: 1.5; margin-bottom: 18px; min-height: 40px; }
+/* seletor Brasil / Outro país */
+.modal-seg { display: flex; gap: 8px; margin-bottom: 18px; }
+.modal-seg-btn {
+  flex: 1; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink2);
+  border-radius: 100px; padding: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.modal-seg-btn.on { border-color: var(--roxo); background: var(--roxo-suave, #f3f2fe); color: var(--roxo-escuro, #4b48c7); }
+.modal-campo-rot { font-size: 12px; font-weight: 600; color: var(--ink3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .4px; }
+.modal-cpf-dupla { display: flex; gap: 10px; }
 .modal-input {
-  width: 100%; padding: 13px 16px; border: 1px solid var(--line); border-radius: 10px;
-  font-size: 17px; margin-bottom: 12px; box-sizing: border-box;
+  width: 100%; padding: 13px 20px; border: 1.5px solid var(--line); border-radius: 100px;
+  font-size: 15px; margin-bottom: 6px; box-sizing: border-box; font-family: inherit;
 }
-.modal-input:focus { outline: none; border-color: var(--roxo); }
-.modal-erro { color: #b23b32; font-size: 15px; margin-bottom: 12px; }
-.modal-acoes { display: flex; gap: 12px; margin-top: 6px; }
-.modal-acoes .btn { flex: 1; margin: 0; padding: 12px; }
+.modal-input:focus { outline: none; border-color: var(--roxo); box-shadow: 0 0 0 3px rgba(164,161,243,.18); }
+.modal-erro { color: #b23b32; font-size: 14px; margin: 8px 0 0; }
+.modal-acoes { display: flex; gap: 12px; margin-top: auto; padding-top: 18px; }
+.modal-acoes .btn { flex: 1; margin: 0; padding: 13px; }
 
 /* ==========================================================================
    PAINEL DE ADMIN
@@ -533,6 +543,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .admin-tabela-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
 .admin-tabela { width: 100%; border-collapse: collapse; font-size: 15px; }
+/* Célula CPF / ID */
+.idcel { font-variant-numeric: tabular-nums; }
+.admin-pais-tag { display: inline-block; margin-left: 8px; font-size: 11px; font-weight: 700; color: var(--roxo-escuro, #4b48c7); background: var(--roxo-suave, #f3f2fe); border-radius: 100px; padding: 2px 8px; vertical-align: middle; }
 /* Visão "respostas do cadastro": muitas colunas — compacta pra caber sem barra horizontal. */
 .admin-tabela--compacto { font-size: 13px; table-layout: fixed; }
 .admin-tabela--compacto th, .admin-tabela--compacto td { padding: 8px 8px; }

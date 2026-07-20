@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { iniciarCheckout, salvarCPF, lerConta, abrirPortal } from '../../lib/auth';
+import { iniciarCheckout, salvarCPF, salvarDadosFiscais, lerConta, abrirPortal } from '../../lib/auth';
 import { STRIPE_PRICES } from '../../lib/stripe-prices';
 import Nav from '../../components/Nav';
 import {
@@ -68,7 +68,10 @@ export default function Precos() {
   const [abaCusto, setAbaCusto] = useState('imagens');
   const [erroCheckout, setErroCheckout] = useState('');
   const [modalCpf, setModalCpf] = useState(false);
+  const [fiscalTipo, setFiscalTipo] = useState('br');   // 'br' (CPF) | 'intl'
   const [cpf, setCpf] = useState('');
+  const [docIntl, setDocIntl] = useState('');
+  const [paisIntl, setPaisIntl] = useState('');
   const [cpfErro, setCpfErro] = useState('');
   const [priceIdPendente, setPriceIdPendente] = useState(null);
   const [salvandoCpf, setSalvandoCpf] = useState(false);
@@ -119,11 +122,17 @@ export default function Precos() {
     setCpfErro('');
     setSalvandoCpf(true);
     try {
-      await salvarCPF(cpf);
+      if (fiscalTipo === 'intl') {
+        if (!docIntl.trim()) { setCpfErro('Informe o documento fiscal'); setSalvandoCpf(false); return; }
+        if (!paisIntl.trim()) { setCpfErro('Informe o país'); setSalvandoCpf(false); return; }
+        await salvarDadosFiscais({ internacional: true, documento: docIntl.trim(), pais: paisIntl.trim() });
+      } else {
+        await salvarDadosFiscais({ cpf });
+      }
       // abre a guia a partir DESTE clique (evita bloqueio de popup)
       const guia = null;
       setModalCpf(false);
-      setCpf('');
+      setCpf(''); setDocIntl(''); setPaisIntl('');
       if (priceIdPendente) await comprar(priceIdPendente, guia);
     } catch (e) {
       setCpfErro(e.message);
@@ -451,17 +460,62 @@ export default function Precos() {
       {modalCpf && (
         <div className="modal-overlay" onClick={() => !salvandoCpf && setModalCpf(false)}>
           <div className="modal-cpf" onClick={(e) => e.stopPropagation()}>
-            <h3>Confirme seu CPF</h3>
-            <p>Precisamos do seu CPF para emitir a nota fiscal da sua compra.</p>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="000.000.000-00"
-              value={cpf}
-              onChange={(e) => setCpf(formatarCpf(e.target.value))}
-              className="modal-input"
-              autoFocus
-            />
+            <h3>Dados para a nota fiscal</h3>
+
+            <div className="modal-seg">
+              <button
+                className={'modal-seg-btn' + (fiscalTipo === 'br' ? ' on' : '')}
+                onClick={() => { setFiscalTipo('br'); setCpfErro(''); }}
+              >Brasil</button>
+              <button
+                className={'modal-seg-btn' + (fiscalTipo === 'intl' ? ' on' : '')}
+                onClick={() => { setFiscalTipo('intl'); setCpfErro(''); }}
+              >Outro país</button>
+            </div>
+
+            {fiscalTipo === 'br' ? (
+              <>
+                <p className="modal-cpf-desc">Precisamos do seu CPF para emitir a nota fiscal da sua compra.</p>
+                <div className="modal-campo-rot">CPF</div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="000.000.000-00"
+                  value={cpf}
+                  onChange={(e) => setCpf(formatarCpf(e.target.value))}
+                  className="modal-input"
+                  autoFocus
+                />
+              </>
+            ) : (
+              <>
+                <p className="modal-cpf-desc">Para compras fora do Brasil, informe seu documento e país.</p>
+                <div className="modal-cpf-dupla">
+                  <div style={{ flex: 2 }}>
+                    <div className="modal-campo-rot">Documento / ID fiscal</div>
+                    <input
+                      type="text"
+                      placeholder="VAT, EIN, passaporte..."
+                      value={docIntl}
+                      onChange={(e) => setDocIntl(e.target.value)}
+                      className="modal-input"
+                      autoFocus
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div className="modal-campo-rot">País</div>
+                    <input
+                      type="text"
+                      placeholder="Ex: Portugal"
+                      value={paisIntl}
+                      onChange={(e) => setPaisIntl(e.target.value)}
+                      className="modal-input"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
             {cpfErro && <div className="modal-erro">{cpfErro}</div>}
             <div className="modal-acoes">
               <button className="btn btn--ghost" onClick={() => setModalCpf(false)} disabled={salvandoCpf}>
