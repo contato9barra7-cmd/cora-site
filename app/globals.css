@@ -11503,7 +11503,7 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 .promp-btn:disabled { opacity: .6; cursor: default; }
 
 /* Aviso fixo dos 30 dias (topo da lista de promptadores) */
-.promp-aviso30 { display: flex; gap: 11px; align-items: flex-start; background: var(--accent-bg); border: 1px solid var(--roxo); border-radius: 14px; padding: 13px 16px; margin-bottom: 18px; }
+.promp-aviso30 { display: flex; gap: 11px; align-items: flex-start; background: var(--accent-bg); border: 1px solid var(--roxo); border-radius: 14px; padding: 13px 16px; margin: 22px 0 10px; }
 .promp-aviso30 svg { width: 20px; height: 20px; stroke: var(--roxo-esc); fill: none; flex: none; margin-top: 1px; }
 .promp-aviso30 .t { font-size: 12.5px; color: var(--roxo-esc); line-height: 1.45; }
 .promp-aviso30 .t b { color: var(--roxo-esc); }
@@ -11567,3 +11567,38 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 .promp-exp-card p { color: var(--ink3); font-size: 13.5px; line-height: 1.5; margin-bottom: 22px; }
 .promp-exp-btn { display: block; background: var(--verde); color: #0d2b06; text-decoration: none; border-radius: 100px; font-size: 14px; font-weight: 700; padding: 13px 30px; }
 .promp-exp-voltar { background: none; border: 0; color: var(--ink3); font-size: 13px; font-weight: 600; margin-top: 14px; cursor: pointer; }
+
+/* Filtros da lista de acesso (admin) */
+.promp-filtros { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 16px; flex-wrap: wrap; }
+.promp-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.promp-chip { border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; padding: 8px 15px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.promp-chip:hover { border-color: var(--roxo); }
+.promp-chip.on { background: var(--roxo); color: #1a1650; border-color: var(--roxo); }
+.promp-busca--sm { max-width: 300px; padding: 8px 14px; }
+.promp-curso-tag { font-size: 12px; color: var(--ink3); margin-bottom: 12px; }
+.promp-curso-tag b { color: var(--roxo-esc); }
+
+/* Calendário da marca (DatePickerCora) */
+.coradp { position: relative; width: 100%; }
+.coradp-btn { width: 100%; display: flex; align-items: center; gap: 9px; padding: 10px 15px; border-radius: 100px; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); font-size: 13px; font-family: inherit; cursor: pointer; text-align: left; }
+.coradp-btn svg { color: var(--ink3); flex: none; }
+.coradp-btn:hover { border-color: var(--roxo); }
+.coradp--aberto .coradp-btn { border-color: var(--roxo); }
+.coradp-ph { color: var(--ink3); }
+.coradp-pop { position: absolute; top: calc(100% + 6px); left: 0; z-index: 200; width: 268px; background: var(--paper); border: 1px solid var(--line2); border-radius: 16px; box-shadow: 0 14px 40px rgba(0,0,0,.2); padding: 12px; }
+.coradp-cab { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.coradp-mes { font-size: 13px; font-weight: 700; color: var(--ink); text-transform: capitalize; }
+.coradp-nav { width: 28px; height: 28px; border-radius: 8px; border: 0; background: var(--wash2); color: var(--ink2); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.coradp-nav:hover { background: var(--accent-bg); color: var(--roxo); }
+.coradp-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.coradp-dh { text-align: center; font-size: 10.5px; font-weight: 700; color: var(--ink3); padding: 4px 0; }
+.coradp-dia { border: 0; background: transparent; color: var(--ink); font-size: 12.5px; font-family: inherit; height: 32px; border-radius: 9px; cursor: pointer; }
+.coradp-dia:hover { background: var(--accent-bg); color: var(--roxo); }
+.coradp-dia.hoje { box-shadow: inset 0 0 0 1.5px var(--roxo); color: var(--roxo-esc); font-weight: 700; }
+.coradp-dia.sel { background: var(--roxo); color: #1a1650; font-weight: 800; }
+.coradp-pe { display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+.coradp-hoje { border: 0; background: none; color: var(--roxo-esc); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+
+/* Modal de acesso: deixa o calendário/dropdown "vazar" sem ser cortado */
+.promp-modal--acesso { overflow: visible; }
+.promp-modal--acesso .promp-mb { overflow: visible; }

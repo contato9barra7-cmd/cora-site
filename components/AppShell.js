@@ -148,7 +148,8 @@ export default function AppShell({ children }) {
   const itens = [
     { href: '/conta', rotulo: 'Dashboard', icone: Icone.dashboard, admin: false },
     { href: '/app', rotulo: 'Cora Render', icone: Icone.studio, admin: false },
-    { href: '/promptadores', rotulo: 'Promptadores', icone: Icone.promptadores, admin: false, soPromptador: true },
+    { href: '/promptadores/ia-studio', rotulo: 'Promptadores IA Studio', icone: Icone.promptadores, admin: false, soCurso: 'ia_studio' },
+    { href: '/promptadores/prompthub', rotulo: 'Promptadores PromptHub', icone: Icone.promptadores, admin: false, soCurso: 'prompthub' },
     { href: '/conta/perfil', rotulo: 'Minha conta', icone: Icone.conta, admin: false, divisor: true },
     { href: '/workspace', rotulo: 'Equipe', icone: Icone.equipe, admin: false, soDono: true },
     { href: '/assinatura', rotulo: 'Assinatura', icone: Icone.assinatura, admin: false, soPagante: true },
@@ -156,7 +157,8 @@ export default function AppShell({ children }) {
   ].filter(i => (!i.admin || (conta && conta.is_admin))
     && (!i.soDono || (conta && conta.eh_dono_equipe))
     && (!i.soPagante || !(conta && conta.eh_membro_equipe))
-    && (!i.soPromptador || (conta && (conta.promptador_acesso || conta.promptador_expirado))));
+    && (!i.soCurso || (conta && conta.promptador_cursos && conta.promptador_cursos[i.soCurso]
+        && (conta.promptador_cursos[i.soCurso].acesso || conta.promptador_cursos[i.soCurso].expirado))));
 
   // créditos para o anel do avatar (mostra o quanto RESTA)
   const ilimitado = conta && (conta.creditos_total === -1 || conta.is_admin);
@@ -371,8 +373,9 @@ export default function AppShell({ children }) {
         <RodapeLegal />
       </main>
 
-      {/* Contador do trial (enquanto ativo) */}
-      {ehTrial && !trialExpirado && (
+      {/* Contador do trial (enquanto ativo). Escondido nas abas de Promptadores:
+          lá o teste é do Cora e confundiria com o acesso dos promptadores. */}
+      {ehTrial && !trialExpirado && !pathname.startsWith('/promptadores') && (
         <div className="trial-card">
           <div className="trial-card-info">
             <span className="trial-card-txt"><strong>Dia {trialDiaAtual} de 7</strong> <small>do seu teste grátis</small></span>
