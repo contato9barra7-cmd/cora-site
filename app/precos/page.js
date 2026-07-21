@@ -152,7 +152,7 @@ export default function Precos() {
     if (!priceId) return;
 
     // Sem conta: a recarga não teria onde cair
-    const logada = typeof window !== 'undefined' && localStorage.getItem('cora_token');
+    const logada = typeof window !== 'undefined' && localStorage.getItem('cora_conta');
     if (!logada) { router.push('/cadastro'); return; }
 
     // Com conta, mas sem plano: manda escolher um antes
@@ -185,7 +185,7 @@ export default function Precos() {
     if (!grupo) return;
     const priceId = anual ? grupo.anual : grupo.mensal;
     // Só abre a guia se já estiver logada (senão vira about:blank; sem login vai pro cadastro).
-    const logada = typeof window !== 'undefined' && localStorage.getItem('cora_token');
+    const logada = typeof window !== 'undefined' && localStorage.getItem('cora_conta');
     const guia = null;
     await comprar(priceId, guia);
   }

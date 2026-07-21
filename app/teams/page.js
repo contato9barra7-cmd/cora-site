@@ -22,7 +22,7 @@ export default function Teams() {
   // Se a pessoa voltou de login/cadastro com uma escolha pendente, restaura e retoma.
   useEffect(() => {
     const pend = lerEquipePendente();
-    const logada = typeof window !== 'undefined' && localStorage.getItem('cora_token');
+    const logada = typeof window !== 'undefined' && localStorage.getItem('cora_conta');
     if (pend && logada) {
       setPlano(pend.plano === 'studio' ? 'studio' : 'pro');
       setAssentos(Math.max(2, Math.min(100, pend.assentos || 2)));
@@ -60,7 +60,7 @@ export default function Teams() {
   function clicarAssinar() {
     // Só abre a guia nova SE já estiver logada (senão vira about:blank).
     // Sem login, iniciarCheckoutEquipe guarda a escolha e manda pro cadastro.
-    const logada = typeof window !== 'undefined' && localStorage.getItem('cora_token');
+    const logada = typeof window !== 'undefined' && localStorage.getItem('cora_conta');
     const guia = null;
     assinar(guia);
   }

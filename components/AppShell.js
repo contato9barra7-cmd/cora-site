@@ -101,7 +101,11 @@ export default function AppShell({ children }) {
     const c = lerConta();
     setConta(c);
     // busca dados frescos pra ter campos novos (ex: eh_dono_equipe, para a aba Equipe)
-    atualizarConta().then((fresca) => { if (fresca) setConta(fresca); }).catch(() => {});
+    atualizarConta().then((fresca) => {
+      if (fresca) setConta(fresca);
+      // Tínhamos cache mas a sessão morreu (401 sem cookie): desloga na hora.
+      else if (c && typeof window !== 'undefined' && !localStorage.getItem('cora_conta')) setConta(null);
+    }).catch(() => {});
     // aplica o tema salvo (da conta ou do navegador)
     if (typeof window !== 'undefined') {
       // (o recolhido já veio no useState, acima — reler aqui causava o flash)

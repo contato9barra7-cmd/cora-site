@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Nav from '../../components/Nav';
-import { lerToken, aceitarConvite, infoConvite } from '../../lib/auth';
+import { estaLogado, aceitarConvite, infoConvite } from '../../lib/auth';
 
 function ConviteConteudo() {
   const router = useRouter();
@@ -15,7 +15,7 @@ function ConviteConteudo() {
   useEffect(() => {
     (async () => {
       if (!token) { setEstado('erro'); setMsg('Convite inválido.'); return; }
-      const jwt = lerToken();
+      const jwt = estaLogado();
       if (!jwt) {
         // guarda o token e o email convidado; manda logar/cadastrar
         if (typeof window !== 'undefined') {
