@@ -321,10 +321,10 @@ export default function PainelEditar({
                   >
                     {travado && (
                       <span className="ed-cad" data-tip="Disponível no Pro e no Studio">
-                        <svg viewBox="0 0 16 16" width="10" height="10" fill="none"
-                             stroke="currentColor" strokeWidth="1.6">
-                          <rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/>
-                          <path d="M5.5 7V5a2.5 2.5 0 015 0v2" strokeLinecap="round"/>
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none"
+                             stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="5" y="11" width="14" height="10" rx="2"/>
+                          <path d="M8 11V7a4 4 0 018 0v4"/>
                         </svg>
                       </span>
                     )}
