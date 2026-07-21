@@ -133,7 +133,7 @@ export default function EmailAssinantes({ onClose, curso, cursoLabel }) {
             <div className="ea-mb">
               <div className="ea-prev">
                 <div className="ea-prev-top">{modoCurso && LOGOS_CURSO[curso]
-                  ? <img src={LOGOS_CURSO[curso]} alt="9barra7 Academy" style={{ height: 40, width: 'auto', display: 'block' }} />
+                  ? <img src={LOGOS_CURSO[curso]} alt="9barra7 Academy" style={{ height: 30, width: 'auto', display: 'block' }} />
                   : (modoCurso ? '9barra7 Academy' : 'Cora Render')}</div>
                 <div className="ea-prev-body">
                   {titulo && <h4>{titulo}</h4>}
