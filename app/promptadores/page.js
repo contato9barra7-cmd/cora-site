@@ -69,12 +69,32 @@ export default function Promptadores() {
   const fileRef = useRef(null);
 
   // reordenar por arraste (admin) — item fica parado; um risco roxo indica onde vai cair
-  const arrastando = useRef(null);          // índice pego
-  const [voando, setVoando] = useState(null);
-  const [alvo, setAlvo] = useState(null);   // { index, side:'antes'|'depois' }
-  const alvoRef = useRef(null);
+  const arrastando = useRef(null);          // índice ATUAL do card arrastado (muda ao mover)
+  const [arrastandoId, setArrastandoId] = useState(null);
   const listaRef = useRef([]);
   useEffect(() => { listaRef.current = lista; }, [lista]);
+
+  // Auto-scroll da janela enquanto arrasta perto do topo/rodapé — sem isso não
+  // dá pra alcançar linhas distantes (o HTML5 drag não rola a página sozinho).
+  const scrollVel = useRef(0);
+  const scrollTimer = useRef(null);
+  function iniciarAutoScroll() {
+    if (scrollTimer.current) return;
+    scrollTimer.current = setInterval(() => {
+      if (scrollVel.current) window.scrollBy(0, scrollVel.current);
+    }, 16);
+  }
+  function pararAutoScroll() {
+    if (scrollTimer.current) { clearInterval(scrollTimer.current); scrollTimer.current = null; }
+    scrollVel.current = 0;
+  }
+  function calcVel(clientY) {
+    const margem = 120, passoMax = 22, h = window.innerHeight;
+    if (clientY < margem) scrollVel.current = -Math.ceil(passoMax * (1 - clientY / margem));
+    else if (clientY > h - margem) scrollVel.current = Math.ceil(passoMax * (1 - (h - clientY) / margem));
+    else scrollVel.current = 0;
+  }
+  useEffect(() => () => pararAutoScroll(), []);
 
   useEffect(() => {
     const c = lerConta();
@@ -118,41 +138,31 @@ export default function Promptadores() {
   // ── reordenar (admin): só na lista completa, sem busca ──
   const podeArrastar = isAdmin && !busca.trim();
 
-  // Enquanto arrasta: NÃO move o item. Só calcula de que lado do card sob o
-  // cursor o risco roxo deve aparecer (antes/depois), pela metade horizontal.
+  // Reordena AO VIVO: o card arrastado assume a célula sob o cursor (ordem de
+  // leitura, esq→dir, cima→baixo). O que você vê durante o arraste é o resultado
+  // final — ao soltar não há pulo. Vale pra qualquer coluna/linha.
   function arrastaSobre(e, i) {
     if (arrastando.current == null) return;
     e.preventDefault();
-    const r = e.currentTarget.getBoundingClientRect();
-    // Eixo dominante decide se o card entra por cima/baixo (troca de linha)
-    // ou pela lateral (troca de coluna). `side` = antes/depois no array plano.
-    const dx = e.clientX - (r.left + r.width / 2);
-    const dy = e.clientY - (r.top + r.height / 2);
-    let side, orient;
-    if (Math.abs(dx) > Math.abs(dy)) { orient = 'v'; side = dx < 0 ? 'antes' : 'depois'; }
-    else { orient = 'h'; side = dy < 0 ? 'antes' : 'depois'; }
-    const novo = { index: i, side, orient };
-    alvoRef.current = novo;
-    setAlvo(prev => (prev && prev.index === i && prev.side === side && prev.orient === orient) ? prev : novo);
+    calcVel(e.clientY);
+    const de = arrastando.current;
+    if (de === i) return;
+    setLista(prev => {
+      const arr = [...prev];
+      const [m] = arr.splice(de, 1);
+      arr.splice(i, 0, m);
+      return arr;
+    });
+    arrastando.current = i;
   }
 
   async function soltar() {
-    const de = arrastando.current;
-    const al = alvoRef.current;
+    const mudou = arrastando.current != null;
     arrastando.current = null;
-    alvoRef.current = null;
-    setVoando(null);
-    setAlvo(null);
-    if (de == null || !al) return;
-    let ins = al.side === 'antes' ? al.index : al.index + 1;
-    const arr = [...listaRef.current];
-    const [m] = arr.splice(de, 1);
-    const target = ins > de ? ins - 1 : ins;
-    if (target === de) return;                 // não mudou de lugar
-    arr.splice(target, 0, m);
-    listaRef.current = arr;
-    setLista(arr);
-    try { await reordenarPromptadores(arr.map(p => p.id)); }
+    setArrastandoId(null);
+    pararAutoScroll();
+    if (!mudou) return;
+    try { await reordenarPromptadores(listaRef.current.map(p => p.id)); }
     catch (e) { setErro('Não foi possível salvar a ordem: ' + e.message); }
   }
 
@@ -263,15 +273,10 @@ export default function Promptadores() {
               : 'Nenhum resultado para a sua busca.'}
           </div>
         ) : (
-          <div className="promp-lista" onDragOver={(e) => e.preventDefault()} onDrop={soltar}>
+          <div className="promp-lista" onDragOver={(e) => { e.preventDefault(); calcVel(e.clientY); }} onDrop={soltar}>
             {filtrados.map((p, i) => (
               <div
-                className={'promp-row'
-                  + (voando === i ? ' promp-row--voando' : '')
-                  + (alvo && alvo.index === i && alvo.orient === 'h' && alvo.side === 'antes' ? ' promp-row--linha-topo' : '')
-                  + (alvo && alvo.index === i && alvo.orient === 'h' && alvo.side === 'depois' ? ' promp-row--linha-baixo' : '')
-                  + (alvo && alvo.index === i && alvo.orient === 'v' && alvo.side === 'antes' ? ' promp-row--linha-esq' : '')
-                  + (alvo && alvo.index === i && alvo.orient === 'v' && alvo.side === 'depois' ? ' promp-row--linha-dir' : '')}
+                className={'promp-row' + (arrastandoId === p.id ? ' promp-row--arrastando' : '')}
                 key={p.id}
                 onDragOver={(e) => podeArrastar && arrastaSobre(e, i)}
               >
@@ -280,7 +285,7 @@ export default function Promptadores() {
                     className={'promp-grip' + (podeArrastar ? '' : ' promp-grip--off')}
                     title={podeArrastar ? 'Arraste para reordenar' : 'Limpe a busca para reordenar'}
                     draggable={podeArrastar}
-                    onDragStart={() => { arrastando.current = i; setVoando(i); }}
+                    onDragStart={() => { arrastando.current = i; setArrastandoId(p.id); iniciarAutoScroll(); }}
                     onDragEnd={soltar}
                   >
                     <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">

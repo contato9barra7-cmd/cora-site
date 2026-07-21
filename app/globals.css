@@ -11418,22 +11418,9 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
   padding: 14px 16px; background: var(--paper);
   border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,.05);
 }
-/* Card sendo arrastado: fica discreto (não some do lugar). */
-.promp-row--voando { opacity: .4; }
-/* Risco roxo indicando a NOVA posição. Horizontal (troca de linha) ou
-   vertical no vão entre colunas (troca de coluna), conforme o eixo do arraste. */
-.promp-row--linha-topo::before,
-.promp-row--linha-baixo::after {
-  content: ""; position: absolute; left: 0; right: 0; height: 4px; border-radius: 4px; background: var(--roxo);
-}
-.promp-row--linha-topo::before { top: -9px; }
-.promp-row--linha-baixo::after { bottom: -9px; }
-.promp-row--linha-esq::before,
-.promp-row--linha-dir::after {
-  content: ""; position: absolute; top: 4px; bottom: 4px; width: 4px; border-radius: 4px; background: var(--roxo);
-}
-.promp-row--linha-esq::before { left: -9px; }
-.promp-row--linha-dir::after { right: -9px; }
+/* Card sendo arrastado: apagado + contorno roxo tracejado, marcando a célula
+   de destino ao vivo. Onde ele está ao soltar é onde ele fica. */
+.promp-row--arrastando { opacity: .5; border-style: dashed; border-color: var(--roxo); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
 /* handle de arraste (6 pontinhos) — só admin */
 .promp-grip { flex: none; width: 20px; height: 30px; margin: -6px -4px -6px -6px; display: flex; align-items: center; justify-content: center; color: var(--ink3); cursor: grab; border-radius: 8px; }
 .promp-grip svg { width: 16px; height: 16px; opacity: .55; }
