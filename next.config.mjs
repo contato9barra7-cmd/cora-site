@@ -11,7 +11,7 @@ const CSP = [
   "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://js.stripe.com https://connect.facebook.net https://www.googleadservices.com https://googleads.g.doubleclick.net https://*.doubleclick.net https://www.google.com https://www.gstatic.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
-  "font-src 'self' data:",
+  "font-src 'self' data: https:",
   "media-src 'self' data: blob: https:",
   "worker-src 'self' blob:",
   "connect-src 'self' https://api.corarender.com https://cora-auth-production.up.railway.app https://cora-render-server-production.up.railway.app https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://*.stripe.com https://*.r2.dev https://connect.facebook.net https://*.facebook.com https://*.doubleclick.net https://stats.g.doubleclick.net https://www.google.com https://www.googleadservices.com",
