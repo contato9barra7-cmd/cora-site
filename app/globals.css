@@ -11501,3 +11501,63 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 .promp-cancelar { background: var(--wash2); color: var(--ink2); }
 .promp-salvar { background: var(--verde); color: #0d2b06; }
 .promp-btn:disabled { opacity: .6; cursor: default; }
+
+/* ═══ Promptadores — área de Usuários / Acesso (admin) ═══ */
+.promp-acoes-top { display: flex; gap: 10px; }
+.promp-usuarios {
+  display: inline-flex; align-items: center; gap: 7px; flex: none;
+  background: var(--paper); color: var(--roxo-esc); border: 1.5px solid var(--roxo);
+  border-radius: 100px; font-size: 13px; font-weight: 700; padding: 9px 18px; cursor: pointer;
+}
+.promp-usuarios:hover { background: var(--accent-bg); }
+.promp-voltar { background: none; border: 0; color: var(--ink3); font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 14px; }
+.promp-voltar:hover { color: var(--ink); }
+
+.promp-conv-wrap { position: relative; }
+.promp-drop {
+  position: absolute; right: 0; top: 48px; width: 300px; background: var(--paper);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 16px 44px rgba(0,0,0,.18);
+  padding: 6px; z-index: 30;
+}
+.promp-dopt { display: flex; gap: 11px; align-items: flex-start; padding: 11px 12px; border-radius: 10px; cursor: pointer; }
+.promp-dopt:hover { background: var(--wash); }
+.promp-dico { width: 34px; height: 34px; border-radius: 9px; flex: none; display: flex; align-items: center; justify-content: center; }
+.promp-dico.g { background: rgba(63,157,84,.12); }
+.promp-dico.r { background: var(--accent-bg); }
+.promp-dico svg { width: 18px; height: 18px; }
+.promp-dopt .t { font-size: 13px; font-weight: 700; color: var(--ink); }
+.promp-dopt .s { font-size: 11.5px; color: var(--ink3); margin-top: 1px; line-height: 1.35; }
+
+.promp-tabela-wrap { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,.05); overflow: hidden; margin-top: 18px; }
+.promp-tabela { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.promp-tabela th { text-align: left; color: var(--ink3); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.promp-tabela td { padding: 13px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; color: var(--ink); }
+.promp-tabela tr:last-child td { border-bottom: 0; }
+.promp-al-nome { font-weight: 700; }
+.promp-al-mail { color: var(--ink3); font-size: 11.5px; }
+.promp-badge { display: inline-block; padding: 4px 11px; border-radius: 100px; font-size: 11px; font-weight: 700; }
+.promp-badge.vital { background: rgba(63,157,84,.14); color: #2f7d18; }
+.promp-badge.data { background: var(--accent-bg); color: var(--roxo-esc); }
+.promp-badge.venc { background: rgba(196,68,58,.12); color: var(--alerta); }
+.promp-tag { display: inline-block; padding: 3px 9px; border-radius: 100px; font-size: 10.5px; font-weight: 700; background: var(--wash2); color: var(--ink2); }
+.promp-st { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 12px; }
+.promp-st .promp-dot { width: 7px; height: 7px; border-radius: 50%; }
+.promp-st.ok { color: #2f9d4e; } .promp-st.ok .promp-dot { background: #3fbf5f; }
+.promp-st.pend { color: #b7861f; } .promp-st.pend .promp-dot { background: #e0a92a; }
+.promp-st.exp { color: var(--alerta); } .promp-st.exp .promp-dot { background: var(--alerta); }
+.promp-revogar { background: none; border: 0; color: var(--alerta); font-weight: 700; font-size: 12px; cursor: pointer; }
+
+.promp-nota { display: flex; gap: 9px; background: var(--accent-bg); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; font-size: 12px; color: var(--roxo-esc); line-height: 1.4; }
+.promp-nota svg { width: 16px; height: 16px; flex: none; margin-top: 1px; }
+.promp-add { background: var(--roxo); color: #1a1650; }
+
+/* Janela de acesso encerrado (aluno) */
+.promp-exp-ov { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.promp-exp-card { background: var(--paper); width: 460px; max-width: 92%; border-radius: 22px; box-shadow: 0 24px 70px rgba(0,0,0,.18); border: 1px solid var(--line); padding: 34px 32px 28px; text-align: center; }
+.promp-exp-ic { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--verde), var(--roxo)); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+.promp-exp-ic svg { width: 30px; height: 30px; }
+.promp-exp-eb { display: inline-block; background: var(--accent-bg); color: var(--roxo-esc); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; padding: 6px 14px; border-radius: 100px; margin-bottom: 14px; }
+.promp-exp-card h2 { font-size: 21px; font-weight: 800; color: var(--ink); margin-bottom: 10px; }
+.promp-exp-card p { color: var(--ink3); font-size: 13.5px; line-height: 1.5; margin-bottom: 22px; }
+.promp-exp-btn { display: block; background: var(--verde); color: #0d2b06; text-decoration: none; border-radius: 100px; font-size: 14px; font-weight: 700; padding: 13px 30px; }
+.promp-exp-voltar { background: none; border: 0; color: var(--ink3); font-size: 13px; font-weight: 600; margin-top: 14px; cursor: pointer; }

@@ -156,7 +156,7 @@ export default function AppShell({ children }) {
   ].filter(i => (!i.admin || (conta && conta.is_admin))
     && (!i.soDono || (conta && conta.eh_dono_equipe))
     && (!i.soPagante || !(conta && conta.eh_membro_equipe))
-    && (!i.soPromptador || (conta && conta.promptador_acesso)));
+    && (!i.soPromptador || (conta && (conta.promptador_acesso || conta.promptador_expirado))));
 
   // créditos para o anel do avatar (mostra o quanto RESTA)
   const ilimitado = conta && (conta.creditos_total === -1 || conta.is_admin);

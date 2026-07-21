@@ -15,7 +15,22 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta, listarPromptadores, salvarPromptador, excluirPromptador, reordenarPromptadores } from '../../lib/auth';
+import { lerConta, atualizarConta, listarPromptadores, salvarPromptador, excluirPromptador, reordenarPromptadores,
+  adminListarAcessos, adminAddAcessoManual, adminEnviarConvite, adminRevogarAcesso } from '../../lib/auth';
+
+// TODO: trocar pela oferta de ex-aluno do IA Studio (link da página de venda/checkout).
+const LINK_RENOVAR = 'https://9barra7.com';
+
+const PERIODOS = [
+  { v: '1', l: '1 ano' }, { v: '2', l: '2 anos' }, { v: '3', l: '3 anos' }, { v: 'vitalicio', l: 'Vitalício' },
+];
+function hojeISO() { return new Date().toISOString().slice(0, 10); }
+function fmtDataLong(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  if (isNaN(dt)) return '';
+  return `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()}`;
+}
 
 function fmtData(d) {
   if (!d) return '';
@@ -61,6 +76,17 @@ export default function Promptadores() {
   const [negado, setNegado] = useState(false);
   const [erro, setErro] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [expirado, setExpirado] = useState(false);   // aluno com acesso vencido
+
+  // área de Usuários (admin)
+  const [tela, setTela] = useState('lista');          // 'lista' | 'usuarios'
+  const [acessos, setAcessos] = useState([]);
+  const [carrAcessos, setCarrAcessos] = useState(false);
+  const [dropAberto, setDropAberto] = useState(false);
+  const [convModo, setConvModo] = useState(null);     // null | 'manual' | 'convite'
+  const [formA, setFormA] = useState({ nome: '', email: '', data_acesso: '', periodo: '1' });
+  const [salvandoAcesso, setSalvandoAcesso] = useState(false);
+  const [erroAcesso, setErroAcesso] = useState('');
 
   // modal de edição (admin)
   const [editando, setEditando] = useState(null);   // objeto do form ou null
@@ -100,7 +126,14 @@ export default function Promptadores() {
     const c = lerConta();
     if (!c) { router.push('/login'); return; }
     setIsAdmin(!!c.is_admin);
-    carregar();
+    (async () => {
+      let cc = c;
+      try { const fresca = await atualizarConta(); if (fresca) cc = fresca; } catch (_) {}
+      setIsAdmin(!!cc.is_admin);
+      // Aluno com acesso vencido: não busca a lista, mostra a janela de "renove".
+      if (!cc.is_admin && cc.promptador_expirado) { setExpirado(true); setCarregando(false); return; }
+      carregar();
+    })();
   }, [router]);
 
   async function carregar() {
@@ -211,7 +244,180 @@ export default function Promptadores() {
     }
   }
 
+  // ── área de Usuários (admin) ──
+  async function abrirUsuarios() {
+    setTela('usuarios');
+    setCarrAcessos(true);
+    try { setAcessos(await adminListarAcessos()); }
+    catch (e) { setErroAcesso(e.message); }
+    finally { setCarrAcessos(false); }
+  }
+  async function recarregarAcessos() {
+    try { setAcessos(await adminListarAcessos()); } catch (e) { setErroAcesso(e.message); }
+  }
+  function abrirModalAcesso(modo) {
+    setConvModo(modo);
+    setDropAberto(false);
+    setErroAcesso('');
+    setFormA({ nome: '', email: '', data_acesso: hojeISO(), periodo: '1' });
+  }
+  async function salvarAcesso() {
+    if (!formA.email.trim() || !formA.data_acesso) { setErroAcesso('Preencha e-mail e data.'); return; }
+    setSalvandoAcesso(true);
+    setErroAcesso('');
+    try {
+      if (convModo === 'convite') {
+        await adminEnviarConvite({ email: formA.email.trim(), data_acesso: formA.data_acesso, periodo: formA.periodo });
+      } else {
+        await adminAddAcessoManual({ nome: formA.nome.trim(), email: formA.email.trim(), data_acesso: formA.data_acesso, periodo: formA.periodo });
+      }
+      await recarregarAcessos();
+      setConvModo(null);
+    } catch (e) {
+      setErroAcesso(e.message);
+    } finally {
+      setSalvandoAcesso(false);
+    }
+  }
+  async function revogarAcesso(a) {
+    if (!confirm(`Revogar o acesso de ${a.email}?`)) return;
+    try { await adminRevogarAcesso(a.id); await recarregarAcessos(); }
+    catch (e) { setErroAcesso(e.message); }
+  }
+  function statusAcesso(a) {
+    if (!a.tem_conta) return { txt: a.origem === 'convite' ? 'Convite enviado' : 'Aguardando cadastro', cls: 'pend' };
+    if (a.expirado) return { txt: 'Expirado', cls: 'exp' };
+    return { txt: 'Ativo', cls: 'ok' };
+  }
+
   if (carregando) return <AppShell><div className="promp-wrap"><p>Carregando...</p></div></AppShell>;
+
+  // Aluno com acesso vencido → janela de "renove o IA Studio".
+  if (expirado) {
+    return (
+      <AppShell>
+        <div className="promp-wrap" style={{ position: 'relative', minHeight: '60vh' }}>
+          <h1>Promptadores</h1>
+          <p className="promp-sub">Seus agentes do 9barra7 Academy.</p>
+          <div className="promp-exp-ov">
+            <div className="promp-exp-card">
+              <div className="promp-exp-ic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#0d2b06" strokeWidth="1.8"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" strokeLinecap="round" /></svg>
+              </div>
+              <span className="promp-exp-eb">Acesso encerrado</span>
+              <h2>Seu acesso aos Promptadores acabou</h2>
+              <p>Seu período de acesso terminou. Renove o IA Studio para continuar usando os promptadores.</p>
+              <a className="promp-exp-btn" href={LINK_RENOVAR} target="_blank" rel="noopener">Renovar IA Studio ↗</a>
+              <button className="promp-exp-voltar" onClick={() => router.push('/conta')}>Voltar</button>
+            </div>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  // Área de Usuários (admin)
+  if (isAdmin && tela === 'usuarios') {
+    return (
+      <AppShell>
+        <div className="promp-wrap">
+          <button className="promp-voltar" onClick={() => setTela('lista')}>← Voltar aos promptadores</button>
+          <div className="promp-top">
+            <div>
+              <h1>Acesso aos Promptadores</h1>
+              <p className="promp-sub">Alunos que podem ver a aba Promptadores.</p>
+            </div>
+            <div className="promp-conv-wrap">
+              <button className="promp-novo" onClick={() => setDropAberto(v => !v)}>Convidar <span style={{ fontSize: 10 }}>▼</span></button>
+              {dropAberto && (
+                <div className="promp-drop" onMouseLeave={() => setDropAberto(false)}>
+                  <div className="promp-dopt" onClick={() => abrirModalAcesso('manual')}>
+                    <div className="promp-dico g"><svg viewBox="0 0 24 24" fill="none" stroke="#3f9d54" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h4L18 10l-4-4L4 16z" /><path d="M13 5l4 4" /></svg></div>
+                    <div><div className="t">Adicionar manualmente</div><div className="s">Cadastro o aluno na mão (nome, e-mail, data e período).</div></div>
+                  </div>
+                  <div className="promp-dopt" onClick={() => abrirModalAcesso('convite')}>
+                    <div className="promp-dico r"><svg viewBox="0 0 24 24" fill="none" stroke="#6d6ae0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg></div>
+                    <div><div className="t">Enviar acesso por e-mail</div><div className="s">A pessoa recebe o convite, cria a conta e já entra.</div></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {erroAcesso && <p className="promp-erro">{erroAcesso}</p>}
+
+          <div className="promp-tabela-wrap">
+            {carrAcessos ? <p style={{ padding: 20, color: 'var(--ink3)' }}>Carregando...</p> : (
+              <table className="promp-tabela">
+                <thead><tr><th>Aluno</th><th>Data de compra</th><th>Acesso até</th><th>Origem</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                  {acessos.length === 0 ? (
+                    <tr><td colSpan={6} style={{ color: 'var(--ink3)', padding: 22 }}>Ninguém com acesso ainda. Use “Convidar”.</td></tr>
+                  ) : acessos.map(a => {
+                    const st = statusAcesso(a);
+                    return (
+                      <tr key={a.id}>
+                        <td><div className="promp-al-nome">{a.nome || '—'}</div><div className="promp-al-mail">{a.email}</div></td>
+                        <td>{fmtDataLong(a.data_acesso)}</td>
+                        <td>{a.vitalicio
+                          ? <span className="promp-badge vital">Vitalício</span>
+                          : <span className={'promp-badge ' + (a.expirado ? 'venc' : 'data')}>até {fmtDataLong(a.validade)}</span>}</td>
+                        <td><span className="promp-tag">{a.origem === 'convite' ? 'Convite' : 'Manual'}</span></td>
+                        <td><span className={'promp-st ' + st.cls}><span className="promp-dot" />{st.txt}</span></td>
+                        <td><button className="promp-revogar" onClick={() => revogarAcesso(a)}>Revogar</button></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+
+        {/* Modal adicionar/convidar */}
+        {convModo && (
+          <div className="promp-ov" onMouseDown={(e) => { if (e.target === e.currentTarget) setConvModo(null); }}>
+            <div className="promp-modal">
+              <div className="promp-mh">
+                <h3>{convModo === 'convite' ? 'Enviar acesso por e-mail' : 'Adicionar manualmente'}</h3>
+              </div>
+              <div className="promp-mb">
+                {convModo === 'convite' && (
+                  <div className="promp-nota">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#6d6ae0" strokeWidth="1.8"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" strokeLinecap="round" /></svg>
+                    A pessoa recebe um convite no e-mail, cria a conta e já entra com o acesso liberado.
+                  </div>
+                )}
+                {convModo === 'manual' && (
+                  <div className="promp-fld"><label>Nome</label>
+                    <input value={formA.nome} onChange={e => setFormA(f => ({ ...f, nome: e.target.value }))} placeholder="Nome do aluno" /></div>
+                )}
+                <div className="promp-fld"><label>E-mail{convModo === 'convite' ? ' do aluno' : ''}</label>
+                  <input type="email" value={formA.email} onChange={e => setFormA(f => ({ ...f, email: e.target.value }))} placeholder="email@exemplo.com" /></div>
+                <div className="promp-duo">
+                  <div className="promp-fld"><label>{convModo === 'convite' ? 'Data de entrada' : 'Data de compra'}</label>
+                    <input type="date" value={formA.data_acesso} onChange={e => setFormA(f => ({ ...f, data_acesso: e.target.value }))} /></div>
+                  <div className="promp-fld"><label>Período de acesso</label>
+                    <select value={formA.periodo} onChange={e => setFormA(f => ({ ...f, periodo: e.target.value }))}>
+                      {PERIODOS.map(p => <option key={p.v} value={p.v}>{p.l}</option>)}
+                    </select></div>
+                </div>
+              </div>
+              <div className="promp-mf">
+                <span />
+                <div className="promp-dir">
+                  <button className="promp-btn promp-cancelar" onClick={() => setConvModo(null)} disabled={salvandoAcesso}>Cancelar</button>
+                  <button className={'promp-btn ' + (convModo === 'convite' ? 'promp-salvar' : 'promp-add')} onClick={salvarAcesso} disabled={salvandoAcesso}>
+                    {salvandoAcesso ? 'Salvando...' : (convModo === 'convite' ? 'Enviar convite' : 'Adicionar')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </AppShell>
+    );
+  }
 
   if (negado) {
     return (
@@ -243,9 +449,15 @@ export default function Promptadores() {
             </p>
           </div>
           {isAdmin && (
-            <button className="promp-novo" onClick={novo}>
-              <span>+</span> Novo promptador
-            </button>
+            <div className="promp-acoes-top">
+              <button className="promp-usuarios" onClick={abrirUsuarios}>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="9" cy="8" r="3.2" /><path d="M3.5 20a6 6 0 0 1 11 0M16 6.5a3 3 0 0 1 0 6M17.5 20a6 6 0 0 0-3-5.2" strokeLinecap="round" /></svg>
+                Usuários
+              </button>
+              <button className="promp-novo" onClick={novo}>
+                <span>+</span> Novo promptador
+              </button>
+            </div>
           )}
         </div>
 
