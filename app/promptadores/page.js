@@ -77,6 +77,7 @@ export default function Promptadores() {
   const [erro, setErro] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
   const [expirado, setExpirado] = useState(false);   // aluno com acesso vencido
+  const [diasRestantes, setDiasRestantes] = useState(null); // p/ card "acesso acabando"
 
   // área de Usuários (admin)
   const [tela, setTela] = useState('lista');          // 'lista' | 'usuarios'
@@ -130,6 +131,7 @@ export default function Promptadores() {
       let cc = c;
       try { const fresca = await atualizarConta(); if (fresca) cc = fresca; } catch (_) {}
       setIsAdmin(!!cc.is_admin);
+      if (!cc.is_admin && typeof cc.promptador_dias_restantes === 'number') setDiasRestantes(cc.promptador_dias_restantes);
       // Aluno com acesso vencido: não busca a lista, mostra a janela de "renove".
       if (!cc.is_admin && cc.promptador_expirado) { setExpirado(true); setCarregando(false); return; }
       carregar();
@@ -461,6 +463,15 @@ export default function Promptadores() {
           )}
         </div>
 
+        <div className="promp-aviso30">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-15 6.7L3 16" /><path d="M3 21v-5h5" /></svg>
+          <div className="t">
+            {ee
+              ? <><b>Los enlaces se renuevan cada 30 días.</b> Si un promptador deja de abrir en tu ChatGPT, vuelve aquí y copia el nuevo enlace — mientras tu acceso esté activo, solo haz clic en “Abrir” otra vez.</>
+              : <><b>Os links são renovados a cada 30 dias.</b> Se um promptador parar de abrir no seu ChatGPT, volte aqui e copie o link novo — enquanto seu acesso estiver ativo, é só clicar em “Abrir” de novo.</>}
+          </div>
+        </div>
+
         <div className="promp-barra">
           <div className="promp-busca">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="7" cy="7" r="4.5" /><path d="M11 11l3 3" /></svg>
@@ -532,6 +543,23 @@ export default function Promptadores() {
           </div>
         )}
       </div>
+
+      {/* Card "acesso acabando" — só na aba, estilo do "5 de 7" do free.
+          Aparece quando faltam 7 dias ou menos (não admin, não vitalício). */}
+      {!isAdmin && diasRestantes != null && diasRestantes > 0 && diasRestantes <= 7 && (
+        <div className="trial-card">
+          <div className="trial-card-info">
+            <span className="trial-card-txt">
+              <strong>{diasRestantes === 1 ? 'Falta 1 dia de acesso' : `Faltam ${diasRestantes} dias de acesso`}</strong>{' '}
+              <small>aos Promptadores · renove o IA Studio</small>
+            </span>
+            <div className="trial-card-prog"><i style={{ width: (diasRestantes / 7 * 100) + '%' }} /></div>
+          </div>
+          <button className="trial-card-btn" onClick={() => window.open(LINK_RENOVAR, '_blank', 'noopener')}>
+            Renovar IA Studio
+          </button>
+        </div>
+      )}
 
       {/* ── Modal de edição (admin) ── */}
       {editando && (
