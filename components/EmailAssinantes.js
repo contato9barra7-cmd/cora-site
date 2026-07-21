@@ -19,6 +19,12 @@ const PUBLICOS_CURSO = [
   { v: 'vencidos', l: 'Alunos com acesso vencido' },
   { v: 'todos', l: 'Todos os alunos' },
 ];
+// Logos (versão branca) no R2 público — usados na prévia, igual ao e-mail enviado.
+const R2_ASSETS = 'https://pub-aa535595a631449683ed641002707fa4.r2.dev';
+const LOGOS_CURSO = {
+  ia_studio: `${R2_ASSETS}/Logo%20IA%20Studio%20Branco.png`,
+  prompthub: `${R2_ASSETS}/Logo%20PromptHub%20Branco.png`,
+};
 
 // Modo curso: passe `curso` ('ia_studio'|'prompthub') e `cursoLabel`. Aí o e-mail
 // sai como 9barra7 e o público são os alunos daquele curso.
@@ -126,7 +132,9 @@ export default function EmailAssinantes({ onClose, curso, cursoLabel }) {
             <div className="ea-assunto">Assunto: <b>{assunto || '(sem assunto)'}</b></div>
             <div className="ea-mb">
               <div className="ea-prev">
-                <div className="ea-prev-top">{modoCurso ? '9barra7 Academy' : 'Cora Render'}</div>
+                <div className="ea-prev-top">{modoCurso && LOGOS_CURSO[curso]
+                  ? <img src={LOGOS_CURSO[curso]} alt="9barra7 Academy" style={{ height: 40, width: 'auto', display: 'block' }} />
+                  : (modoCurso ? '9barra7 Academy' : 'Cora Render')}</div>
                 <div className="ea-prev-body">
                   {titulo && <h4>{titulo}</h4>}
                   <p>{mensagem.split('\n').map((linha, i) => <span key={i}>{linha}<br /></span>)}</p>

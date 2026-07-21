@@ -770,19 +770,19 @@ export default function Admin() {
 
       <div className="admin-abas">
         <button className={'admin-aba' + (aba === 'pagantes' ? ' ativa' : '')} onClick={() => setAba('pagantes')}>
-          Assinantes ({pagos})
+          Assinantes <span className="admin-aba-n">{pagos}</span>
         </button>
         <button className={'admin-aba' + (aba === 'trial' ? ' ativa' : '')} onClick={() => setAba('trial')}>
-          Trial ({totalTrial})
+          Trial <span className="admin-aba-n">{totalTrial}</span>
         </button>
         <button className={'admin-aba' + (aba === 'convidados' ? ' ativa' : '')} onClick={() => setAba('convidados')}>
-          Membros de equipe ({totalConvidados})
+          Membros de equipe <span className="admin-aba-n">{totalConvidados}</span>
         </button>
         <button className={'admin-aba' + (aba === 'cancelados' ? ' ativa' : '')} onClick={() => setAba('cancelados')}>
-          Cancelados ({totalCancelados})
+          Cancelados <span className="admin-aba-n">{totalCancelados}</span>
         </button>
         <button className={'admin-aba' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
-          Recargas ({compras.length})
+          Recargas <span className="admin-aba-n">{compras.length}</span>
         </button>
       </div>
 
