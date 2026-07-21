@@ -1450,6 +1450,10 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .cr-pill:disabled { opacity: .4; cursor: default; }
 
+/* Aba trancada pelo plano: o cadeado anda junto do rótulo. */
+.cr-pill--trancada { display: inline-flex; align-items: center; gap: 5px; }
+.cr-pill-cad { display: block; opacity: .7; }
+
 .cr-painel-vazio {
   padding: 20px 16px;
   color: var(--ink3);
@@ -6177,8 +6181,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border-radius: 50%;
   background: var(--paper);
   color: var(--ink3);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .08);
   z-index: 1;
 }
+.ed-cad svg { display: block; }
 
 .ed-voltar { margin-top: 18px; }
 

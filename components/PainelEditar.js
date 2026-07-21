@@ -202,7 +202,10 @@ export default function PainelEditar({
   }
 
   function abrir(mod) {
-    if (mod.pincel && !temPincel) return;
+    if (mod.pincel && !temPincel) {
+      window.dispatchEvent(new CustomEvent('cora:sem-acesso', { detail: { recurso: mod.nome } }));
+      return;
+    }
     if (!base) { setErro('Escolha a imagem para editar'); return; }
 
     setErro('');

@@ -798,6 +798,25 @@ export default function AppPage() {
 
   const ehAdmin = conta?.is_admin === true;
 
+  // ── Abas trancadas pelo plano ──
+  //  Cada aba "premium" exige uma ferramenta que o servidor só entrega ao Pro/
+  //  Studio (ver FERRAMENTAS_PLANO no cora-auth). Como no Editar, não olhamos o
+  //  NOME do plano — olhamos se a conta tem a ferramenta.
+  const FERR_DA_ABA = { pos: 'posproducao', animacao: 'animacao' };
+  function abaBloqueada(id) {
+    const f = FERR_DA_ABA[id];
+    return !!f && !ehAdmin && !(conta?.ferramentas || []).includes(f);
+  }
+  const abasBloqueadas = ABAS.filter((a) => abaBloqueada(a.id)).map((a) => a.id);
+  function trocarAba(id) {
+    if (abaBloqueada(id)) {
+      const rot = (ABAS.find((a) => a.id === id) || {}).rotulo || '';
+      window.dispatchEvent(new CustomEvent('cora:sem-acesso', { detail: { recurso: rot } }));
+      return;
+    }
+    setFerramenta(id);
+  }
+
   // ── As imagens aprovadas ──
   //
   //  O Batch as usa como referência de estilo. Elas saem DAQUI, do estado
@@ -882,7 +901,8 @@ export default function AppPage() {
           <Trilho
             abas={ABAS}
             ativa={ferramenta}
-            onTrocar={setFerramenta}
+            onTrocar={trocarAba}
+            bloqueadas={abasBloqueadas}
           />
 
           {/* ── Os painéis ficam MONTADOS, escondidos ──

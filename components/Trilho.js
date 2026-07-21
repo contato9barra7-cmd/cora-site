@@ -16,7 +16,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-export default function Trilho({ abas, ativa, onTrocar }) {
+export default function Trilho({ abas, ativa, onTrocar, bloqueadas = [] }) {
   const sulcoRef  = useRef(null);
   const trilhoRef = useRef(null);
 
@@ -149,13 +149,25 @@ export default function Trilho({ abas, ativa, onTrocar }) {
           ref={trilhoRef}
           style={{ transform: `translateX(${-x}px)` }}
         >
-          {abas.map((a) => (
-            <button
-              key={a.id}
-              className={'cr-pill' + (ativa === a.id ? ' cr-pill--on' : '')}
-              onClick={() => onTrocar(a.id)}
-            >{a.rotulo}</button>
-          ))}
+          {abas.map((a) => {
+            const trancada = bloqueadas.includes(a.id);
+            return (
+              <button
+                key={a.id}
+                className={'cr-pill' + (ativa === a.id ? ' cr-pill--on' : '') + (trancada ? ' cr-pill--trancada' : '')}
+                onClick={() => onTrocar(a.id)}
+              >
+                {a.rotulo}
+                {trancada && (
+                  <svg className="cr-pill-cad" viewBox="0 0 16 16" width="11" height="11" fill="none"
+                       stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3.5" y="7" width="9" height="6.5" rx="1.5" />
+                    <path d="M5.5 7V5a2.5 2.5 0 015 0v2" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 

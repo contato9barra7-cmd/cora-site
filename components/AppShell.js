@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta , EVENTO_CREDITOS } from '../lib/auth';
 import RodapeLegal from './RodapeLegal';
 import PopupCreditos from './PopupCreditos';
+import PopupUpgrade from './PopupUpgrade';
 
 // Ícones simples em SVG (sem dependência externa)
 function rotuloPlano(c) {
@@ -435,6 +436,9 @@ export default function AppShell({ children }) {
 
       {/* Popup "créditos acabaram" — dispara ao receber 402 de uma geração */}
       <PopupCreditos />
+
+      {/* Popup "recurso do Pro/Studio" — dispara em 'cora:sem-acesso' */}
+      <PopupUpgrade />
     </div>
   );
 }
