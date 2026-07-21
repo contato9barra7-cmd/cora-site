@@ -15,6 +15,7 @@ import { useRouter, useParams } from 'next/navigation';
 import AppShell from '../../../components/AppShell';
 import DropdownCora from '../../../components/DropdownCora';
 import DatePickerCora from '../../../components/DatePickerCora';
+import EmailAssinantes from '../../../components/EmailAssinantes';
 import { lerConta, atualizarConta, listarPromptadores, salvarPromptador, excluirPromptador, reordenarPromptadores,
   adminListarAcessos, adminAddAcessoManual, adminEnviarConvite, adminRevogarAcesso } from '../../../lib/auth';
 
@@ -93,6 +94,7 @@ export default function PromptadoresCurso() {
   const [erroAcesso, setErroAcesso] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos'); // todos|avencer|vencidos|pendentes
   const [buscaAcesso, setBuscaAcesso] = useState('');
+  const [emailAberto, setEmailAberto] = useState(false);
 
   // edição (admin)
   const [editando, setEditando] = useState(null);
@@ -273,7 +275,7 @@ export default function PromptadoresCurso() {
         a.origem === 'convite' ? 'Convite' : 'Manual', statusAcesso(a).txt,
       ]);
     });
-    const csv = linhas.map(l => l.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+    const csv = linhas.map(l => l.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\r\n');
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -286,6 +288,18 @@ export default function PromptadoresCurso() {
     { v: 'todos', l: 'Todos' }, { v: 'avencer', l: 'A vencer este mês' },
     { v: 'vencidos', l: 'Vencidos' }, { v: 'pendentes', l: 'Convite pendente' },
   ];
+  function contarFiltro(v) {
+    return acessos.filter(a => {
+      if (v === 'vencidos') return estaVencido(a);
+      if (v === 'pendentes') return !a.tem_conta;
+      if (v === 'avencer') {
+        if (!a.validade || estaVencido(a)) return false;
+        const d = new Date(a.validade), now = new Date();
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      }
+      return true;
+    }).length;
+  }
 
   if (carregando) return <AppShell><div className="promp-wrap"><p>Carregando...</p></div></AppShell>;
 
@@ -324,7 +338,12 @@ export default function PromptadoresCurso() {
               <h1>Acesso · Promptadores {cursoLabel}</h1>
               <p className="promp-sub">Alunos que podem ver a aba Promptadores {cursoLabel}.</p>
             </div>
-            <div className="promp-conv-wrap">
+            <div className="promp-top-acoes">
+              <button className="promp-usuarios" onClick={() => setEmailAberto(true)}>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg>
+                Enviar e-mail
+              </button>
+              <div className="promp-conv-wrap">
               <button className="promp-novo" onClick={() => setDropAberto(v => !v)}>Convidar <span style={{ fontSize: 10 }}>▼</span></button>
               {dropAberto && (
                 <div className="promp-drop" onMouseLeave={() => setDropAberto(false)}>
@@ -339,13 +358,14 @@ export default function PromptadoresCurso() {
                 </div>
               )}
             </div>
+            </div>
           </div>
 
           {/* filtros + busca */}
           <div className="promp-filtros">
             <div className="promp-chips">
               {FILTROS.map(f => (
-                <button key={f.v} className={'promp-chip' + (filtroStatus === f.v ? ' on' : '')} onClick={() => setFiltroStatus(f.v)}>{f.l}</button>
+                <button key={f.v} className={'promp-chip' + (filtroStatus === f.v ? ' on' : '')} onClick={() => setFiltroStatus(f.v)}>{f.l} <span className="promp-chip-n">{contarFiltro(f.v)}</span></button>
               ))}
             </div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -427,6 +447,7 @@ export default function PromptadoresCurso() {
             </div>
           </div>
         )}
+        {emailAberto && <EmailAssinantes curso={curso} cursoLabel={cursoLabel} onClose={() => setEmailAberto(false)} />}
       </AppShell>
     );
   }

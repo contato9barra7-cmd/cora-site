@@ -6,15 +6,25 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useEffect, useState } from 'react';
-import { adminContarPublicos, adminEnviarEmail } from '../lib/auth';
+import { adminContarPublicos, adminEnviarEmail, adminContarPublicosPromptador, adminEnviarEmailPromptador } from '../lib/auth';
+import DropdownCora from './DropdownCora';
 
-const PUBLICOS = [
+const PUBLICOS_ASSIN = [
   { v: 'ativos', l: 'Assinantes ativos' },
   { v: 'todos', l: 'Todos os cadastrados' },
   { v: 'alunos', l: 'Alunos (promptadores)' },
 ];
+const PUBLICOS_CURSO = [
+  { v: 'ativos', l: 'Alunos com acesso ativo' },
+  { v: 'vencidos', l: 'Alunos com acesso vencido' },
+  { v: 'todos', l: 'Todos os alunos' },
+];
 
-export default function EmailAssinantes({ onClose }) {
+// Modo curso: passe `curso` ('ia_studio'|'prompthub') e `cursoLabel`. Aí o e-mail
+// sai como 9barra7 e o público são os alunos daquele curso.
+export default function EmailAssinantes({ onClose, curso, cursoLabel }) {
+  const modoCurso = !!curso;
+  const PUBLICOS = modoCurso ? PUBLICOS_CURSO : PUBLICOS_ASSIN;
   const [publico, setPublico] = useState('ativos');
   const [assunto, setAssunto] = useState('');
   const [titulo, setTitulo] = useState('');
@@ -28,8 +38,9 @@ export default function EmailAssinantes({ onClose }) {
   const [erro, setErro] = useState('');
 
   useEffect(() => {
-    adminContarPublicos().then(setContagens).catch(() => {});
-  }, []);
+    const fn = modoCurso ? () => adminContarPublicosPromptador(curso) : adminContarPublicos;
+    fn().then(setContagens).catch(() => {});
+  }, [modoCurso, curso]);
 
   const qtd = contagens ? (contagens[publico] ?? 0) : null;
 
@@ -39,10 +50,13 @@ export default function EmailAssinantes({ onClose }) {
     if (!podeEnviar()) { setErro('Preencha assunto e mensagem.'); return; }
     setEnviando(true); setErro('');
     try {
-      const r = await adminEnviarEmail({
+      const payload = {
         publico, assunto: assunto.trim(), titulo: titulo.trim(), mensagem: mensagem.trim(),
         botao_texto: botaoTexto.trim(), botao_link: botaoLink.trim(),
-      });
+      };
+      const r = modoCurso
+        ? await adminEnviarEmailPromptador({ ...payload, curso })
+        : await adminEnviarEmail(payload);
       setResultado(r);
     } catch (e) {
       setErro(e.message);
@@ -65,15 +79,17 @@ export default function EmailAssinantes({ onClose }) {
         ) : vista === 'compor' ? (
           <>
             <div className="ea-mh">
-              <h3>Enviar e-mail aos assinantes</h3>
-              <p>Escreva o que quiser e envie para o público escolhido.</p>
+              <h3>{modoCurso ? `Enviar e-mail aos alunos${cursoLabel ? ' · ' + cursoLabel : ''}` : 'Enviar e-mail aos assinantes'}</h3>
+              <p>{modoCurso ? 'Avise os alunos deste curso (enviado como 9barra7).' : 'Escreva o que quiser e envie para o público escolhido.'}</p>
             </div>
             <div className="ea-mb">
               <div className="ea-fld">
                 <label>Para</label>
-                <select className="ea-sel" value={publico} onChange={e => setPublico(e.target.value)}>
-                  {PUBLICOS.map(p => <option key={p.v} value={p.v}>{p.l}{contagens ? ` (${contagens[p.v] ?? 0})` : ''}</option>)}
-                </select>
+                <DropdownCora
+                  valor={publico}
+                  onEscolher={setPublico}
+                  opcoes={PUBLICOS.map(p => ({ v: p.v, n: `${p.l}${contagens ? ` (${contagens[p.v] ?? 0})` : ''}` }))}
+                />
               </div>
               <div className="ea-fld"><label>Assunto</label>
                 <input className="ea-inp" value={assunto} onChange={e => setAssunto(e.target.value)} placeholder="Assunto do e-mail" /></div>
@@ -110,13 +126,13 @@ export default function EmailAssinantes({ onClose }) {
             <div className="ea-assunto">Assunto: <b>{assunto || '(sem assunto)'}</b></div>
             <div className="ea-mb">
               <div className="ea-prev">
-                <div className="ea-prev-top">Cora Render</div>
+                <div className="ea-prev-top">{modoCurso ? '9barra7 Academy' : 'Cora Render'}</div>
                 <div className="ea-prev-body">
                   {titulo && <h4>{titulo}</h4>}
                   <p>{mensagem.split('\n').map((linha, i) => <span key={i}>{linha}<br /></span>)}</p>
                   {botaoTexto && botaoLink && <span className="ea-prev-cta">{botaoTexto}</span>}
                 </div>
-                <div className="ea-prev-rod">9barra7 Academy · corarender.com</div>
+                <div className="ea-prev-rod">9barra7 Academy</div>
               </div>
               {erro && <p className="ea-erro">{erro}</p>}
             </div>
