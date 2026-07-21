@@ -238,16 +238,23 @@ export default function PromptadoresCurso() {
     if (!confirm(`Revogar o acesso de ${a.email}?`)) return;
     try { await adminRevogarAcesso(a.id); await recarregarAcessos(); } catch (e) { setErroAcesso(e.message); }
   }
+  // "Vencido" decidido no próprio front (fonte única) pra status, selo e filtro
+  // nunca discordarem. Vale ATÉ o fim do dia da validade (inclusive).
+  function estaVencido(a) {
+    if (!a.validade) return false;               // vitalício / sem data
+    const v = new Date(a.validade); v.setHours(23, 59, 59, 999);
+    return new Date() > v;
+  }
   function statusAcesso(a) {
     if (!a.tem_conta) return { txt: a.origem === 'convite' ? 'Convite enviado' : 'Aguardando cadastro', cls: 'pend' };
-    if (a.expirado) return { txt: 'Expirado', cls: 'exp' };
+    if (estaVencido(a)) return { txt: 'Expirado', cls: 'exp' };
     return { txt: 'Ativo', cls: 'ok' };
   }
   const acessosFiltrados = acessos.filter(a => {
-    if (filtroStatus === 'vencidos' && !a.expirado) return false;
+    if (filtroStatus === 'vencidos' && !estaVencido(a)) return false;
     if (filtroStatus === 'pendentes' && a.tem_conta) return false;
     if (filtroStatus === 'avencer') {
-      if (a.vitalicio || a.expirado || !a.validade) return false;
+      if (!a.validade || estaVencido(a)) return false;
       const v = new Date(a.validade), now = new Date();
       if (!(v.getMonth() === now.getMonth() && v.getFullYear() === now.getFullYear())) return false;
     }
@@ -257,6 +264,24 @@ export default function PromptadoresCurso() {
     }
     return true;
   });
+  function exportarCSV() {
+    const linhas = [['Nome', 'E-mail', 'Data de compra', 'Acesso até', 'Origem', 'Status']];
+    acessosFiltrados.forEach(a => {
+      linhas.push([
+        a.nome || '', a.email || '', fmtDataLong(a.data_acesso),
+        a.validade ? fmtDataLong(a.validade) : 'Vitalício',
+        a.origem === 'convite' ? 'Convite' : 'Manual', statusAcesso(a).txt,
+      ]);
+    });
+    const csv = linhas.map(l => l.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `acessos-${cursoSlug}-${filtroStatus}.csv`;
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
   const FILTROS = [
     { v: 'todos', l: 'Todos' }, { v: 'avencer', l: 'A vencer este mês' },
     { v: 'vencidos', l: 'Vencidos' }, { v: 'pendentes', l: 'Convite pendente' },
@@ -323,9 +348,15 @@ export default function PromptadoresCurso() {
                 <button key={f.v} className={'promp-chip' + (filtroStatus === f.v ? ' on' : '')} onClick={() => setFiltroStatus(f.v)}>{f.l}</button>
               ))}
             </div>
-            <div className="promp-busca promp-busca--sm">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="7" cy="7" r="4.5" /><path d="M11 11l3 3" /></svg>
-              <input value={buscaAcesso} onChange={e => setBuscaAcesso(e.target.value)} placeholder="Buscar por nome ou e-mail..." />
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              <div className="promp-busca promp-busca--sm">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="7" cy="7" r="4.5" /><path d="M11 11l3 3" /></svg>
+                <input value={buscaAcesso} onChange={e => setBuscaAcesso(e.target.value)} placeholder="Buscar por nome ou e-mail..." />
+              </div>
+              <button className="promp-usuarios" onClick={exportarCSV} disabled={acessosFiltrados.length === 0} title="Exportar CSV do que está filtrado">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 11l4 4 4-4" /><path d="M5 21h14" /></svg>
+                CSV
+              </button>
             </div>
           </div>
 
@@ -344,9 +375,9 @@ export default function PromptadoresCurso() {
                       <tr key={a.id}>
                         <td><div className="promp-al-nome">{a.nome || '—'}</div><div className="promp-al-mail">{a.email}</div></td>
                         <td>{fmtDataLong(a.data_acesso)}</td>
-                        <td>{a.vitalicio
+                        <td>{!a.validade
                           ? <span className="promp-badge vital">Vitalício</span>
-                          : <span className={'promp-badge ' + (a.expirado ? 'venc' : 'data')}>até {fmtDataLong(a.validade)}</span>}</td>
+                          : <span className={'promp-badge ' + (estaVencido(a) ? 'venc' : 'data')}>até {fmtDataLong(a.validade)}</span>}</td>
                         <td><span className="promp-tag">{a.origem === 'convite' ? 'Convite' : 'Manual'}</span></td>
                         <td><span className={'promp-st ' + st.cls}><span className="promp-dot" />{st.txt}</span></td>
                         <td><button className="promp-revogar" onClick={() => revogarAcesso(a)}>Revogar</button></td>

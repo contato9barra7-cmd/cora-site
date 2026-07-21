@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
+import EmailAssinantes from '../../components/EmailAssinantes';
 import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais, adminDeletarConta, adminCompras, adminSincronizarStripe } from '../../lib/auth';
 
 const PLANOS = ['free', 'starter', 'pro', 'studio'];
@@ -63,6 +64,7 @@ export default function Admin() {
   const [erro, setErro] = useState('');
   const [ocupado, setOcupado] = useState(null); // id da conta em ação
   const [exportando, setExportando] = useState(false);
+  const [emailAberto, setEmailAberto] = useState(false);
   const [dadosFiscais, setDadosFiscais] = useState(null); // { email: {telefone, endereco} }
   const [carregandoFiscais, setCarregandoFiscais] = useState(false);
   const [verPerfil, setVerPerfil] = useState(false); // troca colunas de cobrança pelas respostas do cadastro
@@ -543,6 +545,10 @@ export default function Admin() {
           <p className="admin-sub">{totalContas} contas · {pagos} com plano pago ativo</p>
         </div>
         <div className="admin-acoes">
+          <button className="admin-email-btn" onClick={() => setEmailAberto(true)}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg>
+            Enviar e-mail
+          </button>
           <button
             className={'admin-ico' + (dadosFiscais ? ' admin-ico--on' : '')}
             onClick={mostrarFiscais}
@@ -1202,6 +1208,7 @@ export default function Admin() {
       </div>
       )}
     </div>
+    {emailAberto && <EmailAssinantes onClose={() => setEmailAberto(false)} />}
     </AppShell>
   );
 }
