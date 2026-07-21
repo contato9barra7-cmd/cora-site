@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { registrar } from '../../lib/auth';
+import CampoSenha, { senhaForte } from '../../components/CampoSenha';
 
 export default function Cadastro() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function Cadastro() {
   const [usaRender, setUsaRender] = useState('');
   const [tamanho, setTamanho] = useState('');
   const [volume, setVolume] = useState('');
-  const [verSenha, setVerSenha] = useState(false);
+  const [senhaValida, setSenhaValida] = useState(false);
   const [aceite, setAceite] = useState(false);
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
@@ -42,7 +43,7 @@ export default function Cadastro() {
     if (!usaRender) falta.usaRender = true;
     if (!tamanho) falta.tamanho = true;
     if (!volume) falta.volume = true;
-    if (!senha || senha.length < 6) falta.senha = true;
+    if (!senhaValida) falta.senha = true;
     if (!aceite) falta.aceite = true;
 
     if (Object.keys(falta).length) {
@@ -50,8 +51,10 @@ export default function Cadastro() {
       let msg;
       if (falta.aceite && Object.keys(falta).length === 1) {
         msg = 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.';
-      } else if (!senha || senha.length < 6) {
-        msg = 'Preencha todos os campos. A senha precisa de ao menos 6 caracteres.';
+      } else if (!senhaValida) {
+        msg = !senhaForte(senha)
+          ? 'A senha ainda não cumpre todos os requisitos.'
+          : 'Confirme a senha corretamente (os dois campos precisam ser iguais).';
       } else {
         msg = 'Preencha todos os campos obrigatórios.';
       }
@@ -154,21 +157,7 @@ export default function Cadastro() {
           <option value="mais20">Mais de 20</option>
         </select>
 
-        <label className="login-label">Senha <span className="obrig">*</span></label>
-        <div className="senha-campo">
-          <input
-            className={cls('senha')} type={verSenha ? 'text' : 'password'} placeholder="mínimo 6 caracteres"
-            value={senha} onChange={(e) => setSenha(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && criarConta()}
-          />
-          <button type="button" className="senha-olho" onClick={() => setVerSenha(!verSenha)} aria-label={verSenha ? 'Esconder senha' : 'Mostrar senha'}>
-            {verSenha ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            )}
-          </button>
-        </div>
+        <CampoSenha senha={senha} setSenha={setSenha} onValidez={setSenhaValida} erroCampo={faltando.senha} />
 
         {erro && <p className="login-erro">{erro}</p>}
 

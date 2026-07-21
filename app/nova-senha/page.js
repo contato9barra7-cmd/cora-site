@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { validarTokenReset, definirNovaSenha } from '../../lib/auth';
+import CampoSenha, { senhaForte } from '../../components/CampoSenha';
 
 function NovaSenhaConteudo() {
   const router = useRouter();
@@ -14,8 +15,7 @@ function NovaSenhaConteudo() {
   const [valido, setValido] = useState(false);
   const [emailConta, setEmailConta] = useState('');
   const [senha, setSenha] = useState('');
-  const [senha2, setSenha2] = useState('');
-  const [verSenha, setVerSenha] = useState(false);
+  const [senhaValida, setSenhaValida] = useState(false);
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
   const [pronto, setPronto] = useState(false);
@@ -30,8 +30,8 @@ function NovaSenhaConteudo() {
 
   async function salvar() {
     setErro('');
-    if (senha.length < 6) { setErro('A senha deve ter ao menos 6 caracteres.'); return; }
-    if (senha !== senha2) { setErro('As senhas não coincidem.'); return; }
+    if (!senhaForte(senha)) { setErro('A senha ainda não cumpre todos os requisitos.'); return; }
+    if (!senhaValida) { setErro('Confirme a senha corretamente (os dois campos precisam ser iguais).'); return; }
     setSalvando(true);
     try {
       await definirNovaSenha(token, senha);
@@ -90,27 +90,7 @@ function NovaSenhaConteudo() {
       <h1 className="login-titulo">Criar nova senha</h1>
       <p className="login-sub">Definindo uma nova senha para <strong>{emailConta}</strong>.</p>
 
-      <label className="login-label">Nova senha</label>
-      <div className="senha-campo">
-        <input
-          className="login-input" type={verSenha ? 'text' : 'password'} placeholder="Mínimo 6 caracteres"
-          value={senha} onChange={(e) => setSenha(e.target.value)}
-        />
-        <button type="button" className="senha-olho" onClick={() => setVerSenha(!verSenha)} aria-label={verSenha ? 'Esconder senha' : 'Mostrar senha'}>
-          {verSenha ? (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-          ) : (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          )}
-        </button>
-      </div>
-
-      <label className="login-label">Repetir a senha</label>
-      <input
-        className="login-input" type={verSenha ? 'text' : 'password'} placeholder="Digite de novo"
-        value={senha2} onChange={(e) => setSenha2(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && salvar()}
-      />
+      <CampoSenha senha={senha} setSenha={setSenha} onValidez={setSenhaValida} labelSenha="Nova senha" />
 
       {erro && <p className="login-erro">{erro}</p>}
 

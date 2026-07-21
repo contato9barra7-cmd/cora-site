@@ -11664,3 +11664,12 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 .ea-result .ea-enviar { width:auto; padding:12px 30px; }
 
 .promp-top-acoes { display:flex; gap:10px; align-items:flex-start; }
+
+/* ── CampoSenha — checklist de senha forte ── */
+.cs-wrap { display: block; }
+.cs-reqs { list-style: none; margin: 8px 0 2px; padding: 10px 12px; background: var(--paper2, #f6f6f8); border: 1px solid var(--line2); border-radius: 10px; display: grid; gap: 5px; }
+.cs-req { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink3); transition: color .15s; }
+.cs-req-ic { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; color: #b6b6be; flex-shrink: 0; }
+.cs-req--ok { color: #2e7d32; font-weight: 600; }
+.cs-req--ok .cs-req-ic { color: #2e7d32; }
+.cs-nao-bate { color: var(--alerta); font-size: 12.5px; margin: 6px 0 0; }
