@@ -18,8 +18,11 @@ import DatePickerCora from '../../../components/DatePickerCora';
 import { lerConta, atualizarConta, listarPromptadores, salvarPromptador, excluirPromptador, reordenarPromptadores,
   adminListarAcessos, adminAddAcessoManual, adminEnviarConvite, adminRevogarAcesso } from '../../../lib/auth';
 
-// TODO: trocar pelos links das ofertas de ex-aluno (por curso) quando existirem.
-const LINK_RENOVAR = 'https://9barra7.com';
+// TODO: trocar pelos links das OFERTAS DE EX-ALUNO (renovação mais barata), um por curso.
+const LINKS_RENOVAR = {
+  ia_studio: 'https://9barra7.com',   // PLACEHOLDER — oferta ex-aluno IA Studio
+  prompthub: 'https://9barra7.com',   // PLACEHOLDER — oferta ex-aluno PromptHub
+};
 
 const PERIODOS = [
   { v: '1', n: '1 ano' }, { v: '2', n: '2 anos' }, { v: '3', n: '3 anos' }, { v: 'vitalicio', n: 'Vitalício' },
@@ -66,6 +69,7 @@ export default function PromptadoresCurso() {
   const cursoSlug = (params && params.curso) || 'ia-studio';
   const curso = cursoSlug === 'prompthub' ? 'prompthub' : 'ia_studio';
   const cursoLabel = curso === 'prompthub' ? 'PromptHub' : 'IA Studio';
+  const linkRenovar = LINKS_RENOVAR[curso] || LINKS_RENOVAR.ia_studio;
   const VAZIO = { id: null, nome_pt: '', descricao_pt: '', link_pt: '', nome_es: '', descricao_es: '', link_es: '', avatar: '', ordem: 0, curso };
 
   const [lista, setLista] = useState([]);
@@ -275,7 +279,7 @@ export default function PromptadoresCurso() {
               <span className="promp-exp-eb">Acesso encerrado</span>
               <h2>Seu acesso aos Promptadores acabou</h2>
               <p>Seu período de acesso terminou. Renove o {cursoLabel} para continuar usando os promptadores.</p>
-              <a className="promp-exp-btn" href={LINK_RENOVAR} target="_blank" rel="noopener">Renovar {cursoLabel} ↗</a>
+              <a className="promp-exp-btn" href={linkRenovar} target="_blank" rel="noopener">Renovar {cursoLabel} ↗</a>
               <button className="promp-exp-voltar" onClick={() => router.push('/conta')}>Voltar</button>
             </div>
           </div>
@@ -512,7 +516,7 @@ export default function PromptadoresCurso() {
             </span>
             <div className="trial-card-prog"><i style={{ width: (diasRestantes / 7 * 100) + '%' }} /></div>
           </div>
-          <button className="trial-card-btn" onClick={() => window.open(LINK_RENOVAR, '_blank', 'noopener')}>Renovar {cursoLabel}</button>
+          <button className="trial-card-btn" onClick={() => window.open(linkRenovar, '_blank', 'noopener')}>Renovar {cursoLabel}</button>
         </div>
       )}
 

@@ -11558,7 +11558,7 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 .promp-add { background: var(--roxo); color: #1a1650; }
 
 /* Janela de acesso encerrado (aluno) */
-.promp-exp-ov { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.promp-exp-ov { position: fixed; inset: 0; z-index: 200; padding: 20px; background: rgba(20,18,26,.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; }
 .promp-exp-card { background: var(--paper); width: 460px; max-width: 92%; border-radius: 22px; box-shadow: 0 24px 70px rgba(0,0,0,.18); border: 1px solid var(--line); padding: 34px 32px 28px; text-align: center; }
 .promp-exp-ic { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--verde), var(--roxo)); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
 .promp-exp-ic svg { width: 30px; height: 30px; }
