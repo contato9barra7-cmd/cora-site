@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../../components/AppShell';
+import DropdownCora from '../../../components/DropdownCora';
 import { lerConta, salvarPerfil, deletarMinhaConta, aplicarTema, sair, salvarFoto, listarDispositivos, removerDispositivo, registrarDispositivoWeb } from '../../../lib/auth';
 import { useIdioma, localeDeIdioma } from '../../../lib/i18n';
 
@@ -244,15 +245,19 @@ export default function Perfil() {
           <h2 className="perfil-h2">{t('perfil_preferencias')}</h2>
           <div className="perfil-linha">
             <label className="perfil-lbl">{t('idioma_label')}</label>
-            <select className="perfil-input" value={idiomaSel} onChange={(e) => setIdiomaSel(e.target.value)}>
-              {IDIOMAS.map(i => <option key={i.v} value={i.v}>{i.l}</option>)}
-            </select>
+            <DropdownCora
+              valor={idiomaSel}
+              onEscolher={(v) => setIdiomaSel(v)}
+              opcoes={IDIOMAS.map(i => ({ v: i.v, n: i.l }))}
+            />
           </div>
           <div className="perfil-linha">
             <label className="perfil-lbl">{t('tema_label')}</label>
-            <select className="perfil-input" value={tema} onChange={(e) => trocarTema(e.target.value)}>
-              {TEMAS.map(op => <option key={op.v} value={op.v}>{t(op.k)}</option>)}
-            </select>
+            <DropdownCora
+              valor={tema}
+              onEscolher={(v) => trocarTema(v)}
+              opcoes={TEMAS.map(op => ({ v: op.v, n: t(op.k) }))}
+            />
           </div>
         </section>
 

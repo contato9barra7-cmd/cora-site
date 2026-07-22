@@ -41,14 +41,20 @@ export default function DropdownCora({ valor, opcoes, onEscolher }) {
       if (listaRef.current && listaRef.current.contains(e.target)) return;
       setAberto(false);
     }
-    function fecharAoRolar() { setAberto(false); }  // scroll/resize fecham a lista
+    // Fecha ao rolar a PÁGINA/painel (a lista é fixed e não acompanharia).
+    // Mas NÃO fecha quando o scroll é dentro da própria lista (rolar as opções).
+    function fecharAoRolar(e) {
+      if (listaRef.current && listaRef.current.contains(e.target)) return;
+      setAberto(false);
+    }
+    function aoRedimensionar() { setAberto(false); }
     document.addEventListener('mousedown', fora);
     window.addEventListener('scroll', fecharAoRolar, true);
-    window.addEventListener('resize', fecharAoRolar);
+    window.addEventListener('resize', aoRedimensionar);
     return () => {
       document.removeEventListener('mousedown', fora);
       window.removeEventListener('scroll', fecharAoRolar, true);
-      window.removeEventListener('resize', fecharAoRolar);
+      window.removeEventListener('resize', aoRedimensionar);
     };
   }, [aberto]);
 

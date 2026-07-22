@@ -987,6 +987,9 @@ select.login-input, select.sup-campo {
 .perfil-h2 { font-size: 18px; font-weight: 600; margin-bottom: 18px; color: var(--ink); }
 .perfil-linha { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
 .perfil-linha:last-child { margin-bottom: 0; }
+/* Dropdown Cora ocupa a linha como o antigo select (flex:1) */
+.perfil-linha .cora-dd { flex: 1; }
+.perfil-linha .cora-dd-btn { padding: 11px 18px; font-size: 15px; }
 .perfil-lbl { width: 120px; flex-shrink: 0; font-size: 15px; color: var(--ink2); font-weight: 500; }
 .perfil-input {
   flex: 1; padding: 11px 18px; border: 1.5px solid var(--line); border-radius: 100px;
