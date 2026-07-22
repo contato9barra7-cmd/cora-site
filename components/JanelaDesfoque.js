@@ -13,8 +13,10 @@
 
 import { createPortal } from 'react-dom';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useIdioma } from '../lib/i18n';
 
 export default function JanelaDesfoque({ tipo, inicial, aoAplicar, aoFechar }) {
+  const { t } = useIdioma();
   const gauss = tipo === 'desfGauss';
 
   // Reabrindo um filtro que já existe, os controles nascem com os valores DELE.
@@ -38,8 +40,8 @@ export default function JanelaDesfoque({ tipo, inicial, aoAplicar, aoFechar }) {
       return;
     }
 
-    const t = setTimeout(() => aoAplicar({ raio, angulo }, false), 80);
-    return () => clearTimeout(t);
+    const tt = setTimeout(() => aoAplicar({ raio, angulo }, false), 80);
+    return () => clearTimeout(tt);
   }, [previa, raio, angulo, aoAplicar]);
 
   // A prévia é limpa ao desmontar, aconteça o que acontecer. Sem isto, fechar a
@@ -103,10 +105,10 @@ export default function JanelaDesfoque({ tipo, inicial, aoAplicar, aoFechar }) {
 
       <div className="df-topo" onMouseDown={pegar}>
         <span className="df-tit">
-          {gauss ? 'Desfoque gaussiano' : 'Desfoque de movimento'}
+          {gauss ? t('janeladesfoque_titulo_gauss') : t('janeladesfoque_titulo_mov')}
         </span>
 
-        <button className="df-x" onClick={cancelar} aria-label="Fechar">
+        <button className="df-x" onClick={cancelar} aria-label={t('fechar')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
@@ -118,18 +120,18 @@ export default function JanelaDesfoque({ tipo, inicial, aoAplicar, aoFechar }) {
         {/* ── O ângulo, só no movimento ── */}
         {!gauss && (
           <div className="df-linha">
-            <label className="df-l">Ângulo</label>
+            <label className="df-l">{t('janeladesfoque_angulo')}</label>
 
             <input
               type="range" min={-180} max={180} value={angulo}
               onChange={(e) => setAngulo(+e.target.value)}
-              aria-label="Ângulo"
+              aria-label={t('janeladesfoque_angulo')}
             />
 
             <input
               type="number" className="df-num" min={-180} max={180} value={angulo}
               onChange={(e) => setAngulo(Math.max(-180, Math.min(180, +e.target.value || 0)))}
-              aria-label="Ângulo em graus"
+              aria-label={t('janeladesfoque_angulo_graus')}
             />
             <span className="df-un">°</span>
 
@@ -145,21 +147,21 @@ export default function JanelaDesfoque({ tipo, inicial, aoAplicar, aoFechar }) {
         )}
 
         <div className="df-linha">
-          <label className="df-l">{gauss ? 'Raio' : 'Distância'}</label>
+          <label className="df-l">{gauss ? t('janeladesfoque_raio') : t('janeladesfoque_distancia')}</label>
 
           <input
             type="range" min={1} max={gauss ? 100 : 200} value={raio}
             onChange={(e) => setRaio(+e.target.value)}
-            aria-label={gauss ? 'Raio' : 'Distância'}
+            aria-label={gauss ? t('janeladesfoque_raio') : t('janeladesfoque_distancia')}
           />
 
           <input
             type="number" className="df-num" min={1} max={gauss ? 100 : 200} value={raio}
             onChange={(e) => {
-              const t = gauss ? 100 : 200;
-              setRaio(Math.max(1, Math.min(t, +e.target.value || 1)));
+              const tt = gauss ? 100 : 200;
+              setRaio(Math.max(1, Math.min(tt, +e.target.value || 1)));
             }}
-            aria-label={gauss ? 'Raio em pixels' : 'Distância em pixels'}
+            aria-label={gauss ? t('janeladesfoque_raio_px') : t('janeladesfoque_distancia_px')}
           />
           <span className="df-un">px</span>
         </div>
@@ -170,14 +172,14 @@ export default function JanelaDesfoque({ tipo, inicial, aoAplicar, aoFechar }) {
             checked={previa}
             onChange={(e) => setPrevia(e.target.checked)}
           />
-          <span>Visualizar</span>
+          <span>{t('janeladesfoque_visualizar')}</span>
         </label>
 
       </div>
 
       <div className="df-pe">
-        <button className="ps-b" onClick={cancelar}>Cancelar</button>
-        <button className="ps-b ps-b--on" onClick={confirmar}>OK</button>
+        <button className="ps-b" onClick={cancelar}>{t('comum_cancelar')}</button>
+        <button className="ps-b ps-b--on" onClick={confirmar}>{t('janeladesfoque_ok')}</button>
       </div>
 
     </div>,

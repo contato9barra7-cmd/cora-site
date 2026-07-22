@@ -9,8 +9,11 @@
 
 import { createPortal } from 'react-dom';
 import { useEffect } from 'react';
+import { useIdioma } from '../lib/i18n';
 
-export default function Confirma({ texto, ok = 'Continuar', aoOk, aoCancelar }) {
+export default function Confirma({ texto, ok, aoOk, aoCancelar }) {
+  const { t } = useIdioma();
+  const okLabel = ok ?? t('confirma_btn_continuar');
   useEffect(() => {
     const tecla = (e) => {
       if (e.key === 'Escape') aoCancelar();
@@ -26,8 +29,8 @@ export default function Confirma({ texto, ok = 'Continuar', aoOk, aoCancelar }) 
         <p className="cf-txt">{texto}</p>
 
         <div className="cf-botoes">
-          <button className="ps-b" onClick={aoCancelar}>Cancelar</button>
-          <button className="cf-perigo" onClick={aoOk}>{ok}</button>
+          <button className="ps-b" onClick={aoCancelar}>{t('comum_cancelar')}</button>
+          <button className="cf-perigo" onClick={aoOk}>{okLabel}</button>
         </div>
       </div>
     </div>,

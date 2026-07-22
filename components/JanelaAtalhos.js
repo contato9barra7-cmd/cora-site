@@ -14,58 +14,61 @@
 
 import { useEffect, useState } from 'react';
 import { FERRAMENTAS, nomeDaTecla } from '../lib/atalhos';
-
-// Os gestos e combinações fixos, só para consulta.
-const FIXOS = [
-  {
-    nome: 'Na imagem',
-    itens: [
-      ['Clique', 'Pega a camada sob o cursor (com a Mover)'],
-      ['Arrastar', 'Move a camada — encaixa no centro e nas bordas'],
-      ['Alt', 'Solta as travas magnéticas enquanto arrasta'],
-      ['Shift', 'Nos cantos: redimensiona sem manter a proporção'],
-      ['Shift + clique', 'Soma a camada à seleção']
-    ]
-  },
-  {
-    nome: 'Seleção',
-    itens: [
-      ['Ctrl', 'Somar à seleção (segure enquanto desenha)'],
-      ['Alt', 'Subtrair da seleção (segure enquanto desenha)'],
-      ['Shift', 'No letreiro: quadrado / círculo perfeito'],
-      ['Duplo clique', 'Fecha o laço poligonal'],
-      ['Ctrl+A', 'Selecionar tudo'],
-      ['Ctrl+D', 'Desmarcar'],
-      ['Ctrl+Shift+X', 'Inverter a seleção'],
-      ['Esc', 'Desmarcar / cancelar o que está em curso']
-    ]
-  },
-  {
-    nome: 'Camadas',
-    itens: [
-      ['Ctrl+J', 'Duplicar (só a seleção, se houver)'],
-      ['Ctrl+G', 'Agrupar as selecionadas'],
-      ['Ctrl+Shift+I', 'Converter em Objeto Inteligente'],
-      ['Ctrl+Shift+R', 'Rasterizar'],
-      ['Ctrl+Alt+E', 'Mesclar tudo numa camada nova'],
-      ['Duplo clique', 'Renomear a camada'],
-      ['Botão direito', 'Abre o menu da camada'],
-      ['Delete', 'Excluir']
-    ]
-  },
-  {
-    nome: 'Geral',
-    itens: [
-      ['Ctrl+Z', 'Desfazer'],
-      ['Enter', 'Confirmar o corte'],
-      ['Roda do mouse', 'Zoom'],
-      ['Espaço + arrastar', 'Arrastar a tela'],
-      ['Botão do meio', 'Arrastar a tela']
-    ]
-  }
-];
+import { useIdioma } from '../lib/i18n';
 
 export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
+  const { t } = useIdioma();
+
+  // Os gestos e combinações fixos, só para consulta.
+  const FIXOS = [
+    {
+      nome: t('janelaatalhos_grp_imagem'),
+      itens: [
+        [t('janelaatalhos_img_clique_k'), t('janelaatalhos_img_clique_d')],
+        [t('janelaatalhos_img_arrastar_k'), t('janelaatalhos_img_arrastar_d')],
+        ['Alt', t('janelaatalhos_img_alt_d')],
+        ['Shift', t('janelaatalhos_img_shift_d')],
+        [t('janelaatalhos_img_shiftclique_k'), t('janelaatalhos_img_shiftclique_d')]
+      ]
+    },
+    {
+      nome: t('janelaatalhos_grp_selecao'),
+      itens: [
+        ['Ctrl', t('janelaatalhos_sel_ctrl_d')],
+        ['Alt', t('janelaatalhos_sel_alt_d')],
+        ['Shift', t('janelaatalhos_sel_shift_d')],
+        [t('janelaatalhos_duploclique_k'), t('janelaatalhos_sel_duplo_d')],
+        ['Ctrl+A', t('janelaatalhos_sel_a_d')],
+        ['Ctrl+D', t('janelaatalhos_sel_d_d')],
+        ['Ctrl+Shift+X', t('janelaatalhos_sel_x_d')],
+        ['Esc', t('janelaatalhos_sel_esc_d')]
+      ]
+    },
+    {
+      nome: t('janelaatalhos_grp_camadas'),
+      itens: [
+        ['Ctrl+J', t('janelaatalhos_cam_j_d')],
+        ['Ctrl+G', t('janelaatalhos_cam_g_d')],
+        ['Ctrl+Shift+I', t('janelaatalhos_cam_i_d')],
+        ['Ctrl+Shift+R', t('janelaatalhos_cam_r_d')],
+        ['Ctrl+Alt+E', t('janelaatalhos_cam_e_d')],
+        [t('janelaatalhos_duploclique_k'), t('janelaatalhos_cam_duplo_d')],
+        [t('janelaatalhos_cam_botaodireito_k'), t('janelaatalhos_cam_botaodireito_d')],
+        ['Delete', t('janelaatalhos_cam_delete_d')]
+      ]
+    },
+    {
+      nome: t('janelaatalhos_grp_geral'),
+      itens: [
+        ['Ctrl+Z', t('janelaatalhos_ger_z_d')],
+        ['Enter', t('janelaatalhos_ger_enter_d')],
+        [t('janelaatalhos_ger_roda_k'), 'Zoom'],
+        [t('janelaatalhos_ger_espaco_k'), t('janelaatalhos_arrastartela_d')],
+        [t('janelaatalhos_ger_meio_k'), t('janelaatalhos_arrastartela_d')]
+      ]
+    }
+  ];
+
   // ── Um RASCUNHO ──
   //
   // As mudanças ficam aqui, e só valem quando a pessoa aperta Salvar. Gravar na
@@ -98,12 +101,12 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
 
       // A tecla já pertence a outra ferramenta?
       const dono = Object.entries(rascunho).find(
-        ([id, t]) => t === code && id !== gravando
+        ([id, tt]) => tt === code && id !== gravando
       );
 
       if (dono) {
         const nome = FERRAMENTAS.find((f) => f.id === dono[0])?.nome || dono[0];
-        setAviso(`${nomeDaTecla(code)} já é de "${nome}".`);
+        setAviso(`${nomeDaTecla(code)} ${t('janelaatalhos_aviso_ja_de')} "${nome}".`);
         return;
       }
 
@@ -140,9 +143,9 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
       <div className="at-win" onClick={(e) => e.stopPropagation()}>
 
         <header className="aj-topo">
-          <span className="aj-titulo">Atalhos de teclado</span>
+          <span className="aj-titulo">{t('janelaatalhos_titulo')}</span>
           <span className="aj-esticar" />
-          <button className="df-x" onClick={aoFechar} aria-label="Fechar">
+          <button className="df-x" onClick={aoFechar} aria-label={t('fechar')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
@@ -153,7 +156,7 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
 
           {/* ── As ferramentas, editáveis ── */}
           <section className="at-grupo">
-            <h3 className="cr-sec">Ferramentas</h3>
+            <h3 className="cr-sec">{t('janelaatalhos_sec_ferramentas')}</h3>
 
             {aviso && <p className="at-aviso">{aviso}</p>}
 
@@ -172,7 +175,7 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
                         + (!tecla && !nesta ? ' at-tecla-btn--vazio' : '')}
                       onClick={() => { setGravando(nesta ? null : f.id); setAviso(''); }}
                     >
-                      {nesta ? 'pressione…' : (tecla ? nomeDaTecla(tecla) : '—')}
+                      {nesta ? t('janelaatalhos_pressione') : (tecla ? nomeDaTecla(tecla) : '—')}
                     </button>
 
                     {/* Limpar só aparece quando há o que limpar. */}
@@ -180,8 +183,8 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
                       <button
                         className="at-limpar"
                         onClick={() => limpar(f.id)}
-                        aria-label="Remover atalho"
-                        title="Remover atalho"
+                        aria-label={t('janelaatalhos_remover_atalho')}
+                        title={t('janelaatalhos_remover_atalho')}
                       >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                           <path d="M6 6l12 12M18 6L6 18" />
@@ -211,11 +214,11 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
         </div>
 
         <footer className="at-pe">
-          <button className="ps-b at-restaurar" onClick={restaurarPadrao}>Restaurar padrão</button>
+          <button className="ps-b at-restaurar" onClick={restaurarPadrao}>{t('janelaatalhos_restaurar')}</button>
           <span className="aj-esticar" />
-          <button className="ps-b" onClick={aoFechar}>Cancelar</button>
+          <button className="ps-b" onClick={aoFechar}>{t('comum_cancelar')}</button>
           <button className="ps-b ps-b--on" onClick={salvar} disabled={!mudou}>
-            Salvar
+            {t('comum_salvar')}
           </button>
         </footer>
       </div>

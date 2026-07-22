@@ -27,6 +27,7 @@ import {
   novaMascara, pincelar, comporAlpha, aplicarMascaras, overlayVermelho,
   pincelarAuto, BRUSH_PADRAO
 } from '../lib/mascaras';
+import { useIdioma } from '../lib/i18n';
 
 const LADO_PREVIA = 1400;
 
@@ -46,6 +47,7 @@ function comTrava(valor, min, max) {
 }
 
 export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) {
+  const { t } = useIdioma();
   // Reabrindo um filtro de Ajustes, os controles nascem com os valores DELE.
   // O `camada.ajustes` é o caminho antigo, das camadas rasterizadas — ali o
   // ajuste é único e vive na própria camada.
@@ -659,12 +661,12 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
       <div className="aj-win" onClick={(e) => e.stopPropagation()}>
 
         <header className="aj-topo">
-          <span className="aj-titulo">Ajustes</span>
+          <span className="aj-titulo">{t('janelaajustes_titulo')}</span>
           <span className="aj-esticar" />
-          <button className="ps-b" onClick={resetar}>Resetar tudo</button>
-          <button className="ps-b" onClick={aoFechar}>Cancelar</button>
+          <button className="ps-b" onClick={resetar}>{t('janelaajustes_resetar_tudo')}</button>
+          <button className="ps-b" onClick={aoFechar}>{t('comum_cancelar')}</button>
           <button className="ps-b ps-b--on" onClick={aplicar} disabled={processando}>
-            {processando ? 'Aplicando...' : 'OK'}
+            {processando ? t('janelaajustes_aplicando') : 'OK'}
           </button>
         </header>
 
@@ -728,13 +730,13 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                          strokeLinejoin="round" aria-hidden="true">
                       <path d="M15 18l-6-6 6-6" />
                     </svg>
-                    Voltar aos ajustes
+                    {t('janelaajustes_voltar_ajustes')}
                   </button>
                 )}
 
                 <button className="aj-msk-criar" onClick={criarMascara}>
                   <span className="aj-msk-circ" />
-                  Criar máscara
+                  {t('janelaajustes_criar_mascara')}
                 </button>
 
                 {mascaras.length > 0 && (
@@ -744,7 +746,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                       onClick={sairMascara}
                     >
                       <span className="aj-msk-thumb aj-msk-thumb--global" />
-                      <span className="aj-msk-nome">Imagem toda (global)</span>
+                      <span className="aj-msk-nome">{t('janelaajustes_imagem_toda')}</span>
                     </div>
 
                     {mascaras.map((m, i) => (
@@ -756,13 +758,13 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                         <span className="aj-msk-thumb" />
                         <span className="aj-msk-nome">{m.nome}</span>
                         <button className="aj-msk-olho" onClick={(e) => toggleVis(i, e)}
-                                title="Mostrar/ocultar" aria-label="Mostrar/ocultar">
+                                title={t('janelaajustes_mostrar_ocultar')} aria-label={t('janelaajustes_mostrar_ocultar')}>
                           {m.visivel === false
                             ? <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M17.9 17.9A10 10 0 0 1 12 19c-7 0-11-7-11-7a18 18 0 0 1 5-5.9M9.9 4.2A9 9 0 0 1 12 4c7 0 11 7 11 7a18 18 0 0 1-2.2 3.2m-6.7-1.1a3 3 0 1 1-4.2-4.2" /><path d="M1 1l22 22" /></svg>
                             : <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" /></svg>}
                         </button>
                         <button className="aj-msk-del" onClick={(e) => delMascara(i, e)}
-                                aria-label="Excluir">×</button>
+                                aria-label={t('janelaajustes_excluir')}>×</button>
                       </div>
                     ))}
                   </div>
@@ -775,18 +777,18 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                       <button
                         className={'aj-msk-modo-b' + (modoComp === 'add' ? ' aj-msk-modo-b--on' : '')}
                         onClick={() => { setModoComp('add'); setSlotAberto(true); }}
-                      >+ Adicionar</button>
+                      >{t('janelaajustes_modo_adicionar')}</button>
                       <button
                         className={'aj-msk-modo-b' + (modoComp === 'sub' ? ' aj-msk-modo-b--on' : '')}
                         onClick={() => { setModoComp('sub'); setSlotAberto(true); }}
-                      >− Subtrair</button>
+                      >{t('janelaajustes_modo_subtrair')}</button>
                     </div>
 
                     <div className="aj-msk-ferrs">
                       {[
-                        ['pincel', 'brush', 'Pincel'],
-                        ['linear', 'linear', 'Linear'],
-                        ['radial', 'radial', 'Radial']
+                        ['pincel', 'brush', t('janelaajustes_ferr_pincel')],
+                        ['linear', 'linear', t('janelaajustes_ferr_linear')],
+                        ['radial', 'radial', t('janelaajustes_ferr_radial')]
                       ].map(([id, ic, nome]) => (
                         <button
                           key={id}
@@ -802,9 +804,9 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                     {ferramenta === 'pincel' && (
                       <div className="aj-msk-brush">
                         {[
-                          ['tamanho', 'Tamanho', 1, 200],
-                          ['difusao', 'Difusão', 0, 100],
-                          ['fluxo', 'Fluxo', 1, 100]
+                          ['tamanho', t('janelaajustes_slider_tamanho'), 1, 200],
+                          ['difusao', t('janelaajustes_slider_difusao'), 0, 100],
+                          ['fluxo', t('janelaajustes_slider_fluxo'), 1, 100]
                         ].map(([k, nome, mn, mx]) => (
                           <div key={k} className="aj-sl">
                             <div className="aj-sl-topo">
@@ -824,19 +826,21 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                               <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="#fff" strokeWidth="3"><path d="M5 12l5 5L20 6" /></svg>
                             )}
                           </span>
-                          Máscara automática
+                          {t('janelaajustes_mascara_automatica')}
                         </label>
                         <p className="aj-msk-dica">
                           {brush.automatica
-                            ? 'Clique num ponto: a máscara seleciona sozinha a área de cor parecida.'
-                            : 'Arraste sobre a imagem para desenhar a máscara.'}
+                            ? t('janelaajustes_dica_auto_on')
+                            : t('janelaajustes_dica_auto_off')}
                         </p>
                       </div>
                     )}
 
                     {(ferramenta === 'linear' || ferramenta === 'radial') && (
                       <p className="aj-msk-dica">
-                        Arraste sobre a imagem para desenhar o degradê {ferramenta === 'linear' ? 'linear' : 'radial'}.
+                        {ferramenta === 'linear'
+                          ? t('janelaajustes_dica_degrade_linear')
+                          : t('janelaajustes_dica_degrade_radial')}
                       </p>
                     )}
                   </>
@@ -845,7 +849,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
 
               <nav className="aj-abas">
                 {[...ABAS_AJUSTE.slice(0, 3),
-                  { id: 'curva', nome: 'Curva', icone: 'curva' },
+                  { id: 'curva', nome: t('janelaajustes_aba_curva'), icone: 'curva' },
                   { id: 'mixer', nome: 'Color Mixer', icone: 'mixer' },
                   ABAS_AJUSTE[3]
                 ].map((a) => (
@@ -862,11 +866,11 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
 
               <div className="aj-cab">
                 <span className="aj-cab-t">
-                  {aba === 'curva' ? 'Curva'
+                  {aba === 'curva' ? t('janelaajustes_aba_curva')
                     : aba === 'mixer' ? 'Color Mixer'
                     : abaAtual?.nome}
                 </span>
-                <button className="aj-reset" onClick={resetarAba}>Resetar</button>
+                <button className="aj-reset" onClick={resetarAba}>{t('janelaajustes_resetar')}</button>
               </div>
 
               {/* ── O equilíbrio de branco, só na aba Cor ── */}
@@ -883,10 +887,10 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                       <path d="M10 12l-6.5 6.5a1.5 1.5 0 0 0 0 2.1l.9.9a1.5 1.5 0 0 0 2.1 0L13 15" />
                       <path d="M14 7l3 3" />
                     </svg>
-                    Equilíbrio de branco
+                    {t('janelaajustes_equilibrio_branco')}
                   </button>
                   <p className="aj-wb-dica">
-                    Clique num ponto que deveria ser cinza/branco neutro na imagem.
+                    {t('janelaajustes_wb_dica')}
                   </p>
                 </>
               )}
@@ -921,7 +925,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                           <button
                             className="aj-sl-v"
                             onClick={() => mexer(abaAtual.grupo, s.k, paramsPadrao()[abaAtual.grupo][s.k])}
-                            title="Voltar ao padrão"
+                            title={t('janelaajustes_voltar_padrao')}
                           >{pAtivo[abaAtual.grupo][s.k]}</button>
                         </div>
                         <input
@@ -961,7 +965,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                   />
 
                   <p className="aj-dica">
-                    Clique adiciona · arraste ajusta · clique-duplo remove
+                    {t('janelaajustes_curva_dica')}
                   </p>
                 </>
               )}
@@ -982,14 +986,14 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                     ))}
                   </div>
 
-                  {[['h', 'Matiz'], ['s', 'Saturação'], ['l', 'Luminância']].map(([k, nome]) => (
+                  {[['h', t('janelaajustes_mixer_matiz')], ['s', t('janelaajustes_mixer_saturacao')], ['l', t('janelaajustes_mixer_luminancia')]].map(([k, nome]) => (
                     <div key={k} className="aj-sl">
                       <div className="aj-sl-topo">
                         <span>{nome}</span>
                         <button
                           className="aj-sl-v"
                           onClick={() => mexerMixer(cor, k, 0)}
-                          title="Voltar a zero"
+                          title={t('janelaajustes_voltar_zero')}
                         >{pAtivo.mixer[cor][k]}</button>
                       </div>
                       <input

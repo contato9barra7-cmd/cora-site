@@ -12,8 +12,10 @@
 
 import { useEffect } from 'react';
 import { ROTULO_FERRAMENTA } from '../lib/geracoes';
+import { useIdioma, localeDeIdioma } from '../lib/i18n';
 
 export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
+  const { t, idioma } = useIdioma();
   useEffect(() => {
     if (!aberto) return;
     const esc = (e) => { if (e.key === 'Escape') onFechar(); };
@@ -46,7 +48,7 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
   const FLAVOR_ROTULO = { sublime: 'Magnific v2 (sublime)', photo_denoiser: 'Magnific v2 (photo denoiser)' };
 
   const dataCompleta = quando
-    ? new Date(quando).toLocaleString('pt-BR', {
+    ? new Date(quando).toLocaleString(localeDeIdioma(idioma), {
         day: '2-digit', month: 'long', year: 'numeric',
         hour: '2-digit', minute: '2-digit'
       })
@@ -57,8 +59,8 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
       <div className="dt" onClick={(e) => e.stopPropagation()}>
 
         <header className="dt-cab">
-          <h3>Detalhes</h3>
-          <button className="dt-x" onClick={onFechar} aria-label="Fechar">
+          <h3>{t('modaldetalhes_titulo')}</h3>
+          <button className="dt-x" onClick={onFechar} aria-label={t('fechar')}>
             <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
             </svg>
@@ -70,7 +72,7 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
           {/* ── Como foi feita ──
               A ferramenta primeiro, destacada: é a informação que diz o que
               esta imagem É. Depois as configurações. */}
-          <div className="dt-sec">Como foi feita</div>
+          <div className="dt-sec">{t('modaldetalhes_como_feita')}</div>
           <div className="dt-pills">
             {lote.ferramenta && (
               <span className="dt-pill dt-pill--forte">
@@ -80,7 +82,7 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
             {lote.plataforma === 'plugin' && <span className="dt-pill dt-pill--plugin">Plugin</span>}
             {upCfg ? (
               <>
-                <span className="dt-pill">{upCfg.modo === 'precision' ? 'Precisão' : 'Criativo'}</span>
+                <span className="dt-pill">{upCfg.modo === 'precision' ? t('modaldetalhes_precisao') : t('modaldetalhes_criativo')}</span>
                 {upCfg.scale && <span className="dt-pill">{upCfg.scale}x</span>}
               </>
             ) : (
@@ -105,19 +107,19 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
             <div className="dt-up-cfg">
               {upCfg.modo === 'precision' ? (
                 <>
-                  <div className="dt-up-linha"><span>Modelo</span><span>{FLAVOR_ROTULO[upCfg.flavor] || upCfg.flavor}</span></div>
-                  <div className="dt-up-linha"><span>Nitidez</span><span>{upCfg.sharpen}%</span></div>
-                  <div className="dt-up-linha"><span>Grão</span><span>{upCfg.smart_grain}%</span></div>
+                  <div className="dt-up-linha"><span>{t('modaldetalhes_modelo')}</span><span>{FLAVOR_ROTULO[upCfg.flavor] || upCfg.flavor}</span></div>
+                  <div className="dt-up-linha"><span>{t('modaldetalhes_nitidez')}</span><span>{upCfg.sharpen}%</span></div>
+                  <div className="dt-up-linha"><span>{t('modaldetalhes_grao')}</span><span>{upCfg.smart_grain}%</span></div>
                 </>
               ) : (
                 <>
-                  <div className="dt-up-linha"><span>Otimizado para</span><span>{OTIM_ROTULO[upCfg.optimized_for] || upCfg.optimized_for}</span></div>
-                  <div className="dt-up-linha"><span>Criatividade</span><span>{upCfg.creativity}</span></div>
+                  <div className="dt-up-linha"><span>{t('modaldetalhes_otimizado_para')}</span><span>{OTIM_ROTULO[upCfg.optimized_for] || upCfg.optimized_for}</span></div>
+                  <div className="dt-up-linha"><span>{t('modaldetalhes_criatividade')}</span><span>{upCfg.creativity}</span></div>
                   <div className="dt-up-linha"><span>HDR</span><span>{upCfg.hdr}</span></div>
-                  <div className="dt-up-linha"><span>Semelhança</span><span>{upCfg.resemblance}</span></div>
-                  <div className="dt-up-linha"><span>Fractalidade</span><span>{upCfg.fractality}</span></div>
-                  <div className="dt-up-linha"><span>Motor</span><span>{ENGINE_ROTULO[upCfg.engine] || upCfg.engine}</span></div>
-                  {upCfg.prompt && <div className="dt-up-linha"><span>Descrição</span><span>{upCfg.prompt}</span></div>}
+                  <div className="dt-up-linha"><span>{t('modaldetalhes_semelhanca')}</span><span>{upCfg.resemblance}</span></div>
+                  <div className="dt-up-linha"><span>{t('modaldetalhes_fractalidade')}</span><span>{upCfg.fractality}</span></div>
+                  <div className="dt-up-linha"><span>{t('modaldetalhes_motor')}</span><span>{ENGINE_ROTULO[upCfg.engine] || upCfg.engine}</span></div>
+                  {upCfg.prompt && <div className="dt-up-linha"><span>{t('modaldetalhes_descricao')}</span><span>{upCfg.prompt}</span></div>}
                 </>
               )}
             </div>
@@ -130,7 +132,7 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
               referências de estilo. Meses depois, ninguém lembra. */}
           {(item?.original || lote.original) && (
             <>
-              <div className="dt-sec">Imagem de origem</div>
+              <div className="dt-sec">{t('modaldetalhes_imagem_origem')}</div>
               <div className="dt-imgs">
                 <img className="dt-img" src={item?.original || lote.original} alt="" />
               </div>
@@ -139,7 +141,7 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
 
           {lote.refs?.length > 0 && (
             <>
-              <div className="dt-sec">Referências ({lote.refs.length})</div>
+              <div className="dt-sec">{t('modaldetalhes_referencias')} ({lote.refs.length})</div>
               <div className="dt-imgs">
                 {lote.refs.map((u, i) => (
                   <img key={i} className="dt-img" src={u} alt="" />
@@ -150,7 +152,7 @@ export default function ModalDetalhes({ aberto, lote, item, onFechar }) {
 
           {!(item?.original || lote.original) && !lote.refs?.length && (
             <p className="dt-vazio">
-              Esta geração não guardou as imagens que a originaram.
+              {t('modaldetalhes_sem_imagens')}
             </p>
           )}
         </div>

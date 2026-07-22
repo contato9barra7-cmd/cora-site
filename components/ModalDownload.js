@@ -9,6 +9,7 @@
 
 import { useState, useEffect } from 'react';
 import { baixarGeracao } from '../lib/geracoes';
+import { useIdioma } from '../lib/i18n';
 
 // Uma estimativa, não uma medida: medir exigiria baixar os bytes ANTES de a
 // pessoa escolher — que é justamente o que se quer evitar.
@@ -24,6 +25,7 @@ function pesar(w, h, formato) {
 }
 
 export default function ModalDownload({ item, dim: dimFixa, aoBaixar, onFechar }) {
+  const { t } = useIdioma();
   const [formato, setFormato]   = useState('png');
   const [baixando, setBaixando] = useState(false);
   const [erro, setErro]         = useState('');
@@ -67,7 +69,7 @@ export default function ModalDownload({ item, dim: dimFixa, aoBaixar, onFechar }
 
         <div className="dl-cab">
           <div>
-            <strong>Baixar imagem</strong>
+            <strong>{t('modaldownload_titulo')}</strong>
             {dim && (
               <span>
                 {dim.w} × {dim.h}
@@ -76,7 +78,7 @@ export default function ModalDownload({ item, dim: dimFixa, aoBaixar, onFechar }
             )}
           </div>
 
-          <button className="dl-x" onClick={onFechar} aria-label="Fechar">
+          <button className="dl-x" onClick={onFechar} aria-label={t('fechar')}>
             <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
                  stroke="currentColor" strokeWidth="1.6">
               <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round"/>
@@ -86,8 +88,8 @@ export default function ModalDownload({ item, dim: dimFixa, aoBaixar, onFechar }
 
         <div className="dl-ops">
           {[
-            { id: 'png',  nome: 'PNG',  desc: 'Qualidade 100% · sem perdas' },
-            { id: 'jpeg', nome: 'JPEG', desc: 'Qualidade 80% · arquivo menor' }
+            { id: 'png',  nome: 'PNG',  desc: t('modaldownload_png_desc') },
+            { id: 'jpeg', nome: 'JPEG', desc: t('modaldownload_jpeg_desc') }
           ].map((f) => (
             <button
               key={f.id}
@@ -113,14 +115,14 @@ export default function ModalDownload({ item, dim: dimFixa, aoBaixar, onFechar }
 
         {/* O botão diz o que vai acontecer, com o peso do que foi escolhido */}
         <button className="dl-btn" onClick={baixar} disabled={baixando}>
-          {baixando ? 'Baixando...' : (
+          {baixando ? t('modaldownload_baixando') : (
             <>
               <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
                    stroke="currentColor" strokeWidth="1.6">
                 <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M3.5 15v1.5h13V15" strokeLinecap="round"/>
               </svg>
-              Baixar {formato.toUpperCase()}{peso ? ` · ${peso}` : ''}
+              {t('modaldownload_btn_baixar')} {formato.toUpperCase()}{peso ? ` · ${peso}` : ''}
             </>
           )}
         </button>

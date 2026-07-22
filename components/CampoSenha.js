@@ -12,6 +12,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
+import { useIdioma } from '../lib/i18n';
 
 export const REQUISITOS_SENHA = [
   { chave: 'len',       label: 'Pelo menos 8 caracteres',            teste: (s) => s.length >= 8 },
@@ -32,7 +33,8 @@ const OlhoIcone = ({ aberto }) => aberto ? (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
 );
 
-export default function CampoSenha({ senha, setSenha, onValidez, erroCampo, labelSenha = 'Senha', obrigatorio = true }) {
+export default function CampoSenha({ senha, setSenha, onValidez, erroCampo, labelSenha, obrigatorio = true }) {
+  const { t } = useIdioma();
   const [confirma, setConfirma] = useState('');
   const [ver, setVer] = useState(false);
   const [verC, setVerC] = useState(false);
@@ -49,18 +51,18 @@ export default function CampoSenha({ senha, setSenha, onValidez, erroCampo, labe
 
   return (
     <div className="cs-wrap">
-      <label className="login-label">{labelSenha} {obrigatorio && <span className="obrig">*</span>}</label>
+      <label className="login-label">{labelSenha || t('camposenha_label_senha')} {obrigatorio && <span className="obrig">*</span>}</label>
       <div className="senha-campo">
         <input
           className={'login-input' + (erroCampo ? ' campo-erro' : '')}
           type={ver ? 'text' : 'password'}
-          placeholder="Crie uma senha forte"
+          placeholder={t('camposenha_ph_criar')}
           value={senha}
           onFocus={() => setFocou(true)}
           onChange={(e) => setSenha(e.target.value)}
           autoComplete="new-password"
         />
-        <button type="button" className="senha-olho" onClick={() => setVer(!ver)} aria-label={ver ? 'Esconder senha' : 'Mostrar senha'}>
+        <button type="button" className="senha-olho" onClick={() => setVer(!ver)} aria-label={ver ? t('camposenha_esconder') : t('camposenha_mostrar')}>
           <OlhoIcone aberto={ver} />
         </button>
       </div>
@@ -76,27 +78,27 @@ export default function CampoSenha({ senha, setSenha, onValidez, erroCampo, labe
                   <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="8" cy="8" r="5.2" /></svg>
                 )}
               </span>
-              {r.label}
+              {t('camposenha_req_' + r.chave)}
             </li>
           ))}
         </ul>
       )}
 
-      <label className="login-label" style={{ marginTop: 12 }}>Repetir senha {obrigatorio && <span className="obrig">*</span>}</label>
+      <label className="login-label" style={{ marginTop: 12 }}>{t('camposenha_repetir')} {obrigatorio && <span className="obrig">*</span>}</label>
       <div className="senha-campo">
         <input
           className={'login-input' + (confirma.length > 0 && !confere ? ' campo-erro' : '')}
           type={verC ? 'text' : 'password'}
-          placeholder="Digite a senha de novo"
+          placeholder={t('camposenha_ph_repetir')}
           value={confirma}
           onChange={(e) => setConfirma(e.target.value)}
           autoComplete="new-password"
         />
-        <button type="button" className="senha-olho" onClick={() => setVerC(!verC)} aria-label={verC ? 'Esconder senha' : 'Mostrar senha'}>
+        <button type="button" className="senha-olho" onClick={() => setVerC(!verC)} aria-label={verC ? t('camposenha_esconder') : t('camposenha_mostrar')}>
           <OlhoIcone aberto={verC} />
         </button>
       </div>
-      {confirma.length > 0 && !confere && <p className="cs-nao-bate">As senhas não são iguais.</p>}
+      {confirma.length > 0 && !confere && <p className="cs-nao-bate">{t('camposenha_nao_bate')}</p>}
     </div>
   );
 }

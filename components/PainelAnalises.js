@@ -17,18 +17,19 @@
 import { useState, useEffect } from 'react';
 import { listarLeituras, apagarLeitura, bytesDaLeitura, refsDaLeitura } from '../lib/leituras';
 import { bytesDaGeracao } from '../lib/geracoes';
+import { useIdioma, localeDeIdioma } from '../lib/i18n';
 
-function quando(iso) {
+function quando(iso, t, idioma) {
   const d = new Date(iso);
   const min = Math.floor((Date.now() - d) / 60000);
-  if (min < 1)    return 'agora';
+  if (min < 1)    return t('painelanalises_agora');
   if (min < 60)   return `${min} min`;
   const h = Math.floor(min / 60);
   if (h < 24)     return `${h}h`;
   const dias = Math.floor(h / 24);
-  if (dias === 1) return 'ontem';
-  if (dias < 30)  return `${dias} dias`;
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  if (dias === 1) return t('painelanalises_ontem');
+  if (dias < 30)  return `${dias} ${t('painelanalises_dias')}`;
+  return d.toLocaleDateString(localeDeIdioma(idioma), { day: '2-digit', month: 'short' });
 }
 
 // Um dropdown. O rótulo fica sempre à vista ("Origem", "Aba") e o valor
@@ -69,6 +70,7 @@ function Escolha({ rotulo, valor, opcoes, onMudar, aberto, onAbrir }) {
 }
 
 export default function PainelAnalises({ onUsar }) {
+  const { t, idioma } = useIdioma();
   const [itens, setItens]       = useState([]);
   const [carregando, setCarreg] = useState(true);
   const [busca, setBusca]       = useState('');
@@ -153,9 +155,9 @@ export default function PainelAnalises({ onUsar }) {
     .filter((i) => filtro === 'todas' || i.origem === filtro)
     .filter((i) => {
       if (!busca.trim()) return true;
-      const t = busca.toLowerCase();
-      return (i.materiais || '').toLowerCase().includes(t)
-          || (i.titulo || '').toLowerCase().includes(t);
+      const q = busca.toLowerCase();
+      return (i.materiais || '').toLowerCase().includes(q)
+          || (i.titulo || '').toLowerCase().includes(q);
     });
 
   async function apagar(e, id) {
@@ -186,10 +188,9 @@ export default function PainelAnalises({ onUsar }) {
   return (
     <div className="cr-form">
 
-      <div className="cr-sec">Análises de materiais</div>
+      <div className="cr-sec">{t('painelanalises_titulo')}</div>
       <p className="cr-hint cr-hint--topo">
-        Cada leitura custou créditos. Aqui elas ficam guardadas — reaproveite
-        em vez de pagar de novo.
+        {t('painelanalises_intro')}
       </p>
 
       <input
@@ -197,47 +198,47 @@ export default function PainelAnalises({ onUsar }) {
         type="text"
         value={busca}
         onChange={(e) => setBusca(e.target.value)}
-        placeholder="Buscar nas análises..."
+        placeholder={t('painelanalises_ph_busca')}
         spellCheck={false}
       />
 
       {/* Dois dropdowns: DE ONDE veio a leitura, e QUAL aba a gerou. */}
       <div className="an-filtros">
         <Escolha
-          rotulo="Origem"
+          rotulo={t('painelanalises_rot_origem')}
           valor={plataforma}
           onMudar={setPlataforma}
           aberto={menuAberto === 'plataforma'}
           onAbrir={() => setMenuAberto(menuAberto === 'plataforma' ? null : 'plataforma')}
           opcoes={[
-            { v: 'todas',  r: 'Todas' },
+            { v: 'todas',  r: t('painelanalises_todas') },
             { v: 'web',    r: 'Web' },
             { v: 'plugin', r: 'Plugin' }
           ]}
         />
 
         <Escolha
-          rotulo="Aba"
+          rotulo={t('painelanalises_rot_aba')}
           valor={filtro}
           onMudar={setFiltro}
           aberto={menuAberto === 'filtro'}
           onAbrir={() => setMenuAberto(menuAberto === 'filtro' ? null : 'filtro')}
           opcoes={[
-            { v: 'todas',  r: 'Todas' },
+            { v: 'todas',  r: t('painelanalises_todas') },
             { v: 'render', r: 'Render' },
             { v: 'batch',  r: 'Batch' }
           ]}
         />
       </div>
 
-      {carregando && <p className="cr-msg">Carregando...</p>}
+      {carregando && <p className="cr-msg">{t('comum_carregando')}</p>}
 
       {!carregando && filtrados.length === 0 && (
         <div className="an-vazio">
           <p>
             {busca || filtro !== 'todas' || plataforma !== 'todas'
-              ? 'Nenhuma leitura corresponde a esse filtro.'
-              : 'Nenhuma leitura ainda. As que você fizer aqui e no plugin aparecem nesta aba.'}
+              ? t('painelanalises_vazio_filtro')
+              : t('painelanalises_vazio')}
           </p>
         </div>
       )}
@@ -257,13 +258,13 @@ export default function PainelAnalises({ onUsar }) {
 
               <span className="an-txt">
                 <span className="an-topo">
-                  <span className="an-tit">{l.titulo || 'Sem título'}</span>
+                  <span className="an-tit">{l.titulo || t('painelanalises_sem_titulo')}</span>
                   <span className="an-tag">{l.origem === 'batch' ? 'Batch' : 'Render'}</span>
                   <span className={'an-tag an-tag--' + (l.plataforma || 'web')}>
                     {(l.plataforma || 'web') === 'plugin' ? 'Plugin' : 'Web'}
                   </span>
                 </span>
-                <span className="an-quando">{quando(l.criadoEm)}</span>
+                <span className="an-quando">{quando(l.criadoEm, t, idioma)}</span>
                 {!expandida && <span className="an-prev">{l.materiais}</span>}
               </span>
 
@@ -280,7 +281,7 @@ export default function PainelAnalises({ onUsar }) {
 
                 <div className="an-acoes">
                   <button className="cr-b" onClick={(e) => copiar(e, l)}>
-                    {copiada === l.id ? 'Copiado' : 'Copiar'}
+                    {copiada === l.id ? t('painelanalises_copiado') : t('painelanalises_copiar')}
                   </button>
 
                   {/* Só o caminho que faz sentido: uma leitura de batch
@@ -292,14 +293,14 @@ export default function PainelAnalises({ onUsar }) {
                     disabled={levando === l.id}
                   >
                     {levando === l.id
-                      ? 'Levando...'
-                      : l.origem === 'batch' ? 'Usar no Batch' : 'Usar no Render'}
+                      ? t('painelanalises_levando')
+                      : l.origem === 'batch' ? t('painelanalises_usar_batch') : t('painelanalises_usar_render')}
                   </button>
 
                   <button
                     className="an-lixo"
                     onClick={(e) => apagar(e, l.id)}
-                    aria-label="Apagar leitura"
+                    aria-label={t('painelanalises_apagar_aria')}
                   >
                     {apagando === l.id ? '...' : (
                       <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -316,7 +317,7 @@ export default function PainelAnalises({ onUsar }) {
       })}
 
       {!carregando && itens.length > 0 && (
-        <p className="an-pe">As leituras ficam guardadas por 90 dias.</p>
+        <p className="an-pe">{t('painelanalises_rodape')}</p>
       )}
     </div>
   );
