@@ -27,7 +27,7 @@ import {
   novaMascara, pincelar, comporAlpha, aplicarMascaras, overlayVermelho,
   pincelarAuto, BRUSH_PADRAO
 } from '../lib/mascaras';
-import { useIdioma } from '../lib/i18n';
+import { useIdioma, tOpt } from '../lib/i18n';
 
 const LADO_PREVIA = 1400;
 
@@ -859,7 +859,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                     onClick={() => setAba(a.id)}
                   >
                     <IconeAba nome={a.icone} />
-                    <span>{a.nome}</span>
+                    <span>{tOpt(a.nome)}</span>
                   </button>
                 ))}
               </nav>
@@ -868,7 +868,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                 <span className="aj-cab-t">
                   {aba === 'curva' ? t('janelaajustes_aba_curva')
                     : aba === 'mixer' ? 'Color Mixer'
-                    : abaAtual?.nome}
+                    : tOpt(abaAtual?.nome)}
                 </span>
                 <button className="aj-reset" onClick={resetarAba}>{t('janelaajustes_resetar')}</button>
               </div>
@@ -915,13 +915,13 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                     <Fragment key={s.k}>
                       {/* O título da seção (Vinheta, Granulado) vem antes do
                           slider que o abre. */}
-                      {s.sec && <div className="aj-sec">{s.sec}</div>}
+                      {s.sec && <div className="aj-sec">{tOpt(s.sec)}</div>}
 
                       <div
                         className={'aj-sl' + (s.filho ? ' aj-sl--filho' : '') + (morto ? ' aj-sl--off' : '')}
                       >
                         <div className="aj-sl-topo">
-                          <span>{s.nome}</span>
+                          <span>{tOpt(s.nome)}</span>
                           <button
                             className="aj-sl-v"
                             onClick={() => mexer(abaAtual.grupo, s.k, paramsPadrao()[abaAtual.grupo][s.k])}

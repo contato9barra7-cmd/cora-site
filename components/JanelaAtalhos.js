@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from 'react';
 import { FERRAMENTAS, nomeDaTecla } from '../lib/atalhos';
-import { useIdioma } from '../lib/i18n';
+import { useIdioma, tOpt } from '../lib/i18n';
 
 export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
   const { t } = useIdioma();
@@ -166,7 +166,7 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
 
               return (
                 <div key={f.id} className="at-linha at-linha--edit">
-                  <span className="at-o-que">{f.nome}</span>
+                  <span className="at-o-que">{tOpt(f.nome)}</span>
 
                   <span className="at-controles">
                     <button
@@ -200,7 +200,7 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
           {/* ── O resto, fixo, para consulta ── */}
           {FIXOS.map((g) => (
             <section key={g.nome} className="at-grupo">
-              <h3 className="cr-sec">{g.nome}</h3>
+              <h3 className="cr-sec">{tOpt(g.nome)}</h3>
 
               {g.itens.map(([tecla, oQue]) => (
                 <div key={tecla + oQue} className="at-linha">

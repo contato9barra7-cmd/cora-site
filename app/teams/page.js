@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import Nav from '../../components/Nav';
 import { calcularTeams, descontoAssentos } from '../../lib/planos';
 import { iniciarCheckoutEquipe, salvarCPF, lerEquipePendente, limparEquipePendente } from '../../lib/auth';
+import { useIdioma } from '../../lib/i18n';
 
 function brl(n) { return 'R$ ' + n.toLocaleString('pt-BR'); }
 
 export default function Teams() {
   const router = useRouter();
+  const { t } = useIdioma();
   const [plano, setPlano] = useState('pro');
   const [assentos, setAssentos] = useState(2);
   const [ciclo, setCiclo] = useState('mensal'); // mensal | anual
@@ -52,7 +54,7 @@ export default function Teams() {
       await iniciarCheckoutEquipe(plano, assentos, guia, ciclo);
     } catch (e) {
       if (e.precisaCpf) { setModalCpf(true); return; }
-      if (e.jaTemEquipe) { setErro('Você já tem uma equipe ativa. Veja na página da sua equipe.'); return; }
+      if (e.jaTemEquipe) { setErro(t('teams_ja_equipe')); return; }
       setErro(e.message);
     }
   }
@@ -87,16 +89,15 @@ export default function Teams() {
 
       <div className="container">
         <div className="tm-wrap">
-          <h1 className="tm-h1">Montar equipe</h1>
+          <h1 className="tm-h1">{t('teams_h1')}</h1>
           <p className="tm-lead">
-            Escolha o plano e a quantidade de assentos. Quanto mais assentos, maior o desconto por pessoa.
-            Você gerencia todos por aqui, com faturamento único.
+            {t('teams_lead')}
           </p>
 
           <div className="tm-toggle">
-            <button className={'tm-toggle-op' + (ciclo === 'mensal' ? ' ativo' : '')} onClick={() => setCiclo('mensal')}>Mensal</button>
+            <button className={'tm-toggle-op' + (ciclo === 'mensal' ? ' ativo' : '')} onClick={() => setCiclo('mensal')}>{t('teams_mensal')}</button>
             <button className={'tm-toggle-op' + (ciclo === 'anual' ? ' ativo' : '')} onClick={() => setCiclo('anual')}>
-              Anual <span className="tm-toggle-tag">2 meses grátis</span>
+              {t('teams_anual')} <span className="tm-toggle-tag">{t('teams_2meses')}</span>
             </button>
           </div>
 
@@ -106,65 +107,65 @@ export default function Teams() {
               onClick={() => setPlano('pro')}
             >
               <div className="tm-plano-nome">Pro</div>
-              <div className="tm-plano-desc">20.000 créditos por assento / mês</div>
-              <div className="tm-plano-preco">{brl(ciclo === 'anual' ? 2970 : 297)}<span>/assento{ciclo === 'anual' ? '/ano' : ''}</span></div>
+              <div className="tm-plano-desc">{t('teams_pro_desc')}</div>
+              <div className="tm-plano-preco">{brl(ciclo === 'anual' ? 2970 : 297)}<span>{t('teams_por_assento')}{ciclo === 'anual' ? t('teams_por_ano') : ''}</span></div>
             </button>
             <button
               className={'tm-plano' + (plano === 'studio' ? ' ativo' : '')}
               onClick={() => setPlano('studio')}
             >
               <div className="tm-plano-nome">Studio</div>
-              <div className="tm-plano-desc">60.000 créditos por assento / mês</div>
-              <div className="tm-plano-preco">{brl(ciclo === 'anual' ? 6970 : 697)}<span>/assento{ciclo === 'anual' ? '/ano' : ''}</span></div>
+              <div className="tm-plano-desc">{t('teams_studio_desc')}</div>
+              <div className="tm-plano-preco">{brl(ciclo === 'anual' ? 6970 : 697)}<span>{t('teams_por_assento')}{ciclo === 'anual' ? t('teams_por_ano') : ''}</span></div>
             </button>
           </div>
 
           <div className="tm-card">
             <div className="tm-linha">
               <div>
-                <div className="tm-lbl">Assentos</div>
-                <div className="tm-sub">Mínimo de 2. Você pode ajustar depois.</div>
+                <div className="tm-lbl">{t('teams_assentos_tit')}</div>
+                <div className="tm-sub">{t('teams_assentos_sub')}</div>
               </div>
               <div className="tm-stepper">
-                <button onClick={() => mudarAssentos(-1)} disabled={assentos <= 2} aria-label="Menos um assento">−</button>
+                <button onClick={() => mudarAssentos(-1)} disabled={assentos <= 2} aria-label={t('teams_menos')}>−</button>
                 <span className="tm-qtd">{assentos}</span>
-                <button onClick={() => mudarAssentos(1)} disabled={assentos >= 100} aria-label="Mais um assento">+</button>
+                <button onClick={() => mudarAssentos(1)} disabled={assentos >= 100} aria-label={t('teams_mais')}>+</button>
               </div>
             </div>
 
             <div className="tm-resumo">
               <div className="tm-resumo-linha">
-                <span>Preço por assento</span>
-                <span>{brl(calc.porAssento)} <small>({Math.round(calc.desconto * 100)}% off)</small></span>
+                <span>{t('teams_preco_assento')}</span>
+                <span>{brl(calc.porAssento)} <small>({Math.round(calc.desconto * 100)}% {t('teams_off_l')})</small></span>
               </div>
               <div className="tm-resumo-linha">
-                <span>{assentos} assentos</span>
-                <span>{brl(calc.total)}<small>/{ciclo === 'anual' ? 'ano' : 'mês'}</small></span>
+                <span>{assentos} {t('teams_assentos_l')}</span>
+                <span>{brl(calc.total)}<small>/{ciclo === 'anual' ? t('teams_ano_l') : t('teams_mes_l')}</small></span>
               </div>
               {calc.economia > 0 && (
                 <div className="tm-resumo-linha tm-economia">
-                  <span>Você economiza</span>
-                  <span>{brl(calc.economia)}/{ciclo === 'anual' ? 'ano' : 'mês'}</span>
+                  <span>{t('teams_economiza')}</span>
+                  <span>{brl(calc.economia)}/{ciclo === 'anual' ? t('teams_ano_l') : t('teams_mes_l')}</span>
                 </div>
               )}
             </div>
 
             <button className="btn btn--verde" style={{ width: '100%', marginTop: 20, padding: '13px' }} onClick={clicarAssinar}>
-              Assinar equipe — {brl(calc.total)}/{ciclo === 'anual' ? 'ano' : 'mês'}
+              {t('teams_assinar_equipe')} — {brl(calc.total)}/{ciclo === 'anual' ? t('teams_ano_l') : t('teams_mes_l')}
             </button>
             {erro && <p className="tm-erro">{erro}</p>}
             <p className="tm-obs">
-              Ao assinar, você faz login (ou cria uma conta) e informa o CPF. Depois é só convidar as pessoas por email.
+              {t('teams_obs')}
             </p>
           </div>
 
           <div className="tm-faixas">
-            <div className="tm-faixas-tit">Descontos por quantidade</div>
+            <div className="tm-faixas-tit">{t('teams_faixas_tit')}</div>
             <div className="tm-faixas-grid">
-              {[['2 assentos', '5%'], ['3 a 4', '10%'], ['5 a 9', '15%'], ['10 ou mais', '20%']].map((f, i) => (
+              {[['teams_fx1', '5%'], ['pl_seat_3', '10%'], ['pl_seat_5', '15%'], ['pl_seat_10', '20%']].map((f, i) => (
                 <div key={i} className={'tm-faixa' + (descontoAssentos(assentos) === [0.05, 0.10, 0.15, 0.20][i] ? ' ativa' : '')}>
-                  <div className="tm-faixa-q">{f[0]}</div>
-                  <div className="tm-faixa-d">{f[1]} off</div>
+                  <div className="tm-faixa-q">{t(f[0])}</div>
+                  <div className="tm-faixa-d">{f[1]} {t('teams_off_l')}</div>
                 </div>
               ))}
             </div>
@@ -175,9 +176,9 @@ export default function Teams() {
       {modalCpf && (
         <div className="foto-overlay" onClick={() => setModalCpf(false)}>
           <div className="modal-cpf" onClick={(e) => e.stopPropagation()}>
-            <div className="foto-titulo">Informe seu CPF</div>
+            <div className="foto-titulo">{t('teams_cpf_titulo')}</div>
             <p className="tm-sub" style={{ marginBottom: 14 }}>
-              Precisamos do CPF para emitir a nota fiscal da assinatura.
+              {t('teams_cpf_desc')}
             </p>
             <input
               className="tm-input"
@@ -188,9 +189,9 @@ export default function Teams() {
             />
             {cpfErro && <p className="tm-erro">{cpfErro}</p>}
             <button className="btn btn--verde" style={{ width: '100%', marginTop: 16, padding: '12px' }} onClick={confirmarCpf} disabled={salvandoCpf}>
-              {salvandoCpf ? 'Salvando...' : 'Continuar'}
+              {salvandoCpf ? t('comum_salvando') : t('confirma_btn_continuar')}
             </button>
-            <div className="foto-cancelar" onClick={() => setModalCpf(false)} style={{ marginTop: 12 }}>Cancelar</div>
+            <div className="foto-cancelar" onClick={() => setModalCpf(false)} style={{ marginTop: 12 }}>{t('comum_cancelar')}</div>
           </div>
         </div>
       )}

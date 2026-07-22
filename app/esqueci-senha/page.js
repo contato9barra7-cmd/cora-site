@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { esqueciSenha } from '../../lib/auth';
+import { useIdioma } from '../../lib/i18n';
 
 export default function EsqueciSenha() {
+  const { t } = useIdioma();
   const [email, setEmail] = useState('');
   const [erro, setErro] = useState('');
   const [enviado, setEnviado] = useState(false);
@@ -12,7 +14,7 @@ export default function EsqueciSenha() {
 
   async function enviar() {
     setErro('');
-    if (!email || !email.includes('@')) { setErro('Digite um email válido.'); return; }
+    if (!email || !email.includes('@')) { setErro(t('esq_email_valido')); return; }
     setCarregando(true);
     try {
       await esqueciSenha(email);
@@ -31,32 +33,31 @@ export default function EsqueciSenha() {
 
         {enviado ? (
           <>
-            <h1 className="login-titulo">Verifique seu email</h1>
+            <h1 className="login-titulo">{t('esq_verifique')}</h1>
             <p className="login-sub">
-              Se existir uma conta com <strong>{email}</strong>, enviamos um link para você criar uma nova senha.
-              O link vale por 1 hora.
+              {t('esq_enviado1')} <strong>{email}</strong>{t('esq_enviado2')}
             </p>
             <p className="login-sub" style={{ marginTop: 16 }}>
-              Não recebeu? Confira a caixa de spam ou{' '}
+              {t('esq_nao_recebeu')}{' '}
               <button
                 className="link-inline"
                 onClick={() => { setEnviado(false); }}
               >
-                tente outro email
+                {t('esq_tente_outro')}
               </button>.
             </p>
             <p className="login-rodape" style={{ marginTop: 22 }}>
-              <Link href="/login">Voltar para o login</Link>
+              <Link href="/login">{t('esq_voltar_login')}</Link>
             </p>
           </>
         ) : (
           <>
-            <h1 className="login-titulo">Esqueci minha senha</h1>
-            <p className="login-sub">Digite seu email e enviaremos um link para criar uma nova senha.</p>
+            <h1 className="login-titulo">{t('login_esqueci')}</h1>
+            <p className="login-sub">{t('esq_sub')}</p>
 
-            <label className="login-label">E-mail</label>
+            <label className="login-label">{t('login_email')}</label>
             <input
-              className="login-input" type="email" placeholder="voce@email.com"
+              className="login-input" type="email" placeholder={t('login_ph_email')}
               value={email} onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && enviar()}
             />
@@ -64,11 +65,11 @@ export default function EsqueciSenha() {
             {erro && <p className="login-erro">{erro}</p>}
 
             <button className="btn btn--roxo" style={{ marginTop: 18 }} onClick={enviar} disabled={carregando}>
-              {carregando ? 'Enviando...' : 'Enviar link'}
+              {carregando ? t('esq_enviando') : t('esq_enviar_link')}
             </button>
 
             <p className="login-rodape">
-              Lembrou a senha? <Link href="/login">Entrar</Link>
+              {t('esq_lembrou')} <Link href="/login">{t('login_entrar')}</Link>
             </p>
           </>
         )}

@@ -3,26 +3,27 @@
 import { useEffect, useState, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppShell from '../../components/AppShell';
+import { useIdioma, localeDeIdioma } from '../../lib/i18n';
 import { lerConta, lerEquipe, convidarMembro, removerMembro, atribuirAMim, dispositivosDoMembro, nomearEquipe, reenviarConvite, salvarFotoEquipe } from '../../lib/auth';
 
 const NOME_PLANO = { pro: 'Pro', studio: 'Studio' };
 
-function GrupoDisp({ titulo, lista, max }) {
+function GrupoDisp({ titulo, lista, max, t, locale }) {
   return (
     <div className="disp-grupo">
       <div className="disp-grupo-tit">{titulo} <span className="disp-contagem">{lista.length}/{max}</span></div>
       {lista.length === 0 ? (
-        <p className="ws-obs" style={{ marginTop: 0 }}>Nenhum dispositivo conectado.</p>
+        <p className="ws-obs" style={{ marginTop: 0 }}>{t('ws_nenhum_disp')}</p>
       ) : (
         <div className="disp-lista">
           {lista.map((d) => (
             <div key={d.id} className="disp-item">
               <div>
                 <div className="disp-nome">
-                  {d.nome_pc || 'Dispositivo'}
-                  {d.ativo_agora && <span className="disp-ativo">Em uso agora</span>}
+                  {d.nome_pc || t('ws_dispositivo')}
+                  {d.ativo_agora && <span className="disp-ativo">{t('ws_em_uso')}</span>}
                 </div>
-                <div className="disp-sub">Último acesso: {d.ultimo_acesso ? new Date(d.ultimo_acesso).toLocaleString('pt-BR') : '—'}</div>
+                <div className="disp-sub">{t('ws_ultimo_acesso')} {d.ultimo_acesso ? new Date(d.ultimo_acesso).toLocaleString(locale) : '—'}</div>
               </div>
             </div>
           ))}
@@ -35,6 +36,8 @@ function GrupoDisp({ titulo, lista, max }) {
 function WorkspaceConteudo() {
   const router = useRouter();
   const params = useSearchParams();
+  const { t, idioma } = useIdioma();
+  const locale = localeDeIdioma(idioma);
   const [carregando, setCarregando] = useState(true);
   const [equipe, setEquipe] = useState(null);
   const [membros, setMembros] = useState([]);
@@ -156,7 +159,7 @@ function WorkspaceConteudo() {
     setSalvandoNome(true); setErro(''); setAvisoNome('');
     try {
       await nomearEquipe(nomeEquipe);
-      setAvisoNome('Alterações salvas.');
+      setAvisoNome(t('ws_salvo'));
       setTimeout(() => setAvisoNome(''), 4000);
     } catch (e) { setErro(e.message); }
     finally { setSalvandoNome(false); }
@@ -164,11 +167,11 @@ function WorkspaceConteudo() {
 
   async function convidar() {
     setErro(''); setAviso('');
-    if (!email.includes('@')) { setErro('Digite um email válido.'); return; }
+    if (!email.includes('@')) { setErro(t('ws_email_invalido')); return; }
     setConvidando(true);
     try {
       await convidarMembro(email);
-      setAviso('Convite enviado para ' + email);
+      setAviso(t('ws_convite_enviado_para') + ' ' + email);
       setEmail('');
       await carregar();
     } catch (e) { setErro(e.message); }
@@ -178,11 +181,11 @@ function WorkspaceConteudo() {
   async function convidarSlot(idx) {
     setErro(''); setAviso('');
     const em = (emailsSlot[idx] || '').trim();
-    if (!em.includes('@')) { setErro('Digite um email válido.'); return; }
+    if (!em.includes('@')) { setErro(t('ws_email_invalido')); return; }
     setConvidandoSlot(idx);
     try {
       await convidarMembro(em);
-      setAviso('Convite enviado para ' + em);
+      setAviso(t('ws_convite_enviado_para') + ' ' + em);
       setEmailsSlot((s) => { const n = { ...s }; delete n[idx]; return n; });
       await carregar();
     } catch (e) { setErro(e.message); }
@@ -190,7 +193,7 @@ function WorkspaceConteudo() {
   }
 
   async function remover(id) {
-    if (!confirm('Remover esta pessoa da equipe? O assento será liberado.')) return;
+    if (!confirm(t('ws_conf_remover'))) return;
     setErro('');
     try { await removerMembro(id); setExpandido(null); await carregar(); }
     catch (e) { setErro(e.message); }
@@ -198,7 +201,7 @@ function WorkspaceConteudo() {
 
   async function reenviar(id) {
     setErro(''); setAviso('');
-    try { await reenviarConvite(id); setAviso('Convite reenviado.'); }
+    try { await reenviarConvite(id); setAviso(t('ws_convite_reenviado')); }
     catch (e) { setErro(e.message); }
   }
 
@@ -221,17 +224,17 @@ function WorkspaceConteudo() {
     }
   }
 
-  if (carregando) return <div className="admin-wrap"><p>Carregando...</p></div>;
+  if (carregando) return <div className="admin-wrap"><p>{t('comum_carregando')}</p></div>;
 
   if (!equipe) {
     return (
       <div className="admin-wrap">
-        <h1 className="conta-ola">Sua equipe</h1>
+        <h1 className="conta-ola">{t('ws_sua_equipe')}</h1>
         <div className="conta-card">
-          <h2 className="conta-h2">Você ainda não tem uma equipe</h2>
-          <p className="conta-p">Monte uma equipe para adicionar pessoas com faturamento único e desconto por assento.</p>
+          <h2 className="conta-h2">{t('ws_sem_equipe_h')}</h2>
+          <p className="conta-p">{t('ws_sem_equipe_p')}</p>
           <button className="btn btn--verde" style={{ width: 'auto', marginTop: 14, padding: '11px 24px' }} onClick={() => router.push('/teams')}>
-            Criar equipe
+            {t('ws_criar_equipe')}
           </button>
         </div>
       </div>
@@ -244,22 +247,20 @@ function WorkspaceConteudo() {
 
   return (
     <div className="admin-wrap">
-      <h1 className="conta-ola">Sua equipe</h1>
+      <h1 className="conta-ola">{t('ws_sua_equipe')}</h1>
 
       {criada && (
         <div className="conta-card" style={{ borderColor: 'var(--roxo)' }}>
-          <h2 className="conta-h2">Equipe criada com sucesso</h2>
-          <p className="conta-p">Sua assinatura está ativa. Agora dê um nome à equipe e convide as pessoas por email.</p>
+          <h2 className="conta-h2">{t('ws_criada_h')}</h2>
+          <p className="conta-p">{t('ws_criada_p')}</p>
         </div>
       )}
 
-      <div className="conta-card ws-aviso-download">
-        O download do plugin fica na aba <strong>Dashboard</strong>.
-      </div>
+      <div className="conta-card ws-aviso-download" dangerouslySetInnerHTML={{ __html: t('ws_aviso_download') }} />
 
       {/* Foto e nome da equipe */}
       <div className="conta-card">
-        <h2 className="conta-h2">Identidade da equipe</h2>
+        <h2 className="conta-h2">{t('ws_identidade')}</h2>
         <div className="ws-identidade">
           <div className="perfil-avatar-box">
             <span
@@ -268,22 +269,22 @@ function WorkspaceConteudo() {
             >
               {foto ? '' : (nomeEquipe || 'E').charAt(0).toUpperCase()}
             </span>
-            <button className="perfil-avatar-editar" onClick={abrirSeletorFoto} title="Trocar foto" aria-label="Trocar foto">
+            <button className="perfil-avatar-editar" onClick={abrirSeletorFoto} title={t('ws_trocar_foto')} aria-label={t('ws_trocar_foto')}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
               </svg>
             </button>
             {foto && (
-              <button className="perfil-avatar-x" onClick={removerFotoEquipe} title="Remover foto" aria-label="Remover foto">×</button>
+              <button className="perfil-avatar-x" onClick={removerFotoEquipe} title={t('ws_remover_foto')} aria-label={t('ws_remover_foto')}>×</button>
             )}
             <input ref={inputFotoRef} type="file" accept="image/*" onChange={aoSelecionarFoto} style={{ display: 'none' }} />
           </div>
           <div style={{ flex: 1 }}>
-            <p className="ws-obs" style={{ marginTop: 0, marginBottom: 10 }}>Nome e foto aparecem para as pessoas convidadas.</p>
+            <p className="ws-obs" style={{ marginTop: 0, marginBottom: 10 }}>{t('ws_nome_foto_hint')}</p>
             <div className="ws-linha-input">
-              <input className="ws-input" value={nomeEquipe} onChange={(e) => setNomeEquipe(e.target.value)} placeholder="Nome da sua equipe" maxLength={60} />
+              <input className="ws-input" value={nomeEquipe} onChange={(e) => setNomeEquipe(e.target.value)} placeholder={t('ws_nome_ph')} maxLength={60} />
               <button className="btn btn--verde ws-btn" onClick={salvarNome} disabled={salvandoNome}>
-                {salvandoNome ? 'Salvando...' : 'Salvar'}
+                {salvandoNome ? t('comum_salvando') : t('ws_salvar')}
               </button>
             </div>
             {avisoNome && <div className="conta-aviso" style={{ marginTop: 12 }}>{avisoNome}</div>}
@@ -294,8 +295,8 @@ function WorkspaceConteudo() {
       {modalFoto && (
         <div className="foto-overlay" onClick={() => setModalFoto(false)}>
           <div className="foto-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="foto-titulo">Foto da equipe</div>
-            <div className="foto-orient">Proporção 1:1 · recomendado 400×400px. Arraste e use o zoom para enquadrar.</div>
+            <div className="foto-titulo">{t('ws_foto_titulo')}</div>
+            <div className="foto-orient">{t('ws_foto_orient')}</div>
             <div className="foto-crop" onPointerDown={dragStart} onPointerMove={dragMove} onPointerUp={dragEnd}>
               <canvas ref={canvasRef} width={260} height={260} style={{ display: 'block' }} />
             </div>
@@ -305,12 +306,12 @@ function WorkspaceConteudo() {
               <span>+</span>
             </div>
             <div className="foto-botoes">
-              <button className="foto-btn-outra" onClick={abrirSeletorFoto}>Escolher outra</button>
+              <button className="foto-btn-outra" onClick={abrirSeletorFoto}>{t('ws_escolher_outra')}</button>
               <button className="foto-btn-salvar" onClick={salvarFotoRecortada} disabled={salvandoFoto}>
-                {salvandoFoto ? 'Salvando...' : 'Salvar'}
+                {salvandoFoto ? t('comum_salvando') : t('ws_salvar')}
               </button>
             </div>
-            <div className="foto-cancelar" onClick={() => setModalFoto(false)}>Cancelar</div>
+            <div className="foto-cancelar" onClick={() => setModalFoto(false)}>{t('comum_cancelar')}</div>
           </div>
         </div>
       )}
@@ -319,10 +320,10 @@ function WorkspaceConteudo() {
       <div className="conta-card">
         <div className="ws-topo">
           <div>
-            <div className="ws-plano">Plano {NOME_PLANO[equipe.plano] || equipe.plano}</div>
-            <div className="ws-assentos">{membros.length} de {equipe.assentos} assentos ocupados</div>
+            <div className="ws-plano">{t('ws_plano')} {NOME_PLANO[equipe.plano] || equipe.plano}</div>
+            <div className="ws-assentos">{membros.length} {t('ws_de')} {equipe.assentos} {t('ws_assentos_ocupados')}</div>
           </div>
-          <div className="ws-badge">{livres} {livres === 1 ? 'assento livre' : 'assentos livres'}</div>
+          <div className="ws-badge">{livres} {livres === 1 ? t('ws_assento_livre') : t('ws_assentos_livres')}</div>
         </div>
         {erro && <p className="tm-erro" style={{ textAlign: 'left', marginBottom: 0 }}>{erro}</p>}
         {aviso && <p className="ws-aviso-txt">{aviso}</p>}
@@ -330,7 +331,7 @@ function WorkspaceConteudo() {
 
       {/* Assentos */}
       <div className="conta-card">
-        <h2 className="conta-h2">Assentos</h2>
+        <h2 className="conta-h2">{t('teams_assentos_tit')}</h2>
 
         {membros.map((m) => (
           <div key={m.id} className="ws-slot">
@@ -348,9 +349,9 @@ function WorkspaceConteudo() {
               </span>
               <div className="disp-nome">
                 {m.email}
-                {m.eh_dono && <span className="ws-tag ws-tag-dono">Você · proprietário</span>}
-                {m.status === 'convidado' && <span className="ws-tag ws-tag-pend">Convite pendente</span>}
-                {m.status === 'ativo' && !m.eh_dono && <span className="ws-tag ws-tag-ativo">Ativo</span>}
+                {m.eh_dono && <span className="ws-tag ws-tag-dono">{t('ws_dono')}</span>}
+                {m.status === 'convidado' && <span className="ws-tag ws-tag-pend">{t('ws_convite_pendente')}</span>}
+                {m.status === 'ativo' && !m.eh_dono && <span className="ws-tag ws-tag-ativo">{t('ws_ativo')}</span>}
               </div>
               <div className="ws-slot-dir">
                 {m.status === 'ativo' && m.creditos_total != null && (() => {
@@ -366,13 +367,13 @@ function WorkspaceConteudo() {
                           strokeLinecap="round" transform="rotate(-90 18 18)" />
                       </svg>
                       <div className="ws-anel-txt">
-                        {rest.toLocaleString('pt-BR')}<br /><span>de {(m.creditos_total || 0).toLocaleString('pt-BR')}</span>
+                        {rest.toLocaleString(locale)}<br /><span>{t('ws_de')} {(m.creditos_total || 0).toLocaleString(locale)}</span>
                       </div>
                     </div>
                   );
                 })()}
                 <button className="ws-gerenciar" onClick={() => toggleGerenciar(m)}>
-                  {expandido === m.id ? 'Fechar' : 'Gerenciar'}
+                  {expandido === m.id ? t('ws_fechar') : t('ws_gerenciar')}
                 </button>
               </div>
             </div>
@@ -380,16 +381,16 @@ function WorkspaceConteudo() {
             {expandido === m.id && (
               <div className="ws-detalhe">
                 {m.status === 'convidado' ? (
-                  <p className="ws-obs" style={{ marginTop: 0 }}>O convite ainda não foi aceito. Os dispositivos aparecerão quando a pessoa ativar o acesso.</p>
+                  <p className="ws-obs" style={{ marginTop: 0 }}>{t('ws_convite_nao_aceito')}</p>
                 ) : (
                   <>
-                    <div className="ws-disp-tit">Dispositivos (uso de um por vez)</div>
+                    <div className="ws-disp-tit">{t('ws_disp_tit')}</div>
                     {!dispositivos[m.id] ? (
-                      <p className="ws-obs" style={{ marginTop: 0 }}>Carregando...</p>
+                      <p className="ws-obs" style={{ marginTop: 0 }}>{t('comum_carregando')}</p>
                     ) : (
                       <>
-                        <GrupoDisp titulo="Plugin (SketchUp)" lista={(dispositivos[m.id] || []).filter((d) => (d.tipo || 'plugin') !== 'web')} max={2} />
-                        <GrupoDisp titulo="Versão web" lista={(dispositivos[m.id] || []).filter((d) => d.tipo === 'web')} max={3} />
+                        <GrupoDisp titulo={t('ws_disp_plugin')} lista={(dispositivos[m.id] || []).filter((d) => (d.tipo || 'plugin') !== 'web')} max={2} t={t} locale={locale} />
+                        <GrupoDisp titulo={t('ws_disp_web')} lista={(dispositivos[m.id] || []).filter((d) => d.tipo === 'web')} max={3} t={t} locale={locale} />
                       </>
                     )}
                   </>
@@ -397,12 +398,12 @@ function WorkspaceConteudo() {
 
                 <div className="ws-acoes">
                   {!m.eh_dono && m.status === 'convidado' && (
-                    <button className="ws-btn-sec" onClick={() => reenviar(m.id)}>Reenviar acesso</button>
+                    <button className="ws-btn-sec" onClick={() => reenviar(m.id)}>{t('ws_reenviar_acesso')}</button>
                   )}
                   {m.eh_dono ? (
-                    <button className="ws-remover" onClick={() => remover(m.id)}>Liberar meu assento</button>
+                    <button className="ws-remover" onClick={() => remover(m.id)}>{t('ws_liberar_assento')}</button>
                   ) : (
-                    <button className="ws-remover" onClick={() => remover(m.id)}>Remover acesso</button>
+                    <button className="ws-remover" onClick={() => remover(m.id)}>{t('ws_remover_acesso')}</button>
                   )}
                 </div>
               </div>
@@ -431,16 +432,16 @@ function WorkspaceConteudo() {
                   onKeyDown={(e) => { if (e.key === 'Enter') convidarSlot(i); }}
                 />
                 <button className="btn btn--verde ws-btn" onClick={() => convidarSlot(i)} disabled={convidandoSlot === i}>
-                  {convidandoSlot === i ? 'Enviando...' : 'Convidar'}
+                  {convidandoSlot === i ? t('ws_enviando') : t('ws_convidar')}
                 </button>
               </div>
             </div>
             <div className="ws-slot-atribuir">
               <span className="ws-vazio-hint">
-                Assento livre — você já está pagando por ele
+                {t('ws_assento_livre_hint')}
               </span>
               {!donoNaEquipe && i === 0 && (
-                <button className="ws-atribuir" onClick={atribuir}>Atribuir a mim</button>
+                <button className="ws-atribuir" onClick={atribuir}>{t('ws_atribuir_mim')}</button>
               )}
             </div>
           </div>
@@ -451,9 +452,10 @@ function WorkspaceConteudo() {
 }
 
 export default function Workspace() {
+  const { t } = useIdioma();
   return (
     <AppShell>
-      <Suspense fallback={<div className="admin-wrap"><p>Carregando...</p></div>}>
+      <Suspense fallback={<div className="admin-wrap"><p>{t('comum_carregando')}</p></div>}>
         <WorkspaceConteudo />
       </Suspense>
     </AppShell>

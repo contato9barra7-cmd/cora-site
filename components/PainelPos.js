@@ -17,7 +17,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useIdioma } from '../lib/i18n';
+import { useIdioma, tOpt } from '../lib/i18n';
 import PickerImagem from './PickerImagem';
 import Dica from './Dica';
 import JanelaAjustes from './JanelaAjustes';
@@ -3147,7 +3147,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                 disabled={!ativa}
                 onChange={(e) => mudar(ativa.id, { blend: e.target.value })}
               >
-                {BLENDS.map((b) => <option key={b.val} value={b.val}>{b.rotulo}</option>)}
+                {BLENDS.map((b) => <option key={b.val} value={b.val}>{tOpt(b.rotulo)}</option>)}
               </select>
             </div>
 

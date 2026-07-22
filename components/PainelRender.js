@@ -20,7 +20,7 @@ import IconeCredito from './IconeCredito';
 import Seta from './Seta';
 import CampoRefs from './CampoRefs';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
-import { useIdioma, localeDeIdioma } from '../lib/i18n';
+import { useIdioma, localeDeIdioma, tOpt } from '../lib/i18n';
 import {
   gerarRender, lerMateriais, custoRender, CREDITOS,
   TIPOS, PROPORCOES, LUZ_TIPOS, MOODS, DIRECOES,
@@ -377,7 +377,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               key={tp.val}
               className={'cr-b' + (tipo === tp.val ? ' cr-b--on' : '')}
               onClick={() => setTipo(tp.val)}
-            >{tp.rotulo}</button>
+            >{tOpt(tp.rotulo)}</button>
           ))}
         </div>
 
@@ -454,20 +454,20 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               key={l.val}
               className={'cr-b' + (luzTipo === l.val ? ' cr-b--on' : '')}
               onClick={() => setLuzTipo(l.val)}
-            >{l.rotulo}</button>
+            >{tOpt(l.rotulo)}</button>
           ))}
         </div>
 
         {MOODS.map((g) => (
           <div key={g.grupo}>
-            <div className="cr-grp">{g.grupo}</div>
+            <div className="cr-grp">{tOpt(g.grupo)}</div>
             <div className="cr-g2">
               {g.itens.map((m) => (
                 <button
                   key={m}
                   className={'cr-b' + (mood === m ? ' cr-b--on' : '')}
                   onClick={() => setMood(m)}
-                >{m}</button>
+                >{tOpt(m)}</button>
               ))}
             </div>
           </div>
@@ -489,7 +489,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               key={d}
               className={'cr-b' + (direcoes.includes(d) ? ' cr-b--on' : '')}
               onClick={() => toggle(direcoes, setDirecoes, d)}
-            >{d}</button>
+            >{tOpt(d)}</button>
           ))}
         </div>
         <textarea
@@ -510,7 +510,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               key={c}
               className={'cr-b' + (corLuz === c ? ' cr-b--on' : '')}
               onClick={() => setCorLuz(c)}
-            >{c}</button>
+            >{tOpt(c)}</button>
           ))}
         </div>
 
@@ -523,7 +523,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
                   key={i}
                   className={'cr-b' + (intensidade === i ? ' cr-b--on' : '')}
                   onClick={() => setIntensidade(i)}
-                >{i}</button>
+                >{tOpt(i)}</button>
               ))}
             </div>
             <textarea
@@ -544,7 +544,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               key={e}
               className={'cr-b' + (tagsEntorno.includes(e) ? ' cr-b--on' : '')}
               onClick={() => toggle(tagsEntorno, setTagsEntorno, e)}
-            >{e}</button>
+            >{tOpt(e)}</button>
           ))}
         </div>
         <textarea

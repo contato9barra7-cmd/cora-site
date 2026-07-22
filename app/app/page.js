@@ -33,6 +33,7 @@ import ModalDownload from '../../components/ModalDownload';
 import ModalDetalhes from '../../components/ModalDetalhes';
 import { lerConta, creditosMudaram } from '../../lib/auth';
 import { gerarGenerativa } from '../../lib/render';
+import { useIdioma, tOpt } from '../../lib/i18n';
 
 import {
   listarGeracoes, alternarFavorito, alternarAprovado, apagarGeracao,
@@ -155,7 +156,7 @@ function agruparPorMes(lotes) {
     const chave = `${d.getFullYear()}-${d.getMonth()}`;
 
     if (!indice.has(chave)) {
-      const g = { chave, titulo: `${MESES[d.getMonth()]} ${d.getFullYear()}`, itens: [] };
+      const g = { chave, mes: MESES[d.getMonth()], ano: d.getFullYear(), itens: [] };
       indice.set(chave, g);
       grupos.push(g);
     }
@@ -167,6 +168,7 @@ function agruparPorMes(lotes) {
 
 export default function AppPage() {
   const router = useRouter();
+  const { t } = useIdioma();
   const [conta, setConta] = useState(null);
 
   const [lotes, setLotes]           = useState([]);
@@ -195,7 +197,7 @@ export default function AppPage() {
   const [upsAtivos, setUpsAtivos] = useState([]);   // [{ id, base, rotulo, proporcao }]
   function iniciarGeracaoAtiva(base, rotulo, proporcao, loteId) {
     const id = 'ger_ativo_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-    setUpsAtivos((l) => [...l, { id, base, rotulo: rotulo || 'Gerando', proporcao: proporcao || null, loteId: loteId || null }]);
+    setUpsAtivos((l) => [...l, { id, base, rotulo: rotulo || t('app_gerando'), proporcao: proporcao || null, loteId: loteId || null }]);
     return id;
   }
   function terminarGeracaoAtiva(id) {
@@ -337,7 +339,7 @@ export default function AppPage() {
       URL.revokeObjectURL(url);
       sairDaSelecao();
     } catch (e) {
-      setErro('Não foi possível gerar o zip: ' + e.message);
+      setErro(t('app_gerar_zip_erro') + e.message);
     } finally {
       setBaixandoZip(false);
     }
@@ -382,8 +384,8 @@ export default function AppPage() {
     // Valida ANTES de sair: o erro precisa de uma tela onde aparecer.
     if (!pronto) {
       throw new Error(modo === 'expansao'
-        ? 'Arraste as bordas para definir a área a criar'
-        : 'Pinte a área que você quer trocar');
+        ? t('app_expansao_instrucao')
+        : t('app_preenchimento_instrucao'));
     }
 
     // A base viaja para o slot: assim o "gerando" mostra a imagem desfocada
@@ -423,7 +425,7 @@ export default function AppPage() {
 
     } catch (e) {
       // O pincel já fechou: o erro aparece no feed, como o das outras abas.
-      setErro('Não foi possível gerar: ' + e.message);
+      setErro(t('app_gerar_erro') + e.message);
 
     } finally {
       setOcupado(false);
@@ -741,7 +743,7 @@ export default function AppPage() {
 
       setFerramenta(ferrDestino);
     } catch (e) {
-      setErro('Não foi possível carregar a imagem: ' + e.message);
+      setErro(t('app_carregar_imagem_erro') + e.message);
     }
   }
 
@@ -775,7 +777,7 @@ export default function AppPage() {
         await substituirGeracao(gid, b64);
         recarregarComFolga();
       } catch (e) {
-        setErro('Não foi possível substituir a imagem: ' + e.message);
+        setErro(t('app_substituir_imagem_erro') + e.message);
       }
       return;
     }
@@ -810,7 +812,7 @@ export default function AppPage() {
   const abasBloqueadas = ABAS.filter((a) => abaBloqueada(a.id)).map((a) => a.id);
   function trocarAba(id) {
     if (abaBloqueada(id)) {
-      const rot = (ABAS.find((a) => a.id === id) || {}).rotulo || '';
+      const rot = tOpt((ABAS.find((a) => a.id === id) || {}).rotulo || '');
       window.dispatchEvent(new CustomEvent('cora:sem-acesso', { detail: { recurso: rot } }));
       return;
     }
@@ -899,7 +901,7 @@ export default function AppPage() {
               razão para prender a pessoa aqui. Ela pode trocar de aba e
               preparar o próximo trabalho enquanto este sai. */}
           <Trilho
-            abas={ABAS}
+            abas={ABAS.map((a) => ({ ...a, rotulo: tOpt(a.rotulo) }))}
             ativa={ferramenta}
             onTrocar={trocarAba}
             bloqueadas={abasBloqueadas}
@@ -1001,10 +1003,10 @@ export default function AppPage() {
               onNav={setNavAnimacao}
               onEnviarBase64={enviarBase64Para}
               imgEditadaPos={posImgEditada}
-              onIniciar={(base, prop) => iniciarGeracaoAtiva(base, 'Gerando animação', prop)}
+              onIniciar={(base, prop) => iniciarGeracaoAtiva(base, t('app_gerando_animacao'), prop)}
               onTerminar={(id) => { terminarGeracaoAtiva(id); recarregarComFolga(); }}
               onFeedAtualizar={() => recarregarComFolga()}
-              onEtapaIniciar={(base, prop, loteId) => iniciarGeracaoAtiva('data:image/png;base64,' + base, 'Gerando etapa', prop, loteId)}
+              onEtapaIniciar={(base, prop, loteId) => iniciarGeracaoAtiva('data:image/png;base64,' + base, t('app_gerando_etapa'), prop, loteId)}
               onEtapaTerminar={(id) => terminarGeracaoAtiva(id)}
               onEtapaPronta={(id, b64, ordem) => etapaProntaAtiva(id, b64, ordem)}
               onMostrarInicial={(base, prop) => mostrarInicialTimelapse('data:image/png;base64,' + base, prop)}
@@ -1020,7 +1022,7 @@ export default function AppPage() {
               imagemInicial={imagemDeOutraAba?.para === 'upscale' ? imagemDeOutraAba : null}
               ehAdmin={ehAdmin}
               ehTelaCheia={false}
-              onIniciar={(base, prop) => iniciarGeracaoAtiva(base, 'Fazendo upscale', prop)}
+              onIniciar={(base, prop) => iniciarGeracaoAtiva(base, t('app_fazendo_upscale'), prop)}
               onTerminar={(id) => { terminarGeracaoAtiva(id); recarregarComFolga(); }}
             />
           )}
@@ -1029,7 +1031,7 @@ export default function AppPage() {
            ferramenta !== 'editar' && ferramenta !== 'analises' &&
            ferramenta !== 'upscale' && ferramenta !== 'animacao' && (
             <div className="cr-painel-vazio">
-              <p>A aba {ferramenta} entra em breve.</p>
+              <p>{t('app_aba_prefixo')}{ferramenta}{t('app_aba_sufixo')}</p>
             </div>
           )}
         </aside>
@@ -1060,8 +1062,8 @@ export default function AppPage() {
                   key={f.id}
                   className={'cr-fbtn' + (filtro === f.id ? ' cr-fbtn--on' : '')}
                   onClick={() => setFiltro(f.id)}
-                  data-tip={f.rotulo}
-                  aria-label={f.rotulo}
+                  data-tip={tOpt(f.rotulo)}
+                  aria-label={tOpt(f.rotulo)}
                 >{f.icone}</button>
               ))}
             </div>
@@ -1071,8 +1073,8 @@ export default function AppPage() {
               <button
                 className={'cr-fbtn' + (modoAB ? ' cr-fbtn--on' : '')}
                 onClick={() => (modoAB ? sairAB() : setModoAB(true))}
-                data-tip="Comparar duas imagens"
-                aria-label="Comparar A/B"
+                data-tip={t('app_comparar_duas')}
+                aria-label={t('app_comparar_ab')}
               >
                 <span className="cr-ab-ico">A/B</span>
               </button>
@@ -1080,8 +1082,8 @@ export default function AppPage() {
               <button
                 className={'cr-fbtn' + (modoSelecao ? ' cr-fbtn--on' : '')}
                 onClick={() => (modoSelecao ? sairDaSelecao() : setModoSelecao(true))}
-                data-tip="Selecionar várias"
-                aria-label="Selecionar"
+                data-tip={t('app_selecionar_varias')}
+                aria-label={t('app_selecionar')}
               >
                 <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <rect x="3" y="3" width="14" height="14" rx="2.5"/><path d="M7 10l2.2 2.2L14 7" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1093,8 +1095,8 @@ export default function AppPage() {
                 <button
                   className={'cr-fbtn' + (layout === 'linha' ? ' cr-fbtn--on' : '')}
                   onClick={() => setLayout('linha')}
-                  data-tip="Lista"
-                  aria-label="Lista"
+                  data-tip={t('app_lista')}
+                  aria-label={t('app_lista')}
                 >
                   <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
                     <path d="M3 5h14M3 10h14M3 15h14" strokeLinecap="round"/>
@@ -1103,8 +1105,8 @@ export default function AppPage() {
                 <button
                   className={'cr-fbtn' + (layout === 'grade' ? ' cr-fbtn--on' : '')}
                   onClick={() => setLayout('grade')}
-                  data-tip="Grade"
-                  aria-label="Grade"
+                  data-tip={t('app_grade')}
+                  aria-label={t('app_grade')}
                 >
                   <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
                     <rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/>
@@ -1115,12 +1117,12 @@ export default function AppPage() {
 
               {/* Tamanho das miniaturas */}
               <div className="cr-tams">
-                {['p', 'm', 'g', 'gg'].map((t) => (
+                {['p', 'm', 'g', 'gg'].map((tt) => (
                   <button
-                    key={t}
-                    className={'cr-tam' + (tamanho === t ? ' cr-tam--on' : '')}
-                    onClick={() => setTamanho(t)}
-                  >{t.toUpperCase()}</button>
+                    key={tt}
+                    className={'cr-tam' + (tamanho === tt ? ' cr-tam--on' : '')}
+                    onClick={() => setTamanho(tt)}
+                  >{tt.toUpperCase()}</button>
                 ))}
               </div>
 
@@ -1129,8 +1131,8 @@ export default function AppPage() {
                 <button
                   className={'cr-fbtn' + (painelFiltros ? ' cr-fbtn--on' : '')}
                   onClick={() => setPainelFiltros((v) => !v)}
-                  data-tip="Filtros"
-                  aria-label="Filtros"
+                  data-tip={t('app_filtros')}
+                  aria-label={t('app_filtros')}
                 >
                   <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6">
                     <path d="M3 6h14M6 10h8M8 14h4" strokeLinecap="round"/>
@@ -1155,7 +1157,7 @@ export default function AppPage() {
                 </svg>
                 <input
                   type="text"
-                  placeholder="Buscar"
+                  placeholder={t('app_buscar')}
                   value={busca}
                   onChange={(e) => setBusca(e.target.value)}
                   spellCheck={false}
@@ -1180,8 +1182,8 @@ export default function AppPage() {
                       {lado ? (
                         <>
                           <img src={lado.thumb || lado.url} alt="" />
-                          <span>Imagem {letra}</span>
-                          <button onClick={limpar} aria-label={'Tirar a imagem ' + letra}>
+                          <span>{t('app_imagem')} {letra}</span>
+                          <button onClick={limpar} aria-label={t('app_tirar_imagem') + letra}>
                             <svg viewBox="0 0 20 20" width="13" height="13" fill="none"
                                  stroke="currentColor" strokeWidth="1.7">
                               <path d="M6 6l8 8M14 6l-8 8" strokeLinecap="round"/>
@@ -1193,7 +1195,7 @@ export default function AppPage() {
                           <b>{letra}</b>
                           <span>
                             {/* Só um dos dois é o próximo — o outro espera */}
-                            {(letra === 'A' || ladoA) ? 'Clique numa imagem' : 'Depois, a segunda'}
+                            {(letra === 'A' || ladoA) ? t('app_clique_numa_imagem') : t('app_depois_a_segunda')}
                           </span>
                         </>
                       )}
@@ -1202,7 +1204,7 @@ export default function AppPage() {
                 ))}
               </div>
 
-              <button className="cr-ab-sair" onClick={sairAB}>Cancelar</button>
+              <button className="cr-ab-sair" onClick={sairAB}>{t('comum_cancelar')}</button>
 
               <button
                 className="cr-ab-ver"
@@ -1213,7 +1215,7 @@ export default function AppPage() {
                   <rect x="1" y="1" width="5" height="12" rx="1" stroke="currentColor" strokeWidth="1.3"/>
                   <rect x="8" y="1" width="5" height="12" rx="1" stroke="currentColor" strokeWidth="1.3"/>
                 </svg>
-                Comparar
+                {t('app_comparar')}
               </button>
             </div>
           )}
@@ -1242,7 +1244,7 @@ export default function AppPage() {
                       <path d="M8 5.2v3.4" strokeLinecap="round"/>
                       <circle cx="8" cy="11" r=".7" fill="currentColor" stroke="none"/>
                     </svg>
-                    Se falhar, os créditos voltam automaticamente.
+                    {t('app_creditos_voltam_auto')}
                   </p>
                 )}
               </div>
@@ -1260,7 +1262,7 @@ export default function AppPage() {
                 {progresso.estado === 'na_fila' && (
                   <div className="cr-fila">
                     <span className="cr-spin" />
-                    <span>Há muito tráfego agora — isso pode demorar mais que o normal.</span>
+                    <span>{t('app_muito_trafego')}</span>
                   </div>
                 )}
 
@@ -1303,8 +1305,8 @@ export default function AppPage() {
                               </svg>
 
                               <div className="cr-erro-txt">
-                                <strong>Não foi possível gerar</strong>
-                                <span>Os créditos voltaram</span>
+                                <strong>{t('app_nao_foi_possivel_gerar')}</strong>
+                                <span>{t('app_creditos_voltaram')}</span>
                               </div>
 
                               <div className="cr-erro-btns">
@@ -1312,12 +1314,12 @@ export default function AppPage() {
                                   className="cr-erro-b"
                                   onClick={() => tentarDeNovo(i)}
                                   disabled={ocupado}
-                                >Tentar de novo</button>
+                                >{t('app_tentar_de_novo')}</button>
 
                                 <button
                                   className="cr-erro-x"
                                   onClick={() => descartarFalha(i)}
-                                  aria-label="Descartar"
+                                  aria-label={t('app_descartar')}
                                 >
                                   <svg viewBox="0 0 20 20" width="13" height="13" fill="none"
                                        stroke="currentColor" strokeWidth="1.5">
@@ -1343,8 +1345,8 @@ export default function AppPage() {
                           <span className="cr-slot-tag">
                             <span className="cr-spin cr-spin--claro" />
                             {progresso.total > 1
-                              ? `${progresso.feito + 1} de ${progresso.total}`
-                              : 'Gerando'}
+                              ? `${progresso.feito + 1} ${t('app_de')} ${progresso.total}`
+                              : t('app_gerando')}
                           </span>
                         )}
 
@@ -1367,21 +1369,21 @@ export default function AppPage() {
                       <path d="M8 5.2v3.4" strokeLinecap="round"/>
                       <circle cx="8" cy="11" r=".7" fill="currentColor" stroke="none"/>
                     </svg>
-                    Se falhar, os créditos voltam automaticamente.
+                    {t('app_creditos_voltam_auto')}
                   </p>
                 )}
               </div>
             )}
 
-            {carregando && <p className="cr-msg">Carregando...</p>}
+            {carregando && <p className="cr-msg">{t('comum_carregando')}</p>}
 
             {vazio && (
               <div className="cr-vazio">
-                <h2>Nada aqui ainda</h2>
+                <h2>{t('app_nada_aqui')}</h2>
                 <p>
                   {buscaAtiva || filtro !== 'tudo'
-                    ? 'Nenhuma geração corresponde a esse filtro.'
-                    : 'Suas gerações do plugin e da web aparecem aqui.'}
+                    ? t('app_nenhuma_geracao_filtro')
+                    : t('app_geracoes_aparecem_aqui')}
                 </p>
               </div>
             )}
@@ -1392,7 +1394,7 @@ export default function AppPage() {
             {!carregando && layout === 'grade' && porMes.map((mes) => (
               <section key={mes.chave} className="cr-mes">
                 <h3 className="cr-mes-tit">
-                  {mes.titulo}
+                  {tOpt(mes.mes)} {mes.ano}
                   {(() => {
                     const velha = mes.itens[mes.itens.length - 1];
                     const dias = diasAteExpirar(velha.criadoEm);
@@ -1400,8 +1402,8 @@ export default function AppPage() {
                     return (
                       <span className="cr-mes-expira">
                         {dias === 0
-                          ? 'algumas serão apagadas hoje'
-                          : `algumas serão apagadas em ${dias} ${dias === 1 ? 'dia' : 'dias'}`}
+                          ? t('app_algumas_apagadas_hoje')
+                          : `${t('app_algumas_apagadas_em')} ${dias} ${dias === 1 ? t('app_dia') : t('app_dias')}`}
                       </span>
                     );
                   })()}
@@ -1466,8 +1468,8 @@ export default function AppPage() {
                   {dias !== null && dias <= 15 && (
                     <p className="cr-expira">
                       {dias === 0
-                        ? 'Esta geração será apagada hoje.'
-                        : `Esta geração será apagada em ${dias} ${dias === 1 ? 'dia' : 'dias'}.`}
+                        ? t('app_geracao_apagada_hoje')
+                        : `${t('app_geracao_apagada_em')} ${dias} ${dias === 1 ? t('app_dia') : t('app_dias')}.`}
                     </p>
                   )}
 
@@ -1602,11 +1604,11 @@ export default function AppPage() {
       {excluindo && (
         <div className="cr-overlay cr-overlay--alto" onClick={() => setExcluindo(null)}>
           <div className="cf" onClick={(e) => e.stopPropagation()}>
-            <h3>Excluir esta imagem?</h3>
-            <p>Ela será apagada para sempre. Não dá para recuperar depois.</p>
+            <h3>{t('app_excluir_titulo')}</h3>
+            <p>{t('app_excluir_aviso')}</p>
             <div className="cf-acoes">
-              <button className="cf-nao" onClick={() => setExcluindo(null)}>Cancelar</button>
-              <button className="cf-sim" onClick={() => excluirDeVerdade(excluindo)}>Excluir</button>
+              <button className="cf-nao" onClick={() => setExcluindo(null)}>{t('comum_cancelar')}</button>
+              <button className="cf-sim" onClick={() => excluirDeVerdade(excluindo)}>{t('app_excluir')}</button>
             </div>
           </div>
         </div>
@@ -1621,15 +1623,15 @@ export default function AppPage() {
       {/* Barra flutuante da seleção múltipla */}
       {modoSelecao && (
         <div className="cr-selbar">
-          <span className="cr-selbar-n">{selecionados.length} selecionada{selecionados.length === 1 ? '' : 's'}</span>
+          <span className="cr-selbar-n">{selecionados.length} {selecionados.length === 1 ? t('app_selecionada') : t('app_selecionadas')}</span>
           <div className="cr-selbar-acoes">
-            <button className="cr-selbar-cancelar" onClick={sairDaSelecao}>Cancelar</button>
+            <button className="cr-selbar-cancelar" onClick={sairDaSelecao}>{t('comum_cancelar')}</button>
             <button
               className="cr-selbar-baixar"
               onClick={() => setFormatoZip(true)}
               disabled={!selecionados.length || baixandoZip}
             >
-              {baixandoZip ? 'Preparando...' : `Download (${selecionados.length})`}
+              {baixandoZip ? t('app_preparando') : `${t('app_download')} (${selecionados.length})`}
             </button>
           </div>
         </div>
