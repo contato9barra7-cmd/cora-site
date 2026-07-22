@@ -6169,7 +6169,11 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ed-card--travado { opacity: .6; cursor: default; }
 .ed-card--travado:hover { border-color: var(--line2); transform: none; }
 
-.ed-cad {
+/* .ed-card .ed-cad (não só .ed-cad): a regra .ed-card span acima tem
+   especificidade maior e forçava display:block no cadeado, jogando o ícone
+   pro canto do círculo. Escopar em .ed-card faz o display:flex vencer e
+   centraliza o cadeado (igual ao plugin). */
+.ed-card .ed-cad {
   position: absolute;
   top: 9px;
   right: 9px;

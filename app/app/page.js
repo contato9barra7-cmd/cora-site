@@ -1448,12 +1448,10 @@ export default function AppPage() {
               return (
                 <article key={lote.loteId} className="cr-lote">
                   <header className="cr-lote-cab">
-                    {ehAdmin && (
-                      <span className="cr-lote-obs">
-                        {lote.observacoes || 'Sem observações'}
-                      </span>
-                    )}
-                    {!ehAdmin && <span className="cr-lote-obs" />}
+                    {/* Espaçador (flex:1) que empurra as pills pra direita.
+                        Antes mostrava o prompt (lote.observacoes) pra admin —
+                        removido do feed a pedido. */}
+                    <span className="cr-lote-obs" />
 
                     <span className="cr-tag cr-tag--roxa">
                       {ROTULO_FERRAMENTA[lote.ferramenta] || lote.ferramenta}
