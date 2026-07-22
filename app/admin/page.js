@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import EmailAssinantes from '../../components/EmailAssinantes';
+import DropdownCora from '../../components/DropdownCora';
 import { useIdioma } from '../../lib/i18n';
 import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais, adminDeletarConta, adminCompras, adminSincronizarStripe } from '../../lib/auth';
 
@@ -853,13 +854,17 @@ export default function Admin() {
 
               <div className="admin-pf-g">
                 <label>{t('adm_periodo')}</label>
-                <select value={filtroData} onChange={(e) => setFiltroData(e.target.value)}>
-                  <option value="todos">{t('adm_qualquer')}</option>
-                  <option value="mes">{t('adm_este_mes')}</option>
-                  <option value="12meses">{t('adm_ult12')}</option>
-                  <option value="ano">{t('adm_ano_especifico')}</option>
-                  <option value="periodo">{t('adm_intervalo')}</option>
-                </select>
+                <DropdownCora
+                  valor={filtroData}
+                  onEscolher={(v) => setFiltroData(v)}
+                  opcoes={[
+                    { v: 'todos', n: t('adm_qualquer') },
+                    { v: 'mes', n: t('adm_este_mes') },
+                    { v: '12meses', n: t('adm_ult12') },
+                    { v: 'ano', n: t('adm_ano_especifico') },
+                    { v: 'periodo', n: t('adm_intervalo') },
+                  ]}
+                />
 
                 {filtroData === 'ano' && (
                   <input type="number" min="2024" max="2100" value={anoFiltro}
@@ -878,71 +883,93 @@ export default function Admin() {
               {aba === 'pagantes' && (
                 <div className="admin-pf-g">
                   <label>{t('adm_status')}</label>
-                  <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)}>
-                    <option value="">{t('promp_f_todos')}</option>
-                    <option value="vencendo">{t('adm_quase_vencendo')}</option>
-                  </select>
+                  <DropdownCora
+                    valor={filtroStatus}
+                    onEscolher={(v) => setFiltroStatus(v)}
+                    opcoes={[
+                      { v: '', n: t('promp_f_todos') },
+                      { v: 'vencendo', n: t('adm_quase_vencendo') },
+                    ]}
+                  />
                 </div>
               )}
 
               <div className="admin-pf-g">
                 <label>{t('adm_profissao')}</label>
-                <select value={filtroProfissao} onChange={(e) => setFiltroProfissao(e.target.value)}>
-                  <option value="">{t('adm_qualquer')}</option>
-                  <option value="arquiteto">{t('adm_p_arquiteto')}</option>
-                  <option value="designer_interiores">{t('adm_p_designer')}</option>
-                  <option value="archviz">Archviz</option>
-                  <option value="engenheiro">{t('adm_p_engenheiro')}</option>
-                  <option value="estudante">{t('adm_p_estudante')}</option>
-                  <option value="paisagista">{t('adm_p_paisagista')}</option>
-                  <option value="outro">{t('adm_outro')}</option>
-                </select>
+                <DropdownCora
+                  valor={filtroProfissao}
+                  onEscolher={(v) => setFiltroProfissao(v)}
+                  opcoes={[
+                    { v: '', n: t('adm_qualquer') },
+                    { v: 'arquiteto', n: t('adm_p_arquiteto') },
+                    { v: 'designer_interiores', n: t('adm_p_designer') },
+                    { v: 'archviz', n: 'Archviz' },
+                    { v: 'engenheiro', n: t('adm_p_engenheiro') },
+                    { v: 'estudante', n: t('adm_p_estudante') },
+                    { v: 'paisagista', n: t('adm_p_paisagista') },
+                    { v: 'outro', n: t('adm_outro') },
+                  ]}
+                />
               </div>
 
               <div className="admin-pf-g">
                 <label>{t('adm_como_conheceu')}</label>
-                <select value={filtroOrigem} onChange={(e) => setFiltroOrigem(e.target.value)}>
-                  <option value="">{t('adm_qualquer')}</option>
-                  <option value="instagram">Instagram</option>
-                  <option value="youtube">YouTube</option>
-                  <option value="google">Google</option>
-                  <option value="indicacao">{t('adm_o_indicacao')}</option>
-                  <option value="tiktok">TikTok</option>
-                  <option value="anuncio">{t('adm_o_anuncio')}</option>
-                  <option value="outro">{t('adm_outro')}</option>
-                </select>
+                <DropdownCora
+                  valor={filtroOrigem}
+                  onEscolher={(v) => setFiltroOrigem(v)}
+                  opcoes={[
+                    { v: '', n: t('adm_qualquer') },
+                    { v: 'instagram', n: 'Instagram' },
+                    { v: 'youtube', n: 'YouTube' },
+                    { v: 'google', n: 'Google' },
+                    { v: 'indicacao', n: t('adm_o_indicacao') },
+                    { v: 'tiktok', n: 'TikTok' },
+                    { v: 'anuncio', n: t('adm_o_anuncio') },
+                    { v: 'outro', n: t('adm_outro') },
+                  ]}
+                />
               </div>
 
               <div className="admin-pf-g">
                 <label>{t('adm_renderizador')}</label>
-                <select value={filtroRender} onChange={(e) => setFiltroRender(e.target.value)}>
-                  <option value="">{t('adm_qualquer')}</option>
-                  <option value="nao">{t('adm_r_nao')}</option>
-                  <option value="vray">V-Ray</option>
-                  <option value="corona">Corona</option>
-                  <option value="enscape">Enscape</option>
-                  <option value="lumion">Lumion</option>
-                  <option value="dhistudio">D5 / IA</option>
-                  <option value="outro">{t('adm_outro')}</option>
-                </select>
+                <DropdownCora
+                  valor={filtroRender}
+                  onEscolher={(v) => setFiltroRender(v)}
+                  opcoes={[
+                    { v: '', n: t('adm_qualquer') },
+                    { v: 'nao', n: t('adm_r_nao') },
+                    { v: 'vray', n: 'V-Ray' },
+                    { v: 'corona', n: 'Corona' },
+                    { v: 'enscape', n: 'Enscape' },
+                    { v: 'lumion', n: 'Lumion' },
+                    { v: 'dhistudio', n: 'D5 / IA' },
+                    { v: 'outro', n: t('adm_outro') },
+                  ]}
+                />
               </div>
 
               <div className="admin-pf-sec">
                 <label>{t('adm_localizacao')}</label>
 
-                <select value={filtroPais} onChange={(e) => setFiltroPais(e.target.value)}>
-                  <option value="">{t('adm_qualquer_pais')}</option>
-                  {[...new Set(assinantes.map(a => (a.pais || '').toUpperCase()).filter(Boolean))].sort().map(p => (
-                    <option key={p} value={p}>{p}</option>
-                  ))}
-                </select>
+                <DropdownCora
+                  valor={filtroPais}
+                  onEscolher={(v) => setFiltroPais(v)}
+                  opcoes={[
+                    { v: '', n: t('adm_qualquer_pais') },
+                    ...[...new Set(assinantes.map(a => (a.pais || '').toUpperCase()).filter(Boolean))].sort().map(p => ({ v: p, n: p })),
+                  ]}
+                />
 
-                <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
-                  <option value="">{t('adm_qualquer_estado')}</option>
-                  {[...new Set(assinantes.map(a => (a.estado || '').toUpperCase()).filter(Boolean))].sort().map(uf => (
-                    <option key={uf} value={uf}>{uf}</option>
-                  ))}
-                </select>
+                <div style={{ marginTop: 8 }}>
+                  <DropdownCora
+                    valor={filtroEstado}
+                    onEscolher={(v) => setFiltroEstado(v)}
+                    opcoes={[
+                      { v: '', n: t('adm_qualquer_estado') },
+                      ...[...new Set(assinantes.map(a => (a.estado || '').toUpperCase()).filter(Boolean))].sort().map(uf => ({ v: uf, n: uf })),
+                    ]}
+                  />
+                </div>
               </div>
             </div>
 

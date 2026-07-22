@@ -1074,6 +1074,9 @@ select.perfil-input {
 }
 .app-user-pref select:hover { border-color: var(--ink3); }
 .app-user-pref select:focus { outline: none; border-color: var(--roxo); }
+/* Dropdown Cora dentro do menu do avatar: pill compacto à direita */
+.app-user-pref-dd { width: 160px; flex-shrink: 0; }
+.app-user-pref-dd .cora-dd-btn { padding: 6px 14px; font-size: 13.5px; }
 
 /* Texto legal da newsletter */
 .perfil-legal { font-size: 12.5px; color: var(--ink3); line-height: 1.5; margin-top: 14px; max-width: 600px; }
@@ -11197,6 +11200,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .cora-dd-opt:hover { background: var(--accent-bg); color: var(--accent); }
 .cora-dd-opt--sel { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+/* Lista no portal (fixed em document.body) — acima de painéis/overlays */
+.cora-dd-lista--portal { z-index: 9999; }
 
 /* Sliders */
 .up-slider { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px; margin: 12px 0; }

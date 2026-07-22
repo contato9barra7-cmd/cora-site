@@ -7,6 +7,7 @@ import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta , EVENTO_CRED
 import RodapeLegal from './RodapeLegal';
 import PopupCreditos from './PopupCreditos';
 import PopupUpgrade from './PopupUpgrade';
+import DropdownCora from './DropdownCora';
 import { useIdioma, IDIOMAS, localeDeIdioma } from '../lib/i18n';
 
 // Ícones simples em SVG (sem dependência externa)
@@ -356,19 +357,23 @@ export default function AppShell({ children }) {
 
                 <div className="app-user-pref">
                   <label>{t('idioma_label')}</label>
-                  <select value={idioma} onChange={(e) => trocarPref('idioma', e.target.value)}>
-                    <option value="pt">Português</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                  </select>
+                  <div className="app-user-pref-dd">
+                    <DropdownCora
+                      valor={idioma}
+                      opcoes={[{ v: 'pt', n: 'Português' }, { v: 'en', n: 'English' }, { v: 'es', n: 'Español' }]}
+                      onEscolher={(v) => trocarPref('idioma', v)}
+                    />
+                  </div>
                 </div>
                 <div className="app-user-pref">
                   <label>{t('tema_label')}</label>
-                  <select value={conta?.tema || 'sistema'} onChange={(e) => trocarPref('tema', e.target.value)}>
-                    <option value="claro">{t('tema_claro')}</option>
-                    <option value="escuro">{t('tema_escuro')}</option>
-                    <option value="sistema">{t('tema_sistema')}</option>
-                  </select>
+                  <div className="app-user-pref-dd">
+                    <DropdownCora
+                      valor={conta?.tema || 'sistema'}
+                      opcoes={[{ v: 'claro', n: t('tema_claro') }, { v: 'escuro', n: t('tema_escuro') }, { v: 'sistema', n: t('tema_sistema') }]}
+                      onEscolher={(v) => trocarPref('tema', v)}
+                    />
+                  </div>
                 </div>
 
                 <button className="app-user-link app-user-sair" onClick={logout}>
