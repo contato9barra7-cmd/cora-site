@@ -1,6 +1,7 @@
 import './globals.css';
 import RodapeGlobal from '../components/RodapeGlobal';
 import CookieConsent from '../components/CookieConsent';
+import { IdiomaProvider } from '../lib/i18n';
 
 const GTM_ID = 'GTM-T7JBWLZ5';
 
@@ -59,9 +60,11 @@ export default function RootLayout({ children }) {
             height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}
           />
         </noscript>
-        <div className="site-conteudo">{children}</div>
-        <RodapeGlobal />
-        <CookieConsent />
+        <IdiomaProvider>
+          <div className="site-conteudo">{children}</div>
+          <RodapeGlobal />
+          <CookieConsent />
+        </IdiomaProvider>
       </body>
     </html>
   );
