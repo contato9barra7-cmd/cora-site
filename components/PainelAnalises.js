@@ -17,7 +17,16 @@
 import { useState, useEffect } from 'react';
 import { listarLeituras, apagarLeitura, bytesDaLeitura, refsDaLeitura } from '../lib/leituras';
 import { bytesDaGeracao } from '../lib/geracoes';
-import { useIdioma, localeDeIdioma } from '../lib/i18n';
+import { useIdioma, localeDeIdioma, tOpt } from '../lib/i18n';
+
+// O título guardado é "Tipo · data" (ex.: "Interno · 21 de jul., 19:33").
+// O tipo é guardado em PT canônico; traduzimos só ele no display.
+function tituloTraduzido(titulo, fallback) {
+  if (!titulo) return fallback;
+  const i = titulo.indexOf(' · ');
+  if (i === -1) return tOpt(titulo);
+  return tOpt(titulo.slice(0, i)) + titulo.slice(i);
+}
 
 function quando(iso, t, idioma) {
   const d = new Date(iso);
@@ -258,7 +267,7 @@ export default function PainelAnalises({ onUsar }) {
 
               <span className="an-txt">
                 <span className="an-topo">
-                  <span className="an-tit">{l.titulo || t('painelanalises_sem_titulo')}</span>
+                  <span className="an-tit">{tituloTraduzido(l.titulo, t('painelanalises_sem_titulo'))}</span>
                   <span className="an-tag">{l.origem === 'batch' ? 'Batch' : 'Render'}</span>
                   <span className={'an-tag an-tag--' + (l.plataforma || 'web')}>
                     {(l.plataforma || 'web') === 'plugin' ? 'Plugin' : 'Web'}

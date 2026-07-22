@@ -230,7 +230,9 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     const agora = new Date().toLocaleDateString(localeDeIdioma(idioma), {
       day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
     });
-    return `${tipo === 'externo' ? t('painelrender_externo') : tipo === 'planta' ? t('painelrender_planta') : t('painelrender_interno')} · ${agora}`;
+    // Guarda o tipo em PT canônico; a tela das Análises traduz no display (tOpt).
+    const tipoLabel = tipo === 'externo' ? 'Externo' : tipo === 'planta' ? 'Planta' : 'Interno';
+    return `${tipoLabel} · ${agora}`;
   }
 
 

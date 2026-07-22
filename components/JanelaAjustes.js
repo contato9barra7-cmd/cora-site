@@ -756,7 +756,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                         onClick={() => selMascara(i)}
                       >
                         <span className="aj-msk-thumb" />
-                        <span className="aj-msk-nome">{m.nome}</span>
+                        <span className="aj-msk-nome">{(m.nome || '').replace(/^Máscara(?=\s|$)/, tOpt('Máscara'))}</span>
                         <button className="aj-msk-olho" onClick={(e) => toggleVis(i, e)}
                                 title={t('janelaajustes_mostrar_ocultar')} aria-label={t('janelaajustes_mostrar_ocultar')}>
                           {m.visivel === false
@@ -954,7 +954,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                         className={'aj-canal' + (canal === c.k ? ' aj-canal--on' : '')}
                         onClick={() => setCanal(c.k)}
                         style={canal === c.k ? { borderColor: c.cor, color: c.cor } : null}
-                      >{c.nome}</button>
+                      >{tOpt(c.nome)}</button>
                     ))}
                   </div>
 
@@ -980,8 +980,8 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                         className={'aj-cor' + (cor === c.k ? ' aj-cor--on' : '')}
                         style={{ background: c.hex }}
                         onClick={() => setCor(c.k)}
-                        aria-label={c.nome}
-                        title={c.nome}
+                        aria-label={tOpt(c.nome)}
+                        title={tOpt(c.nome)}
                       />
                     ))}
                   </div>
