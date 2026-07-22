@@ -817,7 +817,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .app-user-pref select {
   height: 30px;
-  padding: 0 10px;
+  padding: 0 34px 0 12px;
   border: 1px solid var(--line2);
   border-radius: 100px;
   background: var(--paper);
@@ -826,9 +826,24 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   font-family: inherit;
   cursor: pointer;
   outline: none;
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 20 20' fill='none' stroke='%23A4A1F3' stroke-width='2'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
 }
 
 .app-user-pref select:hover { border-color: var(--ink3); }
+.app-user-pref select:focus { border-color: var(--roxo); }
+
+/* Selects nativos de formulário (cadastro, suporte): mesma seta roxa da marca,
+   afastada da borda e centralizada. */
+select.login-input, select.sup-campo {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  padding-right: 40px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none' stroke='%23A4A1F3' stroke-width='2'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+}
 
 /* CONTEÚDO */
 .app-main {
