@@ -3,9 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../../components/AppShell';
-import DropdownCora from '../../../components/DropdownCora';
 import { lerConta, salvarPerfil, deletarMinhaConta, aplicarTema, sair, salvarFoto, listarDispositivos, removerDispositivo, registrarDispositivoWeb } from '../../../lib/auth';
-import { useIdioma, localeDeIdioma } from '../../../lib/i18n';
 
 const IDIOMAS = [
   { v: 'pt', l: 'Português' },
@@ -13,19 +11,18 @@ const IDIOMAS = [
   { v: 'es', l: 'Español' },
 ];
 const TEMAS = [
-  { v: 'claro', k: 'tema_claro' },
-  { v: 'escuro', k: 'tema_escuro' },
-  { v: 'sistema', k: 'tema_sistema' },
+  { v: 'claro', l: 'Claro' },
+  { v: 'escuro', l: 'Escuro' },
+  { v: 'sistema', l: 'Sistema' },
 ];
 
 export default function Perfil() {
   const router = useRouter();
-  const { t, idioma } = useIdioma();
   const [conta, setConta] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [nome, setNome] = useState('');
   const [username, setUsername] = useState('');
-  const [idiomaSel, setIdiomaSel] = useState('pt');
+  const [idioma, setIdioma] = useState('pt');
   const [tema, setTema] = useState('sistema');
   const [newsletter, setNewsletter] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -51,7 +48,7 @@ export default function Perfil() {
   }
 
   async function tirarDispositivo(id) {
-    if (!confirm(t('perfil_confirm_remover_pc'))) return;
+    if (!confirm('Remover este computador? Ele precisará ser reconectado no próximo login.')) return;
     try {
       await removerDispositivo(id);
       await carregarDispositivos();
@@ -138,7 +135,7 @@ export default function Perfil() {
     setConta(c);
     setNome(c.nome || '');
     setUsername(c.username || '');
-    setIdiomaSel(c.idioma || 'pt');
+    setIdioma(c.idioma || 'pt');
     setTema(c.tema || 'sistema');
     setNewsletter(c.newsletter !== false);
     setCarregando(false);
@@ -148,10 +145,10 @@ export default function Perfil() {
   async function salvar() {
     setSalvando(true); setErro(''); setAviso('');
     try {
-      const atualizada = await salvarPerfil({ nome, username, idioma: idiomaSel, tema, newsletter });
+      const atualizada = await salvarPerfil({ nome, username, idioma, tema, newsletter });
       if (atualizada) setConta(atualizada);
       aplicarTema(tema);
-      setAviso(t('perfil_alteracoes_salvas'));
+      setAviso('Alterações salvas.');
       setTimeout(() => setAviso(''), 4000);
     } catch (e) {
       setErro(e.message);
@@ -161,9 +158,9 @@ export default function Perfil() {
   }
 
   // aplica o tema imediatamente ao trocar no seletor (preview)
-  function trocarTema(v) {
-    setTema(v);
-    aplicarTema(v);
+  function trocarTema(t) {
+    setTema(t);
+    aplicarTema(t);
   }
 
   async function confirmarDeletar() {
@@ -179,7 +176,7 @@ export default function Perfil() {
     }
   }
 
-  if (carregando) return <AppShell><div className="admin-wrap"><p>{t('comum_carregando')}</p></div></AppShell>;
+  if (carregando) return <AppShell><div className="admin-wrap"><p>Carregando...</p></div></AppShell>;
   if (!conta) return null;
 
   const ehPago = conta.plano && conta.plano !== 'free' && !conta.is_admin;
@@ -189,12 +186,12 @@ export default function Perfil() {
     <AppShell>
       <div className="admin-wrap perfil-wrap">
         <nav className="perfil-idx">
-          <h1>{t('nav_minhaconta')}</h1>
-          <a href="#sec-perfil">{t('perfil_perfil')}</a>
-          <a href="#sec-prefs">{t('perfil_preferencias')}</a>
-          <a href="#sec-notif">{t('perfil_notificacoes')}</a>
-          <a href="#sec-seg">{t('perfil_seguranca')}</a>
-          <a href="#sec-perigo" className="perfil-idx--perigo">{t('perfil_deletar_conta')}</a>
+          <h1>Minha conta</h1>
+          <a href="#sec-perfil">Perfil</a>
+          <a href="#sec-prefs">Preferências</a>
+          <a href="#sec-notif">Notificações</a>
+          <a href="#sec-seg">Segurança</a>
+          <a href="#sec-perigo" className="perfil-idx--perigo">Deletar conta</a>
         </nav>
 
         <div className="perfil-col">
@@ -203,9 +200,9 @@ export default function Perfil() {
 
         {/* PERFIL */}
         <section className="perfil-sec" id="sec-perfil">
-          <h2 className="perfil-h2">{t('perfil_perfil')}</h2>
+          <h2 className="perfil-h2">Perfil</h2>
           <div className="perfil-linha">
-            <label className="perfil-lbl">{t('perfil_avatar')}</label>
+            <label className="perfil-lbl">Avatar</label>
             <div className="perfil-avatar-area">
               <div className="perfil-avatar-box">
                 <span
@@ -214,60 +211,56 @@ export default function Perfil() {
                 >
                   {conta.foto_url ? '' : inicial}
                 </span>
-                <button className="perfil-avatar-editar" onClick={abrirSeletorFoto} title={t('perfil_trocar_foto')} aria-label={t('perfil_trocar_foto')}>
+                <button className="perfil-avatar-editar" onClick={abrirSeletorFoto} title="Trocar foto" aria-label="Trocar foto">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
                   </svg>
                 </button>
                 {conta.foto_url && (
-                  <button className="perfil-avatar-x" onClick={removerFoto} title={t('perfil_remover_foto')} aria-label={t('perfil_remover_foto')}>×</button>
+                  <button className="perfil-avatar-x" onClick={removerFoto} title="Remover foto" aria-label="Remover foto">×</button>
                 )}
               </div>
               <input type="file" ref={inputFotoRef} accept="image/*" style={{ display: 'none' }} onChange={aoSelecionarFoto} />
             </div>
           </div>
           <div className="perfil-linha">
-            <label className="perfil-lbl">{t('perfil_nome')}</label>
-            <input className="perfil-input" value={nome} onChange={(e) => setNome(e.target.value)} placeholder={t('perfil_seu_nome')} />
+            <label className="perfil-lbl">Nome</label>
+            <input className="perfil-input" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Seu nome" />
           </div>
           <div className="perfil-linha">
-            <label className="perfil-lbl">{t('perfil_username')}</label>
+            <label className="perfil-lbl">Username</label>
             <input className="perfil-input" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="seu_username" />
           </div>
           <div className="perfil-linha">
             <label className="perfil-lbl">Email</label>
-            <input className="perfil-input" value={conta.email} disabled title={t('perfil_email_bloqueado')} />
+            <input className="perfil-input" value={conta.email} disabled title="O email não pode ser alterado por aqui" />
           </div>
         </section>
 
         {/* PREFERÊNCIAS */}
         <section className="perfil-sec" id="sec-prefs">
-          <h2 className="perfil-h2">{t('perfil_preferencias')}</h2>
+          <h2 className="perfil-h2">Preferências</h2>
           <div className="perfil-linha">
-            <label className="perfil-lbl">{t('idioma_label')}</label>
-            <DropdownCora
-              valor={idiomaSel}
-              onEscolher={(v) => setIdiomaSel(v)}
-              opcoes={IDIOMAS.map(i => ({ v: i.v, n: i.l }))}
-            />
+            <label className="perfil-lbl">Idioma</label>
+            <select className="perfil-input" value={idioma} onChange={(e) => setIdioma(e.target.value)}>
+              {IDIOMAS.map(i => <option key={i.v} value={i.v}>{i.l}</option>)}
+            </select>
           </div>
           <div className="perfil-linha">
-            <label className="perfil-lbl">{t('tema_label')}</label>
-            <DropdownCora
-              valor={tema}
-              onEscolher={(v) => trocarTema(v)}
-              opcoes={TEMAS.map(op => ({ v: op.v, n: t(op.k) }))}
-            />
+            <label className="perfil-lbl">Tema</label>
+            <select className="perfil-input" value={tema} onChange={(e) => trocarTema(e.target.value)}>
+              {TEMAS.map(t => <option key={t.v} value={t.v}>{t.l}</option>)}
+            </select>
           </div>
         </section>
 
         {/* NOTIFICAÇÕES */}
         <section className="perfil-sec" id="sec-notif">
-          <h2 className="perfil-h2">{t('perfil_notificacoes')}</h2>
+          <h2 className="perfil-h2">Notificações</h2>
           <div className="perfil-linha perfil-toggle-linha">
             <div>
               <label className="perfil-lbl">Newsletter</label>
-              <p className="perfil-sub">{t('perfil_newsletter_sub')}</p>
+              <p className="perfil-sub">Receba novidades, promoções e dicas do Cora Render.</p>
             </div>
             <button
               className={'perfil-toggle' + (newsletter ? ' on' : '')}
@@ -279,26 +272,26 @@ export default function Perfil() {
             </button>
           </div>
           <p className="perfil-legal">
-            {t('perfil_newsletter_legal1')}<br />
-            {t('perfil_newsletter_legal2')}{' '}
-            <a href="/privacidade" className="perfil-link">{t('perfil_politica_privacidade')}</a>.
+            O 9BARRA7 usa seus dados para enviar novidades, promoções e dicas, com base em interesse legítimo.<br />
+            Não compartilhamos com terceiros, e você pode desativar quando quiser. Mais na{' '}
+            <a href="/privacidade" className="perfil-link">política de privacidade</a>.
           </p>
         </section>
 
         <div className="perfil-salvar-barra">
           <button className="btn btn--verde" style={{ width: 'auto', padding: '11px 28px' }} onClick={salvar} disabled={salvando}>
-            {salvando ? t('comum_salvando') : t('perfil_salvar_alteracoes')}
+            {salvando ? 'Salvando...' : 'Salvar alterações'}
           </button>
         </div>
 
         {/* SESSÕES E DISPOSITIVOS */}
         <section className="perfil-sec" id="sec-seg">
           <h2 className="perfil-h2">
-            {t('perfil_sessoes')}
-            <button className="perfil-ajuda" onClick={() => setModalAjuda(true)} title={t('comum_ajuda')} aria-label={t('comum_ajuda')}>?</button>
+            Sessões e dispositivos
+            <button className="perfil-ajuda" onClick={() => setModalAjuda(true)} title="Ajuda" aria-label="Ajuda">?</button>
           </h2>
           <p className="perfil-sub" style={{ marginTop: 0, marginBottom: 18 }}>
-            {t('perfil_disp_sub')}
+            Cada conta pode ter até 2 computadores no plugin e 3 dispositivos na versão web. O uso é de um por vez (plugin ou web, nunca ao mesmo tempo).
           </p>
 
           {(() => {
@@ -308,21 +301,21 @@ export default function Perfil() {
               <div className="disp-grupo">
                 <div className="disp-grupo-tit">{titulo} <span className="disp-contagem">{lista.length}/{max}</span></div>
                 {lista.length === 0 ? (
-                  <p className="perfil-sub" style={{ marginTop: 0 }}>{t('perfil_nenhum_disp')}</p>
+                  <p className="perfil-sub" style={{ marginTop: 0 }}>Nenhum dispositivo conectado ainda.</p>
                 ) : (
                   <div className="disp-lista">
                     {lista.map(d => (
                       <div key={d.id} className="disp-item">
                         <div>
                           <div className="disp-nome">
-                            {d.nome_pc || t('perfil_dispositivo')}
-                            {d.ativo_agora && <span className="disp-ativo">{t('perfil_em_uso')}</span>}
+                            {d.nome_pc || 'Dispositivo'}
+                            {d.ativo_agora && <span className="disp-ativo">Em uso agora</span>}
                           </div>
                           <div className="disp-sub">
-                            {t('perfil_ultimo_acesso')} {d.ultimo_acesso ? new Date(d.ultimo_acesso).toLocaleString(localeDeIdioma(idioma)) : '—'}
+                            Último acesso: {d.ultimo_acesso ? new Date(d.ultimo_acesso).toLocaleString('pt-BR') : '—'}
                           </div>
                         </div>
-                        <button className="disp-remover" onClick={() => tirarDispositivo(d.id)}>{t('comum_remover')}</button>
+                        <button className="disp-remover" onClick={() => tirarDispositivo(d.id)}>Remover</button>
                       </div>
                     ))}
                   </div>
@@ -332,7 +325,7 @@ export default function Perfil() {
             return (
               <>
                 {grupo('Plugin (SketchUp)', plugins, 2)}
-                {grupo(t('perfil_versao_web'), webs, 3)}
+                {grupo('Versão web', webs, 3)}
               </>
             );
           })()}
@@ -340,16 +333,17 @@ export default function Perfil() {
 
         {/* DELETAR CONTA */}
         <section className="perfil-sec perfil-perigo" id="sec-perigo">
-          <h2 className="perfil-h2">{t('perfil_deletar_conta')}</h2>
+          <h2 className="perfil-h2">Deletar conta</h2>
           {ehPago ? (
             <p className="perfil-sub">
-              {t('perfil_pago_nao_deletar')}
+              Você tem um plano pago ativo, então não é possível deletar a conta diretamente.
+              Cancele a assinatura primeiro (em Assinatura) ou fale com o suporte.
             </p>
           ) : (
             <>
-              <p className="perfil-sub">{t('perfil_deletar_aviso')}</p>
+              <p className="perfil-sub">Esta ação é permanente e apaga todos os seus dados. Não pode ser desfeita.</p>
               <button className="perfil-btn-deletar" onClick={() => setModalDeletar(true)}>
-                {t('perfil_deletar_minha_conta')}
+                Deletar minha conta
               </button>
             </>
           )}
@@ -360,14 +354,14 @@ export default function Perfil() {
       {modalDeletar && (
         <div className="foto-overlay" onClick={() => setModalDeletar(false)}>
           <div className="foto-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="foto-titulo">{t('perfil_deletar_titulo')}</div>
+            <div className="foto-titulo">Deletar sua conta?</div>
             <p className="perfil-sub" style={{ marginBottom: 18 }}>
-              {t('perfil_deletar_modal_p')}
+              Esta ação é permanente. Todos os seus dados serão apagados e não podem ser recuperados.
             </p>
             <div className="foto-botoes">
-              <button className="foto-btn-outra" onClick={() => setModalDeletar(false)}>{t('comum_cancelar')}</button>
+              <button className="foto-btn-outra" onClick={() => setModalDeletar(false)}>Cancelar</button>
               <button className="perfil-btn-deletar" style={{ flex: 1 }} onClick={confirmarDeletar} disabled={deletando}>
-                {deletando ? t('perfil_deletando') : t('perfil_sim_deletar')}
+                {deletando ? 'Deletando...' : 'Sim, deletar'}
               </button>
             </div>
           </div>
@@ -376,28 +370,30 @@ export default function Perfil() {
       {modalAjuda && (
         <div className="foto-overlay" onClick={() => setModalAjuda(false)}>
           <div className="foto-modal" onClick={(e) => e.stopPropagation()} style={{ width: 420 }}>
-            <div className="foto-titulo">{t('perfil_problemas_comuns')}</div>
+            <div className="foto-titulo">Problemas comuns</div>
 
             <div className="ajuda-bloco">
-              <div className="ajuda-tit">{t('perfil_seguranca')}</div>
+              <div className="ajuda-tit">Segurança</div>
               <p className="ajuda-txt">
-                {t('perfil_ajuda_seg')}
+                Se você exceder o número de dispositivos permitido, remova um da lista. Depois de salvar,
+                você poderá conectar o novo computador no próximo login.
               </p>
             </div>
 
             <div className="ajuda-bloco">
-              <div className="ajuda-tit">{t('perfil_num_usuarios')}</div>
+              <div className="ajuda-tit">Número de usuários</div>
               <p className="ajuda-txt">
-                {t('perfil_ajuda_num1')}{' '}
-                <a href="/teams" className="perfil-link">{t('perfil_conheca_planos_equipe')}</a> {t('perfil_ajuda_num2')}
+                Se você é uma empresa e precisa de mais usuários, temos ofertas especiais.{' '}
+                <a href="/teams" className="perfil-link">Conheça os planos para equipes</a> para mais informações.
               </p>
             </div>
 
             <p className="ajuda-txt" style={{ marginTop: 4 }}>
-              {t('perfil_ajuda_final1')} <strong>{t('perfil_ajuda_final_pc')}</strong> {t('perfil_ajuda_final_e')} <strong>{t('perfil_ajuda_final_web')}</strong>{t('perfil_ajuda_final2')}
+              Cada conta pode ter até <strong>2 computadores no plugin</strong> e <strong>3 dispositivos na versão web</strong>,
+              com uso de um por vez (nunca plugin e web ao mesmo tempo).
             </p>
 
-            <div className="foto-cancelar" onClick={() => setModalAjuda(false)} style={{ marginTop: 16 }}>{t('fechar')}</div>
+            <div className="foto-cancelar" onClick={() => setModalAjuda(false)} style={{ marginTop: 16 }}>Fechar</div>
           </div>
         </div>
       )}
@@ -405,8 +401,8 @@ export default function Perfil() {
       {modalFoto && (
         <div className="foto-overlay" onClick={() => setModalFoto(false)}>
           <div className="foto-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="foto-titulo">{t('perfil_foto_titulo')}</div>
-            <div className="foto-orient">{t('perfil_foto_orient')}</div>
+            <div className="foto-titulo">Foto de perfil</div>
+            <div className="foto-orient">Proporção 1:1 · recomendado 400×400px. Arraste e use o zoom para enquadrar.</div>
             <div className="foto-crop" onPointerDown={dragStart} onPointerMove={dragMove} onPointerUp={dragEnd}>
               <canvas ref={canvasRef} width={260} height={260} style={{ display: 'block' }} />
             </div>
@@ -416,12 +412,12 @@ export default function Perfil() {
               <span>+</span>
             </div>
             <div className="foto-botoes">
-              <button className="foto-btn-outra" onClick={abrirSeletorFoto}>{t('perfil_escolher_outra')}</button>
+              <button className="foto-btn-outra" onClick={abrirSeletorFoto}>Escolher outra</button>
               <button className="foto-btn-salvar" onClick={salvarFotoRecortada} disabled={salvandoFoto}>
-                {salvandoFoto ? t('comum_salvando') : t('comum_salvar')}
+                {salvandoFoto ? 'Salvando...' : 'Salvar'}
               </button>
             </div>
-            <div className="foto-cancelar" onClick={() => setModalFoto(false)}>{t('comum_cancelar')}</div>
+            <div className="foto-cancelar" onClick={() => setModalFoto(false)}>Cancelar</div>
           </div>
         </div>
       )}

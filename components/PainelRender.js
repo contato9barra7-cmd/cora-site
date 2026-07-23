@@ -20,7 +20,6 @@ import IconeCredito from './IconeCredito';
 import Seta from './Seta';
 import CampoRefs from './CampoRefs';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
-import { useIdioma, localeDeIdioma, tOpt } from '../lib/i18n';
 import {
   gerarRender, lerMateriais, custoRender, CREDITOS,
   TIPOS, PROPORCOES, LUZ_TIPOS, MOODS, DIRECOES,
@@ -28,8 +27,6 @@ import {
 } from '../lib/render';
 
 export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, leituraInicial, refazer, loteAnterior }) {
-  const { t, idioma } = useIdioma();
-
   // ── Imagem base ──
   const [imagem, setImagem] = useState(null);
   const [previa, setPrevia] = useState(null);
@@ -203,7 +200,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   }
 
   async function lerMat() {
-    if (!imagem) { setErro(t('painelrender_erro_escolha_modelo')); return; }
+    if (!imagem) { setErro('Escolha a imagem do modelo primeiro'); return; }
     setMatEstado('lendo');
     setErro('');
     try {
@@ -227,18 +224,16 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
   // Um nome para a pessoa reconhecer a leitura depois.
   function tituloDaLeitura() {
-    const agora = new Date().toLocaleDateString(localeDeIdioma(idioma), {
+    const agora = new Date().toLocaleDateString('pt-BR', {
       day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
     });
-    // Guarda o tipo em PT canônico; a tela das Análises traduz no display (tOpt).
-    const tipoLabel = tipo === 'externo' ? 'Externo' : tipo === 'planta' ? 'Planta' : 'Interno';
-    return `${tipoLabel} · ${agora}`;
+    return `${tipo === 'externo' ? 'Externo' : tipo === 'planta' ? 'Planta' : 'Interno'} · ${agora}`;
   }
 
 
   async function gerar({ apenasUma } = {}) {
-    if (!imagem) { setErro(t('painelrender_erro_escolha_seu_modelo')); return; }
-    if (matEstado === 'revisar') { setErro(t('painelrender_confirme_materiais')); return; }
+    if (!imagem) { setErro('Escolha a imagem do seu modelo'); return; }
+    if (matEstado === 'revisar') { setErro('Confirme os materiais para renderizar'); return; }
     if (ocupado) return;
 
     setErro('');
@@ -350,15 +345,15 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       <div className="cr-form">
 
         {/* ── Imagem do modelo ── */}
-        <div className="cr-sec">{t('painelrender_imagem_modelo')}</div>
+        <div className="cr-sec">Imagem do modelo</div>
         {previa ? (
           <div className="cr-base">
             <img src={previa} alt="" />
             <button
               className="cr-base-x"
               onClick={() => { setImagem(null); setPrevia(null); setMateriais(''); setMatEstado('vazio'); }}
-              data-tip={t('painelrender_remover_imagem')}
-              aria-label={t('painelrender_remover_imagem')}
+              data-tip="Remover imagem"
+              aria-label="Remover imagem"
             >×</button>
           </div>
         ) : (
@@ -367,32 +362,32 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/>
               <path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>
             </svg>
-            <span>{t('painelrender_escolher_imagem')}</span>
+            <span>Escolher imagem</span>
           </button>
         )}
 
         {/* ── Tipo de ambiente ── */}
-        <div className="cr-sec">{t('painelrender_tipo_ambiente')}</div>
+        <div className="cr-sec">Tipo de ambiente</div>
         <div className="cr-g3">
-          {TIPOS.map((tp) => (
+          {TIPOS.map((t) => (
             <button
-              key={tp.val}
-              className={'cr-b' + (tipo === tp.val ? ' cr-b--on' : '')}
-              onClick={() => setTipo(tp.val)}
-            >{tOpt(tp.rotulo)}</button>
+              key={t.val}
+              className={'cr-b' + (tipo === t.val ? ' cr-b--on' : '')}
+              onClick={() => setTipo(t.val)}
+            >{t.rotulo}</button>
           ))}
         </div>
 
         {/* ── Materiais ── */}
         {/* As leituras já feitas vivem na aba Análises — não repetimos a
             porta aqui. */}
-        <div className="cr-sec">{t('painelrender_materiais')}</div>
+        <div className="cr-sec">Materiais</div>
 
         {/* Já leu esta imagem antes, ou tem o texto à mão? Abre o campo sem
             gastar créditos. A aba Análises guarda as leituras antigas. */}
         {matEstado === 'vazio' && (
           <button className="cr-b cr-b--tenho" onClick={() => setMatEstado('revisar')}>
-            {t('painelrender_ja_tenho_analise')}
+            Já tenho a análise
           </button>
         )}
 
@@ -403,9 +398,9 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
             disabled={matEstado === 'lendo' || !imagem || ocupado}
           >
             <span>
-              {matEstado === 'lendo' ? t('painelrender_lendo_imagem')
-                : matEstado === 'confirmado' ? t('painelrender_ler_materiais_denovo')
-                : t('painelrender_ler_materiais')}
+              {matEstado === 'lendo' ? 'Lendo a imagem...'
+                : matEstado === 'confirmado' ? 'Ler materiais de novo'
+                : 'Ler materiais'}
             </span>
             {matEstado !== 'lendo' && (
               <span className="cr-custo-tag">
@@ -419,7 +414,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           <>
             <textarea
               className="cr-ta cr-ta--mat"
-              placeholder={materiais ? t('painelrender_ph_edite_materiais') : t('painelrender_ph_cole_analise')}
+              placeholder={materiais ? "Edite os materiais aqui..." : "Cole aqui a análise que você já tem..."}
               value={materiais}
               onChange={(e) => setMateriais(e.target.value)}
               readOnly={matEstado === 'confirmado'}
@@ -428,13 +423,13 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
             {matEstado === 'revisar' && (
               <>
-                <p className="cr-hint">{t('painelrender_materiais_identificados')}</p>
+                <p className="cr-hint">Materiais identificados — edite se necessário</p>
                 <div className="cr-g2 cr-mat-acoes">
                   <button className="cr-b" onClick={() => setMatEstado('confirmado')}>
-                    {t('painelrender_editar')}
+                    Editar
                   </button>
                   <button className="cr-b-conf" onClick={() => setMatEstado('confirmado')}>
-                    {t('painelrender_seguir_assim')}
+                    Tá bom, seguir assim
                   </button>
                 </div>
               </>
@@ -442,34 +437,34 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
             {matEstado === 'confirmado' && (
               <button className="cr-b-editar-mat" onClick={() => setMatEstado('revisar')}>
-                {t('painelrender_editar_materiais')}
+                Editar materiais
               </button>
             )}
           </>
         )}
 
         {/* ── Iluminação Natural ── */}
-        <div className="cr-sec">{t('painelrender_iluminacao_natural')}</div>
+        <div className="cr-sec">Iluminação Natural</div>
         <div className="cr-g2">
           {LUZ_TIPOS.map((l) => (
             <button
               key={l.val}
               className={'cr-b' + (luzTipo === l.val ? ' cr-b--on' : '')}
               onClick={() => setLuzTipo(l.val)}
-            >{tOpt(l.rotulo)}</button>
+            >{l.rotulo}</button>
           ))}
         </div>
 
         {MOODS.map((g) => (
           <div key={g.grupo}>
-            <div className="cr-grp">{tOpt(g.grupo)}</div>
+            <div className="cr-grp">{g.grupo}</div>
             <div className="cr-g2">
               {g.itens.map((m) => (
                 <button
                   key={m}
                   className={'cr-b' + (mood === m ? ' cr-b--on' : '')}
                   onClick={() => setMood(m)}
-                >{tOpt(m)}</button>
+                >{m}</button>
               ))}
             </div>
           </div>
@@ -477,60 +472,60 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
         <textarea
           className="cr-ta"
-          placeholder={t('painelrender_ph_det_natural')}
+          placeholder="Opcional — detalhes adicionais sobre a iluminação natural..."
           value={detNatural}
           onChange={(e) => setDetNatural(e.target.value)}
           spellCheck={false}
         />
 
         {/* ── Direção da Luz ── */}
-        <div className="cr-sec">{t('painelrender_direcao_luz')}</div>
+        <div className="cr-sec">Direção da Luz</div>
         <div className="cr-g2">
           {DIRECOES.map((d) => (
             <button
               key={d}
               className={'cr-b' + (direcoes.includes(d) ? ' cr-b--on' : '')}
               onClick={() => toggle(direcoes, setDirecoes, d)}
-            >{tOpt(d)}</button>
+            >{d}</button>
           ))}
         </div>
         <textarea
           className="cr-ta"
-          placeholder={t('painelrender_ph_desc_luz')}
+          placeholder="Opcional — descreva como a luz entra no espaço..."
           value={descLuz}
           onChange={(e) => setDescLuz(e.target.value)}
           spellCheck={false}
         />
-        <p className="cr-hint">{t('painelrender_hint_desc_luz')}</p>
+        <p className="cr-hint">Ex: “luz entra pela porta-janela lateral direita e pelo fundo”</p>
 
         {/* ── Luz Artificial ── */}
-        <div className="cr-sec">{t('painelrender_luz_artificial')}</div>
-        <div className="cr-grp">{t('painelrender_cor')}</div>
+        <div className="cr-sec">Luz Artificial</div>
+        <div className="cr-grp">Cor</div>
         <div className="cr-g3">
           {CORES_LUZ.map((c) => (
             <button
               key={c}
               className={'cr-b' + (corLuz === c ? ' cr-b--on' : '')}
               onClick={() => setCorLuz(c)}
-            >{tOpt(c)}</button>
+            >{c}</button>
           ))}
         </div>
 
         {corLuz !== 'Desligada' && (
           <>
-            <div className="cr-grp">{t('painelrender_intensidade')}</div>
+            <div className="cr-grp">Intensidade</div>
             <div className="cr-g3">
               {INTENSIDADES.map((i) => (
                 <button
                   key={i}
                   className={'cr-b' + (intensidade === i ? ' cr-b--on' : '')}
                   onClick={() => setIntensidade(i)}
-                >{tOpt(i)}</button>
+                >{i}</button>
               ))}
             </div>
             <textarea
               className="cr-ta"
-              placeholder={t('painelrender_ph_det_artificial')}
+              placeholder="Opcional — detalhes adicionais sobre a luz artificial..."
               value={detArtificial}
               onChange={(e) => setDetArtificial(e.target.value)}
               spellCheck={false}
@@ -539,29 +534,30 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
         )}
 
         {/* ── Entorno ── */}
-        <div className="cr-sec">{t('painelrender_entorno')} <span className="cr-opc">{t('painelrender_opcional')}</span></div>
+        <div className="cr-sec">Entorno <span className="cr-opc">Opcional</span></div>
         <div className="cr-g2">
           {ENTORNOS.map((e) => (
             <button
               key={e}
               className={'cr-b' + (tagsEntorno.includes(e) ? ' cr-b--on' : '')}
               onClick={() => toggle(tagsEntorno, setTagsEntorno, e)}
-            >{tOpt(e)}</button>
+            >{e}</button>
           ))}
         </div>
         <textarea
           className="cr-ta"
-          placeholder={t('painelrender_ph_entorno')}
+          placeholder="Descreva com suas palavras o entorno..."
           value={entorno}
           onChange={(e) => setEntorno(e.target.value)}
           spellCheck={false}
         />
         <p className="cr-hint">
-          {t('painelrender_hint_entorno')}
+          Melhores resultados quando você dá mais especificações. Ex: “10º andar em cidade
+          como Florianópolis, vista de bairro residencial arborizado”
         </p>
 
         {/* ── Referências (abrem o mesmo picker) ── */}
-        <div className="cr-sec">{t('painelrender_referencias')} <span className="cr-opc">{t('painelrender_opcional')}</span></div>
+        <div className="cr-sec">Referências <span className="cr-opc">Opcional</span></div>
         <div className="cr-refs">
           {refs.map((r, i) => (
             <div key={i} className="cr-ref">
@@ -569,7 +565,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               <button
                 className="cr-ref-x"
                 onClick={() => setRefs((rs) => rs.filter((_, j) => j !== i))}
-                aria-label={t('painelrender_remover_referencia')}
+                aria-label="Remover referência"
               >×</button>
               <span className="cr-ref-n">@img{String(i + 1).padStart(2, '0')}</span>
             </div>
@@ -585,8 +581,8 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
         <CampoRefs
           className="cr-ta"
           placeholder={refs.length > 0
-            ? t('painelrender_ph_digite_arroba')
-            : t('painelrender_ph_adicione_ref')}
+            ? 'Digite @ para escolher uma referência'
+            : 'Adicione uma referência acima para usar @img01'}
           valor={refTexto}
           onMudar={setRefTexto}
           refs={refs}
@@ -602,8 +598,8 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
             return (
               <p className="cr-hint cr-hint--erro">
                 {orfas.map((n) => '@img' + String(n).padStart(2, '0')).join(', ')}
-                {orfas.length === 1 ? t('painelrender_nao_existe') : t('painelrender_nao_existem')}{t('painelrender_voce_tem')}{refs.length}
-                {refs.length === 1 ? t('painelrender_referencia_sing') : t('painelrender_referencia_plur')}.
+                {orfas.length === 1 ? ' não existe' : ' não existem'} — você tem {refs.length}
+                {refs.length === 1 ? ' referência' : ' referências'}.
               </p>
             );
           }
@@ -611,11 +607,11 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
             return (
               <p className="cr-hint cr-hint--ok">
                 {[...new Set(citadas)].length}
-                {[...new Set(citadas)].length === 1 ? t('painelrender_ref_citada') : t('painelrender_ref_citadas')}.
+                {[...new Set(citadas)].length === 1 ? ' referência citada' : ' referências citadas'}.
               </p>
             );
           }
-          return <p className="cr-hint">{t('painelrender_hint_usar_arroba')}</p>;
+          return <p className="cr-hint">Use @img01, @img02... para referenciar cada imagem carregada.</p>;
         })()}
 
         {/* Recomeçar do zero. Pede confirmação: os materiais lidos custaram
@@ -625,19 +621,20 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           onClick={() => setConfirmarReset(true)}
           disabled={ocupado}
         >
-          {t('painelrender_resetar_config')}
+          Resetar configurações
         </button>
 
         {confirmarReset && (
           <div className="cr-overlay cr-overlay--alto" onClick={() => setConfirmarReset(false)}>
             <div className="cf" onClick={(e) => e.stopPropagation()}>
-              <h3>{t('painelrender_resetar_tudo')}</h3>
+              <h3>Resetar tudo?</h3>
               <p>
-                {t('painelrender_reset_aviso1')} {CREDITOS.materiais} {t('painelrender_reset_aviso2')}
+                Todos os campos voltam ao padrão, inclusive os materiais que você
+                leu — e ler de novo custa {CREDITOS.materiais} créditos.
               </p>
               <div className="cf-acoes">
-                <button className="cf-nao" onClick={() => setConfirmarReset(false)}>{t('comum_cancelar')}</button>
-                <button className="cf-sim" onClick={resetar}>{t('painelrender_resetar')}</button>
+                <button className="cf-nao" onClick={() => setConfirmarReset(false)}>Cancelar</button>
+                <button className="cf-sim" onClick={resetar}>Resetar</button>
               </div>
             </div>
           </div>
@@ -646,8 +643,9 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
         {avisoImg && (
           <div className="cr-aviso">
-            {t('painelrender_aviso_img_grande')}
-            <button onClick={() => setAvisoImg(false)}>{t('painelrender_entendi')}</button>
+            Seus materiais foram guardados, mas a imagem era grande demais para
+            caber na memória do navegador. Escolha a imagem de novo.
+            <button onClick={() => setAvisoImg(false)}>Entendi</button>
           </div>
         )}
 
@@ -659,9 +657,9 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
         <div className="cr-pills-cfg">
 
           <div className="cr-qty">
-            <button onClick={() => setQuantidade((q) => Math.max(1, q - 1))} aria-label={t('painelrender_menos_uma')}>−</button>
+            <button onClick={() => setQuantidade((q) => Math.max(1, q - 1))} aria-label="Menos uma">−</button>
             <span>{quantidade}</span>
-            <button onClick={() => setQuantidade((q) => Math.min(10, q + 1))} aria-label={t('painelrender_mais_uma')}>+</button>
+            <button onClick={() => setQuantidade((q) => Math.min(10, q + 1))} aria-label="Mais uma">+</button>
           </div>
 
           {/* Pill: proporção */}
@@ -674,7 +672,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
                 <rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
                 <rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
               </svg>
-              <span>{proporcao === 'auto' ? t('painelrender_auto') : proporcao}</span>
+              <span>{proporcao === 'auto' ? 'Auto' : proporcao}</span>
               <Seta aberto={popRatio} />
             </button>
 
@@ -691,7 +689,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
                         <rect x={p.x} y={p.y} width={p.w} height={p.h} rx="1"
                               stroke="currentColor" strokeWidth="1.5"/>
                       </svg>
-                      <span>{p.val === 'auto' ? t('painelrender_auto') : p.val}</span>
+                      <span>{p.val === 'auto' ? 'Auto' : p.val}</span>
                     </button>
                   ))}
                 </div>
@@ -731,7 +729,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           onClick={gerar}
           disabled={ocupado || !imagem || travadoMat}
         >
-          <span>{ocupado ? t('painelrender_renderizando') : t('painelrender_renderizar')}</span>
+          <span>{ocupado ? 'Renderizando...' : 'Renderizar'}</span>
           {!ocupado && !travadoMat && imagem && (
             <span className="cr-custo-tag">
               <IconeCredito /> {custo}
@@ -745,8 +743,8 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
         {travadoMat && (
           <p className="cr-custo">
             {matEstado === 'revisar'
-              ? t('painelrender_confirme_materiais')
-              : t('painelrender_leia_materiais')}
+              ? 'Confirme os materiais para renderizar'
+              : 'Leia os materiais para renderizar'}
           </p>
         )}
       </div>
@@ -755,7 +753,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
         aberto={picker !== null}
         onFechar={() => setPicker(null)}
         onEscolher={escolheuImagem}
-        titulo={picker === 'ref' ? t('painelrender_adicionar_referencia') : t('painelrender_imagem_modelo')}
+        titulo={picker === 'ref' ? 'Adicionar referência' : 'Imagem do modelo'}
       />
     </>
   );

@@ -16,7 +16,6 @@
 // ═══════════════════════════════════════════════════════════
 
 import { ROTULO_FERRAMENTA, tempoRelativo } from '../lib/geracoes';
-import { useIdioma } from '../lib/i18n';
 
 // "4:5" -> "4 / 5". "auto" não tem forma definida — quem decide é a imagem
 // que voltar; até lá, 4/3 é o meio-termo que menos distorce.
@@ -53,7 +52,6 @@ export default function Card({
   onFavoritar, onAprovar, onBaixar, onExcluir, onEnviarPara, onDetalhes,
   onMedir, razao
 }) {
-  const { t } = useIdioma();
   const ehA = ladoA?.id === it.id;
   const ehB = ladoB?.id === it.id;
 
@@ -115,7 +113,7 @@ export default function Card({
       )}
 
       {(it.tipo === 'video' || /\.(mp4|webm)(\?|$)/i.test(it.url || '')) && (
-        <span className="cr-card-play" aria-label={t('card_video')}>
+        <span className="cr-card-play" aria-label="Vídeo">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><polygon points="7 4 20 12 7 20 7 4"/></svg>
         </span>
       )}
@@ -135,7 +133,7 @@ export default function Card({
 
       {/* Aprovada: a badge fica à mostra — é o que o Batch vai usar */}
       {it.aprovado && !modoAB && (
-        <span className="cr-card-selo" data-tip={t('card_tip_selo_aprovada')}>
+        <span className="cr-card-selo" data-tip="Aprovada — é referência no Batch">
           <Check />
         </span>
       )}
@@ -152,8 +150,8 @@ export default function Card({
           <button
             className={'cr-ca' + (it.aprovado ? ' cr-ca--on' : '')}
             onClick={so(() => onAprovar(it))}
-            data-tip={it.aprovado ? t('card_tip_remover_aprovacao') : t('card_tip_aprovar')}
-            aria-label={it.aprovado ? t('card_tip_remover_aprovacao') : t('card_aprovar')}
+            data-tip={it.aprovado ? 'Remover aprovação' : 'Aprovar (vira referência no Batch)'}
+            aria-label={it.aprovado ? 'Remover aprovação' : 'Aprovar'}
           >
             <Check />
           </button>
@@ -161,8 +159,8 @@ export default function Card({
           <button
             className={'cr-ca' + (it.favorito ? ' cr-ca--fav' : '')}
             onClick={so(() => onFavoritar(it))}
-            data-tip={it.favorito ? t('card_desfavoritar') : t('card_favoritos')}
-            aria-label={it.favorito ? t('card_desfavoritar') : t('card_favoritar')}
+            data-tip={it.favorito ? 'Desfavoritar' : 'Favoritos'}
+            aria-label={it.favorito ? 'Desfavoritar' : 'Favoritar'}
           >
             <Coracao cheio={it.favorito} />
           </button>
@@ -170,8 +168,8 @@ export default function Card({
           <button
             className="cr-ca"
             onClick={so(() => onBaixar(it))}
-            data-tip={t('card_baixar')}
-            aria-label={t('card_baixar')}
+            data-tip="Baixar"
+            aria-label="Baixar"
           >
             <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -182,8 +180,8 @@ export default function Card({
           <button
             className="cr-ca cr-ca--perigo"
             onClick={so(() => onExcluir(it))}
-            data-tip={t('card_excluir')}
-            aria-label={t('card_excluir')}
+            data-tip="Excluir"
+            aria-label="Excluir"
           >
             <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
@@ -196,8 +194,8 @@ export default function Card({
           <button
             className="cr-ca"
             onClick={so(() => onDetalhes(it))}
-            data-tip={t('card_detalhes')}
-            aria-label={t('card_ver_detalhes')}
+            data-tip="Detalhes"
+            aria-label="Ver detalhes"
           >
             <svg viewBox="0 0 20 20" width="16" height="16" fill="none"
                  stroke="currentColor" strokeWidth="1.5">
@@ -213,8 +211,8 @@ export default function Card({
           <button
             className="cr-ca"
             onClick={so(() => onEnviarPara('editar', it))}
-            data-tip={t('card_editar')}
-            aria-label={t('card_enviar_editar')}
+            data-tip="Editar"
+            aria-label="Enviar para Editar"
           >
             <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M13.5 3.5l3 3L7 16l-3.5.5L4 13l9.5-9.5z" strokeLinejoin="round"/>
@@ -225,7 +223,7 @@ export default function Card({
             className="cr-ca"
             onClick={so(() => onEnviarPara('upscale', it))}
             data-tip="Upscale"
-            aria-label={t('card_enviar_upscale')}
+            aria-label="Enviar para Upscale"
           >
             <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M11 3.5h5.5V9M16.5 3.5L11 9" strokeLinecap="round" strokeLinejoin="round"/>
@@ -236,8 +234,8 @@ export default function Card({
           <button
             className="cr-ca"
             onClick={so(() => onEnviarPara('animacao', it))}
-            data-tip={t('card_animar')}
-            aria-label={t('card_enviar_animacao')}
+            data-tip="Animar"
+            aria-label="Enviar para Animação"
           >
             <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="2.5" y="5" width="10" height="10" rx="1.5"/>

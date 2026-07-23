@@ -5,11 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { registrar } from '../../lib/auth';
 import CampoSenha, { senhaForte } from '../../components/CampoSenha';
-import { useIdioma } from '../../lib/i18n';
 
 export default function Cadastro() {
   const router = useRouter();
-  const { t } = useIdioma();
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -52,13 +50,13 @@ export default function Cadastro() {
       setFaltando(falta);
       let msg;
       if (falta.aceite && Object.keys(falta).length === 1) {
-        msg = t('cad_aceite_erro');
+        msg = 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.';
       } else if (!senhaValida) {
         msg = !senhaForte(senha)
-          ? t('nova_req')
-          : t('nova_confirme');
+          ? 'A senha ainda não cumpre todos os requisitos.'
+          : 'Confirme a senha corretamente (os dois campos precisam ser iguais).';
       } else {
-        msg = t('cad_preencha');
+        msg = 'Preencha todos os campos obrigatórios.';
       }
       setErro(msg);
       return;
@@ -81,82 +79,82 @@ export default function Cadastro() {
     <div className="login-wrap">
       <div className="login-card">
         <Link href="/" className="login-logo">Cora Render</Link>
-        <h1 className="login-titulo">{t('cad_criar')}</h1>
-        <p className="login-sub">{t('cad_sub')}</p>
+        <h1 className="login-titulo">Criar conta</h1>
+        <p className="login-sub">7 dias grátis para conhecer o Cora Render.</p>
 
-        <label className="login-label">{t('perfil_nome')} <span className="obrig">*</span></label>
+        <label className="login-label">Nome <span className="obrig">*</span></label>
         <input
-          className={cls('nome')} type="text" placeholder={t('perfil_seu_nome')}
+          className={cls('nome')} type="text" placeholder="Seu nome"
           value={nome} onChange={(e) => setNome(e.target.value)}
         />
 
-        <label className="login-label">{t('login_email')} <span className="obrig">*</span></label>
+        <label className="login-label">E-mail <span className="obrig">*</span></label>
         <input
-          className={cls('email')} type="email" placeholder={t('login_ph_email')}
+          className={cls('email')} type="email" placeholder="voce@email.com"
           value={email} onChange={(e) => setEmail(e.target.value)}
-          readOnly={emailTravado} title={emailTravado ? t('login_email_travado') : undefined}
+          readOnly={emailTravado} title={emailTravado ? 'Este é o email do convite e não pode ser alterado' : undefined}
         />
 
-        <label className="login-label">{t('cad_genero')} <span className="obrig">*</span></label>
+        <label className="login-label">Gênero <span className="obrig">*</span></label>
         <select className={cls('genero')} value={genero} onChange={(e) => setGenero(e.target.value)}>
-          <option value="">{t('cad_selecione')}</option>
-          <option value="feminino">{t('cad_g_fem')}</option>
-          <option value="masculino">{t('cad_g_masc')}</option>
-          <option value="nao_binario">{t('cad_g_nb')}</option>
-          <option value="nao_informar">{t('cad_g_ni')}</option>
+          <option value="">Selecione...</option>
+          <option value="feminino">Feminino</option>
+          <option value="masculino">Masculino</option>
+          <option value="nao_binario">Não-binário</option>
+          <option value="nao_informar">Prefiro não informar</option>
         </select>
 
-        <label className="login-label">{t('cad_profissao')} <span className="obrig">*</span></label>
+        <label className="login-label">Profissão <span className="obrig">*</span></label>
         <select className={cls('profissao')} value={profissao} onChange={(e) => setProfissao(e.target.value)}>
-          <option value="">{t('cad_selecione')}</option>
-          <option value="arquiteto">{t('cad_p_arq')}</option>
-          <option value="designer_interiores">{t('cad_p_design')}</option>
+          <option value="">Selecione...</option>
+          <option value="arquiteto">Arquiteto(a)</option>
+          <option value="designer_interiores">Designer de interiores</option>
           <option value="archviz">Archviz</option>
-          <option value="engenheiro">{t('cad_p_eng')}</option>
-          <option value="estudante">{t('cad_p_estud')}</option>
-          <option value="paisagista">{t('cad_p_pais')}</option>
-          <option value="outro">{t('cad_outro')}</option>
+          <option value="engenheiro">Engenheiro(a)</option>
+          <option value="estudante">Estudante</option>
+          <option value="paisagista">Paisagista</option>
+          <option value="outro">Outro</option>
         </select>
 
-        <label className="login-label">{t('cad_origem')} <span className="obrig">*</span></label>
+        <label className="login-label">Como conheceu o Cora Render? <span className="obrig">*</span></label>
         <select className={cls('origem')} value={origem} onChange={(e) => setOrigem(e.target.value)}>
-          <option value="">{t('cad_selecione')}</option>
+          <option value="">Selecione...</option>
           <option value="instagram">Instagram</option>
           <option value="youtube">YouTube</option>
-          <option value="google">{t('cad_o_google')}</option>
-          <option value="indicacao">{t('cad_o_indicacao')}</option>
+          <option value="google">Google / Busca</option>
+          <option value="indicacao">Indicação de amigo</option>
           <option value="tiktok">TikTok</option>
-          <option value="anuncio">{t('cad_o_anuncio')}</option>
-          <option value="outro">{t('cad_outro')}</option>
+          <option value="anuncio">Anúncio</option>
+          <option value="outro">Outro</option>
         </select>
 
-        <label className="login-label">{t('cad_usa')} <span className="obrig">*</span></label>
+        <label className="login-label">Já usa algum renderizador? <span className="obrig">*</span></label>
         <select className={cls('usaRender')} value={usaRender} onChange={(e) => setUsaRender(e.target.value)}>
-          <option value="">{t('cad_selecione')}</option>
-          <option value="nao">{t('cad_u_nenhum')}</option>
+          <option value="">Selecione...</option>
+          <option value="nao">Não uso nenhum</option>
           <option value="vray">V-Ray</option>
           <option value="corona">Corona</option>
           <option value="enscape">Enscape</option>
           <option value="lumion">Lumion</option>
-          <option value="dhistudio">{t('cad_u_d5')}</option>
-          <option value="outro">{t('cad_outro')}</option>
+          <option value="dhistudio">D5 / outro IA</option>
+          <option value="outro">Outro</option>
         </select>
 
-        <label className="login-label">{t('cad_tamanho')} <span className="obrig">*</span></label>
+        <label className="login-label">Tamanho da equipe <span className="obrig">*</span></label>
         <select className={cls('tamanho')} value={tamanho} onChange={(e) => setTamanho(e.target.value)}>
-          <option value="">{t('cad_selecione')}</option>
-          <option value="autonomo">{t('cad_t_auto')}</option>
-          <option value="2a5">{t('cad_t_2a5')}</option>
-          <option value="6a20">{t('cad_t_6a20')}</option>
-          <option value="20mais">{t('cad_t_20')}</option>
+          <option value="">Selecione...</option>
+          <option value="autonomo">Só eu (autônomo)</option>
+          <option value="2a5">2 a 5 pessoas</option>
+          <option value="6a20">6 a 20 pessoas</option>
+          <option value="20mais">Mais de 20 pessoas</option>
         </select>
 
-        <label className="login-label">{t('cad_volume')} <span className="obrig">*</span></label>
+        <label className="login-label">Projetos por ano <span className="obrig">*</span></label>
         <select className={cls('volume')} value={volume} onChange={(e) => setVolume(e.target.value)}>
-          <option value="">{t('cad_selecione')}</option>
-          <option value="menos10">{t('cad_v_menos10')}</option>
-          <option value="10a20">{t('cad_v_10a20')}</option>
-          <option value="mais20">{t('cad_v_mais20')}</option>
+          <option value="">Selecione...</option>
+          <option value="menos10">Menos de 10</option>
+          <option value="10a20">Entre 10 e 20</option>
+          <option value="mais20">Mais de 20</option>
         </select>
 
         <CampoSenha senha={senha} setSenha={setSenha} onValidez={setSenhaValida} erroCampo={faltando.senha} />
@@ -166,17 +164,17 @@ export default function Cadastro() {
         <label className={'cad-aceite' + (faltando.aceite ? ' cad-aceite--erro' : '')}>
           <input type="checkbox" checked={aceite} onChange={(e) => setAceite(e.target.checked)} />
           <span>
-            {t('cad_li1')} <Link href="/termos" target="_blank">{t('cad_termos')}</Link> {t('cad_li_e')}{' '}
-            <Link href="/privacidade" target="_blank">{t('cad_privacidade')}</Link>.
+            Li e aceito os <Link href="/termos" target="_blank">Termos de Uso</Link> e a{' '}
+            <Link href="/privacidade" target="_blank">Política de Privacidade</Link>.
           </span>
         </label>
 
         <button className="btn btn--verde" style={{ marginTop: 14 }} onClick={criarConta} disabled={carregando}>
-          {carregando ? t('cad_criando') : t('login_criar_conta')}
+          {carregando ? 'Criando...' : 'Criar conta grátis'}
         </button>
 
         <p className="login-rodape">
-          {t('cad_ja_tem')} <Link href="/login">{t('login_entrar')}</Link>
+          Já tem conta? <Link href="/login">Entrar</Link>
         </p>
       </div>
     </div>

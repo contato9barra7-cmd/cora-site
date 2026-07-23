@@ -3,10 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { lerConta } from '../lib/auth';
-import { useIdioma } from '../lib/i18n';
 
 export default function Nav() {
-  const { t } = useIdioma();
   const [conta, setConta] = useState(null);
   const [pronto, setPronto] = useState(false);
 
@@ -20,7 +18,7 @@ export default function Nav() {
       <nav className="nav">
         <Link href="/" className="nav__logo">Cora Render</Link>
         <div className="nav__links">
-          <Link href="/precos">{t('nav_planos_precos')}</Link>
+          <Link href="/precos">Planos e preços</Link>
 
           {/* Só decide o que mostrar depois de checar a sessão no navegador,
               para não "piscar" o menu errado. */}
@@ -30,17 +28,17 @@ export default function Nav() {
               className="btn btn--roxo"
               style={{ margin: 0, width: 'auto', padding: '9px 20px' }}
             >
-              {t('nav_minha_conta')}
+              Minha conta
             </Link>
           ) : pronto ? (
             <>
-              <Link href="/login" className="nav__entrar">{t('nav_entrar')}</Link>
+              <Link href="/login" className="nav__entrar">Entrar</Link>
               <Link
                 href="/login"
                 className="btn btn--roxo"
                 style={{ margin: 0, width: 'auto', padding: '9px 20px' }}
               >
-                {t('nav_testar_gratis')}
+                Testar grátis
               </Link>
             </>
           ) : null}

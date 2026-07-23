@@ -7,18 +7,17 @@
 
 import { useEffect, useState } from 'react';
 import { adminContarPublicos, adminEnviarEmail, adminContarPublicosPromptador, adminEnviarEmailPromptador } from '../lib/auth';
-import { useIdioma } from '../lib/i18n';
 import DropdownCora from './DropdownCora';
 
 const PUBLICOS_ASSIN = [
-  { v: 'ativos', k: 'emailassinantes_pub_assin_ativos' },
-  { v: 'todos', k: 'emailassinantes_pub_todos_cad' },
-  { v: 'alunos', k: 'emailassinantes_pub_alunos_prompt' },
+  { v: 'ativos', l: 'Assinantes ativos' },
+  { v: 'todos', l: 'Todos os cadastrados' },
+  { v: 'alunos', l: 'Alunos (promptadores)' },
 ];
 const PUBLICOS_CURSO = [
-  { v: 'ativos', k: 'emailassinantes_pub_alunos_ativo' },
-  { v: 'vencidos', k: 'emailassinantes_pub_alunos_vencido' },
-  { v: 'todos', k: 'emailassinantes_pub_todos_alunos' },
+  { v: 'ativos', l: 'Alunos com acesso ativo' },
+  { v: 'vencidos', l: 'Alunos com acesso vencido' },
+  { v: 'todos', l: 'Todos os alunos' },
 ];
 // Logos (versão branca) no R2 público — usados na prévia, igual ao e-mail enviado.
 const R2_ASSETS = 'https://pub-aa535595a631449683ed641002707fa4.r2.dev';
@@ -30,7 +29,6 @@ const LOGOS_CURSO = {
 // Modo curso: passe `curso` ('ia_studio'|'prompthub') e `cursoLabel`. Aí o e-mail
 // sai como 9barra7 e o público são os alunos daquele curso.
 export default function EmailAssinantes({ onClose, curso, cursoLabel }) {
-  const { t } = useIdioma();
   const modoCurso = !!curso;
   const PUBLICOS = modoCurso ? PUBLICOS_CURSO : PUBLICOS_ASSIN;
   const [publico, setPublico] = useState('ativos');
@@ -55,7 +53,7 @@ export default function EmailAssinantes({ onClose, curso, cursoLabel }) {
   function podeEnviar() { return assunto.trim() && mensagem.trim(); }
 
   async function enviar() {
-    if (!podeEnviar()) { setErro(t('emailassinantes_erro_preencha')); return; }
+    if (!podeEnviar()) { setErro('Preencha assunto e mensagem.'); return; }
     setEnviando(true); setErro('');
     try {
       const payload = {
@@ -80,58 +78,58 @@ export default function EmailAssinantes({ onClose, curso, cursoLabel }) {
         {resultado ? (
           <div className="ea-result">
             <div className="ea-check"><svg viewBox="0 0 24 24" fill="none" stroke="#0d2b06" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg></div>
-            <h3>{t('emailassinantes_enviado')}</h3>
-            <p>{resultado.enviados} {t('emailassinantes_enviados_suffix')}{resultado.falhas ? `, ${resultado.falhas} ${t('emailassinantes_falhas_suffix')}` : ''}{resultado.sem_resend ? ` — ${t('emailassinantes_sem_resend')}` : ''}.</p>
-            <button className="ea-btn ea-enviar" onClick={onClose}>{t('fechar')}</button>
+            <h3>E-mail enviado!</h3>
+            <p>{resultado.enviados} enviado(s){resultado.falhas ? `, ${resultado.falhas} falha(s)` : ''}{resultado.sem_resend ? ' — servidor de e-mail não configurado.' : ''}.</p>
+            <button className="ea-btn ea-enviar" onClick={onClose}>Fechar</button>
           </div>
         ) : vista === 'compor' ? (
           <>
             <div className="ea-mh">
-              <h3>{modoCurso ? `${t('emailassinantes_titulo_alunos')}${cursoLabel ? ' · ' + cursoLabel : ''}` : t('emailassinantes_titulo_assin')}</h3>
-              <p>{modoCurso ? t('emailassinantes_sub_alunos') : t('emailassinantes_sub_assin')}</p>
+              <h3>{modoCurso ? `Enviar e-mail aos alunos${cursoLabel ? ' · ' + cursoLabel : ''}` : 'Enviar e-mail aos assinantes'}</h3>
+              <p>{modoCurso ? 'Avise os alunos deste curso (enviado como 9barra7).' : 'Escreva o que quiser e envie para o público escolhido.'}</p>
             </div>
             <div className="ea-mb">
               <div className="ea-fld">
-                <label>{t('emailassinantes_para')}</label>
+                <label>Para</label>
                 <DropdownCora
                   valor={publico}
                   onEscolher={setPublico}
-                  opcoes={PUBLICOS.map(p => ({ v: p.v, n: `${t(p.k)}${contagens ? ` (${contagens[p.v] ?? 0})` : ''}` }))}
+                  opcoes={PUBLICOS.map(p => ({ v: p.v, n: `${p.l}${contagens ? ` (${contagens[p.v] ?? 0})` : ''}` }))}
                 />
               </div>
-              <div className="ea-fld"><label>{t('emailassinantes_assunto')}</label>
-                <input className="ea-inp" value={assunto} onChange={e => setAssunto(e.target.value)} placeholder={t('emailassinantes_ph_assunto')} /></div>
-              <div className="ea-fld"><label>{t('emailassinantes_titulo_label')} <span className="ea-opc">{t('emailassinantes_titulo_hint')}</span></label>
-                <input className="ea-inp" value={titulo} onChange={e => setTitulo(e.target.value)} placeholder={t('emailassinantes_ph_titulo')} /></div>
-              <div className="ea-fld"><label>{t('emailassinantes_mensagem')}</label>
-                <textarea className="ea-inp ea-txt" value={mensagem} onChange={e => setMensagem(e.target.value)} placeholder={t('emailassinantes_ph_mensagem')} /></div>
+              <div className="ea-fld"><label>Assunto</label>
+                <input className="ea-inp" value={assunto} onChange={e => setAssunto(e.target.value)} placeholder="Assunto do e-mail" /></div>
+              <div className="ea-fld"><label>Título <span className="ea-opc">(aparece no e-mail)</span></label>
+                <input className="ea-inp" value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="Título grande do e-mail" /></div>
+              <div className="ea-fld"><label>Mensagem</label>
+                <textarea className="ea-inp ea-txt" value={mensagem} onChange={e => setMensagem(e.target.value)} placeholder="Escreva sua mensagem..." /></div>
               <div className="ea-duo">
-                <div className="ea-fld"><label>{t('emailassinantes_btn_texto')} <span className="ea-opc">{t('emailassinantes_opcional')}</span></label>
-                  <input className="ea-inp" value={botaoTexto} onChange={e => setBotaoTexto(e.target.value)} placeholder={t('emailassinantes_ph_btn_texto')} /></div>
-                <div className="ea-fld"><label>{t('emailassinantes_btn_link')} <span className="ea-opc">{t('emailassinantes_opcional')}</span></label>
+                <div className="ea-fld"><label>Texto do botão <span className="ea-opc">(opcional)</span></label>
+                  <input className="ea-inp" value={botaoTexto} onChange={e => setBotaoTexto(e.target.value)} placeholder="Ex: Ver novidades" /></div>
+                <div className="ea-fld"><label>Link do botão <span className="ea-opc">(opcional)</span></label>
                   <input className="ea-inp" value={botaoLink} onChange={e => setBotaoLink(e.target.value)} placeholder="https://..." /></div>
               </div>
               <div className="ea-info">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#6d6ae0" strokeWidth="1.8"><path d="M4 4h16v12H7l-3 3V4z" /></svg>
-                {t('emailassinantes_sera_enviado')} <b>&nbsp;{qtd == null ? '…' : qtd} {qtd === 1 ? t('emailassinantes_pessoa') : t('emailassinantes_pessoas')}</b>.
+                Será enviado para <b>&nbsp;{qtd == null ? '…' : qtd} {qtd === 1 ? 'pessoa' : 'pessoas'}</b>.
               </div>
               {erro && <p className="ea-erro">{erro}</p>}
             </div>
             <div className="ea-mf">
-              <button className="ea-btn ea-cancelar" onClick={onClose}>{t('comum_cancelar')}</button>
+              <button className="ea-btn ea-cancelar" onClick={onClose}>Cancelar</button>
               <div className="ea-dir">
-                <button className="ea-btn ea-previa" onClick={() => setVista('previa')} disabled={!podeEnviar()}>{t('emailassinantes_ver_previa')}</button>
-                <button className="ea-btn ea-enviar" onClick={enviar} disabled={enviando || !podeEnviar()}>{enviando ? t('emailassinantes_enviando') : t('emailassinantes_enviar')}</button>
+                <button className="ea-btn ea-previa" onClick={() => setVista('previa')} disabled={!podeEnviar()}>Ver prévia</button>
+                <button className="ea-btn ea-enviar" onClick={enviar} disabled={enviando || !podeEnviar()}>{enviando ? 'Enviando...' : 'Enviar'}</button>
               </div>
             </div>
           </>
         ) : (
           <>
             <div className="ea-mh">
-              <button className="ea-back" onClick={() => setVista('compor')}>← {t('emailassinantes_voltar_editar')}</button>
-              <h3>{t('emailassinantes_previa_titulo')}</h3>
+              <button className="ea-back" onClick={() => setVista('compor')}>← Voltar a editar</button>
+              <h3>Prévia do e-mail</h3>
             </div>
-            <div className="ea-assunto">{t('emailassinantes_assunto')}: <b>{assunto || t('emailassinantes_sem_assunto')}</b></div>
+            <div className="ea-assunto">Assunto: <b>{assunto || '(sem assunto)'}</b></div>
             <div className="ea-mb">
               <div className="ea-prev">
                 <div className="ea-prev-top">{modoCurso && LOGOS_CURSO[curso]
@@ -147,9 +145,9 @@ export default function EmailAssinantes({ onClose, curso, cursoLabel }) {
               {erro && <p className="ea-erro">{erro}</p>}
             </div>
             <div className="ea-mf">
-              <button className="ea-btn ea-cancelar" onClick={onClose}>{t('comum_cancelar')}</button>
+              <button className="ea-btn ea-cancelar" onClick={onClose}>Cancelar</button>
               <div className="ea-dir">
-                <button className="ea-btn ea-enviar" onClick={enviar} disabled={enviando}>{enviando ? t('emailassinantes_enviando') : `${t('emailassinantes_enviar_para')} ${qtd == null ? '' : qtd} ${qtd === 1 ? t('emailassinantes_pessoa') : t('emailassinantes_pessoas')}`}</button>
+                <button className="ea-btn ea-enviar" onClick={enviar} disabled={enviando}>{enviando ? 'Enviando...' : `Enviar para ${qtd == null ? '' : qtd} ${qtd === 1 ? 'pessoa' : 'pessoas'}`}</button>
               </div>
             </div>
           </>

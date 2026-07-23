@@ -9,16 +9,15 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
-import { useIdioma } from '../lib/i18n';
 
 const FERRAMENTAS = [
   { val: 'render',   rotulo: 'Render' },
-  { val: 'editar',   chave: 'filtros_ferr_editar' },
+  { val: 'editar',   rotulo: 'Editar' },
   { val: 'batch',    rotulo: 'Batch' },
   { val: 'upscale',  rotulo: 'Upscale' },
-  { val: 'pos',      chave: 'filtros_ferr_pos' },
+  { val: 'pos',      rotulo: 'Pós-produção' },
   { val: '360',      rotulo: '360°' },
-  { val: 'animacao', chave: 'filtros_ferr_animacao' }
+  { val: 'animacao', rotulo: 'Animação' }
 ];
 
 // As mais usadas ficam à mostra; o resto entra no "..."
@@ -28,7 +27,6 @@ const PROPORCOES_RESTO      = ['3:2', '2:3', '5:4', '3:4', '21:9'];
 const RESOLUCOES = ['1k', '2k', '4k', '8k', '16k'];
 
 export default function Filtros({ aberto, valor, onMudar, onLimpar, onFechar }) {
-  const { t } = useIdioma();
   const [maisProps, setMaisProps] = useState(false);
 
   useEffect(() => {
@@ -65,7 +63,7 @@ export default function Filtros({ aberto, valor, onMudar, onLimpar, onFechar }) 
       <div className="ft" onClick={(e) => e.stopPropagation()}>
 
         <div className="ft-bloco">
-          <h4>{t('filtros_periodo')}</h4>
+          <h4>Período</h4>
           <div className="ft-datas">
             <input
               type="date"
@@ -82,20 +80,20 @@ export default function Filtros({ aberto, valor, onMudar, onLimpar, onFechar }) 
         </div>
 
         <div className="ft-bloco">
-          <h4>{t('filtros_ferramenta')}</h4>
+          <h4>Ferramenta</h4>
           <div className="ft-tags">
             {FERRAMENTAS.map((f) => (
               <button
                 key={f.val}
                 className={'ft-tag' + ((valor.ferramentas || []).includes(f.val) ? ' ft-tag--on' : '')}
                 onClick={() => alternar('ferramentas', f.val)}
-              >{f.chave ? t(f.chave) : f.rotulo}</button>
+              >{f.rotulo}</button>
             ))}
           </div>
         </div>
 
         <div className="ft-bloco">
-          <h4>{t('filtros_proporcao')}</h4>
+          <h4>Proporção</h4>
           <div className="ft-tags">
             {PROPORCOES_PRINCIPAIS.map((p) => (
               <button
@@ -123,7 +121,7 @@ export default function Filtros({ aberto, valor, onMudar, onLimpar, onFechar }) 
         </div>
 
         <div className="ft-bloco">
-          <h4>{t('filtros_propriedades')}</h4>
+          <h4>Propriedades</h4>
           <div className="ft-tags">
             <button
               className={'ft-tag' + (valor.baixadas ? ' ft-tag--on' : '')}
@@ -133,7 +131,7 @@ export default function Filtros({ aberto, valor, onMudar, onLimpar, onFechar }) 
                 <path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M3.5 14v1.5A1.5 1.5 0 005 17h10a1.5 1.5 0 001.5-1.5V14" strokeLinecap="round"/>
               </svg>
-              {t('filtros_baixadas')}
+              Baixadas
             </button>
 
             <button
@@ -143,13 +141,13 @@ export default function Filtros({ aberto, valor, onMudar, onLimpar, onFechar }) 
               <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z" strokeLinejoin="round"/>
               </svg>
-              {t('filtros_favoritas')}
+              Favoritas
             </button>
           </div>
         </div>
 
         <div className="ft-bloco">
-          <h4>{t('filtros_resolucao')}</h4>
+          <h4>Resolução</h4>
           <div className="ft-tags">
             {RESOLUCOES.map((r) => (
               <button
@@ -162,7 +160,7 @@ export default function Filtros({ aberto, valor, onMudar, onLimpar, onFechar }) 
         </div>
 
         <button className="ft-limpar" onClick={onLimpar} disabled={usados === 0}>
-          {t('filtros_limpar_tudo')}{usados > 0 ? ` (${usados})` : ''}
+          Limpar tudo{usados > 0 ? ` (${usados})` : ''}
         </button>
       </div>
     </>

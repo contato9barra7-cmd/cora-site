@@ -4,11 +4,9 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { verificar, reenviarCodigo } from '../../lib/auth';
-import { useIdioma } from '../../lib/i18n';
 
 function VerificarConteudo() {
   const router = useRouter();
-  const { t } = useIdioma();
   const params = useSearchParams();
   const [email, setEmail] = useState('');
   const [codigo, setCodigo] = useState('');
@@ -23,7 +21,7 @@ function VerificarConteudo() {
 
   async function confirmar() {
     setErro(''); setAviso('');
-    if (!codigo || codigo.length < 6) { setErro(t('ver_codigo6')); return; }
+    if (!codigo || codigo.length < 6) { setErro('Digite o código de 6 dígitos.'); return; }
     setCarregando(true);
     try {
       await verificar({ email, codigo });
@@ -47,19 +45,19 @@ function VerificarConteudo() {
   async function reenviar() {
     setErro(''); setAviso('');
     await reenviarCodigo(email);
-    setAviso(t('ver_reenviado'));
+    setAviso('Enviamos um novo código para o seu email.');
   }
 
   return (
     <div className="login-wrap">
       <div className="login-card">
         <Link href="/" className="login-logo">Cora Render</Link>
-        <h1 className="login-titulo">{t('ver_confirme')}</h1>
+        <h1 className="login-titulo">Confirme seu email</h1>
         <p className="login-sub">
-          {t('ver_enviamos')}<br /><strong>{email || t('ver_seu_email')}</strong>.
+          Enviamos um código de 6 dígitos para<br /><strong>{email || 'seu email'}</strong>.
         </p>
 
-        <label className="login-label">{t('ver_codigo_label')}</label>
+        <label className="login-label">Código</label>
         <input
           className="login-input" type="text" inputMode="numeric" maxLength={6}
           placeholder="000000" value={codigo}
@@ -72,11 +70,11 @@ function VerificarConteudo() {
         {aviso && <p className="login-aviso">{aviso}</p>}
 
         <button className="btn btn--verde" style={{ marginTop: 18 }} onClick={confirmar} disabled={carregando}>
-          {carregando ? t('ver_confirmando') : t('ver_confirmar_entrar')}
+          {carregando ? 'Confirmando...' : 'Confirmar e entrar'}
         </button>
 
         <p className="login-rodape">
-          {t('ver_nao_recebeu')} <button className="link-botao" onClick={reenviar}>{t('ver_reenviar')}</button>
+          Não recebeu? <button className="link-botao" onClick={reenviar}>Reenviar código</button>
         </p>
       </div>
     </div>
@@ -84,9 +82,8 @@ function VerificarConteudo() {
 }
 
 export default function Verificar() {
-  const { t } = useIdioma();
   return (
-    <Suspense fallback={<div className="login-wrap"><p>{t('comum_carregando')}</p></div>}>
+    <Suspense fallback={<div className="login-wrap"><p>Carregando...</p></div>}>
       <VerificarConteudo />
     </Suspense>
   );

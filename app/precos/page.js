@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { iniciarCheckout, salvarCPF, salvarDadosFiscais, lerConta, abrirPortal } from '../../lib/auth';
 import { STRIPE_PRICES } from '../../lib/stripe-prices';
 import Nav from '../../components/Nav';
-import { useIdioma } from '../../lib/i18n';
 import {
   planos, recargas, descontoAnual,
   comparacao, custos, faq,
@@ -34,15 +33,7 @@ function Celula({ v }) {
   return <span className="cel-txt">{v}</span>;
 }
 
-// Traduz strings que são chaves 'pl_*' ou que contêm tokens {pl_*}.
-function traduzir(t, s) {
-  if (typeof s !== 'string') return s;
-  if (s.startsWith('pl_')) return t(s);
-  if (s.includes('{pl_')) return s.replace(/\{(pl_\w+)\}/g, (_, k) => t(k));
-  return s;
-}
-
-function TabelaTeams({ titulo, dados, t }) {
+function TabelaTeams({ titulo, dados }) {
   return (
     <div className="teams__tabela">
       <h4>{titulo}</h4>
@@ -50,16 +41,16 @@ function TabelaTeams({ titulo, dados, t }) {
         <table>
           <thead>
             <tr>
-              <th>{t('precos_assentos')}</th>
-              <th className="num">{t('precos_desconto')}</th>
-              <th className="num">{t('precos_por_assento')}</th>
-              <th className="num">{t('precos_total_mes')}</th>
+              <th>Assentos</th>
+              <th className="num">Desconto</th>
+              <th className="num">Por assento</th>
+              <th className="num">Total por mês</th>
             </tr>
           </thead>
           <tbody>
             {dados.map((l, i) => (
               <tr key={i}>
-                <th scope="row">{t(l[0])}</th>
+                <th scope="row">{l[0]}</th>
                 <td className="num">{Math.round(l[1] * 100)}%</td>
                 <td className="num">{brlInt(l[2])}</td>
                 <td className="num">{l[3] === null ? '—' : brlInt(l[3])}</td>
@@ -73,8 +64,6 @@ function TabelaTeams({ titulo, dados, t }) {
 }
 
 export default function Precos() {
-  const { t } = useIdioma();
-  const tr = (s) => traduzir(t, s);
   const [anual, setAnual] = useState(false);
   const [abaCusto, setAbaCusto] = useState('imagens');
   const [erroCheckout, setErroCheckout] = useState('');
@@ -94,6 +83,7 @@ export default function Precos() {
 
   useEffect(() => {
     setConta(lerConta());
+    // Retoma um checkout pendente após cadastro/login (?retomar=1)
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const priceId = localStorage.getItem('cora_checkout_pendente');
@@ -133,12 +123,13 @@ export default function Precos() {
     setSalvandoCpf(true);
     try {
       if (fiscalTipo === 'intl') {
-        if (!docIntl.trim()) { setCpfErro(t('precos_inf_doc')); setSalvandoCpf(false); return; }
-        if (!paisIntl.trim()) { setCpfErro(t('precos_inf_pais')); setSalvandoCpf(false); return; }
+        if (!docIntl.trim()) { setCpfErro('Informe o documento fiscal'); setSalvandoCpf(false); return; }
+        if (!paisIntl.trim()) { setCpfErro('Informe o país'); setSalvandoCpf(false); return; }
         await salvarDadosFiscais({ internacional: true, documento: docIntl.trim(), pais: paisIntl.trim() });
       } else {
         await salvarDadosFiscais({ cpf });
       }
+      // abre a guia a partir DESTE clique (evita bloqueio de popup)
       const guia = null;
       setModalCpf(false);
       setCpf(''); setDocIntl(''); setPaisIntl('');
@@ -150,26 +141,37 @@ export default function Precos() {
     }
   }
 
+  // Recarga só faz sentido com plano ativo: ela é usada DEPOIS que os créditos
+  // do plano acabam. Sem plano não há créditos para acabar — o dinheiro ficaria
+  // parado. É a mesma regra do texto da seção, agora valendo de fato.
   const temPlanoAtivo = conta && conta.plano && conta.plano !== 'free'
                         && conta.status === 'ativo';
 
   async function comprarRecarga(recargaId) {
     const priceId = STRIPE_PRICES.recargas[recargaId];
     if (!priceId) return;
+
+    // Sem conta: a recarga não teria onde cair
     const logada = typeof window !== 'undefined' && localStorage.getItem('cora_conta');
     if (!logada) { router.push('/cadastro'); return; }
+
+    // Com conta, mas sem plano: manda escolher um antes
     if (!temPlanoAtivo) {
       setAvisoRecarga(true);
       return;
     }
+
     await comprar(priceId, null);
   }
 
   async function assinarPlano(planoId) {
     if (planoId === 'free') { router.push('/cadastro'); return; }
+
+    // Já tem plano pago ativo? Não deixa comprar de novo — oferece upgrade/troca.
     const temPlanoPago = conta && conta.plano && conta.plano !== 'free' && conta.status === 'ativo';
     if (temPlanoPago) {
       if (conta.plano === planoId) {
+        // mesmo plano que já tem
         setPlanoAlvo(planoId);
         setModalUpgrade(true);
         return;
@@ -178,9 +180,11 @@ export default function Precos() {
       setModalUpgrade(true);
       return;
     }
+
     const grupo = STRIPE_PRICES[planoId];
     if (!grupo) return;
     const priceId = anual ? grupo.anual : grupo.mensal;
+    // Só abre a guia se já estiver logada (senão vira about:blank; sem login vai pro cadastro).
     const logada = typeof window !== 'undefined' && localStorage.getItem('cora_conta');
     const guia = null;
     await comprar(priceId, guia);
@@ -204,12 +208,12 @@ export default function Precos() {
       {/* CABEÇALHO + PLANOS */}
       <div className="container">
         <div className="head">
-          <h1>{t('precos_h1')}</h1>
-          <p>{t('precos_sub')}</p>
+          <h1>Escolha como você quer renderizar</h1>
+          <p>Planos mensais, sem fidelidade. Cancele quando quiser.</p>
           <div className="toggle">
-            <button className={!anual ? 'ativo' : ''} onClick={() => setAnual(false)}>{t('precos_mensal')}</button>
+            <button className={!anual ? 'ativo' : ''} onClick={() => setAnual(false)}>Mensal</button>
             <button className={anual ? 'ativo' : ''} onClick={() => setAnual(true)}>
-              {t('precos_anual')}{Math.round(descontoAnual * 100)}%
+              Anual · -{Math.round(descontoAnual * 100)}%
             </button>
           </div>
         </div>
@@ -218,39 +222,39 @@ export default function Precos() {
           {planos.map((p) => {
             let preco, cobranca = '', risco = '';
             if (p.mensal === 0) {
-              preco = t('precos_gratis');
-              cobranca = t('precos_7dias');
+              preco = 'Grátis';
+              cobranca = '7 dias';
             } else if (anual) {
               const mes = p.mensal * (1 - descontoAnual);
               preco = brl(mes);
-              cobranca = brlInt(Math.round(mes * 12)) + ' ' + t('precos_cobrado_ano');
+              cobranca = brlInt(Math.round(mes * 12)) + ' cobrados por ano';
               risco = brlInt(p.mensal);
             } else {
               preco = brlInt(p.mensal);
-              cobranca = t('precos_por_mes');
+              cobranca = 'por mês, cobrado mensalmente';
             }
             return (
               <div key={p.id} className={'plano' + (p.destaque ? ' plano--destaque' : '')}>
                 <div className="plano__topo">
-                  {p.tagKey && <span className="plano__tag">{t(p.tagKey)}</span>}
+                  {p.tag && <span className="plano__tag">{p.tag}</span>}
                   <h3 className="plano__nome">{p.nome}</h3>
-                  <p className="plano__desc">{t(p.descKey)}</p>
+                  <p className="plano__desc">{p.desc}</p>
                   <div className="plano__preco">
                     {risco && <span className="plano__risco">{risco}</span>}
                     <span className="plano__valor">{preco}</span>
-                    {p.mensal > 0 && <span className="plano__mes">{t('conta_mes')}</span>}
+                    {p.mensal > 0 && <span className="plano__mes">/mês</span>}
                   </div>
                   <p className="plano__cobranca">{cobranca}</p>
                   <div className="plano__cred">
-                    <div className="plano__credtxt">{t(p.creditosTxtKey)}</div>
-                    <div className="plano__credsub">{t(p.creditosSubKey)}</div>
+                    <div className="plano__credtxt">{p.creditosTxt}</div>
+                    <div className="plano__credsub">{p.creditosSub}</div>
                   </div>
                 </div>
-                <button className={'btn btn--' + p.ctaEstilo} onClick={() => assinarPlano(p.id)}>{t(p.ctaKey)}</button>
+                <button className={'btn btn--' + p.ctaEstilo} onClick={() => assinarPlano(p.id)}>{p.cta}</button>
                 <ul className="feats">
                   {p.feats.map((f, i) => (
                     <li key={i} className={f[0] ? '' : 'off'}>
-                      <Check on={f[0]} />{t(f[1])}
+                      <Check on={f[0]} />{f[1]}
                     </li>
                   ))}
                 </ul>
@@ -260,27 +264,28 @@ export default function Precos() {
         </div>
       </div>
 
-      {/* CORA TEAMS */}
+      {/* CORA TEAMS — logo abaixo dos planos */}
       <div className="sec sec--wash">
         <div className="container">
           <div className="teams">
             <div className="teams__lado">
               <h2 className="teams__titulo">Cora Teams</h2>
               <p className="teams__lead">
-                {t('precos_teams_lead')}
+                Painel de administração para distribuir assentos e acompanhar o
+                consumo da equipe. Quanto mais assentos, maior o desconto.
               </p>
               <ul className="teams__feats">
-                <li>✓ {t('precos_tf1')}</li>
-                <li>✓ {t('precos_tf2')}</li>
-                <li>✓ {t('precos_tf3')}</li>
-                <li>✓ {t('precos_tf4')}</li>
-                <li>✓ {t('precos_tf5')}</li>
+                <li>✓ Painel de administração</li>
+                <li>✓ Convide e remova pessoas da equipe</li>
+                <li>✓ Acompanhe o consumo de créditos por pessoa</li>
+                <li>✓ Faturamento único</li>
+                <li>✓ Mínimo de 2 assentos</li>
               </ul>
-              <button className="btn btn--ink" style={{ width: '100%', marginTop: 24 }} onClick={() => router.push('/teams')}>{t('precos_criar_equipe')}</button>
+              <button className="btn btn--ink" style={{ width: '100%', marginTop: 24 }} onClick={() => router.push('/teams')}>Criar equipe</button>
             </div>
             <div className="teams__tabelas">
-              <TabelaTeams titulo={t('precos_teams_pro')} dados={teamsPro} t={t} />
-              <TabelaTeams titulo={t('precos_teams_studio')} dados={teamsStudio} t={t} />
+              <TabelaTeams titulo="Teams sobre o Pro" dados={teamsPro} />
+              <TabelaTeams titulo="Teams sobre o Studio" dados={teamsStudio} />
             </div>
           </div>
         </div>
@@ -289,8 +294,8 @@ export default function Precos() {
       {/* O QUE VEM EM CADA PLANO */}
       <div className="sec">
         <div className="container">
-          <h2>{t('precos_oque_vem')}</h2>
-          <p className="sub">{t('precos_compare')}</p>
+          <h2>O que vem em cada plano</h2>
+          <p className="sub">Compare tudo lado a lado.</p>
           <div className="tabela-wrap">
             <table className="cmp">
               <thead>
@@ -304,13 +309,13 @@ export default function Precos() {
               <tbody>
                 {comparacao.map((linha, i) => {
                   if (linha[0] === 'grupo') {
-                    return <tr key={i} className="grupo"><td colSpan={5}>{t(linha[1])}</td></tr>;
+                    return <tr key={i} className="grupo"><td colSpan={5}>{linha[1]}</td></tr>;
                   }
                   return (
                     <tr key={i}>
-                      <td>{tr(linha[0])}</td>
+                      <td>{linha[0]}</td>
                       {linha.slice(1).map((v, j) => (
-                        <td key={j}><Celula v={tr(v)} /></td>
+                        <td key={j}><Celula v={v} /></td>
                       ))}
                     </tr>
                   );
@@ -321,11 +326,11 @@ export default function Precos() {
         </div>
       </div>
 
-      {/* QUANTO CUSTA CADA GERAÇÃO */}
+      {/* QUANTO CUSTA CADA GERAÇÃO — com abas */}
       <div className="sec sec--wash">
         <div className="container">
-          <h2>{t('precos_quanto_custa')}</h2>
-          <p className="sub">{t('precos_custa_sub')}</p>
+          <h2>Quanto custa cada geração</h2>
+          <p className="sub">Cada operação com IA consome créditos. O que não usa IA — material, espelho, otimizar o modelo — é sempre grátis.</p>
 
           <div className="custo-abas">
             {Object.keys(custos).map((key) => (
@@ -334,7 +339,7 @@ export default function Precos() {
                 className={'custo-aba' + (abaCusto === key ? ' ativa' : '')}
                 onClick={() => setAbaCusto(key)}
               >
-                {tr(custos[key].labelKey)}
+                {custos[key].label}
               </button>
             ))}
           </div>
@@ -344,7 +349,7 @@ export default function Precos() {
               <thead>
                 <tr>
                   {custos[abaCusto].colunas.map((c, i) => (
-                    <td key={i} className={i === 0 ? '' : 'num'}>{tr(c)}</td>
+                    <td key={i} className={i === 0 ? '' : 'num'}>{c}</td>
                   ))}
                 </tr>
               </thead>
@@ -352,7 +357,7 @@ export default function Precos() {
                 {custos[abaCusto].linhas.map((linha, i) => (
                   <tr key={i}>
                     {linha.map((v, j) => (
-                      <td key={j} className={j === 0 ? '' : 'num'}>{j === 0 ? tr(v) : num(v)}</td>
+                      <td key={j} className={j === 0 ? '' : 'num'}>{num(v)}</td>
                     ))}
                   </tr>
                 ))}
@@ -365,21 +370,25 @@ export default function Precos() {
       {/* RECARGAS */}
       <div className="sec">
         <div className="container">
-          <h2>{t('precos_acabaram')}</h2>
+          <h2>Acabaram os créditos no meio do projeto?</h2>
           <p className="sub">
-            {t('precos_recarga_sub')}
+            Compre uma recarga avulsa dentro da sua conta — elas exigem um plano
+            ativo, valem por 1 ano e só são usadas depois que os créditos do
+            plano acabam.
           </p>
           <div className="recargas">
             {recargas.map((r) => (
-              <div key={r.id} className={'recarga' + (r.popular ? ' recarga--pop' : '')}>
-                <div className="recarga__n">{t(r.nomeKey)}</div>
-                <div className="recarga__cred">{r.creditos.toLocaleString('pt-BR')} {t('precos_creditos')}</div>
+              <div key={r.n} className={'recarga' + (r.popular ? ' recarga--pop' : '')}>
+                <div className="recarga__n">{r.n}</div>
+                <div className="recarga__cred">{r.creditos.toLocaleString('pt-BR')} créditos</div>
                 <div className="recarga__p">{brlInt(r.preco)}</div>
-                <div className="recarga__u">{brl(r.preco / r.creditos)} {t('precos_por_credito')}</div>
+                <div className="recarga__u">{brl(r.preco / r.creditos)} por crédito</div>
+                {/* Página pública: só informa os valores. A compra de recarga
+                    acontece logado, na plataforma (página Assinatura). */}
                 <div
                   style={{ marginTop: 14, fontSize: 13, fontWeight: 600, color: '#8a8a8a', textAlign: 'center' }}
                 >
-                  {t('precos_comprar_conta')}
+                  Comprar na sua conta
                 </div>
               </div>
             ))}
@@ -390,12 +399,12 @@ export default function Precos() {
       {/* FAQ */}
       <div className="sec sec--wash">
         <div className="container">
-          <h2>{t('precos_faq_titulo')}</h2>
+          <h2>Perguntas frequentes</h2>
           <div className="faq">
             {faq.map((item, i) => (
               <details key={i}>
-                <summary>{t(item[0])}</summary>
-                <p>{t(item[1])}</p>
+                <summary>{item[0]}</summary>
+                <p>{item[1]}</p>
               </details>
             ))}
           </div>
@@ -405,9 +414,11 @@ export default function Precos() {
       {avisoRecarga && (
         <div className="foto-overlay" onClick={() => setAvisoRecarga(false)}>
           <div className="foto-modal" onClick={(e) => e.stopPropagation()} style={{ width: 400 }}>
-            <div className="foto-titulo">{t('precos_recarga_titulo')}</div>
+            <div className="foto-titulo">Recargas precisam de um plano</div>
             <div className="foto-orient">
-              {t('precos_recarga_modal')}
+              Os créditos de recarga são usados <strong>depois</strong> que os do
+              plano acabam. Sem um plano ativo eles ficariam parados na conta,
+              sem servir para nada.
             </div>
             <button
               className="btn btn--verde"
@@ -417,9 +428,9 @@ export default function Precos() {
                 document.querySelector('.planos')?.scrollIntoView({ behavior: 'smooth' });
               }}
             >
-              {t('precos_ver_planos')}
+              Ver os planos
             </button>
-            <div className="foto-cancelar" onClick={() => setAvisoRecarga(false)}>{t('precos_agora_nao')}</div>
+            <div className="foto-cancelar" onClick={() => setAvisoRecarga(false)}>Agora não</div>
           </div>
         </div>
       )}
@@ -427,19 +438,19 @@ export default function Precos() {
       {modalUpgrade && (
         <div className="modal-overlay" onClick={() => setModalUpgrade(false)}>
           <div className="modal-cpf" onClick={(e) => e.stopPropagation()}>
-            <h3>{t('precos_ja_plano')}</h3>
+            <h3>Você já tem um plano ativo</h3>
             <p>
-              {t('precos_ja_plano_p1')} <strong style={{ textTransform: 'capitalize' }}>{conta?.plano}</strong>{t('precos_ja_plano_p2')}
+              Sua conta já está no plano <strong style={{ textTransform: 'capitalize' }}>{conta?.plano}</strong>.
               {conta?.plano === planoAlvo
-                ? ' ' + t('precos_ja_plano_gerenciar')
-                : ' ' + t('precos_ja_plano_mudar')}
+                ? ' Para gerenciar sua assinatura, use o portal.'
+                : ' Para mudar de plano, faça a alteração no portal — o valor é ajustado proporcionalmente ao tempo restante.'}
             </p>
             <div className="modal-acoes">
               <button className="btn btn--ghost" onClick={() => setModalUpgrade(false)}>
-                {t('comum_cancelar')}
+                Cancelar
               </button>
               <button className="btn btn--verde" onClick={irParaPortal}>
-                {conta?.plano === planoAlvo ? t('precos_gerenciar') : t('precos_mudar')}
+                {conta?.plano === planoAlvo ? 'Gerenciar assinatura' : 'Mudar de plano'}
               </button>
             </div>
           </div>
@@ -449,22 +460,22 @@ export default function Precos() {
       {modalCpf && (
         <div className="modal-overlay" onClick={() => !salvandoCpf && setModalCpf(false)}>
           <div className="modal-cpf" onClick={(e) => e.stopPropagation()}>
-            <h3>{t('precos_nota')}</h3>
+            <h3>Dados para a nota fiscal</h3>
 
             <div className="modal-seg">
               <button
                 className={'modal-seg-btn' + (fiscalTipo === 'br' ? ' on' : '')}
                 onClick={() => { setFiscalTipo('br'); setCpfErro(''); }}
-              >{t('precos_brasil')}</button>
+              >Brasil</button>
               <button
                 className={'modal-seg-btn' + (fiscalTipo === 'intl' ? ' on' : '')}
                 onClick={() => { setFiscalTipo('intl'); setCpfErro(''); }}
-              >{t('precos_outro_pais')}</button>
+              >Outro país</button>
             </div>
 
             {fiscalTipo === 'br' ? (
               <>
-                <p className="modal-cpf-desc">{t('precos_cpf_desc')}</p>
+                <p className="modal-cpf-desc">Precisamos do seu CPF para emitir a nota fiscal da sua compra.</p>
                 <div className="modal-campo-rot">CPF</div>
                 <input
                   type="text"
@@ -478,13 +489,13 @@ export default function Precos() {
               </>
             ) : (
               <>
-                <p className="modal-cpf-desc">{t('precos_intl_desc')}</p>
+                <p className="modal-cpf-desc">Para compras fora do Brasil, informe seu documento e país.</p>
                 <div className="modal-cpf-dupla">
                   <div style={{ flex: 2 }}>
-                    <div className="modal-campo-rot">{t('precos_doc_label')}</div>
+                    <div className="modal-campo-rot">Documento / ID fiscal</div>
                     <input
                       type="text"
-                      placeholder={t('precos_doc_ph')}
+                      placeholder="VAT, EIN, passaporte..."
                       value={docIntl}
                       onChange={(e) => setDocIntl(e.target.value)}
                       className="modal-input"
@@ -492,10 +503,10 @@ export default function Precos() {
                     />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div className="modal-campo-rot">{t('precos_pais')}</div>
+                    <div className="modal-campo-rot">País</div>
                     <input
                       type="text"
-                      placeholder={t('precos_pais_ph')}
+                      placeholder="Ex: Portugal"
                       value={paisIntl}
                       onChange={(e) => setPaisIntl(e.target.value)}
                       className="modal-input"
@@ -508,10 +519,10 @@ export default function Precos() {
             {cpfErro && <div className="modal-erro">{cpfErro}</div>}
             <div className="modal-acoes">
               <button className="btn btn--ghost" onClick={() => setModalCpf(false)} disabled={salvandoCpf}>
-                {t('comum_cancelar')}
+                Cancelar
               </button>
               <button className="btn btn--verde" onClick={confirmarCpf} disabled={salvandoCpf}>
-                {salvandoCpf ? t('comum_salvando') : t('confirma_btn_continuar')}
+                {salvandoCpf ? 'Salvando...' : 'Continuar'}
               </button>
             </div>
           </div>

@@ -10,10 +10,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useIdioma } from '../lib/i18n';
 
 export default function PopupCreditos() {
-  const { t } = useIdioma();
   const router = useRouter();
   const [aberto, setAberto] = useState(false);
 
@@ -33,17 +31,17 @@ export default function PopupCreditos() {
             <circle cx="12" cy="12" r="9" /><path d="M12 8v5" /><path d="M12 16h.01" />
           </svg>
         </div>
-        <div className="cred-tit">{t('popupcreditos_titulo')}</div>
+        <div className="cred-tit">Seus créditos acabaram</div>
         <div className="cred-sub">
-          {t('popupcreditos_sub')}
+          Faça upgrade do seu plano ou compre uma recarga avulsa para continuar gerando.
         </div>
         <button className="cred-btn cred-btn--verde" onClick={() => router.push('/assinatura')}>
-          {t('popupcreditos_btn_upgrade')}
+          Fazer upgrade
         </button>
         <button className="cred-btn cred-btn--linha" onClick={() => router.push('/assinatura')}>
-          {t('popupcreditos_btn_comprar')}
+          Comprar créditos
         </button>
-        <div className="cred-agora" onClick={() => setAberto(false)}>{t('popupcreditos_agora_nao')}</div>
+        <div className="cred-agora" onClick={() => setAberto(false)}>Agora não</div>
       </div>
     </div>
   );

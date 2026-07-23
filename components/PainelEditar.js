@@ -17,7 +17,6 @@ import PickerImagem from './PickerImagem';
 import CampoRefs from './CampoRefs';
 import IconeCredito from './IconeCredito';
 import Seta from './Seta';
-import { useIdioma } from '../lib/i18n';
 import {
   editarImagem, custoEditar, PROPORCOES, RESOLUCOES, MAX_REFS
 } from '../lib/render';
@@ -32,100 +31,98 @@ import {
 //  plugin) — exceto onde o plugin usa outro.
 //  `cor`   — a faixa do card. Provisorias: entram as da marca depois.
 //  `icone` — o desenho na faixa
-//  Os campos de texto (nome, desc, campo, ph, rotulo, opcoes, padrao) guardam
-//  CHAVES de tradução — resolvidas com t() no render.
 const MODOS = [
   {
     id: 'edicao',
-    nome: 'paineleditar_edicao_nome',
-    desc: 'paineleditar_edicao_desc',
+    nome: 'Edição',
+    desc: 'Adicionar, trocar ou remover elementos, mudar cor ou material.',
     cor: '#EEEDFE', tinta: '#534AB7',
     icone: 'M5 15l10-10 3 3-10 10H5v-3z M12 6l3 3',
     refs: true,
-    campo: 'paineleditar_campo_oque',
-    ph: 'paineleditar_edicao_ph'
+    campo: 'O que você quer fazer',
+    ph: 'Ex: remova a luminária do teto, troque a poltrona pela @img01, deixe a parede em verde escuro...'
   },
   {
     id: 'ambientacao',
-    nome: 'paineleditar_ambientacao_nome',
-    desc: 'paineleditar_ambientacao_desc',
+    nome: 'Ambientação',
+    desc: 'Inserir mobiliário e decoração em um espaço vazio.',
     cor: '#E1F5EE', tinta: '#0F6E56',
     icone: 'M3 11v6h18v-6a3 3 0 00-3-3H6a3 3 0 00-3 3z M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2',
     refs: true,
-    campo: 'paineleditar_campo_oque',
-    ph: 'paineleditar_ambientacao_ph'
+    campo: 'O que você quer fazer',
+    ph: 'Ex: sala de estar contemporânea seguindo a @img01, com sofá, mesa de centro e tapete...'
   },
   {
     id: 'mood',
-    nome: 'paineleditar_mood_nome',
-    desc: 'paineleditar_mood_desc',
+    nome: 'Mudar mood',
+    desc: 'Trocar atmosfera e iluminação mantendo o projeto.',
     cor: '#FAEEDA', tinta: '#854F0B',
     icone: 'M12 3v2 M12 19v2 M5 12H3 M21 12h-2 M6 6l-1.5-1.5 M19.5 19.5L18 18 M6 18l-1.5 1.5 M19.5 4.5L18 6 M12 8a4 4 0 100 8 4 4 0 000-8z',
     refs: false,
-    campo: 'paineleditar_mood_campo',
-    ph: 'paineleditar_mood_ph',
+    campo: 'Descreva o novo mood / iluminação',
+    ph: 'Ex: golden hour, luz quente entrando pela janela, clima aconchegante. Ou: dia nublado com luz difusa e fria.',
     campos: [
-      { chave: 'tipoAmb', rotulo: 'paineleditar_mood_amb_rotulo', opcoes: ['paineleditar_opt_interior', 'paineleditar_opt_exterior'], padrao: 'paineleditar_opt_interior' }
+      { chave: 'tipoAmb', rotulo: 'Ambiente', opcoes: ['Interior', 'Exterior'], padrao: 'Interior' }
     ]
   },
   {
     id: 'pessoa',
-    nome: 'paineleditar_pessoa_nome',
-    desc: 'paineleditar_pessoa_desc',
+    nome: 'Adicionar pessoa/animal',
+    desc: 'Inserir figura humana ou animal com escala e luz coerentes.',
     cor: '#FBEAF0', tinta: '#993556',
     icone: 'M12 4a3 3 0 100 6 3 3 0 000-6z M5 20v-1a5 5 0 015-5h4a5 5 0 015 5v1',
     refs: true,
-    campo: 'paineleditar_pessoa_campo',
-    ph: 'paineleditar_pessoa_ph',
+    campo: 'Descreva a figura',
+    ph: 'Ex: mulher ~30 anos, cabelo castanho, vestido claro, sentada no sofá lendo. Ou siga a @img01.',
     campos: [
-      { chave: 'tipoFig', rotulo: 'paineleditar_pessoa_tipo_rotulo',
-        opcoes: ['paineleditar_opt_pessoa', 'paineleditar_opt_animal', 'paineleditar_opt_pessoa_animal'], padrao: 'paineleditar_opt_pessoa' },
-      { chave: 'estilo', rotulo: 'paineleditar_pessoa_estilo_rotulo',
-        opcoes: ['paineleditar_opt_estatica', 'paineleditar_opt_editorial'], padrao: 'paineleditar_opt_estatica' }
+      { chave: 'tipoFig', rotulo: 'O que inserir',
+        opcoes: ['Pessoa', 'Animal', 'Pessoa + Animal'], padrao: 'Pessoa' },
+      { chave: 'estilo', rotulo: 'Estilo de presença',
+        opcoes: ['Estática (nítida)', 'Editorial (leve motion blur)'], padrao: 'Estática (nítida)' }
     ]
   },
   {
     id: 'derivadas',
-    nome: 'paineleditar_derivadas_nome',
-    desc: 'paineleditar_derivadas_desc',
+    nome: 'Close-ups',
+    desc: 'Closes, detalhes e novos enquadramentos da mesma imagem.',
     cor: '#E6F1FB', tinta: '#185FA5',
     icone: 'M11 5a6 6 0 100 12 6 6 0 000-12z M20 20l-4.5-4.5',
     refs: false,
-    campo: 'paineleditar_derivadas_campo',
+    campo: 'O que destacar',
     semTexto: true,   // gera mesmo sem texto
-    ph: 'paineleditar_derivadas_ph'
+    ph: 'Ex: close da poltrona de couro, detalhe da luz na parede, vista de cima da mesa de jantar... (deixe vazio para a IA escolher os melhores ângulos)'
   },
   {
     id: 'maquete',
-    nome: 'paineleditar_maquete_nome',
-    desc: 'paineleditar_maquete_desc',
+    nome: 'Maquete física',
+    desc: 'Transformar o projeto em uma maquete física.',
     cor: '#FAECE7', tinta: '#993C1D',
     icone: 'M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z M12 12l8-4.5 M12 12v9 M12 12L4 7.5',
     refs: false,
-    campo: 'paineleditar_maquete_campo',
+    campo: 'Detalhes',
     semTexto: true,
-    ph: 'paineleditar_maquete_ph',
+    ph: 'Ex: materiais — papel kraft, MDF cru, madeira balsa, acrílico transparente, concreto aparente; cor predominante; detalhes da base...',
     campos: [
-      { chave: 'linguagem', rotulo: 'paineleditar_maquete_ling_rotulo',
-        opcoes: ['paineleditar_opt_realista', 'paineleditar_opt_mono'],
-        padrao: 'paineleditar_opt_realista' },
-      { chave: 'base', rotulo: 'paineleditar_maquete_base_rotulo', chips: true,
-        opcoes: ['paineleditar_opt_mesa_arq', 'paineleditar_opt_mesa_limpa', 'paineleditar_opt_totem', 'paineleditar_opt_estudio'],
-        padrao: 'paineleditar_opt_mesa_arq' }
+      { chave: 'linguagem', rotulo: 'Linguagem da maquete',
+        opcoes: ['Realista (cores e materiais)', 'Monocromática / conceitual'],
+        padrao: 'Realista (cores e materiais)' },
+      { chave: 'base', rotulo: 'Base / contexto', chips: true,
+        opcoes: ['Mesa de arquitetura', 'Mesa limpa', 'Totem', 'Estúdio'],
+        padrao: 'Mesa de arquitetura' }
     ]
   },
   {
     id: 'preenchimento',
-    nome: 'paineleditar_preenchimento_nome',
-    desc: 'paineleditar_preenchimento_desc',
+    nome: 'Preenchimento generativo',
+    desc: 'Corrigir falhas e remover objetos com precisão na área marcada.',
     cor: '#EAF3DE', tinta: '#3B6D11',
     icone: 'M6 15l7-7 3 3-7 7H6v-3z M4 21h16',
     pincel: true
   },
   {
     id: 'expansao',
-    nome: 'paineleditar_expansao_nome',
-    desc: 'paineleditar_expansao_desc',
+    nome: 'Expansão generativa',
+    desc: 'Esticar a imagem para fora e mudar a proporção.',
     cor: '#F1EFE8', tinta: '#5F5E5A',
     icone: 'M8 8H4v4 M16 16h4v-4 M4 8l6 6 M20 16l-6-6 M16 4h4v4 M8 20H4v-4',
     pincel: true
@@ -136,8 +133,6 @@ export default function PainelEditar({
   imagemInicial, onPronto, onProgresso, ocupado, setOcupado,
   ferramentas, ehAdmin, onAbrirPincel
 }) {
-  const { t } = useIdioma();
-
   const [base, setBase]     = useState(null);
   const [propBase, setPropBase] = useState(null);   // a proporção real da base
   const [previa, setPrevia] = useState(null);
@@ -208,10 +203,10 @@ export default function PainelEditar({
 
   function abrir(mod) {
     if (mod.pincel && !temPincel) {
-      window.dispatchEvent(new CustomEvent('cora:sem-acesso', { detail: { recurso: t(mod.nome) } }));
+      window.dispatchEvent(new CustomEvent('cora:sem-acesso', { detail: { recurso: mod.nome } }));
       return;
     }
-    if (!base) { setErro(t('paineleditar_erro_escolha_img')); return; }
+    if (!base) { setErro('Escolha a imagem para editar'); return; }
 
     setErro('');
     setTexto('');
@@ -234,7 +229,7 @@ export default function PainelEditar({
     if (!base || !m) return;
 
     if (!m.semTexto && !texto.trim()) {
-      setErro(t('paineleditar_erro_descreva'));
+      setErro('Descreva o que você quer');
       return;
     }
 
@@ -252,7 +247,7 @@ export default function PainelEditar({
       // As escolhas dos botões entram no texto: o servidor recebe uma
       // instrução só, e o promptador dele sabe o que fazer com ela.
       const extras = Object.entries(escolhas)
-        .map(([k, v]) => t(v))
+        .map(([k, v]) => v)
         .filter(Boolean)
         .join('. ');
 
@@ -287,7 +282,7 @@ export default function PainelEditar({
 
         {/* ── A imagem base ──
             Uma só, para todos os modos — como no plugin. */}
-        <div className="cr-sec">{t('paineleditar_imagem_base')}</div>
+        <div className="cr-sec">Imagem base</div>
 
         <div className="cr-refs">
           {previa ? (
@@ -296,7 +291,7 @@ export default function PainelEditar({
               <button
                 className="cr-ref-x"
                 onClick={() => { setBase(null); setPrevia(null); setModo(null); }}
-                aria-label={t('paineleditar_remover_base')}
+                aria-label="Remover imagem base"
               >×</button>
             </div>
           ) : (
@@ -306,12 +301,12 @@ export default function PainelEditar({
           )}
         </div>
 
-        <p className="cr-hint">{t('paineleditar_base_hint')}</p>
+        <p className="cr-hint">Escolhida uma vez. Vale para todos os modos.</p>
 
         {/* ── A grade dos oito modos ── */}
         {!modo && (
           <>
-            <div className="cr-sec">{t('paineleditar_oque_fazer')}</div>
+            <div className="cr-sec">O que fazer</div>
 
             <div className="ed-cards">
               {MODOS.map((mod) => {
@@ -325,7 +320,7 @@ export default function PainelEditar({
                     disabled={ocupado}
                   >
                     {travado && (
-                      <span className="ed-cad" data-tip={t('paineleditar_travado_tip')}>
+                      <span className="ed-cad" data-tip="Disponível no Pro e no Studio">
                         <svg viewBox="0 0 24 24" width="13" height="13" fill="none"
                              stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
                           <rect x="5" y="11" width="14" height="10" rx="2"/>
@@ -344,8 +339,8 @@ export default function PainelEditar({
                     </div>
 
                     <div className="ed-corpo">
-                      <strong>{t(mod.nome)}</strong>
-                      <span>{t(mod.desc)}</span>
+                      <strong>{mod.nome}</strong>
+                      <span>{mod.desc}</span>
                     </div>
                   </button>
                 );
@@ -365,18 +360,18 @@ export default function PainelEditar({
                    stroke="currentColor" strokeWidth="1.6">
                 <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              {t('paineleditar_voltar')}
+              Voltar
             </button>
 
             <div className="ed-titulo">
-              <strong>{t(m.nome)}</strong>
-              <span>{t(m.desc)}</span>
+              <strong>{m.nome}</strong>
+              <span>{m.desc}</span>
             </div>
 
             {/* ── Os botões de escolha deste modo ── */}
             {(m.campos || []).map((c) => (
               <div key={c.chave} className="ed-grupo">
-                <div className="cr-sec">{t(c.rotulo)}</div>
+                <div className="cr-sec">{c.rotulo}</div>
                 {/* Quatro opções não cabem numa linha sem cortar o texto */}
                 <div className={'cr-chips' + (c.opcoes.length > 3 ? ' cr-chips--2' : '')}>
                   {c.opcoes.map((o) => (
@@ -384,7 +379,7 @@ export default function PainelEditar({
                       key={o}
                       className={'cr-chip' + (escolhas[c.chave] === o ? ' cr-chip--on' : '')}
                       onClick={() => setEsc((e) => ({ ...e, [c.chave]: o }))}
-                    >{t(o)}</button>
+                    >{o}</button>
                   ))}
                 </div>
               </div>
@@ -395,7 +390,7 @@ export default function PainelEditar({
             {m.refs && (
               <>
                 <div className="cr-sec">
-                  {t('paineleditar_referencias')} <span className="cr-opc">{t('paineleditar_opcional')}</span>
+                  Referências <span className="cr-opc">Opcional</span>
                 </div>
                 <div className="cr-refs">
                   {refs.map((r, i) => (
@@ -404,7 +399,7 @@ export default function PainelEditar({
                       <button
                         className="cr-ref-x"
                         onClick={() => setRefs((rs) => rs.filter((_, j) => j !== i))}
-                        aria-label={t('paineleditar_remover_ref')}
+                        aria-label="Remover referência"
                       >×</button>
                       <span className="cr-ref-n">@img{String(i + 1).padStart(2, '0')}</span>
                     </div>
@@ -419,12 +414,12 @@ export default function PainelEditar({
               </>
             )}
 
-            <div className="cr-sec">{t(m.campo)}</div>
+            <div className="cr-sec">{m.campo}</div>
 
             {m.refs ? (
               <CampoRefs
                 className="cr-ta ed-ta"
-                placeholder={t(m.ph)}
+                placeholder={m.ph}
                 valor={texto}
                 onMudar={setTexto}
                 refs={refs}
@@ -435,7 +430,7 @@ export default function PainelEditar({
                 rows={5}
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
-                placeholder={t(m.ph)}
+                placeholder={m.ph}
                 spellCheck={false}
               />
             )}
@@ -453,9 +448,9 @@ export default function PainelEditar({
           <div className="cr-pills-cfg">
 
             <div className="cr-qty">
-              <button onClick={() => setQuantidade((q) => Math.max(1, q - 1))} aria-label={t('paineleditar_menos_um')}>−</button>
+              <button onClick={() => setQuantidade((q) => Math.max(1, q - 1))} aria-label="Menos uma">−</button>
               <span>{quantidade}</span>
-              <button onClick={() => setQuantidade((q) => Math.min(10, q + 1))} aria-label={t('paineleditar_mais_um')}>+</button>
+              <button onClick={() => setQuantidade((q) => Math.min(10, q + 1))} aria-label="Mais uma">+</button>
             </div>
 
             <div className="cr-pill-wrap">
@@ -467,7 +462,7 @@ export default function PainelEditar({
                   <rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
                   <rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
                 </svg>
-                <span>{proporcao === 'auto' ? t('paineleditar_auto') : proporcao}</span>
+                <span>{proporcao === 'auto' ? 'Auto' : proporcao}</span>
                 <Seta aberto={popRatio} />
               </button>
 
@@ -484,7 +479,7 @@ export default function PainelEditar({
                           <rect x={p.x} y={p.y} width={p.w} height={p.h} rx="1"
                                 stroke="currentColor" strokeWidth="1.5"/>
                         </svg>
-                        <span>{p.val === 'auto' ? t('paineleditar_auto') : p.val}</span>
+                        <span>{p.val === 'auto' ? 'Auto' : p.val}</span>
                       </button>
                     ))}
                   </div>
@@ -519,7 +514,7 @@ export default function PainelEditar({
           </div>
 
           <button className="cr-btn-gerar" onClick={gerar} disabled={ocupado || !base}>
-            <span>{ocupado ? t('paineleditar_gerando') : t('paineleditar_gerar')}</span>
+            <span>{ocupado ? 'Gerando...' : 'Gerar'}</span>
             {!ocupado && base && (
               <span className="cr-custo-tag">
                 <IconeCredito /> {custo}
@@ -534,7 +529,7 @@ export default function PainelEditar({
         aberto={picker !== null}
         onFechar={() => setPicker(null)}
         onEscolher={escolheuImagem}
-        titulo={picker === 'ref' ? t('paineleditar_picker_ref') : t('paineleditar_picker_base')}
+        titulo={picker === 'ref' ? 'Adicionar referência' : 'Imagem para editar'}
       />
     </>
   );

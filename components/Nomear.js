@@ -12,10 +12,8 @@
 
 import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
-import { useIdioma } from '../lib/i18n';
 
 export default function Nomear({ inicial, aoSalvar, aoCancelar }) {
-  const { t } = useIdioma();
   const [nome, setNome] = useState(inicial || 'trabalho');
   const campo = useRef(null);
 
@@ -35,7 +33,7 @@ export default function Nomear({ inicial, aoSalvar, aoCancelar }) {
   return createPortal(
     <div className="cf-fundo" onClick={aoCancelar}>
       <div className="cf" onClick={(e) => e.stopPropagation()}>
-        <p className="cf-txt">{t('nomear_titulo')}</p>
+        <p className="cf-txt">Salvar o projeto</p>
 
         <div className="nm-linha">
           <input
@@ -48,17 +46,17 @@ export default function Nomear({ inicial, aoSalvar, aoCancelar }) {
               if (e.key === 'Escape') aoCancelar();
               e.stopPropagation();
             }}
-            aria-label={t('nomear_aria_nome')}
+            aria-label="Nome do arquivo"
           />
           <span className="nm-ext">.crd</span>
         </div>
 
-        <p className="nm-nota">{t('nomear_nota')}</p>
+        <p className="nm-nota">O arquivo vai para a sua pasta de downloads.</p>
 
         <div className="cf-botoes">
-          <button className="ps-b" onClick={aoCancelar}>{t('comum_cancelar')}</button>
+          <button className="ps-b" onClick={aoCancelar}>Cancelar</button>
           <button className="ps-b ps-b--on" onClick={confirmar} disabled={!nome.trim()}>
-            {t('comum_salvar')}
+            Salvar
           </button>
         </div>
       </div>

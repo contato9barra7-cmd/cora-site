@@ -7,17 +7,15 @@ import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta , EVENTO_CRED
 import RodapeLegal from './RodapeLegal';
 import PopupCreditos from './PopupCreditos';
 import PopupUpgrade from './PopupUpgrade';
-import DropdownCora from './DropdownCora';
-import { useIdioma, IDIOMAS, localeDeIdioma } from '../lib/i18n';
 
 // Ícones simples em SVG (sem dependência externa)
-function rotuloPlano(c, t) {
+function rotuloPlano(c) {
   if (!c) return '';
   if (c.is_admin) return 'Admin';
   const nomes = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
   const p = nomes[c.plano] || c.plano;
   if (c.eh_dono_equipe || c.eh_membro_equipe) return `Teams (${p})`;
-  return `${t('plano_label')} ${p}`;
+  return `Plano ${p}`;
 }
 
 const Icone = {
@@ -89,7 +87,6 @@ const Icone = {
 export default function AppShell({ children }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { t, idioma, trocarIdioma } = useIdioma();
   const [conta, setConta] = useState(null);
   // Lê o localStorage ANTES da primeira pintura: sem isso o menu nascia
   // expandido e recolhia logo depois — o flash que se via a cada troca de aba.
@@ -127,15 +124,6 @@ export default function AppShell({ children }) {
     return () => window.removeEventListener(EVENTO_CREDITOS, onCreditos);
   }, []);
 
-  // Sincroniza o idioma da UI com o salvo na conta (segue o usuário entre
-  // dispositivos). O localStorage cobre a troca imediata; isto cobre o login.
-  useEffect(() => {
-    if (conta?.idioma && IDIOMAS.includes(conta.idioma) && conta.idioma !== idioma) {
-      trocarIdioma(conta.idioma);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conta?.idioma]);
-
   function toggleMenu() {
     const novo = !recolhido;
     setRecolhido(novo);
@@ -152,7 +140,6 @@ export default function AppShell({ children }) {
     const nova = { ...conta, [campo]: valor };
     setConta(nova);
     if (campo === 'tema') aplicarTema(valor);
-    if (campo === 'idioma') trocarIdioma(valor);   // troca a UI ao vivo
     try { await salvarPerfil({ [campo]: valor }); } catch (e) { /* silencioso */ }
   }
 
@@ -164,13 +151,13 @@ export default function AppShell({ children }) {
   // `divisor` separa o TRABALHO (o que a pessoa faz) da CONTA (o que ela
   // administra). Sem isso, tudo vira uma lista indiferenciada.
   const itens = [
-    { href: '/conta', rotulo: t('nav_dashboard'), icone: Icone.dashboard, admin: false },
+    { href: '/conta', rotulo: 'Dashboard', icone: Icone.dashboard, admin: false },
     { href: '/app', rotulo: 'Cora Render', icone: Icone.studio, admin: false },
     { href: '/promptadores/ia-studio', rotulo: 'Promptadores IA Studio', icone: Icone.promptadores, admin: false, soCurso: 'ia_studio' },
     { href: '/promptadores/prompthub', rotulo: 'Promptadores PromptHub', icone: Icone.promptadores, admin: false, soCurso: 'prompthub' },
-    { href: '/conta/perfil', rotulo: t('nav_minhaconta'), icone: Icone.conta, admin: false, divisor: true },
-    { href: '/workspace', rotulo: t('nav_equipe'), icone: Icone.equipe, admin: false, soDono: true },
-    { href: '/assinatura', rotulo: t('nav_assinatura'), icone: Icone.assinatura, admin: false, soPagante: true },
+    { href: '/conta/perfil', rotulo: 'Minha conta', icone: Icone.conta, admin: false, divisor: true },
+    { href: '/workspace', rotulo: 'Equipe', icone: Icone.equipe, admin: false, soDono: true },
+    { href: '/assinatura', rotulo: 'Assinatura', icone: Icone.assinatura, admin: false, soPagante: true },
     { href: '/admin', rotulo: 'Admin', icone: Icone.admin, admin: true },
   ].filter(i => (!i.admin || (conta && conta.is_admin))
     && (!i.soDono || (conta && conta.eh_dono_equipe))
@@ -243,8 +230,8 @@ export default function AppShell({ children }) {
             <button
               className="app-side-toggle app-side-toggle--so"
               onClick={toggleMenu}
-              title={t('expandir_menu')}
-              aria-label={t('expandir_menu')}
+              title="Expandir menu"
+              aria-label="Expandir menu"
             >
               <span className="app-side-c">C</span>
               <span className="app-side-seta">{Icone.expandir}</span>
@@ -258,8 +245,8 @@ export default function AppShell({ children }) {
               <button
                 className="app-side-toggle"
                 onClick={toggleMenu}
-                title={t('recolher_menu')}
-                aria-label={t('recolher_menu')}
+                title="Recolher menu"
+                aria-label="Recolher menu"
               >
                 {Icone.recolher}
               </button>
@@ -288,7 +275,7 @@ export default function AppShell({ children }) {
       <header className="app-header">
         <div className="app-header-dir">
           <div className="app-user-wrap">
-            <button className="app-user-btn" onClick={() => setMenuUser(!menuUser)} title={t('nav_minhaconta')}>
+            <button className="app-user-btn" onClick={() => setMenuUser(!menuUser)} title="Minha conta">
               {/* anel de créditos ao redor do avatar (estilo Magnific).
                   Admin/ilimitado mostra o anel SEMPRE CHEIO. */}
               {conta && (ilimitado || total > 0) && (
@@ -319,13 +306,13 @@ export default function AppShell({ children }) {
                 </div>
 
                 {conta?.plano && (
-                  <div className="app-user-plano">{rotuloPlano(conta, t)}</div>
+                  <div className="app-user-plano">{rotuloPlano(conta)}</div>
                 )}
 
                 {!ilimitado && conta && total > 0 && (
                   <div className="cred-card">
-                    <div className="cred-rot">{t('cred_restantes')}</div>
-                    <div className="cred-num">{restantes.toLocaleString(localeDeIdioma(idioma))}</div>
+                    <div className="cred-rot">Créditos restantes</div>
+                    <div className="cred-num">{restantes.toLocaleString('pt-BR')}</div>
                     <div className="cred-barra">
                       <div
                         className={'cred-fill' + (acabando ? ' cred-fill--alerta' : '')}
@@ -333,9 +320,9 @@ export default function AppShell({ children }) {
                       />
                     </div>
                     <div className="cred-pe">
-                      <span>{t('cred_de')} {total.toLocaleString(localeDeIdioma(idioma))}</span>
+                      <span>de {total.toLocaleString('pt-BR')}</span>
                       {diasRenov !== null && (
-                        <span>{t('cred_renova_em')} {diasRenov} {diasRenov === 1 ? t('dia') : t('dias')}</span>
+                        <span>renova em {diasRenov} {diasRenov === 1 ? 'dia' : 'dias'}</span>
                       )}
                     </div>
                   </div>
@@ -343,8 +330,8 @@ export default function AppShell({ children }) {
 
                 {ilimitado && conta && (
                   <div className="cred-card cred-card--ilim">
-                    <div className="cred-rot">{t('creditos')}</div>
-                    <div className="cred-num">{t('ilimitados')}</div>
+                    <div className="cred-rot">Créditos</div>
+                    <div className="cred-num">Ilimitados</div>
                   </div>
                 )}
                 <Link href="/conta/perfil" className="app-user-link" onClick={() => setMenuUser(false)}>
@@ -352,28 +339,24 @@ export default function AppShell({ children }) {
                     <circle cx="10" cy="6.5" r="3"/>
                     <path d="M3.5 17a6.5 6.5 0 0113 0" strokeLinecap="round"/>
                   </svg>
-                  {t('nav_minhaconta')}
+                  Minha conta
                 </Link>
 
                 <div className="app-user-pref">
-                  <label>{t('idioma_label')}</label>
-                  <div className="app-user-pref-dd">
-                    <DropdownCora
-                      valor={idioma}
-                      opcoes={[{ v: 'pt', n: 'Português' }, { v: 'en', n: 'English' }, { v: 'es', n: 'Español' }]}
-                      onEscolher={(v) => trocarPref('idioma', v)}
-                    />
-                  </div>
+                  <label>Idioma</label>
+                  <select value={conta?.idioma || 'pt'} onChange={(e) => trocarPref('idioma', e.target.value)}>
+                    <option value="pt">Português</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                  </select>
                 </div>
                 <div className="app-user-pref">
-                  <label>{t('tema_label')}</label>
-                  <div className="app-user-pref-dd">
-                    <DropdownCora
-                      valor={conta?.tema || 'sistema'}
-                      opcoes={[{ v: 'claro', n: t('tema_claro') }, { v: 'escuro', n: t('tema_escuro') }, { v: 'sistema', n: t('tema_sistema') }]}
-                      onEscolher={(v) => trocarPref('tema', v)}
-                    />
-                  </div>
+                  <label>Tema</label>
+                  <select value={conta?.tema || 'sistema'} onChange={(e) => trocarPref('tema', e.target.value)}>
+                    <option value="claro">Claro</option>
+                    <option value="escuro">Escuro</option>
+                    <option value="sistema">Sistema</option>
+                  </select>
                 </div>
 
                 <button className="app-user-link app-user-sair" onClick={logout}>
@@ -381,7 +364,7 @@ export default function AppShell({ children }) {
                     <path d="M8 17H4.5A1.5 1.5 0 013 15.5v-11A1.5 1.5 0 014.5 3H8" strokeLinecap="round"/>
                     <path d="M13 13.5L16.5 10 13 6.5M16.5 10H7" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  {t('sair')}
+                  Sair
                 </button>
               </div>
             )}
@@ -400,22 +383,22 @@ export default function AppShell({ children }) {
       {ehTrial && !trialExpirado && !pathname.startsWith('/promptadores') && (
         <div className="trial-card">
           <div className="trial-card-info">
-            <span className="trial-card-txt"><strong>{t('trial_dia')} {trialDiaAtual} {t('trial_de7')}</strong> <small>{t('trial_teste_gratis')}</small></span>
+            <span className="trial-card-txt"><strong>Dia {trialDiaAtual} de 7</strong> <small>do seu teste grátis</small></span>
             <div className="trial-card-prog"><i style={{ width: (trialDiaAtual / 7 * 100) + '%' }} /></div>
           </div>
-          <button className="trial-card-btn" onClick={() => router.push('/precos')}>{t('assinar')}</button>
+          <button className="trial-card-btn" onClick={() => router.push('/precos')}>Assinar</button>
         </div>
       )}
 
       {/* Card de crédito baixo/zerado — mesmo canto do trial, aparece de 6 em 6h */}
       {credCardVisivel && !ehTrial && !ilimitado && total > 0 && credBaixo && !planoExpirado && (
         <div className="trial-card cred-nudge">
-          <button className="cred-nudge-x" onClick={fecharCredCard} aria-label={t('fechar')}>×</button>
+          <button className="cred-nudge-x" onClick={fecharCredCard} aria-label="Fechar">×</button>
           <div className="trial-card-info">
             {restantes <= 0 ? (
-              <span className="trial-card-txt"><strong>{t('cred_acabaram')}</strong> <small>{t('cred_recarregue')}</small></span>
+              <span className="trial-card-txt"><strong>Seus créditos acabaram</strong> <small>recarregue para continuar gerando</small></span>
             ) : (
-              <span className="trial-card-txt"><strong>{restantes.toLocaleString(localeDeIdioma(idioma))} {t('cred_restantes_txt')}</strong> <small>{t('cred_de')} {total.toLocaleString(localeDeIdioma(idioma))}</small></span>
+              <span className="trial-card-txt"><strong>{restantes.toLocaleString('pt-BR')} créditos restantes</strong> <small>de {total.toLocaleString('pt-BR')}</small></span>
             )}
             <div className="trial-card-prog">
               <i className={restantes <= 0 ? 'cred-bar-zero' : 'cred-bar-baixo'}
@@ -423,7 +406,7 @@ export default function AppShell({ children }) {
             </div>
           </div>
           <button className="trial-card-btn" onClick={() => router.push('/assinatura')}>
-            {restantes <= 0 ? t('recarregar') : t('comprar_creditos')}
+            {restantes <= 0 ? 'Recarregar' : 'Comprar créditos'}
           </button>
         </div>
       )}
@@ -432,11 +415,11 @@ export default function AppShell({ children }) {
       {ehTrial && trialExpirado && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
-            <span className="trial-bloqueio-eb">{t('teste_encerrado')}</span>
-            <h1>{t('teste_terminou_h1')}</h1>
-            <p>{t('teste_terminou_p')}</p>
-            <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/precos')}>{t('ver_planos_assinar')}</button>
-            <button className="trial-bloqueio-sair" onClick={logout}>{t('sair')}</button>
+            <span className="trial-bloqueio-eb">Teste encerrado</span>
+            <h1>Seu teste de 7 dias terminou</h1>
+            <p>Assine para continuar criando com o Cora Render — seus projetos e histórico continuam salvos.</p>
+            <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/precos')}>Ver planos e assinar</button>
+            <button className="trial-bloqueio-sair" onClick={logout}>Sair</button>
           </div>
         </div>
       )}
@@ -446,11 +429,11 @@ export default function AppShell({ children }) {
       {planoExpirado && naApp && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
-            <span className="trial-bloqueio-eb">{t('plano_inativo')}</span>
-            <h1>{t('plano_expirou_h1')}</h1>
-            <p>{t('plano_expirou_p')}</p>
-            <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/assinatura')}>{t('renovar_assinatura')}</button>
-            <button className="trial-bloqueio-sair" onClick={() => router.push('/conta')}>{t('sair')}</button>
+            <span className="trial-bloqueio-eb">Plano inativo</span>
+            <h1>Seu plano expirou</h1>
+            <p>Sua assinatura não está ativa — renove para voltar a gerar. Seus projetos e histórico continuam salvos.</p>
+            <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/assinatura')}>Renovar assinatura</button>
+            <button className="trial-bloqueio-sair" onClick={() => router.push('/conta')}>Sair</button>
           </div>
         </div>
       )}

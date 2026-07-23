@@ -5,11 +5,9 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { validarTokenReset, definirNovaSenha } from '../../lib/auth';
 import CampoSenha, { senhaForte } from '../../components/CampoSenha';
-import { useIdioma } from '../../lib/i18n';
 
 function NovaSenhaConteudo() {
   const router = useRouter();
-  const { t } = useIdioma();
   const params = useSearchParams();
   const token = params.get('token') || '';
 
@@ -32,8 +30,8 @@ function NovaSenhaConteudo() {
 
   async function salvar() {
     setErro('');
-    if (!senhaForte(senha)) { setErro(t('nova_req')); return; }
-    if (!senhaValida) { setErro(t('nova_confirme')); return; }
+    if (!senhaForte(senha)) { setErro('A senha ainda não cumpre todos os requisitos.'); return; }
+    if (!senhaValida) { setErro('Confirme a senha corretamente (os dois campos precisam ser iguais).'); return; }
     setSalvando(true);
     try {
       await definirNovaSenha(token, senha);
@@ -50,7 +48,7 @@ function NovaSenhaConteudo() {
     return (
       <div className="login-card">
         <Link href="/" className="login-logo">Cora Render</Link>
-        <p className="login-sub">{t('nova_verificando')}</p>
+        <p className="login-sub">Verificando o link...</p>
       </div>
     );
   }
@@ -59,15 +57,15 @@ function NovaSenhaConteudo() {
     return (
       <div className="login-card">
         <Link href="/" className="login-logo">Cora Render</Link>
-        <h1 className="login-titulo">{t('nova_link_invalido')}</h1>
+        <h1 className="login-titulo">Link inválido</h1>
         <p className="login-sub">
-          {t('nova_expirado')}
+          Este link expirou ou já foi usado. Peça um novo para redefinir sua senha.
         </p>
         <Link href="/esqueci-senha" className="btn btn--roxo" style={{ marginTop: 18, display: 'block', textAlign: 'center' }}>
-          {t('nova_pedir')}
+          Pedir novo link
         </Link>
         <p className="login-rodape">
-          <Link href="/login">{t('esq_voltar_login')}</Link>
+          <Link href="/login">Voltar para o login</Link>
         </p>
       </div>
     );
@@ -77,10 +75,10 @@ function NovaSenhaConteudo() {
     return (
       <div className="login-card">
         <Link href="/" className="login-logo">Cora Render</Link>
-        <h1 className="login-titulo">{t('nova_alterada')}</h1>
-        <p className="login-sub">{t('nova_salva')}</p>
+        <h1 className="login-titulo">Senha alterada</h1>
+        <p className="login-sub">Sua nova senha foi salva. Redirecionando para o login...</p>
         <Link href="/login" className="btn btn--verde" style={{ marginTop: 18, display: 'block', textAlign: 'center' }}>
-          {t('nova_entrar_agora')}
+          Entrar agora
         </Link>
       </div>
     );
@@ -89,25 +87,24 @@ function NovaSenhaConteudo() {
   return (
     <div className="login-card">
       <Link href="/" className="login-logo">Cora Render</Link>
-      <h1 className="login-titulo">{t('nova_criar')}</h1>
-      <p className="login-sub">{t('nova_definindo1')} <strong>{emailConta}</strong>.</p>
+      <h1 className="login-titulo">Criar nova senha</h1>
+      <p className="login-sub">Definindo uma nova senha para <strong>{emailConta}</strong>.</p>
 
-      <CampoSenha senha={senha} setSenha={setSenha} onValidez={setSenhaValida} labelSenha={t('nova_label')} />
+      <CampoSenha senha={senha} setSenha={setSenha} onValidez={setSenhaValida} labelSenha="Nova senha" />
 
       {erro && <p className="login-erro">{erro}</p>}
 
       <button className="btn btn--verde" style={{ marginTop: 18 }} onClick={salvar} disabled={salvando}>
-        {salvando ? t('comum_salvando') : t('nova_salvar')}
+        {salvando ? 'Salvando...' : 'Salvar nova senha'}
       </button>
     </div>
   );
 }
 
 export default function NovaSenha() {
-  const { t } = useIdioma();
   return (
     <div className="login-wrap">
-      <Suspense fallback={<div className="login-card"><p className="login-sub">{t('comum_carregando')}</p></div>}>
+      <Suspense fallback={<div className="login-card"><p className="login-sub">Carregando...</p></div>}>
         <NovaSenhaConteudo />
       </Suspense>
     </div>

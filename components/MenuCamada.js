@@ -13,10 +13,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useIdioma } from '../lib/i18n';
 
 export default function MenuCamada({ x, y, camada, quantas, emGrupo, aoEscolher, aoFechar }) {
-  const { t } = useIdioma();
   const ref = useRef(null);
   const [pos, setPos] = useState({ x, y });
 
@@ -42,13 +40,13 @@ export default function MenuCamada({ x, y, camada, quantas, emGrupo, aoEscolher,
 
     // Um quadro depois: sem isso, o próprio clique que ABRIU o menu já o
     // fecharia, e ele piscaria e sumiria.
-    const timer = setTimeout(() => {
+    const t = setTimeout(() => {
       window.addEventListener('mousedown', fecha);
       window.addEventListener('keydown', tecla);
     }, 0);
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(t);
       window.removeEventListener('mousedown', fecha);
       window.removeEventListener('keydown', tecla);
     };
@@ -73,14 +71,14 @@ export default function MenuCamada({ x, y, camada, quantas, emGrupo, aoEscolher,
 
       {varias ? (
         <>
-          <It acao="agrupar">{t('menucamada_agrupar_camadas')}</It>
-          <It acao="duplicar-tudo">{t('menucamada_duplicar_selecionadas')}</It>
-          <It acao="mesclar-copia">{t('menucamada_mesclar_copia')}</It>
-          <It acao="nova-vazia">{t('menucamada_nova_vazia')}</It>
+          <It acao="agrupar">Agrupar camadas</It>
+          <It acao="duplicar-tudo">Duplicar selecionadas</It>
+          <It acao="mesclar-copia">Mesclar em cópia</It>
+          <It acao="nova-vazia">Nova camada vazia</It>
         </>
       ) : (
         <>
-          <It acao="renomear">{t('menucamada_renomear')}</It>
+          <It acao="renomear">Renomear</It>
 
           {/* Um dos dois, nunca os dois. Uma camada é rasterizada OU é um objeto
               inteligente — oferecer "rasterizar" numa que já é rasterizada não
@@ -91,32 +89,32 @@ export default function MenuCamada({ x, y, camada, quantas, emGrupo, aoEscolher,
               pode ser escalada e voltar ao tamanho sem perder qualidade. */}
           {!ehGrupo && (
             camada?.smart
-              ? <It acao="rasterizar">{t('menucamada_rasterizar')}</It>
-              : <It acao="smart">{t('menucamada_converter_smart')}</It>
+              ? <It acao="rasterizar">Rasterizar camada</It>
+              : <It acao="smart">Converter em Objeto Inteligente</It>
           )}
 
           <span className="mc-sep" />
 
           {!ehGrupo && (
             <It acao="mascara">
-              {camada?.mascara ? t('menucamada_remover_mascara') : t('menucamada_adicionar_mascara')}
+              {camada?.mascara ? 'Remover máscara' : 'Adicionar máscara'}
             </It>
           )}
-          {!ehGrupo && <It acao="duplicar">{t('menucamada_duplicar_camada')}</It>}
+          {!ehGrupo && <It acao="duplicar">Duplicar camada</It>}
 
           {/* Só aparece se houver grupo de onde sair. Um item que não faz nada é
               pior que um item ausente: ele promete e não cumpre. */}
-          {emGrupo && <It acao="tirar-grupo">{t('menucamada_tirar_grupo')}</It>}
+          {emGrupo && <It acao="tirar-grupo">Tirar do grupo</It>}
 
-          <It acao="mesclar-copia">{t('menucamada_mesclar_copia_atalho')}</It>
-          <It acao="agrupar">{t('menucamada_agrupar_novo_grupo')}</It>
-          <It acao="nova-vazia">{t('menucamada_nova_vazia')}</It>
+          <It acao="mesclar-copia">Mesclar em cópia (Ctrl+Alt+E)</It>
+          <It acao="agrupar">Agrupar em novo grupo</It>
+          <It acao="nova-vazia">Nova camada vazia</It>
         </>
       )}
 
       <span className="mc-sep" />
       <It acao="excluir" perigo>
-        {varias ? t('menucamada_excluir_selecionadas') : t('menucamada_excluir_camada')}
+        {varias ? 'Excluir selecionadas' : 'Excluir camada'}
       </It>
     </div>,
     document.body

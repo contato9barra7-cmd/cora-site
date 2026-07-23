@@ -9,7 +9,9 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useRef, useEffect } from 'react';
-import { useIdioma } from '../lib/i18n';
+
+const DIAS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
 function parseISO(s) {
   if (!s) return null;
@@ -24,11 +26,7 @@ function fmt(dt) {
   return `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()}`;
 }
 
-export default function DatePickerCora({ valor, onEscolher, placeholder }) {
-  const { t } = useIdioma();
-  const ph = placeholder || t('datepickercora_placeholder');
-  const DIAS = [t('datepickercora_dia0'), t('datepickercora_dia1'), t('datepickercora_dia2'), t('datepickercora_dia3'), t('datepickercora_dia4'), t('datepickercora_dia5'), t('datepickercora_dia6')];
-  const MESES = [t('datepickercora_mes1'), t('datepickercora_mes2'), t('datepickercora_mes3'), t('datepickercora_mes4'), t('datepickercora_mes5'), t('datepickercora_mes6'), t('datepickercora_mes7'), t('datepickercora_mes8'), t('datepickercora_mes9'), t('datepickercora_mes10'), t('datepickercora_mes11'), t('datepickercora_mes12')];
+export default function DatePickerCora({ valor, onEscolher, placeholder = 'Escolher data' }) {
   const [aberto, setAberto] = useState(false);
   const ref = useRef(null);
   const sel = parseISO(valor);
@@ -69,17 +67,17 @@ export default function DatePickerCora({ valor, onEscolher, placeholder }) {
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.7">
           <rect x="3" y="4.5" width="18" height="16" rx="3" /><path d="M3 9h18M8 2.5v4M16 2.5v4" strokeLinecap="round" />
         </svg>
-        <span className={sel ? '' : 'coradp-ph'}>{sel ? fmt(sel) : ph}</span>
+        <span className={sel ? '' : 'coradp-ph'}>{sel ? fmt(sel) : placeholder}</span>
       </button>
 
       {aberto && (
         <div className="coradp-pop">
           <div className="coradp-cab">
-            <button type="button" className="coradp-nav" onClick={mesAnterior} aria-label={t('datepickercora_mes_anterior')}>
+            <button type="button" className="coradp-nav" onClick={mesAnterior} aria-label="Mês anterior">
               <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M10 4l-4 4 4 4" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
-            <span className="coradp-mes">{`${MESES[mes]} ${t('datepickercora_de')} ${ano}`.replace(/\s+/g, ' ').trim()}</span>
-            <button type="button" className="coradp-nav" onClick={mesProximo} aria-label={t('datepickercora_mes_proximo')}>
+            <span className="coradp-mes">{MESES[mes]} de {ano}</span>
+            <button type="button" className="coradp-nav" onClick={mesProximo} aria-label="Próximo mês">
               <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           </div>
@@ -95,7 +93,7 @@ export default function DatePickerCora({ valor, onEscolher, placeholder }) {
             )}
           </div>
           <div className="coradp-pe">
-            <button type="button" className="coradp-hoje" onClick={irHoje}>{t('datepickercora_hoje')}</button>
+            <button type="button" className="coradp-hoje" onClick={irHoje}>Hoje</button>
           </div>
         </div>
       )}

@@ -17,7 +17,6 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useIdioma, tOpt } from '../lib/i18n';
 import PickerImagem from './PickerImagem';
 import Dica from './Dica';
 import JanelaAjustes from './JanelaAjustes';
@@ -86,35 +85,35 @@ const Svg = ({ d }) => (
 // Um grupo tem um botão só; o triângulo abre o resto. É o que evita uma barra
 // com quinze ícones.
 const GRUPOS = [
-  { id: 'mover', nome: 'painelpos_ferr_mover', d: IC.mover, solo: true },
+  { id: 'mover', nome: 'Mover', d: IC.mover, solo: true },
   {
-    grupo: 'letreiro', nome: 'painelpos_ferr_letreiro',
+    grupo: 'letreiro', nome: 'Letreiro',
     itens: [
-      { id: 'ret',  nome: 'painelpos_ferr_retangular', rect: true },
-      { id: 'elip', nome: 'painelpos_ferr_eliptica',   elip: true }
+      { id: 'ret',  nome: 'Retangular', rect: true },
+      { id: 'elip', nome: 'Elíptica',   elip: true }
     ]
   },
   {
-    grupo: 'laco', nome: 'painelpos_ferr_laco',
+    grupo: 'laco', nome: 'Laço',
     itens: [
-      { id: 'laco',     nome: 'painelpos_ferr_laco_livre', d: IC.laco,     tracejado: true },
-      { id: 'lacoPoli', nome: 'painelpos_ferr_laco_poli',  d: IC.lacoPoli, tracejado: true }
+      { id: 'laco',     nome: 'Laço livre',      d: IC.laco,     tracejado: true },
+      { id: 'lacoPoli', nome: 'Laço poligonal',  d: IC.lacoPoli, tracejado: true }
     ]
   },
   {
-    grupo: 'objeto', nome: 'painelpos_ferr_sel_int',
+    grupo: 'objeto', nome: 'Seleção inteligente',
     itens: [
-      { id: 'selRapida', nome: 'painelpos_ferr_sel_rapida', d: IC.selRapida },
-      { id: 'varinha',   nome: 'painelpos_ferr_varinha',    d: IC.varinha }
+      { id: 'selRapida', nome: 'Seleção rápida',  d: IC.selRapida },
+      { id: 'varinha',   nome: 'Varinha mágica',  d: IC.varinha }
     ]
   },
-  { id: 'pincel',   nome: 'painelpos_ferr_pincel',   d: IC.pincel,   solo: true },
-  { id: 'borracha', nome: 'painelpos_ferr_borracha', d: IC.borracha, solo: true },
+  { id: 'pincel',   nome: 'Pincel',   d: IC.pincel,   solo: true },
+  { id: 'borracha', nome: 'Borracha', d: IC.borracha, solo: true },
   {
-    grupo: 'desfoque', nome: 'painelpos_ferr_desfoque', acao: true,
+    grupo: 'desfoque', nome: 'Desfoque', acao: true,
     itens: [
-      { id: 'desfGauss', nome: 'painelpos_ferr_desf_gauss', d: IC.desfoque },
-      { id: 'desfMov',   nome: 'painelpos_ferr_desf_mov',   d: IC.desfoque }
+      { id: 'desfGauss', nome: 'Desfoque gaussiano', d: IC.desfoque },
+      { id: 'desfMov',   nome: 'Desfoque de movimento', d: IC.desfoque }
     ]
   }
 ];
@@ -152,7 +151,6 @@ function proporcaoMaisProxima(w, h) {
 }
 
 export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagemInicial, timelapseRetorno, aoConcluirTimelapse, aoCancelarTimelapse }) {
-  const { t } = useIdioma();
   // ── A pilha ──
   // A ordem é de CIMA para baixo, como na coluna. camadas[0] é a do topo.
   const [camadas, setCamadas] = useState([]);
@@ -631,7 +629,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
       if (!comoCamada || !med) {
         setMed({ w: c.width, h: c.height });
-        const l = novaCamada(c, nome || t('painelpos_cam_imagem'));
+        const l = novaCamada(c, nome || 'Imagem');
         setCamadas([l]);
         setSel([l.id]);
         setZoom(1);
@@ -645,7 +643,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
         // base — e pareceria que nada aconteceu.
         const pos = centralizar(c, med.w, med.h);
 
-        const l = novaCamada(c, nome || `${t('painelpos_cam_camada')} ${camadas.length + 1}`, pos);
+        const l = novaCamada(c, nome || `Camada ${camadas.length + 1}`, pos);
         setCamadas((cs) => [l, ...cs]);
         setSel([l.id]);
 
@@ -678,7 +676,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
   useEffect(() => {
     if (imagemInicial && imagemInicial.base64 && imagemInicial.base64 !== posInicialRef.current) {
       posInicialRef.current = imagemInicial.base64;
-      abrir('data:image/png;base64,' + imagemInicial.base64, t('painelpos_cam_imagem'), false);
+      abrir('data:image/png;base64,' + imagemInicial.base64, 'Imagem', false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imagemInicial]);
@@ -749,7 +747,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
   function novaVazia() {
     if (!med) return;
     guardar();
-    const l = novaCamada(canvasVazio(med.w, med.h), `${t('painelpos_cam_camada')} ${camadas.length + 1}`);
+    const l = novaCamada(canvasVazio(med.w, med.h), `Camada ${camadas.length + 1}`);
     setCamadas((cs) => [l, ...cs]);
     setSel([l.id]);
   }
@@ -802,7 +800,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     if (!sel.length) return;
     guardar();
 
-    const g = novoGrupo(t('painelpos_cam_grupo'));
+    const g = novoGrupo('Grupo');
     // O grupo entra ONDE estava a primeira selecionada — não no topo. Assim a
     // pilha não se reordena sozinha debaixo da pessoa.
     const i = camadas.findIndex((l) => l.id === sel[0]);
@@ -843,7 +841,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       cx.drawImage(selRef.current, 0, 0);
       cx.globalCompositeOperation = 'source-over';
 
-      const l = novaCamada(c, ativa.nome + ' ' + t('painelpos_cam_copia'), {
+      const l = novaCamada(c, ativa.nome + ' cópia', {
         blend: ativa.blend,
         opacidade: ativa.opacidade,
         grupo: ativa.grupo
@@ -855,7 +853,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       return;
     }
 
-    const l = novaCamada(clonarCanvas(ativa.canvas), ativa.nome + ' ' + t('painelpos_cam_copia'), {
+    const l = novaCamada(clonarCanvas(ativa.canvas), ativa.nome + ' cópia', {
       x: ativa.x, y: ativa.y,
       escala: ativa.escala, escalaY: ativa.escalaY,
       blend: ativa.blend, opacidade: ativa.opacidade,
@@ -939,7 +937,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       const dataUrl = exportar(camadas, med.w, med.h);
       aoConcluirTimelapse(dataUrl);
     } catch (e) {
-      setToast(e.message || t('painelpos_erro_concluir'));
+      setToast(e.message || 'Não foi possível concluir');
       setTimeout(() => setToast(null), 3200);
     }
   }
@@ -961,10 +959,10 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       const proporcao = proporcaoMaisProxima(med.w, med.h);
 
       await aoSalvarHistorico(dataUrl, { largura: med.w, altura: med.h, proporcao });
-      setToast(t('painelpos_toast_salvo_hist'));
+      setToast('Salvo no histórico');
       setTimeout(() => setToast(null), 3200);
     } catch (e) {
-      setToast(e.message || t('painelpos_erro_salvar'));
+      setToast(e.message || 'Não foi possível salvar');
       setTimeout(() => setToast(null), 4000);
     } finally {
       setSalvandoHist(false);
@@ -1121,7 +1119,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       for (const l of cs) {
         if (!sel.includes(l.id) || l.tipo === 'grupo') continue;
 
-        novas.push(novaCamada(clonarCanvas(l.canvas), l.nome + ' ' + t('painelpos_cam_copia'), {
+        novas.push(novaCamada(clonarCanvas(l.canvas), l.nome + ' cópia', {
           x: l.x, y: l.y,
           escala: l.escala, escalaY: l.escalaY,
           blend: l.blend, opacidade: l.opacidade,
@@ -2127,9 +2125,9 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
     // A tolerância cresce quando se está afastado: num zoom de 20%, uma alça de
     // 14px do documento teria menos de 3px na tela, e ninguém a acertaria.
-    const tol = ALCA / escala;
+    const t = ALCA / escala;
 
-    const perto = (a, b) => Math.abs(a - b) < tol;
+    const perto = (a, b) => Math.abs(a - b) < t;
 
     if (perto(p.x, x0) && perto(p.y, y0)) return 'no';
     if (perto(p.x, x1) && perto(p.y, y0)) return 'ne';
@@ -2327,7 +2325,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
   useEffect(() => {
     if (!temImagem || !med || !camadas.length) return;
 
-    const tmr = setTimeout(async () => {
+    const t = setTimeout(async () => {
       // Dois salvamentos podem se cruzar: um começa, a pessoa mexe de novo, e o
       // segundo dispara antes de o primeiro terminar. Se o VELHO terminasse por
       // último, ele gravaria por cima do novo — e o trabalho voltaria no tempo.
@@ -2349,7 +2347,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       }
     }, 2000);
 
-    return () => clearTimeout(tmr);
+    return () => clearTimeout(t);
   }, [camadas, med, temImagem]);
 
   async function restaurar() {
@@ -2357,25 +2355,25 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     setOcupado(true);
 
     try {
-      const tr = await guardarTrabalho.carregar();
-      if (!tr) return;
+      const t = await guardarTrabalho.carregar();
+      if (!t) return;
 
-      setCamadas(tr.camadas);
-      setMed(tr.med);
+      setCamadas(t.camadas);
+      setMed(t.med);
 
       // A seleção volta junto: ela costuma custar trabalho — uma varinha
       // ajustada, um laço traçado à mão — e refazê-la é o que mais irrita.
-      selRef.current = tr.selecao || novaSelecao(tr.med.w, tr.med.h);
+      selRef.current = t.selecao || novaSelecao(t.med.w, t.med.h);
       contornoRef.current = null;
-      setTemSel(tr.selecao ? !selecaoVazia(tr.selecao) : false);
+      setTemSel(t.selecao ? !selecaoVazia(t.selecao) : false);
 
-      setSel(tr.camadas.length ? [tr.camadas[0].id] : []);
+      setSel(t.camadas.length ? [t.camadas[0].id] : []);
       setPilha([]);
       setFerr('mover');
       setZoom(1);
       setPan({ x: 0, y: 0 });
     } catch (e) {
-      setErro(t('painelpos_erro_recuperar'));
+      setErro('Não foi possível recuperar o trabalho guardado.');
     } finally {
       setOcupado(false);
     }
@@ -2394,7 +2392,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     // e o que a pessoa reconhece como "o projeto".
     const sugerido = camadas.length
       ? camadas[camadas.length - 1].nome
-      : t('painelpos_nome_trabalho');
+      : 'trabalho';
 
     // O seletor nativo do sistema já pergunta o nome e a pasta. Onde ele não
     // existe, perguntamos aqui — senão o arquivo cairia em Downloads com um
@@ -2413,7 +2411,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     try {
       await exportarCora(camadas, med, temSel ? selRef.current : null, nome);
     } catch (e) {
-      setErro(t('painelpos_erro_salvar_arq'));
+      setErro('Não foi possível salvar o arquivo.');
     } finally {
       setOcupado(false);
     }
@@ -2428,23 +2426,23 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     setErro('');
 
     try {
-      const tr = await importarCora(f);
+      const t = await importarCora(f);
 
-      setCamadas(tr.camadas);
-      setMed(tr.med);
+      setCamadas(t.camadas);
+      setMed(t.med);
 
-      selRef.current = tr.selecao || novaSelecao(tr.med.w, tr.med.h);
+      selRef.current = t.selecao || novaSelecao(t.med.w, t.med.h);
       contornoRef.current = null;
-      setTemSel(tr.selecao ? !selecaoVazia(tr.selecao) : false);
+      setTemSel(t.selecao ? !selecaoVazia(t.selecao) : false);
 
-      setSel(tr.camadas.length ? [tr.camadas[0].id] : []);
+      setSel(t.camadas.length ? [t.camadas[0].id] : []);
       setPilha([]);
       setFerr('mover');
       setZoom(1);
       setPan({ x: 0, y: 0 });
       setRascunho(null);
     } catch (err) {
-      setErro(err.message || t('painelpos_erro_abrir_arq'));
+      setErro(err.message || 'Não foi possível abrir o arquivo.');
     } finally {
       setOcupado(false);
     }
@@ -2719,9 +2717,9 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       {/* ══ A topbar ══ */}
       <header className="ps-top">
 
-        <Dica texto={t('painelpos_voltar')}>
+        <Dica texto="Voltar">
           <button className="ps-b" onClick={aoSair}>
-            <Svg d={IC.volta} /> {t('painelpos_voltar')}
+            <Svg d={IC.volta} /> Voltar
           </button>
         </Dica>
 
@@ -2729,20 +2727,20 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
           className="ps-b ps-b--on"
           onClick={() => (temImagem ? setConfirmando(true) : setPicker('nova'))}
           disabled={ocupado}
-        >{t('painelpos_abrir_imagem')}</button>
+        >Abrir imagem</button>
 
-        <Dica texto={t('painelpos_add_camada')}>
+        <Dica texto="Adicionar camada">
           <button className="ps-ic" onClick={() => setPicker('camada')}
-                  disabled={!temImagem} aria-label={t('painelpos_add_camada')}>
+                  disabled={!temImagem} aria-label="Adicionar camada">
             <Svg d={IC.mais} />
           </button>
         </Dica>
 
         {/* Abrir um .crd. Ele fica colado no + porque as duas coisas trazem
             trabalho para dentro: uma imagem nova, ou um trabalho já começado. */}
-        <Dica texto={t('painelpos_abrir_projeto_crd')}>
+        <Dica texto="Abrir um projeto (.crd)">
           <button className="ps-ic" onClick={() => arquivoCora.current?.click()}
-                  disabled={ocupado} aria-label={t('painelpos_abrir_projeto')}>
+                  disabled={ocupado} aria-label="Abrir projeto">
             <Svg d={IC.pasta} />
           </button>
         </Dica>
@@ -2752,9 +2750,9 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
           onChange={importar} style={{ display: 'none' }}
         />
 
-        <Dica texto={t('painelpos_cortar_c')}>
+        <Dica texto="Cortar (C)">
           <button className={'ps-ic' + (crop ? ' ps-ic--on' : '')} onClick={abrirCrop}
-                  disabled={!temImagem} aria-label={t('painelpos_cortar')}>
+                  disabled={!temImagem} aria-label="Cortar">
             <Svg d={IC.crop} />
           </button>
         </Dica>
@@ -2765,12 +2763,12 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
         {GRUPOS.map((g) => {
           if (g.solo) {
             return (
-              <Dica key={g.id} texto={t(g.nome)}>
+              <Dica key={g.id} texto={g.nome}>
                 <button
                   className={'ps-ic' + (ferr === g.id ? ' ps-ic--on' : '')}
                   onClick={() => setFerr(g.id)}
                   disabled={!temImagem}
-                  aria-label={t(g.nome)}
+                  aria-label={g.nome}
                 ><Svg d={g.d} /></button>
               </Dica>
             );
@@ -2781,7 +2779,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
           return (
             <span key={g.grupo} className="ps-grupo">
-              <Dica texto={t(g.nome)}>
+              <Dica texto={g.nome}>
                 <button
                   className={'ps-ic' + (ligado ? ' ps-ic--on' : '')}
                   onClick={() => {
@@ -2797,7 +2795,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                     setAberto((a) => ({ [g.grupo]: !a[g.grupo] }));
                   }}
                   disabled={!temImagem}
-                  aria-label={t(g.nome)}
+                  aria-label={g.nome}
                 >
                   <IconeItem it={it} />
                 </button>
@@ -2809,7 +2807,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                 className="ps-tri-btn"
                 onClick={() => setAberto((a) => ({ [g.grupo]: !a[g.grupo] }))}
                 disabled={!temImagem}
-                aria-label={`${t('painelpos_mais_de')} ${t(g.nome)}`}
+                aria-label={`Mais de ${g.nome}`}
               ><span className="ps-tri" /></button>
 
               {aberto[g.grupo] && (
@@ -2827,7 +2825,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                         }}
                       >
                         <IconeItem it={i} />
-                        <span>{t(i.nome)}</span>
+                        <span>{i.nome}</span>
                       </button>
                     ))}
                   </div>
@@ -2839,15 +2837,15 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
         <span className="ps-esticar" />
 
-        <Dica texto={t('painelpos_desfazer_atalho')}>
+        <Dica texto="Desfazer (Ctrl+Z)">
           <button className="ps-ic" onClick={desfazer}
-                  disabled={!pilha.length} aria-label={t('painelpos_desfazer')}>
+                  disabled={!pilha.length} aria-label="Desfazer">
             <Svg d={IC.desfazer} />
           </button>
         </Dica>
 
-        <Dica texto={t('painelpos_atalhos_teclado')}>
-          <button className="ps-ic" onClick={() => setMostraAtalhos(true)} aria-label={t('painelpos_atalhos')}>
+        <Dica texto="Atalhos de teclado">
+          <button className="ps-ic" onClick={() => setMostraAtalhos(true)} aria-label="Atalhos">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
                  strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="6" width="20" height="12" rx="2"/>
@@ -2856,24 +2854,24 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
           </button>
         </Dica>
 
-        <Dica texto={t('painelpos_salvar_projeto_crd')}>
+        <Dica texto="Salvar o projeto (.crd)">
           <button className="ps-ic" onClick={salvarProjeto}
-                  disabled={!temImagem || ocupado} aria-label={t('painelpos_salvar_projeto')}>
+                  disabled={!temImagem || ocupado} aria-label="Salvar projeto">
             <Svg d={IC.disquete} />
           </button>
         </Dica>
 
         <button className="ps-b" onClick={salvarNoHist} disabled={!temImagem || salvandoHist}>
-          {salvandoHist ? t('comum_salvando') : t('painelpos_salvar_hist')}
+          {salvandoHist ? 'Salvando…' : 'Salvar no Histórico'}
         </button>
 
         <button className="ps-b" onClick={paraUpscale} disabled={!temImagem}>
-          {t('painelpos_fazer_upscale')}
+          Fazer upscale
         </button>
 
-        <Dica texto={t('painelpos_baixar')}>
+        <Dica texto="Baixar">
           <button className="ps-ic" onClick={baixar}
-                  disabled={!temImagem} aria-label={t('painelpos_baixar')}>
+                  disabled={!temImagem} aria-label="Baixar">
             <Svg d={IC.baixar} />
           </button>
         </Dica>
@@ -2919,7 +2917,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                   onChange={(e) => trocarRatio(e.target.value)}
                 >
                   {RATIOS_CROP.map((r) => (
-                    <option key={r} value={r}>{r === 'livre' ? t('painelpos_livre') : r}</option>
+                    <option key={r} value={r}>{r === 'livre' ? 'Livre' : r}</option>
                   ))}
                 </select>
 
@@ -2930,11 +2928,11 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                   className="ps-num"
                   value={Math.round(Math.abs(crop.x1 - crop.x0))}
                   onChange={(e) => cropPorNumero(+e.target.value, null)}
-                  aria-label={t('painelpos_largura')}
+                  aria-label="Largura"
                 />
 
-                <Dica texto={t('painelpos_inverter_lag_alt')}>
-                  <button className="ps-troca" onClick={inverterCrop} aria-label={t('painelpos_inverter')}>
+                <Dica texto="Inverter largura e altura">
+                  <button className="ps-troca" onClick={inverterCrop} aria-label="Inverter">
                     ⇄
                   </button>
                 </Dica>
@@ -2944,29 +2942,29 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                   className="ps-num"
                   value={Math.round(Math.abs(crop.y1 - crop.y0))}
                   onChange={(e) => cropPorNumero(null, +e.target.value)}
-                  aria-label={t('painelpos_altura')}
+                  aria-label="Altura"
                 />
 
-                <button className="ps-b" onClick={limparCrop}>{t('painelpos_limpar')}</button>
+                <button className="ps-b" onClick={limparCrop}>Limpar</button>
 
-                <Dica texto={t('painelpos_dica_apagar_cortados')}>
+                <Dica texto="Desmarque para poder arrastar a camada e revelar o que ficou de fora">
                   <label className="ps-caixa">
                     <input
                       type="checkbox"
                       checked={apagarCortado}
                       onChange={(e) => setApagarCortado(e.target.checked)}
                     />
-                    <span>{t('painelpos_apagar_pixels')}</span>
+                    <span>Apagar pixels cortados</span>
                   </label>
                 </Dica>
 
                 <span className="ps-esticar" />
 
                 <button className="ps-b" onClick={() => { setCrop(null); setFerr('mover'); }}>
-                  {t('comum_cancelar')}
+                  Cancelar
                 </button>
                 <button className="ps-b ps-b--on" onClick={aplicarCrop}>
-                  {t('painelpos_aplicar_corte')}
+                  Aplicar corte
                 </button>
               </>
             ) : (
@@ -2975,9 +2973,9 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                   <>
                     <div className="ps-modos">
                       {[
-                        ['novo', t('painelpos_modo_nova')],
-                        ['somar', t('painelpos_modo_somar')],
-                        ['subtrair', t('painelpos_modo_subtrair')]
+                        ['novo', 'Nova'],
+                        ['somar', 'Somar (Ctrl)'],
+                        ['subtrair', 'Subtrair (Alt)']
                       ].map(([k, n]) => (
                         <button
                           key={k}
@@ -2996,22 +2994,22 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                 )}
 
                 {(ferr === 'varinha' || ferr === 'selRapida') && (
-                  <Faixa nome={t('painelpos_tolerancia')} v={opts.tolerancia} min={1} max={100}
+                  <Faixa nome="Tolerância" v={opts.tolerancia} min={1} max={100}
                          set={(v) => setOpts((o) => ({ ...o, tolerancia: v }))} />
                 )}
 
                 {(PINTAM.includes(ferr) || ferr === 'selRapida') && (
-                  <Faixa nome={t('painelpos_tamanho')} v={opts.tamanho} min={1} max={300}
+                  <Faixa nome="Tamanho" v={opts.tamanho} min={1} max={300}
                          set={(v) => setOpts((o) => ({ ...o, tamanho: v }))} />
                 )}
 
                 {PINTAM.includes(ferr) && (
                   <>
-                    <Faixa nome={t('painelpos_dureza')} v={opts.dureza} min={0} max={100}
+                    <Faixa nome="Dureza" v={opts.dureza} min={0} max={100}
                            set={(v) => setOpts((o) => ({ ...o, dureza: v }))} />
-                    <Faixa nome={t('painelpos_opacidade')} v={opts.opacidade} min={1} max={100}
+                    <Faixa nome="Opacidade" v={opts.opacidade} min={1} max={100}
                            set={(v) => setOpts((o) => ({ ...o, opacidade: v }))} />
-                    <Faixa nome={t('painelpos_fluxo')} v={opts.fluxo} min={1} max={100}
+                    <Faixa nome="Fluxo" v={opts.fluxo} min={1} max={100}
                            set={(v) => setOpts((o) => ({ ...o, fluxo: v }))} />
                   </>
                 )}
@@ -3036,17 +3034,17 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
             {!crop && temSel && (
               <>
                 <span className="ps-esticar" />
-                <button className="ps-b" onClick={inverterSel}>{t('painelpos_inverter_sel')}</button>
+                <button className="ps-b" onClick={inverterSel}>Inverter seleção</button>
 
                 {/* Virar máscara. Ele é ação da CAMADA, e por isso vive no painel de
                     camadas — mas com uma seleção na mão, o gesto que se quer é este, e
                     obrigar a atravessar a tela até o outro painel seria um desvio. */}
                 <button className="ps-b" onClick={toggleMascara}
                         disabled={!ativa || ativa.tipo === 'grupo'}>
-                  {t('painelpos_virar_mascara')}
+                  Virar máscara
                 </button>
 
-                <button className="ps-b" onClick={desmarcar}>{t('painelpos_desmarcar')}</button>
+                <button className="ps-b" onClick={desmarcar}>Desmarcar</button>
               </>
             )}
           </div>
@@ -3059,22 +3057,22 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                 <circle cx="8.5" cy="8.5" r="1.5"/>
                 <path d="M21 15l-5-5L5 21"/>
               </svg>
-              <p>{t('painelpos_vazio_texto')}</p>
+              <p>Abra uma imagem do Histórico, dos Favoritos ou do seu computador para começar a pós-produção.</p>
               <button className="ps-b ps-b--on" onClick={() => setPicker('nova')}>
-                {t('painelpos_abrir_imagem')}
+                Abrir imagem
               </button>
 
               {/* O trabalho da sessão passada. Ele é OFERECIDO, não imposto: quem
                   veio começar outra coisa não deveria achar a tela ocupada. */}
               {rascunho && (
                 <div className="ps-volta">
-                  <span>{t('painelpos_trabalho_nao_terminado')}</span>
+                  <span>Você tem um trabalho não terminado.</span>
                   <div className="ps-volta-b">
                     <button className="ps-b ps-b--on" onClick={restaurar}>
-                      {t('painelpos_continuar')}
+                      Continuar de onde parei
                     </button>
                     <button className="ps-b" onClick={descartarRascunho}>
-                      {t('painelpos_descartar')}
+                      Descartar
                     </button>
                   </div>
                 </div>
@@ -3109,11 +3107,11 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
               trabalho está seguro — e a dúvida é justamente o que faz a pessoa
               hesitar em fechar a aba. */}
           {temImagem && salvando && (
-            <span className="ps-salvando">{t('painelpos_guardando')}</span>
+            <span className="ps-salvando">Guardando…</span>
           )}
 
           {temImagem && (
-            <Dica texto={t('painelpos_enquadrar')} lado="cima">
+            <Dica texto="Enquadrar a imagem" lado="cima">
               <button className="ps-zoom"
                       onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}>
                 {Math.round(zoom * 100)}%
@@ -3130,50 +3128,50 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
               className="ps-b ps-b--on ps-b--largo"
               onClick={() => setAjustando(true)}
               disabled={!ativa || ativa.tipo === 'grupo'}
-            >{t('painelpos_ajustes')}</button>
+            >Ajustes</button>
           </div>
 
           {/* O bloco da Camada é FIXO. Ele sumir quando nada está marcado faria a
               coluna inteira saltar — e apagar uma camada empurraria os Ajustes
               para cima debaixo do cursor. Sem camada, ele só fica inerte. */}
           <div className={'ps-bloco' + (!ativa ? ' ps-bloco--inerte' : '')}>
-            <div className="cr-sec ps-sec">{t('painelpos_camada_sec')}</div>
+            <div className="cr-sec ps-sec">Camada</div>
 
             <div className="ps-linha">
-              <label>{t('painelpos_mesclagem')}</label>
+              <label>Mesclagem</label>
               <select
                 className="ps-sel"
                 value={ativa ? ativa.blend : 'source-over'}
                 disabled={!ativa}
                 onChange={(e) => mudar(ativa.id, { blend: e.target.value })}
               >
-                {BLENDS.map((b) => <option key={b.val} value={b.val}>{tOpt(b.rotulo)}</option>)}
+                {BLENDS.map((b) => <option key={b.val} value={b.val}>{b.rotulo}</option>)}
               </select>
             </div>
 
             <div className="ps-linha">
-              <label>{t('painelpos_opacidade')}</label>
+              <label>Opacidade</label>
               <input
                 type="range" min="0" max="100"
                 value={ativa ? ativa.opacidade : 100}
                 disabled={!ativa}
                 onChange={(e) => mudar(ativa.id, { opacidade: +e.target.value })}
-                aria-label={t('painelpos_opacidade')}
+                aria-label="Opacidade"
               />
               <span className="ps-val">{ativa ? ativa.opacidade : 100}%</span>
             </div>
           </div>
 
           <div className="ps-cab">
-            <span className="cr-sec ps-sec">{t('painelpos_camadas_sec')}</span>
+            <span className="cr-sec ps-sec">Camadas</span>
 
             <Dica texto={
-              ativa?.mascara ? t('painelpos_remover_mascara')
-              : temSel       ? t('painelpos_sel_vira_mascara')
-              :                t('painelpos_add_mascara')
+              ativa?.mascara ? 'Remover máscara'
+              : temSel       ? 'A seleção vira máscara'
+              :                'Adicionar máscara'
             }>
               <button className="ps-mini" onClick={toggleMascara}
-                      disabled={!ativa || ativa.tipo === 'grupo'} aria-label={t('painelpos_mascara')}>
+                      disabled={!ativa || ativa.tipo === 'grupo'} aria-label="Máscara">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                   <rect x="3" y="4" width="18" height="16" rx="2"/>
                   <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/>
@@ -3181,9 +3179,9 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
               </button>
             </Dica>
 
-            <Dica texto={t('painelpos_nova_camada_vazia')}>
+            <Dica texto="Nova camada vazia">
               <button className="ps-mini" onClick={novaVazia}
-                      disabled={!temImagem} aria-label={t('painelpos_nova_camada')}>
+                      disabled={!temImagem} aria-label="Nova camada">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                   <rect x="4" y="4" width="16" height="16" rx="2"/>
                   <path d="M12 8v8M8 12h8"/>
@@ -3191,9 +3189,9 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
               </button>
             </Dica>
 
-            <Dica texto={t('painelpos_duplicar_atalho')}>
+            <Dica texto="Duplicar (Ctrl+J)">
               <button className="ps-mini" onClick={duplicar}
-                      disabled={!ativa || ativa.tipo === 'grupo'} aria-label={t('painelpos_duplicar')}>
+                      disabled={!ativa || ativa.tipo === 'grupo'} aria-label="Duplicar">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                   <rect x="8" y="8" width="12" height="12" rx="2"/>
                   <path d="M4 16V6a2 2 0 012-2h10"/>
@@ -3201,18 +3199,18 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
               </button>
             </Dica>
 
-            <Dica texto={t('painelpos_agrupar_atalho')}>
+            <Dica texto="Agrupar (Ctrl+G)">
               <button className="ps-mini" onClick={agrupar}
-                      disabled={!sel.length} aria-label={t('painelpos_agrupar')}>
+                      disabled={!sel.length} aria-label="Agrupar">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                   <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                 </svg>
               </button>
             </Dica>
 
-            <Dica texto={t('painelpos_excluir_atalho')}>
+            <Dica texto="Excluir (Delete)">
               <button className="ps-mini ps-mini--perigo" onClick={excluir}
-                      disabled={!sel.length} aria-label={t('painelpos_excluir')}>
+                      disabled={!sel.length} aria-label="Excluir">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                   <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>
                 </svg>
@@ -3270,7 +3268,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                         e.stopPropagation();
                         setAbertos((a) => ({ ...a, [l.id]: !a[l.id] }));
                       }}
-                      aria-label={abertos[l.id] ? t('painelpos_fechar_grupo') : t('painelpos_abrir_grupo')}
+                      aria-label={abertos[l.id] ? 'Fechar grupo' : 'Abrir grupo'}
                     >
                       <svg viewBox="0 0 10 10" fill="none" stroke="currentColor"
                            strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -3284,7 +3282,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                   <button
                     className="ps-olho"
                     onClick={(e) => { e.stopPropagation(); mudar(l.id, { visivel: !l.visivel }); }}
-                    aria-label={l.visivel ? t('painelpos_ocultar') : t('painelpos_mostrar')}
+                    aria-label={l.visivel ? 'Ocultar' : 'Mostrar'}
                   >
                     {l.visivel ? (
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -3352,7 +3350,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                       {/* O objeto inteligente se anuncia numa segunda linha, como
                           no plugin. Sem isso não haveria como saber que aquela
                           camada é reversível e a vizinha não. */}
-                      {l.smart && <span className="ps-tag">{t('painelpos_obj_inteligente')}</span>}
+                      {l.smart && <span className="ps-tag">Objeto Inteligente</span>}
                     </span>
                   )}
                 </div>
@@ -3373,12 +3371,12 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                           key={f.id}
                           className={'ps-filtro' + (f.desligado ? ' ps-filtro--off' : '')}
                           onClick={(e) => { e.stopPropagation(); reabrirFiltro(l.id, f); }}
-                          title={t('painelpos_clique_editar')}
+                          title="Clique para editar"
                         >
                           <button
                             className="ps-filtro-olho"
                             onClick={(e) => { e.stopPropagation(); ligarFiltro(l.id, f.id); }}
-                            aria-label={f.desligado ? t('painelpos_ligar_filtro') : t('painelpos_desligar_filtro')}
+                            aria-label={f.desligado ? 'Ligar filtro' : 'Desligar filtro'}
                           >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                               <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
@@ -3393,7 +3391,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                           <button
                             className="ps-filtro-x"
                             onClick={(e) => { e.stopPropagation(); tirarFiltro(l.id, f.id); }}
-                            aria-label={t('painelpos_remover_filtro')}
+                            aria-label="Remover filtro"
                           >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                               <path d="M6 6l12 12M18 6L6 18" />
@@ -3492,9 +3490,9 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       {toast && (
         <div className="ps-toast" role="status">
           <span>{toast}</span>
-          {toast === t('painelpos_toast_salvo_hist') && aoSair && (
+          {toast === 'Salvo no histórico' && aoSair && (
             <button className="ps-toast-link" onClick={aoSair}>
-              {t('painelpos_ver_hist')}
+              Ver no histórico
             </button>
           )}
         </div>
@@ -3532,8 +3530,8 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
       {confirmando && (
         <Confirma
-          texto={t('painelpos_confirma_abrir')}
-          ok={t('painelpos_abrir_assim')}
+          texto="Abrir uma nova imagem vai fechar o trabalho atual. Tem certeza?"
+          ok="Abrir mesmo assim"
           aoOk={() => { setConfirmando(false); setPicker('nova'); }}
           aoCancelar={() => setConfirmando(false)}
         />
@@ -3555,13 +3553,13 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
         aberto={picker !== null}
         onFechar={() => setPicker(null)}
         onEscolher={escolheuDoPicker}
-        titulo={picker === 'camada' ? t('painelpos_add_camada') : t('painelpos_abrir_imagem')}
+        titulo={picker === 'camada' ? 'Adicionar camada' : 'Abrir imagem'}
       />
 
       {timelapseRetorno && (
         <div className="ps-tl-acoes">
-          <button className="ps-b" onClick={() => aoCancelarTimelapse && aoCancelarTimelapse()}>{t('comum_cancelar')}</button>
-          <button className="ps-b ps-b--on" onClick={concluirTimelapse} disabled={!temImagem}>{t('painelpos_pronto')}</button>
+          <button className="ps-b" onClick={() => aoCancelarTimelapse && aoCancelarTimelapse()}>Cancelar</button>
+          <button className="ps-b ps-b--on" onClick={concluirTimelapse} disabled={!temImagem}>Pronto</button>
         </div>
       )}
     </section>
@@ -3603,16 +3601,15 @@ function IconeItem({ it }) {
 // É por isso que eles vêm primeiro, e o cinza — que revela pela metade — logo
 // atrás. O X troca entre os dois extremos sem tirar a mão da imagem.
 function LinhaCor({ cor, setCor, naMasc }) {
-  const { t } = useIdioma();
   const ATALHOS = [
-    ['#ffffff', naMasc ? t('painelpos_cor_branco_revela') : t('painelpos_cor_branco')],
-    ['#000000', naMasc ? t('painelpos_cor_preto_esconde') : t('painelpos_cor_preto')],
-    ['#8e8e88', naMasc ? t('painelpos_cor_cinza_meia') : t('painelpos_cor_cinza')]
+    ['#ffffff', naMasc ? 'Branco: revela' : 'Branco'],
+    ['#000000', naMasc ? 'Preto: esconde' : 'Preto'],
+    ['#8e8e88', naMasc ? 'Cinza: revela pela metade' : 'Cinza']
   ];
 
   return (
     <>
-      <Dica texto={t('painelpos_escolher_cor')}>
+      <Dica texto="Escolher a cor">
         <span className="ps-cor-envelope">
           <button className="ps-cor-picker" aria-hidden="true" tabIndex={-1}>
             <i style={{ background: cor }} />
@@ -3629,7 +3626,7 @@ function LinhaCor({ cor, setCor, naMasc }) {
             className="ps-cor-real"
             value={cor}
             onChange={(e) => setCor(e.target.value)}
-            aria-label={t('painelpos_cor_pincel')}
+            aria-label="Cor do pincel"
           />
         </span>
       </Dica>

@@ -13,10 +13,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useIdioma } from '../lib/i18n';
 
 export default function CookieConsent() {
-  const { t } = useIdioma();
   const [mostrar, setMostrar] = useState(false);
 
   useEffect(() => {
@@ -48,14 +46,14 @@ export default function CookieConsent() {
   if (!mostrar) return null;
 
   return (
-    <div className="cookie-bar" role="dialog" aria-label={t('cookieconsent_aria')}>
+    <div className="cookie-bar" role="dialog" aria-label="Aviso de cookies">
       <div className="cookie-txt">
-        {t('cookieconsent_texto')}<br />
-        {t('cookieconsent_veja')} <Link href="/privacidade">{t('cookieconsent_link_privacidade')}</Link>.
+        Usamos cookies para analisar o uso do site e melhorar sua experiência.<br />
+        Veja a <Link href="/privacidade">Política de Privacidade</Link>.
       </div>
       <div className="cookie-acoes">
-        <button className="cookie-btn cookie-btn--ghost" onClick={() => decidir(false)}>{t('cookieconsent_recusar')}</button>
-        <button className="cookie-btn cookie-btn--verde" onClick={() => decidir(true)}>{t('cookieconsent_aceitar')}</button>
+        <button className="cookie-btn cookie-btn--ghost" onClick={() => decidir(false)}>Recusar</button>
+        <button className="cookie-btn cookie-btn--verde" onClick={() => decidir(true)}>Aceitar</button>
       </div>
     </div>
   );

@@ -17,13 +17,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { arquivoParaBase64 } from '../lib/render';
 import { listarGeracoes, bytesDaGeracao } from '../lib/geracoes';
-import { useIdioma, localeDeIdioma } from '../lib/i18n';
 
 // Enviar vem primeiro: quase sempre a pessoa quer subir uma imagem nova.
 // Quem vai buscar no histórico procura; quem vai subir, encontra na frente.
 const ORIGENS = [
   {
-    id: 'enviar',
+    id: 'enviar', rotulo: 'Enviar',
     icone: (
       <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -32,7 +31,7 @@ const ORIGENS = [
     )
   },
   {
-    id: 'historico',
+    id: 'historico', rotulo: 'Histórico',
     icone: (
       <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M3 10a7 7 0 107-7 7 7 0 00-5 2.1" strokeLinecap="round"/>
@@ -41,7 +40,7 @@ const ORIGENS = [
     )
   },
   {
-    id: 'favoritos',
+    id: 'favoritos', rotulo: 'Favoritos',
     icone: (
       <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z" strokeLinejoin="round"/>
@@ -50,8 +49,13 @@ const ORIGENS = [
   }
 ];
 
+const MESES = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+];
+
 // Junta as imagens por mês, para o histórico ficar navegável
-function agruparPorMes(lotes, locale) {
+function agruparPorMes(lotes) {
   const grupos = new Map();
 
   lotes.forEach((lote) => {
@@ -61,9 +65,7 @@ function agruparPorMes(lotes, locale) {
       const d = new Date(lote.criadoEm || item.criadoEm);
       const chave = `${d.getFullYear()}-${d.getMonth()}`;
       if (!grupos.has(chave)) {
-        const mes = d.toLocaleString(locale, { month: 'long' });
-        const titulo = `${mes.charAt(0).toUpperCase() + mes.slice(1)} ${d.getFullYear()}`;
-        grupos.set(chave, { titulo, itens: [] });
+        grupos.set(chave, { titulo: `${MESES[d.getMonth()]} ${d.getFullYear()}`, itens: [] });
       }
       grupos.get(chave).itens.push(item);
     });
@@ -73,9 +75,6 @@ function agruparPorMes(lotes, locale) {
 }
 
 export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherVarias, multi, titulo }) {
-  const { t, idioma } = useIdioma();
-  const rotuloOrigem = (id) => t('pickerimagem_' + id);
-
   const [origem, setOrigem]         = useState('enviar');   // abre no upload
   const [arrastando, setArrastando] = useState(false);
   const [grupos, setGrupos]         = useState([]);
@@ -104,13 +103,13 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
         busca: termo || undefined,
         limite: 24
       });
-      setGrupos(agruparPorMes(d, localeDeIdioma(idioma)));
+      setGrupos(agruparPorMes(d));
     } catch (e) {
       setErro(e.message);
     } finally {
       setCarregando(false);
     }
-  }, [idioma]);
+  }, []);
 
   useEffect(() => {
     if (!aberto || origem === 'enviar') return;
@@ -275,7 +274,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
           catch (e) { /* pula a que falhar, segue com as outras */ }
         }
       }
-      if (!lista.length) { setErro(t('pickerimagem_erro_carregar')); setConfirmandoMulti(false); return; }
+      if (!lista.length) { setErro('Não consegui carregar as imagens.'); setConfirmandoMulti(false); return; }
       if (onEscolherVarias) onEscolherVarias(lista);
       setMultiSel([]);
       setConfirmandoMulti(false);
@@ -302,7 +301,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
       <div className="pk" onClick={(e) => e.stopPropagation()}>
 
         {/* O X mora na quina, meio dentro meio fora — não rouba espaço do cabeçalho */}
-        <button className="pk-x" onClick={fechar} aria-label={t('fechar')}>
+        <button className="pk-x" onClick={fechar} aria-label="Fechar">
           <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
           </svg>
@@ -318,7 +317,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
               onClick={() => setOrigem(o.id)}
             >
               {o.icone}
-              <span>{rotuloOrigem(o.id)}</span>
+              <span>{o.rotulo}</span>
             </button>
           ))}
         </nav>
@@ -326,8 +325,8 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
         <div className="pk-main">
           <header className="pk-cab">
             <span className="pk-titulo">
-              {origem === 'enviar' ? (titulo || t('pickerimagem_enviar_imagem'))
-                : rotuloOrigem(origem)}
+              {origem === 'enviar' ? (titulo || 'Enviar imagem')
+                : ORIGENS.find((o) => o.id === origem).rotulo}
             </span>
 
             {origem !== 'enviar' && (
@@ -337,7 +336,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
                 </svg>
                 <input
                   type="text"
-                  placeholder={t('pickerimagem_buscar')}
+                  placeholder="Buscar"
                   value={busca}
                   onChange={(e) => setBusca(e.target.value)}
                   spellCheck={false}
@@ -366,9 +365,9 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
                   <path d="M12 16V4m0 0L8 8m4-4l4 4" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" strokeLinecap="round"/>
                 </svg>
-                <span className="pk-drop-t">{multi ? t('pickerimagem_arraste_varias') : t('pickerimagem_arraste_uma')}</span>
-                <span className="pk-drop-s">{t('pickerimagem_cole_ctrlv')}</span>
-                <span className="pk-drop-b">{t('pickerimagem_procurar_pc')}</span>
+                <span className="pk-drop-t">{multi ? 'Arraste suas imagens aqui' : 'Arraste sua imagem aqui'}</span>
+                <span className="pk-drop-s">ou cole com Ctrl+V</span>
+                <span className="pk-drop-b">Procurar no computador</span>
                 <input
                   type="file" accept="image/*" hidden multiple={!!multi}
                   onChange={(e) => {
@@ -383,7 +382,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
             {multi && origem === 'enviar' && multiSel.length > 0 && (
               <div className="pk-multi-tira">
                 {multiSel.map((s, i) => (
-                  <button key={(s.id || s.nome || 'i') + i} className="pk-multi-mini" onClick={() => setMultiSel((l) => l.filter((_, j) => j !== i))} title={t('comum_remover')}>
+                  <button key={(s.id || s.nome || 'i') + i} className="pk-multi-mini" onClick={() => setMultiSel((l) => l.filter((_, j) => j !== i))} title="Remover">
                     <img src={s.previa} alt="" />
                     <span className="pk-multi-x">×</span>
                   </button>
@@ -401,14 +400,14 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
 
             {origem !== 'enviar' && (
               <>
-                {carregando && <p className="cr-msg">{t('comum_carregando')}</p>}
+                {carregando && <p className="cr-msg">Carregando...</p>}
 
                 {vazio && (
                   <p className="cr-msg">
-                    {busca ? t('pickerimagem_nada_busca')
+                    {busca ? 'Nada encontrado para essa busca.'
                       : origem === 'favoritos'
-                        ? t('pickerimagem_sem_favoritos')
-                        : t('pickerimagem_sem_historico')}
+                        ? 'Nenhum favorito ainda.'
+                        : 'Nenhuma imagem no histórico ainda.'}
                   </p>
                 )}
 
@@ -457,12 +456,12 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
           {multi && multiSel.length > 0 && (
             <footer className="pk-ok">
               <div className="pk-ok-txt">
-                <strong>{multiSel.length === 1 ? t('pickerimagem_uma_escolhida') : multiSel.length + ' ' + t('pickerimagem_n_escolhidas')}</strong>
-                <span>{t('pickerimagem_historico_ou_pc')}</span>
+                <strong>{multiSel.length === 1 ? '1 imagem escolhida' : multiSel.length + ' imagens escolhidas'}</strong>
+                <span>Do histórico e/ou do computador</span>
               </div>
-              <button className="pk-ok-outra" onClick={() => setMultiSel([])} disabled={confirmandoMulti}>{t('pickerimagem_limpar')}</button>
+              <button className="pk-ok-outra" onClick={() => setMultiSel([])} disabled={confirmandoMulti}>Limpar</button>
               <button className="pk-ok-btn" onClick={confirmarMulti} disabled={confirmandoMulti}>
-                {confirmandoMulti ? t('pickerimagem_adicionando') : (multiSel.length === 1 ? t('pickerimagem_usar_uma') : t('pickerimagem_usar') + ' ' + multiSel.length + ' ' + t('pickerimagem_imagens'))}
+                {confirmandoMulti ? 'Adicionando...' : (multiSel.length === 1 ? 'Usar 1 imagem' : 'Usar ' + multiSel.length + ' imagens')}
               </button>
             </footer>
           )}
@@ -479,21 +478,21 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
               <div className="pk-ok-txt">
                 <strong>
                   {pendente.de === 'enviar'
-                    ? (pendente.nome || t('pickerimagem_imagem_enviada'))
-                    : t('pickerimagem_uma_escolhida')}
+                    ? (pendente.nome || 'Imagem enviada')
+                    : '1 imagem escolhida'}
                 </strong>
                 <span>
                   {pendente.w
                     ? pendente.w + ' × ' + pendente.h
-                    : t('comum_carregando')}
-                  {pendente.peso ? ' · ' + (pendente.peso / 1048576).toLocaleString(localeDeIdioma(idioma), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' MB' : ''}
+                    : 'Carregando...'}
+                  {pendente.peso ? ' · ' + (pendente.peso / 1048576).toFixed(1).replace('.', ',') + ' MB' : ''}
                 </span>
               </div>
 
               {/* Só no envio: no histórico, trocar é clicar em outra da grade. */}
               {pendente.de === 'enviar' && (
                 <button className="pk-ok-outra" onClick={() => setPendente(null)}>
-                  {t('pickerimagem_escolher_outra')}
+                  Escolher outra
                 </button>
               )}
 
@@ -505,7 +504,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
                 onClick={confirmar}
                 disabled={pegando !== null}
               >
-                {pegando !== null ? t('pickerimagem_abrindo') : t('pickerimagem_usar_esta')}
+                {pegando !== null ? 'Abrindo...' : 'Usar esta imagem'}
               </button>
             </footer>
           )}

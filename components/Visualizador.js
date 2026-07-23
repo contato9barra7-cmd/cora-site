@@ -23,7 +23,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { proporcaoCss } from './Card';
-import { useIdioma } from '../lib/i18n';
 
 const MODOS = [
   {
@@ -64,7 +63,6 @@ export default function Visualizador({
   onFechar, onFavoritar, onAprovar, onBaixar, onExcluir, onEnviarPara, onDetalhes,
   onAnterior, onProximo, posicao
 }) {
-  const { t } = useIdioma();
   const [modo, setModo]           = useState('split');
   const [corte, setCorte]         = useState(50);
   const [segurando, setSegurando] = useState(false);
@@ -169,7 +167,7 @@ export default function Visualizador({
     return (
       <div className="cr-overlay" onClick={onFechar}>
         <div className="vz" onClick={(e) => e.stopPropagation()}>
-          <button className="vz-x" onClick={onFechar} aria-label={t('fechar')}>
+          <button className="vz-x" onClick={onFechar} aria-label="Fechar">
             <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
             </svg>
@@ -181,21 +179,21 @@ export default function Visualizador({
             <button
               className={'vz-ico' + (item.favorito ? ' vz-ico--fav' : '')}
               onClick={() => onFavoritar(item)}
-              data-tip={item.favorito ? t('visualizador_desfavoritar') : t('visualizador_favoritos')}
-              aria-label={item.favorito ? t('visualizador_desfavoritar') : t('visualizador_favoritar')}
+              data-tip={item.favorito ? 'Desfavoritar' : 'Favoritos'}
+              aria-label={item.favorito ? 'Desfavoritar' : 'Favoritar'}
             >
               <svg viewBox="0 0 24 24" width="18" height="18" fill={item.favorito ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.6">
                 <path d="M12 20.3l-1.5-1.4C5.2 14.1 2 11.2 2 7.6A4.6 4.6 0 016.6 3c1.6 0 3.1.7 4.1 1.9l1.3 1.5 1.3-1.5A5.4 5.4 0 0117.4 3 4.6 4.6 0 0122 7.6c0 3.6-3.2 6.5-8.5 11.3L12 20.3z" strokeLinejoin="round"/>
               </svg>
             </button>
-            <button className="vz-ico" onClick={() => onBaixar(item)} data-tip={t('visualizador_baixar')} aria-label={t('visualizador_baixar')}>
+            <button className="vz-ico" onClick={() => onBaixar(item)} data-tip="Baixar" aria-label="Baixar">
               <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M3.5 15v1.5h13V15" strokeLinecap="round"/>
               </svg>
             </button>
             {onDetalhes && (
-              <button className="vz-ico" onClick={onDetalhes} data-tip={t('visualizador_detalhes')} aria-label={t('visualizador_ver_detalhes')}>
+              <button className="vz-ico" onClick={onDetalhes} data-tip="Detalhes" aria-label="Ver detalhes desta geração">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <circle cx="12" cy="12" r="9"/>
                   <path d="M12 11v5" strokeLinecap="round"/>
@@ -224,7 +222,7 @@ export default function Visualizador({
 
         {/* O X mora na quina — meio dentro, meio fora. É o mesmo padrão do
             picker, e vale para toda janela do app. */}
-        <button className="vz-x" onClick={onFechar} aria-label={t('fechar')}>
+        <button className="vz-x" onClick={onFechar} aria-label="Fechar">
           <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
           </svg>
@@ -253,14 +251,14 @@ export default function Visualizador({
         <div className="vz-area">
 
           {onAnterior && (
-            <button className="vz-nav vz-nav--prev" onClick={onAnterior} aria-label={t('visualizador_imagem_anterior')} data-tip={t('visualizador_anterior')}>
+            <button className="vz-nav vz-nav--prev" onClick={onAnterior} aria-label="Imagem anterior" data-tip="Anterior">
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
           )}
           {onProximo && (
-            <button className="vz-nav vz-nav--next" onClick={onProximo} aria-label={t('visualizador_proxima_imagem')} data-tip={t('visualizador_proxima')}>
+            <button className="vz-nav vz-nav--next" onClick={onProximo} aria-label="Próxima imagem" data-tip="Próxima">
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -345,7 +343,7 @@ export default function Visualizador({
                       {segurando ? rotEsq : rotDir}
                     </span>
                     <span className="vz-tag vz-tag--baixo">
-                      {segurando ? `${t('visualizador_solte_ver')} ${rotDir}` : `${t('visualizador_segure_ver')} ${rotEsq}`}
+                      {segurando ? `Solte para ver ${rotDir}` : `Segure para ver ${rotEsq}`}
                     </span>
                   </>
                 )}
@@ -357,7 +355,7 @@ export default function Visualizador({
         {/* O prompt é só do admin */}
         {ehAdmin && prompt && (
           <details className="vz-prompt">
-            <summary>{t('visualizador_ver_prompt')}</summary>
+            <summary>Ver prompt (admin)</summary>
             <p>{prompt}</p>
           </details>
         )}
@@ -370,8 +368,8 @@ export default function Visualizador({
             <button
               className={'vz-ico' + (item.aprovado ? ' vz-ico--ok' : '')}
               onClick={() => onAprovar(item)}
-              data-tip={item.aprovado ? t('visualizador_remover_aprovacao') : t('visualizador_aprovar_ref')}
-              aria-label={item.aprovado ? t('visualizador_remover_aprovacao') : t('visualizador_aprovar')}
+              data-tip={item.aprovado ? 'Remover aprovação' : 'Aprovar (vira referência no Batch)'}
+              aria-label={item.aprovado ? 'Remover aprovação' : 'Aprovar'}
             >
               <svg viewBox="0 0 16 16" width="16" height="16" fill="none"
                    stroke="currentColor" strokeWidth="2.2"
@@ -384,8 +382,8 @@ export default function Visualizador({
           <button
             className={'vz-ico' + (item.favorito ? ' vz-ico--fav' : '')}
             onClick={() => onFavoritar(item)}
-            data-tip={item.favorito ? t('visualizador_desfavoritar') : t('visualizador_favoritos')}
-            aria-label={item.favorito ? t('visualizador_desfavoritar') : t('visualizador_favoritar')}
+            data-tip={item.favorito ? 'Desfavoritar' : 'Favoritos'}
+            aria-label={item.favorito ? 'Desfavoritar' : 'Favoritar'}
           >
             <svg viewBox="0 0 24 24" width="18" height="18"
                  fill={item.favorito ? 'currentColor' : 'none'}
@@ -396,7 +394,7 @@ export default function Visualizador({
           </button>
 
           <button className="vz-ico" onClick={() => onBaixar(item)}
-                  data-tip={t('visualizador_baixar')} aria-label={t('visualizador_baixar')}>
+                  data-tip="Baixar" aria-label="Baixar">
             <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
                  stroke="currentColor" strokeWidth="1.5">
               <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -413,8 +411,8 @@ export default function Visualizador({
           <button
             className="vz-ico"
             onClick={onDetalhes}
-            data-tip={t('visualizador_detalhes')}
-            aria-label={t('visualizador_ver_detalhes')}
+            data-tip="Detalhes"
+            aria-label="Ver detalhes desta geração"
           >
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
                  stroke="currentColor" strokeWidth="1.6">
@@ -432,17 +430,17 @@ export default function Visualizador({
 
               Com rótulo: são o que a pessoa faz DEPOIS de ver o resultado, e
               como ícone solto ninguém sabia o que eram sem passar o mouse. */}
-          <span className="vz-envia-rot">{t('visualizador_enviar')}</span>
+          <span className="vz-envia-rot">Enviar</span>
 
           <button className="vz-ico" onClick={() => onEnviarPara('editar', item)}
-                  data-tip={t('visualizador_editar')} aria-label={t('visualizador_enviar_editar')}>
+                  data-tip="Editar" aria-label="Enviar para Editar">
             <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M13.5 3.5l3 3L7 16l-3.5.5L4 13l9.5-9.5z" strokeLinejoin="round"/>
             </svg>
           </button>
 
           <button className="vz-ico" onClick={() => onEnviarPara('upscale', item)}
-                  data-tip="Upscale" aria-label={t('visualizador_enviar_upscale')}>
+                  data-tip="Upscale" aria-label="Enviar para Upscale">
             <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M11 3.5h5.5V9M16.5 3.5L11 9" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M9 16.5H3.5V11M3.5 16.5L9 11" strokeLinecap="round" strokeLinejoin="round"/>
@@ -452,19 +450,19 @@ export default function Visualizador({
           {item.ferramenta === 'timelapse' ? (
             <>
               <button className="vz-ico" onClick={() => onEnviarPara('tl-inicio', item)}
-                      data-tip={t('visualizador_imagem_inicial')} aria-label={t('visualizador_usar_imagem_inicial')}>
+                      data-tip="Imagem inicial" aria-label="Usar como imagem inicial">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="M4 15l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
               <button className="vz-ico" onClick={() => onEnviarPara('tl-fim', item)}
-                      data-tip={t('visualizador_imagem_final')} aria-label={t('visualizador_usar_imagem_final')}>
+                      data-tip="Imagem final" aria-label="Usar como imagem final">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="1.5"/><path d="M4 17l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 12 3.5)"/>
                 </svg>
               </button>
               <button className="vz-ico" onClick={() => onEnviarPara('pos', item)}
-                      data-tip={t('visualizador_posproducao')} aria-label={t('visualizador_enviar_posproducao')}>
+                      data-tip="Pós-produção" aria-label="Enviar para Pós-produção">
                 <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <path d="M3 5h8M3 10h13M3 15h6" strokeLinecap="round"/><circle cx="14.5" cy="5" r="1.7"/><circle cx="11" cy="15" r="1.7"/>
                 </svg>
@@ -473,19 +471,19 @@ export default function Visualizador({
           ) : (
             <>
               <button className="vz-ico" onClick={() => onEnviarPara('tl-inicio', item)}
-                      data-tip={t('visualizador_anim_inicial')} aria-label={t('visualizador_usar_anim_inicial')}>
+                      data-tip="Animação - imagem inicial" aria-label="Usar como imagem inicial da animação">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="M4 15l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
               <button className="vz-ico" onClick={() => onEnviarPara('tl-fim', item)}
-                      data-tip={t('visualizador_anim_final')} aria-label={t('visualizador_usar_anim_final')}>
+                      data-tip="Animação - imagem final" aria-label="Usar como imagem final da animação">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="1.5"/><path d="M4 17l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 12 3.5)"/>
                 </svg>
               </button>
               <button className="vz-ico" onClick={() => onEnviarPara('posproducao', item)}
-                      data-tip={t('visualizador_posproducao')} aria-label={t('visualizador_enviar_posproducao')}>
+                      data-tip="Pós-produção" aria-label="Enviar para Pós-produção">
                 <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <path d="M3 5h8M3 10h13M3 15h6" strokeLinecap="round"/><circle cx="14.5" cy="5" r="1.7"/><circle cx="11" cy="15" r="1.7"/>
                 </svg>
@@ -497,7 +495,7 @@ export default function Visualizador({
               mira de guardar — antes ele estava entre "baixar" e "detalhes". */}
           <button className="vz-ico vz-ico--perigo vz-ico--fim"
                   onClick={() => onExcluir(item)}
-                  data-tip={t('visualizador_excluir')} aria-label={t('visualizador_excluir')}>
+                  data-tip="Excluir" aria-label="Excluir">
             <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
               <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>

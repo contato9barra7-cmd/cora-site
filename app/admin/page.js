@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import EmailAssinantes from '../../components/EmailAssinantes';
-import DropdownCora from '../../components/DropdownCora';
-import { useIdioma } from '../../lib/i18n';
 import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais, adminDeletarConta, adminCompras, adminSincronizarStripe } from '../../lib/auth';
 
 const PLANOS = ['free', 'starter', 'pro', 'studio'];
@@ -38,14 +36,9 @@ function fmtValor(centavos, moeda) {
   const v = (centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
   return (moeda === 'brl' || !moeda ? 'R$ ' : (moeda.toUpperCase() + ' ')) + v;
 }
-// Interpola {chaves} numa string traduzida (para confirmações).
-function interp(str, vars) {
-  return str.replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? vars[k] : ''));
-}
 
 export default function Admin() {
   const router = useRouter();
-  const { t } = useIdioma();
   const [carregando, setCarregando] = useState(true);
   const [negado, setNegado] = useState(false);
   const [assinantes, setAssinantes] = useState([]);
@@ -76,14 +69,6 @@ export default function Admin() {
   const [carregandoFiscais, setCarregandoFiscais] = useState(false);
   const [verPerfil, setVerPerfil] = useState(false); // troca colunas de cobrança pelas respostas do cadastro
   const [meuId, setMeuId] = useState(null);
-
-  // Rótulos traduzidos das respostas do cadastro (marcas ficam literais).
-  const RENDER_LBL = { nao: t('adm_r_nao'), vray: 'V-Ray', corona: 'Corona', enscape: 'Enscape', lumion: 'Lumion', dhistudio: 'D5/IA', outro: t('adm_outro') };
-  const PROFISSAO_LBL = { arquiteto: t('adm_p_arquiteto'), designer_interiores: t('adm_p_designer'), archviz: 'Archviz', engenheiro: t('adm_p_engenheiro'), estudante: t('adm_p_estudante'), paisagista: t('adm_p_paisagista'), outro: t('adm_outro') };
-  const ORIGEM_LBL = { instagram: 'Instagram', youtube: 'YouTube', google: 'Google', indicacao: t('adm_o_indicacao'), tiktok: 'TikTok', anuncio: t('adm_o_anuncio'), outro: t('adm_outro') };
-  const TAMANHO_LBL = { autonomo: t('adm_t_autonomo'), '2a5': t('adm_t_2a5'), '6a20': t('adm_t_6a20'), '20mais': t('adm_t_20mais') };
-  const VOLUME_LBL = { menos10: t('adm_v_menos10'), '10a20': t('adm_v_10a20'), mais20: t('adm_v_mais20') };
-  const GENERO_LBL = { feminino: t('adm_g_feminino'), masculino: t('adm_g_masculino'), nao_binario: t('adm_g_nao_binario'), nao_informar: t('adm_g_nao_informar') };
 
   async function mostrarFiscais() {
     if (dadosFiscais) { setDadosFiscais(null); return; } // toggle
@@ -120,7 +105,7 @@ export default function Admin() {
     try {
       const n = await adminSincronizarStripe();
       await carregar();
-      setErro(n > 0 ? `${n} ${t('adm_sync_ok_a')}` : t('adm_nada_sincronizar'));
+      setErro(n > 0 ? `${n} assinatura(s) sincronizada(s) do Stripe.` : 'Nada para sincronizar.');
     } catch (e) { setErro(e.message); }
     finally { setSincronizando(false); }
   }
@@ -174,22 +159,22 @@ export default function Admin() {
 
   function exportarGeo() {
     setMenuExport(false);
-    if (!geo.totalClientes) { setErro(t('adm_sem_geo')); return; }
+    if (!geo.totalClientes) { setErro('Sem dados de localização ainda.'); return; }
     const linhas = [];
     geo.paises.forEach(p => linhas.push([
-      t('adm_csv_pais'), p.chave, p.n, `${p.pctClientes}%`,
+      'País', p.chave, p.n, `${p.pctClientes}%`,
       ((p.valor || 0) / 100).toFixed(2), `${p.pctValor}%`,
     ]));
     geo.estados.forEach(e => linhas.push([
-      t('adm_csv_estado'), e.chave, e.n, `${e.pctClientes}%`,
+      'Estado', e.chave, e.n, `${e.pctClientes}%`,
       ((e.valor || 0) / 100).toFixed(2), `${e.pctValor}%`,
     ]));
     geo.cidades.forEach(c => linhas.push([
-      t('adm_csv_cidade'), c.chave, c.n, `${c.pctClientes}%`,
+      'Cidade', c.chave, c.n, `${c.pctClientes}%`,
       ((c.valor || 0) / 100).toFixed(2), `${c.pctValor}%`,
     ]));
     baixarCSV('origem-geografica',
-      [t('adm_csv_tipo'), t('adm_csv_local'), t('adm_csv_clientes'), t('adm_csv_pct_clientes'), t('adm_csv_receita'), t('adm_csv_pct_receita')],
+      ['Tipo', 'Local', 'Clientes', '% dos clientes', 'Receita (R$)', '% da receita'],
       linhas);
   }
 
@@ -204,7 +189,7 @@ export default function Admin() {
       return `"${s}"`;
     };
     const corpo = linhas.map(l => l.map((v, i) => esc(v, i)).join(';'));
-    const csv = '﻿' + [cabecalho.map(c => `"${c}"`).join(';'), ...corpo].join('\r\n');
+    const csv = '\uFEFF' + [cabecalho.map(c => `"${c}"`).join(';'), ...corpo].join('\r\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -215,6 +200,13 @@ export default function Admin() {
     URL.revokeObjectURL(url);
   }
 
+  const RENDER_LBL = { nao: 'Nenhum', vray: 'V-Ray', corona: 'Corona', enscape: 'Enscape', lumion: 'Lumion', dhistudio: 'D5/IA', outro: 'Outro' };
+  const PROFISSAO_LBL = { arquiteto: 'Arquiteto(a)', designer_interiores: 'Designer de interiores', archviz: 'Archviz', engenheiro: 'Engenheiro(a)', estudante: 'Estudante', paisagista: 'Paisagista', outro: 'Outro' };
+  const ORIGEM_LBL = { instagram: 'Instagram', youtube: 'YouTube', google: 'Google', indicacao: 'Indicação', tiktok: 'TikTok', anuncio: 'Anúncio', outro: 'Outro' };
+  const TAMANHO_LBL = { autonomo: 'Só eu (autônomo)', '2a5': '2 a 5 pessoas', '6a20': '6 a 20 pessoas', '20mais': 'Mais de 20 pessoas' };
+  const VOLUME_LBL = { menos10: 'Menos de 10', '10a20': 'Entre 10 e 20', mais20: 'Mais de 20' };
+  const GENERO_LBL = { feminino: 'Feminino', masculino: 'Masculino', nao_binario: 'Não-binário', nao_informar: 'Prefiro não informar' };
+
   async function exportarFiscais() {
     setMenuExport(false); setExportando(true); setErro('');
     try {
@@ -223,7 +215,10 @@ export default function Admin() {
       const pagantes = assinantes.filter(a =>
         a.id !== meuId && !a.eh_convidado && !a.eh_trial
       );
-      if (!pagantes.length) { setErro(t('adm_sem_assinante_export')); return; }
+      if (!pagantes.length) { setErro('Nenhum assinante para exportar.'); return; }
+      console.log('[export] pagantes:', pagantes.map(a => ({
+        email: a.email, valor_centavos: a.valor_centavos, tipo: typeof a.valor_centavos
+      })));
 
       let mapa = dadosFiscais;
       if (!mapa) {
@@ -233,14 +228,14 @@ export default function Admin() {
       }
 
       baixarCSV('assinantes-fiscais',
-        [t('adm_csv_nome'), t('adm_csv_email'), t('adm_h_cpfid'), t('adm_h_telefone'), t('adm_h_cep'), t('adm_h_endereco'), t('adm_csv_cidade'), t('adm_csv_estado'), t('adm_csv_pais'), t('adm_h_plano'), t('adm_csv_assentos'), t('adm_csv_assinou_em'), t('adm_csv_renova_em'), t('adm_csv_renovacoes'), t('adm_csv_valor_rs')],
+        ['Nome', 'Email', 'CPF/ID', 'Telefone', 'CEP', 'Endereço', 'Cidade', 'Estado', 'País', 'Plano', 'Assentos', 'Assinou em', 'Renova em', 'Renovações', 'Valor (R$)'],
         pagantes.map(a => [
           a.nome, a.email, docFiscalTexto(a),
           mapa[a.email]?.telefone || '',
           mapa[a.email]?.cep || '',
           mapa[a.email]?.endereco || '',
           a.cidade || '', a.estado || '', a.pais || '',
-          a.eh_dono_equipe ? `Teams (${a.plano_exibicao === 'teams' ? t('adm_equipe_l') : a.plano})` : a.plano,
+          a.eh_dono_equipe ? `Teams (${a.plano_exibicao === 'teams' ? 'equipe' : a.plano})` : a.plano,
           a.assentos || 1,
           a.assinou_em ? new Date(a.assinou_em).toLocaleDateString('pt-BR') : '',
           a.renova_em ? new Date(a.renova_em).toLocaleDateString('pt-BR') : '',
@@ -252,7 +247,7 @@ export default function Admin() {
 
   async function exportarRecargas() {
     setMenuExport(false);
-    if (!compras.length) { setErro(t('adm_sem_recarga_export')); return; }
+    if (!compras.length) { setErro('Nenhuma recarga para exportar.'); return; }
     setExportando(true); setErro('');
     try {
       // busca telefone/CEP/endereço no Stripe para completar os dados fiscais
@@ -263,7 +258,7 @@ export default function Admin() {
         linhas.forEach(l => { mapa[l.email] = { telefone: l.telefone, cep: l.cep, endereco: l.endereco }; });
       }
       baixarCSV('recargas-fiscais',
-        [t('adm_h_data'), t('adm_h_comprador'), t('adm_csv_email'), t('adm_h_cpfid'), t('adm_h_telefone'), t('adm_h_cep'), t('adm_h_endereco'), t('adm_h_compra'), t('adm_h_creditos'), t('adm_h_destino'), t('adm_csv_valor_rs')],
+        ['Data', 'Comprador', 'Email', 'CPF/ID', 'Telefone', 'CEP', 'Endereço', 'Compra', 'Créditos', 'Destino', 'Valor (R$)'],
         compras.map(c => [
           c.criado_em ? new Date(c.criado_em).toLocaleDateString('pt-BR') : '',
           c.nome, c.email, docFiscalTexto(c),
@@ -284,9 +279,9 @@ export default function Admin() {
     if (tipo === 'assinantes') { lista = base.filter(a => !a.eh_convidado && !a.eh_trial); nome = 'trafego-assinantes'; }
     else if (tipo === 'trial') { lista = base.filter(a => a.eh_trial); nome = 'trafego-trial'; }
     else { lista = base.filter(a => a.eh_convidado); nome = 'trafego-membros'; }
-    if (!lista.length) { setErro(t('adm_sem_conta_categoria')); return; }
+    if (!lista.length) { setErro('Nenhuma conta nessa categoria.'); return; }
     baixarCSV(nome,
-      [t('adm_csv_nome'), t('adm_csv_email'), t('adm_h_genero'), t('adm_profissao'), t('adm_h_origem'), t('adm_renderizador'), t('adm_h_tamanho'), t('adm_h_projetos'), t('adm_h_cadastro')],
+      ['Nome', 'Email', 'Gênero', 'Profissão', 'Origem', 'Renderizador', 'Tamanho equipe', 'Projetos/ano', 'Cadastro'],
       lista.map(a => [
         a.nome, a.email,
         GENERO_LBL[a.genero] || a.genero || '',
@@ -323,7 +318,7 @@ export default function Admin() {
       if (msg.includes('admin') || msg.includes('permiss') || msg.includes('acesso') || msg.includes('401') || msg.includes('403')) {
         setNegado(true);
       } else {
-        setErro(t('promp_erro_carregar') + ' ' + e.message);
+        setErro('Erro ao carregar: ' + e.message);
       }
       setCarregando(false);
     }
@@ -331,7 +326,7 @@ export default function Admin() {
 
   async function mudarPlano(id, plano, email, planoAtual) {
     if (plano === planoAtual) return;
-    if (!confirm(interp(t('adm_conf_mudar_plano'), { email, de: planoAtual, para: plano }))) {
+    if (!confirm(`Mudar o plano de ${email} de "${planoAtual}" para "${plano}"?\n\nIsso altera o plano no nosso sistema imediatamente.`)) {
       // recarrega para o dropdown voltar ao valor original
       await carregar();
       return;
@@ -349,7 +344,7 @@ export default function Admin() {
   }
 
   async function deletar(id, email) {
-    if (!confirm(interp(t('adm_conf_deletar'), { email }))) return;
+    if (!confirm(`Deletar a conta de ${email}?\n\nEsta ação é PERMANENTE e apaga a conta, plano e créditos. Não pode ser desfeita.`)) return;
     setOcupado(id);
     setErro('');
     try {
@@ -363,7 +358,7 @@ export default function Admin() {
   }
 
   async function cancelar(id, email) {
-    if (!confirm(interp(t('adm_conf_cancelar'), { email }))) return;
+    if (!confirm(`Cancelar o plano de ${email}? A conta volta para Free.`)) return;
     setOcupado(id);
     setErro('');
     try {
@@ -378,19 +373,22 @@ export default function Admin() {
 
   // Trocar de aba, filtrar ou buscar recomeça da primeira página: continuar na
   // página 7 de uma lista que agora tem 2 mostraria uma tela vazia.
+  //
+  // Tem de ficar ANTES do `if (carregando) return`: um hook depois de um return
+  // condicional roda em algumas renderizações e em outras não — e o React quebra.
   useEffect(() => { setPag(1); }, [aba, busca, filtroData, anoFiltro, dataDe, dataAte,
     filtroStatus, filtroProfissao, filtroOrigem, filtroRender, filtroEstado, filtroPais]);
 
-  if (carregando) return <AppShell><div className="admin-wrap"><p>{t('comum_carregando')}</p></div></AppShell>;
+  if (carregando) return <AppShell><div className="admin-wrap"><p>Carregando...</p></div></AppShell>;
 
   if (negado) {
     return (
       <AppShell>
       <div className="admin-wrap">
-        <h1>{t('promp_acesso_restrito')}</h1>
-        <p>{t('adm_area_admins')}</p>
+        <h1>Acesso restrito</h1>
+        <p>Esta área é exclusiva para administradores.</p>
         <Link href="/conta" className="btn btn--roxo" style={{ width: 'auto', display: 'inline-block', padding: '10px 22px' }}>
-          {t('promp_voltar_conta')}
+          Voltar para minha conta
         </Link>
       </div>
       </AppShell>
@@ -439,16 +437,20 @@ export default function Admin() {
   });
 
   // ── Os filtros ligados ──
+  //
+  //  Recolhidos no painel, eles sumiriam de vista — e uma lista cortada por um
+  //  filtro esquecido é idêntica a uma lista vazia. Estes chips são a única
+  //  coisa na tela que explica a diferença.
   const chipsAtivos = [
     filtroData !== 'todos' && {
       chave: 'data',
-      rotulo: { mes: t('adm_este_mes'), '12meses': t('adm_ult12'),
-                ano: `${t('adm_ano')} ${anoFiltro}`, periodo: t('adm_intervalo_c') }[filtroData] || t('adm_periodo'),
+      rotulo: { mes: 'Este mês', '12meses': 'Últimos 12 meses',
+                ano: `Ano ${anoFiltro}`, periodo: 'Intervalo' }[filtroData] || 'Período',
       limpar: () => { setFiltroData('todos'); setDataDe(''); setDataAte(''); }
     },
     filtroStatus && {
       chave: 'status',
-      rotulo: filtroStatus === 'vencendo' ? t('adm_quase_vencendo') : t('adm_cancelados_c'),
+      rotulo: filtroStatus === 'vencendo' ? 'Quase vencendo' : 'Cancelados',
       limpar: () => setFiltroStatus('')
     },
     filtroProfissao && {
@@ -458,22 +460,22 @@ export default function Admin() {
     },
     filtroOrigem && {
       chave: 'origem',
-      rotulo: t('adm_origem_p') + ' ' + filtroOrigem,
+      rotulo: 'Origem: ' + filtroOrigem,
       limpar: () => setFiltroOrigem('')
     },
     filtroRender && {
       chave: 'render',
-      rotulo: t('adm_render_p') + ' ' + filtroRender,
+      rotulo: 'Render: ' + filtroRender,
       limpar: () => setFiltroRender('')
     },
     filtroPais && {
       chave: 'pais',
-      rotulo: t('adm_pais_p') + ' ' + filtroPais,
+      rotulo: 'País: ' + filtroPais,
       limpar: () => setFiltroPais('')
     },
     filtroEstado && {
       chave: 'estado',
-      rotulo: t('adm_estado_p') + ' ' + filtroEstado,
+      rotulo: 'Estado: ' + filtroEstado,
       limpar: () => setFiltroEstado('')
     }
   ].filter(Boolean);
@@ -491,8 +493,13 @@ export default function Admin() {
   const nPags   = Math.max(1, Math.ceil(filtrados.length / porPag));
   const pagAtual = Math.min(pag, nPags);   // filtrar pode encolher a lista sob os pés
   const pagina  = filtrados.slice((pagAtual - 1) * porPag, pagAtual * porPag);
+  // Visão da tabela: perfil (respostas do cadastro) x cobrança. No Trial o perfil
+  // já é o padrão; nas outras abas o botão "Ver respostas do cadastro" liga isso.
   const mostrarPerfil   = (aba === 'trial' || verPerfil);
   const mostrarCobranca = (aba === 'pagantes' && !verPerfil);
+
+  // Trocar de aba, filtrar ou buscar recomeça da primeira página: continuar na
+  // página 7 de uma lista que agora tem 2 mostraria uma tela vazia.
 
   const totalConvidados = assinantes.filter(a => a.eh_convidado && a.id !== meuId).length;
   const totalTrial = assinantes.filter(a => a.eh_trial && a.id !== meuId).length;
@@ -534,20 +541,20 @@ export default function Admin() {
     <div className="admin-wrap">
       <div className="admin-topo">
         <div>
-          <h1>{t('adm_titulo')}</h1>
-          <p className="admin-sub">{totalContas} {t('adm_contas')} · {pagos} {t('adm_pago_ativo')}</p>
+          <h1>Painel de administração</h1>
+          <p className="admin-sub">{totalContas} contas · {pagos} com plano pago ativo</p>
         </div>
         <div className="admin-acoes">
           <button className="admin-email-btn" onClick={() => setEmailAberto(true)}>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg>
-            {t('promp_enviar_email')}
+            Enviar e-mail
           </button>
           <button
             className={'admin-ico' + (dadosFiscais ? ' admin-ico--on' : '')}
             onClick={mostrarFiscais}
             disabled={carregandoFiscais}
-            data-tip={dadosFiscais ? t('adm_ocultar_fiscais') : t('adm_ver_fiscais')}
-            aria-label={dadosFiscais ? t('adm_ocultar_fiscais') : t('adm_ver_fiscais')}
+            data-tip={dadosFiscais ? 'Ocultar dados fiscais' : 'Ver dados fiscais'}
+            aria-label={dadosFiscais ? 'Ocultar dados fiscais' : 'Ver dados fiscais'}
           >
             {carregandoFiscais ? (
               <span className="admin-ico-girando" />
@@ -563,8 +570,8 @@ export default function Admin() {
           <button
             className={'admin-ico' + (verPerfil ? ' admin-ico--on' : '')}
             onClick={() => setVerPerfil(v => !v)}
-            data-tip={verPerfil ? t('adm_ver_cobranca') : t('adm_ver_cadastro')}
-            aria-label={verPerfil ? t('adm_ver_cobranca') : t('adm_ver_cadastro')}
+            data-tip={verPerfil ? 'Ver dados de cobrança' : 'Ver respostas do cadastro'}
+            aria-label={verPerfil ? 'Ver dados de cobrança' : 'Ver respostas do cadastro'}
           >
             <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
                  stroke="currentColor" strokeWidth="1.5">
@@ -579,8 +586,8 @@ export default function Admin() {
             <button
               className={'admin-ico' + (verGeo ? ' admin-ico--on' : '')}
               onClick={() => setVerGeo(true)}
-              data-tip={t('adm_origem_geo')}
-              aria-label={t('adm_origem_geo')}
+              data-tip="Origem geográfica"
+              aria-label="Origem geográfica"
             >
               <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
                    stroke="currentColor" strokeWidth="1.5">
@@ -595,8 +602,8 @@ export default function Admin() {
               className={'admin-ico' + (menuExport ? ' admin-ico--on' : '')}
               onClick={() => setMenuExport(!menuExport)}
               disabled={exportando}
-              data-tip={t('adm_exportar_csv')}
-              aria-label={t('adm_exportar_csv')}
+              data-tip="Exportar .CSV"
+              aria-label="Exportar .CSV"
             >
               {exportando ? (
                 <span className="admin-ico-girando" />
@@ -611,37 +618,37 @@ export default function Admin() {
             {menuExport && (
               <div className="admin-export-menu" onMouseLeave={() => setMenuExport(false)}>
 
-                <div className="admin-export-grupo">{t('adm_grupo_fiscal')}</div>
+                <div className="admin-export-grupo">Fiscal</div>
 
                 <button className="admin-export-item" onClick={exportarFiscais}>
-                  <strong>{t('adm_exp_assinantes')}</strong>
-                  <em>{t('adm_exp_assinantes_d')}</em>
+                  <strong>Assinantes</strong>
+                  <em>Nome, CPF, telefone, endereço, plano</em>
                 </button>
 
                 <button className="admin-export-item" onClick={exportarRecargas}>
-                  <strong>{t('adm_exp_recargas')}</strong>
-                  <em>{t('adm_exp_recargas_d')}</em>
+                  <strong>Recargas</strong>
+                  <em>Compras avulsas, com dados do comprador</em>
                 </button>
 
                 <div className="admin-export-sep" />
-                <div className="admin-export-grupo">{t('adm_grupo_trafego')}</div>
+                <div className="admin-export-grupo">Tráfego</div>
 
                 <button className="admin-export-item" onClick={() => exportarTrafego('assinantes')}>
-                  <strong>{t('adm_exp_assinantes')}</strong>
-                  <em>{t('adm_exp_traf_assinantes_d')}</em>
+                  <strong>Assinantes</strong>
+                  <em>Profissão, como conheceu, renderizador</em>
                 </button>
 
                 <button className="admin-export-item" onClick={() => exportarTrafego('membros')}>
-                  <strong>{t('adm_exp_membros')}</strong>
+                  <strong>Membros de equipe</strong>
                 </button>
 
                 <button className="admin-export-item" onClick={() => exportarTrafego('trial')}>
-                  <strong>{t('adm_exp_trial')}</strong>
+                  <strong>Trial</strong>
                 </button>
 
                 <button className="admin-export-item" onClick={exportarGeo}>
-                  <strong>{t('adm_origem_geo')}</strong>
-                  <em>{t('adm_exp_geo_d')}</em>
+                  <strong>Origem geográfica</strong>
+                  <em>Clientes e receita por país, estado e cidade</em>
                 </button>
               </div>
             )}
@@ -657,10 +664,10 @@ export default function Admin() {
 
             <div className="admin-geo-cab-j">
               <div>
-                <strong>{t('adm_origem_geo')}</strong>
+                <strong>Origem geográfica</strong>
                 <span>
-                  {geo.totalClientes} {geo.totalClientes === 1 ? t('adm_cliente') : t('adm_clientes')}
-                  {' · '}{fmtValor(geo.totalValor, 'brl')}{t('adm_por_mes')}
+                  {geo.totalClientes} {geo.totalClientes === 1 ? 'cliente' : 'clientes'}
+                  {' · '}{fmtValor(geo.totalValor, 'brl')}/mês
                 </span>
               </div>
 
@@ -674,7 +681,7 @@ export default function Admin() {
                   CSV
                 </button>
 
-                <button className="cr-modal-x" onClick={() => setVerGeo(false)} aria-label={t('ws_fechar')}>
+                <button className="cr-modal-x" onClick={() => setVerGeo(false)} aria-label="Fechar">
                   <svg viewBox="0 0 20 20" width="18" height="18" fill="none"
                        stroke="currentColor" strokeWidth="1.6">
                     <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round"/>
@@ -686,8 +693,10 @@ export default function Admin() {
             <div className="admin-geo-scroll">
     <div className="admin-geo-corpo">
 
+                  {/* O país no topo: é a divisão mais grossa. Se 95% da receita é
+                      Brasil, isso muda o que se faz com o resto. */}
                   <div className="admin-geo-bloco">
-                    <div className="admin-geo-sub">{t('adm_por_pais')}</div>
+                    <div className="admin-geo-sub">Por país</div>
                     {geo.paises.map(p => (
                       <div key={p.chave} className="admin-geo-linha">
                         <div className="admin-geo-cab">
@@ -708,7 +717,7 @@ export default function Admin() {
 
                   <div className="admin-geo-cols">
                     <div className="admin-geo-bloco">
-                      <div className="admin-geo-sub">{t('adm_por_estado')}</div>
+                      <div className="admin-geo-sub">Por estado</div>
                       {geo.estados.map(e => (
                         <div key={e.chave} className="admin-geo-linha">
                           <div className="admin-geo-cab">
@@ -728,7 +737,7 @@ export default function Admin() {
                     </div>
 
                     <div className="admin-geo-bloco">
-                      <div className="admin-geo-sub">{t('adm_por_cidade')}</div>
+                      <div className="admin-geo-sub">Por cidade</div>
                       {geo.cidades.map(c => (
                         <div key={c.chave} className="admin-geo-linha">
                           <div className="admin-geo-cab">
@@ -748,9 +757,10 @@ export default function Admin() {
                     </div>
                   </div>
 
+                  {/* Sem a legenda, duas barras de cor diferente não dizem nada */}
                   <div className="admin-geo-legenda">
-                    <span><i className="admin-geo-p admin-geo-p--n" />{t('adm_legenda_clientes')}</span>
-                    <span><i className="admin-geo-p admin-geo-p--r" />{t('adm_legenda_receita')}</span>
+                    <span><i className="admin-geo-p admin-geo-p--n" />clientes</span>
+                    <span><i className="admin-geo-p admin-geo-p--r" />receita</span>
                   </div>
                 </div>
             </div>
@@ -760,22 +770,27 @@ export default function Admin() {
 
       <div className="admin-abas">
         <button className={'admin-aba' + (aba === 'pagantes' ? ' ativa' : '')} onClick={() => setAba('pagantes')}>
-          {t('adm_aba_assinantes')} <span className="admin-aba-n">{pagos}</span>
+          Assinantes <span className="admin-aba-n">{pagos}</span>
         </button>
         <button className={'admin-aba' + (aba === 'trial' ? ' ativa' : '')} onClick={() => setAba('trial')}>
-          {t('adm_aba_trial')} <span className="admin-aba-n">{totalTrial}</span>
+          Trial <span className="admin-aba-n">{totalTrial}</span>
         </button>
         <button className={'admin-aba' + (aba === 'convidados' ? ' ativa' : '')} onClick={() => setAba('convidados')}>
-          {t('adm_aba_membros')} <span className="admin-aba-n">{totalConvidados}</span>
+          Membros de equipe <span className="admin-aba-n">{totalConvidados}</span>
         </button>
         <button className={'admin-aba' + (aba === 'cancelados' ? ' ativa' : '')} onClick={() => setAba('cancelados')}>
-          {t('adm_aba_cancelados')} <span className="admin-aba-n">{totalCancelados}</span>
+          Cancelados <span className="admin-aba-n">{totalCancelados}</span>
         </button>
         <button className={'admin-aba' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
-          {t('adm_aba_recargas')} <span className="admin-aba-n">{compras.length}</span>
+          Recargas <span className="admin-aba-n">{compras.length}</span>
         </button>
       </div>
 
+      {/* ── A barra: busca, o botão, e o que está ligado ──
+          Sete filtros na horizontal sempre brigam por espaço. Recolhidos no
+          painel, sobra o essencial. Mas o que está LIGADO continua à vista:
+          uma lista cortada por um filtro esquecido é idêntica a uma lista
+          vazia, e nada na tela explicaria a diferença. */}
       <div className="admin-barra">
         <div className="admin-busca-wrap">
           <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
@@ -785,7 +800,7 @@ export default function Admin() {
           </svg>
           <input
             type="text"
-            placeholder={t('adm_busca_ph')}
+            placeholder="Buscar por nome, email ou CPF..."
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
           />
@@ -799,7 +814,7 @@ export default function Admin() {
                stroke="currentColor" strokeWidth="1.6">
             <path d="M3 6h14M6 10h8M8 14h4" strokeLinecap="round"/>
           </svg>
-          {t('adm_filtros')}
+          Filtros
           {nFiltros > 0 && <em>{nFiltros}</em>}
         </button>
 
@@ -817,14 +832,16 @@ export default function Admin() {
               </svg>
             </button>
           ))}
-          <button className="admin-chip-limpar" onClick={limparFiltros}>{t('adm_limpar')}</button>
+          <button className="admin-chip-limpar" onClick={limparFiltros}>Limpar</button>
 
           <span className="admin-conta">
-            <b>{filtrados.length}</b> {t('ws_de')} {totalAba}
+            <b>{filtrados.length}</b> de {totalAba}
           </span>
         </div>
       )}
 
+      {/* O aviso vive ABAIXO da barra: acima dela, ele nascia e morria a cada
+          troca de aba e empurrava a busca para cima e para baixo. */}
       {(aba === 'convidados' || aba === 'trial') && (
         <p className="admin-aviso">
           <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
@@ -832,17 +849,22 @@ export default function Admin() {
             <circle cx="10" cy="10" r="7.5"/>
             <path d="M10 9v4.5M10 6.5v.5" strokeLinecap="round"/>
           </svg>
-          {aba === 'convidados' ? t('adm_aviso_convidados') : t('adm_aviso_trial')}
+          {aba === 'convidados'
+            ? 'Estas contas recebem acesso via equipe (não pagam individualmente) e não entram no export do contador.'
+            : 'Contas em teste grátis (plano Free). Dados de perfil úteis para tráfego e segmentação.'}
         </p>
       )}
 
+      {/* ── O painel ──
+          Abre POR CIMA: a tabela não se mexe. Ver a lista mudando atrás
+          enquanto se mexe nos filtros é metade da utilidade. */}
       {painelFiltros && (
         <div className="admin-pf-fundo" onClick={() => setPainelFiltros(false)}>
           <div className="admin-pf" onClick={(e) => e.stopPropagation()}>
 
             <div className="admin-pf-cab">
-              <strong>{t('adm_filtros')}</strong>
-              <button onClick={() => setPainelFiltros(false)} aria-label={t('ws_fechar')}>
+              <strong>Filtros</strong>
+              <button onClick={() => setPainelFiltros(false)} aria-label="Fechar">
                 <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
                      stroke="currentColor" strokeWidth="1.6">
                   <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round"/>
@@ -853,18 +875,14 @@ export default function Admin() {
             <div className="admin-pf-corpo">
 
               <div className="admin-pf-g">
-                <label>{t('adm_periodo')}</label>
-                <DropdownCora
-                  valor={filtroData}
-                  onEscolher={(v) => setFiltroData(v)}
-                  opcoes={[
-                    { v: 'todos', n: t('adm_qualquer') },
-                    { v: 'mes', n: t('adm_este_mes') },
-                    { v: '12meses', n: t('adm_ult12') },
-                    { v: 'ano', n: t('adm_ano_especifico') },
-                    { v: 'periodo', n: t('adm_intervalo') },
-                  ]}
-                />
+                <label>Período</label>
+                <select value={filtroData} onChange={(e) => setFiltroData(e.target.value)}>
+                  <option value="todos">Qualquer</option>
+                  <option value="mes">Este mês</option>
+                  <option value="12meses">Últimos 12 meses</option>
+                  <option value="ano">Ano específico</option>
+                  <option value="periodo">Intervalo de datas</option>
+                </select>
 
                 {filtroData === 'ano' && (
                   <input type="number" min="2024" max="2100" value={anoFiltro}
@@ -874,7 +892,7 @@ export default function Admin() {
                 {filtroData === 'periodo' && (
                   <div className="admin-pf-datas">
                     <input type="date" value={dataDe} onChange={(e) => setDataDe(e.target.value)} />
-                    <span>{t('promp_ate')}</span>
+                    <span>até</span>
                     <input type="date" value={dataAte} onChange={(e) => setDataAte(e.target.value)} />
                   </div>
                 )}
@@ -882,103 +900,81 @@ export default function Admin() {
 
               {aba === 'pagantes' && (
                 <div className="admin-pf-g">
-                  <label>{t('adm_status')}</label>
-                  <DropdownCora
-                    valor={filtroStatus}
-                    onEscolher={(v) => setFiltroStatus(v)}
-                    opcoes={[
-                      { v: '', n: t('promp_f_todos') },
-                      { v: 'vencendo', n: t('adm_quase_vencendo') },
-                    ]}
-                  />
+                  <label>Status</label>
+                  <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)}>
+                    <option value="">Todos</option>
+                    <option value="vencendo">Quase vencendo</option>
+                  </select>
                 </div>
               )}
 
               <div className="admin-pf-g">
-                <label>{t('adm_profissao')}</label>
-                <DropdownCora
-                  valor={filtroProfissao}
-                  onEscolher={(v) => setFiltroProfissao(v)}
-                  opcoes={[
-                    { v: '', n: t('adm_qualquer') },
-                    { v: 'arquiteto', n: t('adm_p_arquiteto') },
-                    { v: 'designer_interiores', n: t('adm_p_designer') },
-                    { v: 'archviz', n: 'Archviz' },
-                    { v: 'engenheiro', n: t('adm_p_engenheiro') },
-                    { v: 'estudante', n: t('adm_p_estudante') },
-                    { v: 'paisagista', n: t('adm_p_paisagista') },
-                    { v: 'outro', n: t('adm_outro') },
-                  ]}
-                />
+                <label>Profissão</label>
+                <select value={filtroProfissao} onChange={(e) => setFiltroProfissao(e.target.value)}>
+                  <option value="">Qualquer</option>
+                  <option value="arquiteto">Arquiteto(a)</option>
+                  <option value="designer_interiores">Designer de interiores</option>
+                  <option value="archviz">Archviz</option>
+                  <option value="engenheiro">Engenheiro(a)</option>
+                  <option value="estudante">Estudante</option>
+                  <option value="paisagista">Paisagista</option>
+                  <option value="outro">Outro</option>
+                </select>
               </div>
 
               <div className="admin-pf-g">
-                <label>{t('adm_como_conheceu')}</label>
-                <DropdownCora
-                  valor={filtroOrigem}
-                  onEscolher={(v) => setFiltroOrigem(v)}
-                  opcoes={[
-                    { v: '', n: t('adm_qualquer') },
-                    { v: 'instagram', n: 'Instagram' },
-                    { v: 'youtube', n: 'YouTube' },
-                    { v: 'google', n: 'Google' },
-                    { v: 'indicacao', n: t('adm_o_indicacao') },
-                    { v: 'tiktok', n: 'TikTok' },
-                    { v: 'anuncio', n: t('adm_o_anuncio') },
-                    { v: 'outro', n: t('adm_outro') },
-                  ]}
-                />
+                <label>Como conheceu</label>
+                <select value={filtroOrigem} onChange={(e) => setFiltroOrigem(e.target.value)}>
+                  <option value="">Qualquer</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="youtube">YouTube</option>
+                  <option value="google">Google</option>
+                  <option value="indicacao">Indicação</option>
+                  <option value="tiktok">TikTok</option>
+                  <option value="anuncio">Anúncio</option>
+                  <option value="outro">Outro</option>
+                </select>
               </div>
 
               <div className="admin-pf-g">
-                <label>{t('adm_renderizador')}</label>
-                <DropdownCora
-                  valor={filtroRender}
-                  onEscolher={(v) => setFiltroRender(v)}
-                  opcoes={[
-                    { v: '', n: t('adm_qualquer') },
-                    { v: 'nao', n: t('adm_r_nao') },
-                    { v: 'vray', n: 'V-Ray' },
-                    { v: 'corona', n: 'Corona' },
-                    { v: 'enscape', n: 'Enscape' },
-                    { v: 'lumion', n: 'Lumion' },
-                    { v: 'dhistudio', n: 'D5 / IA' },
-                    { v: 'outro', n: t('adm_outro') },
-                  ]}
-                />
+                <label>Renderizador</label>
+                <select value={filtroRender} onChange={(e) => setFiltroRender(e.target.value)}>
+                  <option value="">Qualquer</option>
+                  <option value="nao">Nenhum</option>
+                  <option value="vray">V-Ray</option>
+                  <option value="corona">Corona</option>
+                  <option value="enscape">Enscape</option>
+                  <option value="lumion">Lumion</option>
+                  <option value="dhistudio">D5 / IA</option>
+                  <option value="outro">Outro</option>
+                </select>
               </div>
 
               <div className="admin-pf-sec">
-                <label>{t('adm_localizacao')}</label>
+                <label>Localização</label>
 
-                <DropdownCora
-                  valor={filtroPais}
-                  onEscolher={(v) => setFiltroPais(v)}
-                  opcoes={[
-                    { v: '', n: t('adm_qualquer_pais') },
-                    ...[...new Set(assinantes.map(a => (a.pais || '').toUpperCase()).filter(Boolean))].sort().map(p => ({ v: p, n: p })),
-                  ]}
-                />
+                <select value={filtroPais} onChange={(e) => setFiltroPais(e.target.value)}>
+                  <option value="">Qualquer país</option>
+                  {[...new Set(assinantes.map(a => (a.pais || '').toUpperCase()).filter(Boolean))].sort().map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
 
-                <div style={{ marginTop: 8 }}>
-                  <DropdownCora
-                    valor={filtroEstado}
-                    onEscolher={(v) => setFiltroEstado(v)}
-                    opcoes={[
-                      { v: '', n: t('adm_qualquer_estado') },
-                      ...[...new Set(assinantes.map(a => (a.estado || '').toUpperCase()).filter(Boolean))].sort().map(uf => ({ v: uf, n: uf })),
-                    ]}
-                  />
-                </div>
+                <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
+                  <option value="">Qualquer estado</option>
+                  {[...new Set(assinantes.map(a => (a.estado || '').toUpperCase()).filter(Boolean))].sort().map(uf => (
+                    <option key={uf} value={uf}>{uf}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
             <div className="admin-pf-pe">
               <button className="admin-pf-limpar" onClick={limparFiltros}>
-                {t('adm_limpar_filtros')}
+                Limpar filtros
               </button>
               <button className="admin-pf-ok" onClick={() => setPainelFiltros(false)}>
-                {t('adm_ver')} {filtrados.length} {filtrados.length === 1 ? t('adm_resultado') : t('adm_resultados')}
+                Ver {filtrados.length} {filtrados.length === 1 ? 'resultado' : 'resultados'}
               </button>
             </div>
           </div>
@@ -990,16 +986,16 @@ export default function Admin() {
           <table className="admin-tabela">
             <thead>
               <tr>
-                <th>{t('adm_h_data')}</th>
-                <th>{t('adm_h_comprador')}</th>
-                <th>{t('adm_h_cpfid')}</th>
-                {dadosFiscais && <th>{t('adm_h_telefone')}</th>}
-                {dadosFiscais && <th>{t('adm_h_cep')}</th>}
-                {dadosFiscais && <th>{t('adm_h_endereco')}</th>}
-                <th>{t('adm_h_compra')}</th>
-                <th>{t('adm_h_creditos')}</th>
-                <th>{t('adm_h_destino')}</th>
-                <th>{t('adm_h_valor')}</th>
+                <th>Data</th>
+                <th>Comprador</th>
+                <th>CPF / ID</th>
+                {dadosFiscais && <th>Telefone</th>}
+                {dadosFiscais && <th>CEP</th>}
+                {dadosFiscais && <th>Endereço</th>}
+                <th>Compra</th>
+                <th>Créditos</th>
+                <th>Destino</th>
+                <th>Valor</th>
               </tr>
             </thead>
             <tbody>
@@ -1026,38 +1022,38 @@ export default function Admin() {
               ))}
             </tbody>
           </table>
-          {compras.length === 0 && <p className="admin-vazio">{t('adm_compras_vazio')}</p>}
+          {compras.length === 0 && <p className="admin-vazio">Nenhuma compra avulsa ainda.</p>}
         </div>
       ) : (
       <div className="admin-tabela-wrap">
         <table className={'admin-tabela' + (mostrarPerfil ? ' admin-tabela--compacto' : '')}>
           <thead>
             <tr>
-              <th>{t('adm_h_nome_email')}</th>
-              {!mostrarPerfil && <th>{t('adm_h_cpfid')}</th>}
-              {dadosFiscais && <th>{t('adm_h_telefone')}</th>}
-              {dadosFiscais && <th>{t('adm_h_cep')}</th>}
-              {dadosFiscais && <th>{t('adm_h_endereco')}</th>}
-              {!mostrarPerfil && <th>{t('adm_h_plano')}</th>}
-              {aba === 'convidados' && <th>{t('adm_h_equipe')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_genero')}</th>}
-              {mostrarPerfil && <th>{t('adm_profissao')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_origem')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_usa_render')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_tamanho')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_projetos')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_cidade')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_estado')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_pais')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_cadastro')}</th>}
-              {mostrarCobranca && <th>{t('adm_h_valor')}</th>}
-              {mostrarCobranca && <th>{t('adm_h_assinou')}</th>}
-              {mostrarCobranca && <th>{t('adm_h_renova')}</th>}
-              {mostrarCobranca && <th>{t('adm_h_renov')}</th>}
-              {aba === 'cancelados' && <th>{t('adm_h_cancelado_em')}</th>}
-              <th>{t('adm_status')}</th>
-              {!mostrarPerfil && <th>{t('adm_h_creditos')}</th>}
-              <th>{t('adm_h_acoes')}</th>
+              <th>Nome / Email</th>
+              {!mostrarPerfil && <th>CPF / ID</th>}
+              {dadosFiscais && <th>Telefone</th>}
+              {dadosFiscais && <th>CEP</th>}
+              {dadosFiscais && <th>Endereço</th>}
+              {!mostrarPerfil && <th>Plano</th>}
+              {aba === 'convidados' && <th>Equipe</th>}
+              {mostrarPerfil && <th>Gênero</th>}
+              {mostrarPerfil && <th>Profissão</th>}
+              {mostrarPerfil && <th>Origem</th>}
+              {mostrarPerfil && <th>Usa render</th>}
+              {mostrarPerfil && <th>Tamanho equipe</th>}
+              {mostrarPerfil && <th>Projetos/ano</th>}
+              {mostrarPerfil && <th>Cidade</th>}
+              {mostrarPerfil && <th>Estado</th>}
+              {mostrarPerfil && <th>País</th>}
+              {mostrarPerfil && <th>Cadastro</th>}
+              {mostrarCobranca && <th>Valor</th>}
+              {mostrarCobranca && <th>Assinou</th>}
+              {mostrarCobranca && <th>Renova em</th>}
+              {mostrarCobranca && <th>Renov.</th>}
+              {aba === 'cancelados' && <th>Cancelado em</th>}
+              <th>Status</th>
+              {!mostrarPerfil && <th>Créditos</th>}
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -1065,7 +1061,7 @@ export default function Admin() {
               <tr key={a.id}>
                 <td>
                   <div className="admin-nome">{a.nome || '—'}</div>
-                  <div className="admin-email">{a.email}{!a.email_verificado && <span className="admin-tag-nv">{t('adm_nao_verificado')}</span>}</div>
+                  <div className="admin-email">{a.email}{!a.email_verificado && <span className="admin-tag-nv">não verificado</span>}</div>
                 </td>
                 {!mostrarPerfil && <td><DocFiscal cpf={a.cpf} doc_intl={a.doc_intl} doc_pais={a.doc_pais} /></td>}
                 {dadosFiscais && <td>{dadosFiscais[a.email]?.telefone || '—'}</td>}
@@ -1075,7 +1071,7 @@ export default function Admin() {
                 <td>
                   {a.eh_dono_equipe ? (
                     <span className="admin-badge" style={{ background: '#eef0ff', color: '#4b46b3' }}>
-                      Teams · {a.assentos || '?'} {t('adm_teams_assentos')}
+                      Teams · {a.assentos || '?'} assentos
                     </span>
                   ) : (
                     <select
@@ -1110,7 +1106,7 @@ export default function Admin() {
                 {mostrarCobranca && <td>{fmtData(a.renova_em)}</td>}
                 {mostrarCobranca && <td style={{ textAlign: 'center' }}>{a.renovacoes || 0}</td>}
                 {aba === 'cancelados' && <td>{a.cancelado_em ? fmtData(a.cancelado_em) : '—'}</td>}
-                <td><span className={'admin-badge ' + (a.assinatura_status === 'cancelado' ? 'off' : (a.status === 'ativo' ? 'ok' : 'off'))}>{a.assinatura_status === 'cancelado' ? t('adm_st_cancelado') : a.status}</span></td>
+                <td><span className={'admin-badge ' + (a.assinatura_status === 'cancelado' ? 'off' : (a.status === 'ativo' ? 'ok' : 'off'))}>{a.assinatura_status === 'cancelado' ? 'cancelado' : a.status}</span></td>
                 {!mostrarPerfil && <td>{a.plano === 'free' && !a.eh_dono_equipe ? '—' : `${a.creditos_restantes}/${a.creditos_total}`}</td>}
                 <td>
                   <div className="admin-acoes">
@@ -1120,7 +1116,7 @@ export default function Admin() {
                         disabled={ocupado === a.id}
                         onClick={() => cancelar(a.id, a.email)}
                       >
-                        {t('adm_cancelar')}
+                        Cancelar
                       </button>
                     )}
                     <a
@@ -1135,9 +1131,9 @@ export default function Admin() {
                       className="admin-btn-deletar"
                       disabled={ocupado === a.id}
                       onClick={() => deletar(a.id, a.email)}
-                      title={t('adm_deletar_conta')}
+                      title="Deletar conta"
                     >
-                      {t('adm_deletar')}
+                      Deletar
                     </button>
                   </div>
                 </td>
@@ -1145,12 +1141,12 @@ export default function Admin() {
             ))}
           </tbody>
         </table>
-        {filtrados.length === 0 && <p className="admin-vazio">{t('adm_conta_nao_encontrada')}</p>}
+        {filtrados.length === 0 && <p className="admin-vazio">Nenhuma conta encontrada.</p>}
 
         {filtrados.length > 0 && (
           <div className="admin-pag">
             <div className="admin-pag-qtd">
-              <span>{t('adm_mostrar')}</span>
+              <span>Mostrar</span>
               <select
                 value={porPag}
                 onChange={(e) => { setPorPag(+e.target.value); setPag(1); }}
@@ -1159,7 +1155,7 @@ export default function Admin() {
                 <option value={100}>100</option>
                 <option value={500}>500</option>
               </select>
-              <span>{t('ws_de')} {filtrados.length}</span>
+              <span>de {filtrados.length}</span>
             </div>
 
             {nPags > 1 && (
@@ -1168,7 +1164,7 @@ export default function Admin() {
                   className="admin-pag-seta"
                   onClick={() => setPag(pagAtual - 1)}
                   disabled={pagAtual === 1}
-                  aria-label={t('adm_pag_anterior')}
+                  aria-label="Página anterior"
                 >
                   <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
                        stroke="currentColor" strokeWidth="1.8">
@@ -1176,6 +1172,8 @@ export default function Admin() {
                   </svg>
                 </button>
 
+                {/* Com 40 páginas, mostrar as 40 seria pior que não mostrar
+                    nenhuma. Uma janela ao redor da atual: sempre 5 números. */}
                 {(() => {
                   const ini = Math.max(1, Math.min(pagAtual - 2, nPags - 4));
                   const fim = Math.min(nPags, ini + 4);
@@ -1196,7 +1194,7 @@ export default function Admin() {
                   className="admin-pag-seta"
                   onClick={() => setPag(pagAtual + 1)}
                   disabled={pagAtual === nPags}
-                  aria-label={t('adm_pag_proxima')}
+                  aria-label="Próxima página"
                 >
                   <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
                        stroke="currentColor" strokeWidth="1.8">

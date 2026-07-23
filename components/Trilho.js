@@ -15,11 +15,8 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useIdioma } from '../lib/i18n';
 
 export default function Trilho({ abas, ativa, onTrocar, bloqueadas = [] }) {
-  const { t } = useIdioma();
-
   const sulcoRef  = useRef(null);
   const trilhoRef = useRef(null);
 
@@ -36,10 +33,10 @@ export default function Trilho({ abas, ativa, onTrocar, bloqueadas = [] }) {
   // O +FOLGA garante que a última aba também apareça com respiro à direita.
   const medir = useCallback(() => {
     const s = sulcoRef.current;
-    const tr = trilhoRef.current;
-    if (!s || !tr) return;
+    const t = trilhoRef.current;
+    if (!s || !t) return;
 
-    const m = Math.max(0, tr.scrollWidth - s.clientWidth + FOLGA);
+    const m = Math.max(0, t.scrollWidth - s.clientWidth + FOLGA);
     setMax(m);
     setX((v) => Math.min(v, m));   // a janela cresceu: não deixa sobrar vão
   }, []);
@@ -56,14 +53,14 @@ export default function Trilho({ abas, ativa, onTrocar, bloqueadas = [] }) {
   // Queremos a PRÓXIMA pill que hoje está cortada (ou de fora) inteiramente à
   // vista, com a folga de respiro depois dela.
   function proxima() {
-    const tr = trilhoRef.current;
+    const t = trilhoRef.current;
     const s = sulcoRef.current;
-    if (!tr || !s) return;
+    if (!t || !s) return;
 
     const larguraSulco = s.clientWidth;
     const bordaVisivel = x + larguraSulco - FOLGA;
 
-    for (const p of tr.children) {
+    for (const p of t.children) {
       const dir = p.offsetLeft + p.offsetWidth;
 
       // A primeira que ainda não cabe por inteiro (contando a folga)
@@ -79,10 +76,10 @@ export default function Trilho({ abas, ativa, onTrocar, bloqueadas = [] }) {
   // ── Para a esquerda ──
   // Simétrico: a última pill cortada à esquerda encosta na borda, com folga.
   function anterior() {
-    const tr = trilhoRef.current;
-    if (!tr) return;
+    const t = trilhoRef.current;
+    if (!t) return;
 
-    const ps = [...tr.children];
+    const ps = [...t.children];
     for (let i = ps.length - 1; i >= 0; i--) {
       if (ps[i].offsetLeft < x - 1) {
         setX(Math.max(0, ps[i].offsetLeft - FOLGA));
@@ -102,12 +99,12 @@ export default function Trilho({ abas, ativa, onTrocar, bloqueadas = [] }) {
   // cada passo da seta e puxaria o trilho de volta — que era exatamente o
   // travamento. Ele só corre quando a ABA muda, não quando o trilho anda.
   useEffect(() => {
-    const tr = trilhoRef.current;
+    const t = trilhoRef.current;
     const s = sulcoRef.current;
-    if (!tr || !s) return;
+    if (!t || !s) return;
 
     const i = abas.findIndex((a) => a.id === ativa);
-    const p = tr.children[i];
+    const p = t.children[i];
     if (!p) return;
 
     const esq = p.offsetLeft;
@@ -137,7 +134,7 @@ export default function Trilho({ abas, ativa, onTrocar, bloqueadas = [] }) {
         className={'cr-seta' + (temEsq ? '' : ' cr-seta--off')}
         onClick={anterior}
         disabled={!temEsq}
-        aria-label={t('trilho_abas_anteriores')}
+        aria-label="Abas anteriores"
       >
         <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
              stroke="currentColor" strokeWidth="1.7"
@@ -178,7 +175,7 @@ export default function Trilho({ abas, ativa, onTrocar, bloqueadas = [] }) {
         className={'cr-seta' + (temDir ? '' : ' cr-seta--off')}
         onClick={proxima}
         disabled={!temDir}
-        aria-label={t('trilho_mais_abas')}
+        aria-label="Mais abas"
       >
         <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
              stroke="currentColor" strokeWidth="1.7"

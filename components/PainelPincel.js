@@ -11,7 +11,21 @@ import { useState } from 'react';
 import IconeCredito from './IconeCredito';
 import Seta from './Seta';
 import { custoGenerativa, PROPORCOES } from '../lib/render';
-import { useIdioma } from '../lib/i18n';
+
+const TEXTOS = {
+  preenchimento: {
+    nome: 'Preenchimento generativo',
+    desc: 'Pinte sobre a área que quer corrigir, remover ou regenerar. O resto é preservado.',
+    campo: 'O que fazer na área marcada',
+    ph: 'Ex: remover o objeto e continuar a parede; corrigir essa falha; trocar por piso de madeira...'
+  },
+  expansao: {
+    nome: 'Expansão generativa',
+    desc: 'Arraste as bordas da moldura para fora. As bordas e o centro têm encaixe automático.',
+    campo: 'Detalhes (opcional)',
+    ph: 'Ex: continuar o jardim e o céu; estender o piso...'
+  }
+};
 
 // A lista OFICIAL, a mesma que o Render usa. Duplicá-la aqui com coordenadas
 // próprias foi o que fez os desenhos encostarem na borda do viewBox.
@@ -34,25 +48,12 @@ export default function PainelPincel({
   aoInverter,
   limpar                         // a tela expõe o "limpar"
 }) {
-  const { t } = useIdioma();
   const [texto, setTexto] = useState('');
   const [erro, setErro]   = useState('');
   const [pop, setPop]     = useState(false);
 
+  const t = TEXTOS[modo] || TEXTOS.preenchimento;
   const ehExpansao = modo === 'expansao';
-  const txt = ehExpansao
-    ? {
-        nome:  t('painelpincel_exp_nome'),
-        desc:  t('painelpincel_exp_desc'),
-        campo: t('painelpincel_exp_campo'),
-        ph:    t('painelpincel_exp_ph')
-      }
-    : {
-        nome:  t('painelpincel_pre_nome'),
-        desc:  t('painelpincel_pre_desc'),
-        campo: t('painelpincel_pre_campo'),
-        ph:    t('painelpincel_pre_ph')
-      };
 
   async function gerar() {
     setErro('');
@@ -71,18 +72,18 @@ export default function PainelPincel({
              stroke="currentColor" strokeWidth="1.6">
           <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
-        {t('painelpincel_voltar')}
+        Voltar
       </button>
 
       <div className="ed-titulo">
-        <strong>{txt.nome}</strong>
-        <span>{txt.desc}</span>
+        <strong>{t.nome}</strong>
+        <span>{t.desc}</span>
       </div>
 
       {/* ── Preenchimento: pincel, borracha, calibre ── */}
       {!ehExpansao && (
         <>
-          <div className="cr-sec">{t('painelpincel_ferramenta')}</div>
+          <div className="cr-sec">Ferramenta</div>
           <div className="cr-chips">
             <button
               className={'cr-chip' + (ferramenta === 'pincel' ? ' cr-chip--on' : '')}
@@ -93,7 +94,7 @@ export default function PainelPincel({
                 <path d="M6 14l8-8 2 2-8 8H6v-2z" strokeLinejoin="round"/>
                 <path d="M4 18h12" strokeLinecap="round"/>
               </svg>
-              {t('painelpincel_pincel')}
+              Pincel
             </button>
             <button
               className={'cr-chip' + (ferramenta === 'borracha' ? ' cr-chip--on' : '')}
@@ -104,12 +105,12 @@ export default function PainelPincel({
                 <path d="M8 15l-3-3 7-7 3 3-7 7z" strokeLinejoin="round"/>
                 <path d="M5 15h10" strokeLinecap="round"/>
               </svg>
-              {t('painelpincel_borracha')}
+              Borracha
             </button>
           </div>
 
           <div className="pn-lbl">
-            <span className="cr-sec">{t('painelpincel_tamanho')}</span>
+            <span className="cr-sec">Tamanho</span>
             <em>{tamanho} px</em>
           </div>
           <div className="pn-calibre">
@@ -130,7 +131,7 @@ export default function PainelPincel({
       {/* ── Expansão: proporção, medidas, inverter, limpar ── */}
       {ehExpansao && (
         <>
-          <div className="cr-sec">{t('painelpincel_proporcao')}</div>
+          <div className="cr-sec">Proporção</div>
 
           {/* O mesmo dropdown das outras abas (cr-pill-cfg + cr-pop) */}
           <div className="cr-pill-wrap">
@@ -144,7 +145,7 @@ export default function PainelPincel({
                 <rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
                 <rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
               </svg>
-              <span>{proporcao === 'livre' ? t('painelpincel_livre') : proporcao}</span>
+              <span>{proporcao === 'livre' ? 'Livre' : proporcao}</span>
               <Seta aberto={pop} />
             </button>
 
@@ -164,7 +165,7 @@ export default function PainelPincel({
                               stroke="currentColor" strokeWidth="1.5"
                               strokeDasharray={p.val === 'livre' ? '3 2' : undefined}/>
                       </svg>
-                      <span>{p.val === 'livre' ? t('painelpincel_livre') : p.val}</span>
+                      <span>{p.val === 'livre' ? 'Livre' : p.val}</span>
                     </button>
                   ))}
                 </div>
@@ -181,14 +182,14 @@ export default function PainelPincel({
               inputMode="numeric"
               value={rw ?? ''}
               onChange={(e) => aoDigitarRazao?.('w', e.target.value)}
-              placeholder={t('painelpincel_ph_largura')}
+              placeholder="L"
             />
 
             <button
               className="pn-inverter"
               onClick={() => aoInverter?.()}
-              title={t('painelpincel_inverter')}
-              aria-label={t('painelpincel_inverter_aria')}
+              title="Inverter"
+              aria-label="Inverter largura e altura"
             >
               <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
                    stroke="currentColor" strokeWidth="1.5">
@@ -202,7 +203,7 @@ export default function PainelPincel({
               inputMode="numeric"
               value={rh ?? ''}
               onChange={(e) => aoDigitarRazao?.('h', e.target.value)}
-              placeholder={t('painelpincel_ph_altura')}
+              placeholder="A"
             />
           </div>
 
@@ -211,18 +212,18 @@ export default function PainelPincel({
             onClick={() => limpar?.current?.()}
             disabled={ocupado}
           >
-            {t('painelpincel_limpar')}
+            Limpar
           </button>
         </>
       )}
 
-      <div className="cr-sec">{txt.campo}</div>
+      <div className="cr-sec">{t.campo}</div>
       <textarea
         className="cr-ta ed-ta"
         rows={ehExpansao ? 3 : 4}
         value={texto}
         onChange={(e) => setTexto(e.target.value)}
-        placeholder={txt.ph}
+        placeholder={t.ph}
         spellCheck={false}
       />
 
@@ -231,7 +232,7 @@ export default function PainelPincel({
       {/* O Gerar fica SOZINHO, como no Render e no Batch. O custo aparece só
           no hover (.cr-custo-tag) — não polui o botão em repouso. */}
       <button className="cr-btn-gerar" onClick={gerar} disabled={ocupado}>
-        <span>{ocupado ? t('painelpincel_gerando') : t('painelpincel_gerar')}</span>
+        <span>{ocupado ? 'Gerando...' : 'Gerar'}</span>
         {!ocupado && (
           <span className="cr-custo-tag">
             <IconeCredito /> {custoGenerativa()}
@@ -246,7 +247,7 @@ export default function PainelPincel({
           onClick={() => limpar?.current?.()}
           disabled={ocupado}
         >
-          {t('painelpincel_limpar_marcacao')}
+          Limpar marcação
         </button>
       )}
     </div>
