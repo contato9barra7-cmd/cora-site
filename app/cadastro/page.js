@@ -248,7 +248,7 @@ export default function Cadastro() {
 
         {erro && <p className="login-erro">{erro}</p>}
 
-        <button className="btn btn--verde" style={{ marginTop: 28 }} onClick={criarConta} disabled={carregando}>
+        <button className="btn btn--verde" style={{ marginTop: 14 }} onClick={criarConta} disabled={carregando}>
           {carregando ? t('cad_criando') : t('login_criar_conta')}
         </button>
 

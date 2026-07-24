@@ -395,6 +395,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 /* Os DropdownCora do cadastro seguem a medida dos campos de texto (16px e
    12/18 de padding), nao a do painel do app (13px). O componente e o mesmo —
    so o tamanho muda, para o formulario ficar homogeneo. */
+/* Mesmo ritmo dos campos do passo 1: cada select tem 18px embaixo (igual ao
+   .login-input). Sem isto, os selects do passo 2 ficavam colados. */
+.cad-dd { margin-bottom: 18px; }
 .cad-dd .cora-dd-btn {
   padding: 12px 18px; font-size: 16px;
   border-color: var(--line2); background: var(--wash); color: var(--ink3);
