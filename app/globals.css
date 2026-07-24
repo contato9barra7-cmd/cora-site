@@ -338,38 +338,71 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
    Desktop: painel visual a esquerda, formulario a direita.
    Mobile:  o painel some e volta o card centralizado de sempre.
 
-   O painel esquerdo e um <div> com background-image — para trocar a arte,
-   basta trocar o arquivo em /public/img/. Nao precisa mexer no layout. */
-.login-split { min-height: 100vh; display: flex; background: var(--wash); }
+   O painel e um cartao com margem e cantos arredondados — nao encosta nas
+   bordas da tela. Para trocar as artes, edite SLIDES em components/LoginSplit.js
+   e ponha os arquivos em /public/img/. */
+.login-split { min-height: 100vh; display: flex; background: var(--wash); padding: 16px; gap: 16px; }
 
 .login-visual {
-  flex: 1.1; position: relative; background: #111;
-  background-image: url('/img/login-hero.jpg');
-  background-size: cover; background-position: center;
+  flex: 1.05; position: relative; background: #111;
+  border-radius: 20px; overflow: hidden;
   display: flex; flex-direction: column; justify-content: space-between;
-  padding: 40px; overflow: hidden;
+  padding: 36px;
 }
-/* Veu escuro: a foto tem ceu claro, e o texto branco sumiria em cima dele. */
-.login-visual::after {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.15) 40%, rgba(0,0,0,.65) 100%);
+
+/* Cada slide e uma camada empilhada; so a ativa fica visivel. O cross-fade
+   evita o "pulo" que um troca-src causaria. */
+.login-visual-slide {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  opacity: 0; transition: opacity 1.1s ease-in-out;
 }
-.login-visual > * { position: relative; z-index: 1; }
+.login-visual-slide--on { opacity: 1; }
+
+/* Veu escuro: as fotos tem areas claras e o texto branco sumiria nelas. */
+.login-visual-veu {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,.10) 38%, rgba(0,0,0,.68) 100%);
+}
+
+.login-visual-logo,
+.login-visual-texto { position: relative; z-index: 1; }
+
 .login-visual-logo { color: #fff; font-size: 18px; font-weight: 600; }
 .login-visual-frase { color: #fff; font-size: 30px; font-weight: 600; line-height: 1.25; max-width: 460px; }
 .login-visual-sub { color: rgba(255,255,255,.72); font-size: 15px; margin-top: 12px; max-width: 420px; line-height: 1.5; }
 
+.login-visual-dots { display: flex; gap: 7px; margin-top: 22px; }
+.login-visual-dot {
+  width: 26px; height: 3px; border: none; padding: 0; border-radius: 2px;
+  background: rgba(255,255,255,.32); cursor: pointer; transition: background .3s;
+}
+.login-visual-dot:hover { background: rgba(255,255,255,.55); }
+.login-visual-dot--on { background: var(--verde); }
+
 /* Lado do formulario: rola sozinho (o cadastro e comprido, o painel fica parado). */
 .login-form-lado {
   flex: 1; display: flex; align-items: center; justify-content: center;
-  padding: 40px 24px; overflow-y: auto; max-height: 100vh;
+  padding: 24px; overflow-y: auto; max-height: calc(100vh - 32px);
 }
 
 @media (max-width: 900px) {
-  .login-split { display: block; min-height: auto; }
+  .login-split { display: block; min-height: auto; padding: 0; gap: 0; }
   .login-visual { display: none; }
   .login-form-lado { min-height: 100vh; max-height: none; overflow: visible; padding: 40px 24px; }
 }
+
+/* Cadastro em 2 passos */
+.cad-passo-tag {
+  text-align: center; font-size: 12.5px; font-weight: 500; letter-spacing: .04em;
+  color: var(--roxo-esc); text-transform: uppercase; margin-top: 20px;
+}
+.cad-passo-tag + .login-titulo { margin-top: 6px; }
+.cad-voltar {
+  margin-top: 12px; width: 100%; padding: 10px; background: none; border: none;
+  font-family: inherit; font-size: 14.5px; color: var(--ink2); cursor: pointer;
+}
+.cad-voltar:hover { color: var(--ink); }
 
 .login-wrap {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;

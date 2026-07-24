@@ -26,6 +26,10 @@ export default function Cadastro() {
   const [carregando, setCarregando] = useState(false);
 
   const [faltando, setFaltando] = useState({});
+  // Cadastro em 2 passos: o passo 1 e o que cria a conta (nome, email, senha).
+  // O passo 2 e a pesquisa — importante para nos, irrelevante para quem so
+  // quer testar. Separar evita pedir 9 campos antes de a pessoa ver o produto.
+  const [passo, setPasso] = useState(1);
   // Se veio de um convite, trava o email (a conta tem que ser desse email).
   const [emailTravado, setEmailTravado] = useState(false);
   useEffect(() => {
@@ -34,6 +38,26 @@ export default function Cadastro() {
       if (em) { setEmail(em); setEmailTravado(true); }
     }
   }, []);
+
+  // Passo 1 -> 2: valida so o que cria a conta.
+  function irParaPasso2() {
+    setErro('');
+    const falta = {};
+    if (!nome.trim()) falta.nome = true;
+    if (!email) falta.email = true;
+    if (!senhaValida) falta.senha = true;
+    if (!aceite) falta.aceite = true;
+
+    if (Object.keys(falta).length) {
+      setFaltando(falta);
+      if (falta.aceite && Object.keys(falta).length === 1) setErro(t('cad_aceite_erro'));
+      else if (!senhaValida) setErro(!senhaForte(senha) ? t('nova_req') : t('nova_confirme'));
+      else setErro(t('cad_preencha'));
+      return;
+    }
+    setFaltando({});
+    setPasso(2);
+  }
 
   async function criarConta() {
     setErro('');
@@ -82,8 +106,11 @@ export default function Cadastro() {
     <LoginSplit>
       <div className="login-card">
         <Link href="/" className="login-logo">Cora Render</Link>
-        <h1 className="login-titulo">{t('cad_criar')}</h1>
-        <p className="login-sub">{t('cad_sub')}</p>
+        <p className="cad-passo-tag">{t('cad_passo').replace('{n}', String(passo))}</p>
+        <h1 className="login-titulo">{passo === 1 ? t('cad_criar') : t('cad_sobre_voce')}</h1>
+        <p className="login-sub">{passo === 1 ? t('cad_sub') : t('cad_sobre_voce_sub')}</p>
+
+        {passo === 1 && (<>
 
         <label className="login-label">{t('perfil_nome')} <span className="obrig">*</span></label>
         <input
@@ -98,6 +125,28 @@ export default function Cadastro() {
           readOnly={emailTravado} title={emailTravado ? t('login_email_travado') : undefined}
         />
 
+        <CampoSenha senha={senha} setSenha={setSenha} onValidez={setSenhaValida} erroCampo={faltando.senha} />
+
+        {erro && <p className="login-erro">{erro}</p>}
+
+        <label className={'cad-aceite' + (faltando.aceite ? ' cad-aceite--erro' : '')}>
+          <input type="checkbox" checked={aceite} onChange={(e) => setAceite(e.target.checked)} />
+          <span>
+            {t('cad_li1')} <Link href="/termos" target="_blank">{t('cad_termos')}</Link> {t('cad_li_e')}{' '}
+            <Link href="/privacidade" target="_blank">{t('cad_privacidade')}</Link>.
+          </span>
+        </label>
+
+        <button className="btn btn--verde" style={{ marginTop: 14 }} onClick={irParaPasso2}>
+          {t('cad_continuar')}
+        </button>
+
+        <p className="login-rodape">
+          {t('cad_ja_tem')} <Link href="/login">{t('login_entrar')}</Link>
+        </p>
+        </>)}
+
+        {passo === 2 && (<>
         <label className="login-label">{t('cad_genero')} <span className="obrig">*</span></label>
         <select className={cls('genero')} value={genero} onChange={(e) => setGenero(e.target.value)}>
           <option value="">{t('cad_selecione')}</option>
@@ -160,25 +209,16 @@ export default function Cadastro() {
           <option value="mais20">{t('cad_v_mais20')}</option>
         </select>
 
-        <CampoSenha senha={senha} setSenha={setSenha} onValidez={setSenhaValida} erroCampo={faltando.senha} />
-
         {erro && <p className="login-erro">{erro}</p>}
-
-        <label className={'cad-aceite' + (faltando.aceite ? ' cad-aceite--erro' : '')}>
-          <input type="checkbox" checked={aceite} onChange={(e) => setAceite(e.target.checked)} />
-          <span>
-            {t('cad_li1')} <Link href="/termos" target="_blank">{t('cad_termos')}</Link> {t('cad_li_e')}{' '}
-            <Link href="/privacidade" target="_blank">{t('cad_privacidade')}</Link>.
-          </span>
-        </label>
 
         <button className="btn btn--verde" style={{ marginTop: 14 }} onClick={criarConta} disabled={carregando}>
           {carregando ? t('cad_criando') : t('login_criar_conta')}
         </button>
 
-        <p className="login-rodape">
-          {t('cad_ja_tem')} <Link href="/login">{t('login_entrar')}</Link>
-        </p>
+        <button type="button" className="cad-voltar" onClick={() => { setErro(''); setPasso(1); }}>
+          {t('cad_voltar')}
+        </button>
+        </>)}
       </div>
     </LoginSplit>
   );
