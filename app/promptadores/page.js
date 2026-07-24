@@ -7,9 +7,11 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { lerConta, atualizarConta } from '../../lib/auth';
 import AppShell from '../../components/AppShell';
+import { useIdioma } from '../../lib/i18n';
 
 export default function PromptadoresIndex() {
   const router = useRouter();
+  const { t } = useIdioma();
   useEffect(() => {
     const c = lerConta();
     if (!c) { router.replace('/login'); return; }
@@ -25,5 +27,5 @@ export default function PromptadoresIndex() {
     })();
   }, [router]);
 
-  return <AppShell><div className="promp-wrap"><p>Carregando...</p></div></AppShell>;
+  return <AppShell><div className="promp-wrap"><p>{t('comum_carregando')}</p></div></AppShell>;
 }

@@ -588,7 +588,11 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   display: inline-block; margin-left: 6px; font-size: 12.5px; padding: 1px 7px;
   background: #fdecea; color: #b23b32; border-radius: 10px;
 }
-.admin-select { padding: 5px 12px; border: 1px solid var(--line); border-radius: 100px; font-size: 14.5px; text-transform: capitalize; }
+.admin-select { padding: 5px 34px 5px 14px; border: 1px solid var(--line); border-radius: 100px; font-size: 14.5px; text-transform: capitalize; cursor: pointer;
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 20 20' fill='none' stroke='%23A4A1F3' stroke-width='2'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 13px center; }
+.admin-select:focus { outline: none; border-color: var(--roxo); }
 .admin-badge { font-size: 13.5px; font-weight: 600; padding: 3px 10px; border-radius: 12px; text-transform: capitalize; }
 .admin-badge.ok { background: #eafaf0; color: #1b7a43; }
 .admin-badge.off { background: #f2f2f5; color: #666; }
@@ -813,7 +817,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 
 .app-user-pref select {
   height: 30px;
-  padding: 0 10px;
+  padding: 0 34px 0 12px;
   border: 1px solid var(--line2);
   border-radius: 100px;
   background: var(--paper);
@@ -822,9 +826,24 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   font-family: inherit;
   cursor: pointer;
   outline: none;
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 20 20' fill='none' stroke='%23A4A1F3' stroke-width='2'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
 }
 
 .app-user-pref select:hover { border-color: var(--ink3); }
+.app-user-pref select:focus { border-color: var(--roxo); }
+
+/* Selects nativos de formulário (cadastro, suporte): mesma seta roxa da marca,
+   afastada da borda e centralizada. */
+select.login-input, select.sup-campo {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  padding-right: 40px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none' stroke='%23A4A1F3' stroke-width='2'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+}
 
 /* CONTEÚDO */
 .app-main {
@@ -968,13 +987,25 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .perfil-h2 { font-size: 18px; font-weight: 600; margin-bottom: 18px; color: var(--ink); }
 .perfil-linha { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
 .perfil-linha:last-child { margin-bottom: 0; }
+/* Dropdown Cora ocupa a linha como o antigo select (flex:1) */
+.perfil-linha .cora-dd { flex: 1; }
+.perfil-linha .cora-dd-btn { padding: 11px 18px; font-size: 15px; }
 .perfil-lbl { width: 120px; flex-shrink: 0; font-size: 15px; color: var(--ink2); font-weight: 500; }
 .perfil-input {
-  flex: 1; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px;
+  flex: 1; padding: 11px 18px; border: 1.5px solid var(--line); border-radius: 100px;
   font-size: 15px; background: var(--paper); color: var(--ink); font-family: inherit;
 }
 .perfil-input:focus { outline: none; border-color: var(--roxo); }
 .perfil-input:disabled { background: var(--wash); color: var(--ink3); cursor: not-allowed; }
+/* Dropdowns (Idioma/Tema): padrão da marca — pill + seta roxa própria,
+   afastada da borda e centralizada verticalmente (mesma margem em cima/baixo). */
+select.perfil-input {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  padding-right: 42px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none' stroke='%23A4A1F3' stroke-width='2'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+}
 .perfil-avatar-area { display: flex; align-items: center; gap: 14px; flex: 1; }
 .perfil-sub { font-size: 14.5px; color: var(--ink3); margin-top: 4px; }
 .perfil-toggle-linha { justify-content: space-between; }
@@ -1038,9 +1069,17 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   padding: 8px 12px; font-size: 14.5px; color: var(--ink2);
 }
 .app-user-pref select {
-  border: 1px solid var(--line); border-radius: 100px; padding: 4px 10px; font-size: 13.5px;
-  background: var(--paper); color: var(--ink); cursor: pointer;
+  border: 1px solid var(--line); border-radius: 100px; padding: 4px 32px 4px 12px; font-size: 13.5px;
+  background-color: var(--paper); color: var(--ink); cursor: pointer;
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 20 20' fill='none' stroke='%23A4A1F3' stroke-width='2'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
 }
+.app-user-pref select:hover { border-color: var(--ink3); }
+.app-user-pref select:focus { outline: none; border-color: var(--roxo); }
+/* Dropdown Cora dentro do menu do avatar: pill compacto à direita */
+.app-user-pref-dd { width: 160px; flex-shrink: 0; }
+.app-user-pref-dd .cora-dd-btn { padding: 6px 14px; font-size: 13.5px; }
 
 /* Texto legal da newsletter */
 .perfil-legal { font-size: 12.5px; color: var(--ink3); line-height: 1.5; margin-top: 14px; max-width: 600px; }
@@ -6169,7 +6208,11 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ed-card--travado { opacity: .6; cursor: default; }
 .ed-card--travado:hover { border-color: var(--line2); transform: none; }
 
-.ed-cad {
+/* .ed-card .ed-cad (não só .ed-cad): a regra .ed-card span acima tem
+   especificidade maior e forçava display:block no cadeado, jogando o ícone
+   pro canto do círculo. Escopar em .ed-card faz o display:flex vencer e
+   centraliza o cadeado (igual ao plugin). */
+.ed-card .ed-cad {
   position: absolute;
   top: 9px;
   right: 9px;
@@ -8107,7 +8150,17 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .admin-pf-corpo select:focus,
 .admin-pf-corpo input:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--roxo);
+}
+
+/* Dropdowns do admin: padrão da marca — pill + seta roxa própria, afastada da
+   borda e centralizada (mesma margem em cima/baixo). */
+.admin-pf-corpo select {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none' stroke='%23A4A1F3' stroke-width='2'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
 }
 
 .admin-pf-datas {
@@ -11150,6 +11203,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .cora-dd-opt:hover { background: var(--accent-bg); color: var(--accent); }
 .cora-dd-opt--sel { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+/* Lista no portal (fixed em document.body) — acima de painéis/overlays */
+.cora-dd-lista--portal { z-index: 9999; }
 
 /* Sliders */
 .up-slider { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px; margin: 12px 0; }

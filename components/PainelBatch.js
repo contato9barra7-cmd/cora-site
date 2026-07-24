@@ -35,10 +35,13 @@ import {
   analisarBatch, gerarBatch, CREDITOS, custoBatchCena,
   PROPORCOES, RESOLUCOES, MAX_REFS
 } from '../lib/render';
+import { useIdioma } from '../lib/i18n';
 
 const MAX_CENAS = 20;
 
 export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, onPronto, onProgresso, ocupado, setOcupado }) {
+  const { t } = useIdioma();
+
   // ── Fase 1 ──
   //  `refs` guarda só as MANUAIS (as que a pessoa subiu). As aprovadas vêm
   //  da página e são derivadas — assim aprovar/desaprovar reflete na hora.
@@ -154,7 +157,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
     if (leituraInicial.base64) {
       setCenas((c) => [...c, {
         id,
-        nome: leituraInicial.titulo || 'Cena da análise',
+        nome: leituraInicial.titulo || t('painelbatch_cena_analise'),
         base64: leituraInicial.base64,
         previa: leituraInicial.previa,
         geracaoId: leituraInicial.geracaoId,
@@ -163,7 +166,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
     }
 
     setAnalise((a) => [...(a || []), {
-      nome:      leituraInicial.titulo || 'Cena da análise',
+      nome:      leituraInicial.titulo || t('painelbatch_cena_analise'),
       cenaId:    leituraInicial.base64 ? id : null,
       previa:    leituraInicial.previa,
       materiais: leituraInicial.materiais,
@@ -203,7 +206,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
     if (cenas.length < MAX_CENAS) {
       setCenas((c) => [...c, {
         id: 'c' + Date.now() + Math.random().toString(36).slice(2, 6),
-        nome: `Cena ${c.length + 1}`,
+        nome: `${t('painelbatch_cena')} ${c.length + 1}`,
         base64,
         previa,
         marcada: true
@@ -224,7 +227,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
     if (marcadas.length === 0) return;
 
     setAnalise(marcadas.map((c, i) => ({
-      nome:      c.nome || `Cena ${i + 1}`,
+      nome:      c.nome || `${t('painelbatch_cena')} ${i + 1}`,
       cenaId:    c.id,
       previa:    c.previa,
       materiais: '',            // vazio: a pessoa cola o que já tem
@@ -236,8 +239,8 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
   }
 
   async function analisar() {
-    if (todasRefs.length === 0) { setErro('Adicione ao menos uma referência'); return; }
-    if (marcadas.length === 0) { setErro('Marque ao menos uma cena'); return; }
+    if (todasRefs.length === 0) { setErro(t('painelbatch_erro_ref')); return; }
+    if (marcadas.length === 0) { setErro(t('painelbatch_erro_cena')); return; }
 
     setErro('');
     setAnalisando(true);   // o aviso fica AQUI, no painel — não no feed
@@ -255,7 +258,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
       // `materiais_completos` é a leitura JÁ com as respostas da verificação;
       // `leitura` é o texto cru. Preferimos a primeira.
       const cenasAnalisadas = lidas.map((c, i) => ({
-        nome:      c.nome || marcadas[i]?.nome || `Cena ${i + 1}`,
+        nome:      c.nome || marcadas[i]?.nome || `${t('painelbatch_cena')} ${i + 1}`,
         cenaId:    marcadas[i]?.id,
         previa:    marcadas[i]?.previa,
         materiais: c.materiais_completos || c.leitura || c.materiais_novos || '',
@@ -288,7 +291,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
   const totalImagens = cenasAprovadas.reduce((s, c) => s + c.cfg.qtd, 0);
 
   async function gerar() {
-    if (cenasAprovadas.length === 0) { setErro('Aprove ao menos uma cena'); return; }
+    if (cenasAprovadas.length === 0) { setErro(t('painelbatch_erro_aprove')); return; }
 
     setErro('');
     setOcupado(true);
@@ -375,10 +378,9 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
         {/* ═══ FASE 1 ═══ */}
         {fase === 1 && (
           <>
-            <div className="cr-sec">Renders de referência</div>
+            <div className="cr-sec">{t('painelbatch_sec_refs')}</div>
             <p className="cr-hint cr-hint--topo">
-              As imagens aprovadas do seu histórico entram aqui automaticamente.
-              Elas definem o estilo.
+              {t('painelbatch_hint_refs')}
             </p>
 
             <div className="cr-refs">
@@ -394,11 +396,11 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                     onClick={() => (r.doHistorico
                       ? onDesaprovar(r.id)
                       : setRefs((rs) => rs.filter((x) => x !== r)))}
-                    aria-label="Remover referência"
+                    aria-label={t('painelbatch_rem_ref')}
                   >×</button>
 
                   {r.doHistorico && (
-                    <span className="cr-ref-selo" data-tip="Veio das suas imagens aprovadas">
+                    <span className="cr-ref-selo" data-tip={t('painelbatch_selo_tip')}>
                       <svg viewBox="0 0 16 16" width="9" height="9" fill="none"
                            stroke="currentColor" strokeWidth="2.4"
                            strokeLinecap="round" strokeLinejoin="round">
@@ -417,9 +419,9 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
               )}
             </div>
 
-            <div className="cr-sec">Cenas do projeto</div>
+            <div className="cr-sec">{t('painelbatch_sec_cenas')}</div>
             <p className="cr-hint cr-hint--topo">
-              Suba as capturas que quer renderizar no mesmo estilo das referências.
+              {t('painelbatch_hint_cenas')}
             </p>
 
             {cenas.length > 0 && (
@@ -427,11 +429,11 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                 <button
                   className="cr-b"
                   onClick={() => setCenas((c) => c.map((x) => ({ ...x, marcada: true })))}
-                >Selecionar todas</button>
+                >{t('painelbatch_sel_todas')}</button>
                 <button
                   className="cr-b"
                   onClick={() => setCenas((c) => c.map((x) => ({ ...x, marcada: false })))}
-                >Desmarcar todas</button>
+                >{t('painelbatch_desm_todas')}</button>
               </div>
             )}
 
@@ -476,7 +478,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                     e.preventDefault();
                     setCenas((cs) => cs.filter((_, j) => j !== i));
                   }}
-                  aria-label="Remover cena"
+                  aria-label={t('painelbatch_rem_cena')}
                 >×</button>
               </label>
             ))}
@@ -487,7 +489,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                   <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M3.5 14v2a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5v-2" strokeLinecap="round"/>
                 </svg>
-                Adicionar cenas
+                {t('painelbatch_add_cenas')}
               </button>
             )}
           </>
@@ -503,13 +505,12 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
               <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Voltar às cenas
+              {t('painelbatch_voltar_cenas')}
             </button>
 
-            <div className="cr-sec">Verificação de materiais por cena</div>
+            <div className="cr-sec">{t('painelbatch_sec_verif')}</div>
             <p className="cr-hint cr-hint--topo">
-              A IA cruzou cada cena com as referências. Revise, ajuste e aprove —
-              só as aprovadas entram no batch.
+              {t('painelbatch_hint_verif')}
             </p>
 
             {analise.map((c, i) => (
@@ -531,8 +532,8 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                       if (!resto.length) setFase1(true);
                       return resto;
                     })}
-                    data-tip="Tirar esta cena"
-                    aria-label={'Tirar a cena ' + c.nome}
+                    data-tip={t('painelbatch_tirar_tip')}
+                    aria-label={t('painelbatch_tirar_cena') + ' ' + c.nome}
                   >
                     <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
                          stroke="currentColor" strokeWidth="1.6">
@@ -560,7 +561,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                       j === i ? { ...x, aprovada: false } : x
                     )))}
                     disabled={!c.aprovada}
-                  >Editar</button>
+                  >{t('painelbatch_editar')}</button>
 
                   <button
                     className={c.aprovada ? 'cr-b cr-b--on' : 'cr-b-conf'}
@@ -568,7 +569,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                       j === i ? { ...x, aprovada: !x.aprovada } : x
                     )))}
                   >
-                    {c.aprovada ? '✓ Aprovada' : 'Tá bom, aprovar'}
+                    {c.aprovada ? '✓ ' + t('painelbatch_aprovada') : t('painelbatch_aprovar')}
                   </button>
                 </div>
 
@@ -593,20 +594,20 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
           onClick={() => setConfirmarReset(true)}
           disabled={ocupado || analisando}
         >
-          Resetar configurações
+          {t('painelbatch_resetar_cfg')}
         </button>
 
         {confirmarReset && (
           <div className="cr-overlay cr-overlay--alto" onClick={() => setConfirmarReset(false)}>
             <div className="cf" onClick={(e) => e.stopPropagation()}>
-              <h3>Resetar tudo?</h3>
+              <h3>{t('painelbatch_reset_tit')}</h3>
               <p>
-                As cenas e a análise serão apagadas — e analisar de novo custa{' '}
-                {CREDITOS.analiseBatch} créditos por cena.
+                {t('painelbatch_reset_p1')}{' '}
+                {CREDITOS.analiseBatch} {t('painelbatch_reset_p2')}
               </p>
               <div className="cf-acoes">
-                <button className="cf-nao" onClick={() => setConfirmarReset(false)}>Cancelar</button>
-                <button className="cf-sim" onClick={resetar}>Resetar</button>
+                <button className="cf-nao" onClick={() => setConfirmarReset(false)}>{t('comum_cancelar')}</button>
+                <button className="cf-sim" onClick={resetar}>{t('painelbatch_resetar')}</button>
               </div>
             </div>
           </div>
@@ -626,8 +627,8 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                 <span className="cr-spin" />
                 <span>
                   {marcadas.length === 1
-                    ? 'Lendo os materiais da cena...'
-                    : `Lendo os materiais de ${marcadas.length} cenas...`}
+                    ? t('painelbatch_lendo_uma')
+                    : `${t('painelbatch_lendo_de')} ${marcadas.length} ${t('painelbatch_lendo_cenas')}`}
                 </span>
               </div>
             )}
@@ -635,7 +636,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
             {/* Já analisou? Um caminho de volta, sem pagar de novo. */}
             {analise && (
               <button className="cr-b cr-b--voltar" onClick={() => setFase1(false)}>
-                Ver a análise que já fiz
+                {t('painelbatch_ver_analise')}
               </button>
             )}
 
@@ -644,7 +645,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
               onClick={analisar}
               disabled={analisando || ocupado || todasRefs.length === 0 || marcadas.length === 0}
             >
-              <span>{analisando ? 'Analisando...' : analise ? 'Analisar de novo' : 'Analisar cenas'}</span>
+              <span>{analisando ? t('painelbatch_analisando') : analise ? t('painelbatch_analisar_novo') : t('painelbatch_analisar')}</span>
               {!analisando && marcadas.length > 0 && (
                 <span className="cr-custo-tag">
                   <IconeCredito /> {CREDITOS.analiseBatch * marcadas.length}
@@ -656,7 +657,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                 Cola o texto e não paga de novo pelo mesmo trabalho. */}
             {!analise && marcadas.length > 0 && (
               <button className="cr-b cr-b--tenho" onClick={jaTenho} disabled={ocupado}>
-                Já tenho a análise
+                {t('painelbatch_ja_tenho')}
               </button>
             )}
 
@@ -664,8 +665,8 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                 ela orienta, e nao aparece em nenhum outro lugar. */}
             <p className="cr-custo">
               {marcadas.length === 0
-                ? 'Marque as cenas que quer analisar'
-                : `${marcadas.length} ${marcadas.length === 1 ? 'cena' : 'cenas'}`}
+                ? t('painelbatch_marque')
+                : `${marcadas.length} ${marcadas.length === 1 ? t('painelbatch_cena_min') : t('painelbatch_cenas_min')}`}
             </p>
           </>
         ) : (
@@ -675,7 +676,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
               onClick={gerar}
               disabled={ocupado || cenasAprovadas.length === 0}
             >
-              <span>{ocupado ? 'Gerando...' : 'Gerar batch'}</span>
+              <span>{ocupado ? t('painelbatch_gerando') : t('painelbatch_gerar')}</span>
               {!ocupado && cenasAprovadas.length > 0 && (
                 <span className="cr-custo-tag">
                   <IconeCredito /> {custoTotal}
@@ -685,8 +686,8 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
 
             <p className="cr-custo">
               {cenasAprovadas.length === 0
-                ? 'Aprove as cenas que quer gerar'
-                : `${cenasAprovadas.length} ${cenasAprovadas.length === 1 ? 'aprovada' : 'aprovadas'} · ${totalImagens} ${totalImagens === 1 ? 'imagem' : 'imagens'}`}
+                ? t('painelbatch_aprove_gerar')
+                : `${cenasAprovadas.length} ${cenasAprovadas.length === 1 ? t('painelbatch_aprovada_min') : t('painelbatch_aprovadas_min')} · ${totalImagens} ${totalImagens === 1 ? t('painelbatch_imagem') : t('painelbatch_imagens')}`}
             </p>
           </>
         )}
@@ -696,7 +697,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
         aberto={picker !== null}
         onFechar={() => setPicker(null)}
         onEscolher={escolheu}
-        titulo={picker === 'ref' ? 'Adicionar referência' : 'Adicionar cena'}
+        titulo={picker === 'ref' ? t('painelbatch_add_ref') : t('painelbatch_add_cena')}
       />
     </>
   );
@@ -709,6 +710,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
 //  16:9. É assim no plugin (`config: { qtd, ratio, res }` por cena).
 // ═══════════════════════════════════════════════════════════
 function CfgCena({ cfg, onMudar, travado }) {
+  const { t } = useIdioma();
   const [popRatio, setPopRatio] = useState(false);
   const [popRes, setPopRes]     = useState(false);
 
@@ -725,13 +727,13 @@ function CfgCena({ cfg, onMudar, travado }) {
         <button
           onClick={() => onMudar('qtd', Math.max(1, cfg.qtd - 1))}
           disabled={travado}
-          aria-label="Menos uma"
+          aria-label={t('painelbatch_menos')}
         >−</button>
         <span>{cfg.qtd}</span>
         <button
           onClick={() => onMudar('qtd', Math.min(10, cfg.qtd + 1))}
           disabled={travado}
-          aria-label="Mais uma"
+          aria-label={t('painelbatch_mais')}
         >+</button>
       </div>
 
@@ -745,7 +747,7 @@ function CfgCena({ cfg, onMudar, travado }) {
             <rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
             <rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
           </svg>
-          <span>{cfg.proporcao === 'auto' ? 'Auto' : cfg.proporcao}</span>
+          <span>{cfg.proporcao === 'auto' ? t('painelbatch_auto') : cfg.proporcao}</span>
         </button>
 
         {popRatio && (
@@ -761,7 +763,7 @@ function CfgCena({ cfg, onMudar, travado }) {
                     <rect x={p.x} y={p.y} width={p.w} height={p.h} rx="1"
                           stroke="currentColor" strokeWidth="1.5"/>
                   </svg>
-                  <span>{p.val === 'auto' ? 'Auto' : p.val}</span>
+                  <span>{p.val === 'auto' ? t('painelbatch_auto') : p.val}</span>
                 </button>
               ))}
             </div>

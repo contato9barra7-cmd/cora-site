@@ -21,6 +21,7 @@ import { listarNarrativas, criarNarrativa, atualizarNarrativa, pegarNarrativa, a
 import IconeCredito from './IconeCredito';
 import DropdownCora from './DropdownCora';
 import { animarKling, custoAnimacao, custoTimelapseEtapa, custoTimelapseCompleto, custoTimelapsePrimeira, timelapsePrompts, gerarEtapaTimelapse, narrativaOrdem, narrativaRoteiro, CREDITOS } from '../lib/render';
+import { useIdioma } from '../lib/i18n';
 
 const CUSTO_TL_PROMPTS = CREDITOS.tlPrompts;   // custo do planejamento (8)
 
@@ -68,6 +69,7 @@ function proporcaoMaisProximaTL(w, h) {
 export default function PainelAnimacao({
   imagemInicial, ehAdmin, nav, onNav, onEnviarBase64, imgEditadaPos, onIniciar, onTerminar, onFeedAtualizar, onEtapaIniciar, onEtapaTerminar, onEtapaPronta, onMostrarInicial, onRemoverInicial, lotes, abrirNarrativaId, onNarrativaAberta
 }) {
+  const { t } = useIdioma();
   // Seção e ferramenta vêm do pai (persistem ao trocar de aba e voltar).
   const secao = (nav && nav.secao) || 'animacao';
   const ferramenta = (nav && nav.ferramenta) || null;
@@ -185,7 +187,7 @@ export default function PainelAnimacao({
       // base p/ a próxima etapa = imagem já gerada na posição N-passo (ou a enviada).
       const baseNext = imgs[N - r.passo] || imgs[N] || null;
       if (!baseNext) {
-        setTlErro('Não consegui recuperar as imagens desta sequência. Tente recarregar a página.');
+        setTlErro(t('painelanimacao_erro_recuperar_imgs'));
         setTlRestaurando(false);
         return;
       }
@@ -200,7 +202,7 @@ export default function PainelAnimacao({
       setTlRascunho(null);
       setFerramenta(r.tipo === 'interior' ? 'tl-interior' : 'tl-externo');
     } catch (e) {
-      setTlErro('Falha ao continuar: ' + (e && e.message));
+      setTlErro(t('painelanimacao_erro_continuar') + ' ' + (e && e.message));
     } finally {
       setTlRestaurando(false);
     }
@@ -336,13 +338,13 @@ export default function PainelAnimacao({
   const SETA_DUPLA = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M7 4L4 7l3 3" strokeLinecap="round" strokeLinejoin="round"/><path d="M4 7h13a3 3 0 0 1 3 3" strokeLinecap="round"/><path d="M17 20l3-3-3-3" strokeLinecap="round" strokeLinejoin="round"/><path d="M20 17H7a3 3 0 0 1-3-3" strokeLinecap="round"/></svg>;
 
   let seta = null;
-  if (inicio && fim)      seta = { icone: SETA_DUPLA, acao: inverter, tip: 'Inverter início e fim' };
-  else if (inicio)        seta = { icone: SETA_DIR, acao: copiarParaFim, tip: 'Copiar imagem inicial para a final' };
-  else if (fim)           seta = { icone: SETA_ESQ, acao: copiarParaInicio, tip: 'Copiar imagem final para a inicial' };
+  if (inicio && fim)      seta = { icone: SETA_DUPLA, acao: inverter, tip: t('painelanimacao_tip_inverter') };
+  else if (inicio)        seta = { icone: SETA_DIR, acao: copiarParaFim, tip: t('painelanimacao_tip_copiar_final') };
+  else if (fim)           seta = { icone: SETA_ESQ, acao: copiarParaInicio, tip: t('painelanimacao_tip_copiar_inicial') };
 
   async function gerar() {
-    if (!modelo) { setErro('Escolha um modelo primeiro'); return; }
-    if (!inicio) { setErro('Suba a imagem inicial primeiro'); return; }
+    if (!modelo) { setErro(t('painelanimacao_erro_escolha_modelo')); return; }
+    if (!inicio) { setErro(t('painelanimacao_erro_suba_inicial')); return; }
     setErro('');
 
     const iniB64 = inicio.base64;
@@ -361,7 +363,7 @@ export default function PainelAnimacao({
         timelapse,
         audio: temAudio && audio
       });
-      if (!r.url) setErro('Não foi possível gerar a animação');
+      if (!r.url) setErro(t('painelanimacao_erro_gerar_anim'));
     } catch (e) {
       setErro(e.message);
     } finally {
@@ -400,10 +402,10 @@ export default function PainelAnimacao({
   }
 
   async function rodarTimelapse(modo) {
-    if (!tlBase) { setTlErro('Suba a imagem base primeiro'); return; }
+    if (!tlBase) { setTlErro(t('painelanimacao_erro_suba_base')); return; }
     setTlErro('');
     setTlRodando(true);
-    setTlStatus('Planejando etapas...');
+    setTlStatus(t('painelanimacao_st_planejando'));
     const baseB64 = tlBase.base64;
     const prop = tlBase.proporcao || 'auto';
     const res = tlRes;
@@ -427,7 +429,7 @@ export default function PainelAnimacao({
         let base = baseB64;
         const acc = imgs.slice();
         for (let i = 0; i < N; i++) {
-          setTlStatus(`Gerando etapa ${i + 1} de ${N}...`);
+          setTlStatus(t('painelanimacao_st_gerando_etapa') + ' ' + (i + 1) + ' ' + t('painelanimacao_de') + ' ' + N + '...');
           const et = etapas[i] || {};
           const promptEt = et.pt || et.prompt || '';
           const pos = (N - 1) - i;
@@ -446,7 +448,7 @@ export default function PainelAnimacao({
           salvarEtapaNoFeed(b64, i + 1, seqId, base);
           base = b64;
         }
-        setTlStatus('Sequência completa!');
+        setTlStatus(t('painelanimacao_st_completa'));
         // Folga extra: a última etapa salva async no servidor. Recarrega de
         // novo depois de um tempo para garantir que ela apareça no feed.
         if (onFeedAtualizar) {
@@ -468,7 +470,7 @@ export default function PainelAnimacao({
     const N = etapas.length;
     const idSeq = seqId || tlSeqId || ('tl_' + Date.now());
     setTlRodando(true);
-    setTlStatus(`Gerando etapa ${i + 1} de ${N}...`);
+    setTlStatus(t('painelanimacao_st_gerando_etapa') + ' ' + (i + 1) + ' ' + t('painelanimacao_de') + ' ' + N + '...');
     // base = imagem da etapa anterior (pos maior) ou a enviada
     const posAnterior = (N - 1) - (i - 1);       // pos do slot da etapa i-1
     const base = i === 0 ? baseInicial : (imgsAtual[posAnterior] || baseInicial);
@@ -483,7 +485,7 @@ export default function PainelAnimacao({
       onEtapaPronta && phId && onEtapaPronta(phId, b64, i + 1);   // vira imagem na hora
       patchTl({ etapas, imgs: acc, passo: i + 1, modo: 'passo', seqId: idSeq });
       salvarEtapaNoFeed(b64, i + 1, idSeq, base);
-      setTlStatus(i + 1 >= N ? 'Sequência completa!' : `Etapa ${i + 1} pronta. Revise e gere a próxima.`);
+      setTlStatus(i + 1 >= N ? t('painelanimacao_st_completa') : (t('painelanimacao_etapa_cap') + ' ' + (i + 1) + ' ' + t('painelanimacao_st_pronta')));
     } catch (e) {
       onEtapaTerminar && phId && onEtapaTerminar(phId);   // falhou: tira o placeholder
       setTlErro(e.message);
@@ -561,10 +563,10 @@ export default function PainelAnimacao({
 
   // Etapa 1 → 2: pede a ordem à IA. Depois o usuário arrasta pra ajustar.
   async function narrAnalisarOrdem() {
-    if (narrImagens.length < 2) { setNarrErro('Selecione pelo menos 2 imagens.'); return; }
+    if (narrImagens.length < 2) { setNarrErro(t('painelanimacao_erro_min2')); return; }
     setNarrErro('');
     setNarrRodando(true);
-    setNarrStatus('Analisando o projeto e montando a sequência narrativa...');
+    setNarrStatus(t('painelanimacao_st_analisando'));
     try {
       const ordem = await narrativaOrdem(narrImagens.map((im) => ({ n: im.n, base64: im.base64 })));
       // valida: só números que existem; completa com os que faltarem
@@ -583,7 +585,7 @@ export default function PainelAnimacao({
         } catch (e) {}
       })();
     } catch (e) {
-      setNarrErro('Erro ao sugerir a ordem: ' + (e.message || ''));
+      setNarrErro(t('painelanimacao_erro_sugerir_ordem') + ' ' + (e.message || ''));
     } finally {
       setNarrRodando(false);
       setNarrStatus('');
@@ -632,7 +634,7 @@ export default function PainelAnimacao({
   async function narrGerarRoteiro() {
     setNarrErro('');
     setNarrRodando(true);
-    setNarrStatus('Montando o roteiro de direção (câmera, closes, transições, ritmo)...');
+    setNarrStatus(t('painelanimacao_st_montando_roteiro'));
     try {
       const naOrdem = narrOrdem.map((n) => narrImagens.find((im) => im.n === n)).filter(Boolean);
       const r = await narrativaRoteiro(naOrdem.map((im) => ({ n: im.n, base64: im.base64 })), 'pt');
@@ -641,7 +643,7 @@ export default function PainelAnimacao({
       if (narrSrvId) { try { await atualizarNarrativa(narrSrvId, { ordem: narrOrdem, takes: r.takes, ritmo: r.ritmo, trilha: r.trilha, finalizado: true }); } catch (e) {} }
       recarregarNarrRascunhos();
     } catch (e) {
-      setNarrErro('Erro ao gerar o roteiro: ' + (e.message || ''));
+      setNarrErro(t('painelanimacao_erro_gerar_roteiro') + ' ' + (e.message || ''));
     } finally {
       setNarrRodando(false);
       setNarrStatus('');
@@ -666,16 +668,16 @@ export default function PainelAnimacao({
 
   function narrCopiarTudo() {
     if (!narrTakes) return;
-    let txt = 'ROTEIRO DE DIREÇÃO\n\n';
+    let txt = t('painelanimacao_txt_roteiro_titulo') + '\n\n';
     narrTakes.forEach((tk) => {
       txt += `Take ${tk.n_take} — ${tk.momento || ''}\n`;
-      txt += `Câmera: ${tk.camera || ''}\n`;
+      txt += t('painelanimacao_camera') + ' ' + (tk.camera || '') + '\n';
       if (tk.close) txt += `Close: ${tk.close}\n`;
-      if (tk.transicao) txt += `Transição: ${tk.transicao}\n`;
+      if (tk.transicao) txt += t('painelanimacao_transicao') + ' ' + tk.transicao + '\n';
       txt += '\n';
     });
-    if (narrRitmo) txt += `Ritmo: ${narrRitmo}\n\n`;
-    if (narrTrilha) txt += `Trilha e som: ${narrTrilha}\n`;
+    if (narrRitmo) txt += t('painelanimacao_ritmo') + ': ' + narrRitmo + '\n\n';
+    if (narrTrilha) txt += t('painelanimacao_trilha_som') + ': ' + narrTrilha + '\n';
     try { navigator.clipboard.writeText(txt); } catch (e) {}
   }
 
@@ -692,7 +694,7 @@ export default function PainelAnimacao({
     try {
       const n = await pegarNarrativa(id);
       if (!n || !Array.isArray(n.imagens) || !n.imagens.length) {
-        setNarrErro('Não consegui recuperar essa narrativa.');
+        setNarrErro(t('painelanimacao_erro_recuperar_narr'));
         setNarrRestaurando(false);
         return;
       }
@@ -709,7 +711,7 @@ export default function PainelAnimacao({
       });
       setFerramenta('diretor');
     } catch (e) {
-      setNarrErro('Falha ao continuar: ' + (e && e.message));
+      setNarrErro(t('painelanimacao_erro_continuar') + ' ' + (e && e.message));
     } finally {
       setNarrRestaurando(false);
     }
@@ -758,7 +760,7 @@ export default function PainelAnimacao({
           <span className="anim-sel-faixa anim-sel-faixa--anim">
             <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           </span>
-          <span className="anim-sel-txt">Animação</span>
+          <span className="anim-sel-txt">{t('painelanimacao_animacao')}</span>
         </button>
         <button
           className={'anim-sel-btn' + (secao === 'sequencias' ? ' anim-sel-btn--on anim-sel-btn--seq-on' : '')}
@@ -767,7 +769,7 @@ export default function PainelAnimacao({
           <span className="anim-sel-faixa anim-sel-faixa--seq">
             <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
           </span>
-          <span className="anim-sel-txt">Sequências</span>
+          <span className="anim-sel-txt">{t('painelanimacao_sequencias')}</span>
         </button>
       </div>
 
@@ -775,14 +777,14 @@ export default function PainelAnimacao({
 
       {/* ── Modelo ── */}
       <section className="up-bloco">
-        <div className="cr-sec">Animação</div>
-        <label className="up-lbl">Modelo</label>
-        <DropdownCora valor={modelo} opcoes={[{ v: '', n: 'Escolher modelo' }, ...MODELOS]} onEscolher={setModelo} />
+        <div className="cr-sec">{t('painelanimacao_animacao')}</div>
+        <label className="up-lbl">{t('painelanimacao_modelo')}</label>
+        <DropdownCora valor={modelo} opcoes={[{ v: '', n: t('painelanimacao_escolher_modelo') }, ...MODELOS]} onEscolher={setModelo} />
       </section>
 
       {/* ── Imagem inicial e final ── */}
       <section className="up-bloco">
-        <div className="cr-sec">Imagens</div>
+        <div className="cr-sec">{t('painelanimacao_imagens')}</div>
         <div className="anim-refs">
           <button
             className={'anim-card' + (inicio ? ' anim-card--img' : '') + (!inicio ? ' anim-card--obrig' : '')}
@@ -791,12 +793,12 @@ export default function PainelAnimacao({
             {inicio ? (
               <>
                 <img src={'data:image/png;base64,' + inicio.base64} alt="" />
-                <span className="anim-card-x" onClick={(e) => { e.stopPropagation(); setInicio(null); }} aria-label="Remover">×</span>
+                <span className="anim-card-x" onClick={(e) => { e.stopPropagation(); setInicio(null); }} aria-label={t('comum_remover')}>×</span>
               </>
             ) : (
               <>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                <span className="anim-card-lbl">Imagem inicial</span>
+                <span className="anim-card-lbl">{t('painelanimacao_imagem_inicial')}</span>
               </>
             )}
           </button>
@@ -814,12 +816,12 @@ export default function PainelAnimacao({
             {fim ? (
               <>
                 <img src={'data:image/png;base64,' + fim.base64} alt="" />
-                <span className="anim-card-x" onClick={(e) => { e.stopPropagation(); setFim(null); }} aria-label="Remover">×</span>
+                <span className="anim-card-x" onClick={(e) => { e.stopPropagation(); setFim(null); }} aria-label={t('comum_remover')}>×</span>
               </>
             ) : (
               <>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                <span className="anim-card-lbl">Imagem final</span>
+                <span className="anim-card-lbl">{t('painelanimacao_imagem_final')}</span>
               </>
             )}
           </button>
@@ -830,22 +832,22 @@ export default function PainelAnimacao({
       <section className="up-bloco">
         <label className="anim-check">
           <input type="checkbox" className="cora-check-bola" checked={timelapse} onChange={(e) => setTimelapse(e.target.checked)} />
-          <span>Modo timelapse de obra</span>
+          <span>{t('painelanimacao_modo_timelapse')}</span>
         </label>
-        <p className="cr-hint">Use apenas para timelapse de obra. Para qualquer outra animação, deixe desligado — a descrição abaixo cria o movimento.</p>
+        <p className="cr-hint">{t('painelanimacao_timelapse_hint')}</p>
       </section>
 
       {/* ── Descrição ── */}
       {!timelapse && (
         <section className="up-bloco">
-          <div className="cr-sec">Descrição (opcional)</div>
+          <div className="cr-sec">{t('painelanimacao_descricao_opcional')}</div>
           <textarea
             className="up-textarea"
             rows={4}
             maxLength={2500}
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
-            placeholder="Descreva o movimento como falaria com a IA. Ex: a câmera entra pela porta e avança até a sala revelando o ambiente."
+            placeholder={t('painelanimacao_descricao_ph')}
             spellCheck={false}
           />
           <p className="anim-contador">{descricao.length}/2500</p>
@@ -854,7 +856,7 @@ export default function PainelAnimacao({
 
       {/* ── Opções ── */}
       <section className="up-bloco">
-        <div className="cr-sec">Opções</div>
+        <div className="cr-sec">{t('painelanimacao_opcoes')}</div>
         <div className="anim-pills">
           <div className="anim-pill-wrap">
             <button className="anim-pill" onClick={() => setPop(pop === 'dur' ? null : 'dur')}>
@@ -887,7 +889,7 @@ export default function PainelAnimacao({
           {temAudio && (
             <button className={'anim-pill' + (audio ? ' anim-pill--on' : '')} onClick={() => setAudio(!audio)}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 5L6 9H2v6h4l5 4V5z"/>{audio && <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" strokeLinecap="round"/>}</svg>
-              <span>{audio ? 'Áudio ON' : 'Áudio OFF'}</span>
+              <span>{audio ? t('painelanimacao_audio_on') : t('painelanimacao_audio_off')}</span>
             </button>
           )}
         </div>
@@ -897,7 +899,7 @@ export default function PainelAnimacao({
 
       {/* ── Gerar ── */}
       <button className="cr-btn-gerar up-gerar" onClick={gerar} disabled={!inicio || !modelo}>
-        <span>Gerar animação</span>
+        <span>{t('painelanimacao_gerar_animacao')}</span>
         {inicio && modelo && custo > 0 && (
           <span className="cr-custo-tag"><IconeCredito /> {custo}</span>
         )}
@@ -908,14 +910,14 @@ export default function PainelAnimacao({
       {secao === 'sequencias' && !ferramenta && tlRascunho && (
         <div className="seq-retomar">
           <div className="seq-retomar-txt">
-            <strong>Você tem um timelapse não finalizado</strong>
-            <span>{(tlRascunho.tipo === 'interior') ? 'Timelapse Interiores' : 'Timelapse Externo'} · etapa {(tlRascunho.passo || 0) + 1} de {tlRascunho.etapas.length}</span>
+            <strong>{t('painelanimacao_tl_nao_finalizado')}</strong>
+            <span>{(tlRascunho.tipo === 'interior') ? t('painelanimacao_tl_interiores') : t('painelanimacao_tl_externo')} · {t('painelanimacao_etapa')} {(tlRascunho.passo || 0) + 1} {t('painelanimacao_de')} {tlRascunho.etapas.length}</span>
           </div>
           <div className="seq-retomar-acoes">
             <button className="seq-retomar-btn" onClick={continuarTimelapse} disabled={tlRestaurando}>
-              {tlRestaurando ? 'Recuperando...' : 'Continuar de onde parei'}
+              {tlRestaurando ? t('painelanimacao_recuperando') : t('painelanimacao_continuar')}
             </button>
-            <button className="seq-retomar-descartar" onClick={descartarRascunhoTl} disabled={tlRestaurando}>Descartar</button>
+            <button className="seq-retomar-descartar" onClick={descartarRascunhoTl} disabled={tlRestaurando}>{t('painelanimacao_descartar')}</button>
           </div>
         </div>
       )}
@@ -924,29 +926,29 @@ export default function PainelAnimacao({
         <div className="seq-retomar" key={'narr-' + n.id}>
           {n.thumb && <img className="seq-retomar-thumb" src={n.thumb} alt="" />}
           <div className="seq-retomar-txt">
-            <strong>{n.finalizado ? 'Narrativa salva' : 'Você tem uma narrativa não finalizada'}</strong>
-            <span>Diretor de Narrativa · {n.qtdImagens} imagem{n.qtdImagens === 1 ? '' : 's'}</span>
+            <strong>{n.finalizado ? t('painelanimacao_narrativa_salva') : t('painelanimacao_narr_nao_finalizada')}</strong>
+            <span>{t('painelanimacao_diretor_narrativa')} · {n.qtdImagens} {n.qtdImagens === 1 ? t('painelanimacao_imagem_low') : t('painelanimacao_imagens_low')}</span>
           </div>
           <div className="seq-retomar-acoes">
             <button className="seq-retomar-btn" onClick={() => continuarNarrativa(n.id)} disabled={narrRestaurando}>
-              {narrRestaurando ? 'Recuperando...' : (n.finalizado ? 'Abrir' : 'Continuar de onde parei')}
+              {narrRestaurando ? t('painelanimacao_recuperando') : (n.finalizado ? t('painelanimacao_abrir') : t('painelanimacao_continuar'))}
             </button>
-            <button className="seq-retomar-descartar" onClick={() => descartarNarrativa(n.id)} disabled={narrRestaurando}>Descartar</button>
+            <button className="seq-retomar-descartar" onClick={() => descartarNarrativa(n.id)} disabled={narrRestaurando}>{t('painelanimacao_descartar')}</button>
           </div>
         </div>
       ))}
 
       {secao === 'sequencias' && !ferramenta && (
         <section className="up-bloco">
-          <div className="cr-sec">Ferramentas</div>
+          <div className="cr-sec">{t('painelanimacao_ferramentas')}</div>
           <div className="seq-cards">
             <button className="seq-card" onClick={() => { setTlTipo('externo'); setFerramenta('tl-externo'); }}>
               <span className="seq-faixa" style={{ background: '#E6F1FB' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="#185FA5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V11l7-5 7 5v10"/><path d="M9 21v-6h6v6"/><path d="M2 11l10-7 10 7"/></svg>
               </span>
               <span className="seq-corpo">
-                <strong>Timelapse Externo</strong>
-                <span>Gera a sequência de construção (do terreno à obra pronta) a partir de um render externo.</span>
+                <strong>{t('painelanimacao_tl_externo')}</strong>
+                <span>{t('painelanimacao_tl_externo_desc')}</span>
               </span>
             </button>
             <button className="seq-card" onClick={() => { setTlTipo('interior'); setFerramenta('tl-interior'); }}>
@@ -954,8 +956,8 @@ export default function PainelAnimacao({
                 <svg viewBox="0 0 24 24" fill="none" stroke="#0F6E56" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M4 21V8h16v13"/><rect x="9" y="13" width="6" height="8"/><path d="M4 8l8-5 8 5"/></svg>
               </span>
               <span className="seq-corpo">
-                <strong>Timelapse Interiores</strong>
-                <span>Sequência de construção de um ambiente interno.</span>
+                <strong>{t('painelanimacao_tl_interiores')}</strong>
+                <span>{t('painelanimacao_tl_interiores_desc')}</span>
               </span>
             </button>
             <button className="seq-card" onClick={() => setFerramenta('diretor')}>
@@ -963,8 +965,8 @@ export default function PainelAnimacao({
                 <svg viewBox="0 0 24 24" fill="none" stroke="#854F0B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/></svg>
               </span>
               <span className="seq-corpo">
-                <strong>Diretor de Narrativa</strong>
-                <span>Cria uma sequência de cenas com direção cinematográfica.</span>
+                <strong>{t('painelanimacao_diretor_narrativa')}</strong>
+                <span>{t('painelanimacao_diretor_desc')}</span>
               </span>
             </button>
           </div>
@@ -978,34 +980,34 @@ export default function PainelAnimacao({
             <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
               <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            Voltar
+            {t('painelanimacao_voltar')}
           </button>
 
-          <div className="cr-sec" style={{ marginTop: 14 }}>{tlTipo === 'interior' ? 'Timelapse Interiores' : 'Timelapse Externo'}</div>
+          <div className="cr-sec" style={{ marginTop: 14 }}>{tlTipo === 'interior' ? t('painelanimacao_tl_interiores') : t('painelanimacao_tl_externo')}</div>
           <p className="seq-hint">{tlTipo === 'interior'
-            ? 'Escolha o render final do ambiente. A IA vai gerar a sequência de desconstrução (do ambiente pronto até a estrutura).'
-            : 'Escolha um render externo final. A IA vai gerar a sequência de desconstrução (da obra pronta até o terreno).'}</p>
+            ? t('painelanimacao_tl_interiores_hint')
+            : t('painelanimacao_tl_externo_hint')}</p>
 
           {/* ── Interior: escolha reforma / obra nova ── */}
           {tlTipo === 'interior' && (
             <section className="up-bloco">
-              <div className="cr-sec">Tipo de obra</div>
+              <div className="cr-sec">{t('painelanimacao_tipo_obra')}</div>
               <div className="seq-modo-int">
                 <button
                   className={'seq-modo-int-btn' + (tlModoInt === 'reforma' ? ' seq-modo-int-btn--on' : '')}
                   onClick={() => !tlRodando && tlEtapas.length === 0 && setTlModoInt('reforma')}
                   disabled={tlRodando || tlEtapas.length > 0}
                 >
-                  <strong>Reforma</strong>
-                  <span>Termina num ambiente simples existente, pronto para reformar.</span>
+                  <strong>{t('painelanimacao_reforma')}</strong>
+                  <span>{t('painelanimacao_reforma_desc')}</span>
                 </button>
                 <button
                   className={'seq-modo-int-btn' + (tlModoInt === 'obra_nova' ? ' seq-modo-int-btn--on' : '')}
                   onClick={() => !tlRodando && tlEtapas.length === 0 && setTlModoInt('obra_nova')}
                   disabled={tlRodando || tlEtapas.length > 0}
                 >
-                  <strong>Obra nova</strong>
-                  <span>Termina na estrutura bruta (concreto e alvenaria, sem acabamento).</span>
+                  <strong>{t('painelanimacao_obra_nova')}</strong>
+                  <span>{t('painelanimacao_obra_nova_desc')}</span>
                 </button>
               </div>
             </section>
@@ -1013,11 +1015,11 @@ export default function PainelAnimacao({
 
           {/* ── Imagem final (mesmo seletor do Render) ── */}
           <section className="up-bloco">
-            <div className="cr-sec">Imagem final</div>
+            <div className="cr-sec">{t('painelanimacao_imagem_final')}</div>
             {tlBase ? (
               <div className="cr-base">
                 <img src={'data:image/png;base64,' + tlBase.base64} alt="" />
-                <button className="cr-base-x" onClick={() => setTlBase(null)} aria-label="Remover imagem">×</button>
+                <button className="cr-base-x" onClick={() => setTlBase(null)} aria-label={t('painelanimacao_remover_imagem')}>×</button>
               </div>
             ) : (
               <button className="cr-drop" onClick={() => setPicker('tl-base')}>
@@ -1025,7 +1027,7 @@ export default function PainelAnimacao({
                   <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/>
                   <path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>
                 </svg>
-                <span>Escolher imagem</span>
+                <span>{t('painelanimacao_escolher_imagem')}</span>
               </button>
             )}
           </section>
@@ -1060,17 +1062,17 @@ export default function PainelAnimacao({
             <div className="seq-gerar-box">
               <div className="seq-gerar-item">
                 <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('completo')} disabled={!tlBase}>
-                  <span>Gerar sequência completa</span>
+                  <span>{t('painelanimacao_gerar_completa')}</span>
                   {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseCompleto(tlRes, tlNEtapas)}</span>}
                 </button>
-                <p className="seq-gerar-aviso">Gera todas as etapas de uma vez. Pode haver leve perda de qualidade ao longo da sequência.</p>
+                <p className="seq-gerar-aviso">{t('painelanimacao_completa_aviso')}</p>
               </div>
               <div className="seq-gerar-item">
                 <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('passo')} disabled={!tlBase}>
-                  <span>Gerar uma a uma</span>
+                  <span>{t('painelanimacao_gerar_uma_a_uma')}</span>
                   {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapsePrimeira(tlRes)}</span>}
                 </button>
-                <p className="seq-gerar-aviso">Gera uma etapa por vez. Você pode revisar e ajustar cada imagem antes de gerar a próxima.</p>
+                <p className="seq-gerar-aviso">{t('painelanimacao_uma_a_uma_aviso')}</p>
               </div>
             </div>
           )}
@@ -1078,11 +1080,11 @@ export default function PainelAnimacao({
           {/* ── Progresso + aviso de reembolso ── */}
           {(tlRodando || (tlStatus && tlEtapas.length > 0)) && (
             <div className="seq-gerando">
-              <p className="seq-status">{tlStatus || 'Gerando...'}</p>
+              <p className="seq-status">{tlStatus || t('painelanimacao_gerando')}</p>
               {(tlRodando || tlEtapas.length > 0) && (
                 <div className="seq-prog"><span style={{ width: (tlEtapas.length ? Math.round((tlPasso / tlEtapas.length) * 100) : 0) + '%' }} /></div>
               )}
-              {tlRodando && <p className="seq-reembolso">Se falhar, os créditos voltam automaticamente.</p>}
+              {tlRodando && <p className="seq-reembolso">{t('painelanimacao_reembolso')}</p>}
             </div>
           )}
 
@@ -1090,10 +1092,10 @@ export default function PainelAnimacao({
           {tlModo === 'passo' && !tlRodando && tlPasso > 0 && tlPasso < tlEtapas.length && (
             <div className="seq-passo-box">
               <button className="cr-btn-gerar seq-gerar-fino" onClick={gerarProxima}>
-                <span>Gerar próxima etapa ({tlPasso + 1}/{tlEtapas.length})</span>
+                <span>{t('painelanimacao_gerar_proxima')} ({tlPasso + 1}/{tlEtapas.length})</span>
                 <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}</span>
               </button>
-              <button className="seq-refazer" onClick={refazerEtapa}>Refazer esta etapa</button>
+              <button className="seq-refazer" onClick={refazerEtapa}>{t('painelanimacao_refazer_etapa')}</button>
             </div>
           )}
 
@@ -1102,23 +1104,23 @@ export default function PainelAnimacao({
             <div className="seq-grid">
               {tlImgs.map((img, pos) => {
                 const N = tlEtapas.length;
-                const titulo = pos === N ? 'Imagem final' : ((tlEtapas[(N - 1) - pos] || {}).titulo || '');
+                const titulo = pos === N ? t('painelanimacao_imagem_final') : ((tlEtapas[(N - 1) - pos] || {}).titulo || '');
                 return (
                   <div key={pos} className="seq-cel">
                     {img ? (
                       <div className="seq-slot seq-slot--clic">
                         <img src={`data:image/png;base64,${img}`} alt={titulo} onClick={() => setTlVer(pos)} />
                         <div className="seq-slot-acoes">
-                          <button className="seq-acao" data-tip="Imagem inicial" aria-label="Imagem inicial" onClick={(e) => { e.stopPropagation(); tlParaInicio(pos); }}>
+                          <button className="seq-acao" data-tip={t('painelanimacao_imagem_inicial')} aria-label={t('painelanimacao_imagem_inicial')} onClick={(e) => { e.stopPropagation(); tlParaInicio(pos); }}>
                             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="M4 15l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           </button>
-                          <button className="seq-acao" data-tip="Imagem final" aria-label="Imagem final" onClick={(e) => { e.stopPropagation(); tlParaFim(pos); }}>
+                          <button className="seq-acao" data-tip={t('painelanimacao_imagem_final')} aria-label={t('painelanimacao_imagem_final')} onClick={(e) => { e.stopPropagation(); tlParaFim(pos); }}>
                             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="1.5"/><path d="M4 17l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 12 3.5)"/></svg>
                           </button>
-                          <button className="seq-acao" data-tip="Pós-produção" aria-label="Pós-produção" onClick={(e) => { e.stopPropagation(); tlParaPos(pos); }}>
+                          <button className="seq-acao" data-tip={t('painelanimacao_pos_producao')} aria-label={t('painelanimacao_pos_producao')} onClick={(e) => { e.stopPropagation(); tlParaPos(pos); }}>
                             <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 5h8M3 10h13M3 15h6" strokeLinecap="round"/><circle cx="14.5" cy="5" r="1.7"/><circle cx="11" cy="15" r="1.7"/></svg>
                           </button>
-                          <button className="seq-acao" data-tip="Baixar" aria-label="Baixar" onClick={(e) => { e.stopPropagation(); tlBaixarPos(pos); }}>
+                          <button className="seq-acao" data-tip={t('painelanimacao_baixar')} aria-label={t('painelanimacao_baixar')} onClick={(e) => { e.stopPropagation(); tlBaixarPos(pos); }}>
                             <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M3.5 15v1.5h13V15" strokeLinecap="round"/></svg>
                           </button>
                         </div>
@@ -1137,7 +1139,7 @@ export default function PainelAnimacao({
 
           {tlEtapas.length > 0 && !tlRodando && (
             <div className="seq-reset-box">
-              <button className="seq-reset" onClick={resetarTimelapse}>Resetar e fazer outra</button>
+              <button className="seq-reset" onClick={resetarTimelapse}>{t('painelanimacao_resetar_outra')}</button>
             </div>
           )}
         </>
@@ -1149,19 +1151,19 @@ export default function PainelAnimacao({
             <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
               <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            Voltar
+            {t('painelanimacao_voltar')}
           </button>
 
-          <div className="cr-sec" style={{ marginTop: 14 }}>Diretor de Narrativa</div>
-          <p className="seq-hint">Selecione as imagens do projeto (renders, plantas, fachada, closes). A IA vai sugerir uma ordem narrativa — você pode arrastar para ajustar. É um guia: a direção criativa final é sua.</p>
+          <div className="cr-sec" style={{ marginTop: 14 }}>{t('painelanimacao_diretor_narrativa')}</div>
+          <p className="seq-hint">{t('painelanimacao_diretor_hint')}</p>
 
           {/* ── Etapa 1: seleção de imagens ── */}
           {!narrConfirmado && (
             <section className="up-bloco">
               <div className="cr-sec">
-                {narrImagens.length === 0 ? 'Imagens do projeto'
-                  : narrImagens.length === 1 ? '1 imagem selecionada'
-                  : narrImagens.length + ' imagens selecionadas'}
+                {narrImagens.length === 0 ? t('painelanimacao_imagens_projeto')
+                  : narrImagens.length === 1 ? t('painelanimacao_uma_selecionada')
+                  : narrImagens.length + ' ' + t('painelanimacao_selecionadas')}
               </div>
               <div className="narr-grid" onDragOver={(e) => e.preventDefault()} onDrop={narrSoltar}>
                 {(narrOrdem.length ? narrOrdem.map((n) => narrImagens.find((im) => im.n === n)).filter(Boolean) : narrImagens).map((im, i) => (
@@ -1173,10 +1175,10 @@ export default function PainelAnimacao({
                     onDragOver={(e) => narrOrdem.length && narrDragOver(i, e)}
                     onDragEnd={narrDragEnd}
                   >
-                    <img src={'data:image/png;base64,' + im.base64} alt={'Imagem ' + im.n} />
+                    <img src={'data:image/png;base64,' + im.base64} alt={t('painelanimacao_imagem_cap') + ' ' + im.n} />
                     <span className="narr-num">{narrOrdem.length ? i + 1 : im.n}</span>
                     {!narrOrdem.length && (
-                      <button className="narr-x" onClick={() => narrRemover(im.n)} aria-label="Remover">×</button>
+                      <button className="narr-x" onClick={() => narrRemover(im.n)} aria-label={t('comum_remover')}>×</button>
                     )}
                     {narrOrdem.length > 0 && (
                       <span className="narr-grip" aria-hidden="true">
@@ -1191,13 +1193,13 @@ export default function PainelAnimacao({
                       <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/>
                       <path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>
                     </svg>
-                    <span className="narr-add-txt">Adicionar imagens</span>
+                    <span className="narr-add-txt">{t('painelanimacao_adicionar_imagens')}</span>
                   </button>
                 )}
               </div>
 
               {narrOrdem.length > 0 && (
-                <p className="seq-hint" style={{ marginTop: 6 }}>Ordem sugerida (arraste para ajustar)</p>
+                <p className="seq-hint" style={{ marginTop: 6 }}>{t('painelanimacao_ordem_sugerida')}</p>
               )}
               {narrErro && <p className="up-erro">{narrErro}</p>}
 
@@ -1209,12 +1211,12 @@ export default function PainelAnimacao({
                 <div className="seq-gerar-box" style={{ marginTop: 10 }}>
                   {narrOrdem.length === 0 ? (
                     <button className="cr-btn-gerar seq-gerar-fino" onClick={narrAnalisarOrdem} disabled={narrImagens.length < 2}>
-                      <span>Analisar ordem narrativa</span>
+                      <span>{t('painelanimacao_analisar_ordem')}</span>
                       <span className="cr-custo-tag"><IconeCredito /> {CREDITOS.narrativa}</span>
                     </button>
                   ) : (
                     <button className="cr-btn-gerar seq-gerar-fino" onClick={narrGerarRoteiro}>
-                      <span>Confirmar ordem</span>
+                      <span>{t('painelanimacao_confirmar_ordem')}</span>
                       <span className="cr-custo-tag"><IconeCredito /> {CREDITOS.narrativa}</span>
                     </button>
                   )}
@@ -1222,7 +1224,7 @@ export default function PainelAnimacao({
               )}
               {narrImagens.length > 0 && !narrRodando && (
                 <div className="seq-reset-box">
-                  <button className="seq-reset" onClick={narrResetar}>Resetar tudo</button>
+                  <button className="seq-reset" onClick={narrResetar}>{t('painelanimacao_resetar_tudo')}</button>
                 </div>
               )}
             </section>
@@ -1232,8 +1234,8 @@ export default function PainelAnimacao({
           {narrConfirmado && narrTakes && (
             <>
               <div className="narr-roteiro-cab">
-                <div className="cr-sec" style={{ margin: 0 }}>Roteiro de direção</div>
-                <button className="narr-copiar" onClick={narrCopiarTudo}>Copiar tudo</button>
+                <div className="cr-sec" style={{ margin: 0 }}>{t('painelanimacao_roteiro_direcao')}</div>
+                <button className="narr-copiar" onClick={narrCopiarTudo}>{t('painelanimacao_copiar_tudo')}</button>
               </div>
 
               <div className="narr-takes">
@@ -1241,7 +1243,7 @@ export default function PainelAnimacao({
                   <div key={tk.n_take} className="narr-take">
                     <div className="narr-take-cab">
                       <span className="narr-take-badge">Take {tk.n_take}{tk.momento ? ' · ' + tk.momento : ''}</span>
-                      <span className="narr-take-frames">{tk.frames === 2 ? '2 imagens' : '1 imagem'} · imagem {tk.imagem}{tk.frames === 2 && tk.imagem_fim ? '→' + tk.imagem_fim : ''}</span>
+                      <span className="narr-take-frames">{tk.frames === 2 ? t('painelanimacao_duas_imagens') : t('painelanimacao_uma_imagem')} · {t('painelanimacao_imagem_low')} {tk.imagem}{tk.frames === 2 && tk.imagem_fim ? '→' + tk.imagem_fim : ''}</span>
                     </div>
                     {(() => {
                       const doisFrames = Number(tk.frames) === 2 && (tk.imagem_fim != null);
@@ -1250,17 +1252,17 @@ export default function PainelAnimacao({
                       if (!im1 && !im2) return null;
                       return (
                         <div className="narr-take-thumbs">
-                          {im1 && <img src={'data:image/png;base64,' + im1.base64} alt={'Imagem ' + tk.imagem} />}
-                          {im2 && <><span className="narr-take-seta">→</span><img src={'data:image/png;base64,' + im2.base64} alt={'Imagem ' + tk.imagem_fim} /></>}
+                          {im1 && <img src={'data:image/png;base64,' + im1.base64} alt={t('painelanimacao_imagem_cap') + ' ' + tk.imagem} />}
+                          {im2 && <><span className="narr-take-seta">→</span><img src={'data:image/png;base64,' + im2.base64} alt={t('painelanimacao_imagem_cap') + ' ' + tk.imagem_fim} /></>}
                         </div>
                       );
                     })()}
-                    <p className="narr-take-linha"><b>Câmera:</b> {tk.camera}</p>
+                    <p className="narr-take-linha"><b>{t('painelanimacao_camera')}</b> {tk.camera}</p>
                     {tk.close && <p className="narr-take-linha narr-take-sec"><b>Close:</b> {tk.close}</p>}
-                    {tk.transicao && <p className="narr-take-linha narr-take-sec"><b>Transição:</b> {tk.transicao}</p>}
+                    {tk.transicao && <p className="narr-take-linha narr-take-sec"><b>{t('painelanimacao_transicao')}</b> {tk.transicao}</p>}
                     <button className="narr-take-anim" onClick={() => narrAnimarTake(tk)}>
                       <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 4l10 6-10 6z"/></svg>
-                      Enviar para animação
+                      {t('painelanimacao_enviar_animacao')}
                     </button>
                   </div>
                 ))}
@@ -1268,13 +1270,13 @@ export default function PainelAnimacao({
 
               {(narrRitmo || narrTrilha) && (
                 <div className="narr-notas">
-                  {narrRitmo && <div className="narr-nota"><b>Ritmo</b><span>{narrRitmo}</span></div>}
-                  {narrTrilha && <div className="narr-nota"><b>Trilha e som</b><span>{narrTrilha}</span></div>}
+                  {narrRitmo && <div className="narr-nota"><b>{t('painelanimacao_ritmo')}</b><span>{narrRitmo}</span></div>}
+                  {narrTrilha && <div className="narr-nota"><b>{t('painelanimacao_trilha_som')}</b><span>{narrTrilha}</span></div>}
                 </div>
               )}
 
               <div className="seq-reset-box">
-                <button className="seq-reset" onClick={narrResetar}>Resetar e fazer outro</button>
+                <button className="seq-reset" onClick={narrResetar}>{t('painelanimacao_resetar_outro')}</button>
               </div>
             </>
           )}
@@ -1284,7 +1286,7 @@ export default function PainelAnimacao({
       {tlVer !== null && tlImgs[tlVer] && (
         <div className="cr-overlay" onClick={() => { setTlVer(null); setTlBaixar(false); }}>
           <div className="vz vz-tl" onClick={(e) => e.stopPropagation()}>
-            <button className="vz-x" onClick={() => { setTlVer(null); setTlBaixar(false); }} aria-label="Fechar">
+            <button className="vz-x" onClick={() => { setTlVer(null); setTlBaixar(false); }} aria-label={t('fechar')}>
               <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
               </svg>
@@ -1300,12 +1302,12 @@ export default function PainelAnimacao({
                 return (
                   <>
                     {anterior !== null && (
-                      <button className="vz-nav vz-nav--prev" onClick={() => setTlVer(anterior)} aria-label="Anterior">
+                      <button className="vz-nav vz-nav--prev" onClick={() => setTlVer(anterior)} aria-label={t('painelanimacao_anterior')}>
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       </button>
                     )}
                     {proximo !== null && (
-                      <button className="vz-nav vz-nav--next" onClick={() => setTlVer(proximo)} aria-label="Próxima">
+                      <button className="vz-nav vz-nav--next" onClick={() => setTlVer(proximo)} aria-label={t('painelanimacao_proxima')}>
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       </button>
                     )}
@@ -1313,25 +1315,25 @@ export default function PainelAnimacao({
                   </>
                 );
               })()}
-              <img className="vz-img-tl" src={`data:image/png;base64,${tlImgs[tlVer]}`} alt={`Etapa ${tlVer + 1}`} />
+              <img className="vz-img-tl" src={`data:image/png;base64,${tlImgs[tlVer]}`} alt={t('painelanimacao_etapa_cap') + ' ' + (tlVer + 1)} />
             </div>
             <footer className="vz-acoes">
-              <button className="vz-ico" data-tip="Imagem inicial" aria-label="Enviar como imagem inicial da animação"
+              <button className="vz-ico" data-tip={t('painelanimacao_imagem_inicial')} aria-label={t('painelanimacao_enviar_inicial')}
                 onClick={() => { onEnviarBase64 && onEnviarBase64('animacao', tlImgs[tlVer], 'inicio'); setTlVer(null); }}>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="M4 15l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
-              <button className="vz-ico" data-tip="Imagem final" aria-label="Enviar como imagem final da animação"
+              <button className="vz-ico" data-tip={t('painelanimacao_imagem_final')} aria-label={t('painelanimacao_enviar_final')}
                 onClick={() => { onEnviarBase64 && onEnviarBase64('animacao', tlImgs[tlVer], 'fim'); setTlVer(null); }}>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="1.5"/><path d="M4 17l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 12 3.5)"/></svg>
               </button>
-              <button className="vz-ico" data-tip="Pós-produção" aria-label="Enviar para pós-produção"
+              <button className="vz-ico" data-tip={t('painelanimacao_pos_producao')} aria-label={t('painelanimacao_enviar_pos')}
                 onClick={() => { onEnviarBase64 && onEnviarBase64('pos', tlImgs[tlVer], null, { pos: tlVer }); setTlVer(null); }}>
                 <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <path d="M3 5h8M3 10h13M3 15h6" strokeLinecap="round"/>
                   <circle cx="14.5" cy="5" r="1.7"/><circle cx="11" cy="15" r="1.7"/>
                 </svg>
               </button>
-              <button className="vz-ico" data-tip="Baixar" aria-label="Baixar" onClick={() => setTlBaixar(true)}>
+              <button className="vz-ico" data-tip={t('painelanimacao_baixar')} aria-label={t('painelanimacao_baixar')} onClick={() => setTlBaixar(true)}>
                 <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M3.5 15v1.5h13V15" strokeLinecap="round"/>
@@ -1354,7 +1356,7 @@ export default function PainelAnimacao({
         onFechar={() => setPicker(null)}
         multi={picker === 'narr'}
         onEscolherVarias={(lista) => { narrAddImagens(lista); setPicker(null); }}
-        titulo={picker === 'narr' ? 'Adicionar imagens' : picker === 'tl-base' ? 'Imagem final da obra' : picker === 'fim' ? 'Imagem final' : 'Imagem inicial'}
+        titulo={picker === 'narr' ? t('painelanimacao_adicionar_imagens') : picker === 'tl-base' ? t('painelanimacao_imagem_final_obra') : picker === 'fim' ? t('painelanimacao_imagem_final') : t('painelanimacao_imagem_inicial')}
         onEscolher={(img) => {
           const b64 = (img.base64 || img).replace(/^data:[^,]+,/, '');
           if (picker === 'narr') {

@@ -4,11 +4,14 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import { lerConta, atualizarConta, baixarPlugin, minhaEquipe, sairDaEquipe, lerEquipe, EVENTO_CREDITOS} from '../../lib/auth';
+import { useIdioma, localeDeIdioma } from '../../lib/i18n';
 
 const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
 
 function ContaConteudo() {
   const router = useRouter();
+  const { t, idioma } = useIdioma();
+  const loc = localeDeIdioma(idioma);
   const params = useSearchParams();
   const [conta, setConta] = useState(null);
   const [carregando, setCarregando] = useState(true);
@@ -16,24 +19,14 @@ function ContaConteudo() {
   const [erro, setErro] = useState('');
   const [baixando, setBaixando] = useState(false);
 
-  // Fechado por padrão: quem já instalou não precisa ver os seis passos
-  // todo dia. Quem não instalou tem o convite logo abaixo do botão.
   const [comoInstalar, setComoInstalar] = useState(false);
   const [equipeMembro, setEquipeMembro] = useState(null);
   const [saindo, setSaindo] = useState(false);
-
-  // A equipe do PROPRIETÁRIO: quem são os membros e quanto cada um gastou.
-  // É o que justifica a conta que ele paga — sem isso, o Teams é uma
-  // fatura maior sem explicação.
   const [equipe, setEquipe] = useState(null);
-
-  // "Ver como": só admins. Permite visualizar as 3 dashes (normal, dono de
-  // equipe, membro convidado) sem trocar de conta. Não muda nada no servidor —
-  // apenas força como a dash é renderizada.
   const [verComo, setVerComo] = useState('real');   // real | normal | dono | membro
 
   async function sairEquipe() {
-    if (!confirm('Tem certeza que deseja sair da equipe? Você perderá o acesso ao plano fornecido por ela.')) return;
+    if (!confirm(t('conta_sair_confirm'))) return;
     setSaindo(true);
     try {
       await sairDaEquipe();
@@ -49,7 +42,6 @@ function ContaConteudo() {
     setErro('');
     try {
       const url = await baixarPlugin();
-      // dispara o download
       window.location.href = url;
     } catch (e) {
       setErro(e.message);
@@ -63,27 +55,24 @@ function ContaConteudo() {
     if (!c) { router.push('/login'); return; }
     setConta(c);
     setCarregando(false);
-    // busca dados frescos do servidor (reflete mudança de plano, ex: entrou numa equipe)
     atualizarConta().then((fresca) => { if (fresca) setConta(fresca); }).catch(() => {});
-    // verifica se a pessoa participa de uma equipe (como convidada)
     minhaEquipe().then((eq) => { if (eq) setEquipeMembro(eq); });
 
-    // se é proprietária, busca os membros e o consumo de cada um
     if (c.eh_dono_equipe) {
       lerEquipe().then((e) => { if (e) setEquipe(e); }).catch(() => {});
     }
 
     if (params.get('pagamento') === 'sucesso') {
-      setAviso('Pagamento recebido! Atualizando sua conta...');
+      setAviso(t('conta_pag_recebido'));
       atualizarConta().then((fresca) => {
         if (fresca) setConta(fresca);
-        setAviso('Pagamento confirmado. Plano atualizado!');
+        setAviso(t('conta_pag_confirmado'));
         setTimeout(() => setAviso(''), 5000);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, params]);
 
-  // Gerou algo no /app? O saldo mostrado aqui atualiza sozinho.
   useEffect(() => {
     function onCreditosDash(e) {
       if (e.detail) setConta(e.detail);
@@ -92,20 +81,12 @@ function ContaConteudo() {
     return () => window.removeEventListener(EVENTO_CREDITOS, onCreditosDash);
   }, []);
 
-  if (carregando) return <AppShell><div className="admin-wrap"><p>Carregando...</p></div></AppShell>;
+  if (carregando) return <AppShell><div className="admin-wrap"><p>{t('comum_carregando')}</p></div></AppShell>;
   if (!conta) return null;
 
   const ehAdmin = conta.is_admin === true;
-
-  // Flags efetivas: no modo "Ver como" (admin), sobrescrevem o estado real
-  // para renderizar a dash como cada tipo de conta. Nos modos simulados, a
-  // conta deixa de se comportar como admin (senão a assinatura some, os
-  // créditos viram "ilimitado", etc.).
   const modo = ehAdmin ? verComo : 'real';
   const ehAdminVis = modo === 'real' ? ehAdmin : false;
-  // No modo "Real" de um admin, mostramos a visão de admin pura — mesmo que a
-  // conta seja dona de equipe de verdade. A visão de dono fica na opção "Dono
-  // de equipe" do seletor. Para contas não-admin, tudo segue o estado real.
   const ehDono = modo === 'dono' ? true
                : (modo === 'normal' || modo === 'membro') ? false
                : ehAdmin ? false
@@ -115,42 +96,34 @@ function ContaConteudo() {
                     : ehAdmin ? false
                     : !!equipeMembro;
   const ehPago = conta.plano && conta.plano !== 'free';
-  // A conta é ilimitada quando o backend diz que é (admin sem creditos_reais).
-  // Um admin com creditos_reais tem créditos de verdade, então NÃO é ilimitado.
   const ilimitadoReal = conta.ilimitado === true || conta.creditos_total === -1;
   const mostrarIlimitado = modo === 'real' ? ilimitadoReal : false;
 
   const nomePlano = (ehAdminVis && ilimitadoReal) ? 'Admin'
     : ehDono ? `Teams (${NOME_PLANO[conta.equipe_plano] || conta.equipe_plano || 'Pro'})`
-    : ehMembroVis ? `${NOME_PLANO[conta.plano] || conta.plano} (equipe)`
+    : ehMembroVis ? `${NOME_PLANO[conta.plano] || conta.plano} (${t('conta_equipe_tag').toLowerCase()})`
     : (NOME_PLANO[conta.plano] || conta.plano);
-  // No "Ver como" de um admin, a conta é ilimitada de verdade; para o layout
-  // não mostrar "Ilimitado" nas visões simuladas, usamos um número de exemplo.
   const demoCreditos = ehAdmin && modo !== 'real';
-  const creditos = mostrarIlimitado ? 'Ilimitado'
-    : ehDono ? (conta.equipe_creditos_total ?? 0).toLocaleString('pt-BR')
-    : demoCreditos ? '14.320'
-    : (conta.creditos_restantes ?? 0).toLocaleString('pt-BR');
+  const creditos = mostrarIlimitado ? t('conta_ilimitado')
+    : ehDono ? (conta.equipe_creditos_total ?? 0).toLocaleString(loc)
+    : demoCreditos ? (14320).toLocaleString(loc)
+    : (conta.creditos_restantes ?? 0).toLocaleString(loc);
   const totalCreditos = mostrarIlimitado ? null
     : ehDono ? null
-    : demoCreditos ? '20.000'
-    : (conta.creditos_total ?? 0).toLocaleString('pt-BR');
-  // data mostrada: renovação da equipe (dono) ou validade individual
+    : demoCreditos ? (20000).toLocaleString(loc)
+    : (conta.creditos_total ?? 0).toLocaleString(loc);
   const dataRenov = ehDono ? conta.equipe_renova_em : conta.expira_em;
-  const rotuloData = (ehPago || ehDono) ? 'Renova em' : 'Válido até';
+  const rotuloData = (ehPago || ehDono) ? t('conta_renova_em') : t('conta_valido_ate');
 
-  // Quanto ainda resta, em %
   const pctCreditos = (conta.creditos_total > 0 && !mostrarIlimitado)
     ? Math.max(0, Math.min(100,
         Math.round(((conta.creditos_restantes ?? 0) / conta.creditos_total) * 100)))
     : 0;
 
-  // "renova em 11 de agosto" é uma data; "29 dias" é o que a pessoa sente.
   const diasAte = dataRenov
     ? Math.max(0, Math.ceil((new Date(dataRenov) - new Date()) / 86400000))
     : null;
 
-  // Assentos pagos e vazios: é o que faz o proprietário convidar alguém
   const vagos = equipe?.equipe
     ? Math.max(0, (equipe.equipe.assentos || 0) - (equipe.membros || []).length)
     : 0;
@@ -160,13 +133,13 @@ function ContaConteudo() {
     <div className="admin-wrap">
       {ehAdmin && (
         <div className="vercomo">
-          <span className="vercomo-lbl">Ver dashboard como</span>
+          <span className="vercomo-lbl">{t('conta_ver_como')}</span>
           <div className="vercomo-opcoes">
             {[
-              { v: 'real',   n: 'Real (admin)' },
-              { v: 'normal', n: 'Conta normal' },
-              { v: 'dono',   n: 'Dono de equipe' },
-              { v: 'membro', n: 'Membro convidado' }
+              { v: 'real',   n: t('conta_vc_real') },
+              { v: 'normal', n: t('conta_vc_normal') },
+              { v: 'dono',   n: t('conta_vc_dono') },
+              { v: 'membro', n: t('conta_vc_membro') }
             ].map((o) => (
               <button
                 key={o.v}
@@ -180,22 +153,18 @@ function ContaConteudo() {
       {aviso && <div className="conta-aviso">{aviso}</div>}
       {erro && <div className="login-erro" style={{ marginBottom: 18 }}>{erro}</div>}
 
-      {/* ── A faixa ──
-          O que se quer saber ao entrar: quantos créditos sobraram e quando
-          renova. O PROPRIETÁRIO vê o pote da equipe; o membro convidado vê
-          o do ASSENTO DELE — não controla o pote, e mostrá-lo confundiria. */}
       <div className="dash-faixa">
         <div className="dash-faixa-txt">
           <div className="dash-faixa-plano">
             <span>{nomePlano}</span>
-            {ehDono && <em>PROPRIETÁRIO</em>}
-            {ehMembroVis && !ehDono && <em className="dash-tag--sec">EQUIPE</em>}
+            {ehDono && <em>{t('conta_proprietario')}</em>}
+            {ehMembroVis && !ehDono && <em className="dash-tag--sec">{t('conta_equipe_tag')}</em>}
           </div>
 
           <div className="dash-faixa-num">
             <strong>{creditos}</strong>
-            {totalCreditos && <span>créditos de {totalCreditos}</span>}
-            {ehDono && <span>créditos da equipe</span>}
+            {totalCreditos && <span>{t('conta_creditos_de')} {totalCreditos}</span>}
+            {ehDono && <span>{t('conta_creditos_equipe')}</span>}
           </div>
 
           {totalCreditos && !mostrarIlimitado && (
@@ -206,36 +175,33 @@ function ContaConteudo() {
 
           {dataRenov && !mostrarIlimitado && (
             <div className="dash-faixa-data">
-              {rotuloData} <b>{new Date(dataRenov).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}</b>
-              {diasAte != null && <> · {diasAte} dias</>}
+              {rotuloData} <b>{new Date(dataRenov).toLocaleDateString(loc, { day: 'numeric', month: 'long' })}</b>
+              {diasAte != null && <> · {diasAte} {t('dias')}</>}
             </div>
           )}
         </div>
 
         <div className="dash-faixa-acoes">
-          {/* O membro não compra: quem paga é a equipe. */}
           {!ehMembroVis || ehDono ? (
             <button className="dash-btn-cta" onClick={() => router.push('/assinatura')}>
-              Comprar créditos
+              {t('comprar_creditos')}
             </button>
           ) : null}
 
           {ehDono && (
             <button className="dash-btn-sec" onClick={() => router.push('/workspace')}>
-              Gerenciar equipe
+              {t('conta_gerenciar_equipe')}
             </button>
           )}
 
           {!ehMembroVis && !ehDono && (
             <button className="dash-btn-sec" onClick={() => router.push('/assinatura')}>
-              Ver assinatura
+              {t('conta_ver_assinatura')}
             </button>
           )}
         </div>
       </div>
 
-      {/* ── A equipe ──
-          Só para quem tem. Quem assina sozinho não vê nada disto. */}
       {ehDono && equipe?.equipe && (
         <div className="dash-eq">
           <div className="dash-eq-cab">
@@ -244,31 +210,30 @@ function ContaConteudo() {
                    style={{ backgroundImage: `url(${equipe.equipe.foto})` }} />
             )}
             <div className="dash-eq-id">
-              <strong>{equipe.equipe.nome || 'Sua equipe'}</strong>
+              <strong>{equipe.equipe.nome || t('conta_sua_equipe')}</strong>
               <span>
-                {(equipe.membros || []).length} de {equipe.equipe.assentos} assentos usados
-                {vagos > 0 && ` · ${vagos} ${vagos === 1 ? 'livre' : 'livres'}`}
+                {(equipe.membros || []).length} {t('conta_de')} {equipe.equipe.assentos} {t('conta_assentos_usados')}
+                {vagos > 0 && ` · ${vagos} ${vagos === 1 ? t('conta_livre') : t('conta_livres')}`}
               </span>
             </div>
             <button className="dash-eq-btn" onClick={() => router.push('/workspace')}>
-              Ver equipe
+              {t('conta_ver_equipe')}
             </button>
           </div>
 
-          {/* Quem gastou quanto: é o que justifica a conta que ele paga */}
           {(equipe.membros || []).filter((m) => m.status === 'ativo').map((m) => (
             <div key={m.id} className="dash-eq-membro">
               <span className="dash-eq-av">{(m.email || '?')[0].toUpperCase()}</span>
               <div className="dash-eq-quem">
                 <strong>
                   {m.email}
-                  {m.eh_dono && <em> · você</em>}
+                  {m.eh_dono && <em> · {t('conta_voce')}</em>}
                 </strong>
               </div>
               <div className="dash-eq-uso">
-                <strong>{(m.creditos_usados ?? 0).toLocaleString('pt-BR')}</strong>
+                <strong>{(m.creditos_usados ?? 0).toLocaleString(loc)}</strong>
                 <span>
-                  de {(m.creditos_total ?? 0).toLocaleString('pt-BR')} usados
+                  {t('conta_de')} {(m.creditos_total ?? 0).toLocaleString(loc)} {t('conta_usados')}
                 </span>
               </div>
             </div>
@@ -276,8 +241,6 @@ function ContaConteudo() {
         </div>
       )}
 
-      {/* O membro convidado vê o estúdio — mas sem consumo alheio nem
-          botão de gerenciar: não é conta dele. */}
       {ehMembroVis && !ehDono && (
         <div className="dash-eq">
           <div className="dash-eq-cab">
@@ -286,53 +249,46 @@ function ContaConteudo() {
                    style={{ backgroundImage: `url(${equipeMembro.foto})` }} />
             )}
             <div className="dash-eq-id">
-              <strong>{equipeMembro?.nome || 'Sua equipe'}</strong>
+              <strong>{equipeMembro?.nome || t('conta_sua_equipe')}</strong>
               <span>
-                Você faz parte desta equipe · convidado por{' '}
+                {t('conta_faz_parte')}{' '}
                 {equipeMembro?.dono_nome || equipeMembro?.dono_email || '—'}
               </span>
             </div>
             <button className="dash-eq-btn dash-eq-btn--sair"
                     onClick={sairEquipe} disabled={saindo}>
-              {saindo ? 'Saindo...' : 'Sair da equipe'}
+              {saindo ? t('conta_saindo') : t('conta_sair_equipe')}
             </button>
           </div>
         </div>
       )}
 
-      {/* ── Assinatura e consumo ── */}
       <div className="dash-cartoes">
-        {/* O membro não paga: no lugar da assinatura, o consumo dele. */}
         {(!ehMembroVis || ehDono) && !mostrarIlimitado && (() => {
-          // Admin visualizando (Ver como): a conta não tem assinatura real, então
-          // mostramos valores de exemplo só para o layout não ficar vazio.
           const demo = ehAdmin && modo !== 'real';
           const valorCent = demo ? 4900 : (conta.valor_centavos || 0);
           const assinouEm = demo ? '2025-01-15' : conta.assinou_em;
           const proxCobranca = demo ? new Date(Date.now() + 20 * 86400000).toISOString() : dataRenov;
           return (
           <div className="dash-cartao">
-            <span className="dash-cartao-rot">Assinatura</span>
+            <span className="dash-cartao-rot">{t('nav_assinatura')}</span>
             <strong className="dash-cartao-num">
               {valorCent > 0
-                ? <>R$ {(valorCent / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<em>/mês</em></>
+                ? <>R$ {(valorCent / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<em>{t('conta_mes')}</em></>
                 : '—'}
             </strong>
             <div className="dash-cartao-linhas">
               {assinouEm && (
-                <span>Cliente desde <b>{new Date(assinouEm).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}</b></span>
+                <span>{t('conta_cliente_desde')} <b>{new Date(assinouEm).toLocaleDateString(loc, { month: 'short', year: 'numeric' })}</b></span>
               )}
               {proxCobranca && (
-                <span>Próxima cobrança <b>{new Date(proxCobranca).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}</b></span>
+                <span>{t('conta_prox_cobranca')} <b>{new Date(proxCobranca).toLocaleDateString(loc, { day: 'numeric', month: 'short' })}</b></span>
               )}
             </div>
           </div>
           );
         })()}
 
-        {/* ── O plugin ──
-            É o produto, não um rodapé: fica na faixa escura, com os passos
-            sempre à vista. Quem não instalou precisa deles na cara. */}
         <div className="dash-plugin">
           <div className="dash-plugin-cab">
             <div className="dash-plugin-ico">
@@ -343,11 +299,11 @@ function ContaConteudo() {
               </svg>
             </div>
             <div className="dash-plugin-txt">
-              <strong>Plugin para o SketchUp</strong>
-              <span>Renderize direto do seu modelo · SketchUp 2023 ou superior</span>
+              <strong>{t('conta_plugin_titulo')}</strong>
+              <span>{t('conta_plugin_sub')}</span>
             </div>
             <button className="dash-plugin-btn" onClick={baixar} disabled={baixando}>
-              {baixando ? 'Preparando...' : 'Baixar plugin'}
+              {baixando ? t('conta_preparando') : t('conta_baixar_plugin')}
             </button>
           </div>
 
@@ -359,8 +315,8 @@ function ContaConteudo() {
                  stroke="currentColor" strokeWidth="1.6">
               <path d="M5 8l5 5 5-5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span>{comoInstalar ? 'Como instalar' : 'Clique para ver como instalar'}</span>
-            {!comoInstalar && <em>6 passos</em>}
+            <span>{comoInstalar ? t('conta_como_instalar') : t('conta_clique_instalar')}</span>
+            {!comoInstalar && <em>{t('conta_6passos')}</em>}
           </button>
 
           {comoInstalar && (
@@ -368,43 +324,43 @@ function ContaConteudo() {
             <div className="dash-passo">
               <span>1</span>
               <div>
-                <strong>Baixe o plugin</strong>
-                <p>Clique no botão <strong>Download</strong> acima para baixar o arquivo <strong>.rbz</strong> do Cora Render.</p>
+                <strong>{t('conta_p1_t')}</strong>
+                <p>{t('conta_p1_b')}</p>
               </div>
             </div>
             <div className="dash-passo">
               <span>2</span>
               <div>
-                <strong>Abra o Gerenciador de Extensões</strong>
-                <p>No SketchUp, vá em <strong>Extensões → Gerenciador de extensões</strong> (Extension Manager).</p>
+                <strong>{t('conta_p2_t')}</strong>
+                <p>{t('conta_p2_b')}</p>
               </div>
             </div>
             <div className="dash-passo">
               <span>3</span>
               <div>
-                <strong>Clique em "Instalar extensão"</strong>
-                <p>No canto inferior do gerenciador, clique em <strong>Instalar extensão</strong> (Install Extension).</p>
+                <strong>{t('conta_p3_t')}</strong>
+                <p>{t('conta_p3_b')}</p>
               </div>
             </div>
             <div className="dash-passo">
               <span>4</span>
               <div>
-                <strong>Escolha o arquivo .rbz</strong>
-                <p>Selecione o arquivo <strong>.rbz</strong> que você baixou no passo 1.</p>
+                <strong>{t('conta_p4_t')}</strong>
+                <p>{t('conta_p4_b')}</p>
               </div>
             </div>
             <div className="dash-passo">
               <span>5</span>
               <div>
-                <strong>Confirme a instalação</strong>
-                <p>Se aparecer um aviso de segurança, clique em <strong>Sim</strong> para continuar.</p>
+                <strong>{t('conta_p5_t')}</strong>
+                <p>{t('conta_p5_b')}</p>
               </div>
             </div>
             <div className="dash-passo">
               <span>6</span>
               <div>
-                <strong>Pronto!</strong>
-                <p>O Cora Render aparece na barra de ferramentas. Clique no ícone para abrir e fazer login.</p>
+                <strong>{t('conta_p6_t')}</strong>
+                <p>{t('conta_p6_b')}</p>
               </div>
             </div>
           </div>
@@ -417,8 +373,9 @@ function ContaConteudo() {
 }
 
 export default function Conta() {
+  const { t } = useIdioma();
   return (
-    <Suspense fallback={<AppShell><div className="admin-wrap"><p>Carregando...</p></div></AppShell>}>
+    <Suspense fallback={<AppShell><div className="admin-wrap"><p>{t('comum_carregando')}</p></div></AppShell>}>
       <ContaConteudo />
     </Suspense>
   );

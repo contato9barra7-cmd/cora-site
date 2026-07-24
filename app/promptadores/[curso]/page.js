@@ -4,9 +4,10 @@
 //  ABA PROMPTADORES (por curso: IA Studio / PromptHub)
 //
 //  A rota /promptadores/[curso] define qual curso é exibido. Aluno vê só o
-//  curso que comprou; admin vê os dois. Lista em "layout A", toggle PT/ES,
-//  admin edita, reordena (arraste) e gerencia acessos (Usuários) — tudo
-//  escopado pelo curso.
+//  curso que comprou; admin vê os dois. Lista em "layout A", toggle PT/ES
+//  (conteúdo dos promptadores), admin edita, reordena (arraste) e gerencia
+//  acessos (Usuários) — tudo escopado pelo curso.
+//  A UI (chrome) segue o idioma global do site (useIdioma → t).
 // ═══════════════════════════════════════════════════════════
 
 import { useEffect, useRef, useState } from 'react';
@@ -16,6 +17,7 @@ import AppShell from '../../../components/AppShell';
 import DropdownCora from '../../../components/DropdownCora';
 import DatePickerCora from '../../../components/DatePickerCora';
 import EmailAssinantes from '../../../components/EmailAssinantes';
+import { useIdioma } from '../../../lib/i18n';
 import { lerConta, atualizarConta, listarPromptadores, salvarPromptador, excluirPromptador, reordenarPromptadores,
   adminListarAcessos, adminAddAcessoManual, adminEnviarConvite, adminRevogarAcesso } from '../../../lib/auth';
 
@@ -25,9 +27,6 @@ const LINKS_RENOVAR = {
   prompthub: 'https://9barra7.com',   // PLACEHOLDER — oferta ex-aluno PromptHub
 };
 
-const PERIODOS = [
-  { v: '1', n: '1 ano' }, { v: '2', n: '2 anos' }, { v: '3', n: '3 anos' }, { v: 'vitalicio', n: 'Vitalício' },
-];
 function hojeISO() { return new Date().toISOString().slice(0, 10); }
 function fmtDataLong(d) {
   if (!d) return '';
@@ -67,11 +66,17 @@ function lerAvatar(file, tam = 256) {
 export default function PromptadoresCurso() {
   const router = useRouter();
   const params = useParams();
+  const { t } = useIdioma();
   const cursoSlug = (params && params.curso) || 'ia-studio';
   const curso = cursoSlug === 'prompthub' ? 'prompthub' : 'ia_studio';
   const cursoLabel = curso === 'prompthub' ? 'PromptHub' : 'IA Studio';
   const linkRenovar = LINKS_RENOVAR[curso] || LINKS_RENOVAR.ia_studio;
   const VAZIO = { id: null, nome_pt: '', descricao_pt: '', link_pt: '', nome_es: '', descricao_es: '', link_es: '', avatar: '', ordem: 0, curso };
+
+  const PERIODOS = [
+    { v: '1', n: t('promp_per_1') }, { v: '2', n: t('promp_per_2') },
+    { v: '3', n: t('promp_per_3') }, { v: 'vitalicio', n: t('promp_vitalicio') },
+  ];
 
   const [lista, setLista] = useState([]);
   const [idioma, setIdioma] = useState('pt');
@@ -153,7 +158,7 @@ export default function PromptadoresCurso() {
     } catch (e) {
       const m = (e.message || '').toLowerCase();
       if (m.includes('acesso') || m.includes('403') || m.includes('401') || m.includes('permiss')) setNegado(true);
-      else setErro('Erro ao carregar: ' + e.message);
+      else setErro(t('promp_erro_carregar') + ' ' + e.message);
       setCarregando(false);
     }
   }
@@ -161,8 +166,8 @@ export default function PromptadoresCurso() {
   const campo = (p, base) => (idioma === 'es' ? (p[base + '_es'] || p[base + '_pt']) : p[base + '_pt']);
   const filtrados = lista.filter(p => {
     if (!busca.trim()) return true;
-    const t = busca.toLowerCase();
-    return (campo(p, 'nome') || '').toLowerCase().includes(t) || (campo(p, 'descricao') || '').toLowerCase().includes(t);
+    const q = busca.toLowerCase();
+    return (campo(p, 'nome') || '').toLowerCase().includes(q) || (campo(p, 'descricao') || '').toLowerCase().includes(q);
   });
 
   function abrir(p) {
@@ -187,7 +192,7 @@ export default function PromptadoresCurso() {
     pararAutoScroll();
     if (!mudou) return;
     try { await reordenarPromptadores(listaRef.current.map(p => p.id)); }
-    catch (e) { setErro('Não foi possível salvar a ordem: ' + e.message); }
+    catch (e) { setErro(t('promp_erro_ordem') + ' ' + e.message); }
   }
 
   function novo() { setEditando({ ...VAZIO }); setLangEdit('pt'); }
@@ -207,7 +212,7 @@ export default function PromptadoresCurso() {
   }
   async function excluir() {
     if (!editando || !editando.id) return;
-    if (!confirm('Excluir este promptador? Esta ação não pode ser desfeita.')) return;
+    if (!confirm(t('promp_conf_excluir'))) return;
     setSalvando(true);
     try { await excluirPromptador(editando.id); await carregar(); setEditando(null); }
     catch (e) { setErro(e.message); } finally { setSalvando(false); }
@@ -226,7 +231,7 @@ export default function PromptadoresCurso() {
     setFormA({ nome: '', email: '', data_acesso: hojeISO(), periodo: '1' });
   }
   async function salvarAcesso() {
-    if (!formA.email.trim() || !formA.data_acesso) { setErroAcesso('Preencha e-mail e data.'); return; }
+    if (!formA.email.trim() || !formA.data_acesso) { setErroAcesso(t('promp_preencha')); return; }
     setSalvandoAcesso(true); setErroAcesso('');
     try {
       const base = { email: formA.email.trim(), data_acesso: formA.data_acesso, periodo: formA.periodo, curso };
@@ -237,7 +242,7 @@ export default function PromptadoresCurso() {
     } catch (e) { setErroAcesso(e.message); } finally { setSalvandoAcesso(false); }
   }
   async function revogarAcesso(a) {
-    if (!confirm(`Revogar o acesso de ${a.email}?`)) return;
+    if (!confirm(`${t('promp_conf_revogar')} ${a.email}?`)) return;
     try { await adminRevogarAcesso(a.id); await recarregarAcessos(); } catch (e) { setErroAcesso(e.message); }
   }
   // "Vencido" decidido no próprio front (fonte única) pra status, selo e filtro
@@ -248,9 +253,9 @@ export default function PromptadoresCurso() {
     return new Date() > v;
   }
   function statusAcesso(a) {
-    if (!a.tem_conta) return { txt: a.origem === 'convite' ? 'Convite enviado' : 'Aguardando cadastro', cls: 'pend' };
-    if (estaVencido(a)) return { txt: 'Expirado', cls: 'exp' };
-    return { txt: 'Ativo', cls: 'ok' };
+    if (!a.tem_conta) return { txt: a.origem === 'convite' ? t('promp_st_convite') : t('promp_st_aguardando'), cls: 'pend' };
+    if (estaVencido(a)) return { txt: t('promp_st_expirado'), cls: 'exp' };
+    return { txt: t('promp_st_ativo'), cls: 'ok' };
   }
   const acessosFiltrados = acessos.filter(a => {
     if (filtroStatus === 'vencidos' && !estaVencido(a)) return false;
@@ -261,18 +266,18 @@ export default function PromptadoresCurso() {
       if (!(v.getMonth() === now.getMonth() && v.getFullYear() === now.getFullYear())) return false;
     }
     if (buscaAcesso.trim()) {
-      const t = buscaAcesso.toLowerCase();
-      if (!((a.nome || '').toLowerCase().includes(t) || (a.email || '').toLowerCase().includes(t))) return false;
+      const q = buscaAcesso.toLowerCase();
+      if (!((a.nome || '').toLowerCase().includes(q) || (a.email || '').toLowerCase().includes(q))) return false;
     }
     return true;
   });
   function exportarCSV() {
-    const linhas = [['Nome', 'E-mail', 'Data de compra', 'Acesso até', 'Origem', 'Status']];
+    const linhas = [[t('promp_nome'), t('promp_email'), t('promp_th_compra'), t('promp_th_ate'), t('promp_th_origem'), t('promp_th_status')]];
     acessosFiltrados.forEach(a => {
       linhas.push([
         a.nome || '', a.email || '', fmtDataLong(a.data_acesso),
-        a.validade ? fmtDataLong(a.validade) : 'Vitalício',
-        a.origem === 'convite' ? 'Convite' : 'Manual', statusAcesso(a).txt,
+        a.validade ? fmtDataLong(a.validade) : t('promp_vitalicio'),
+        a.origem === 'convite' ? t('promp_origem_convite') : t('promp_origem_manual'), statusAcesso(a).txt,
       ]);
     });
     const csv = linhas.map(l => l.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\r\n');
@@ -285,8 +290,8 @@ export default function PromptadoresCurso() {
     URL.revokeObjectURL(url);
   }
   const FILTROS = [
-    { v: 'todos', l: 'Todos' }, { v: 'avencer', l: 'A vencer este mês' },
-    { v: 'vencidos', l: 'Vencidos' }, { v: 'pendentes', l: 'Convite pendente' },
+    { v: 'todos', l: t('promp_f_todos') }, { v: 'avencer', l: t('promp_f_avencer') },
+    { v: 'vencidos', l: t('promp_f_vencidos') }, { v: 'pendentes', l: t('promp_f_pendentes') },
   ];
   function contarFiltro(v) {
     return acessos.filter(a => {
@@ -301,7 +306,7 @@ export default function PromptadoresCurso() {
     }).length;
   }
 
-  if (carregando) return <AppShell><div className="promp-wrap"><p>Carregando...</p></div></AppShell>;
+  if (carregando) return <AppShell><div className="promp-wrap"><p>{t('comum_carregando')}</p></div></AppShell>;
 
   // Aluno com acesso vencido
   if (expirado) {
@@ -309,17 +314,17 @@ export default function PromptadoresCurso() {
       <AppShell>
         <div className="promp-wrap" style={{ position: 'relative', minHeight: '60vh' }}>
           <h1>Promptadores {cursoLabel}</h1>
-          <p className="promp-sub">Seus agentes do 9barra7 Academy.</p>
+          <p className="promp-sub">{t('promp_sub_short')}</p>
           <div className="promp-exp-ov">
             <div className="promp-exp-card">
               <div className="promp-exp-ic">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#0d2b06" strokeWidth="1.8"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" strokeLinecap="round" /></svg>
               </div>
-              <span className="promp-exp-eb">Acesso encerrado</span>
-              <h2>Seu acesso aos Promptadores acabou</h2>
-              <p>Seu período de acesso terminou. Renove o {cursoLabel} para continuar usando os promptadores.</p>
-              <a className="promp-exp-btn" href={linkRenovar} target="_blank" rel="noopener">Renovar {cursoLabel} ↗</a>
-              <button className="promp-exp-voltar" onClick={() => router.push('/conta')}>Voltar</button>
+              <span className="promp-exp-eb">{t('promp_exp_eb')}</span>
+              <h2>{t('promp_exp_h')}</h2>
+              <p>{t('promp_exp_p_a')} {cursoLabel} {t('promp_exp_p_b')}</p>
+              <a className="promp-exp-btn" href={linkRenovar} target="_blank" rel="noopener">{t('promp_renovar')} {cursoLabel} ↗</a>
+              <button className="promp-exp-voltar" onClick={() => router.push('/conta')}>{t('promp_voltar_b')}</button>
             </div>
           </div>
         </div>
@@ -332,28 +337,28 @@ export default function PromptadoresCurso() {
     return (
       <AppShell>
         <div className="promp-wrap">
-          <button className="promp-voltar" onClick={() => setTela('lista')}>← Voltar aos promptadores</button>
+          <button className="promp-voltar" onClick={() => setTela('lista')}>{t('promp_voltar_lista')}</button>
           <div className="promp-top">
             <div>
-              <h1>Acesso · Promptadores {cursoLabel}</h1>
-              <p className="promp-sub">Alunos que podem ver a aba Promptadores {cursoLabel}.</p>
+              <h1>{t('promp_acesso_tit')} {cursoLabel}</h1>
+              <p className="promp-sub">{t('promp_acesso_sub_a')} {cursoLabel}.</p>
             </div>
             <div className="promp-top-acoes">
               <button className="promp-usuarios" onClick={() => setEmailAberto(true)}>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg>
-                Enviar e-mail
+                {t('promp_enviar_email')}
               </button>
               <div className="promp-conv-wrap">
-              <button className="promp-novo" onClick={() => setDropAberto(v => !v)}>Convidar <span style={{ fontSize: 10 }}>▼</span></button>
+              <button className="promp-novo" onClick={() => setDropAberto(v => !v)}>{t('promp_convidar')} <span style={{ fontSize: 10 }}>▼</span></button>
               {dropAberto && (
                 <div className="promp-drop" onMouseLeave={() => setDropAberto(false)}>
                   <div className="promp-dopt" onClick={() => abrirModalAcesso('manual')}>
                     <div className="promp-dico g"><svg viewBox="0 0 24 24" fill="none" stroke="#3f9d54" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h4L18 10l-4-4L4 16z" /><path d="M13 5l4 4" /></svg></div>
-                    <div><div className="t">Adicionar manualmente</div><div className="s">Cadastro o aluno na mão (nome, e-mail, data e período).</div></div>
+                    <div><div className="t">{t('promp_add_manual_t')}</div><div className="s">{t('promp_add_manual_s')}</div></div>
                   </div>
                   <div className="promp-dopt" onClick={() => abrirModalAcesso('convite')}>
                     <div className="promp-dico r"><svg viewBox="0 0 24 24" fill="none" stroke="#6d6ae0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg></div>
-                    <div><div className="t">Enviar acesso por e-mail</div><div className="s">A pessoa recebe o convite, cria a conta e já entra.</div></div>
+                    <div><div className="t">{t('promp_add_email_t')}</div><div className="s">{t('promp_add_email_s')}</div></div>
                   </div>
                 </div>
               )}
@@ -371,9 +376,9 @@ export default function PromptadoresCurso() {
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               <div className="promp-busca promp-busca--sm">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="7" cy="7" r="4.5" /><path d="M11 11l3 3" /></svg>
-                <input value={buscaAcesso} onChange={e => setBuscaAcesso(e.target.value)} placeholder="Buscar por nome ou e-mail..." />
+                <input value={buscaAcesso} onChange={e => setBuscaAcesso(e.target.value)} placeholder={t('promp_busca_ph')} />
               </div>
-              <button className="promp-usuarios" onClick={exportarCSV} disabled={acessosFiltrados.length === 0} title="Exportar CSV do que está filtrado">
+              <button className="promp-usuarios" onClick={exportarCSV} disabled={acessosFiltrados.length === 0} title={t('promp_csv_title')}>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 11l4 4 4-4" /><path d="M5 21h14" /></svg>
                 CSV
               </button>
@@ -383,12 +388,12 @@ export default function PromptadoresCurso() {
           {erroAcesso && <p className="promp-erro">{erroAcesso}</p>}
 
           <div className="promp-tabela-wrap">
-            {carrAcessos ? <p style={{ padding: 20, color: 'var(--ink3)' }}>Carregando...</p> : (
+            {carrAcessos ? <p style={{ padding: 20, color: 'var(--ink3)' }}>{t('comum_carregando')}</p> : (
               <table className="promp-tabela">
-                <thead><tr><th>Aluno</th><th>Data de compra</th><th>Acesso até</th><th>Origem</th><th>Status</th><th></th></tr></thead>
+                <thead><tr><th>{t('promp_th_aluno')}</th><th>{t('promp_th_compra')}</th><th>{t('promp_th_ate')}</th><th>{t('promp_th_origem')}</th><th>{t('promp_th_status')}</th><th></th></tr></thead>
                 <tbody>
                   {acessosFiltrados.length === 0 ? (
-                    <tr><td colSpan={6} style={{ color: 'var(--ink3)', padding: 22 }}>{acessos.length === 0 ? 'Ninguém com acesso ainda. Use “Convidar”.' : 'Nenhum resultado para este filtro.'}</td></tr>
+                    <tr><td colSpan={6} style={{ color: 'var(--ink3)', padding: 22 }}>{acessos.length === 0 ? t('promp_vazio_acessos') : t('promp_vazio_filtro')}</td></tr>
                   ) : acessosFiltrados.map(a => {
                     const st = statusAcesso(a);
                     return (
@@ -396,11 +401,11 @@ export default function PromptadoresCurso() {
                         <td><div className="promp-al-nome">{a.nome || '—'}</div><div className="promp-al-mail">{a.email}</div></td>
                         <td>{fmtDataLong(a.data_acesso)}</td>
                         <td>{!a.validade
-                          ? <span className="promp-badge vital">Vitalício</span>
-                          : <span className={'promp-badge ' + (estaVencido(a) ? 'venc' : 'data')}>até {fmtDataLong(a.validade)}</span>}</td>
-                        <td><span className="promp-tag">{a.origem === 'convite' ? 'Convite' : 'Manual'}</span></td>
+                          ? <span className="promp-badge vital">{t('promp_vitalicio')}</span>
+                          : <span className={'promp-badge ' + (estaVencido(a) ? 'venc' : 'data')}>{t('promp_ate')} {fmtDataLong(a.validade)}</span>}</td>
+                        <td><span className="promp-tag">{a.origem === 'convite' ? t('promp_origem_convite') : t('promp_origem_manual')}</span></td>
                         <td><span className={'promp-st ' + st.cls}><span className="promp-dot" />{st.txt}</span></td>
-                        <td><button className="promp-revogar" onClick={() => revogarAcesso(a)}>Revogar</button></td>
+                        <td><button className="promp-revogar" onClick={() => revogarAcesso(a)}>{t('promp_revogar')}</button></td>
                       </tr>
                     );
                   })}
@@ -413,34 +418,34 @@ export default function PromptadoresCurso() {
         {convModo && (
           <div className="promp-ov" onMouseDown={(e) => { if (e.target === e.currentTarget) setConvModo(null); }}>
             <div className="promp-modal promp-modal--acesso">
-              <div className="promp-mh"><h3>{convModo === 'convite' ? 'Enviar acesso por e-mail' : 'Adicionar manualmente'}</h3></div>
+              <div className="promp-mh"><h3>{convModo === 'convite' ? t('promp_add_email_t') : t('promp_add_manual_t')}</h3></div>
               <div className="promp-mb">
-                <div className="promp-curso-tag">Curso: <b>{cursoLabel}</b></div>
+                <div className="promp-curso-tag">{t('promp_curso_l')} <b>{cursoLabel}</b></div>
                 {convModo === 'convite' && (
                   <div className="promp-nota">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#6d6ae0" strokeWidth="1.8"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" strokeLinecap="round" /></svg>
-                    A pessoa recebe um convite no e-mail, cria a conta e já entra com o acesso liberado.
+                    {t('promp_conv_nota')}
                   </div>
                 )}
                 {convModo === 'manual' && (
-                  <div className="promp-fld"><label>Nome</label>
-                    <input value={formA.nome} onChange={e => setFormA(f => ({ ...f, nome: e.target.value }))} placeholder="Nome do aluno" /></div>
+                  <div className="promp-fld"><label>{t('promp_nome')}</label>
+                    <input value={formA.nome} onChange={e => setFormA(f => ({ ...f, nome: e.target.value }))} placeholder={t('promp_nome_ph')} /></div>
                 )}
-                <div className="promp-fld"><label>E-mail{convModo === 'convite' ? ' do aluno' : ''}</label>
+                <div className="promp-fld"><label>{convModo === 'convite' ? t('promp_email_aluno') : t('promp_email')}</label>
                   <input type="email" value={formA.email} onChange={e => setFormA(f => ({ ...f, email: e.target.value }))} placeholder="email@exemplo.com" /></div>
                 <div className="promp-duo">
-                  <div className="promp-fld"><label>{convModo === 'convite' ? 'Data de entrada' : 'Data de compra'}</label>
+                  <div className="promp-fld"><label>{convModo === 'convite' ? t('promp_data_entrada') : t('promp_th_compra')}</label>
                     <DatePickerCora valor={formA.data_acesso} onEscolher={(iso) => setFormA(f => ({ ...f, data_acesso: iso }))} /></div>
-                  <div className="promp-fld"><label>Período de acesso</label>
+                  <div className="promp-fld"><label>{t('promp_periodo')}</label>
                     <DropdownCora valor={formA.periodo} opcoes={PERIODOS} onEscolher={(v) => setFormA(f => ({ ...f, periodo: v }))} /></div>
                 </div>
               </div>
               <div className="promp-mf">
                 <span />
                 <div className="promp-dir">
-                  <button className="promp-btn promp-cancelar" onClick={() => setConvModo(null)} disabled={salvandoAcesso}>Cancelar</button>
+                  <button className="promp-btn promp-cancelar" onClick={() => setConvModo(null)} disabled={salvandoAcesso}>{t('comum_cancelar')}</button>
                   <button className={'promp-btn ' + (convModo === 'convite' ? 'promp-salvar' : 'promp-add')} onClick={salvarAcesso} disabled={salvandoAcesso}>
-                    {salvandoAcesso ? 'Salvando...' : (convModo === 'convite' ? 'Enviar convite' : 'Adicionar')}
+                    {salvandoAcesso ? t('comum_salvando') : (convModo === 'convite' ? t('promp_enviar_convite') : t('promp_adicionar'))}
                   </button>
                 </div>
               </div>
@@ -456,16 +461,15 @@ export default function PromptadoresCurso() {
     return (
       <AppShell>
         <div className="promp-wrap">
-          <h1>Acesso restrito</h1>
-          <p>Os promptadores do {cursoLabel} são um bônus exclusivo dos alunos do 9barra7 Academy.</p>
-          <Link href="/conta" className="btn btn--roxo" style={{ width: 'auto', display: 'inline-block', padding: '10px 22px' }}>Voltar para minha conta</Link>
+          <h1>{t('promp_acesso_restrito')}</h1>
+          <p>{t('promp_restrito_a')} {cursoLabel} {t('promp_restrito_b')}</p>
+          <Link href="/conta" className="btn btn--roxo" style={{ width: 'auto', display: 'inline-block', padding: '10px 22px' }}>{t('promp_voltar_conta')}</Link>
         </div>
       </AppShell>
     );
   }
 
   const inicial = (p) => (campo(p, 'nome') || '?').replace(/^promptador\s*·?\s*/i, '').charAt(0).toUpperCase();
-  const ee = idioma === 'es';
 
   return (
     <AppShell>
@@ -473,36 +477,28 @@ export default function PromptadoresCurso() {
         <div className="promp-top">
           <div>
             <h1>Promptadores {cursoLabel}</h1>
-            <p className="promp-sub">
-              {ee
-                ? 'Tus agentes del 9barra7 Academy — haz clic en “Abrir” para usarlos en tu ChatGPT.'
-                : 'Seus agentes do 9barra7 Academy — clique em “Abrir” para usar no seu ChatGPT.'}
-            </p>
+            <p className="promp-sub">{t('promp_sub_full')}</p>
           </div>
           {isAdmin && (
             <div className="promp-acoes-top">
               <button className="promp-usuarios" onClick={abrirUsuarios}>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="9" cy="8" r="3.2" /><path d="M3.5 20a6 6 0 0 1 11 0M16 6.5a3 3 0 0 1 0 6M17.5 20a6 6 0 0 0-3-5.2" strokeLinecap="round" /></svg>
-                Usuários
+                {t('promp_usuarios')}
               </button>
-              <button className="promp-novo" onClick={novo}><span>+</span> Novo promptador</button>
+              <button className="promp-novo" onClick={novo}><span>+</span> {t('promp_novo')}</button>
             </div>
           )}
         </div>
 
         <div className="promp-aviso30">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-15 6.7L3 16" /><path d="M3 21v-5h5" /></svg>
-          <div className="t">
-            {ee
-              ? <><b>Los enlaces se renuevan cada 30 días.</b> Si un promptador deja de abrir en tu ChatGPT, vuelve aquí y copia el nuevo enlace — mientras tu acceso esté activo, solo haz clic en “Abrir” otra vez.</>
-              : <><b>Os links são renovados a cada 30 dias.</b> Se um promptador parar de abrir no seu ChatGPT, volte aqui e copie o link novo — enquanto seu acesso estiver ativo, é só clicar em “Abrir” de novo.</>}
-          </div>
+          <div className="t" dangerouslySetInnerHTML={{ __html: t('promp_aviso30') }} />
         </div>
 
         <div className="promp-barra">
           <div className="promp-busca">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="7" cy="7" r="4.5" /><path d="M11 11l3 3" /></svg>
-            <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="Buscar promptador..." />
+            <input value={busca} onChange={e => setBusca(e.target.value)} placeholder={t('promp_busca_promp_ph')} />
           </div>
           <div className="promp-toggle">
             <button className={idioma === 'pt' ? 'on' : ''} onClick={() => setIdioma('pt')}>Português</button>
@@ -515,8 +511,8 @@ export default function PromptadoresCurso() {
         {filtrados.length === 0 ? (
           <div className="promp-vazio">
             {lista.length === 0
-              ? (isAdmin ? 'Nenhum promptador ainda. Clique em “Novo promptador” para adicionar o primeiro.' : 'Nenhum promptador disponível ainda.')
-              : 'Nenhum resultado para a sua busca.'}
+              ? (isAdmin ? t('promp_vazio_admin') : t('promp_vazio_aluno'))
+              : t('promp_vazio_busca')}
           </div>
         ) : (
           <div className="promp-lista" onDragOver={(e) => { e.preventDefault(); calcVel(e.clientY); }} onDrop={soltar}>
@@ -525,7 +521,7 @@ export default function PromptadoresCurso() {
                 onDragOver={(e) => podeArrastar && arrastaSobre(e, i)}>
                 {isAdmin && (
                   <span className={'promp-grip' + (podeArrastar ? '' : ' promp-grip--off')}
-                    title={podeArrastar ? 'Arraste para reordenar' : 'Limpe a busca para reordenar'}
+                    title={podeArrastar ? t('promp_arraste') : t('promp_limpe_busca')}
                     draggable={podeArrastar}
                     onDragStart={() => { arrastando.current = i; setArrastandoId(p.id); iniciarAutoScroll(); }}
                     onDragEnd={soltar}>
@@ -543,15 +539,15 @@ export default function PromptadoresCurso() {
                   <div className="promp-nm">{campo(p, 'nome')}</div>
                   <div className="promp-ds">{campo(p, 'descricao')}</div>
                   {p.atualizado_em && (
-                    <div className="promp-att">{ee ? 'actualizado en ' : 'atualizado em '}{fmtData(p.atualizado_em)}</div>
+                    <div className="promp-att">{t('promp_atualizado')} {fmtData(p.atualizado_em)}</div>
                   )}
                 </div>
                 {isAdmin && (
-                  <button className="promp-lapis" onClick={() => editar(p)} title="Editar" aria-label="Editar">
+                  <button className="promp-lapis" onClick={() => editar(p)} title={t('promp_editar')} aria-label={t('promp_editar')}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h4L18 10l-4-4L4 16z" /><path d="M13 5l4 4" /></svg>
                   </button>
                 )}
-                <button className="promp-abrir" onClick={() => abrir(p)}>Abrir ↗</button>
+                <button className="promp-abrir" onClick={() => abrir(p)}>{t('promp_abrir')} ↗</button>
               </div>
             ))}
           </div>
@@ -563,12 +559,12 @@ export default function PromptadoresCurso() {
         <div className="trial-card">
           <div className="trial-card-info">
             <span className="trial-card-txt">
-              <strong>{diasRestantes === 1 ? 'Falta 1 dia de acesso' : `Faltam ${diasRestantes} dias de acesso`}</strong>{' '}
-              <small>aos Promptadores {cursoLabel} · renove</small>
+              <strong>{diasRestantes === 1 ? t('promp_falta1') : `${t('promp_dias_pre')} ${diasRestantes} ${t('promp_dias_pos')}`.trim()}</strong>{' '}
+              <small>{t('promp_aos_a')} {cursoLabel} {t('promp_aos_b')}</small>
             </span>
             <div className="trial-card-prog"><i style={{ width: (diasRestantes / 7 * 100) + '%' }} /></div>
           </div>
-          <button className="trial-card-btn" onClick={() => window.open(linkRenovar, '_blank', 'noopener')}>Renovar {cursoLabel}</button>
+          <button className="trial-card-btn" onClick={() => window.open(linkRenovar, '_blank', 'noopener')}>{t('promp_renovar')} {cursoLabel}</button>
         </div>
       )}
 
@@ -577,7 +573,7 @@ export default function PromptadoresCurso() {
         <div className="promp-ov" onMouseDown={(e) => { if (e.target === e.currentTarget) fechar(); }}>
           <div className="promp-modal">
             <div className="promp-mh">
-              <h3>{editando.id ? 'Editar promptador' : 'Novo promptador'}</h3>
+              <h3>{editando.id ? t('promp_edit_editar') : t('promp_edit_novo')}</h3>
               <div className="promp-lang">
                 <button className={langEdit === 'pt' ? 'on' : ''} onClick={() => setLangEdit('pt')}>Português</button>
                 <button className={langEdit === 'es' ? 'on' : ''} onClick={() => setLangEdit('es')}>Español</button>
@@ -616,15 +612,15 @@ export default function PromptadoresCurso() {
               )}
 
               {editando.id && (
-                <div className="promp-fld"><label>Atualizado em <span className="promp-auto">automático</span></label>
+                <div className="promp-fld"><label>{t('promp_atualizado_em_l')} <span className="promp-auto">{t('promp_automatico')}</span></label>
                   <input value={fmtData(editando.atualizado_em)} disabled className="promp-disabled" /></div>
               )}
             </div>
             <div className="promp-mf">
-              {editando.id ? <button className="promp-excluir" onClick={excluir} disabled={salvando}>Excluir</button> : <span />}
+              {editando.id ? <button className="promp-excluir" onClick={excluir} disabled={salvando}>{t('promp_excluir')}</button> : <span />}
               <div className="promp-dir">
-                <button className="promp-btn promp-cancelar" onClick={fechar} disabled={salvando}>Cancelar</button>
-                <button className="promp-btn promp-salvar" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar'}</button>
+                <button className="promp-btn promp-cancelar" onClick={fechar} disabled={salvando}>{t('comum_cancelar')}</button>
+                <button className="promp-btn promp-salvar" onClick={salvar} disabled={salvando}>{salvando ? t('comum_salvando') : t('promp_salvar')}</button>
               </div>
             </div>
           </div>

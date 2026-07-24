@@ -11,8 +11,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useIdioma } from '../lib/i18n';
 
 export default function PopupUpgrade() {
+  const { t } = useIdioma();
   const router = useRouter();
   const [aberto, setAberto] = useState(false);
   const [recurso, setRecurso] = useState('');
@@ -37,15 +39,14 @@ export default function PopupUpgrade() {
             <path d="M8 11V8a4 4 0 018 0v3" />
           </svg>
         </div>
-        <div className="cred-tit">{recurso ? recurso : 'Recurso bloqueado'}</div>
+        <div className="cred-tit">{recurso ? recurso : t('popupupgrade_titulo')}</div>
         <div className="cred-sub">
-          {recurso ? `“${recurso}” está` : 'Este recurso está'} disponível nos planos <b>Pro</b> e <b>Studio</b>.
-          Faça upgrade para desbloquear.
+          {recurso ? `“${recurso}”` : t('popupupgrade_este_recurso')} {t('popupupgrade_disp1')} <b>Pro</b> {t('popupupgrade_e')} <b>Studio</b>{t('popupupgrade_disp2')} {t('popupupgrade_upgrade')}
         </div>
         <button className="cred-btn cred-btn--verde" onClick={() => router.push('/assinatura')}>
-          Ver planos
+          {t('popupupgrade_ver_planos')}
         </button>
-        <div className="cred-agora" onClick={() => setAberto(false)}>Agora não</div>
+        <div className="cred-agora" onClick={() => setAberto(false)}>{t('popupupgrade_agora_nao')}</div>
       </div>
     </div>
   );
