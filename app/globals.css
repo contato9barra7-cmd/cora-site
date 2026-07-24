@@ -443,12 +443,22 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .login-logo { font-size: 18px; font-weight: 600; text-align: center; }
 .login-titulo { font-size: 28px; font-weight: 600; text-align: center; margin-top: 22px; }
 .login-sub { text-align: center; color: var(--ink2); font-size: 15px; margin-top: 6px; margin-bottom: 24px; }
-/* Ritmo dos campos: 18px entre um campo e o proximo label. O valor esta so
-   aqui — nenhum componente deve sobrescrever, senao o espacamento fica
-   irregular (era o que acontecia com o CampoSenha, que usava 12px). */
-.login-label { font-size: 14.5px; font-weight: 500; color: var(--ink2); margin-top: 18px; margin-bottom: 7px; }
-/* O primeiro label depois do subtitulo nao precisa dobrar o respiro. */
-.login-sub + .login-label { margin-top: 4px; }
+/* ── RITMO DOS CAMPOS ───────────────────────────────────────────────────────
+   O espaco vem do CAMPO, nao do label. Motivo: os campos de senha ficam
+   dentro de um wrapper (.senha-campo, por causa do icone do olho) e os
+   outros nao — espacar pelo label dava distancias diferentes entre um par
+   e outro. Marcando a margem embaixo de cada campo, todos ficam iguais,
+   soltos ou embrulhados. */
+.login-label { font-size: 14.5px; font-weight: 500; color: var(--ink2); margin-top: 0; margin-bottom: 7px; }
+.login-input,
+.senha-campo { margin-bottom: 18px; }
+/* O ultimo campo antes do botao/checkbox nao precisa dobrar o respiro. */
+.senha-campo:last-child,
+.login-input:last-child { margin-bottom: 0; }
+/* O painel de requisitos aparece so quando a pessoa foca a senha. Ele encosta
+   no campo (margin-top negativa cancela os 18 do campo) e devolve o respiro
+   embaixo — assim o ritmo e o mesmo com ou sem o painel visivel. */
+.cs-wrap .cs-reqs { margin: -12px 0 18px; }
 .login-input {
   /* Mesmo raio dos botoes (--r: 100px): campo e botao ficam com a mesma
      linguagem de forma. O padding lateral sobe de 14 para 18 porque, com a

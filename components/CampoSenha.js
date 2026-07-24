@@ -52,7 +52,7 @@ export default function CampoSenha({ senha, setSenha, onValidez, erroCampo, labe
   return (
     <div className="cs-wrap">
       <label className="login-label">{labelSenha || t('camposenha_label_senha')} {obrigatorio && <span className="obrig">*</span>}</label>
-      <div className="senha-campo">
+      <div className="senha-campo cs-senha">
         <input
           className={'login-input' + (erroCampo ? ' campo-erro' : '')}
           type={ver ? 'text' : 'password'}
