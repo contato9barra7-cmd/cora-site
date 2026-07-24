@@ -41,17 +41,25 @@ export default function Cadastro() {
   }, []);
 
   // Passo 1 -> 2: valida so o que cria a conta.
+  // Formato de e-mail: precisa de algo antes do @, um domínio e um TLD (ex: .com).
+  // Não é RFC-completo (a prova real é o código enviado ao e-mail), mas barra
+  // lixo como "dxdads" ou "a@b" sem domínio válido.
+  function emailValido(e) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e || '').trim());
+  }
+
   function irParaPasso2() {
     setErro('');
     const falta = {};
     if (!nome.trim()) falta.nome = true;
-    if (!email) falta.email = true;
+    if (!email || !emailValido(email)) falta.email = true;
     if (!senhaValida) falta.senha = true;
     if (!aceite) falta.aceite = true;
 
     if (Object.keys(falta).length) {
       setFaltando(falta);
-      if (falta.aceite && Object.keys(falta).length === 1) setErro(t('cad_aceite_erro'));
+      if (falta.email && email && !emailValido(email)) setErro(t('cad_email_invalido'));
+      else if (falta.aceite && Object.keys(falta).length === 1) setErro(t('cad_aceite_erro'));
       else if (!senhaValida) setErro(!senhaForte(senha) ? t('nova_req') : t('nova_confirme'));
       else setErro(t('cad_preencha'));
       return;
@@ -64,7 +72,7 @@ export default function Cadastro() {
     setErro('');
     const falta = {};
     if (!nome.trim()) falta.nome = true;
-    if (!email) falta.email = true;
+    if (!email || !emailValido(email)) falta.email = true;
     if (!genero) falta.genero = true;
     if (!profissao) falta.profissao = true;
     if (!origem) falta.origem = true;
@@ -77,7 +85,9 @@ export default function Cadastro() {
     if (Object.keys(falta).length) {
       setFaltando(falta);
       let msg;
-      if (falta.aceite && Object.keys(falta).length === 1) {
+      if (falta.email && email && !emailValido(email)) {
+        msg = t('cad_email_invalido');
+      } else if (falta.aceite && Object.keys(falta).length === 1) {
         msg = t('cad_aceite_erro');
       } else if (!senhaValida) {
         msg = !senhaForte(senha)
