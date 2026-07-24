@@ -348,12 +348,20 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .login-sub { text-align: center; color: var(--ink2); font-size: 15px; margin-top: 6px; margin-bottom: 24px; }
 .login-label { font-size: 14.5px; font-weight: 500; color: var(--ink2); margin-top: 14px; margin-bottom: 6px; }
 .login-input {
-  width: 100%; padding: 12px 14px; border: 1px solid var(--line2); border-radius: 12px;
+  /* Mesmo raio dos botoes (--r: 100px): campo e botao ficam com a mesma
+     linguagem de forma. O padding lateral sobe de 14 para 18 porque, com a
+     borda arredondada, o texto colado na curva fica apertado. */
+  width: 100%; padding: 12px 18px; border: 1px solid var(--line2); border-radius: var(--r);
   font-family: inherit; font-size: 16px; background: var(--wash); color: var(--ink3);
 }
+/* O <select> herda a classe, mas o navegador desenha a setinha colada na borda
+   quando o raio e grande — um respiro extra a direita resolve. */
+select.login-input { padding-right: 34px; }
+/* Campo de senha: o olho fica por cima, entao o texto precisa parar antes. */
+.senha-campo .login-input { padding-right: 46px; }
 .login-aviso {
   margin-top: 16px; text-align: center; font-size: 14.5px; color: var(--ink3);
-  background: var(--wash2); border-radius: 10px; padding: 10px 12px;
+  background: var(--wash2); border-radius: var(--r); padding: 10px 16px;
 }
 .login-rodape { margin-top: 20px; text-align: center; font-size: 15px; color: var(--ink2); }
 .login-rodape a { color: var(--roxo-esc); font-weight: 500; }
@@ -428,7 +436,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
    ========================================================================== */
 .login-erro {
   margin-top: 14px; font-size: 15px; color: var(--alerta);
-  background: #fdecea; border: 1px solid #f5c6c2; border-radius: 10px; padding: 10px 12px;
+  background: #fdecea; border: 1px solid #f5c6c2; border-radius: var(--r); padding: 10px 16px;
 }
 
 .conta-wrap { max-width: 720px; margin: 0 auto; padding: 32px 24px 80px; }
@@ -451,7 +459,9 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .senha-campo { position: relative; }
 .senha-campo .login-input { width: 100%; padding-right: 44px; }
 .senha-olho {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  /* right: 12 (era 8) — com o campo arredondado, 8px deixava o icone dentro
+     da curva da borda. */
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
   background: none; border: none; cursor: pointer; color: var(--ink3);
   padding: 6px; display: flex; align-items: center; justify-content: center;
 }
