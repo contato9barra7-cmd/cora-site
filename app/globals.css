@@ -450,15 +450,16 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
    e outro. Marcando a margem embaixo de cada campo, todos ficam iguais,
    soltos ou embrulhados. */
 .login-label { font-size: 14.5px; font-weight: 500; color: var(--ink2); margin-top: 0; margin-bottom: 7px; }
-.login-input,
+
+/* Espaco embaixo de todo campo — o mesmo valor para input solto, select e
+   campo de senha. No caso da senha a margem fica no WRAPPER e o input dentro
+   dele vai a zero: assim o wrapper tem a altura exata do campo e o olho,
+   posicionado por top:50%, cai no centro. */
+.login-input { margin-bottom: 18px; }
 .senha-campo { margin-bottom: 18px; }
-/* O ultimo campo antes do botao/checkbox nao precisa dobrar o respiro. */
-.senha-campo:last-child,
-.login-input:last-child { margin-bottom: 0; }
-/* O painel de requisitos aparece so quando a pessoa foca a senha. Ele encosta
-   no campo (margin-top negativa cancela os 18 do campo) e devolve o respiro
-   embaixo — assim o ritmo e o mesmo com ou sem o painel visivel. */
-.cs-wrap .cs-reqs { margin: -12px 0 18px; }
+.senha-campo .login-input { margin-bottom: 0; }
+
+
 .login-input {
   /* Mesmo raio dos botoes (--r: 100px): campo e botao ficam com a mesma
      linguagem de forma. O padding lateral sobe de 14 para 18 porque, com a
@@ -469,8 +470,7 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 /* O <select> herda a classe, mas o navegador desenha a setinha colada na borda
    quando o raio e grande — um respiro extra a direita resolve. */
 select.login-input { padding-right: 34px; }
-/* Campo de senha: o olho fica por cima, entao o texto precisa parar antes. */
-.senha-campo .login-input { padding-right: 46px; }
+
 .login-aviso {
   margin-top: 16px; text-align: center; font-size: 14.5px; color: var(--ink3);
   background: var(--wash2); border-radius: var(--r); padding: 10px 16px;
@@ -571,8 +571,9 @@ select.login-input { padding-right: 34px; }
 .senha-campo { position: relative; }
 .senha-campo .login-input { width: 100%; padding-right: 44px; }
 .senha-olho {
-  /* right: 12 (era 8) — com o campo arredondado, 8px deixava o icone dentro
-     da curva da borda. */
+  /* right: 12 — com o campo arredondado, 8px deixava o icone dentro da curva.
+     O top:50% funciona porque o wrapper tem a altura exata do input (a margem
+     de 18px fica FORA dele, no proprio .senha-campo). */
   position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
   background: none; border: none; cursor: pointer; color: var(--ink3);
   padding: 6px; display: flex; align-items: center; justify-content: center;
@@ -11844,7 +11845,10 @@ textarea.sup-campo { min-height: 120px; resize: vertical; }
 
 /* ── CampoSenha — checklist de senha forte ── */
 .cs-wrap { display: block; }
-.cs-reqs { list-style: none; margin: 8px 0 2px; padding: 10px 12px; background: var(--paper2, #f6f6f8); border: 1px solid var(--line2); border-radius: 10px; display: grid; gap: 5px; }
+/* O painel so aparece ao focar a senha. Margem embaixo igual a dos campos
+   (18px), e nenhuma em cima — o campo de senha acima ja traz o seu respiro.
+   Assim o espaco ate "Repetir senha" e o mesmo com ou sem o painel. */
+.cs-reqs { list-style: none; margin: 0 0 18px; padding: 10px 12px; background: var(--paper2, #f6f6f8); border: 1px solid var(--line2); border-radius: 10px; display: grid; gap: 5px; }
 .cs-req { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink3); transition: color .15s; }
 .cs-req-ic { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; color: #b6b6be; flex-shrink: 0; }
 .cs-req--ok { color: #2e7d32; font-weight: 600; }
