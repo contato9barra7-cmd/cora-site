@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { esqueciSenha } from '../../lib/auth';
 import { useIdioma } from '../../lib/i18n';
+import LoginSplit from '../../components/LoginSplit';
 
 export default function EsqueciSenha() {
   const { t } = useIdioma();
@@ -27,7 +28,7 @@ export default function EsqueciSenha() {
   }
 
   return (
-    <div className="login-wrap">
+    <LoginSplit>
       <div className="login-card">
         <Link href="/" className="login-logo">Cora Render</Link>
 
@@ -74,6 +75,6 @@ export default function EsqueciSenha() {
           </>
         )}
       </div>
-    </div>
+    </LoginSplit>
   );
 }

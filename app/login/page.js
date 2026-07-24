@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { entrar, lerConta, retomarCheckoutPendente } from '../../lib/auth';
 import { useIdioma } from '../../lib/i18n';
+import LoginSplit from '../../components/LoginSplit';
 
 export default function Login() {
   const router = useRouter();
@@ -60,7 +61,7 @@ export default function Login() {
   }
 
   return (
-    <div className="login-wrap">
+    <LoginSplit>
       <div className="login-card">
         <Link href="/" className="login-logo">Cora Render</Link>
         <h1 className="login-titulo">{t('login_entrar')}</h1>
@@ -104,6 +105,6 @@ export default function Login() {
           {t('login_sem_conta')} <Link href="/cadastro">{t('login_criar_conta')}</Link>
         </p>
       </div>
-    </div>
+    </LoginSplit>
   );
 }

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { verificar, reenviarCodigo } from '../../lib/auth';
 import { useIdioma } from '../../lib/i18n';
+import LoginSplit from '../../components/LoginSplit';
 
 function VerificarConteudo() {
   const router = useRouter();
@@ -51,7 +52,7 @@ function VerificarConteudo() {
   }
 
   return (
-    <div className="login-wrap">
+    <LoginSplit>
       <div className="login-card">
         <Link href="/" className="login-logo">Cora Render</Link>
         <h1 className="login-titulo">{t('ver_confirme')}</h1>
@@ -79,14 +80,14 @@ function VerificarConteudo() {
           {t('ver_nao_recebeu')} <button className="link-botao" onClick={reenviar}>{t('ver_reenviar')}</button>
         </p>
       </div>
-    </div>
+    </LoginSplit>
   );
 }
 
 export default function Verificar() {
   const { t } = useIdioma();
   return (
-    <Suspense fallback={<div className="login-wrap"><p>{t('comum_carregando')}</p></div>}>
+    <Suspense fallback={<LoginSplit><p>{t('comum_carregando')}</p></LoginSplit>}>
       <VerificarConteudo />
     </Suspense>
   );

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { registrar } from '../../lib/auth';
 import CampoSenha, { senhaForte } from '../../components/CampoSenha';
 import { useIdioma } from '../../lib/i18n';
+import LoginSplit from '../../components/LoginSplit';
 
 export default function Cadastro() {
   const router = useRouter();
@@ -78,7 +79,7 @@ export default function Cadastro() {
   const cls = (campo) => 'login-input' + (faltando[campo] ? ' campo-erro' : '');
 
   return (
-    <div className="login-wrap">
+    <LoginSplit>
       <div className="login-card">
         <Link href="/" className="login-logo">Cora Render</Link>
         <h1 className="login-titulo">{t('cad_criar')}</h1>
@@ -179,6 +180,6 @@ export default function Cadastro() {
           {t('cad_ja_tem')} <Link href="/login">{t('login_entrar')}</Link>
         </p>
       </div>
-    </div>
+    </LoginSplit>
   );
 }

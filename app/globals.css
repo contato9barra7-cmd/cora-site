@@ -334,6 +334,43 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .nav__entrar { color: var(--ink); font-weight: 500; }
 .nav__entrar:hover { color: var(--roxo-esc); }
 
+/* ── SPLIT SCREEN (login / cadastro / recuperar) ────────────────────────────
+   Desktop: painel visual a esquerda, formulario a direita.
+   Mobile:  o painel some e volta o card centralizado de sempre.
+
+   O painel esquerdo e um <div> com background-image — para trocar a arte,
+   basta trocar o arquivo em /public/img/. Nao precisa mexer no layout. */
+.login-split { min-height: 100vh; display: flex; background: var(--wash); }
+
+.login-visual {
+  flex: 1.1; position: relative; background: #111;
+  background-image: url('/img/login-hero.jpg');
+  background-size: cover; background-position: center;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 40px; overflow: hidden;
+}
+/* Veu escuro: a foto tem ceu claro, e o texto branco sumiria em cima dele. */
+.login-visual::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.15) 40%, rgba(0,0,0,.65) 100%);
+}
+.login-visual > * { position: relative; z-index: 1; }
+.login-visual-logo { color: #fff; font-size: 18px; font-weight: 600; }
+.login-visual-frase { color: #fff; font-size: 30px; font-weight: 600; line-height: 1.25; max-width: 460px; }
+.login-visual-sub { color: rgba(255,255,255,.72); font-size: 15px; margin-top: 12px; max-width: 420px; line-height: 1.5; }
+
+/* Lado do formulario: rola sozinho (o cadastro e comprido, o painel fica parado). */
+.login-form-lado {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 40px 24px; overflow-y: auto; max-height: 100vh;
+}
+
+@media (max-width: 900px) {
+  .login-split { display: block; min-height: auto; }
+  .login-visual { display: none; }
+  .login-form-lado { min-height: 100vh; max-height: none; overflow: visible; padding: 40px 24px; }
+}
+
 .login-wrap {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
   padding: 40px 24px; background: var(--wash);
@@ -342,6 +379,21 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   width: 100%; max-width: 400px; background: var(--paper);
   border: 1px solid var(--line); border-radius: var(--rc); padding: 40px 36px;
   display: flex; flex-direction: column;
+}
+/* Dentro do split o card nao precisa de moldura — o proprio painel ja divide. */
+.login-form-lado .login-card {
+  border: none; background: transparent; padding: 0; max-width: 380px;
+}
+/* O logo ja aparece no painel escuro; repetir no formulario seria redundante.
+   No mobile (media query abaixo) o painel some, entao ele volta. */
+.login-form-lado .login-logo { display: none; }
+.login-form-lado .login-titulo { margin-top: 0; }
+@media (max-width: 900px) {
+  .login-form-lado .login-card {
+    border: 1px solid var(--line); background: var(--paper); padding: 40px 36px;
+  }
+  .login-form-lado .login-logo { display: block; }
+  .login-form-lado .login-titulo { margin-top: 22px; }
 }
 .login-logo { font-size: 18px; font-weight: 600; text-align: center; }
 .login-titulo { font-size: 28px; font-weight: 600; text-align: center; margin-top: 22px; }
