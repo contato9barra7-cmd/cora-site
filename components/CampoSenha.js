@@ -84,7 +84,7 @@ export default function CampoSenha({ senha, setSenha, onValidez, erroCampo, labe
         </ul>
       )}
 
-      <label className="login-label" style={{ marginTop: 12 }}>{t('camposenha_repetir')} {obrigatorio && <span className="obrig">*</span>}</label>
+      <label className="login-label">{t('camposenha_repetir')} {obrigatorio && <span className="obrig">*</span>}</label>
       <div className="senha-campo">
         <input
           className={'login-input' + (confirma.length > 0 && !confere ? ' campo-erro' : '')}

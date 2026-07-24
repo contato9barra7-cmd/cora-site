@@ -392,6 +392,18 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   .login-form-lado { min-height: 100vh; max-height: none; overflow: visible; padding: 40px 24px; }
 }
 
+/* Os DropdownCora do cadastro seguem a medida dos campos de texto (16px e
+   12/18 de padding), nao a do painel do app (13px). O componente e o mesmo —
+   so o tamanho muda, para o formulario ficar homogeneo. */
+.cad-dd .cora-dd-btn {
+  padding: 12px 18px; font-size: 16px;
+  border-color: var(--line2); background: var(--wash); color: var(--ink3);
+}
+.cad-dd .cora-dd-lista { border-radius: 18px; padding: 6px; }
+.cad-dd .cora-dd-opt { padding: 10px 14px; border-radius: 100px; font-size: 15px; }
+/* Campo obrigatorio nao preenchido: mesmo visual do .campo-erro dos inputs. */
+.cad-dd--erro .cora-dd-btn { border-color: #d32f2f; background: #fdecea; }
+
 /* Cadastro em 2 passos */
 .cad-passo-tag {
   text-align: center; font-size: 12.5px; font-weight: 500; letter-spacing: .04em;
@@ -431,7 +443,12 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 .login-logo { font-size: 18px; font-weight: 600; text-align: center; }
 .login-titulo { font-size: 28px; font-weight: 600; text-align: center; margin-top: 22px; }
 .login-sub { text-align: center; color: var(--ink2); font-size: 15px; margin-top: 6px; margin-bottom: 24px; }
-.login-label { font-size: 14.5px; font-weight: 500; color: var(--ink2); margin-top: 14px; margin-bottom: 6px; }
+/* Ritmo dos campos: 18px entre um campo e o proximo label. O valor esta so
+   aqui — nenhum componente deve sobrescrever, senao o espacamento fica
+   irregular (era o que acontecia com o CampoSenha, que usava 12px). */
+.login-label { font-size: 14.5px; font-weight: 500; color: var(--ink2); margin-top: 18px; margin-bottom: 7px; }
+/* O primeiro label depois do subtitulo nao precisa dobrar o respiro. */
+.login-sub + .login-label { margin-top: 4px; }
 .login-input {
   /* Mesmo raio dos botoes (--r: 100px): campo e botao ficam com a mesma
      linguagem de forma. O padding lateral sobe de 14 para 18 porque, com a

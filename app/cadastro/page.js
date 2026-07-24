@@ -7,6 +7,7 @@ import { registrar } from '../../lib/auth';
 import CampoSenha, { senhaForte } from '../../components/CampoSenha';
 import { useIdioma } from '../../lib/i18n';
 import LoginSplit from '../../components/LoginSplit';
+import DropdownCora from '../../components/DropdownCora';
 
 export default function Cadastro() {
   const router = useRouter();
@@ -112,9 +113,9 @@ export default function Cadastro() {
 
         {passo === 1 && (<>
 
-        <label className="login-label">{t('perfil_nome')} <span className="obrig">*</span></label>
+        <label className="login-label">{t('cad_nome_completo')} <span className="obrig">*</span></label>
         <input
-          className={cls('nome')} type="text" placeholder={t('perfil_seu_nome')}
+          className={cls('nome')} type="text" placeholder={t('cad_ph_nome_completo')}
           value={nome} onChange={(e) => setNome(e.target.value)}
         />
 
@@ -148,70 +149,106 @@ export default function Cadastro() {
 
         {passo === 2 && (<>
         <label className="login-label">{t('cad_genero')} <span className="obrig">*</span></label>
-        <select className={cls('genero')} value={genero} onChange={(e) => setGenero(e.target.value)}>
-          <option value="">{t('cad_selecione')}</option>
-          <option value="feminino">{t('cad_g_fem')}</option>
-          <option value="masculino">{t('cad_g_masc')}</option>
-          <option value="nao_binario">{t('cad_g_nb')}</option>
-          <option value="nao_informar">{t('cad_g_ni')}</option>
-        </select>
+        <div className={faltando.genero ? 'cad-dd cad-dd--erro' : 'cad-dd'}>
+          <DropdownCora
+            valor={genero}
+            onEscolher={setGenero}
+            opcoes={[
+              { v: '', n: t('cad_selecione') },
+              { v: 'feminino', n: t('cad_g_fem') },
+              { v: 'masculino', n: t('cad_g_masc') },
+              { v: 'nao_binario', n: t('cad_g_nb') },
+              { v: 'nao_informar', n: t('cad_g_ni') }
+            ]}
+          />
+        </div>
 
         <label className="login-label">{t('cad_profissao')} <span className="obrig">*</span></label>
-        <select className={cls('profissao')} value={profissao} onChange={(e) => setProfissao(e.target.value)}>
-          <option value="">{t('cad_selecione')}</option>
-          <option value="arquiteto">{t('cad_p_arq')}</option>
-          <option value="designer_interiores">{t('cad_p_design')}</option>
-          <option value="archviz">Archviz</option>
-          <option value="engenheiro">{t('cad_p_eng')}</option>
-          <option value="estudante">{t('cad_p_estud')}</option>
-          <option value="paisagista">{t('cad_p_pais')}</option>
-          <option value="outro">{t('cad_outro')}</option>
-        </select>
+        <div className={faltando.profissao ? 'cad-dd cad-dd--erro' : 'cad-dd'}>
+          <DropdownCora
+            valor={profissao}
+            onEscolher={setProfissao}
+            opcoes={[
+              { v: '', n: t('cad_selecione') },
+              { v: 'arquiteto', n: t('cad_p_arq') },
+              { v: 'designer_interiores', n: t('cad_p_design') },
+              { v: 'archviz', n: 'Archviz' },
+              { v: 'engenheiro', n: t('cad_p_eng') },
+              { v: 'estudante', n: t('cad_p_estud') },
+              { v: 'paisagista', n: t('cad_p_pais') },
+              { v: 'outro', n: t('cad_outro') }
+            ]}
+          />
+        </div>
 
         <label className="login-label">{t('cad_origem')} <span className="obrig">*</span></label>
-        <select className={cls('origem')} value={origem} onChange={(e) => setOrigem(e.target.value)}>
-          <option value="">{t('cad_selecione')}</option>
-          <option value="instagram">Instagram</option>
-          <option value="youtube">YouTube</option>
-          <option value="google">{t('cad_o_google')}</option>
-          <option value="indicacao">{t('cad_o_indicacao')}</option>
-          <option value="tiktok">TikTok</option>
-          <option value="anuncio">{t('cad_o_anuncio')}</option>
-          <option value="outro">{t('cad_outro')}</option>
-        </select>
+        <div className={faltando.origem ? 'cad-dd cad-dd--erro' : 'cad-dd'}>
+          <DropdownCora
+            valor={origem}
+            onEscolher={setOrigem}
+            opcoes={[
+              { v: '', n: t('cad_selecione') },
+              { v: 'instagram', n: 'Instagram' },
+              { v: 'youtube', n: 'YouTube' },
+              { v: 'google', n: t('cad_o_google') },
+              { v: 'indicacao', n: t('cad_o_indicacao') },
+              { v: 'tiktok', n: 'TikTok' },
+              { v: 'anuncio', n: t('cad_o_anuncio') },
+              { v: 'outro', n: t('cad_outro') }
+            ]}
+          />
+        </div>
 
         <label className="login-label">{t('cad_usa')} <span className="obrig">*</span></label>
-        <select className={cls('usaRender')} value={usaRender} onChange={(e) => setUsaRender(e.target.value)}>
-          <option value="">{t('cad_selecione')}</option>
-          <option value="nao">{t('cad_u_nenhum')}</option>
-          <option value="vray">V-Ray</option>
-          <option value="corona">Corona</option>
-          <option value="enscape">Enscape</option>
-          <option value="lumion">Lumion</option>
-          <option value="dhistudio">{t('cad_u_d5')}</option>
-          <option value="outro">{t('cad_outro')}</option>
-        </select>
+        <div className={faltando.usaRender ? 'cad-dd cad-dd--erro' : 'cad-dd'}>
+          <DropdownCora
+            valor={usaRender}
+            onEscolher={setUsaRender}
+            opcoes={[
+              { v: '', n: t('cad_selecione') },
+              { v: 'nao', n: t('cad_u_nenhum') },
+              { v: 'vray', n: 'V-Ray' },
+              { v: 'corona', n: 'Corona' },
+              { v: 'enscape', n: 'Enscape' },
+              { v: 'lumion', n: 'Lumion' },
+              { v: 'dhistudio', n: t('cad_u_d5') },
+              { v: 'outro', n: t('cad_outro') }
+            ]}
+          />
+        </div>
 
         <label className="login-label">{t('cad_tamanho')} <span className="obrig">*</span></label>
-        <select className={cls('tamanho')} value={tamanho} onChange={(e) => setTamanho(e.target.value)}>
-          <option value="">{t('cad_selecione')}</option>
-          <option value="autonomo">{t('cad_t_auto')}</option>
-          <option value="2a5">{t('cad_t_2a5')}</option>
-          <option value="6a20">{t('cad_t_6a20')}</option>
-          <option value="20mais">{t('cad_t_20')}</option>
-        </select>
+        <div className={faltando.tamanho ? 'cad-dd cad-dd--erro' : 'cad-dd'}>
+          <DropdownCora
+            valor={tamanho}
+            onEscolher={setTamanho}
+            opcoes={[
+              { v: '', n: t('cad_selecione') },
+              { v: 'autonomo', n: t('cad_t_auto') },
+              { v: '2a5', n: t('cad_t_2a5') },
+              { v: '6a20', n: t('cad_t_6a20') },
+              { v: '20mais', n: t('cad_t_20') }
+            ]}
+          />
+        </div>
 
         <label className="login-label">{t('cad_volume')} <span className="obrig">*</span></label>
-        <select className={cls('volume')} value={volume} onChange={(e) => setVolume(e.target.value)}>
-          <option value="">{t('cad_selecione')}</option>
-          <option value="menos10">{t('cad_v_menos10')}</option>
-          <option value="10a20">{t('cad_v_10a20')}</option>
-          <option value="mais20">{t('cad_v_mais20')}</option>
-        </select>
+        <div className={faltando.volume ? 'cad-dd cad-dd--erro' : 'cad-dd'}>
+          <DropdownCora
+            valor={volume}
+            onEscolher={setVolume}
+            opcoes={[
+              { v: '', n: t('cad_selecione') },
+              { v: 'menos10', n: t('cad_v_menos10') },
+              { v: '10a20', n: t('cad_v_10a20') },
+              { v: 'mais20', n: t('cad_v_mais20') }
+            ]}
+          />
+        </div>
 
         {erro && <p className="login-erro">{erro}</p>}
 
-        <button className="btn btn--verde" style={{ marginTop: 14 }} onClick={criarConta} disabled={carregando}>
+        <button className="btn btn--verde" style={{ marginTop: 28 }} onClick={criarConta} disabled={carregando}>
           {carregando ? t('cad_criando') : t('login_criar_conta')}
         </button>
 
