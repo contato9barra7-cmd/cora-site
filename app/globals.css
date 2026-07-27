@@ -6089,7 +6089,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .narr-take-linha b { font-weight: 500; }
 .narr-take-sec { color: var(--text-2, #666); }
 .narr-take-anim {
-  margin-top: 8px; height: 30px; padding: 0 13px; border-radius: 8px;
+  margin-top: 8px; height: 30px; padding: 0 15px; border-radius: 100px;
   border: 0.5px solid var(--border-strong, #b4b2a9); background: transparent;
   font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
 }
