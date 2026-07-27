@@ -9706,6 +9706,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .aj-msk-voltar:hover { color: var(--accent); }
 
+.aj-auto-btn { margin-bottom: 8px; }
 .aj-msk-criar {
   width: 100%;
   display: flex;

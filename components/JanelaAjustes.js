@@ -46,6 +46,44 @@ function comTrava(valor, min, max) {
   return Math.abs(valor) <= zona ? 0 : valor;
 }
 
+// Ajustes automáticos (estilo Lightroom "Auto"): analisa o histograma de
+// luminância e devolve valores conservadores de luz. Mesma matemática do
+// pipeline em lib/ajustes.js (exposicao = 2^(v/100*1.6), pretos/brancos * 0.16).
+function calcularAutoLuz(src) {
+  try {
+    const W = src.width || src.naturalWidth || 0, H = src.height || src.naturalHeight || 0;
+    if (!W || !H) return null;
+    const cw = Math.max(1, Math.min(240, W));
+    const ch = Math.max(1, Math.round(cw * H / W));
+    const c = document.createElement('canvas'); c.width = cw; c.height = ch;
+    const cx = c.getContext('2d'); cx.drawImage(src, 0, 0, cw, ch);
+    const d = cx.getImageData(0, 0, cw, ch).data;
+    const hist = new Array(256).fill(0); let n = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i + 3] < 8) continue;
+      let L = (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) | 0;
+      if (L < 0) L = 0; else if (L > 255) L = 255;
+      hist[L]++; n++;
+    }
+    if (!n) return null;
+    const perc = (p) => { const alvo = p * n; let acc = 0; for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= alvo) return v; } return 255; };
+    const bp = perc(0.005) / 255, wp = perc(0.995) / 255, med = perc(0.5) / 255;
+    let clipLo = 0, clipHi = 0;
+    for (let a = 0; a <= 4; a++) clipLo += hist[a];
+    for (let b = 251; b < 256; b++) clipHi += hist[b];
+    clipLo /= n; clipHi /= n;
+    const cl = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+    return {
+      exposicao: Math.round(med > 0.02 ? cl(Math.log(0.46 / med) / Math.LN2 / 1.6 * 100, -55, 55) : 0),
+      pretos:    Math.round(cl(-((bp - 0.02) / 0.16) * 100, -60, 40)),
+      brancos:   Math.round(cl(((0.97 - wp) / 0.16) * 100, -40, 60)),
+      contraste: Math.round(cl((0.82 - (wp - bp)) * 120, 0, 28)),
+      realces:   Math.round(clipHi > 0.02 ? cl(-clipHi * 400, -35, 0) : 0),
+      sombras:   Math.round(clipLo > 0.02 ? cl(clipLo * 400, 0, 35) : 0),
+    };
+  } catch (e) { return null; }
+}
+
 export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) {
   const { t } = useIdioma();
   // Reabrindo um filtro de Ajustes, os controles nascem com os valores DELE.
@@ -255,6 +293,16 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     setMascaraAtiva(null);
     setFerramenta(null);
     desenhar(z, [], null, false);
+  }
+
+  // Ajustes automáticos — aplica a luz calculada nos params ATIVOS (máscara ou global).
+  function ajusteAuto() {
+    const src = camada && camada.canvas;
+    if (!src) return;
+    const auto = calcularAutoLuz(src);
+    if (!auto) return;
+    const { np, nm } = comMudanca((pr) => ({ ...pr, luz: { ...pr.luz, ...auto } }));
+    desenhar(np, nm, mascaraAtiva, mascaraAtiva != null);
   }
 
   // Zerar só a aba aberta — nos params ATIVOS (máscara ou global).
@@ -733,6 +781,11 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                     {t('janelaajustes_voltar_ajustes')}
                   </button>
                 )}
+
+                <button className="aj-msk-criar aj-auto-btn" onClick={ajusteAuto}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l2.4 6.6L22 12l-6.6 2.4L13 21l-2.4-6.6L4 12l6.6-2.4z" /></svg>
+                  {t('janelaajustes_auto')}
+                </button>
 
                 <button className="aj-msk-criar" onClick={criarMascara}>
                   <span className="aj-msk-circ" />

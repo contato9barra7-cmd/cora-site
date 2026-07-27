@@ -305,6 +305,17 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
   // ── O aviso de que abrir fecha o trabalho ──
   const [confirmando, setConfirmando] = useState(false);
+  const [confirmandoFechar, setConfirmandoFechar] = useState(false);
+
+  // Fecha e descarta a sessão inteira da pós — volta à tela de abrir imagem.
+  function fecharTudo() {
+    setCamadas([]);
+    setMed(null);
+    setSel([]);
+    setAlvo(null);
+    setCrop(null);
+    setFerr('mover');
+  }
 
   // ── A caixinha do corte ──
   // Marcada por padrão, como no Photoshop: cortar normalmente APAGA o excesso.
@@ -3036,6 +3047,13 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
             <Svg d={IC.baixar} />
           </button>
         </Dica>
+
+        <Dica texto={t('painelpos_fechar_tudo')}>
+          <button className="ps-ic" onClick={() => setConfirmandoFechar(true)}
+                  disabled={!temImagem} aria-label={t('painelpos_fechar_tudo')}>
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          </button>
+        </Dica>
       </header>
 
 
@@ -3695,6 +3713,15 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
           ok={t('painelpos_abrir_assim')}
           aoOk={() => { setConfirmando(false); setPicker('nova'); }}
           aoCancelar={() => setConfirmando(false)}
+        />
+      )}
+
+      {confirmandoFechar && (
+        <Confirma
+          texto={t('painelpos_conf_fechar')}
+          ok={t('painelpos_fechar')}
+          aoOk={() => { setConfirmandoFechar(false); fecharTudo(); }}
+          aoCancelar={() => setConfirmandoFechar(false)}
         />
       )}
 
