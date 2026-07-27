@@ -46,6 +46,7 @@ export default function Privacidade() {
           {LI('priv_p3_li4')}
           {LI('priv_p3_li5')}
           {LI('priv_p3_li6')}
+          {LI('priv_p3_li7')}
         </ul>
       </section>
 
