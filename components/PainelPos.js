@@ -161,7 +161,13 @@ function CoraSelect({ value, options, onChange, icon, className, disabled }) {
   useEffect(() => {
     if (!aberto) return;
     const fora = (e) => { if (ref.current && !ref.current.contains(e.target)) setAberto(false); };
-    const fecha = () => setAberto(false);
+    // Fecha no scroll da PÁGINA (o popup é fixo e descolaria do gatilho), mas
+    // ignora o scroll de dentro do próprio dropdown — senão rolar a lista com a
+    // roda do mouse fechava tudo.
+    const fecha = (ev) => {
+      if (ev && ev.target && ref.current && ref.current.contains && ref.current.contains(ev.target)) return;
+      setAberto(false);
+    };
     document.addEventListener('mousedown', fora);
     window.addEventListener('resize', fecha);
     window.addEventListener('scroll', fecha, true);
