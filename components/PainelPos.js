@@ -158,6 +158,19 @@ function CoraSelect({ value, options, onChange, icon, className, disabled }) {
   const [pos, setPos] = useState(null);
   const ref = useRef(null);
   const trigRef = useRef(null);
+  const popRef = useRef(null);
+  // A roda do mouse sobre o popup PRECISA rolar a lista, não dar zoom na tela. O
+  // zoom é um listener nativo no telaRef (ancestral do popup), e o onWheel do
+  // React é delegado na raiz — dispara tarde demais. Um listener NATIVO no popup
+  // dispara antes e barra a propagação, sem impedir a rolagem nativa da lista.
+  useEffect(() => {
+    if (!aberto) return;
+    const el = popRef.current;
+    if (!el) return;
+    const parar = (e) => { e.stopPropagation(); };
+    el.addEventListener('wheel', parar, { passive: false });
+    return () => el.removeEventListener('wheel', parar);
+  }, [aberto]);
   useEffect(() => {
     if (!aberto) return;
     const fora = (e) => { if (ref.current && !ref.current.contains(e.target)) setAberto(false); };
@@ -205,9 +218,9 @@ function CoraSelect({ value, options, onChange, icon, className, disabled }) {
       </button>
       {aberto && !disabled && (
         <div
+          ref={popRef}
           className="cora-sel-pop"
           style={pos ? { position: 'fixed', left: pos.left, top: pos.top, width: pos.width, right: 'auto' } : undefined}
-          onWheel={(e) => e.stopPropagation()}
         >
           {options.map((o) => (
             <div
