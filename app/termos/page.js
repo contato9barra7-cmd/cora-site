@@ -1,16 +1,25 @@
 'use client';
 
 import { useIdioma } from '../../lib/i18n';
+import { useRouter } from 'next/navigation';
 
 export default function Termos() {
   const { t } = useIdioma();
+  const router = useRouter();
+  // Volta para a página anterior (ex.: o cadastro, com os dados preenchidos).
+  // Se não houver histórico (acesso direto), cai para a home.
+  const voltar = (e) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined' && window.history.length > 1) router.back();
+    else router.push('/');
+  };
   const H = (k, cls = 'legal-p') => (
     <p className={cls} dangerouslySetInnerHTML={{ __html: t(k) }} />
   );
 
   return (
     <div className="legal-wrap">
-      <a href="/" className="legal-voltar">{t('legal_voltar')}</a>
+      <a href="/" className="legal-voltar" onClick={voltar}>{t('legal_voltar')}</a>
 
       <h1 className="legal-titulo">{t('termos_titulo')}</h1>
       <p className="legal-data">{t('legal_data_label')} {t('termos_data_valor')}</p>

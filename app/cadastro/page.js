@@ -34,11 +34,39 @@ export default function Cadastro() {
   // Se veio de um convite, trava o email (a conta tem que ser desse email).
   const [emailTravado, setEmailTravado] = useState(false);
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const em = localStorage.getItem('cora_convite_email');
-      if (em) { setEmail(em); setEmailTravado(true); }
-    }
+    if (typeof window === 'undefined') return;
+    // Restaura o formulário salvo — assim, ao abrir os Termos/Política e voltar,
+    // a pessoa retorna ao cadastro com tudo que já tinha preenchido.
+    try {
+      const s = JSON.parse(sessionStorage.getItem('cora_cad_form') || 'null');
+      if (s) {
+        if (s.nome != null) setNome(s.nome);
+        if (s.email != null) setEmail(s.email);
+        if (s.senha != null) { setSenha(s.senha); setSenhaValida(senhaForte(s.senha)); }
+        if (s.genero != null) setGenero(s.genero);
+        if (s.profissao != null) setProfissao(s.profissao);
+        if (s.origem != null) setOrigem(s.origem);
+        if (s.usaRender != null) setUsaRender(s.usaRender);
+        if (s.tamanho != null) setTamanho(s.tamanho);
+        if (s.volume != null) setVolume(s.volume);
+        if (s.aceite != null) setAceite(s.aceite);
+        if (s.passo != null) setPasso(s.passo);
+      }
+    } catch (e) {}
+    // Convite trava o email (a conta tem que ser desse email).
+    const em = localStorage.getItem('cora_convite_email');
+    if (em) { setEmail(em); setEmailTravado(true); }
   }, []);
+
+  // Salva o formulário enquanto é preenchido, para sobreviver à ida aos Termos.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      sessionStorage.setItem('cora_cad_form', JSON.stringify({
+        nome, email, senha, genero, profissao, origem, usaRender, tamanho, volume, aceite, passo,
+      }));
+    } catch (e) {}
+  }, [nome, email, senha, genero, profissao, origem, usaRender, tamanho, volume, aceite, passo]);
 
   // Passo 1 -> 2: valida so o que cria a conta.
   // Formato de e-mail: precisa de algo antes do @, um domínio e um TLD (ex: .com).
@@ -103,6 +131,7 @@ export default function Cadastro() {
     setCarregando(true);
     try {
       await registrar({ email, senha, nome, genero, profissao, origem, usa_render: usaRender, tamanho, volume });
+      try { sessionStorage.removeItem('cora_cad_form'); } catch (e) {}
       router.push('/verificar?email=' + encodeURIComponent(email));
     } catch (e) {
       setErro(e.message);
@@ -143,8 +172,8 @@ export default function Cadastro() {
         <label className={'cad-aceite' + (faltando.aceite ? ' cad-aceite--erro' : '')}>
           <input type="checkbox" checked={aceite} onChange={(e) => setAceite(e.target.checked)} />
           <span>
-            {t('cad_li1')} <Link href="/termos" target="_blank">{t('cad_termos')}</Link> {t('cad_li_e')}{' '}
-            <Link href="/privacidade" target="_blank">{t('cad_privacidade')}</Link>.
+            {t('cad_li1')} <Link href="/termos">{t('cad_termos')}</Link> {t('cad_li_e')}{' '}
+            <Link href="/privacidade">{t('cad_privacidade')}</Link>.
           </span>
         </label>
 
