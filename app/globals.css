@@ -9091,10 +9091,15 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   flex: 1;
   min-width: 0;
   height: 34px;
-  padding: 0 13px;
+  padding: 0 38px 0 13px;
   border: 1px solid var(--line2);
   border-radius: 100px;
-  background: var(--paper);
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237a7a82' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  appearance: none;
+  -webkit-appearance: none;
   color: var(--ink2);
   font-size: 12.5px;
   font-family: inherit;
