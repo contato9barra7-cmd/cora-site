@@ -207,6 +207,7 @@ function CoraSelect({ value, options, onChange, icon, className, disabled }) {
         <div
           className="cora-sel-pop"
           style={pos ? { position: 'fixed', left: pos.left, top: pos.top, width: pos.width, right: 'auto' } : undefined}
+          onWheel={(e) => e.stopPropagation()}
         >
           {options.map((o) => (
             <div

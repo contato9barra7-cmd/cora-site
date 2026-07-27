@@ -10128,7 +10128,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    Deixar a setinha por cima só atrapalharia a mira. */
 .ps-folha[data-ferr="pincel"],
 .ps-folha[data-ferr="borracha"]  { cursor: none; }
-.ps-folha[data-ferr="crop"]      { cursor: crosshair; }
+.ps-folha[data-ferr="crop"]      { cursor: default; }
+/* No corte, dentro da moldura o cursor é a SETA padrão, não o ícone de mover
+   (vence a regra genérica de data-alca="mover"). */
+.ps-folha[data-ferr="crop"][data-alca="mover"] { cursor: default; }
 
 /* Rasterizar e afins, no bloco da camada */
 .ps-acoes2 {
