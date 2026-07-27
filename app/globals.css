@@ -9107,6 +9107,37 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .ps-sel:hover { border-color: var(--accent); }
 
+/* ── Dropdown da marca (React CoraSelect): popup arredondado, destaque roxo/verde
+   da marca, sem o azul do sistema. Igual ao seletor de idioma. ── */
+.cora-sel-wrap { position: relative; box-sizing: border-box; }
+.cora-sel-trigger {
+  display: flex; align-items: center; gap: 8px; width: 100%; box-sizing: border-box;
+  background: var(--paper); border: 1px solid var(--line2); border-radius: 100px;
+  color: var(--ink2); font-size: 12.5px; font-family: inherit; padding: 0 14px; height: 34px;
+  cursor: pointer; transition: border-color .15s;
+}
+.cora-sel-trigger:hover, .cora-sel-trigger.aberto { border-color: var(--accent); }
+.cora-sel-ico { flex: 0 0 auto; display: flex; align-items: center; color: var(--ink3); }
+.cora-sel-lbl { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+.cora-sel-arrow { flex: 0 0 auto; display: flex; align-items: center; opacity: .5; transition: transform .15s; }
+.cora-sel-trigger.aberto .cora-sel-arrow { transform: rotate(180deg); }
+.cora-sel-pop {
+  position: absolute; left: 0; right: 0; top: calc(100% + 5px); z-index: 100;
+  background: var(--paper); border: 1px solid var(--line2); border-radius: 12px; padding: 5px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.14); max-height: 300px; overflow-y: auto;
+}
+.cora-sel-op {
+  padding: 8px 12px; border-radius: 9px; color: var(--ink2); font-size: 12.5px;
+  cursor: pointer; white-space: nowrap; transition: background .1s;
+}
+.cora-sel-op:hover, .cora-sel-op.sel {
+  background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent);
+}
+.cora-sel-op.sel { font-weight: 600; }
+.cora-sel-trigger:disabled { opacity: .5; cursor: default; }
+.cora-sel-wrap.ps-sel--min { flex: 0 0 auto; height: auto; min-width: 124px; }
+.cora-sel-wrap.cora-sel-flex { flex: 1; min-width: 0; }
+
 .ps-linha input[type="range"] {
   -webkit-appearance: none;
   appearance: none;

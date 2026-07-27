@@ -151,6 +151,54 @@ function proporcaoMaisProxima(w, h) {
   return melhor;
 }
 
+// ── Dropdown da marca (substitui o <select> nativo p/ tirar o azul do SO e ter
+//    popup arredondado com destaque roxo, igual ao seletor de idioma) ──
+function CoraSelect({ value, options, onChange, icon, className, disabled }) {
+  const [aberto, setAberto] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!aberto) return;
+    const fora = (e) => { if (ref.current && !ref.current.contains(e.target)) setAberto(false); };
+    document.addEventListener('mousedown', fora);
+    return () => document.removeEventListener('mousedown', fora);
+  }, [aberto]);
+  const atual = options.find((o) => o.value === value);
+  return (
+    <div className={'cora-sel-wrap' + (className ? ' ' + className : '')} ref={ref}>
+      <button
+        type="button"
+        disabled={disabled}
+        className={'cora-sel-trigger' + (aberto ? ' aberto' : '')}
+        onClick={() => { if (!disabled) setAberto((a) => !a); }}
+      >
+        {icon && <span className="cora-sel-ico">{icon}</span>}
+        <span className="cora-sel-lbl">{atual ? atual.label : ''}</span>
+        <span className="cora-sel-arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+        </span>
+      </button>
+      {aberto && !disabled && (
+        <div className="cora-sel-pop">
+          {options.map((o) => (
+            <div
+              key={o.value}
+              className={'cora-sel-op' + (o.value === value ? ' sel' : '')}
+              onClick={() => { onChange(o.value); setAberto(false); }}
+            >
+              {o.label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Ícone de proporção (moldura) usado à esquerda do dropdown de corte.
+const ICONE_ASPECTO = (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="3" y="7" width="13" height="11" rx="2" /><rect x="9" y="4" width="12" height="10" rx="2" /></svg>
+);
+
 export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagemInicial, timelapseRetorno, aoConcluirTimelapse, aoCancelarTimelapse }) {
   const { t } = useIdioma();
   // ── A pilha ──
@@ -2146,10 +2194,35 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     return null;   // fora da moldura: começa uma nova
   }
 
+  // [a, b] da proporção atual. 'original' => dimensões da imagem.
+  function ratioAB(rt) {
+    if (rt === 'original') return med ? [med.w, med.h] : [1, 1];
+    return rt.split(':').map(Number);
+  }
+
+  // Em "Livre", mostra sozinho no dropdown a proporção atual do corte quando ela
+  // bate com uma opção (inclui "Original"). Só feedback — não trava nada.
+  function ratioExibidoAtual() {
+    if (ratio !== 'livre' || !crop || !med) return ratio;
+    const w = Math.abs(crop.x1 - crop.x0), h = Math.abs(crop.y1 - crop.y0);
+    if (h <= 0) return 'livre';
+    const asp = w / h;
+    let melhor = 'livre', menorDif = 0.02;
+    for (const r of RATIOS_CROP) {
+      if (r === 'livre') continue;
+      const [a, b] = ratioAB(r);
+      const a2 = a / b;
+      if (!isFinite(a2) || a2 <= 0) continue;
+      const dif = Math.abs(asp - a2) / a2;
+      if (dif < menorDif) { menorDif = dif; melhor = r; }
+    }
+    return melhor;
+  }
+
   function comRatio(r, ancora) {
     if (ratio === 'livre') return r;
 
-    const [a, b] = ratio.split(':').map(Number);
+    const [a, b] = ratioAB(ratio);
 
     const x0 = Math.min(r.x0, r.x1);
     const y0 = Math.min(r.y0, r.y1);
@@ -2175,7 +2248,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     // Ao escolher uma proporção, a moldura nasce CENTRADA e do maior tamanho que
     // cabe. É o enquadramento que quase sempre se quer — e de onde é fácil sair
     // arrastando, se não for.
-    const [a, b] = r.split(':').map(Number);
+    const [a, b] = ratioAB(r);
 
     let w = med.w;
     let h = (w * b) / a;
@@ -2205,7 +2278,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     // Com proporção travada, mexer num lado arrasta o outro junto — senão o
     // select diria "16:9" e a moldura seria outra coisa.
     if (ratio !== 'livre') {
-      const [a, b] = ratio.split(':').map(Number);
+      const [a, b] = ratioAB(ratio);
       if (w != null) nh = (nw * b) / a;
       else           nw = (nh * a) / b;
     }
@@ -2226,7 +2299,12 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     const h = Math.abs(crop.y1 - crop.y0);
 
     // A proporção acompanha: 16:9 vira 9:16.
-    if (ratio !== 'livre') {
+    if (ratio === 'original' && med) {
+      const gcd = (x, y) => { x = Math.round(x); y = Math.round(y); return y ? gcd(y, x % y) : x; };
+      const g = gcd(med.w, med.h) || 1;
+      const virado = `${Math.round(med.h / g)}:${Math.round(med.w / g)}`;
+      if (RATIOS_CROP.includes(virado)) setRatio(virado);
+    } else if (ratio !== 'livre') {
       const [a, b] = ratio.split(':');
       const virado = `${b}:${a}`;
       if (RATIOS_CROP.includes(virado)) setRatio(virado);
@@ -2913,15 +2991,16 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
             {crop ? (
               <>
-                <select
-                  className="ps-sel ps-sel--min"
-                  value={ratio}
-                  onChange={(e) => trocarRatio(e.target.value)}
-                >
-                  {RATIOS_CROP.map((r) => (
-                    <option key={r} value={r}>{r === 'livre' ? t('painelpos_livre') : r}</option>
-                  ))}
-                </select>
+                <CoraSelect
+                  className="ps-sel--min"
+                  value={ratioExibidoAtual()}
+                  onChange={trocarRatio}
+                  icon={ICONE_ASPECTO}
+                  options={RATIOS_CROP.map((r) => ({
+                    value: r,
+                    label: r === 'livre' ? t('painelpos_livre') : (r === 'original' ? t('painelpos_original') : r),
+                  }))}
+                />
 
                 {/* Os números. Cortar "no olho" não serve quando o destino tem
                     medida certa — um post, um slide, uma impressão. */}
@@ -3141,14 +3220,13 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
             <div className="ps-linha">
               <label>{t('painelpos_mesclagem')}</label>
-              <select
-                className="ps-sel"
+              <CoraSelect
+                className="cora-sel-flex"
                 value={ativa ? ativa.blend : 'source-over'}
                 disabled={!ativa}
-                onChange={(e) => mudar(ativa.id, { blend: e.target.value })}
-              >
-                {BLENDS.map((b) => <option key={b.val} value={b.val}>{tOpt(b.rotulo)}</option>)}
-              </select>
+                onChange={(v) => ativa && mudar(ativa.id, { blend: v })}
+                options={BLENDS.map((b) => ({ value: b.val, label: tOpt(b.rotulo) }))}
+              />
             </div>
 
             <div className="ps-linha">
