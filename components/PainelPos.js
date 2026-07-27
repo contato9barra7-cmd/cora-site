@@ -155,21 +155,41 @@ function proporcaoMaisProxima(w, h) {
 //    popup arredondado com destaque roxo, igual ao seletor de idioma) ──
 function CoraSelect({ value, options, onChange, icon, className, disabled }) {
   const [aberto, setAberto] = useState(false);
+  const [pos, setPos] = useState(null);
   const ref = useRef(null);
+  const trigRef = useRef(null);
   useEffect(() => {
     if (!aberto) return;
     const fora = (e) => { if (ref.current && !ref.current.contains(e.target)) setAberto(false); };
+    const fecha = () => setAberto(false);
     document.addEventListener('mousedown', fora);
-    return () => document.removeEventListener('mousedown', fora);
+    window.addEventListener('resize', fecha);
+    window.addEventListener('scroll', fecha, true);
+    return () => {
+      document.removeEventListener('mousedown', fora);
+      window.removeEventListener('resize', fecha);
+      window.removeEventListener('scroll', fecha, true);
+    };
   }, [aberto]);
+  // Popup em position:fixed (medido a partir do gatilho): escapa do overflow da
+  // barra de opções, que senão cortava o dropdown e ele "não descia".
+  function alternar() {
+    if (disabled) return;
+    if (!aberto && trigRef.current) {
+      const r = trigRef.current.getBoundingClientRect();
+      setPos({ left: r.left, top: r.bottom + 5, width: r.width });
+    }
+    setAberto((a) => !a);
+  }
   const atual = options.find((o) => o.value === value);
   return (
     <div className={'cora-sel-wrap' + (className ? ' ' + className : '')} ref={ref}>
       <button
         type="button"
+        ref={trigRef}
         disabled={disabled}
         className={'cora-sel-trigger' + (aberto ? ' aberto' : '')}
-        onClick={() => { if (!disabled) setAberto((a) => !a); }}
+        onClick={alternar}
       >
         {icon && <span className="cora-sel-ico">{icon}</span>}
         <span className="cora-sel-lbl">{atual ? atual.label : ''}</span>
@@ -178,7 +198,10 @@ function CoraSelect({ value, options, onChange, icon, className, disabled }) {
         </span>
       </button>
       {aberto && !disabled && (
-        <div className="cora-sel-pop">
+        <div
+          className="cora-sel-pop"
+          style={pos ? { position: 'fixed', left: pos.left, top: pos.top, width: pos.width, right: 'auto' } : undefined}
+        >
           {options.map((o) => (
             <div
               key={o.value}
@@ -609,7 +632,8 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       // pareceria um defeito; com ela, fica claro que encostou no centro.
       if (guias.length) {
         cx.save();
-        cx.strokeStyle = '#FF3D8A';    // rosa: não se confunde com nada na imagem
+        // Cor da marca: roxo no tema claro, verde no escuro (lê a var --accent).
+        cx.strokeStyle = (getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#A4A1F3');
         cx.lineWidth = 1 / escala;
         cx.setLineDash([]);
 
@@ -1569,7 +1593,21 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       r.x1 = Math.max(0, Math.min(r.x1, med.w));
       r.y1 = Math.max(0, Math.min(r.y1, med.h));
 
-      setCrop(comRatio(r, g.alca));
+      // Cantos: SEMPRE na proporção (a do ratio se travado, senão a da caixa no
+      // início do arraste). Bordas centrais: LIVRES, salvo com Shift.
+      const ehCanto = g.alca === 'no' || g.alca === 'ne' || g.alca === 'so' || g.alca === 'se';
+      const manterProp = ehCanto || e.shiftKey;
+      if (manterProp) {
+        let aspecto;
+        if (ratio !== 'livre') { const [aa, bb] = ratioAB(ratio); aspecto = aa / bb; }
+        else {
+          const w0 = Math.abs(d.x1 - d.x0), h0 = Math.abs(d.y1 - d.y0);
+          aspecto = h0 > 0 ? w0 / h0 : 1;
+        }
+        setCrop(imporAspecto(r, g.alca, aspecto));
+      } else {
+        setCrop(r);
+      }
       return;
     }
 
@@ -2237,6 +2275,29 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     return paraCima
       ? { x0, y0: y0 + Math.abs(r.y1 - r.y0) - h, x1: x0 + w, y1: y0 + Math.abs(r.y1 - r.y0) }
       : { x0, y0, x1: x0 + w, y1: y0 + h };
+  }
+
+  // Impõe um aspecto (largura/altura) conforme a alça:
+  //  cantos  -> largura manda, altura segue, ancorada no canto oposto
+  //  n / s   -> altura manda, largura segue, centrada em X
+  //  o / l   -> largura manda, altura segue, centrada em Y
+  function imporAspecto(r, alca, aspecto) {
+    if (!isFinite(aspecto) || aspecto <= 0) return r;
+    const x0 = Math.min(r.x0, r.x1), y0 = Math.min(r.y0, r.y1);
+    const w = Math.abs(r.x1 - r.x0), h = Math.abs(r.y1 - r.y0);
+    if (alca === 'n' || alca === 's') {
+      const nw = h * aspecto, cx = x0 + w / 2;
+      return { x0: cx - nw / 2, y0, x1: cx + nw / 2, y1: y0 + h };
+    }
+    if (alca === 'o' || alca === 'l') {
+      const nh = w / aspecto, cy = y0 + h / 2;
+      return { x0, y0: cy - nh / 2, x1: x0 + w, y1: cy + nh / 2 };
+    }
+    const nh = w / aspecto;
+    const paraCima = alca === 'no' || alca === 'ne';
+    return paraCima
+      ? { x0, y0: y0 + h - nh, x1: x0 + w, y1: y0 + h }
+      : { x0, y0, x1: x0 + w, y1: y0 + nh };
   }
 
   // ── A barra do crop ──
