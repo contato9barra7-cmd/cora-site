@@ -6662,6 +6662,16 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .pk-item { position: relative; }
 
+.pk-fav {
+  position: absolute;
+  top: 4px; left: 4px;
+  z-index: 2;
+  display: flex; line-height: 0;
+  color: var(--accent);
+  filter: drop-shadow(0 0 2px rgba(0,0,0,.55));
+  pointer-events: none;
+}
+
 .pk-visto {
   position: absolute;
   top: 5px;

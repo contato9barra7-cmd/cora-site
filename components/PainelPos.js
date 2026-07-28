@@ -3098,6 +3098,12 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
             if (espaco.current) return;   // com o espaço, o clique é da mão
             if (e.target !== e.currentTarget) return;   // caiu na imagem, não aqui
 
+            // Ferramentas de seleção geométrica: clicar no "fora" NÃO desmarca —
+            // é parte do gesto (fixa um vértice do laço poligonal, ou começa o
+            // letreiro/laço na borda, estilo PS). Encaminha pro handler de seleção;
+            // o ponto fica nas coords reais e a máscara recorta sozinha.
+            if (['ret', 'elip', 'laco', 'lacoPoli'].includes(ferr)) { descer(e); return; }
+
             // O branco em volta da imagem é o "fora". Clicar nele larga o que
             // estiver marcado — a seleção, ou a camada.
             if (temSel) desmarcar();
@@ -3105,6 +3111,10 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
               setSel([]);
               setAlvo(null);
             }
+          }}
+          onDoubleClick={(e) => {
+            // Fechar o laço poligonal com duplo-clique fora da imagem também vale.
+            if (ferr === 'lacoPoli' && e.target === e.currentTarget) duploClique(e);
           }}
         >
 

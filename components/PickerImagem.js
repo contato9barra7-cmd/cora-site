@@ -435,6 +435,14 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
                               </svg>
                             </span>
                           )}
+                          {/* Favoritada: coração no canto (nunca estrela) */}
+                          {i.favorito && (
+                            <span className="pk-fav">
+                              <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                                <path d="M12 20.5C6.5 16 3 13 3 8.9A4.4 4.4 0 017.4 4.5c1.9 0 3.6 1.1 4.6 2.8 1-1.7 2.7-2.8 4.6-2.8A4.4 4.4 0 0121 8.9c0 4.1-3.5 7.1-9 11.6z"/>
+                              </svg>
+                            </span>
+                          )}
                           {/* A miniatura, não a original: aqui o card tem
                               uns 100px. Baixar 4 MB para isso era o que
                               deixava a gaveta lenta. */}
