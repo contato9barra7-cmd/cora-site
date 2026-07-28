@@ -15,7 +15,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-export default function CampoRefs({ valor, onMudar, refs, placeholder, className }) {
+export default function CampoRefs({ valor, onMudar, refs, placeholder, className, prefixo = 'img' }) {
   const [aberto, setAberto] = useState(false);
   const [marcado, setMarcado] = useState(0);
   const [inicioArroba, setInicioArroba] = useState(-1);
@@ -50,7 +50,7 @@ export default function CampoRefs({ valor, onMudar, refs, placeholder, className
   }
 
   function inserir(i) {
-    const rotulo = '@img' + String(i + 1).padStart(2, '0');
+    const rotulo = '@' + prefixo + String(i + 1).padStart(2, '0');
     const area   = areaRef.current;
     const cursor = area.selectionStart;
 
@@ -110,7 +110,7 @@ export default function CampoRefs({ valor, onMudar, refs, placeholder, className
               type="button"
             >
               <img src={r.previa} alt="" />
-              <span>@img{String(i + 1).padStart(2, '0')}</span>
+              <span>@{prefixo}{String(i + 1).padStart(2, '0')}</span>
             </button>
           ))}
         </div>

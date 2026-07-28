@@ -86,11 +86,20 @@ export default function PainelAnalises({ onUsar }) {
   // Dois níveis: DE ONDE veio (web | plugin) e QUAL ferramenta (render | batch)
   const [plataforma, setPlataforma] = useState('todas');  // todas | web | plugin
   const [filtro, setFiltro]         = useState('todas');  // todas | render | batch
-  const [aberta, setAberta]     = useState(null);      // a leitura expandida
+  const [aberta, setAberta]     = useState(null);      // o GRUPO expandido (chave)
   const [apagando, setApagando] = useState(null);
   const [copiada, setCopiada]   = useState(null);
   const [levando, setLevando]   = useState(null);
   const [menuAberto, setMenuAberto] = useState(null);   // 'plataforma' | 'filtro'
+  const [versaoSel, setVersaoSel] = useState({});       // { chaveGrupo: idDaVersão }
+
+  // Mesma imagem (mesma chaveImagem) = várias VERSÕES de uma leitura, num card só.
+  function grupoChave(l) { return l.chaveImagem ? ('img:' + l.chaveImagem) : ('id:' + l.id); }
+  function origemLbl(o) {
+    return o === 'planta' ? t('painelanalises_planta')
+         : o === 'batch'  ? 'Batch'
+         : 'Render';
+  }
 
   // ── Levar a leitura para um painel, com a imagem junto ──
   //
@@ -235,7 +244,8 @@ export default function PainelAnalises({ onUsar }) {
           opcoes={[
             { v: 'todas',  r: t('painelanalises_todas') },
             { v: 'render', r: 'Render' },
-            { v: 'batch',  r: 'Batch' }
+            { v: 'batch',  r: 'Batch' },
+            { v: 'planta', r: t('painelanalises_planta') }
           ]}
         />
       </div>
@@ -252,78 +262,111 @@ export default function PainelAnalises({ onUsar }) {
         </div>
       )}
 
-      {!carregando && filtrados.map((l) => {
-        const expandida = aberta === l.id;
+      {!carregando && (() => {
+        // Agrupa as leituras filtradas por imagem (a lista já vem do servidor
+        // em ordem decrescente: mais recente primeiro).
+        const grupos = [];
+        const mapa = {};
+        filtrados.forEach((l) => {
+          const k = grupoChave(l);
+          if (!mapa[k]) { mapa[k] = { k, versoes: [] }; grupos.push(mapa[k]); }
+          mapa[k].versoes.push(l);
+        });
 
-        return (
-          <div key={l.id} className={'an-item' + (expandida ? ' an-item--on' : '')}>
-            <button
-              className="an-cab"
-              onClick={() => setAberta(expandida ? null : l.id)}
-            >
-              {l.thumb
-                ? <img src={l.thumb} alt="" className="an-thumb" />
-                : <span className="an-thumb an-thumb--vazia" />}
+        return grupos.map(({ k, versoes }) => {
+          const atual = versoes.find((v) => String(v.id) === String(versaoSel[k])) || versoes[0];
+          const multi = versoes.length > 1;
+          const expandida = aberta === k;
+          const ehBatch = atual.origem === 'batch';
 
-              <span className="an-txt">
-                <span className="an-topo">
-                  <span className="an-tit">{tituloTraduzido(l.titulo, t('painelanalises_sem_titulo'))}</span>
-                  <span className="an-tag">{l.origem === 'batch' ? 'Batch' : 'Render'}</span>
-                  <span className={'an-tag an-tag--' + (l.plataforma || 'web')}>
-                    {(l.plataforma || 'web') === 'plugin' ? 'Plugin' : 'Web'}
+          return (
+            <div key={k} className={'an-item' + (expandida ? ' an-item--on' : '')}>
+              <button
+                className="an-cab"
+                onClick={() => setAberta(expandida ? null : k)}
+              >
+                {atual.thumb
+                  ? <img src={atual.thumb} alt="" className="an-thumb" />
+                  : <span className="an-thumb an-thumb--vazia" />}
+
+                <span className="an-txt">
+                  <span className="an-topo">
+                    <span className="an-tit">{tituloTraduzido(atual.titulo, t('painelanalises_sem_titulo'))}</span>
+                    {multi && <span className="an-tag an-tag--vers">{versoes.length} {t('painelanalises_versoes')}</span>}
+                    <span className="an-tag">{origemLbl(atual.origem)}</span>
+                    <span className={'an-tag an-tag--' + (atual.plataforma || 'web')}>
+                      {(atual.plataforma || 'web') === 'plugin' ? 'Plugin' : 'Web'}
+                    </span>
                   </span>
+                  <span className="an-quando">{quando(atual.criadoEm, t, idioma)}</span>
+                  {!expandida && <span className="an-prev">{atual.materiais}</span>}
                 </span>
-                <span className="an-quando">{quando(l.criadoEm, t, idioma)}</span>
-                {!expandida && <span className="an-prev">{l.materiais}</span>}
-              </span>
 
-              <span className={'an-seta' + (expandida ? ' an-seta--on' : '')}>
-                <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <path d="M6 8l4 4 4-4" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </span>
-            </button>
+                <span className={'an-seta' + (expandida ? ' an-seta--on' : '')}>
+                  <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <path d="M6 8l4 4 4-4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+              </button>
 
-            {expandida && (
-              <div className="an-corpo">
-                <div className="an-materiais">{l.materiais}</div>
+              {expandida && (
+                <div className="an-corpo">
+                  {multi && (
+                    <>
+                      <div className="an-vers-label">{t('painelanalises_versao')}</div>
+                      <select
+                        className="an-vers-sel"
+                        value={String(atual.id)}
+                        onChange={(e) => setVersaoSel((s) => ({ ...s, [k]: e.target.value }))}
+                      >
+                        {versoes.map((v, idx) => {
+                          const ehOrig = idx === versoes.length - 1;   // a mais antiga
+                          const lbl = (ehOrig ? t('painelanalises_original') : t('painelanalises_editada'))
+                            + ' · ' + origemLbl(v.origem)
+                            + ' · ' + quando(v.criadoEm, t, idioma);
+                          return <option key={v.id} value={String(v.id)}>{lbl}</option>;
+                        })}
+                      </select>
+                    </>
+                  )}
 
-                <div className="an-acoes">
-                  <button className="cr-b" onClick={(e) => copiar(e, l)}>
-                    {copiada === l.id ? t('painelanalises_copiado') : t('painelanalises_copiar')}
-                  </button>
+                  <div className="an-materiais">{atual.materiais}</div>
 
-                  {/* Só o caminho que faz sentido: uma leitura de batch
-                      descreve uma CENA de um conjunto; uma de render descreve
-                      a imagem inteira. Oferecer os dois confundiria. */}
-                  <button
-                    className="cr-b-conf"
-                    onClick={() => usar(l, l.origem === 'batch' ? 'batch' : 'render')}
-                    disabled={levando === l.id}
-                  >
-                    {levando === l.id
-                      ? t('painelanalises_levando')
-                      : l.origem === 'batch' ? t('painelanalises_usar_batch') : t('painelanalises_usar_render')}
-                  </button>
+                  <div className="an-acoes">
+                    <button className="cr-b" onClick={(e) => copiar(e, atual)}>
+                      {copiada === atual.id ? t('painelanalises_copiado') : t('painelanalises_copiar')}
+                    </button>
 
-                  <button
-                    className="an-lixo"
-                    onClick={(e) => apagar(e, l.id)}
-                    aria-label={t('painelanalises_apagar_aria')}
-                  >
-                    {apagando === l.id ? '...' : (
-                      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
-                        <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
-                      </svg>
-                    )}
-                  </button>
+                    {/* Batch descreve uma CENA; render/planta a imagem inteira. */}
+                    <button
+                      className="cr-b-conf"
+                      onClick={() => usar(atual, ehBatch ? 'batch' : 'render')}
+                      disabled={levando === atual.id}
+                    >
+                      {levando === atual.id
+                        ? t('painelanalises_levando')
+                        : ehBatch ? t('painelanalises_usar_batch') : t('painelanalises_usar_render')}
+                    </button>
+
+                    <button
+                      className="an-lixo"
+                      onClick={(e) => apagar(e, atual.id)}
+                      aria-label={t('painelanalises_apagar_aria')}
+                    >
+                      {apagando === atual.id ? '...' : (
+                        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
+                          <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        );
-      })}
+              )}
+            </div>
+          );
+        });
+      })()}
 
       {!carregando && itens.length > 0 && (
         <p className="an-pe">{t('painelanalises_rodape')}</p>

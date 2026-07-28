@@ -2646,11 +2646,21 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
   useEffect(() => {
     const desce = (e) => {
-      if (e.code !== 'Space' || espaco.current) return;
+      if (e.code !== 'Space') return;
 
       const alvo = e.target.tagName;
       if (alvo === 'INPUT' || alvo === 'TEXTAREA' || alvo === 'SELECT') return;
 
+      // Laço poligonal em andamento: ESPAÇO desfaz o último ponto (não faz pan).
+      // O preview redesenha sozinho no próximo frame (rAF).
+      const g = gesto.current;
+      if (g && g.poli && g.poli.length) {
+        e.preventDefault();
+        if (!e.repeat) g.poli.pop();
+        return;
+      }
+
+      if (espaco.current) return;
       // Sem isto a página rola: o espaço é o "page down" do navegador.
       e.preventDefault();
       espaco.current = true;

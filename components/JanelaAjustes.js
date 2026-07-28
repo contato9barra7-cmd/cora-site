@@ -66,20 +66,39 @@ function calcularAutoLuz(src) {
       hist[L]++; n++;
     }
     if (!n) return null;
+    // média de luminância e saturação média (uma passada extra e barata)
+    let somaL = 0, somaSat = 0;
+    for (let s = 0; s < d.length; s += 4) {
+      if (d[s + 3] < 8) continue;
+      somaL += (0.2126 * d[s] + 0.7152 * d[s + 1] + 0.0722 * d[s + 2]);
+      const mx = Math.max(d[s], d[s + 1], d[s + 2]), mn = Math.min(d[s], d[s + 1], d[s + 2]);
+      somaSat += mx > 0 ? (mx - mn) / mx : 0;
+    }
+    const mean = (somaL / n) / 255, avgSat = somaSat / n;
     const perc = (p) => { const alvo = p * n; let acc = 0; for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= alvo) return v; } return 255; };
-    const bp = perc(0.005) / 255, wp = perc(0.995) / 255, med = perc(0.5) / 255;
+    const pLo = perc(0.0025) / 255, pHi = perc(0.9975) / 255;
     let clipLo = 0, clipHi = 0;
-    for (let a = 0; a <= 4; a++) clipLo += hist[a];
-    for (let b = 251; b < 256; b++) clipHi += hist[b];
+    for (let a = 0; a <= 3; a++) clipLo += hist[a];
+    for (let b = 252; b < 256; b++) clipHi += hist[b];
     clipLo /= n; clipHi /= n;
     const cl = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+    const log2 = (x) => Math.log(x) / Math.LN2;
+    // Exposição: mira a média em ~0.45, SUAVE (×0.6) e com zona morta — imagem
+    // já bem exposta quase não muda.
+    let exposicao = 0;
+    if (mean > 0.02 && Math.abs(mean - 0.45) > 0.03) exposicao = cl(log2(0.45 / mean) / 1.6 * 100 * 0.6, -30, 30);
+    const pretos    = cl(-((pLo - 0.015) / 0.16) * 100 * 0.85, -55, 30);
+    const brancos   = cl(((0.985 - pHi) / 0.16) * 100 * 0.85, -30, 55);
+    const contraste = cl((0.86 - (pHi - pLo)) * 100, 0, 22);
+    const realces   = clipHi > 0.015 ? cl(-clipHi * 350, -40, 0) : 0;
+    const sombras   = clipLo > 0.015 ? cl(clipLo * 350, 0, 40) : 0;
+    // Vibração só quando a imagem está sem cor (não mexe em WB).
+    const vibracao  = cl((0.32 - avgSat) * 120, 0, 28);
     return {
-      exposicao: Math.round(med > 0.02 ? cl(Math.log(0.46 / med) / Math.LN2 / 1.6 * 100, -55, 55) : 0),
-      pretos:    Math.round(cl(-((bp - 0.02) / 0.16) * 100, -60, 40)),
-      brancos:   Math.round(cl(((0.97 - wp) / 0.16) * 100, -40, 60)),
-      contraste: Math.round(cl((0.82 - (wp - bp)) * 120, 0, 28)),
-      realces:   Math.round(clipHi > 0.02 ? cl(-clipHi * 400, -35, 0) : 0),
-      sombras:   Math.round(clipLo > 0.02 ? cl(clipLo * 400, 0, 35) : 0),
+      exposicao: Math.round(exposicao), contraste: Math.round(contraste),
+      realces:   Math.round(realces),   sombras:   Math.round(sombras),
+      brancos:   Math.round(brancos),   pretos:    Math.round(pretos),
+      vibracao:  Math.round(vibracao)
     };
   } catch (e) { return null; }
 }
@@ -114,6 +133,8 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   const refAutoRef = useRef(null);     // cor de referência do automask
   const undoRef = useRef([]);          // pilha de snapshots das máscaras
   const [zoom, setZoom] = useState(1); // zoom da prévia (scroll com pincel)
+  const [mostrarAntes, setMostrarAntes] = useState(false);   // prévia "Antes" (tecla \)
+  const mostrarAntesRef = useRef(false);
   const rafRef = useRef(0);            // frame agendado, para não redesenhar demais
   const arrasteHandle = useRef(null);  // {tipo, compIdx, ...} do pino sendo arrastado
   const [, forcarRender] = useState(0);
@@ -143,20 +164,32 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   // sem esperar o React re-renderizar.
   useEffect(() => { mascarasRef.current = mascaras; }, [mascaras]);
 
-  // Ctrl+Z desfaz a última pincelada/degradê enquanto se edita máscara.
+  // Espelhos p/ o histórico (undo/redo) ler o estado ATUAL na hora de tirar o
+  // snapshot, sem esperar re-render.
+  const pRef = useRef(p);
+  const mascaraAtivaRef = useRef(mascaraAtiva);
+  useEffect(() => { pRef.current = p; }, [p]);
+  useEffect(() => { mascaraAtivaRef.current = mascaraAtiva; }, [mascaraAtiva]);
+  const redoRef = useRef([]);          // pilha de refazer
+  const ultimoHistRef = useRef(0);     // p/ juntar um arraste inteiro num snapshot só
+
+  // Ctrl+Z desfaz / Ctrl+Shift+Z (ou Ctrl+Y) refaz — vale para os ajustes
+  // globais E para as máscaras (histórico próprio da janela).
   useEffect(() => {
     function onKey(e) {
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
-        if (mascaraAtiva != null) {
-          e.preventDefault();
-          desfazer();
-        }
-      }
+      const alvo = e.target && e.target.tagName;
+      if (alvo === 'INPUT' || alvo === 'TEXTAREA' || alvo === 'SELECT') return;
+      // Tecla \ : alterna Antes/Depois
+      if (e.key === '\\') { e.preventDefault(); toggleAntes(); return; }
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const k = (e.key || '').toLowerCase();
+      if (k === 'z' && !e.shiftKey) { e.preventDefault(); desfazer(); }
+      else if ((k === 'z' && e.shiftKey) || k === 'y') { e.preventDefault(); refazer(); }
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mascaraAtiva, p, mascaras]);
+  }, [p, mascaras, mascaraAtiva]);
 
   // ── Desenhar ──
   //
@@ -173,6 +206,9 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
 
     const cx = tela.getContext('2d');
     cx.drawImage(base, 0, 0);
+
+    // Prévia "Antes" (botão / tecla \): mostra a imagem original, sem ajustes.
+    if (mostrarAntesRef.current) return;
 
     const lista = masks || [];
     const mAtiva = ativa != null ? lista[ativa] : null;
@@ -225,6 +261,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   // Grava uma mudança nos params CERTOS: os da máscara ativa, ou os globais.
   // Devolve { p, mascaras } já atualizados, para redesenhar.
   function comMudanca(muda) {
+    historiar();   // guarda o estado ANTES da mudança (arraste vira 1 snapshot)
     if (mascaraAtiva != null && mascaras[mascaraAtiva]) {
       const nm = mascaras.map((m, i) =>
         i === mascaraAtiva ? { ...m, params: muda(m.params) } : m
@@ -280,6 +317,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     const px = base.getContext('2d').getImageData(bx, by, 1, 1).data;
 
     const { temp, tint } = equilibrioDeBranco(px[0], px[1], px[2]);
+    historiar(true);
     const novo = { ...p, cor: { ...p.cor, temp, tint } };
     setP(novo);
     desenhar(novo, mascaras, mascaraAtiva, mascaraAtiva != null);
@@ -287,6 +325,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   }
 
   function resetar() {
+    historiar(true);
     const z = paramsPadrao();
     setP(z);
     setMascaras([]);
@@ -301,12 +340,19 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     if (!src) return;
     const auto = calcularAutoLuz(src);
     if (!auto) return;
-    const { np, nm } = comMudanca((pr) => ({ ...pr, luz: { ...pr.luz, ...auto } }));
+    ultimoHistRef.current = 0;   // ação discreta: garante que vira 1 snapshot
+    const { vibracao, ...luz } = auto;   // vibração vai em cor, o resto em luz
+    const { np, nm } = comMudanca((pr) => ({
+      ...pr,
+      luz: { ...pr.luz, ...luz },
+      cor: { ...pr.cor, vibracao }
+    }));
     desenhar(np, nm, mascaraAtiva, mascaraAtiva != null);
   }
 
   // Zerar só a aba aberta — nos params ATIVOS (máscara ou global).
   function resetarAba() {
+    ultimoHistRef.current = 0;   // ação discreta: vira 1 snapshot
     const z = paramsPadrao();
     const muda = (pr) => {
       if (aba === 'mixer') return { ...pr, mixer: z.mixer };
@@ -341,36 +387,67 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     setProc(false);
   }
 
-  // ═══════════ Ações de máscara ═══════════
-  // ── Desfazer (Ctrl+Z) ──
-  // Antes de cada pincelada/degradê, guardamos uma cópia das máscaras. O
-  // Ctrl+Z restaura a última. Clona os bitmaps para o desfazer ser de verdade.
-  function snapshotMascaras() {
+  // ═══════════ Histórico (undo/redo) ═══════════
+  // Snapshot do estado INTEIRO da janela: params globais + params/bitmaps das
+  // máscaras + qual está ativa. Clona os bitmaps para o desfazer ser de verdade.
+  function clonarMascaras(lista) {
+    return (lista || []).map((m) => ({
+      ...m,
+      params: JSON.parse(JSON.stringify(m.params)),
+      componentes: (m.componentes || []).map((c) => {
+        if (c.tipo === 'pincel' && c.bitmap) {
+          const bm = document.createElement('canvas');
+          bm.width = c.bitmap.width; bm.height = c.bitmap.height;
+          bm.getContext('2d').drawImage(c.bitmap, 0, 0);
+          return { ...c, bitmap: bm };
+        }
+        return { ...c };
+      })
+    }));
+  }
+  function snapEstado() {
+    return {
+      p: JSON.parse(JSON.stringify(pRef.current)),
+      mascaras: clonarMascaras(mascarasRef.current),
+      ativa: mascaraAtivaRef.current
+    };
+  }
+  // Guarda o estado ANTES de uma mudança. `imediato` força (ações discretas);
+  // sem ele, mudanças em rajada (arrastar um slider) juntam num snapshot só.
+  function historiar(imediato) {
     try {
-      const snap = mascaras.map((m) => ({
-        ...m,
-        params: JSON.parse(JSON.stringify(m.params)),
-        componentes: (m.componentes || []).map((c) => {
-          if (c.tipo === 'pincel' && c.bitmap) {
-            const bm = document.createElement('canvas');
-            bm.width = c.bitmap.width; bm.height = c.bitmap.height;
-            bm.getContext('2d').drawImage(c.bitmap, 0, 0);
-            return { ...c, bitmap: bm };
-          }
-          return { ...c };
-        })
-      }));
-      undoRef.current.push({ mascaras: snap, ativa: mascaraAtiva });
-      if (undoRef.current.length > 30) undoRef.current.shift();
+      const agora = Date.now();
+      if (!imediato && agora - ultimoHistRef.current < 400) return;
+      ultimoHistRef.current = agora;
+      undoRef.current.push(snapEstado());
+      if (undoRef.current.length > 40) undoRef.current.shift();
+      redoRef.current = [];
     } catch (e) { /* ignora falha de snapshot */ }
   }
-
-  function desfazer() {
-    if (!undoRef.current.length) return;
-    const s = undoRef.current.pop();
+  function aplicarSnap(s) {
+    setP(s.p);
     setMascaras(s.mascaras);
     setMascaraAtiva(s.ativa);
-    desenhar(p, s.mascaras, s.ativa, s.ativa != null);
+    desenhar(s.p, s.mascaras, s.ativa, s.ativa != null);
+  }
+  function desfazer() {
+    if (!undoRef.current.length) return;
+    redoRef.current.push(snapEstado());
+    aplicarSnap(undoRef.current.pop());
+  }
+  function refazer() {
+    if (!redoRef.current.length) return;
+    undoRef.current.push(snapEstado());
+    aplicarSnap(redoRef.current.pop());
+  }
+
+  // Alterna a prévia entre "Antes" (imagem original) e "Depois" (com ajustes),
+  // estilo Camera Raw — pelo botão ou pela tecla \.
+  function toggleAntes(v) {
+    const nv = v != null ? v : !mostrarAntesRef.current;
+    mostrarAntesRef.current = nv;
+    setMostrarAntes(nv);
+    desenhar(p, mascaras, mascaraAtiva, mascaraAtiva != null);
   }
 
   function criarMascara() {
@@ -462,7 +539,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     if (pegandoWB) return;   // o conta-gotas tem prioridade
     if (mascaraAtiva == null || !ferramenta) return;
 
-    snapshotMascaras();   // para o Ctrl+Z
+    historiar(true);   // para o Ctrl+Z
     const base = baseRef.current;
 
     // ── Degradês: linear e radial ──
@@ -626,7 +703,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
 
   function comecarHandle(tipo, compIdx, e) {
     e.stopPropagation();
-    snapshotMascaras();
+    historiar(true);
     const pt = pontoNaBase(e);
     const comp = mascarasRef.current[mascaraAtiva].componentes[compIdx];
     arrasteHandle.current = { tipo, compIdx, ox: pt.x, oy: pt.y, r0x: comp.rx, r0y: comp.ry };
@@ -763,6 +840,20 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
               previaRef={telaRef}
               onArrastarInicio={comecarHandle}
             />
+
+            {/* Antes/Depois (estilo Camera Raw) — botão + tecla \ */}
+            <button
+              type="button"
+              className={'aj-antes-btn' + (mostrarAntes ? ' aj-antes-btn--on' : '')}
+              onClick={(e) => { e.stopPropagation(); toggleAntes(); }}
+              title={t('janelaajustes_antes_depois') + '  ( \\ )'}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="M12 5v14" />
+              </svg>
+              <span>{t('janelaajustes_antes_depois')}</span>
+            </button>
           </div>
 
           <aside className="aj-lado">
@@ -869,6 +960,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                             <input
                               type="range" min={mn} max={mx} value={brush[k]}
                               onChange={(e) => setBrush({ ...brush, [k]: +e.target.value })}
+                              onDoubleClick={() => setBrush({ ...brush, [k]: BRUSH_PADRAO[k] })}
                               aria-label={nome}
                             />
                           </div>

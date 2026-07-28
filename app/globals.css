@@ -85,6 +85,11 @@
   --line2: #44444C;
 }
 
+/* Seleção de texto no accent do tema (roxo no claro, verde no escuro),
+   igual ao plugin — nunca o azul padrão do navegador. */
+::selection { background: var(--accent); color: #000; }
+::-moz-selection { background: var(--accent); color: #000; }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
@@ -873,7 +878,7 @@ select.login-input { padding-right: 34px; }
 .app-user-btn { background: none; border: none; cursor: pointer; padding: 0; position: relative; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; }
 .app-anel { position: absolute; top: 0; left: 0; transform: rotate(0deg); }
 .app-anel-bg { fill: none; stroke: var(--line); stroke-width: 3; }
-.app-anel-fill { fill: none; stroke: var(--roxo); stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset .4s ease; }
+.app-anel-fill { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset .4s ease; }
 .app-avatar {
   width: 36px; height: 36px; border-radius: 50%; background: var(--roxo); color: #fff;
   display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px;
@@ -5207,6 +5212,21 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink3);
   font-size: 10px;
   font-weight: 500;
+}
+
+/* Tag "N versões" e o seletor de versões (mesma imagem = várias leituras) */
+.an-tag--vers { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+.an-vers-label { font-size: 10px; color: var(--ink3); text-transform: uppercase; letter-spacing: .05em; margin: 10px 0 5px; }
+.an-vers-sel {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line2);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12.5px;
+  cursor: pointer;
 }
 
 .an-quando {
@@ -9645,6 +9665,33 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* Com o conta-gotas ativo, a prévia vira alvo de clique. */
 .aj-previa--wb canvas { cursor: crosshair; }
 .aj-previa--pincel canvas { cursor: none; }
+
+/* Botão Antes/Depois (canto inferior esquerdo da prévia) */
+.aj-antes-btn {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  color: var(--ink2);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+  z-index: 3;
+}
+.aj-antes-btn:hover { color: var(--ink); border-color: var(--ink3); }
+.aj-antes-btn--on {
+  background: var(--accent);
+  color: var(--accent-txt);
+  border-color: var(--accent);
+}
 
 /* O círculo que mostra o tamanho do pincel, seguindo o mouse. */
 .aj-cursor-pincel {

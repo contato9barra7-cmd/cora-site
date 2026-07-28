@@ -281,7 +281,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       referencias: refs.map((r, i) => ({
         base64: r.base64,
         mimeType: 'image/png',
-        label: '@img' + String(i + 1).padStart(2, '0')
+        label: '@ref' + String(i + 1).padStart(2, '0')
       }))
     };
 
@@ -373,7 +373,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
         {/* ── Tipo de ambiente ── */}
         <div className="cr-sec">{t('painelrender_tipo_ambiente')}</div>
-        <div className="cr-g3">
+        <div className="cr-g3" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
           {TIPOS.map((tp) => (
             <button
               key={tp.val}
@@ -571,7 +571,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
                 onClick={() => setRefs((rs) => rs.filter((_, j) => j !== i))}
                 aria-label={t('painelrender_remover_referencia')}
               >×</button>
-              <span className="cr-ref-n">@img{String(i + 1).padStart(2, '0')}</span>
+              <span className="cr-ref-n">@ref{String(i + 1).padStart(2, '0')}</span>
             </div>
           ))}
           {refs.length < MAX_REFS && (
@@ -590,18 +590,19 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           valor={refTexto}
           onMudar={setRefTexto}
           refs={refs}
+          prefixo="ref"
         />
 
         {/* Confere se as @img que a pessoa escreveu existem mesmo */}
         {(() => {
-          const citadas = [...refTexto.matchAll(/@img(\d{1,2})/gi)]
+          const citadas = [...refTexto.matchAll(/@ref(\d{1,2})/gi)]
             .map((m) => parseInt(m[1], 10));
           const orfas = [...new Set(citadas)].filter((n) => n < 1 || n > refs.length);
 
           if (orfas.length > 0) {
             return (
               <p className="cr-hint cr-hint--erro">
-                {orfas.map((n) => '@img' + String(n).padStart(2, '0')).join(', ')}
+                {orfas.map((n) => '@ref' + String(n).padStart(2, '0')).join(', ')}
                 {orfas.length === 1 ? t('painelrender_nao_existe') : t('painelrender_nao_existem')}{t('painelrender_voce_tem')}{refs.length}
                 {refs.length === 1 ? t('painelrender_referencia_sing') : t('painelrender_referencia_plur')}.
               </p>
