@@ -935,6 +935,7 @@ export default function AppPage() {
               setOcupado={setOcupado}
               onProgresso={setProgresso}
               onPronto={aoGerarBatch}
+              onFeedAtualizar={recarregarComFolga}
             />
           </div>
 

@@ -74,6 +74,65 @@ export default function Visualizador({
 
   const parRef = useRef(null);
 
+  // ── Zoom/pan do visualizador ──
+  //  Scroll amplia (ancorado no cursor), arrastar move quando ampliado,
+  //  duplo-clique reseta. Funciona nos 3 modos. Quando ampliado, o arrasto
+  //  vira PAN e desliga a cortina/segurar (por isso o capture + stopPropagation).
+  const areaRef = useRef(null);
+  const zoomRef = useRef({ zoom: 1, pan: { x: 0, y: 0 } });
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan]   = useState({ x: 0, y: 0 });
+
+  function resetarZoom() {
+    zoomRef.current = { zoom: 1, pan: { x: 0, y: 0 } };
+    setZoom(1); setPan({ x: 0, y: 0 });
+  }
+  // Reseta ao trocar de imagem ou de modo (senão fica "preso" ampliado)
+  useEffect(() => { resetarZoom(); }, [item?.url, modo]);
+
+  // Roda do mouse: listener nativo não-passivo (senão o preventDefault falha)
+  useEffect(() => {
+    const el = areaRef.current;
+    if (!el) return;
+    const aoScroll = (e) => {
+      e.preventDefault();
+      const r = el.getBoundingClientRect();
+      const cx = e.clientX - r.left - r.width / 2;
+      const cy = e.clientY - r.top - r.height / 2;
+      const st = zoomRef.current;
+      const fator = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+      const nz = Math.min(6, Math.max(1, st.zoom * fator));
+      let np;
+      if (nz <= 1) np = { x: 0, y: 0 };
+      else { const k = nz / st.zoom; np = { x: cx - k * (cx - st.pan.x), y: cy - k * (cy - st.pan.y) }; }
+      zoomRef.current = { zoom: nz, pan: np };
+      setZoom(nz); setPan(np);
+    };
+    el.addEventListener('wheel', aoScroll, { passive: false });
+    return () => el.removeEventListener('wheel', aoScroll);
+  }, []);
+
+  function iniciarPan(startX, startY) {
+    const p0 = { ...zoomRef.current.pan };
+    const mover = (cx, cy) => {
+      const np = { x: p0.x + (cx - startX), y: p0.y + (cy - startY) };
+      zoomRef.current = { ...zoomRef.current, pan: np };
+      setPan(np);
+    };
+    const mm = (ev) => mover(ev.clientX, ev.clientY);
+    const tm = (ev) => { if (ev.touches[0]) { ev.preventDefault(); mover(ev.touches[0].clientX, ev.touches[0].clientY); } };
+    const up = () => {
+      window.removeEventListener('mousemove', mm);
+      window.removeEventListener('mouseup', up);
+      window.removeEventListener('touchmove', tm);
+      window.removeEventListener('touchend', up);
+    };
+    window.addEventListener('mousemove', mm);
+    window.addEventListener('mouseup', up);
+    window.addEventListener('touchmove', tm, { passive: false });
+    window.addEventListener('touchend', up);
+  }
+
   // ── A forma real das imagens ──
   //
   //  Quando a geração não declara proporção (o preenchimento e a expansão
@@ -250,7 +309,7 @@ export default function Visualizador({
         </header>
 
         {/* A área tem tamanho FIXO — trocar de modo não faz a tela pular */}
-        <div className="vz-area">
+        <div className="vz-area" ref={areaRef}>
 
           {onAnterior && (
             <button className="vz-nav vz-nav--prev" onClick={onAnterior} aria-label={t('visualizador_imagem_anterior')} data-tip={t('visualizador_anterior')}>
@@ -267,6 +326,20 @@ export default function Visualizador({
             </button>
           )}
           {posicao && <span className="vz-pos">{posicao}</span>}
+
+          {zoom > 1 && (
+            <button className="vz-zoom-badge" onClick={resetarZoom} data-tip="Resetar zoom" aria-label="Resetar zoom">
+              {Math.round(zoom * 100)}%
+            </button>
+          )}
+
+          <div
+            className="vz-zoom"
+            style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, cursor: zoom > 1 ? 'grab' : undefined }}
+            onMouseDownCapture={(e) => { if (zoomRef.current.zoom > 1) { e.stopPropagation(); e.preventDefault(); iniciarPan(e.clientX, e.clientY); } }}
+            onTouchStartCapture={(e) => { if (zoomRef.current.zoom > 1 && e.touches[0]) { e.stopPropagation(); iniciarPan(e.touches[0].clientX, e.touches[0].clientY); } }}
+            onDoubleClick={resetarZoom}
+          >
 
           {compara && modo === 'split' && (
             <div
@@ -352,6 +425,8 @@ export default function Visualizador({
               </div>
             </div>
           )}
+
+          </div>{/* .vz-zoom */}
         </div>
 
         {/* O prompt é só do admin */}

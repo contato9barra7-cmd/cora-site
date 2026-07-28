@@ -39,7 +39,7 @@ import { useIdioma } from '../lib/i18n';
 
 const MAX_CENAS = 20;
 
-export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, onPronto, onProgresso, ocupado, setOcupado }) {
+export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, onPronto, onProgresso, onFeedAtualizar, ocupado, setOcupado }) {
   const { t } = useIdioma();
 
   // ── Fase 1 ──
@@ -203,6 +203,17 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
       return;
     }
 
+    // Referência específica DESTA cena (vira @det no servidor). picker = 'det:<i>'
+    if (typeof picker === 'string' && picker.startsWith('det:')) {
+      const idx = parseInt(picker.slice(4), 10);
+      setAnalise((a) => a.map((x, j) => (
+        j === idx
+          ? { ...x, detalhes: [...(x.detalhes || []), { base64, previa }].slice(0, 10) }
+          : x
+      )));
+      return;
+    }
+
     if (cenas.length < MAX_CENAS) {
       setCenas((c) => [...c, {
         id: 'c' + Date.now() + Math.random().toString(36).slice(2, 6),
@@ -322,7 +333,8 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
             materiais: c.materiais,
             qtd:       c.cfg.qtd,
             proporcao: c.cfg.proporcao,
-            resolucao: c.cfg.resolucao
+            resolucao: c.cfg.resolucao,
+            detalhes:  (c.detalhes || []).map((d) => d.base64)   // refs @det desta cena
           };
         }),
         refs: todasRefs.map((r) => r.base64)
@@ -337,6 +349,9 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
             proporcao: c?.cfg.proporcao || '4:5',
             base: printDa(c)
           });
+          // Cada imagem que fica pronta já é salva no servidor — recarrega o
+          // feed na hora pra ela aparecer, sem esperar o batch inteiro acabar.
+          if (onFeedAtualizar) onFeedAtualizar();
         }
       });
 
@@ -581,6 +596,32 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                   onMudar={(campo, v) => mudarCfg(i, campo, v)}
                   travado={ocupado}
                 />
+
+                {/* Referência específica desta cena (ex.: um tipo de planta).
+                    Vira @det no prompt — só desta cena, não do projeto todo. */}
+                <div className="cr-bcena-refs">
+                  <div className="cr-bcena-refs-lbl">{t('painelbatch_ref_cena') || 'Referências desta cena (opcional)'}</div>
+                  <div className="cr-refs cr-refs--mini">
+                    {(c.detalhes || []).map((d, di) => (
+                      <div key={di} className="cr-ref">
+                        <img src={d.previa} alt="" />
+                        <button
+                          className="cr-ref-x"
+                          onClick={() => setAnalise((a) => a.map((x, j) => (
+                            j === i ? { ...x, detalhes: (x.detalhes || []).filter((_, k) => k !== di) } : x
+                          )))}
+                          aria-label="Remover referência"
+                        >×</button>
+                      </div>
+                    ))}
+                    {(c.detalhes || []).length < 10 && (
+                      <button className="cr-ref cr-ref--add" onClick={() => setPicker('det:' + i)}>
+                        <span className="cr-ref-mais">+</span>
+                        <span className="cr-ref-c">{(c.detalhes || []).length}/10</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             ))}
           </>
@@ -697,7 +738,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
         aberto={picker !== null}
         onFechar={() => setPicker(null)}
         onEscolher={escolheu}
-        titulo={picker === 'ref' ? t('painelbatch_add_ref') : t('painelbatch_add_cena')}
+        titulo={picker === 'ref' ? t('painelbatch_add_ref') : (typeof picker === 'string' && picker.startsWith('det:')) ? (t('painelbatch_ref_cena') || 'Referência desta cena') : t('painelbatch_add_cena')}
       />
     </>
   );

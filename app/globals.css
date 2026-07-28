@@ -2392,6 +2392,11 @@ select.perfil-input {
 .cr-ref-mais { font-size: 18px; line-height: 1; }
 .cr-ref-c    { font-size: 8px; }
 
+/* Referências específicas por cena (na verificação do batch) */
+.cr-bcena-refs { margin-top: 10px; }
+.cr-bcena-refs-lbl { font-size: 11px; color: var(--ink3); margin-bottom: 6px; }
+.cr-refs--mini { grid-template-columns: repeat(6, 1fr); }
+
 /* ── Erro ── */
 .cr-erro {
   margin-top: 12px;
@@ -3606,19 +3611,24 @@ select.perfil-input {
 .cr-cards--grade.cr-cards--g  { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
 .cr-cards--grade.cr-cards--gg { grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); }
 
-/* Lista: uma fileira que rola na horizontal */
+/* Lista: as variações de um lote lado a lado. Em vez de rolar na horizontal,
+   quebram para a linha de baixo quando não cabem — todas ficam visíveis. */
 .cr-cards--linha {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  overflow-x: auto;
   padding-bottom: 4px;
 }
 
+/* Largura por proporção da largura disponível: cabem exatamente N por linha
+   (sem barra lateral) e o resto quebra pra baixo. gap = 8px; o -1px extra dá
+   folga contra arredondamento (senão o último às vezes pula de linha).
+   P=8 · M=6 · G=4 · GG=3 por linha. */
 .cr-cards--linha .cr-card { flex-shrink: 0; }
-.cr-cards--linha.cr-cards--p  .cr-card { width: 150px; }
-.cr-cards--linha.cr-cards--m  .cr-card { width: 230px; }
-.cr-cards--linha.cr-cards--g  .cr-card { width: 330px; }
-.cr-cards--linha.cr-cards--gg .cr-card { width: 460px; }
+.cr-cards--linha.cr-cards--p  .cr-card { width: calc((100% - 57px) / 8); }
+.cr-cards--linha.cr-cards--m  .cr-card { width: calc((100% - 41px) / 6); }
+.cr-cards--linha.cr-cards--g  .cr-card { width: calc((100% - 25px) / 4); }
+.cr-cards--linha.cr-cards--gg .cr-card { width: calc((100% - 17px) / 3); }
 
 /* Na lista, os cards de uma mesma linha têm proporções diferentes e alturas
    diferentes. Alinhar pelo topo evita que fiquem dançando na vertical. */
@@ -4051,6 +4061,38 @@ select.perfil-input {
 /* A imagem se destaca do fundo, em vez de boiar nele */
 .vz-par, .vz-sbs-lado { box-shadow: 0 2px 12px rgba(0, 0, 0, .1); border-radius: 6px; }
 
+/* Camada de zoom/pan: preenche a área e centraliza o conteúdo dos 3 modos.
+   O transform (scale + translate) é aplicado inline pelo componente. */
+.vz-zoom {
+  flex: 1 1 auto;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* Selo de zoom (aparece ampliado) — clique reseta */
+.vz-zoom-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 6;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 100px;
+  background: rgba(0, 0, 0, .5);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1;
+}
+.vz-zoom-badge:hover { background: rgba(0, 0, 0, .68); }
+
 /* Split: a cortina revela o print. A largura vem do JS (o arrasto). */
 .vz-cortina {
   position: absolute;
@@ -4168,12 +4210,12 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   overflow: hidden;
 }
 
-/* Na lista, o slot tem a mesma largura do card — senão o "gerando" teria um
-   tamanho e a imagem pronta, outro. */
-.cr-cards--linha.cr-cards--p  .cr-slot { width: 150px; }
-.cr-cards--linha.cr-cards--m  .cr-slot { width: 230px; }
-.cr-cards--linha.cr-cards--g  .cr-slot { width: 330px; }
-.cr-cards--linha.cr-cards--gg .cr-slot { width: 460px; }
+/* Na lista, o slot tem a MESMA largura do card (mesma conta de N por linha) —
+   senão o "gerando" teria um tamanho e a imagem pronta, outro. */
+.cr-cards--linha.cr-cards--p  .cr-slot { width: calc((100% - 57px) / 8); }
+.cr-cards--linha.cr-cards--m  .cr-slot { width: calc((100% - 41px) / 6); }
+.cr-cards--linha.cr-cards--g  .cr-slot { width: calc((100% - 25px) / 4); }
+.cr-cards--linha.cr-cards--gg .cr-slot { width: calc((100% - 17px) / 3); }
 
 .cr-slot--ok {
   border-style: solid;
