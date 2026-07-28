@@ -82,6 +82,7 @@ export default function TelaPincel({
   const ehExpansao = modo === 'expansao';
 
   const historico = useRef([]);
+  const pintUndo = useRef([]);   // pilha de desfazer do PREENCHIMENTO (dataURLs da máscara)
 
   function empilhar() {
     historico.current.push({ m: { ...m }, desl: { ...desl } });
@@ -107,6 +108,30 @@ export default function TelaPincel({
       setDesl(ant.desl);
     };
 
+    window.addEventListener('keydown', tecla);
+    return () => window.removeEventListener('keydown', tecla);
+  }, [ehExpansao]);
+  // ── Desfazer (Ctrl+Z) no PREENCHIMENTO ──
+  // A pilha guarda o desenho ANTES de cada traço; Ctrl+Z restaura o anterior.
+  useEffect(() => {
+    if (ehExpansao) return;
+    const tecla = (e) => {
+      if (!((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey)) return;
+      const alvo = e.target;
+      if (alvo && /^(INPUT|TEXTAREA|SELECT)$/.test(alvo.tagName)) return;
+      const dc = drawRef.current;
+      if (!dc || !pintUndo.current.length) return;
+      e.preventDefault();
+      const url = pintUndo.current.pop();
+      const img = new Image();
+      img.onload = () => {
+        const ctx = dc.getContext('2d');
+        ctx.clearRect(0, 0, dc.width, dc.height);
+        ctx.drawImage(img, 0, 0, dc.width, dc.height);
+        setPintou(true);
+      };
+      img.src = url;
+    };
     window.addEventListener('keydown', tecla);
     return () => window.removeEventListener('keydown', tecla);
   }, [ehExpansao]);
@@ -182,6 +207,7 @@ export default function TelaPincel({
     img.onload = () => {
       imgRef.current = img;
       nativo.current = { w: img.width, h: img.height };
+      pintUndo.current = [];   // zera o desfazer da nova imagem
       ajustar();
     };
     img.src = 'data:image/png;base64,' + base;
@@ -237,8 +263,13 @@ export default function TelaPincel({
       setPintou(true);
     }
     function down(e) {
-      if (e.button !== 0) return;
+      if (e.button !== 0) return;   // só o esquerdo pinta; o meio (pan) não marca
       e.preventDefault();
+      // snapshot pro Ctrl+Z (estado ANTES do traço)
+      try {
+        pintUndo.current.push(dc.toDataURL());
+        if (pintUndo.current.length > 30) pintUndo.current.shift();
+      } catch (err) { /* ignora */ }
       desenhando = true;
       ultimo = ponto(e);
       traco(null, ultimo);
@@ -500,7 +531,10 @@ export default function TelaPincel({
         setM({ cima: 0, baixo: 0, esq: 0, dir: 0 });
       } else {
         const dc = drawRef.current;
-        if (dc) dc.getContext('2d').clearRect(0, 0, dc.width, dc.height);
+        if (dc) {
+          try { pintUndo.current.push(dc.toDataURL()); } catch (err) { /* ignora */ }
+          dc.getContext('2d').clearRect(0, 0, dc.width, dc.height);
+        }
         setPintou(false);
       }
     };
