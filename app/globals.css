@@ -5128,6 +5128,17 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transform: scale(1.08);   /* o blur come as bordas; a escala cobre */
 }
 
+/* A imagem pronta preenche o slot nítida, por cima da base/borda */
+.cr-slot-pronta {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  z-index: 2;
+}
+
 .cr-slot--agora {
   border-style: solid;
   border-color: var(--accent);
@@ -11672,10 +11683,21 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .sup-sub { font-size: 14px; color: #3a3556; margin: 0; }
 .sup-body { padding: 30px 36px 34px; }
 .sup-label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--ink3); margin: 0 0 7px; }
-.sup-campo { width: 100%; box-sizing: border-box; border: 1px solid var(--line2); border-radius: 12px; padding: 12px 14px; font-size: 14.5px; font-family: inherit; background: var(--paper); color: var(--ink); margin-bottom: 18px; }
+/* Nome, E-mail e Assunto (select) em PÍLULA (raio total); padding horizontal
+   maior p/ o texto não colar na curva. */
+.sup-campo { width: 100%; box-sizing: border-box; border: 1px solid var(--line2); border-radius: 100px; padding: 12px 20px; font-size: 14.5px; font-family: inherit; background: var(--paper); color: var(--ink); margin-bottom: 18px; }
 .sup-campo:focus { outline: none; border-color: var(--accent); }
-textarea.sup-campo { min-height: 120px; resize: vertical; }
+/* Mensagem: cantos arredondados suaves (pílula num textarea alto fica estranho) */
+textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px; resize: vertical; }
 .sup-campo--erro { border-color: #c0392b; }
+
+/* Assunto: dropdown da marca (CoraSelect, igual ao seletor de idioma), no mesmo
+   tamanho dos campos em pílula. */
+.sup-select { margin-bottom: 18px; }
+.sup-select .cora-sel-trigger { height: auto; padding: 12px 20px; font-size: 14.5px; color: var(--ink); border-color: var(--line2); }
+.sup-select .cora-sel-arrow { opacity: .6; color: var(--accent); }
+.sup-select--erro .cora-sel-trigger { border-color: #c0392b; }
+
 .sup-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .sup-btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; height: 48px; border: none; border-radius: 100px; background: var(--accent); color: var(--accent-txt); font-size: 14.5px; font-weight: 700; font-family: inherit; cursor: pointer; }
 .sup-btn:disabled { opacity: .5; cursor: default; }

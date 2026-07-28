@@ -314,6 +314,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
     // A primeira cena a sair: sua forma e seu print vão para o slot.
     const primeira = cenasAprovadas[0];
     const printDa = (c) => cenas.find((x) => x.id === c?.cenaId)?.previa || null;
+    const prontas = [];   // imagens já prontas (data URL), por índice do slot
 
     onProgresso({
       feito: 0,
@@ -341,16 +342,20 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
       }, {
         // `emCurso` é a cena que está saindo agora — o slot mostra o print
         // DELA, não o da primeira cena o tempo todo.
-        onProgresso: (feito, total, emCurso) => {
+        onProgresso: (feito, total, emCurso, imagem) => {
           const c = cenasAprovadas.find((x) => x.nome === emCurso?.nome) || primeira;
+          // Guarda a imagem recém-pronta (base64 → data URL) no índice do slot.
+          if (imagem) {
+            prontas[feito - 1] = /^https?:/.test(imagem) ? imagem : ('data:image/png;base64,' + imagem);
+          }
           onProgresso({
             feito, total,
             estado: 'gerando',
             proporcao: c?.cfg.proporcao || '4:5',
-            base: printDa(c)
+            base: printDa(c),
+            prontas: prontas.slice()   // mostra cada imagem no slot assim que sai
           });
-          // Cada imagem que fica pronta já é salva no servidor — recarrega o
-          // feed na hora pra ela aparecer, sem esperar o batch inteiro acabar.
+          // Também recarrega o feed (silencioso) pra a versão salva aparecer embaixo.
           if (onFeedAtualizar) onFeedAtualizar();
         }
       });
@@ -588,19 +593,11 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                   </button>
                 </div>
 
-                {/* A config é de outra natureza — vai embaixo. E NÃO trava ao
-                    aprovar: aprovar é concordar com a leitura, não com a
-                    resolução ou a quantidade. */}
-                <CfgCena
-                  cfg={c.cfg}
-                  onMudar={(campo, v) => mudarCfg(i, campo, v)}
-                  travado={ocupado}
-                />
-
                 {/* Referência específica desta cena (ex.: um tipo de planta).
+                    Fica logo abaixo do texto e ACIMA da config (igual ao plugin).
                     Vira @det no prompt — só desta cena, não do projeto todo. */}
                 <div className="cr-bcena-refs">
-                  <div className="cr-bcena-refs-lbl">{t('painelbatch_ref_cena') || 'Referências desta cena (opcional)'}</div>
+                  <div className="cr-bcena-refs-lbl">Referências desta cena (opcional)</div>
                   <div className="cr-refs cr-refs--mini">
                     {(c.detalhes || []).map((d, di) => (
                       <div key={di} className="cr-ref">
@@ -622,6 +619,15 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                     )}
                   </div>
                 </div>
+
+                {/* A config é de outra natureza — vai embaixo. E NÃO trava ao
+                    aprovar: aprovar é concordar com a leitura, não com a
+                    resolução ou a quantidade. */}
+                <CfgCena
+                  cfg={c.cfg}
+                  onMudar={(campo, v) => mudarCfg(i, campo, v)}
+                  travado={ocupado}
+                />
               </div>
             ))}
           </>
@@ -738,7 +744,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
         aberto={picker !== null}
         onFechar={() => setPicker(null)}
         onEscolher={escolheu}
-        titulo={picker === 'ref' ? t('painelbatch_add_ref') : (typeof picker === 'string' && picker.startsWith('det:')) ? (t('painelbatch_ref_cena') || 'Referência desta cena') : t('painelbatch_add_cena')}
+        titulo={picker === 'ref' ? t('painelbatch_add_ref') : (typeof picker === 'string' && picker.startsWith('det:')) ? 'Referência desta cena' : t('painelbatch_add_cena')}
       />
     </>
   );

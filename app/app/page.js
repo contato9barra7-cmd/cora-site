@@ -1339,6 +1339,12 @@ export default function AppPage() {
                           <img className="cr-slot-base" src={progresso.base} alt="" />
                         )}
 
+                        {/* Imagem JÁ pronta: aparece no slot na hora que sai,
+                            sem esperar o batch inteiro nem o feed recarregar. */}
+                        {!falhou && i < progresso.feito && progresso.prontas && progresso.prontas[i] && (
+                          <img className="cr-slot-pronta" src={progresso.prontas[i]} alt="" />
+                        )}
+
                         {/* O contador, sobre a imagem. Este número é REAL: conta
                             imagens prontas do lote. (Dentro de cada imagem não há
                             progresso — o Gemini não informa quanto falta.) */}

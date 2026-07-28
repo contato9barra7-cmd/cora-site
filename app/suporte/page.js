@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { lerConta, enviarSuporte } from '../../lib/auth';
 import { useIdioma, tOpt } from '../../lib/i18n';
+import CoraSelect from '../../components/CoraSelect';
 
 const CATEGORIAS = [
   'Cobrança e assinatura',
@@ -102,10 +103,15 @@ export default function Suporte() {
               </div>
 
               <label className="sup-label">{t('sup_assunto')}</label>
-              <select className={cls('assunto')} value={assunto} onChange={(e) => setAssunto(e.target.value)}>
-                <option value="">{t('sup_selecione_cat')}</option>
-                {CATEGORIAS.map((c) => <option key={c} value={c}>{tOpt(c)}</option>)}
-              </select>
+              <CoraSelect
+                className={'sup-select' + (faltando.assunto ? ' sup-select--erro' : '')}
+                value={assunto}
+                onChange={setAssunto}
+                options={[
+                  { value: '', label: t('sup_selecione_cat') },
+                  ...CATEGORIAS.map((c) => ({ value: c, label: tOpt(c) })),
+                ]}
+              />
 
               <label className="sup-label">{t('sup_mensagem')}</label>
               <textarea className={cls('mensagem')} value={mensagem} onChange={(e) => setMensagem(e.target.value)} placeholder={t('sup_ph_mensagem')} />
