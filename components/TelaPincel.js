@@ -78,6 +78,7 @@ export default function TelaPincel({
   const zoomRef = useRef(100);
   const panRef  = useRef({ x: 0, y: 0 });
   const nativo  = useRef({ w: 0, h: 0 });
+  const escRef  = useRef(1);   // exibição/nativo — dimensiona o pincel no canvas cheio
   const ehExpansao = modo === 'expansao';
 
   const historico = useRef([]);
@@ -151,22 +152,26 @@ export default function TelaPincel({
     const esc = Math.min(maxW / bbW, maxH / bbH, 1);
     const w = Math.max(1, Math.round(W * esc));
     const h = Math.max(1, Math.round(H * esc));
-    bc.width = w;
-    bc.height = h;
+    escRef.current = esc;
+    // BACKING em resolução CHEIA (nítido ao dar zoom); o CSS reduz pra caber.
+    // Antes o canvas nascia do tamanho de tela e o zoom só esticava esses
+    // pixels — a imagem borrava mesmo vinda em alta resolução.
+    bc.width = W;
+    bc.height = H;
     bc.style.width = w + 'px';
     bc.style.height = h + 'px';
-    bc.getContext('2d').drawImage(img, 0, 0, w, h);
+    bc.getContext('2d').drawImage(img, 0, 0, W, H);
     const dc = drawRef.current;
     if (dc && !ehExpansao) {
       // Preserva o que já foi pintado ao redimensionar
       const pintado = dc.width ? dc.toDataURL() : null;
-      dc.width = w;
-      dc.height = h;
+      dc.width = W;
+      dc.height = H;
       dc.style.width = w + 'px';
       dc.style.height = h + 'px';
       if (pintado) {
         const p = new Image();
-        p.onload = () => dc.getContext('2d').drawImage(p, 0, 0, w, h);
+        p.onload = () => dc.getContext('2d').drawImage(p, 0, 0, dc.width, dc.height);
         p.src = pintado;
       }
     }
@@ -213,12 +218,15 @@ export default function TelaPincel({
         ferrRef.current === 'borracha' ? 'destination-out' : 'source-over';
       ctx.strokeStyle = cor;
       ctx.fillStyle = cor;
-      ctx.lineWidth = tamRef.current;
+      // Canvas agora é cheio; o pincel (px de tela) vira px de canvas dividindo
+      // pela escala de exibição, pra manter o mesmo tamanho na tela.
+      const bpx = tamRef.current / (escRef.current || 1);
+      ctx.lineWidth = bpx;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       // O círculo: sem ele, um clique parado não marca nada.
       ctx.beginPath();
-      ctx.arc(b.x, b.y, tamRef.current / 2, 0, Math.PI * 2);
+      ctx.arc(b.x, b.y, bpx / 2, 0, Math.PI * 2);
       ctx.fill();
       if (a) {
         ctx.beginPath();
@@ -240,7 +248,7 @@ export default function TelaPincel({
       const cur = cursorRef.current;
       if (cur) {
         const r = dc.getBoundingClientRect();
-        const d = tamRef.current * (r.width / dc.width);
+        const d = (tamRef.current / (escRef.current || 1)) * (r.width / dc.width);
         cur.style.width = d + 'px';
         cur.style.height = d + 'px';
         cur.style.left = e.clientX + 'px';
