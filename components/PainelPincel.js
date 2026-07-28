@@ -82,47 +82,54 @@ export default function PainelPincel({
       {/* ── Preenchimento: pincel, borracha, calibre ── */}
       {!ehExpansao && (
         <>
-          <div className="cr-sec">{t('painelpincel_ferramenta')}</div>
-          <div className="cr-chips">
+          {/* Barra única (estilo "Opção C"): ferramentas em ícone, divisor,
+              calibre inline com o valor, e Limpar no fim. */}
+          <div className="pn-bar">
             <button
-              className={'cr-chip' + (ferramenta === 'pincel' ? ' cr-chip--on' : '')}
+              className={'pn-ico' + (ferramenta === 'pincel' ? ' pn-ico--on' : '')}
               onClick={() => setFerramenta('pincel')}
+              title={t('painelpincel_pincel')} aria-label={t('painelpincel_pincel')}
             >
-              <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
-                   stroke="currentColor" strokeWidth="1.5">
-                <path d="M6 14l8-8 2 2-8 8H6v-2z" strokeLinejoin="round"/>
-                <path d="M4 18h12" strokeLinecap="round"/>
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                   strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15.5 5.5l3 3M14 7L5 16c-.5.5-.8 1.2-.9 1.9L3.5 20.5l2.6-.6c.7-.1 1.4-.4 1.9-.9L17 10z"/>
               </svg>
-              {t('painelpincel_pincel')}
             </button>
             <button
-              className={'cr-chip' + (ferramenta === 'borracha' ? ' cr-chip--on' : '')}
+              className={'pn-ico' + (ferramenta === 'borracha' ? ' pn-ico--on' : '')}
               onClick={() => setFerramenta('borracha')}
+              title={t('painelpincel_borracha')} aria-label={t('painelpincel_borracha')}
             >
-              <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
-                   stroke="currentColor" strokeWidth="1.5">
-                <path d="M8 15l-3-3 7-7 3 3-7 7z" strokeLinejoin="round"/>
-                <path d="M5 15h10" strokeLinecap="round"/>
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                   strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 20H5l-2-2a2 2 0 010-2.8l8.5-8.5a2 2 0 012.8 0l4 4a2 2 0 010 2.8L14 20z"/>
+                <path d="M8 20l8-8"/>
               </svg>
-              {t('painelpincel_borracha')}
             </button>
-          </div>
 
-          <div className="pn-lbl">
-            <span className="cr-sec">{t('painelpincel_tamanho')}</span>
-            <em>{tamanho} px</em>
-          </div>
-          <div className="pn-calibre">
+            <span className="pn-sep" />
+
             <input
+              className="pn-bar-range"
               type="range" min="8" max="90" value={tamanho}
               onChange={(e) => setTamanho(+e.target.value)}
+              aria-label={t('painelpincel_tamanho')}
             />
-            {/* O disco mostra o calibre real: o número sozinho não diz nada */}
-            <span
-              className="pn-disco"
-              style={{ width: Math.min(28, tamanho / 3.2) + 'px',
-                       height: Math.min(28, tamanho / 3.2) + 'px' }}
-            />
+            <span className="pn-chip">{tamanho}</span>
+
+            <span className="pn-sep" />
+
+            <button
+              className="pn-ico"
+              onClick={() => limpar?.current?.()}
+              disabled={ocupado}
+              title={t('painelpincel_limpar')} aria-label={t('painelpincel_limpar')}
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                   strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 7h16M9 7V5h6v2M6 7l1 12a1 1 0 001 1h8a1 1 0 001-1l1-12"/>
+              </svg>
+            </button>
           </div>
         </>
       )}
@@ -239,16 +246,6 @@ export default function PainelPincel({
         )}
       </button>
 
-      {/* O Resetar vem depois, largo e discreto — igual ao do Render. */}
-      {!ehExpansao && (
-        <button
-          className="cr-resetar"
-          onClick={() => limpar?.current?.()}
-          disabled={ocupado}
-        >
-          {t('painelpincel_limpar_marcacao')}
-        </button>
-      )}
     </div>
   );
 }

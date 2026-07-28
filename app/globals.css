@@ -6961,6 +6961,43 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: width .1s, height .1s;
 }
 
+/* Preenchimento — barra única (ícones + slider + limpar) */
+.pn-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--paper);
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  padding: 6px 10px;
+  margin: 2px 0 16px;
+}
+.pn-ico {
+  width: 36px; height: 36px; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink3);
+  cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.pn-ico:hover { background: var(--accent-bg); color: var(--accent); }
+.pn-ico--on { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+.pn-ico:disabled { opacity: .4; cursor: default; }
+.pn-sep { width: 1px; height: 20px; background: var(--line2); flex: 0 0 auto; }
+.pn-bar-range { flex: 1; min-width: 70px; accent-color: var(--accent); cursor: pointer; }
+.pn-chip {
+  min-width: 32px; flex: 0 0 auto;
+  text-align: center;
+  font-size: 11px; font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 100px;
+  padding: 2px 6px;
+}
+
 /* As dimensões da moldura, no painel */
 
 

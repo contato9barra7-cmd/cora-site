@@ -15,6 +15,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
+import CoraSelect from './CoraSelect';
 import { listarLeituras, apagarLeitura, bytesDaLeitura, refsDaLeitura } from '../lib/leituras';
 import { bytesDaGeracao } from '../lib/geracoes';
 import { useIdioma, localeDeIdioma, tOpt } from '../lib/i18n';
@@ -314,19 +315,20 @@ export default function PainelAnalises({ onUsar }) {
                   {multi && (
                     <>
                       <div className="an-vers-label">{t('painelanalises_versao')}</div>
-                      <select
-                        className="an-vers-sel"
+                      <CoraSelect
+                        className="an-vers-cora"
                         value={String(atual.id)}
-                        onChange={(e) => setVersaoSel((s) => ({ ...s, [k]: e.target.value }))}
-                      >
-                        {versoes.map((v, idx) => {
+                        onChange={(id) => setVersaoSel((s) => ({ ...s, [k]: id }))}
+                        options={versoes.map((v, idx) => {
                           const ehOrig = idx === versoes.length - 1;   // a mais antiga
-                          const lbl = (ehOrig ? t('painelanalises_original') : t('painelanalises_editada'))
-                            + ' · ' + origemLbl(v.origem)
-                            + ' · ' + quando(v.criadoEm, t, idioma);
-                          return <option key={v.id} value={String(v.id)}>{lbl}</option>;
+                          return {
+                            value: String(v.id),
+                            label: (ehOrig ? t('painelanalises_original') : t('painelanalises_editada'))
+                              + ' · ' + origemLbl(v.origem)
+                              + ' · ' + quando(v.criadoEm, t, idioma)
+                          };
                         })}
-                      </select>
+                      />
                     </>
                   )}
 

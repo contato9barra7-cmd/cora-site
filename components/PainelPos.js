@@ -2755,6 +2755,23 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     return () => window.removeEventListener('mouseup', subir);
   });
 
+  // …e o ARRASTE também continua fora da imagem. O onMouseMove vive na folha, e
+  // parava de disparar quando o cursor saía dela — a seleção (letreiro, laço,
+  // corte) "travava" na borda. Aqui seguimos o mouse pela janela enquanto há um
+  // gesto em andamento; dentro da folha o próprio React já cuida, então só
+  // tratamos o que sai para fora. Os pontos ficam nas coords reais (fora da
+  // imagem) e a máscara — do tamanho da imagem — recorta sozinha, como no plugin.
+  useEffect(() => {
+    const janelaMove = (e) => {
+      const g = gesto.current;
+      if (!g || !(g.ativo || (ferr === 'lacoPoli' && g.poli.length))) return;
+      if (e.target && e.target.closest && e.target.closest('.ps-folha')) return;
+      mover(e);
+    };
+    window.addEventListener('mousemove', janelaMove);
+    return () => window.removeEventListener('mousemove', janelaMove);
+  });
+
   // ═══ Os atalhos ═══
   useEffect(() => {
     function tecla(e) {
