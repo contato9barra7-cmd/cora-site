@@ -225,6 +225,38 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
     }
   }
 
+  // Envio de VÁRIAS imagens de uma vez (multi). O picker devolve um array de
+  // base64; monta a prévia (data URL) e adiciona todas ao destino do picker.
+  function escolheuVarias(lista) {
+    const itens = (lista || []).filter(Boolean).map((b64) => ({
+      base64: b64,
+      previa: /^data:|^https?:/.test(b64) ? b64 : ('data:image/png;base64,' + b64),
+    }));
+    if (!itens.length) return;
+
+    if (picker === 'ref') {
+      setRefs((r) => [...r, ...itens].slice(0, MAX_REFS));
+      return;
+    }
+    if (typeof picker === 'string' && picker.startsWith('det:')) {
+      const idx = parseInt(picker.slice(4), 10);
+      setAnalise((a) => a.map((x, j) => (
+        j === idx ? { ...x, detalhes: [...(x.detalhes || []), ...itens].slice(0, 10) } : x
+      )));
+      return;
+    }
+    setCenas((c) => {
+      const novas = itens.map((it, k) => ({
+        id: 'c' + Date.now() + Math.random().toString(36).slice(2, 6) + k,
+        nome: `${t('painelbatch_cena')} ${c.length + k + 1}`,
+        base64: it.base64,
+        previa: it.previa,
+        marcada: true,
+      }));
+      return [...c, ...novas].slice(0, MAX_CENAS);
+    });
+  }
+
   const marcadas = cenas.filter((c) => c.marcada);
 
   // ── Já tenho a análise ──
@@ -328,6 +360,9 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
       const r = await gerarBatch({
         cenas: cenasAprovadas.map((c) => {
           const cena = cenas.find((x) => x.id === c.cenaId);
+          // Reaproveita o lote da geração anterior desta cena SE o texto não mudou
+          // — assim "gerar mais uma" cai no mesmo agrupamento. Mudou o texto → lote novo.
+          const reusar = c._lote && c._lote.materiais === c.materiais;
           return {
             nome:      c.nome,
             base64:    cena?.base64,
@@ -335,7 +370,11 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
             qtd:       c.cfg.qtd,
             proporcao: c.cfg.proporcao,
             resolucao: c.cfg.resolucao,
-            detalhes:  (c.detalhes || []).map((d) => d.base64)   // refs @det desta cena
+            detalhes:  (c.detalhes || []).map((d) => d.base64),  // refs @det desta cena
+            detalheTexto: c.detalheTexto || '',                   // descrição @det
+            loteId:       reusar ? c._lote.id : undefined,
+            ordemInicial: reusar ? c._lote.feitas : 0,
+            promptReuso:  reusar ? c._lote.prompt : null
           };
         }),
         refs: todasRefs.map((r) => r.base64)
@@ -365,6 +404,18 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
           // O feed recarrega só no fim (onPronto).
         }
       });
+
+      // Guarda o lote de cada cena (id, próxima ordem, prompt, texto) pra a
+      // PRÓXIMA geração da mesma cena cair no MESMO agrupamento — desde que o
+      // texto não mude.
+      if (r && r.lotes) {
+        setAnalise((a) => (a || []).map((x) => {
+          const lote = r.lotes.find((l) => l.nome === x.nome);
+          return lote
+            ? { ...x, _lote: { id: lote.loteId, feitas: lote.feitas, prompt: lote.promptReuso, materiais: x.materiais } }
+            : x;
+        }));
+      }
 
       // Some com os slots ANTES de recarregar o feed: senão há um instante
       // em que a imagem nova JÁ apareceu e o "gerando" ainda está lá.
@@ -604,7 +655,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                     Vira @det no prompt — só desta cena, não do projeto todo. */}
                 <div className="cr-bcena-refs">
                   <div className="cr-bcena-refs-lbl">Referências desta cena (opcional)</div>
-                  <div className="cr-refs cr-refs--mini">
+                  <div className="cr-refs">
                     {(c.detalhes || []).map((d, di) => (
                       <div key={di} className="cr-ref">
                         <img src={d.previa} alt="" />
@@ -624,6 +675,16 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                       </button>
                     )}
                   </div>
+                  {/* Descrição das referências desta cena (vai como @det pro prompt) */}
+                  <textarea
+                    className="cr-ta cr-bcena-det-txt"
+                    value={c.detalheTexto || ''}
+                    onChange={(e) => setAnalise((a) => a.map((x, j) => (
+                      j === i ? { ...x, detalheTexto: e.target.value } : x
+                    )))}
+                    placeholder="Descreva cada referência: @det01 luminária pendente dourada, @det02 tipo de planta…"
+                    spellCheck={false}
+                  />
                 </div>
 
                 {/* A config é de outra natureza — vai embaixo. E NÃO trava ao
@@ -706,9 +767,11 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
               )}
             </button>
 
-            {/* Já leu os materiais antes (na aba Análises, ou no plugin)?
-                Cola o texto e não paga de novo pelo mesmo trabalho. */}
-            {!analise && marcadas.length > 0 && (
+            {/* Já leu os materiais antes (na aba Análises, ou no plugin)? Cola o
+                texto e não paga de novo. Aparece SEMPRE que houver cenas marcadas
+                — mesmo já tendo uma análise antiga (ex.: subiu cenas novas e quer
+                colar a leitura delas). */}
+            {marcadas.length > 0 && (
               <button className="cr-b cr-b--tenho" onClick={jaTenho} disabled={ocupado}>
                 {t('painelbatch_ja_tenho')}
               </button>
@@ -750,6 +813,8 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
         aberto={picker !== null}
         onFechar={() => setPicker(null)}
         onEscolher={escolheu}
+        onEscolherVarias={escolheuVarias}
+        multi
         titulo={picker === 'ref' ? t('painelbatch_add_ref') : (typeof picker === 'string' && picker.startsWith('det:')) ? 'Referência desta cena' : t('painelbatch_add_cena')}
       />
     </>

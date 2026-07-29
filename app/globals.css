@@ -2392,10 +2392,11 @@ select.perfil-input {
 .cr-ref-mais { font-size: 18px; line-height: 1; }
 .cr-ref-c    { font-size: 8px; }
 
-/* Referências específicas por cena (na verificação do batch) */
-.cr-bcena-refs { margin-top: 10px; }
+/* Referências específicas por cena (na verificação do batch) — mesmo tamanho
+   padrão das outras abas (grade .cr-refs), com uma caixa de texto embaixo. */
+.cr-bcena-refs { margin-top: 12px; }
 .cr-bcena-refs-lbl { font-size: 11px; color: var(--ink3); margin-bottom: 6px; }
-.cr-refs--mini { grid-template-columns: repeat(6, 1fr); }
+.cr-bcena-det-txt { margin-top: 8px; min-height: 46px; }
 
 /* ── Erro ── */
 .cr-erro {
@@ -5104,7 +5105,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* O caminho de volta à análise, na fase 1 */
 .cr-b--voltar {
   width: 100%;
-  margin-bottom: 8px;
+  height: 40px;           /* mesma altura do botão de ação */
+  font-size: 13.5px;
+  margin-bottom: 10px;    /* separa do botão de baixo */
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -5390,7 +5393,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    Fica acima do "Ler materiais", como alternativa a ele. */
 .cr-b--tenho {
   width: 100%;
-  margin-bottom: 6px;
+  height: 40px;           /* mesma altura do botão de ação */
+  font-size: 13.5px;
+  margin-top: 10px;       /* separa do botão de cima (Analisar) */
+  margin-bottom: 0;
   border-style: dashed;
   color: var(--ink3);
 }
