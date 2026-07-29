@@ -194,6 +194,16 @@ export default function Visualizador({
     return () => window.removeEventListener('keydown', onKey);
   }, [onFechar]);
 
+  // Pré-carrega o PRINT (original) assim que abre: ele é uma URL pesada que só
+  // começava a baixar quando o <img> aparecia, ficando atrás do render. Aqui a
+  // gente dispara o download na hora, em paralelo com o render.
+  useEffect(() => {
+    if (!original) return;
+    const im = new Image();
+    if ('fetchPriority' in im) im.fetchPriority = 'high';
+    im.src = original;
+  }, [original]);
+
 
   // A cortina é relativa à IMAGEM, não ao contêiner. Era esse o bug.
   function arrastar(e) {

@@ -360,8 +360,9 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
             base: printDa(c),
             prontas: prontas.slice()   // mostra cada imagem no slot assim que sai
           });
-          // Também recarrega o feed (silencioso) pra a versão salva aparecer embaixo.
-          if (onFeedAtualizar) onFeedAtualizar();
+          // NÃO recarrega o feed aqui: o slot já mostra a imagem. Recarregar
+          // durante a geração fazia a imagem aparecer DUPLICADA (slot + feed).
+          // O feed recarrega só no fim (onPronto).
         }
       });
 

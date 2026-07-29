@@ -556,8 +556,10 @@ export default function AppPage() {
         // entre os itens salvos, o card pode sair.
         return !lote.itens.some((it) => it.ordem === u.ordem);
       }));
+      return novos;   // devolve pra quem precisa dos dados na hora (ex.: abrirSlot)
     } catch (e) {
       setErro(e.message);
+      return null;
     } finally {
       setCarregando(false);
     }
@@ -689,13 +691,20 @@ export default function AppPage() {
 
   // Clicou num slot JÁ pronto (durante o batch): abre o visualizador na imagem
   // real do feed (mesmo lote + ordem), sem esperar o batch inteiro terminar.
-  function abrirSlot(p) {
+  // O feed NÃO é recarregado durante a geração (evita duplicar), então aqui a
+  // gente recarrega SÓ na hora do clique e abre assim que o item aparece.
+  async function abrirSlot(p) {
     if (!p || !p.loteId) return;
-    const lote = lotes.find((l) => l.loteId === p.loteId);
-    const it = lote && (lote.itens.find((x) => x.ordem === p.ordem) || lote.itens[0]);
-    if (it) { setVendo({ loteId: p.loteId, itemId: it.id }); return; }
-    // Ainda não persistiu no banco: recarrega pra ela virar item; clique de novo abre.
-    recarregarComFolga();
+    const achar = (lista) => {
+      const l = (lista || []).find((x) => x.loteId === p.loteId);
+      return l && (l.itens.find((y) => y.ordem === p.ordem) || l.itens[0]);
+    };
+    let it = achar(lotes);
+    if (!it) {
+      const novos = await carregar(true);   // carregar devolve os lotes novos
+      it = achar(novos);
+    }
+    if (it) setVendo({ loteId: p.loteId, itemId: it.id });
   }
 
   // Apagar é irreversível — quem chama isto já confirmou.
