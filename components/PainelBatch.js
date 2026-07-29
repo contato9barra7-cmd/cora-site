@@ -342,11 +342,16 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
       }, {
         // `emCurso` é a cena que está saindo agora — o slot mostra o print
         // DELA, não o da primeira cena o tempo todo.
-        onProgresso: (feito, total, emCurso, imagem) => {
+        onProgresso: (feito, total, emCurso, imagem, loteId, ordem) => {
           const c = cenasAprovadas.find((x) => x.nome === emCurso?.nome) || primeira;
-          // Guarda a imagem recém-pronta (base64 → data URL) no índice do slot.
+          // Guarda a imagem recém-pronta + o lote/ordem, pra o slot exibir na hora
+          // E abrir o visualizador (o item real do feed) ao clicar.
           if (imagem) {
-            prontas[feito - 1] = /^https?:/.test(imagem) ? imagem : ('data:image/png;base64,' + imagem);
+            prontas[feito - 1] = {
+              url: /^https?:/.test(imagem) ? imagem : ('data:image/png;base64,' + imagem),
+              loteId,
+              ordem,
+            };
           }
           onProgresso({
             feito, total,

@@ -336,8 +336,8 @@ export default function Visualizador({
           <div
             className="vz-zoom"
             style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, cursor: zoom > 1 ? 'grab' : undefined }}
-            onMouseDownCapture={(e) => { if (zoomRef.current.zoom > 1) { e.stopPropagation(); e.preventDefault(); iniciarPan(e.clientX, e.clientY); } }}
-            onTouchStartCapture={(e) => { if (zoomRef.current.zoom > 1 && e.touches[0]) { e.stopPropagation(); iniciarPan(e.touches[0].clientX, e.touches[0].clientY); } }}
+            onMouseDownCapture={(e) => { if (zoomRef.current.zoom > 1 && !(e.target.closest && e.target.closest('.vz-handle'))) { e.stopPropagation(); e.preventDefault(); iniciarPan(e.clientX, e.clientY); } }}
+            onTouchStartCapture={(e) => { if (zoomRef.current.zoom > 1 && e.touches[0] && !(e.target.closest && e.target.closest('.vz-handle'))) { e.stopPropagation(); iniciarPan(e.touches[0].clientX, e.touches[0].clientY); } }}
             onDoubleClick={resetarZoom}
           >
 

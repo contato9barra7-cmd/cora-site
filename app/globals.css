@@ -4151,6 +4151,16 @@ select.perfil-input {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* A bolinha CAPTA o ponteiro (a linha do handle não): é o ponto de arraste
+     da cortina, e continua funcionando mesmo com a imagem ampliada (no zoom o
+     resto da área vira pan). Hit-area maior via ::before pra pegar fácil. */
+  pointer-events: auto;
+  cursor: ew-resize;
+}
+.vz-handle-bola::before {
+  content: '';
+  position: absolute;
+  inset: -12px;   /* aumenta a área de clique sem mudar o visual */
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -5137,6 +5147,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   object-fit: cover;
   border-radius: inherit;
   z-index: 2;
+  cursor: zoom-in;   /* clicável: abre o visualizador na hora */
 }
 
 .cr-slot--agora {

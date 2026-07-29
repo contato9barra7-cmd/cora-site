@@ -687,6 +687,17 @@ export default function AppPage() {
     setTimeout(() => carregar(true), 4500);   // a thumb de uma 4K pode demorar
   }
 
+  // Clicou num slot JÁ pronto (durante o batch): abre o visualizador na imagem
+  // real do feed (mesmo lote + ordem), sem esperar o batch inteiro terminar.
+  function abrirSlot(p) {
+    if (!p || !p.loteId) return;
+    const lote = lotes.find((l) => l.loteId === p.loteId);
+    const it = lote && (lote.itens.find((x) => x.ordem === p.ordem) || lote.itens[0]);
+    if (it) { setVendo({ loteId: p.loteId, itemId: it.id }); return; }
+    // Ainda não persistiu no banco: recarrega pra ela virar item; clique de novo abre.
+    recarregarComFolga();
+  }
+
   // Apagar é irreversível — quem chama isto já confirmou.
   async function excluirDeVerdade(item) {
     try {
@@ -1340,9 +1351,15 @@ export default function AppPage() {
                         )}
 
                         {/* Imagem JÁ pronta: aparece no slot na hora que sai,
-                            sem esperar o batch inteiro nem o feed recarregar. */}
+                            sem esperar o batch inteiro nem o feed recarregar.
+                            Clicável: abre o visualizador na imagem real do feed. */}
                         {!falhou && i < progresso.feito && progresso.prontas && progresso.prontas[i] && (
-                          <img className="cr-slot-pronta" src={progresso.prontas[i]} alt="" />
+                          <img
+                            className="cr-slot-pronta"
+                            src={progresso.prontas[i].url}
+                            alt=""
+                            onClick={() => abrirSlot(progresso.prontas[i])}
+                          />
                         )}
 
                         {/* O contador, sobre a imagem. Este número é REAL: conta
