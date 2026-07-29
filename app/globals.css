@@ -2431,6 +2431,7 @@ select.perfil-input {
   padding: 0 5px;
   border: 1px solid var(--line2);
   border-radius: 100px;
+  background: var(--paper);   /* mesmo fundo branco das pills de proporção/resolução */
   flex-shrink: 0;
   box-sizing: border-box;
 }
