@@ -869,8 +869,23 @@ export default function AppPage() {
       .map((i) => ({ id: i.id, url: i.url, thumb: i.thumb }))
   );
 
+  // Enquanto uma geração está EM CURSO, o bloco "gerando" (slots) já mostra as
+  // imagens prontas. Se o feed recarregar e trouxer esse MESMO lote, ele
+  // aparecia DUPLICADO (slot em cima + card embaixo). Some com ele do feed até
+  // a geração terminar — aí `progresso` vira null e o lote volta normal.
+  // Todos os loteIds que estão saindo AGORA (o batch pode ter várias cenas, cada
+  // uma com seu lote). Enquanto `progresso` existe, esses lotes ficam FORA do
+  // feed — quem os mostra é o bloco de slots em cima. Ao terminar, `progresso`
+  // vira null e eles voltam ao feed normalmente.
+  const lotesAtivos = progresso
+    ? new Set((progresso.prontas || []).filter(Boolean).map((p) => p.loteId).filter(Boolean))
+    : null;
+  const lotesVisiveis = (lotesAtivos && lotesAtivos.size)
+    ? lotes.filter((l) => !lotesAtivos.has(l.loteId))
+    : lotes;
+
   // A grade contínua: todas as imagens, por mês (sem separar por lote)
-  const porMes = agruparPorMes(lotes);
+  const porMes = agruparPorMes(lotesVisiveis);
   const vazio  = !carregando && porMes.length === 0 && !progresso && upsAtivos.length === 0;
 
   // A Pós não cabe num painel de 380px: um editor de camadas espremido numa
@@ -1478,7 +1493,7 @@ export default function AppPage() {
             {/* ── LISTA: agrupada por lote ──
                 Aqui o lote importa: as N variações de uma mesma configuração
                 ficam lado a lado, para comparar o que aquele ajuste produziu. */}
-            {!carregando && layout === 'linha' && lotes.map((lote) => {
+            {!carregando && layout === 'linha' && lotesVisiveis.map((lote) => {
               const dias = diasAteExpirar(lote.criadoEm);
               return (
                 <article key={lote.loteId} className="cr-lote">

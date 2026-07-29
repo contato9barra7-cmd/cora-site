@@ -2893,8 +2893,11 @@ select.perfil-input {
 .pk {
   width: 100%;
   max-width: 880px;
-  height: 78vh;
-  max-height: 640px;
+  /* Altura conforme o conteúdo (não fixa): na aba Enviar, só o campo de arraste
+     + as miniaturas — sem sobrar espaço vazio embaixo. O teto de 640px segura
+     o Histórico/Favoritos, que crescem e rolam dentro do .pk-corpo. */
+  height: auto;
+  max-height: min(78vh, 640px);
   display: flex;
   background: var(--paper);
   border: 1px solid var(--line);

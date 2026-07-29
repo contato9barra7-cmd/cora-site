@@ -190,9 +190,13 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
     setFase1(false);
   }, [leituraInicial]);
 
+  // Debounce: salvar o rascunho serializa cenas+analise com as imagens em
+  // base64 (vários MB). Fazer isso A CADA TECLA travava a digitação no campo
+  // de materiais. Agora só grava 500ms depois que a pessoa para de digitar.
   useEffect(() => {
     if (!restaurado) return;
-    salvarRascunho('batch', { cenas, analise });
+    const id = setTimeout(() => salvarRascunho('batch', { cenas, analise }), 500);
+    return () => clearTimeout(id);
   }, [restaurado, cenas, analise]);
 
   function escolheu({ base64, previa, geracaoId }) {

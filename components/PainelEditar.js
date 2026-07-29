@@ -164,8 +164,9 @@ export default function PainelEditar({
 
     // A imagem também chega pronta (vinda do feed) — este caminho precisa
     // medir tanto quanto o de escolher no picker.
-    medirBase(imagemInicial.previa ||
-              ('data:image/png;base64,' + imagemInicial.base64));
+    // Mede pela imagem CHEIA (base64), não pela miniatura: a prévia do feed
+    // às vezes vem cortada em quadrado, e aí o slot ficava na proporção errada.
+    medirBase('data:image/png;base64,' + imagemInicial.base64);
   }, [imagemInicial]);
 
   // Fecha os popovers ao clicar fora
@@ -190,7 +191,8 @@ export default function PainelEditar({
     } else {
       setBase(base64);
       setPrevia(p);
-      medirBase(p || ('data:image/png;base64,' + base64));
+      // Mede pela imagem cheia, não pela prévia (que pode vir quadrada).
+      medirBase('data:image/png;base64,' + base64);
     }
     setPicker(null);
   }

@@ -110,15 +110,18 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     setRestaurado(true);
   }, []);
 
-  // Guarda a cada mudança (só depois de restaurar, senão apaga o que leu)
+  // Guarda a cada mudança (só depois de restaurar, senão apaga o que leu).
+  // Debounce de 500ms: sem ele, cada tecla no campo de materiais serializava a
+  // imagem base em base64 pro localStorage — e travava a digitação.
   useEffect(() => {
     if (!restaurado) return;
-    salvarRascunho('render', {
+    const id = setTimeout(() => salvarRascunho('render', {
       imagem, previa, tipo, proporcao, resolucao, quantidade,
       materiais, matEstado, luzTipo, mood, detNatural,
       direcoes, descLuz, corLuz, intensidade, detArtificial,
       tagsEntorno, entorno, refTexto
-    });
+    }), 500);
+    return () => clearTimeout(id);
   }, [restaurado, imagem, previa, tipo, proporcao, resolucao, quantidade,
       materiais, matEstado, luzTipo, mood, detNatural, direcoes, descLuz,
       corLuz, intensidade, detArtificial, tagsEntorno, entorno, refTexto]);
