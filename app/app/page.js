@@ -18,6 +18,7 @@ import AppShell from '../../components/AppShell';
 import PainelRender from '../../components/PainelRender';
 import PainelBatch from '../../components/PainelBatch';
 import PainelEditar from '../../components/PainelEditar';
+import PainelPlanta from '../../components/PainelPlanta';
 import PainelUpscale from '../../components/PainelUpscale';
 import PainelAnimacao from '../../components/PainelAnimacao';
 import TelaPincel from '../../components/TelaPincel';
@@ -47,6 +48,7 @@ const ABAS = [
   { id: 'render',   rotulo: 'Render' },
   { id: 'batch',    rotulo: 'Batch' },
   { id: 'editar',   rotulo: 'Editar' },
+  { id: 'planta',   rotulo: 'Planta baixa' },
   { id: 'pos',      rotulo: 'Pós-produção' },
   { id: 'animacao', rotulo: 'Animação' },
   { id: 'upscale',  rotulo: 'Upscale' },
@@ -1027,6 +1029,17 @@ export default function AppPage() {
             />
           </div>
 
+          <div hidden={ferramenta !== 'planta'}>
+            <PainelPlanta
+              ocupado={ocupado}
+              setOcupado={setOcupado}
+              onProgresso={setProgresso}
+              onPronto={aoGerar}
+              imagemInicial={imagemDeOutraAba?.para === 'planta' ? imagemDeOutraAba : null}
+              loteAnterior={ultimoLote}
+            />
+          </div>
+
           {ferramenta === 'analises' && (
             <PainelAnalises onUsar={usarLeitura} />
           )}
@@ -1065,6 +1078,7 @@ export default function AppPage() {
 
           {ferramenta !== 'render' && ferramenta !== 'batch' &&
            ferramenta !== 'editar' && ferramenta !== 'analises' &&
+           ferramenta !== 'planta' &&
            ferramenta !== 'upscale' && ferramenta !== 'animacao' && (
             <div className="cr-painel-vazio">
               <p>{t('app_aba_prefixo')}{ferramenta}{t('app_aba_sufixo')}</p>
