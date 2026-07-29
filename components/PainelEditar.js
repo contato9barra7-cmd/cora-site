@@ -241,13 +241,15 @@ export default function PainelEditar({
     setErro('');
     setOcupado(true);
 
+    // 'auto' = a forma da própria base, não um 4/3 genérico
+    const propSlot = (proporcao === 'auto' && propBase) ? propBase : proporcao;
     onProgresso({
       feito: 0, total: quantidade, estado: 'processando',
-      // 'auto' = a forma da própria base, não um 4/3 genérico
-      proporcao: (proporcao === 'auto' && propBase) ? propBase : proporcao,
+      proporcao: propSlot,
       base: previa
     });
 
+    const prontas = [];   // cada variação aparece no slot assim que fica pronta
     try {
       // As escolhas dos botões entram no texto: o servidor recebe uma
       // instrução só, e o promptador dele sabe o que fazer com ela.
@@ -265,11 +267,34 @@ export default function PainelEditar({
         referencias: refs.map((x) => ({ base64: x.base64, mimeType: 'image/png' })),
         quantidade,
         proporcao,
-        resolucao
+        resolucao,
+        // Mostra cada variação no slot na hora, sem esperar todas — e sem
+        // recarregar o feed (que duplicava: slot + feed).
+        onProgresso: (feito, total, estado, extra) => {
+          if (estado === 'ok' && extra && extra.url) {
+            prontas[feito - 1] = {
+              url: /^https?:/.test(extra.url) ? extra.url : ('data:image/png;base64,' + extra.url),
+              loteId: extra.loteId,
+              ordem:  extra.ordem
+            };
+          }
+          onProgresso((p) => ({
+            ...(p || {}),
+            feito, total,
+            estado: 'processando',
+            proporcao: propSlot,
+            base: previa,
+            prontas: prontas.slice(),
+            falhas: (estado === 'erro' && extra)
+              ? [...((p && p.falhas) || []), extra]
+              : ((p && p.falhas) || [])
+          }));
+        }
       });
 
       onPronto(r);
-      setModo(null);
+      // NÃO fecha o modo: o painel continua preenchido (texto, refs, escolhas),
+      // igual ao Render. Fechar aqui apagava tudo da tela ao terminar.
 
     } catch (e) {
       setErro(e.message);

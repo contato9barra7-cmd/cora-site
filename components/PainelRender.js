@@ -287,17 +287,31 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
     try {
       const r = await gerarRender(cfg, {
-        onProgresso: (feito, total, estado, falha) => onProgresso((p) => ({
-          ...(p || {}),
-          feito, total, estado, proporcao,
-          base: previa,          // o print, desfocado no slot
+        onProgresso: (feito, total, estado, extra) => onProgresso((p) => {
+          const prev = p || {};
+          // Imagem recém-pronta → guarda no índice do slot, pra aparecer NA HORA.
+          // (NÃO recarrega o feed aqui — isso duplicava: slot + feed.)
+          const prontas = (prev.prontas || []).slice();
+          if (estado === 'pronto' && extra && extra.url) {
+            prontas[feito - 1] = {
+              url: /^https?:/.test(extra.url) ? extra.url : ('data:image/png;base64,' + extra.url),
+              loteId: extra.loteId,
+              ordem:  extra.ordem
+            };
+          }
+          return {
+            ...prev,
+            feito, total, estado, proporcao,
+            base: previa,          // o print, desfocado no slot
+            prontas,
 
-          // A que falhou vira um cartão de erro no lugar do slot. As outras
-          // seguem — o servidor já estornou os créditos desta.
-          falhas: falha
-            ? [...((p && p.falhas) || []), falha]
-            : ((p && p.falhas) || [])
-        })),
+            // A que falhou vira um cartão de erro no lugar do slot. As outras
+            // seguem — o servidor já estornou os créditos desta.
+            falhas: (estado === 'erro' && extra)
+              ? [...(prev.falhas || []), extra]
+              : (prev.falhas || [])
+          };
+        }),
         loteAnterior   // mesma config = continua na mesma linha do feed
       });
       // Some com os slots ANTES de recarregar o feed: senão há um instante
