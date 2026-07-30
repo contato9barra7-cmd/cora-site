@@ -154,7 +154,10 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   //
   // Uma imagem só: as outras do lote já saíram.
   useEffect(() => {
-    if (!refazer || ocupado) return;
+    // Sem o guard de `ocupado`: a falha acontece DURANTE a geração (as outras
+    // imagens ainda saindo), então antes o "Tentar de novo" não fazia nada.
+    // Agora a nova tentativa entra na FILA e roda em seguida.
+    if (!refazer) return;
     gerar({ apenasUma: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refazer]);
