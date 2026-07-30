@@ -11540,6 +11540,48 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* Lista no portal (fixed em document.body) — acima de painéis/overlays */
 .cora-dd-lista--portal { z-index: 9999; }
 
+/* Placeholder do gatilho (multi sem nada marcado) */
+.cora-dd-ph { color: var(--ink3); }
+
+/* Opção de MÚLTIPLA escolha: caixinha de check à esquerda (igual ao plugin) */
+.cora-dd-opt--multi { display: flex; align-items: center; gap: 9px; }
+.cora-dd-check {
+  flex-shrink: 0; width: 16px; height: 16px; border-radius: 5px;
+  border: 1.5px solid var(--line2); display: flex; align-items: center; justify-content: center;
+  color: #fff; transition: background .12s, border-color .12s;
+}
+.cora-dd-opt--sel .cora-dd-check { background: var(--accent); border-color: var(--accent); color: var(--accent-txt); }
+
+/* ── Planta: caixinha "Piso por zona" (espelha o .pl-optbox do plugin) ── */
+.pl-optadd {
+  width: 100%; padding: 11px 14px; border-radius: 12px;
+  border: 1px dashed var(--line2); background: transparent; color: var(--ink2);
+  font-size: 13px; font-family: inherit; font-weight: 500; cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.pl-optadd:hover { border-color: var(--accent); color: var(--accent); }
+.pl-optbox {
+  border: 1px solid var(--line2); border-radius: 14px; padding: 12px; background: var(--wash);
+}
+.pl-oh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.pl-oh b { font-size: 13px; font-weight: 600; color: var(--ink); }
+.pl-ox {
+  width: 22px; height: 22px; border: none; background: transparent; color: var(--ink3);
+  font-size: 15px; line-height: 1; cursor: pointer; border-radius: 6px;
+}
+.pl-ox:hover { color: var(--alerta); }
+.pl-sub {
+  font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--ink3); margin: 10px 0 5px;
+}
+.pl-zona { border-top: 1px solid var(--line2); margin-top: 12px; padding-top: 8px; }
+.pl-inp {
+  width: 100%; padding: 10px 14px; border-radius: 100px; border: 1px solid var(--line2);
+  background: var(--paper); color: var(--ink); font-size: 13px; font-family: inherit; box-sizing: border-box;
+}
+.pl-inp:focus { border-color: var(--accent); outline: none; }
+.pl-inp::placeholder { color: var(--ink3); }
+
 /* Sliders */
 .up-slider { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px; margin: 12px 0; }
 .up-slider label { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink2); }

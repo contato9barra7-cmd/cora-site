@@ -17,6 +17,7 @@
 import { useState, useEffect } from 'react';
 import PickerImagem from './PickerImagem';
 import DropdownCora from './DropdownCora';
+import DropdownMulti from './DropdownMulti';
 import IconeCredito from './IconeCredito';
 import Seta from './Seta';
 import CampoRefs from './CampoRefs';
@@ -97,18 +98,19 @@ const L = {
   fundo_transp:    'Transparente',
 
   piso_titulo:       'Piso por zona',
-  piso_definir:      '+ Definir piso por zona',
-  piso_fechar:       'Remover piso por zona',
-  piso_social:       'Área social',
-  piso_social_ph:    'Descreva o piso da área social (ex.: porcelanato bege 90×90)',
+  piso_definir:      '＋ Definir piso por zona',
+  piso_social:       'Área social — tipo + tom + acabamento',
+  piso_social_ph:    'ex.: porcelanato bege acetinado grande formato',
   piso_intima:       'Área íntima',
-  piso_intima_mesmo: 'Mesmo piso da área social',
-  piso_intima_dif:   'Piso diferente',
-  piso_intima_ph:    'Descreva o piso da área íntima',
-  piso_add_zona:     '+ Adicionar outra zona',
-  piso_zona_nome_ph: 'Nome da zona (ex.: varanda)',
-  piso_zona_piso_ph: 'Piso desta zona',
-  piso_remover_zona: 'Remover zona',
+  piso_intima_mesmo: 'Mesmo piso',
+  piso_intima_dif:   'Diferente (descrever)',
+  piso_intima_ph:    'ex.: piso vinílico amadeirado tom médio',
+  piso_add_zona:     '＋ Adicionar outra zona',
+  piso_zona_outra:   'Outra zona',
+  piso_zona_nome_lbl:'Nome da zona (ex.: varanda, cozinha)',
+  piso_zona_nome_ph: 'nome da zona',
+  piso_zona_piso_lbl:'Piso — tipo + tom + acabamento',
+  piso_zona_piso_ph: 'ex.: deck de madeira',
 
   descricao:     'Descrição adicional',
   descricao_ph:  'Detalhes extras que a IA deve considerar',
@@ -118,6 +120,7 @@ const L = {
   ref_ph_arroba: 'Cite as referências com @ref01, @ref02…',
 
   // ── Seletor de modo (2D / 3D) ──
+  oque_fazer:  'O que você quer fazer',
   voltar:      '‹ Voltar',
   modo_2d_tit: 'Planta 2D',
   modo_2d_sub: 'Suba uma planta 2D e humanize com materiais, mobília e luz.',
@@ -206,23 +209,6 @@ const OPC_PISO_INTIMA = [
   { v: 'mesmo', n: L.piso_intima_mesmo },
   { v: 'dif',   n: L.piso_intima_dif }
 ];
-
-// ── Multi-select inline: grade de botões que alternam (padrão do plugin,
-//    igual às direções/entorno do PainelRender). O VALOR guardado é o `v` (PT). ──
-function GrupoMulti({ opcoes, sel, onToggle, cols = 2 }) {
-  return (
-    <div className={cols === 3 ? 'cr-g3' : 'cr-g2'}>
-      {opcoes.map((o) => (
-        <button
-          key={o.v}
-          type="button"
-          className={'cr-b' + (sel.includes(o.v) ? ' cr-b--on' : '')}
-          onClick={() => onToggle(o.v)}
-        >{o.n}</button>
-      ))}
-    </div>
-  );
-}
 
 export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, loteAnterior }) {
   const { t } = useIdioma();
@@ -527,37 +513,42 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
     <>
       <div className="cr-form">
 
-        {/* ═══ SELETOR DE MODO (2D / 3D) ═══ */}
+        {/* ═══ SELETOR DE MODO (2D / 3D) ═══
+            Cores e ícones IGUAIS ao plugin (e ao padrão da aba Editar):
+            faixa fraquinha na cor da marca, ícone na cor forte. */}
         {modo === null && (
-          <div className="ed-cards">
-            <button className="ed-card" onClick={() => setModo('2d')} disabled={ocupado}>
-              <div className="ed-faixa" style={{ background: '#A4A1F3' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" strokeWidth="1.6"
-                     strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2"/>
-                  <path d="M3 9h18M9 21V9"/>
-                </svg>
-              </div>
-              <div className="ed-corpo">
-                <strong>{L.modo_2d_tit}</strong>
-                <span>{L.modo_2d_sub}</span>
-              </div>
-            </button>
+          <>
+            <div className="cr-sec">{L.oque_fazer}</div>
+            <div className="ed-cards">
+              <button className="ed-card" onClick={() => setModo('2d')} disabled={ocupado}>
+                <div className="ed-faixa" style={{ background: '#EEEDFE' }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#534AB7" strokeWidth="1.6"
+                       strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="1"/>
+                    <path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>
+                  </svg>
+                </div>
+                <div className="ed-corpo">
+                  <strong>{L.modo_2d_tit}</strong>
+                  <span>{L.modo_2d_sub}</span>
+                </div>
+              </button>
 
-            <button className="ed-card" onClick={() => setModo('3d')} disabled={ocupado}>
-              <div className="ed-faixa" style={{ background: '#B3FF9F' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" strokeWidth="1.6"
-                     strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2l9 5v10l-9 5-9-5V7z"/>
-                  <path d="M3 7l9 5 9-5M12 12v10"/>
-                </svg>
-              </div>
-              <div className="ed-corpo">
-                <strong>{L.modo_3d_tit}</strong>
-                <span>{L.modo_3d_sub}</span>
-              </div>
-            </button>
-          </div>
+              <button className="ed-card" onClick={() => setModo('3d')} disabled={ocupado}>
+                <div className="ed-faixa" style={{ background: '#E1F5EE' }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#0F6E56" strokeWidth="1.6"
+                       strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2l9 5v10l-9 5-9-5V7z"/>
+                    <path d="M12 2v20M3 7l9 5 9-5"/>
+                  </svg>
+                </div>
+                <div className="ed-corpo">
+                  <strong>{L.modo_3d_tit}</strong>
+                  <span>{L.modo_3d_sub}</span>
+                </div>
+              </button>
+            </div>
+          </>
         )}
 
         {/* ═══════════════════════ MODO 2D ═══════════════════════ */}
@@ -621,13 +612,13 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
         <div className="cr-sec">{L.realismo}</div>
         <DropdownCora valor={realismo} opcoes={OPC_REALISMO} onEscolher={setRealismo} />
 
-        {/* ── Mood (multi) ── */}
+        {/* ── Mood (multi dropdown, igual ao plugin) ── */}
         <div className="cr-sec">{L.mood}</div>
-        <GrupoMulti opcoes={OPC_MOOD} sel={mood} onToggle={(v) => toggle(mood, setMood, v)} />
+        <DropdownMulti opcoes={OPC_MOOD} valores={mood} onToggle={(v) => toggle(mood, setMood, v)} placeholder={L.selecione} />
 
-        {/* ── Paleta (multi) ── */}
+        {/* ── Paleta (multi dropdown) ── */}
         <div className="cr-sec">{L.paleta}</div>
-        <GrupoMulti opcoes={OPC_PALETA} sel={paleta} onToggle={(v) => toggle(paleta, setPaleta, v)} />
+        <DropdownMulti opcoes={OPC_PALETA} valores={paleta} onToggle={(v) => toggle(paleta, setPaleta, v)} placeholder={L.selecione} />
 
         {/* ── Iluminação — sombras ── */}
         <div className="cr-sec">{L.ilum_sombras}</div>
@@ -641,9 +632,9 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
         <div className="cr-sec">{L.par_cor}</div>
         <DropdownCora valor={parCor} opcoes={OPC_PARCOR} onEscolher={setParCor} />
 
-        {/* ── Espessura paredes — tratamento (multi) ── */}
+        {/* ── Espessura paredes — tratamento (multi dropdown) ── */}
         <div className="cr-sec">{L.par_trat}</div>
-        <GrupoMulti opcoes={OPC_PARTRAT} sel={parTrat} onToggle={(v) => toggle(parTrat, setParTrat, v)} cols={3} />
+        <DropdownMulti opcoes={OPC_PARTRAT} valores={parTrat} onToggle={(v) => toggle(parTrat, setParTrat, v)} placeholder={L.selecione} />
 
         {/* ── Vegetação ── */}
         <div className="cr-sec">{L.vegetacao}</div>
@@ -653,13 +644,18 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
         <div className="cr-sec">{L.fundo}</div>
         <DropdownCora valor={fundo} opcoes={OPC_FUNDO} onEscolher={setFundo} />
 
-        {/* ── Piso por zona (opcional) ── */}
+        {/* ── Piso por zona (opcional) — caixinha igual ao plugin ── */}
         <div className="cr-sec">{L.piso_titulo} <span className="cr-opc">{L.opcional}</span></div>
         {!pisoAberto ? (
-          <button className="cr-b" onClick={() => setPisoAberto(true)}>{L.piso_definir}</button>
+          <button className="pl-optadd" onClick={() => setPisoAberto(true)}>{L.piso_definir}</button>
         ) : (
-          <>
-            <div className="cr-grp">{L.piso_social}</div>
+          <div className="pl-optbox">
+            <div className="pl-oh">
+              <b>{L.piso_titulo}</b>
+              <button className="pl-ox" onClick={() => setPisoAberto(false)} aria-label={L.remover_imagem}>✕</button>
+            </div>
+
+            <div className="pl-sub">{L.piso_social}</div>
             <textarea
               className="cr-ta"
               placeholder={L.piso_social_ph}
@@ -668,11 +664,12 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
               spellCheck={false}
             />
 
-            <div className="cr-grp">{L.piso_intima}</div>
+            <div className="pl-sub">{L.piso_intima}</div>
             <DropdownCora valor={pisoIntima} opcoes={OPC_PISO_INTIMA} onEscolher={setPisoIntima} />
             {pisoIntima === 'dif' && (
               <textarea
                 className="cr-ta"
+                style={{ marginTop: 6 }}
                 placeholder={L.piso_intima_ph}
                 value={pisoIntimaDesc}
                 onChange={(e) => setPisoIntimaDesc(e.target.value)}
@@ -681,43 +678,42 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
             )}
 
             {zonasExtra.map((z, i) => (
-              <div key={i} className="cr-g2" style={{ alignItems: 'center' }}>
+              <div key={i} className="pl-zona">
+                <div className="pl-oh">
+                  <b>{L.piso_zona_outra}</b>
+                  <button
+                    className="pl-ox"
+                    onClick={() => setZonasExtra((zs) => zs.filter((_, j) => j !== i))}
+                    aria-label={L.piso_zona_outra}
+                  >✕</button>
+                </div>
+                <div className="pl-sub">{L.piso_zona_nome_lbl}</div>
                 <input
-                  className="cr-ta"
-                  style={{ minHeight: 0 }}
+                  className="pl-inp"
                   placeholder={L.piso_zona_nome_ph}
                   value={z.nome}
                   onChange={(e) => setZonasExtra((zs) => zs.map((x, j) => j === i ? { ...x, nome: e.target.value } : x))}
                   spellCheck={false}
                 />
-                <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
-                  <input
-                    className="cr-ta"
-                    style={{ minHeight: 0, flex: 1 }}
-                    placeholder={L.piso_zona_piso_ph}
-                    value={z.piso}
-                    onChange={(e) => setZonasExtra((zs) => zs.map((x, j) => j === i ? { ...x, piso: e.target.value } : x))}
-                    spellCheck={false}
-                  />
-                  <button
-                    className="cr-base-x"
-                    style={{ position: 'static' }}
-                    onClick={() => setZonasExtra((zs) => zs.filter((_, j) => j !== i))}
-                    aria-label={L.piso_remover_zona}
-                  >×</button>
-                </div>
+                <div className="pl-sub">{L.piso_zona_piso_lbl}</div>
+                <textarea
+                  className="cr-ta"
+                  placeholder={L.piso_zona_piso_ph}
+                  value={z.piso}
+                  onChange={(e) => setZonasExtra((zs) => zs.map((x, j) => j === i ? { ...x, piso: e.target.value } : x))}
+                  spellCheck={false}
+                />
               </div>
             ))}
 
-            <div className="cr-g2">
-              <button className="cr-b" onClick={() => setZonasExtra((zs) => [...zs, { nome: '', piso: '' }])}>
-                {L.piso_add_zona}
-              </button>
-              <button className="cr-b" onClick={() => setPisoAberto(false)}>
-                {L.piso_fechar}
-              </button>
-            </div>
-          </>
+            <button
+              className="pl-optadd"
+              style={{ marginTop: 10 }}
+              onClick={() => setZonasExtra((zs) => [...zs, { nome: '', piso: '' }])}
+            >
+              {L.piso_add_zona}
+            </button>
+          </div>
         )}
 
         {/* ── Descrição adicional ── */}
@@ -833,7 +829,8 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
           </>
         )}
 
-        {/* ── FASE 2: verificar/editar materiais → renderizar ── */}
+        {/* ── FASE 2: verificar/editar materiais → renderizar ──
+            Cartão de verificação no estilo do Batch (uma cena só). ── */}
         {analise3d && (
           <>
             {refs3d.length > 0 && (
@@ -851,23 +848,31 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
             )}
 
             <div className="cr-sec">{L.materiais_lidos}</div>
-            <textarea
-              className="cr-ta cr-ta--mat"
-              value={analise3d.materiais}
-              onChange={(e) => setAnalise3d((a) => ({ ...a, materiais: e.target.value }))}
-              readOnly={matConfirmado3d}
-              spellCheck={false}
-            />
-            <div className="cr-g2">
-              <button
-                className="cr-b"
-                onClick={() => setMatConf(false)}
-                disabled={!matConfirmado3d}
-              >{L.editar}</button>
-              <button
-                className={matConfirmado3d ? 'cr-b cr-b--on' : 'cr-b-conf'}
-                onClick={() => setMatConf(true)}
-              >{matConfirmado3d ? L.mat_confirmados : L.confirmar_mat}</button>
+            <div className={'cr-bcena' + (matConfirmado3d ? ' cr-bcena--ok' : '')}>
+              <div className="cr-bcena-cab">
+                {cena3d && <img src={cena3d.previa} alt="" />}
+                <span>{analise3d.nome}</span>
+              </div>
+
+              <textarea
+                className="cr-ta cr-ta--mat"
+                value={analise3d.materiais}
+                onChange={(e) => setAnalise3d((a) => ({ ...a, materiais: e.target.value }))}
+                readOnly={matConfirmado3d}
+                spellCheck={false}
+              />
+
+              <div className="cr-g2 cr-bcena-acoes">
+                <button
+                  className="cr-b"
+                  onClick={() => setMatConf(false)}
+                  disabled={!matConfirmado3d}
+                >{L.editar}</button>
+                <button
+                  className={matConfirmado3d ? 'cr-b cr-b--on' : 'cr-b-conf'}
+                  onClick={() => setMatConf(true)}
+                >{matConfirmado3d ? L.mat_confirmados : L.confirmar_mat}</button>
+              </div>
             </div>
           </>
         )}
