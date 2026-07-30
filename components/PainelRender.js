@@ -23,7 +23,7 @@ import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import { useIdioma, localeDeIdioma, tOpt } from '../lib/i18n';
 import {
   gerarRender, lerMateriais, custoRender, CREDITOS,
-  TIPOS, PROPORCOES, LUZ_TIPOS, MOODS, DIRECOES,
+  TIPOS, PROPORCOES, LUZ_TIPOS, MOODS, DIRECOES, ATMOSFERAS,
   CORES_LUZ, INTENSIDADES, ENTORNOS, RESOLUCOES, MAX_REFS
 } from '../lib/render';
 
@@ -53,6 +53,8 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   const [detNatural, setDetNatural] = useState('');
 
   const [direcoes, setDirecoes] = useState([]);
+  const [atmosfera, setAtmosfera] = useState([]);        // multi-seleção
+  const [atmosferaOutra, setAtmosferaOutra] = useState('');
   const [descLuz, setDescLuz]   = useState('');
 
   const [corLuz, setCorLuz]               = useState('Desligada');
@@ -100,6 +102,8 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       if (r.mood)        setMood(r.mood);
       if (r.detNatural)  setDetNatural(r.detNatural);
       if (r.direcoes)    setDirecoes(r.direcoes);
+      if (r.atmosfera)   setAtmosfera(r.atmosfera);
+      if (r.atmosferaOutra) setAtmosferaOutra(r.atmosferaOutra);
       if (r.descLuz)     setDescLuz(r.descLuz);
       if (r.corLuz)      setCorLuz(r.corLuz);
       if (r.intensidade) setIntensidade(r.intensidade);
@@ -131,13 +135,13 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       imagem, previa, tipo, proporcao, resolucao, quantidade,
       materiais, matEstado, luzTipo, mood, detNatural,
       direcoes, descLuz, corLuz, intensidade, detArtificial,
-      tagsEntorno, entorno, refTexto,
+      tagsEntorno, entorno, refTexto, atmosfera, atmosferaOutra,
       refs: refs.map((r) => ({ base64: r.base64 }))   // só o base64 (a prévia é reconstruída)
     }), 500);
     return () => clearTimeout(id);
   }, [restaurado, imagem, previa, tipo, proporcao, resolucao, quantidade,
       materiais, matEstado, luzTipo, mood, detNatural, direcoes, descLuz,
-      corLuz, intensidade, detArtificial, tagsEntorno, entorno, refTexto, refs]);
+      corLuz, intensidade, detArtificial, tagsEntorno, entorno, refTexto, atmosfera, atmosferaOutra, refs]);
 
   // Alguém mandou uma imagem de outra aba? Carrega.
   useEffect(() => {
@@ -294,6 +298,12 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     const entornoFinal = [tagsEntorno.join(', '), entorno.trim()]
       .filter(Boolean).join('. ');
 
+    // Atmosfera / clima: entra junto da luz natural (o servidor lê `descLuz`).
+    const atmSel = atmosfera.slice();
+    if (atmosferaOutra.trim()) atmSel.push(atmosferaOutra.trim());
+    const atmTexto = atmSel.length ? `Atmosfera/clima: ${atmSel.join(', ')}.` : '';
+    const descLuzFinal = [descLuz.trim(), atmTexto].filter(Boolean).join(' ');
+
     const cfg = {
       imagem, tipo, proporcao: proporcaoSnap, resolucao,
       quantidade:    totalSnap,
@@ -302,7 +312,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       entorno:       entornoFinal,
       luzArtificial: luzArtFinal,
       direcaoLuz:    direcoes.join(', '),
-      descLuz:       descLuz.trim(),
+      descLuz:       descLuzFinal,
       refTexto:      refTexto.trim(),
       referencias: refs.map((r, i) => ({
         base64: r.base64,
@@ -363,6 +373,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     setMateriais('');     setMatEstado('vazio');
     setLuzTipo('Direta'); setMood('Dia claro editorial'); setDetNatural('');
     setDirecoes([]);      setDescLuz('');
+    setAtmosfera([]);     setAtmosferaOutra('');
     setCorLuz('Desligada'); setIntensidade('Média'); setDetArtificial('');
     setTagsEntorno([]);   setEntorno('');
     setRefs([]);          setRefTexto('');
@@ -538,6 +549,26 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           spellCheck={false}
         />
         <p className="cr-hint">{t('painelrender_hint_desc_luz')}</p>
+
+        {/* ── Atmosfera / Clima (multi-seleção) ── */}
+        <div className="cr-sec">{t('painelrender_atmosfera')} <span className="cr-opc">{t('painelrender_atmosfera_opc')}</span></div>
+        <div className="cr-g2">
+          {ATMOSFERAS.map((a) => (
+            <button
+              key={a}
+              className={'cr-b' + (atmosfera.includes(a) ? ' cr-b--on' : '')}
+              onClick={() => toggle(atmosfera, setAtmosfera, a)}
+            >{tOpt(a)}</button>
+          ))}
+        </div>
+        <input
+          className="cr-ta"
+          style={{ minHeight: 0, height: 42 }}
+          placeholder={t('painelrender_ph_atmosfera_outra')}
+          value={atmosferaOutra}
+          onChange={(e) => setAtmosferaOutra(e.target.value)}
+          spellCheck={false}
+        />
 
         {/* ── Luz Artificial ── */}
         <div className="cr-sec">{t('painelrender_luz_artificial')}</div>

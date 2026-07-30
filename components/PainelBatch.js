@@ -28,6 +28,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import PickerImagem from './PickerImagem';
+import CampoRefs from './CampoRefs';
 import IconeCredito from './IconeCredito';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import { bytesDaGeracao } from '../lib/geracoes';
@@ -375,7 +376,9 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
               proporcao: c.cfg.proporcao,
               resolucao: c.cfg.resolucao,
               detalhes:  (c.detalhes || []).map((d) => d.base64),
-              detalheTexto: c.detalheTexto || '',
+              // Normaliza @img0N/@ref0N -> @det0N: as refs DESTA cena vão como
+              // @det no prompt, então o hábito de escrever @img/@ref também amarra.
+              detalheTexto: (c.detalheTexto || '').replace(/@(?:img|ref)(\d)/gi, '@det$1'),
               loteId:       reusar ? c._lote.id : undefined,
               ordemInicial: reusar ? c._lote.feitas : 0,
               promptReuso:  reusar ? c._lote.prompt : null
@@ -659,6 +662,8 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                           )))}
                           aria-label="Remover referência"
                         >×</button>
+                        {/* O nome em cima, como nas refs do Render — pra citar por @det. */}
+                        <span className="cr-ref-n">@det{String(di + 1).padStart(2, '0')}</span>
                       </div>
                     ))}
                     {(c.detalhes || []).length < 10 && (
@@ -668,15 +673,17 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                       </button>
                     )}
                   </div>
-                  {/* Descrição das referências desta cena (vai como @det pro prompt) */}
-                  <textarea
+                  {/* Descrição das refs desta cena. Digitar @ abre a lista (autocomplete)
+                      e insere @det01, @det02… amarrado à imagem certa. */}
+                  <CampoRefs
                     className="cr-ta cr-bcena-det-txt"
-                    value={c.detalheTexto || ''}
-                    onChange={(e) => setAnalise((a) => a.map((x, j) => (
-                      j === i ? { ...x, detalheTexto: e.target.value } : x
+                    valor={c.detalheTexto || ''}
+                    onMudar={(v) => setAnalise((a) => a.map((x, j) => (
+                      j === i ? { ...x, detalheTexto: v } : x
                     )))}
+                    refs={c.detalhes || []}
+                    prefixo="det"
                     placeholder="Descreva cada referência: @det01 luminária pendente dourada, @det02 tipo de planta…"
-                    spellCheck={false}
                   />
                 </div>
 
@@ -747,10 +754,12 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
               </button>
             )}
 
+            {/* Sem `ocupado`: analisar (produz texto, rota própria) roda em paralelo
+                a uma geração em andamento — dá pra montar mais cenas sem esperar. */}
             <button
               className="cr-btn-gerar"
               onClick={analisar}
-              disabled={analisando || ocupado || todasRefs.length === 0 || marcadas.length === 0}
+              disabled={analisando || todasRefs.length === 0 || marcadas.length === 0}
             >
               <span>{analisando ? t('painelbatch_analisando') : analise ? t('painelbatch_analisar_novo') : t('painelbatch_analisar')}</span>
               {!analisando && marcadas.length > 0 && (
@@ -765,7 +774,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                 — mesmo já tendo uma análise antiga (ex.: subiu cenas novas e quer
                 colar a leitura delas). */}
             {marcadas.length > 0 && (
-              <button className="cr-b cr-b--tenho" onClick={jaTenho} disabled={ocupado}>
+              <button className="cr-b cr-b--tenho" onClick={jaTenho}>
                 {t('painelbatch_ja_tenho')}
               </button>
             )}
