@@ -27,7 +27,7 @@ import {
   CORES_LUZ, INTENSIDADES, ENTORNOS, RESOLUCOES, MAX_REFS
 } from '../lib/render';
 
-export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, leituraInicial, refazer, loteAnterior }) {
+export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, leituraInicial, refazer, loteAnterior, enfileirar, naFila }) {
   const { t, idioma } = useIdioma();
 
   // ── Imagem base ──
@@ -265,20 +265,18 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   }
 
 
-  async function gerar({ apenasUma } = {}) {
+  function gerar({ apenasUma } = {}) {
     if (!imagem) { setErro(t('painelrender_erro_escolha_seu_modelo')); return; }
     if (matEstado === 'revisar') { setErro(t('painelrender_confirme_materiais')); return; }
-    if (ocupado) return;
 
     setErro('');
-    setOcupado(true);
-    onProgresso({
-      feito: 0,
-      total: apenasUma ? 1 : quantidade,
-      estado: 'enviado',
-      proporcao,
-      base: previa
-    });
+
+    // A tarefa roda DEPOIS (na fila), então congelamos os valores do clique —
+    // se a pessoa mexer no form ou disparar outra, esta continua com o que pediu.
+    const previaSnap    = previa;
+    const proporcaoSnap = proporcao;
+    const totalSnap     = apenasUma ? 1 : quantidade;
+    const loteAntSnap   = loteAnterior;
 
     // O plugin junta o detalhe ao mood, e a intensidade à cor da luz.
     // Repetimos igual: o promptador do GPT espera esse formato.
@@ -294,10 +292,8 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       .filter(Boolean).join('. ');
 
     const cfg = {
-      imagem, tipo, proporcao, resolucao,
-
-      // Refazendo uma que falhou? Uma imagem só — as outras do lote já saíram.
-      quantidade: apenasUma ? 1 : quantidade,
+      imagem, tipo, proporcao: proporcaoSnap, resolucao,
+      quantidade:    totalSnap,
       mood:          moodFinal,
       materiais:     materiais.trim(),
       entorno:       entornoFinal,
@@ -305,8 +301,6 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       direcaoLuz:    direcoes.join(', '),
       descLuz:       descLuz.trim(),
       refTexto:      refTexto.trim(),
-      // O label vai explícito: o servidor usa ele para nomear a referência
-      // no prompt. (@img01 e @ref01 são a mesma coisa — ver o index.js.)
       referencias: refs.map((r, i) => ({
         base64: r.base64,
         mimeType: 'image/png',
@@ -314,51 +308,47 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       }))
     };
 
-    try {
-      const r = await gerarRender(cfg, {
-        onProgresso: (feito, total, estado, extra) => onProgresso((p) => {
-          const prev = p || {};
-          // Imagem recém-pronta → guarda no índice do slot, pra aparecer NA HORA.
-          // (NÃO recarrega o feed aqui — isso duplicava: slot + feed.)
-          const prontas = (prev.prontas || []).slice();
-          if (estado === 'pronto' && extra && extra.url) {
-            prontas[feito - 1] = {
-              url: /^https?:/.test(extra.url) ? extra.url : ('data:image/png;base64,' + extra.url),
-              loteId: extra.loteId,
-              ordem:  extra.ordem
+    const tarefa = async () => {
+      setOcupado(true);
+      onProgresso({ feito: 0, total: totalSnap, estado: 'enviado', proporcao: proporcaoSnap, base: previaSnap });
+      try {
+        const r = await gerarRender(cfg, {
+          onProgresso: (feito, total, estado, extra) => onProgresso((p) => {
+            const prev = p || {};
+            const prontas = (prev.prontas || []).slice();
+            if (estado === 'pronto' && extra && extra.url) {
+              prontas[feito - 1] = {
+                url: /^https?:/.test(extra.url) ? extra.url : ('data:image/png;base64,' + extra.url),
+                loteId: extra.loteId,
+                ordem:  extra.ordem
+              };
+            }
+            return {
+              ...prev,
+              feito, total, estado, proporcao: proporcaoSnap,
+              base: previaSnap,
+              prontas,
+              falhas: (estado === 'erro' && extra)
+                ? [...(prev.falhas || []), extra]
+                : (prev.falhas || [])
             };
-          }
-          return {
-            ...prev,
-            feito, total, estado, proporcao,
-            base: previa,          // o print, desfocado no slot
-            prontas,
+          }),
+          loteAnterior: loteAntSnap
+        });
+        onProgresso(null);
+        setOcupado(false);
+        onPronto(r);
+        limparRascunho('render');
+      } catch (e) {
+        setErro(e.message);
+        onProgresso(null);
+        setOcupado(false);
+      }
+    };
 
-            // A que falhou vira um cartão de erro no lugar do slot. As outras
-            // seguem — o servidor já estornou os créditos desta.
-            falhas: (estado === 'erro' && extra)
-              ? [...(prev.falhas || []), extra]
-              : (prev.falhas || [])
-          };
-        }),
-        loteAnterior   // mesma config = continua na mesma linha do feed
-      });
-      // Some com os slots ANTES de recarregar o feed: senão há um instante
-      // em que a imagem nova JÁ apareceu e o "gerando" ainda está lá.
-      onProgresso(null);
-      setOcupado(false);
-
-      onPronto(r);
-
-      // Deu certo: o rascunho já cumpriu o papel. (O painel continua
-      // preenchido na tela — só não precisamos mais guardar em disco.)
-      limparRascunho('render');
-
-    } catch (e) {
-      setErro(e.message);
-      onProgresso(null);
-      setOcupado(false);
-    }
+    // Fila: dispara sem esperar; roda uma por vez. (Sem a prop, roda direto.)
+    if (enfileirar) enfileirar(tarefa);
+    else tarefa();
   }
 
   // Volta tudo ao padrão. O rascunho vai junto — senão a próxima visita
@@ -770,18 +760,24 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           </div>
         </div>
 
+        {/* Sem `ocupado` no disabled: dá pra disparar mais de uma — elas entram
+            na FILA e rodam uma por vez. */}
         <button
           className="cr-btn-gerar"
           onClick={gerar}
-          disabled={ocupado || !imagem || travadoMat}
+          disabled={!imagem || travadoMat}
         >
-          <span>{ocupado ? t('painelrender_renderizando') : t('painelrender_renderizar')}</span>
-          {!ocupado && !travadoMat && imagem && (
+          <span>{t('painelrender_renderizar')}</span>
+          {!travadoMat && imagem && (
             <span className="cr-custo-tag">
               <IconeCredito /> {custo}
             </span>
           )}
         </button>
+
+        {naFila > 0 && (
+          <p className="cr-custo">{naFila} {t('fila_rotulo')}</p>
+        )}
 
         {/* O custo nao se repete aqui: ja aparece na tag do hover.
             So o aviso fica — a pessoa precisa saber por que o botao esta

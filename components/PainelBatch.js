@@ -39,7 +39,7 @@ import { useIdioma } from '../lib/i18n';
 
 const MAX_CENAS = 20;
 
-export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, onPronto, onProgresso, onFeedAtualizar, ocupado, setOcupado }) {
+export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, onPronto, onProgresso, onFeedAtualizar, ocupado, setOcupado, enfileirar, naFila }) {
   const { t } = useIdioma();
 
   // ── Fase 1 ──
@@ -337,103 +337,92 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
 
   const totalImagens = cenasAprovadas.reduce((s, c) => s + c.cfg.qtd, 0);
 
-  async function gerar() {
+  function gerar() {
     if (cenasAprovadas.length === 0) { setErro(t('painelbatch_erro_aprove')); return; }
 
     setErro('');
-    setOcupado(true);
 
-    // Gerar produz IMAGENS — então o progresso vai para o feed, à direita,
-    // igual ao Render. (Analisar produz texto, e o aviso fica no painel.)
-    // Sem esta linha, o feed só reagia quando a primeira imagem ficava
-    // pronta: até lá, nada acontecia na tela.
-    // A primeira cena a sair: sua forma e seu print vão para o slot.
-    const primeira = cenasAprovadas[0];
-    const printDa = (c) => cenas.find((x) => x.id === c?.cenaId)?.previa || null;
-    const prontas = [];   // imagens já prontas (data URL), por índice do slot
+    // A tarefa roda DEPOIS (na fila), então congela o que foi aprovado no clique.
+    const cenasAprovadasSnap = cenasAprovadas;
+    const todasRefsSnap      = todasRefs;
+    const cenasSnap          = cenas;
+    const totalImagensSnap   = totalImagens;
+    const primeira = cenasAprovadasSnap[0];
+    const printDa = (c) => cenasSnap.find((x) => x.id === c?.cenaId)?.previa || null;
 
-    onProgresso({
-      feito: 0,
-      total: totalImagens,
-      estado: 'gerando',
-      proporcao: primeira?.cfg.proporcao || '4:5',
-      base: printDa(primeira)          // o print, desfocado no slot
-    });
+    const tarefa = async () => {
+      setOcupado(true);
+      const prontas = [];   // imagens já prontas (data URL), por índice do slot
 
-    try {
-      const r = await gerarBatch({
-        cenas: cenasAprovadas.map((c) => {
-          const cena = cenas.find((x) => x.id === c.cenaId);
-          // Reaproveita o lote da geração anterior desta cena SE o texto não mudou
-          // — assim "gerar mais uma" cai no mesmo agrupamento. Mudou o texto → lote novo.
-          const reusar = c._lote && c._lote.materiais === c.materiais;
-          return {
-            nome:      c.nome,
-            base64:    cena?.base64,
-            materiais: c.materiais,
-            qtd:       c.cfg.qtd,
-            proporcao: c.cfg.proporcao,
-            resolucao: c.cfg.resolucao,
-            detalhes:  (c.detalhes || []).map((d) => d.base64),  // refs @det desta cena
-            detalheTexto: c.detalheTexto || '',                   // descrição @det
-            loteId:       reusar ? c._lote.id : undefined,
-            ordemInicial: reusar ? c._lote.feitas : 0,
-            promptReuso:  reusar ? c._lote.prompt : null
-          };
-        }),
-        refs: todasRefs.map((r) => r.base64)
-      }, {
-        // `emCurso` é a cena que está saindo agora — o slot mostra o print
-        // DELA, não o da primeira cena o tempo todo.
-        onProgresso: (feito, total, emCurso, imagem, loteId, ordem) => {
-          const c = cenasAprovadas.find((x) => x.nome === emCurso?.nome) || primeira;
-          // Guarda a imagem recém-pronta + o lote/ordem, pra o slot exibir na hora
-          // E abrir o visualizador (o item real do feed) ao clicar.
-          if (imagem) {
-            prontas[feito - 1] = {
-              url: /^https?:/.test(imagem) ? imagem : ('data:image/png;base64,' + imagem),
-              loteId,
-              ordem,
-            };
-          }
-          onProgresso({
-            feito, total,
-            estado: 'gerando',
-            proporcao: c?.cfg.proporcao || '4:5',
-            base: printDa(c),
-            prontas: prontas.slice()   // mostra cada imagem no slot assim que sai
-          });
-          // NÃO recarrega o feed aqui: o slot já mostra a imagem. Recarregar
-          // durante a geração fazia a imagem aparecer DUPLICADA (slot + feed).
-          // O feed recarrega só no fim (onPronto).
-        }
+      onProgresso({
+        feito: 0,
+        total: totalImagensSnap,
+        estado: 'gerando',
+        proporcao: primeira?.cfg.proporcao || '4:5',
+        base: printDa(primeira)
       });
 
-      // Guarda o lote de cada cena (id, próxima ordem, prompt, texto) pra a
-      // PRÓXIMA geração da mesma cena cair no MESMO agrupamento — desde que o
-      // texto não mude.
-      if (r && r.lotes) {
-        setAnalise((a) => (a || []).map((x) => {
-          const lote = r.lotes.find((l) => l.nome === x.nome);
-          return lote
-            ? { ...x, _lote: { id: lote.loteId, feitas: lote.feitas, prompt: lote.promptReuso, materiais: x.materiais } }
-            : x;
-        }));
+      try {
+        const r = await gerarBatch({
+          cenas: cenasAprovadasSnap.map((c) => {
+            const cena = cenasSnap.find((x) => x.id === c.cenaId);
+            const reusar = c._lote && c._lote.materiais === c.materiais;
+            return {
+              nome:      c.nome,
+              base64:    cena?.base64,
+              materiais: c.materiais,
+              qtd:       c.cfg.qtd,
+              proporcao: c.cfg.proporcao,
+              resolucao: c.cfg.resolucao,
+              detalhes:  (c.detalhes || []).map((d) => d.base64),
+              detalheTexto: c.detalheTexto || '',
+              loteId:       reusar ? c._lote.id : undefined,
+              ordemInicial: reusar ? c._lote.feitas : 0,
+              promptReuso:  reusar ? c._lote.prompt : null
+            };
+          }),
+          refs: todasRefsSnap.map((r) => r.base64)
+        }, {
+          onProgresso: (feito, total, emCurso, imagem, loteId, ordem) => {
+            const c = cenasAprovadasSnap.find((x) => x.nome === emCurso?.nome) || primeira;
+            if (imagem) {
+              prontas[feito - 1] = {
+                url: /^https?:/.test(imagem) ? imagem : ('data:image/png;base64,' + imagem),
+                loteId,
+                ordem,
+              };
+            }
+            onProgresso({
+              feito, total,
+              estado: 'gerando',
+              proporcao: c?.cfg.proporcao || '4:5',
+              base: printDa(c),
+              prontas: prontas.slice()
+            });
+          }
+        });
+
+        if (r && r.lotes) {
+          setAnalise((a) => (a || []).map((x) => {
+            const lote = r.lotes.find((l) => l.nome === x.nome);
+            return lote
+              ? { ...x, _lote: { id: lote.loteId, feitas: lote.feitas, prompt: lote.promptReuso, materiais: x.materiais } }
+              : x;
+          }));
+        }
+
+        onProgresso(null);
+        setOcupado(false);
+        onPronto(r);
+        limparRascunho('batch');
+
+      } catch (e) {
+        setErro(e.message);
+        onProgresso(null);
+        setOcupado(false);
       }
-
-      // Some com os slots ANTES de recarregar o feed: senão há um instante
-      // em que a imagem nova JÁ apareceu e o "gerando" ainda está lá.
-      onProgresso(null);
-      setOcupado(false);
-
-      onPronto(r);
-      limparRascunho('batch');
-
-    } catch (e) {
-      setErro(e.message);
-      onProgresso(null);
-      setOcupado(false);
-    }
+    };
+    if (enfileirar) enfileirar(tarefa); else tarefa();
   }
 
   function resetar() {
@@ -794,10 +783,10 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
             <button
               className="cr-btn-gerar"
               onClick={gerar}
-              disabled={ocupado || cenasAprovadas.length === 0}
+              disabled={cenasAprovadas.length === 0}
             >
-              <span>{ocupado ? t('painelbatch_gerando') : t('painelbatch_gerar')}</span>
-              {!ocupado && cenasAprovadas.length > 0 && (
+              <span>{t('painelbatch_gerar')}</span>
+              {cenasAprovadas.length > 0 && (
                 <span className="cr-custo-tag">
                   <IconeCredito /> {custoTotal}
                 </span>
@@ -805,7 +794,9 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
             </button>
 
             <p className="cr-custo">
-              {cenasAprovadas.length === 0
+              {naFila > 0
+                ? `${naFila} ${t('fila_rotulo')}`
+                : cenasAprovadas.length === 0
                 ? t('painelbatch_aprove_gerar')
                 : `${cenasAprovadas.length} ${cenasAprovadas.length === 1 ? t('painelbatch_aprovada_min') : t('painelbatch_aprovadas_min')} · ${totalImagens} ${totalImagens === 1 ? t('painelbatch_imagem') : t('painelbatch_imagens')}`}
             </p>

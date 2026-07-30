@@ -256,6 +256,31 @@ export default function AppPage() {
   // (setProgresso(p => ({...p, falhas}))), em vez de sobrescrever.
   const [progresso, setProgresso]   = useState(null);
 
+  // ── Fila de gerações ──
+  // A pessoa dispara sem esperar: cada geração entra numa fila e roda UMA por
+  // vez, automaticamente. O servidor roda cada uma como job próprio; a fila só
+  // serializa o indicador de progresso (que é único) e o `ocupado`.
+  const filaRef = useRef([]);
+  const rodandoFilaRef = useRef(false);
+  const [naFila, setNaFila] = useState(0);
+
+  const drenarFila = useCallback(async () => {
+    if (rodandoFilaRef.current) return;
+    rodandoFilaRef.current = true;
+    while (filaRef.current.length) {
+      const tarefa = filaRef.current.shift();
+      setNaFila(filaRef.current.length);
+      try { await tarefa(); } catch (e) { /* cada tarefa trata o próprio erro */ }
+    }
+    rodandoFilaRef.current = false;
+  }, []);
+
+  const enfileirarGeracao = useCallback((tarefa) => {
+    filaRef.current.push(tarefa);
+    setNaFila(filaRef.current.length);
+    drenarFila();
+  }, [drenarFila]);
+
   // O modal vive na PÁGINA, não no card: dentro da grade ele nasceria preso
   // ao recorte dela e ficaria cortado.
   const [baixando, setBaixando]     = useState(null);   // o item a baixar
@@ -697,15 +722,26 @@ export default function AppPage() {
   // gente recarrega SÓ na hora do clique e abre assim que o item aparece.
   async function abrirSlot(p) {
     if (!p || !p.loteId) return;
-    const achar = (lista) => {
+    // `exato`: exige a imagem DAQUELE slot (mesma ordem). Sem isso, clicar numa
+    // que ainda não salvou abriria a primeira do lote — imagem errada.
+    const achar = (lista, exato) => {
       const l = (lista || []).find((x) => x.loteId === p.loteId);
-      return l && (l.itens.find((y) => y.ordem === p.ordem) || l.itens[0]);
+      if (!l) return null;
+      const exata = l.itens.find((y) => y.ordem === p.ordem);
+      return exata || (exato ? null : l.itens[0]);
     };
-    let it = achar(lotes);
-    if (!it) {
-      const novos = await carregar(true);   // carregar devolve os lotes novos
-      it = achar(novos);
+
+    let it = achar(lotes, true);
+    // O save no servidor é fire-and-forget: a imagem aparece no slot ANTES de
+    // estar no feed. Recarrega algumas vezes até ela chegar (por isso, antes,
+    // só a 1ª — já salva — abria; as outras só depois de tudo terminar).
+    for (let tent = 0; !it && tent < 5; tent++) {
+      const novos = await carregar(true);
+      it = achar(novos, true);
+      if (!it) await new Promise((r) => setTimeout(r, 700));
     }
+    // Último recurso: se mesmo assim não achou a exata, abre o lote no que tiver.
+    if (!it) it = achar(lotes, false);
     if (it) setVendo({ loteId: p.loteId, itemId: it.id });
   }
 
@@ -958,6 +994,8 @@ export default function AppPage() {
               setOcupado={setOcupado}
               onProgresso={setProgresso}
               onPronto={aoGerar}
+              enfileirar={enfileirarGeracao}
+              naFila={naFila}
               imagemInicial={imagemDeOutraAba?.para === 'render' ? imagemDeOutraAba : null}
               loteAnterior={ultimoLote}
             />
@@ -973,6 +1011,8 @@ export default function AppPage() {
               onProgresso={setProgresso}
               onPronto={aoGerarBatch}
               onFeedAtualizar={recarregarComFolga}
+              enfileirar={enfileirarGeracao}
+              naFila={naFila}
             />
           </div>
 
@@ -1035,6 +1075,8 @@ export default function AppPage() {
               setOcupado={setOcupado}
               onProgresso={setProgresso}
               onPronto={aoGerar}
+              enfileirar={enfileirarGeracao}
+              naFila={naFila}
               imagemInicial={imagemDeOutraAba?.para === 'planta' ? imagemDeOutraAba : null}
               loteAnterior={ultimoLote}
             />

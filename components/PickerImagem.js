@@ -17,6 +17,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { arquivoParaBase64 } from '../lib/render';
 import { listarGeracoes, bytesDaGeracao } from '../lib/geracoes';
+import { listarUploads, bytesDoUpload, salvarUpload } from '../lib/uploads';
 import { useIdioma, localeDeIdioma } from '../lib/i18n';
 
 // Enviar vem primeiro: quase sempre a pessoa quer subir uma imagem nova.
@@ -37,6 +38,16 @@ const ORIGENS = [
       <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M3 10a7 7 0 107-7 7 7 0 00-5 2.1" strokeLinecap="round"/>
         <path d="M3 3v2.5h2.5M10 6v4l2.5 1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    )
+  },
+  {
+    id: 'uploads',
+    icone: (
+      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <rect x="2.5" y="4" width="15" height="12" rx="2"/>
+        <circle cx="7" cy="8.5" r="1.4"/>
+        <path d="M3 14l4-3.5 3 2.5 3-3 4 4" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     )
   },
@@ -72,6 +83,22 @@ function agruparPorMes(lotes, locale) {
   return [...grupos.values()];
 }
 
+// Uploads (imagens que a pessoa subiu) — agrupados por mês, no mesmo formato
+// de item que a grade do feed usa (url/thumb), com a flag `deUpload`.
+function agruparUploadsPorMes(itens, locale) {
+  const grupos = new Map();
+  (itens || []).forEach((it) => {
+    const d = new Date(it.criadoEm);
+    const chave = `${d.getFullYear()}-${d.getMonth()}`;
+    if (!grupos.has(chave)) {
+      const mes = d.toLocaleString(locale, { month: 'long' });
+      grupos.set(chave, { titulo: `${mes.charAt(0).toUpperCase() + mes.slice(1)} ${d.getFullYear()}`, itens: [] });
+    }
+    grupos.get(chave).itens.push({ id: it.id, url: it.thumb, thumb: it.thumb, deUpload: true });
+  });
+  return [...grupos.values()];
+}
+
 export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherVarias, multi, titulo }) {
   const { t, idioma } = useIdioma();
   const rotuloOrigem = (id) => t('pickerimagem_' + id);
@@ -91,20 +118,26 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
   // não fecha o picker sozinho — a pessoa vê o que carregou e confirma.
   const [pendente, setPendente] = useState(null);   // { base64, previa }
 
-  const carregarFeed = useCallback(async (soFavoritos, termo) => {
+  const carregarFeed = useCallback(async (origemAtual, termo) => {
     setCarregando(true);
     setErro('');
     try {
-      // 80 era demais: o servidor assina uma URL do R2 para CADA imagem
-      // antes de responder, então 80 imagens = 80 chamadas ao R2, e a
-      // gaveta demorava a abrir. 24 enche a tela; o resto vem ao rolar.
-      const d = await listarGeracoes({
-        tipo: 'imagem',
-        favorito: soFavoritos,
-        busca: termo || undefined,
-        limite: 24
-      });
-      setGrupos(agruparPorMes(d, localeDeIdioma(idioma)));
+      const locale = localeDeIdioma(idioma);
+      if (origemAtual === 'uploads') {
+        // A galeria de uploads: as miniaturas já vêm inline (base64), então
+        // não há URL assinada por item — abre rápido.
+        const itens = await listarUploads({ busca: termo || undefined, limite: 80 });
+        setGrupos(agruparUploadsPorMes(itens, locale));
+      } else {
+        // 24 enche a tela; o resto vem ao rolar (cada imagem custa uma URL do R2).
+        const d = await listarGeracoes({
+          tipo: 'imagem',
+          favorito: origemAtual === 'favoritos',
+          busca: termo || undefined,
+          limite: 24
+        });
+        setGrupos(agruparPorMes(d, locale));
+      }
     } catch (e) {
       setErro(e.message);
     } finally {
@@ -114,7 +147,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
 
   useEffect(() => {
     if (!aberto || origem === 'enviar') return;
-    carregarFeed(origem === 'favoritos', busca);
+    carregarFeed(origem, busca);
   }, [aberto, origem, busca, carregarFeed]);
 
   // Esc fecha; Ctrl+V cola (só na aba Enviar)
@@ -151,6 +184,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
         const base64 = await arquivoParaBase64(file);
         const previa = URL.createObjectURL(file);
         setMultiSel((l) => [...l, { base64, previa, nome: file.name, de: 'enviar' }]);
+        salvarUpload(base64, file.name);   // guarda na aba Uploads (dispare-e-esqueça)
       } catch (e) { setErro(e.message); }
     }
   }
@@ -173,6 +207,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
       setOrigem('enviar');   // se colou estando no histórico, mostra o que colou
 
       medir(previa);
+      salvarUpload(base64, file.name);   // guarda na aba Uploads (dispare-e-esqueça)
     } catch (e) { setErro(e.message); }
   }
 
@@ -191,16 +226,16 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
 
     let { base64, previa, geracaoId } = pendente;
 
-    // Se veio do feed, é AGORA que os bytes são baixados — no momento em que
-    // vão de fato ser usados, e não lá atrás, só para acender a barra.
-    //
-    // Eles vêm do servidor, e não por um fetch() direto na URL: o R2 não manda
-    // CORS, e o fetch falharia com "Failed to fetch".
-    if (!base64 && geracaoId) {
-      setPegando(geracaoId);
+    // Se veio do feed OU dos Uploads, é AGORA que os bytes são baixados — no
+    // momento em que vão de fato ser usados. O R2 não manda CORS, então quem
+    // busca é o servidor (rota da geração ou do upload, conforme a origem).
+    if (!base64 && (geracaoId || pendente.deUpload)) {
+      setPegando(pendente.id || geracaoId);
       setErro('');
       try {
-        base64 = await bytesDaGeracao(geracaoId);
+        base64 = pendente.deUpload
+          ? await bytesDoUpload(pendente.id)
+          : await bytesDaGeracao(geracaoId);
       } catch (e) {
         setErro(e.message);
         setPegando(null);
@@ -209,9 +244,9 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
       setPegando(null);
     }
 
-    // Só os campos que o chamador espera — o resto (nome, peso, dimensões)
-    // era só para a tela de confirmação.
-    onEscolher({ base64, previa, geracaoId });
+    // Só os campos que o chamador espera. Upload NÃO é geração: geracaoId nulo
+    // (senão a leitura apontaria para uma geração que não existe).
+    onEscolher({ base64, previa, geracaoId: pendente.deUpload ? null : geracaoId });
 
     setPendente(null);
     onFechar();
@@ -234,7 +269,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
       setMultiSel((l) => {
         const existe = l.some((s) => s.id === item.id);
         return existe ? l.filter((s) => s.id !== item.id)
-                      : [...l, { id: item.id, geracaoId: item.id, previa: item.thumb || item.url, de: 'feed' }];
+                      : [...l, { id: item.id, geracaoId: item.id, previa: item.thumb || item.url, de: 'feed', deUpload: item.deUpload }];
       });
       return;
     }
@@ -254,7 +289,8 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
       previa: item.url,
       geracaoId: item.id,
       de: 'feed',
-      id: item.id
+      id: item.id,
+      deUpload: item.deUpload
     });
 
     medir(item.url);
@@ -270,7 +306,10 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
       const lista = [];
       for (const s of multiSel) {
         if (s.base64) { lista.push(s.base64); continue; }
-        if (s.geracaoId) {
+        if (s.deUpload && s.id) {
+          try { lista.push(await bytesDoUpload(s.id)); }
+          catch (e) { /* pula a que falhar */ }
+        } else if (s.geracaoId) {
           try { lista.push(await bytesDaGeracao(s.geracaoId)); }
           catch (e) { /* pula a que falhar, segue com as outras */ }
         }
@@ -408,7 +447,9 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
                     {busca ? t('pickerimagem_nada_busca')
                       : origem === 'favoritos'
                         ? t('pickerimagem_sem_favoritos')
-                        : t('pickerimagem_sem_historico')}
+                        : origem === 'uploads'
+                          ? t('pickerimagem_sem_uploads')
+                          : t('pickerimagem_sem_historico')}
                   </p>
                 )}
 

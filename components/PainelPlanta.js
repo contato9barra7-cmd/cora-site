@@ -211,7 +211,7 @@ const OPC_PISO_INTIMA = [
   { v: 'dif',   n: L.piso_intima_dif }
 ];
 
-export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, loteAnterior }) {
+export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupado, imagemInicial, loteAnterior, enfileirar, naFila }) {
   const { t } = useIdioma();
 
   // ── Imagem base (a planta) ──
@@ -361,7 +361,7 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
   // ── onProgresso do feed (idêntico p/ 2D e 3D) ──
   //  `baseImg` é a prévia que aparece desfocada no slot enquanto gera:
   //  no 2D é a planta; no 3D é a imagem da cena.
-  function montarOnProgresso(baseImg) {
+  function montarOnProgresso(baseImg, propArg) {
     return (feito, total, estado, extra) => onProgresso((p) => {
       const prev = p || {};
       const prontas = (prev.prontas || []).slice();
@@ -374,7 +374,7 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
       }
       return {
         ...prev,
-        feito, total, estado, proporcao,
+        feito, total, estado, proporcao: propArg,
         base: baseImg,
         prontas,
         falhas: (estado === 'erro' && extra)
@@ -384,20 +384,16 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
     });
   }
 
-  async function gerar() {
+  function gerar() {
     if (!imagem) { setErro(L.imagem_planta); return; }
     if (travadoLeitura) { setErro(L.tipo_leitura); return; }
-    if (ocupado) return;
-
     setErro('');
-    setOcupado(true);
-    onProgresso({
-      feito: 0,
-      total: quantidade,
-      estado: 'enviado',
-      proporcao,
-      base: previa
-    });
+
+    // Congela os valores do clique (a tarefa roda depois, na fila).
+    const previaSnap    = previa;
+    const proporcaoSnap = proporcao;
+    const totalSnap     = quantidade;
+    const loteAntSnap   = loteAnterior;
 
     const cfg = {
       imagem,
@@ -405,9 +401,9 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
       materiais: montarMateriais(),
       plantaModo,
       plantaLeitura,
-      proporcao,
+      proporcao: proporcaoSnap,
       resolucao,
-      quantidade,
+      quantidade: totalSnap,
       referencias: refs.map((r, i) => ({
         base64: r.base64,
         mimeType: 'image/png',
@@ -416,19 +412,24 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
       refTexto: refTexto.trim()
     };
 
-    try {
-      const r = await gerarRender(cfg, {
-        onProgresso: montarOnProgresso(previa),
-        loteAnterior
-      });
-      onProgresso(null);
-      setOcupado(false);
-      onPronto(r);
-    } catch (e) {
-      setErro(e.message);
-      onProgresso(null);
-      setOcupado(false);
-    }
+    const tarefa = async () => {
+      setOcupado(true);
+      onProgresso({ feito: 0, total: totalSnap, estado: 'enviado', proporcao: proporcaoSnap, base: previaSnap });
+      try {
+        const r = await gerarRender(cfg, {
+          onProgresso: montarOnProgresso(previaSnap, proporcaoSnap),
+          loteAnterior: loteAntSnap
+        });
+        onProgresso(null);
+        setOcupado(false);
+        onPronto(r);
+      } catch (e) {
+        setErro(e.message);
+        onProgresso(null);
+        setOcupado(false);
+      }
+    };
+    if (enfileirar) enfileirar(tarefa); else tarefa();
   }
 
   // ═══ 3D — FASE 1: analisar materiais da cena a partir das referências ═══
@@ -461,19 +462,14 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
   }
 
   // ═══ 3D — FASE 2: renderizar (mesmo fluxo do 2D) ═══
-  async function gerar3d() {
+  function gerar3d() {
     if (!cena3d || !analise3d) { setErro(L.erro_cena); return; }
-    if (ocupado) return;
-
     setErro('');
-    setOcupado(true);
-    onProgresso({
-      feito: 0,
-      total: quantidade,
-      estado: 'enviado',
-      proporcao,
-      base: cena3d.previa
-    });
+
+    const previaSnap    = cena3d.previa;
+    const proporcaoSnap = proporcao;
+    const totalSnap     = quantidade;
+    const loteAntSnap   = loteAnterior;
 
     const cfg = {
       imagem: cena3d.base64,
@@ -486,29 +482,35 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
         label: '@ref' + String(i + 1).padStart(2, '0')
       })),
       refTexto: refTexto3d.trim(),
-      proporcao,
+      proporcao: proporcaoSnap,
       resolucao,
-      quantidade
+      quantidade: totalSnap
     };
 
-    try {
-      const r = await gerarRender(cfg, {
-        onProgresso: montarOnProgresso(cena3d.previa),
-        loteAnterior
-      });
-      onProgresso(null);
-      setOcupado(false);
-      onPronto(r);
-    } catch (e) {
-      setErro(e.message);
-      onProgresso(null);
-      setOcupado(false);
-    }
+    const tarefa = async () => {
+      setOcupado(true);
+      onProgresso({ feito: 0, total: totalSnap, estado: 'enviado', proporcao: proporcaoSnap, base: previaSnap });
+      try {
+        const r = await gerarRender(cfg, {
+          onProgresso: montarOnProgresso(previaSnap, proporcaoSnap),
+          loteAnterior: loteAntSnap
+        });
+        onProgresso(null);
+        setOcupado(false);
+        onPronto(r);
+      } catch (e) {
+        setErro(e.message);
+        onProgresso(null);
+        setOcupado(false);
+      }
+    };
+    if (enfileirar) enfileirar(tarefa); else tarefa();
   }
 
   const custo = custoRender(quantidade, resolucao);
-  const podeGerar   = !ocupado && imagem && !travadoLeitura;
-  const podeGerar3d = !ocupado && !!cena3d && !!analise3d;
+  // Sem `ocupado`: dá pra disparar mais — entram na fila.
+  const podeGerar   = !!imagem && !travadoLeitura;
+  const podeGerar3d = !!cena3d && !!analise3d;
 
   return (
     <>
@@ -980,13 +982,17 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
           onClick={emGeracao}
           disabled={!gerarOk}
         >
-          <span>{ocupado ? t('painelrender_renderizando') : t('painelrender_renderizar')}</span>
+          <span>{t('painelrender_renderizar')}</span>
           {gerarOk && (
             <span className="cr-custo-tag">
               <IconeCredito /> {custo}
             </span>
           )}
         </button>
+
+        {naFila > 0 && (
+          <p className="cr-custo">{naFila} {t('fila_rotulo')}</p>
+        )}
       </div>
       ); })()}
 

@@ -450,14 +450,8 @@ export default function Visualizador({
           </div>{/* .vz-zoom */}
         </div>
 
-        {/* O prompt é só do admin — abre numa JANELA (igual ao plugin), não num
-            dropdown inline. */}
-        {ehAdmin && prompt && (
-          <button className="vz-prompt-abrir" onClick={() => setVerPrompt(true)}>
-            {t('visualizador_ver_prompt')}
-          </button>
-        )}
-
+        {/* O prompt é só do admin — abre numa JANELA (igual ao plugin). O gatilho
+            é um ícone pequeno no canto da barra, ao lado da lixeira (mais abaixo). */}
         {ehAdmin && prompt && verPrompt && (
           <div className="vz-prompt-overlay" onClick={() => setVerPrompt(false)}>
             <div className="vz-prompt-janela" onClick={(e) => e.stopPropagation()}>
@@ -612,16 +606,27 @@ export default function Visualizador({
             </>
           )}
 
-          {/* Sozinho, no canto oposto. Destruir não pode ficar a um erro de
-              mira de guardar — antes ele estava entre "baixar" e "detalhes". */}
-          <button className="vz-ico vz-ico--perigo vz-ico--fim"
-                  onClick={() => onExcluir(item)}
-                  data-tip={t('visualizador_excluir')} aria-label={t('visualizador_excluir')}>
-            <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
-              <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
-            </svg>
-          </button>
+          {/* Canto oposto: Ver prompt (só admin) + Excluir. Destruir não pode
+              ficar a um erro de mira de guardar. */}
+          <div className="vz-acoes-fim">
+            {ehAdmin && prompt && (
+              <button className="vz-ico"
+                      onClick={() => setVerPrompt(true)}
+                      data-tip={t('visualizador_ver_prompt')} aria-label={t('visualizador_ver_prompt')}>
+                <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M4 4h12M4 8h12M4 12h8M4 16h5" strokeLinecap="round"/>
+                </svg>
+              </button>
+            )}
+            <button className="vz-ico vz-ico--perigo"
+                    onClick={() => onExcluir(item)}
+                    data-tip={t('visualizador_excluir')} aria-label={t('visualizador_excluir')}>
+              <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" strokeLinecap="round"/>
+                <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
         </footer>
       </div>
 
