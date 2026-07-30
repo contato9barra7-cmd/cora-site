@@ -2177,6 +2177,9 @@ select.perfil-input {
 
 .cr-sec:first-child { margin-top: 0; }
 
+/* Sub-linha do rótulo (ex.: "(materiais e iluminação)" abaixo do título) */
+.cr-sec-sub2 { display: block; }
+
 .cr-opc {
   font-size: 10px;
   font-weight: 400;
@@ -2316,6 +2319,10 @@ select.perfil-input {
 .cr-ta:focus { border-color: var(--accent); }
 .cr-ta::placeholder { color: var(--ink3); }
 .cr-ta--alta { min-height: 120px; }
+
+/* Campo de referências (@ref/@img) — mais alto: cabem várias citações sem rolar.
+   Vale em todas as abas que usam o CampoRefs (envolto em .cref). */
+.cref textarea { min-height: 92px; }
 
 /* ── Referências: grade de 5, contador DENTRO do botão + ── */
 .cr-refs {

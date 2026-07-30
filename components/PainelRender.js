@@ -85,7 +85,11 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     const r = lerRascunho('render');
     if (r) {
       if (r.imagem)  setImagem(r.imagem);
-      if (r.previa)  setPrevia(r.previa);
+      // A prévia salva pode ser um blob: URL — e blob URLs MORREM ao recarregar
+      // a página (ficava uma imagem quebrada e sem como re-subir). Só reusa a
+      // prévia se for durável (data:/http:); senão reconstrói do base64 salvo.
+      if (r.previa && !/^blob:/.test(r.previa)) setPrevia(r.previa);
+      else if (r.imagem) setPrevia('data:image/png;base64,' + r.imagem);
       if (r.tipo)    setTipo(r.tipo);
       if (r.proporcao)   setProporcao(r.proporcao);
       if (r.resolucao)   setResolucao(r.resolucao);
@@ -103,6 +107,14 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       if (r.tagsEntorno) setTagsEntorno(r.tagsEntorno);
       if (r.entorno)     setEntorno(r.entorno);
       if (r.refTexto)    setRefTexto(r.refTexto);
+      // Referências: voltam pelo base64 salvo; a prévia é reconstruída (as
+      // prévias originais eram blob: URLs, que não sobrevivem ao reload).
+      if (Array.isArray(r.refs) && r.refs.length) {
+        setRefs(r.refs.filter((x) => x && x.base64).map((x) => ({
+          base64: x.base64,
+          previa: 'data:image/png;base64,' + x.base64
+        })));
+      }
 
       // A imagem era grande demais para o localStorage: avisa, sem drama.
       if (r.imagemGrande && r.matEstado === 'confirmado') setAvisoImg(true);
@@ -119,12 +131,13 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       imagem, previa, tipo, proporcao, resolucao, quantidade,
       materiais, matEstado, luzTipo, mood, detNatural,
       direcoes, descLuz, corLuz, intensidade, detArtificial,
-      tagsEntorno, entorno, refTexto
+      tagsEntorno, entorno, refTexto,
+      refs: refs.map((r) => ({ base64: r.base64 }))   // só o base64 (a prévia é reconstruída)
     }), 500);
     return () => clearTimeout(id);
   }, [restaurado, imagem, previa, tipo, proporcao, resolucao, quantidade,
       materiais, matEstado, luzTipo, mood, detNatural, direcoes, descLuz,
-      corLuz, intensidade, detArtificial, tagsEntorno, entorno, refTexto]);
+      corLuz, intensidade, detArtificial, tagsEntorno, entorno, refTexto, refs]);
 
   // Alguém mandou uma imagem de outra aba? Carrega.
   useEffect(() => {

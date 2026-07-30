@@ -128,7 +128,8 @@ const L = {
   modo_3d_sub: 'Suba uma imagem do seu projeto 3D e gere a planta humanizada com suas referências.',
 
   // ── Fluxo 3D ──
-  refs_projeto:    'Referências do projeto (materiais e iluminação)',
+  refs_projeto:    'Referências do projeto',
+  refs_projeto_sub:'(materiais e iluminação)',
   refs_projeto_ph: 'Use @ref01, @ref02… para referenciar cada imagem',
   cena_titulo:     'Imagem da cena',
   cena_nota:       'Suba uma imagem do seu modelo 3D (perspectiva ou vista superior).',
@@ -776,7 +777,10 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
         {/* ── FASE 1: referências + cena → analisar ── */}
         {!analise3d && (
           <>
-            <div className="cr-sec">{L.refs_projeto} <span className="cr-opc">{L.opcional}</span></div>
+            <div className="cr-sec">
+              <span>{L.refs_projeto}<span className="cr-sec-sub2">{L.refs_projeto_sub}</span></span>
+              <span className="cr-opc">{L.opcional}</span>
+            </div>
             <div className="cr-refs">
               {refs3d.map((r, i) => (
                 <div key={i} className="cr-ref">

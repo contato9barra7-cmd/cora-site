@@ -15,6 +15,7 @@
 //  abrir a imagem só para favoritar.
 // ═══════════════════════════════════════════════════════════
 
+import { useState } from 'react';
 import { ROTULO_FERRAMENTA, tempoRelativo } from '../lib/geracoes';
 import { useIdioma } from '../lib/i18n';
 
@@ -57,21 +58,28 @@ export default function Card({
   const ehA = ladoA?.id === it.id;
   const ehB = ladoB?.id === it.id;
 
-  // A proporção que o card VAI usar. Na grade, o Masonry mede a imagem de
-  // verdade e devolve a razão em `razao` — é ela que manda, porque só ela
-  // encaixa o card na coluna sem sobra. Enquanto não chega (e sempre, na
-  // lista), vale a proporção declarada da geração.
-  const forma = razao ? `${razao} / 1` : proporcaoCss(it.proporcao);
+  // A proporção real medida DESTE card (na lista não há Masonry medindo,
+  // então o card mede a própria imagem). Assim uma geração 'auto' mostra a
+  // forma que REALMENTE saiu — e não o 4/3 chutado da proporção declarada.
+  const [medidaLocal, setMedidaLocal] = useState(null);
 
-  // A imagem carregou: avisa o Masonry da proporção real. É aqui que o
-  // upscale e a geração 'auto' — que não têm proporção declarada — ganham
-  // a forma certa.
+  // A proporção que o card VAI usar. Prioridade: medida do Masonry (grade) →
+  // medida local (lista) → proporção declarada (estimativa até carregar).
+  const razaoUsar = razao || medidaLocal;
+  const forma = razaoUsar ? `${razaoUsar} / 1` : proporcaoCss(it.proporcao);
+
+  // A imagem carregou: guarda a proporção real (e avisa o Masonry, se houver).
+  // É aqui que o upscale e a geração 'auto' — sem proporção declarada — ganham
+  // a forma certa, tanto na grade quanto na lista.
   const carregou = (e) => {
-    if (!onMedir) return;
     const el = e.currentTarget;
     const w = el.naturalWidth || el.videoWidth;
     const h = el.naturalHeight || el.videoHeight;
-    if (w && h) onMedir(it.id, w / h);
+    if (w && h) {
+      const r = w / h;
+      setMedidaLocal(r);
+      if (onMedir) onMedir(it.id, r);
+    }
   };
 
   // Um clique numa ação não deve abrir a imagem também
