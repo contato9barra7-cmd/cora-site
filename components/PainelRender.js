@@ -199,6 +199,19 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     setErro('');
   }
 
+  // Seleção MÚLTIPLA de referências (upload de vários arquivos ou várias do
+  // histórico de uma vez). Respeita o teto MAX_REFS.
+  function escolheuVarias(lista) {
+    setRefs((r) => {
+      const espaco = MAX_REFS - r.length;
+      const novas = lista.slice(0, Math.max(0, espaco)).map((b) => ({
+        base64: b,
+        previa: `data:image/png;base64,${b}`
+      }));
+      return [...r, ...novas];
+    });
+  }
+
   function toggle(lista, setLista, valor) {
     setLista(lista.includes(valor)
       ? lista.filter((v) => v !== valor)
@@ -773,6 +786,8 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
         aberto={picker !== null}
         onFechar={() => setPicker(null)}
         onEscolher={escolheuImagem}
+        onEscolherVarias={escolheuVarias}
+        multi={picker === 'ref'}
         titulo={picker === 'ref' ? t('painelrender_adicionar_referencia') : t('painelrender_imagem_modelo')}
       />
     </>

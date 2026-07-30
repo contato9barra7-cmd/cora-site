@@ -2893,11 +2893,10 @@ select.perfil-input {
 .pk {
   width: 100%;
   max-width: 880px;
-  /* Altura conforme o conteúdo (não fixa): na aba Enviar, só o campo de arraste
-     + as miniaturas — sem sobrar espaço vazio embaixo. O teto de 640px segura
-     o Histórico/Favoritos, que crescem e rolam dentro do .pk-corpo. */
-  height: auto;
-  max-height: min(78vh, 640px);
+  /* Altura FIXA: a janela tem sempre o mesmo tamanho (como no Histórico). Na aba
+     Enviar, quem preenche o espaço é o campo de arraste (.pk-drop cresce), não a
+     janela que encolhe — assim reduzir o "vazio" vira MAIS área de envio. */
+  height: min(78vh, 640px);
   display: flex;
   background: var(--paper);
   border: 1px solid var(--line);
@@ -2999,6 +2998,10 @@ select.perfil-input {
   overflow-y: auto;
   padding: 16px;
   min-height: 0;
+  /* Coluna: deixa o campo de arraste (.pk-drop) esticar pra preencher a altura
+     na aba Enviar. Nas outras abas, as seções só empilham e rolam normalmente. */
+  display: flex;
+  flex-direction: column;
 }
 
 .pk-mes { margin-bottom: 18px; }
@@ -3054,11 +3057,11 @@ select.perfil-input {
   align-items: center;
   justify-content: center;
   gap: 9px;
-  /* Altura FIXA (não 100%): senão o campo de arraste ocupa a tela toda e empurra
-     as imagens escolhidas pra baixo, obrigando a rolar. Assim elas ficam à vista. */
-  height: 210px;
-  min-height: 210px;
-  flex: none;
+  /* Cresce pra preencher a altura da janela (que agora é fixa). Um min-height
+     garante que nunca colapse; se houver muitas miniaturas escolhidas embaixo,
+     o .pk-corpo rola e elas continuam alcançáveis. */
+  flex: 1 1 auto;
+  min-height: 200px;
   border: 1px dashed var(--line2);
   border-radius: 12px;
   background: var(--wash);
