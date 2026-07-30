@@ -144,6 +144,17 @@ export default function Visualizador({
   const [medida, setMedida]       = useState(null);
   const [medidaEsq, setMedidaEsq] = useState(null);
 
+  // "Ver prompt" (só admin): abre uma janela, igual ao plugin, com "Copiar prompt".
+  const [verPrompt, setVerPrompt]     = useState(false);
+  const [promptCopiado, setPromptCop] = useState(false);
+  function copiarPrompt() {
+    try {
+      navigator.clipboard.writeText(prompt || '');
+      setPromptCop(true);
+      setTimeout(() => setPromptCop(false), 1600);
+    } catch {}
+  }
+
   // A imagem gerada (B, à direita)
   useEffect(() => {
     if (proporcao && proporcao !== 'auto') { setMedida(null); return; }
@@ -439,12 +450,35 @@ export default function Visualizador({
           </div>{/* .vz-zoom */}
         </div>
 
-        {/* O prompt é só do admin */}
+        {/* O prompt é só do admin — abre numa JANELA (igual ao plugin), não num
+            dropdown inline. */}
         {ehAdmin && prompt && (
-          <details className="vz-prompt">
-            <summary>{t('visualizador_ver_prompt')}</summary>
-            <p>{prompt}</p>
-          </details>
+          <button className="vz-prompt-abrir" onClick={() => setVerPrompt(true)}>
+            {t('visualizador_ver_prompt')}
+          </button>
+        )}
+
+        {ehAdmin && prompt && verPrompt && (
+          <div className="vz-prompt-overlay" onClick={() => setVerPrompt(false)}>
+            <div className="vz-prompt-janela" onClick={(e) => e.stopPropagation()}>
+              <header className="vz-prompt-cab">
+                <span className="vz-prompt-tit">{t('visualizador_prompt_gerado')}</span>
+                <button className="vz-prompt-copiar" onClick={copiarPrompt}>
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <rect x="7" y="7" width="9" height="9" rx="1.5"/>
+                    <path d="M4 13V4.5A1.5 1.5 0 015.5 3H13" strokeLinecap="round"/>
+                  </svg>
+                  {promptCopiado ? t('painelanalises_copiado') : t('visualizador_copiar_prompt')}
+                </button>
+                <button className="vz-prompt-x" onClick={() => setVerPrompt(false)} aria-label={t('fechar')}>
+                  <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </header>
+              <div className="vz-prompt-corpo">{prompt}</div>
+            </div>
+          </div>
         )}
 
         <footer className="vz-acoes">

@@ -3157,6 +3157,67 @@ select.perfil-input {
   overflow-y: auto;
 }
 
+/* ── "Ver prompt (admin)" → JANELA (igual ao plugin) ── */
+.vz-prompt-abrir {
+  margin: 10px 14px;
+  padding: 7px 14px;
+  border: 1px solid var(--line2);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink2);
+  font-size: 12.5px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.vz-prompt-abrir:hover { border-color: var(--accent); color: var(--accent); }
+
+.vz-prompt-overlay {
+  position: fixed; inset: 0; z-index: 3000;
+  background: rgba(0, 0, 0, .45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.vz-prompt-janela {
+  width: 100%; max-width: 720px; max-height: 82vh;
+  display: flex; flex-direction: column;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .28);
+  overflow: hidden;
+}
+.vz-prompt-cab {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.vz-prompt-tit {
+  font-size: 12.5px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--ink2);
+  flex: 1; min-width: 0;
+}
+.vz-prompt-copiar {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px; border-radius: 100px;
+  border: 1px solid var(--line2); background: var(--paper);
+  color: var(--ink2); font-size: 13px; font-family: inherit; cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.vz-prompt-copiar:hover { border-color: var(--accent); color: var(--accent); }
+.vz-prompt-x {
+  width: 30px; height: 30px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: transparent; color: var(--ink3);
+  border-radius: 8px; cursor: pointer;
+}
+.vz-prompt-x:hover { color: var(--ink); background: var(--wash); }
+.vz-prompt-corpo {
+  padding: 18px;
+  overflow-y: auto;
+  font-size: 13.5px; line-height: 1.65; color: var(--ink);
+  white-space: pre-wrap;
+}
+
 /* Ações */
 .vz-acoes {
   display: flex;
