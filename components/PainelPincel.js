@@ -24,7 +24,7 @@ const RATIOS = PROPORCOES.map((p) =>
 );
 
 export default function PainelPincel({
-  modo, ocupado, onVoltar, onGerar,
+  modo, onVoltar, onGerar,
   ferramenta, setFerramenta,
   tamanho, setTamanho,
   proporcao, setProporcao,
@@ -32,10 +32,14 @@ export default function PainelPincel({
   rw, rh,                        // o que está ESCRITO nos campos (texto livre)
   aoDigitarRazao,                // os campos mandam de volta
   aoInverter,
-  limpar                         // a tela expõe o "limpar"
+  limpar,                        // a tela expõe o "limpar"
+  // O texto e a quantidade moram na PÁGINA, não aqui. Gerar fecha o pincel, e
+  // fechar desmonta este componente — com um useState local, o pedido que a
+  // pessoa escreveu morria junto. Lá em cima ele sobrevive (e é salvo).
+  texto, setTexto,
+  quantidade, setQuantidade
 }) {
   const { t } = useIdioma();
-  const [texto, setTexto] = useState('');
   const [erro, setErro]   = useState('');
   const [pop, setPop]     = useState(false);
 
@@ -57,16 +61,20 @@ export default function PainelPincel({
   async function gerar() {
     setErro('');
     try {
-      await onGerar({ modo, texto: texto.trim() });
+      await onGerar({ modo, texto: (texto || '').trim(), quantidade });
     } catch (e) {
       setErro(e.message);
     }
   }
 
   return (
+    <>
+    {/* Como no Editar e no Render: o corpo rola, a barra de gerar fica presa
+        embaixo. Dentro do .cr-form ela rolaria junto e herdaria a margem
+        interna dele — a borda de cima não chegaria às laterais do painel. */}
     <div className="cr-form">
 
-      <button className="cr-voltar ed-voltar" onClick={onVoltar} disabled={ocupado}>
+      <button className="cr-voltar ed-voltar" onClick={onVoltar}>
         <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
              stroke="currentColor" strokeWidth="1.6">
           <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
@@ -122,7 +130,6 @@ export default function PainelPincel({
             <button
               className="pn-ico"
               onClick={() => limpar?.current?.()}
-              disabled={ocupado}
               title={t('painelpincel_limpar')} aria-label={t('painelpincel_limpar')}
             >
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
@@ -216,7 +223,6 @@ export default function PainelPincel({
           <button
             className="pn-limpar-larga"
             onClick={() => limpar?.current?.()}
-            disabled={ocupado}
           >
             {t('painelpincel_limpar')}
           </button>
@@ -235,17 +241,37 @@ export default function PainelPincel({
 
       {erro && <div className="cr-erro">{erro}</div>}
 
-      {/* O Gerar fica SOZINHO, como no Render e no Batch. O custo aparece só
-          no hover (.cr-custo-tag) — não polui o botão em repouso. */}
-      <button className="cr-btn-gerar" onClick={gerar} disabled={ocupado}>
-        <span>{ocupado ? t('painelpincel_gerando') : t('painelpincel_gerar')}</span>
-        {!ocupado && (
-          <span className="cr-custo-tag">
-            <IconeCredito /> {custoGenerativa()}
-          </span>
-        )}
-      </button>
-
     </div>
+
+    {/* A MESMA barra do Render, do Batch e do Editar: a quantidade à
+        esquerda, o Gerar à direita. O custo aparece só no hover
+        (.cr-custo-tag) — não polui o botão em repouso.
+
+        Sem `disabled={ocupado}`: a geração roda no servidor, no canal
+        próprio. Prender o painel aqui era o que impedia de marcar a próxima
+        área enquanto a anterior saía. */}
+    <div className="cr-barra-ger">
+      <div className="cr-pills-cfg">
+        <div className="cr-qty">
+          <button
+            onClick={() => setQuantidade(Math.max(1, quantidade - 1))}
+            aria-label={t('paineleditar_menos_um')}
+          >−</button>
+          <span>{quantidade}</span>
+          <button
+            onClick={() => setQuantidade(Math.min(10, quantidade + 1))}
+            aria-label={t('paineleditar_mais_um')}
+          >+</button>
+        </div>
+      </div>
+
+      <button className="cr-btn-gerar" onClick={gerar}>
+        <span>{t('painelpincel_gerar')}</span>
+        <span className="cr-custo-tag">
+          <IconeCredito /> {custoGenerativa() * quantidade}
+        </span>
+      </button>
+    </div>
+    </>
   );
 }

@@ -111,12 +111,33 @@ export default function TelaPincel({
     window.addEventListener('keydown', tecla);
     return () => window.removeEventListener('keydown', tecla);
   }, [ehExpansao]);
+  // ── Ainda há tinta na máscara? ──
+  //
+  //  Desfazer até o começo deixa a máscara VAZIA. Sem esta conta, `pintou`
+  //  continuava true e o Gerar seguia adiante com uma máscara em branco —
+  //  cobrando por uma geração que não muda nada.
+  //
+  //  Amostra 1 pixel a cada 4: o traço mais fino do pincel tem dezenas de
+  //  pixels de largura, nenhum passa despercebido.
+  function temTinta(dc) {
+    try {
+      const d = dc.getContext('2d').getImageData(0, 0, dc.width, dc.height).data;
+      for (let i = 3; i < d.length; i += 16) if (d[i] > 8) return true;
+      return false;
+    } catch (err) {
+      return true;   // na dúvida, não impede de gerar
+    }
+  }
+
   // ── Desfazer (Ctrl+Z) no PREENCHIMENTO ──
   // A pilha guarda o desenho ANTES de cada traço; Ctrl+Z restaura o anterior.
   useEffect(() => {
     if (ehExpansao) return;
     const tecla = (e) => {
       if (!((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey)) return;
+      // O Ctrl+Z de um campo de texto é DELE. O canvas recebe o foco ao ser
+      // pintado (ver `down`), então pintar e desfazer chega aqui; voltar ao
+      // pedido escrito e desfazer continua desfazendo o texto.
       const alvo = e.target;
       if (alvo && /^(INPUT|TEXTAREA|SELECT)$/.test(alvo.tagName)) return;
       const dc = drawRef.current;
@@ -128,7 +149,7 @@ export default function TelaPincel({
         const ctx = dc.getContext('2d');
         ctx.clearRect(0, 0, dc.width, dc.height);
         ctx.drawImage(img, 0, 0, dc.width, dc.height);
-        setPintou(true);
+        setPintou(temTinta(dc));
       };
       img.src = url;
     };
@@ -265,6 +286,10 @@ export default function TelaPincel({
     function down(e) {
       if (e.button !== 0) return;   // só o esquerdo pinta; o meio (pan) não marca
       e.preventDefault();
+      // O foco vem PARA CÁ. Sem isto ele ficava no campo do pedido (o
+      // preventDefault impede que o clique o mova sozinho), e o Ctrl+Z ia
+      // desfazer o texto — nunca o traço.
+      try { dc.focus({ preventScroll: true }); } catch (err) { dc.focus(); }
       // snapshot pro Ctrl+Z (estado ANTES do traço)
       try {
         pintUndo.current.push(dc.toDataURL());
@@ -692,7 +717,14 @@ export default function TelaPincel({
             </>
           )}
           {!ehExpansao && (
-            <canvas ref={drawRef} className="pn-canvas pn-draw" />
+            /* tabIndex: um <canvas> não recebe foco por si. Sem ele, o
+               dc.focus() do `down` não faz nada e o Ctrl+Z nunca chega aqui. */
+            <canvas
+              ref={drawRef}
+              className="pn-canvas pn-draw"
+              tabIndex={-1}
+              style={{ outline: 'none' }}
+            />
           )}
         </div>
         {/* O zoom flutua: não come espaço do trabalho */}

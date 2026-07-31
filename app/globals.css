@@ -4191,6 +4191,57 @@ select.perfil-input {
   min-height: 0;
 }
 
+/* ── Side by Side: a imagem INTEIRA, sempre ──
+
+   A caixa de cada lado tinha `height: 100%` MAIS a proporção da imagem. Duas
+   caixas 16:9 em altura cheia pedem mais largura do que o palco tem, e o flex
+   as espremia — a altura continuava travada em 100%, então a proporção
+   quebrava e o `object-fit: cover` comia as laterais. Era um 16:9 exibido
+   como se fosse quadrado, cortado.
+
+   Aqui a imagem manda: `width/height: auto` com os dois `max` em 100% dá o
+   maior tamanho que CABE, na proporção certa. E a caixa é um grid de trilha
+   automática — a trilha abraça a imagem, então a etiqueta (Print/Render) fica
+   colada no canto DELA, não do palco. */
+.vz-sbs:not(.vz-sbs--um) > .vz-sbs-lado {
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto;
+  place-content: center;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
+  overflow: visible;
+  /* A sombra e o arredondamento passam para a imagem: a caixa agora é maior
+     que ela, e uma sombra no vazio ao redor não faz sentido. */
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.vz-sbs:not(.vz-sbs--um) > .vz-sbs-lado > .vz-img,
+.vz-sbs:not(.vz-sbs--um) > .vz-sbs-lado > .vz-tag {
+  grid-area: 1 / 1;
+}
+
+.vz-sbs:not(.vz-sbs--um) > .vz-sbs-lado > .vz-img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .1);
+}
+
+.vz-sbs:not(.vz-sbs--um) > .vz-sbs-lado > .vz-tag {
+  position: static;
+  justify-self: start;
+  align-self: start;
+  margin: 10px;
+  z-index: 1;
+}
+
 /* ── O handle do split: accent (roxo no claro, verde no escuro) ── */
 .vz-handle {
   position: absolute;

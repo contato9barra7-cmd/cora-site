@@ -34,6 +34,7 @@ import ModalDownload from '../../components/ModalDownload';
 import ModalDetalhes from '../../components/ModalDetalhes';
 import { lerConta, creditosMudaram } from '../../lib/auth';
 import { gerarGenerativa } from '../../lib/render';
+import { salvarRascunho, lerRascunho } from '../../lib/rascunho';
 import { useIdioma, tOpt } from '../../lib/i18n';
 
 import {
@@ -205,6 +206,11 @@ export default function AppPage() {
   function terminarGeracaoAtiva(id) {
     setUpsAtivos((l) => l.filter((u) => u.id !== id));
   }
+  // A forma do slot nem sempre é sabida na hora de criar o card: no
+  // preenchimento ela sai da imagem base, que precisa carregar antes de medir.
+  function ajustarFormaAtiva(id, proporcao) {
+    setUpsAtivos((l) => l.map((u) => (u.id === id ? { ...u, proporcao } : u)));
+  }
   // Converte um placeholder "gerando" em card PRONTO na hora, mostrando o
   // base64 recém-gerado — sem esperar o feed voltar do servidor. Some sozinho
   // quando o recarregar traz a imagem real (o lote passa a ter a etapa).
@@ -241,6 +247,39 @@ export default function AppPage() {
   // é o que permite editá-los.
   const [pnRw, setPnRw]       = useState('');
   const [pnRh, setPnRh]       = useState('');
+
+  // ── O pedido escrito e a quantidade ──
+  //
+  //  Moram AQUI, não no PainelPincel. Gerar fecha o pincel, e fechar desmonta
+  //  o painel — com o texto dentro dele, o que a pessoa escreveu morria a cada
+  //  geração. Aqui sobrevive ao vaivém, e o localStorage o faz sobreviver
+  //  também a fechar a aba.
+  //
+  //  Um texto por MODO: o que se pede a um preenchimento não é o que se pede
+  //  a uma expansão.
+  const [pnTexto, setPnTexto] = useState({ preenchimento: '', expansao: '' });
+  const [pnQtd, setPnQtd]     = useState(1);
+
+  // A chave do rascunho é por conta: só lemos depois que a conta chegou.
+  const pincelLido = useRef(false);
+  useEffect(() => {
+    if (pincelLido.current || !conta) return;
+    pincelLido.current = true;
+    const d = lerRascunho('pincel');
+    if (!d) return;
+    if (d.texto) {
+      setPnTexto({
+        preenchimento: d.texto.preenchimento || '',
+        expansao:      d.texto.expansao || ''
+      });
+    }
+    if (d.quantidade) setPnQtd(d.quantidade);
+  }, [conta]);
+
+  useEffect(() => {
+    if (!pincelLido.current) return;
+    salvarRascunho('pincel', { texto: pnTexto, quantidade: pnQtd });
+  }, [pnTexto, pnQtd]);
 
   // edExpRatioSel: escolher uma proporção PREENCHE os campos. Sem isto eles
   // ficam vazios, e o inverter não tem o que trocar.
@@ -402,7 +441,7 @@ export default function AppPage() {
   //
   //  A tela devolve a imagem e a máscara já prontas (preto-e-branco, no
   //  tamanho nativo). Quem cobra é o servidor — e estorna se falhar.
-  async function gerarComPincel({ modo, texto }) {
+  async function gerarComPincel({ modo, texto, quantidade }) {
     const montar = montarPincel.current;
     if (!montar) return;
 
@@ -420,7 +459,7 @@ export default function AppPage() {
     const previa = pincel?.previa || ('data:image/png;base64,' + pincel.base);
 
     setPincel(null);          // sai do pincel JÁ: o feed mostra o "gerando"
-    setOcupado(true);
+
     // A forma do resultado é conhecida — 'auto' cairia no 4/3 padrão e
     // deitaria uma expansão vertical.
     //
@@ -430,34 +469,40 @@ export default function AppPage() {
       ? `${pnMed.w}:${pnMed.h}`
       : null;
 
-    setProgresso({
-      feito: 0, total: 1, estado: 'processando',
-      proporcao: forma,          // null → mede-se a base logo abaixo
-      base: previa
-    });
+    // ── Um card por variação, no canal das gerações PARALELAS ──
+    //
+    //  O mesmo do upscale e da animação. Antes isto passava pelo `ocupado` +
+    //  `progresso`, que são únicos: enquanto a imagem saía, o painel inteiro
+    //  ficava travado. Agora cada variação tem o seu card, e o painel segue
+    //  livre para marcar a próxima área.
+    const n = Math.max(1, Math.min(10, quantidade || 1));
+    const ids = Array.from({ length: n }, () =>
+      iniciarGeracaoAtiva(previa, t('app_gerando'), forma));
 
-    // Preenchimento: a forma é a da própria base
+    // Preenchimento: a forma é a da própria base — medida quando ela carrega.
     if (!forma) {
       const img = new Image();
       img.onload = () => {
         const f = `${img.naturalWidth}:${img.naturalHeight}`;
-        setProgresso((p) => (p ? { ...p, proporcao: f } : p));
+        ids.forEach((id) => ajustarFormaAtiva(id, f));
       };
       img.src = previa;
     }
 
-    try {
-      await gerarGenerativa({ modo, imagem, mascara, texto });
-      recarregarComFolga();
-
-    } catch (e) {
-      // O pincel já fechou: o erro aparece no feed, como o das outras abas.
-      setErro(t('app_gerar_erro') + e.message);
-
-    } finally {
-      setOcupado(false);
-      setProgresso(null);
-    }
+    // Todas ao mesmo tempo; cada card some — e o feed recarrega — assim que a
+    // sua termina. Uma falhar não derruba as outras (os créditos dela voltam
+    // no servidor).
+    await Promise.all(ids.map(async (id) => {
+      try {
+        await gerarGenerativa({ modo, imagem, mascara, texto });
+        recarregarComFolga();
+      } catch (e) {
+        // O pincel já fechou: o erro aparece no feed, como o das outras abas.
+        setErro(t('app_gerar_erro') + e.message);
+      } finally {
+        terminarGeracaoAtiva(id);
+      }
+    }));
   }
 
   // O que refazer quando a pessoa clica em "Tentar de novo".
@@ -1020,13 +1065,15 @@ export default function AppPage() {
           {pincel && ferramenta === 'editar' && (
             <PainelPincel
               modo={pincel.modo}
-              ocupado={ocupado}
               onVoltar={() => setPincel(null)}
               onGerar={gerarComPincel}
               ferramenta={pnFerr}   setFerramenta={setPnFerr}
               tamanho={pnTam}       setTamanho={setPnTam}
               proporcao={pnRatio}   setProporcao={escolherRatio}
               medidas={pnMed}
+              texto={pnTexto[pincel.modo] || ''}
+              setTexto={(v) => setPnTexto((s) => ({ ...s, [pincel.modo]: v }))}
+              quantidade={pnQtd}    setQuantidade={setPnQtd}
               rw={pnRw}
               rh={pnRh}
               aoDigitarRazao={(eixo, v) => {

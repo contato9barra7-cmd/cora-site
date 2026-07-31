@@ -142,7 +142,6 @@ export default function Visualizador({
   //
   //  Sem proporção declarada, medimos a imagem de verdade.
   const [medida, setMedida]       = useState(null);
-  const [medidaEsq, setMedidaEsq] = useState(null);
 
   // "Ver prompt" (só admin): abre uma janela, igual ao plugin, com "Copiar prompt".
   const [verPrompt, setVerPrompt]     = useState(false);
@@ -171,33 +170,17 @@ export default function Visualizador({
     return () => { vivo = false; };
   }, [item?.url, proporcao]);
 
-  // A imagem de comparação (A, à esquerda) — pode ter outra forma
-  useEffect(() => {
-    if (proporcaoEsq && proporcaoEsq !== 'auto') { setMedidaEsq(null); return; }
-    if (!original) { setMedidaEsq(null); return; }
-
-    let vivo = true;
-    const img = new Image();
-    img.onload = () => {
-      if (vivo && img.naturalWidth && img.naturalHeight) {
-        setMedidaEsq(img.naturalWidth + ' / ' + img.naturalHeight);
-      }
-    };
-    img.src = original;
-    return () => { vivo = false; };
-  }, [original, proporcaoEsq]);
+  // (A imagem da esquerda não precisa mais ser medida: no Split ela segue a
+  //  forma do render, e no Side by Side ela entra na forma dela própria.)
 
   // A forma da caixa. A imagem NÃO se encaixa numa moldura fixa — ela É a
   // caixa: altura cheia, e a largura sai desta proporção. Por isso não
   // sobra faixa vazia e o arredondamento fica na própria imagem.
   const forma = { aspectRatio: medida || proporcaoCss(proporcao) };
 
-  // No A/B as duas podem ter proporções diferentes. No Side by Side cada uma
-  // fica na sua forma; no Split a sobreposição exige a mesma, então ali o
-  // print acompanha o render.
-  const formaEsq = (medidaEsq || proporcaoEsq)
-    ? { aspectRatio: medidaEsq || proporcaoCss(proporcaoEsq) }
-    : forma;
+  // No A/B as duas podem ter proporções diferentes. No Split a sobreposição
+  // exige a mesma, então ali o print acompanha o render — e no Side by Side
+  // ninguém dita forma nenhuma: cada imagem entra com a dela, inteira.
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onFechar(); };
@@ -402,13 +385,16 @@ export default function Visualizador({
             </div>
           )}
 
+          {/* Sem `style={forma}` aqui: no Side by Side quem define o tamanho é
+              a própria imagem (ver .vz-sbs no globals.css). A proporção fixa na
+              caixa era o que a espremia — e o corte vinha daí. */}
           {compara && modo === 'sbs' && (
             <div className="vz-sbs">
-              <div className="vz-sbs-lado" style={formaEsq}>
+              <div className="vz-sbs-lado">
                 <img className="vz-img" src={esquerda} alt="" />
                 <span className="vz-tag vz-tag--esq">{rotEsq}</span>
               </div>
-              <div className="vz-sbs-lado" style={forma}>
+              <div className="vz-sbs-lado">
                 <img className="vz-img" src={item.url} alt="" />
                 <span className="vz-tag vz-tag--esq">{rotDir}</span>
               </div>
