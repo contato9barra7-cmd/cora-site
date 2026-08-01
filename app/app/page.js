@@ -295,6 +295,36 @@ export default function AppPage() {
   // (setProgresso(p => ({...p, falhas}))), em vez de sobrescrever.
   const [progresso, setProgresso]   = useState(null);
 
+  // ── Criar / Galeria: as duas abas do celular ──
+  //
+  // No desktop o painel e o feed convivem lado a lado, e é assim que tem de
+  // ser: escreve-se à esquerda e vê-se o resultado à direita, sem trocar de
+  // contexto. Abaixo de 1024px não existe "lado a lado" — 375px divididos em
+  // dois dão duas colunas onde nem o prompt nem a imagem cabem.
+  //
+  // Então, no estreito, mostra-se UMA das duas por vez. O conteúdo é o mesmo;
+  // muda só o que está à vista, e quem decide isso é o CSS (responsivo.css)
+  // lendo o `data-mob` daqui. No desktop este estado não muda absolutamente
+  // nada — não há um segundo layout para manter.
+  const [abaMob, setAbaMob] = useState('painel');
+  const [feedNovo, setFeedNovo] = useState(false);
+
+  // Disparou uma geração? A tela pula para a Galeria. É lá que aparecem os
+  // slots com o andamento — ficar no formulário seria olhar para um botão já
+  // pressionado enquanto o trabalho acontece fora de vista.
+  useEffect(() => {
+    if (progresso || ocupado) {
+      setAbaMob('feed');
+      setFeedNovo(false);
+    }
+  }, [progresso, ocupado]);
+
+  // A bolinha no rótulo "Galeria": chegou coisa nova enquanto a pessoa estava
+  // em Criar. Sem ela, o resultado chega em silêncio, fora da vista.
+  useEffect(() => {
+    if (abaMob === 'feed') setFeedNovo(false);
+  }, [abaMob]);
+
   // ── Fila de gerações ──
   // A pessoa dispara sem esperar: cada geração entra numa fila e roda UMA por
   // vez, automaticamente. O servidor roda cada uma como job próprio; a fila só
@@ -755,6 +785,10 @@ export default function AppPage() {
   }
 
   function recarregarComFolga() {
+    // No celular, se a pessoa está na aba Criar, a chegada é anunciada por uma
+    // bolinha na aba Galeria — puxá-la para lá à força interromperia o que ela
+    // está escrevendo agora.
+    setFeedNovo(true);
     // Silencioso: a imagem nova aparece no lugar do slot, sem a tela piscar.
     carregar(true);
     setTimeout(() => carregar(true), 1800);
@@ -1011,7 +1045,29 @@ export default function AppPage() {
 
   return (
     <AppShell>
-      <div className="cr-tela">
+      <div className="cr-tela" data-mob={abaMob}>
+
+        {/* ═══ Criar / Galeria — só aparece abaixo de 1024px ═══
+            Fica sempre no HTML: é o CSS que decide se é uma barra visível ou
+            nada. Renderizar condicionalmente por largura em JavaScript daria
+            hidratação divergente entre servidor e navegador. */}
+        <div className="cr-mobtabs" role="tablist">
+          <button
+            className={'cr-mobtab' + (abaMob === 'painel' ? ' cr-mobtab--on' : '')}
+            onClick={() => setAbaMob('painel')}
+            role="tab"
+            aria-selected={abaMob === 'painel'}
+          >{t('app_aba_criar')}</button>
+          <button
+            className={'cr-mobtab' + (abaMob === 'feed' ? ' cr-mobtab--on' : '')}
+            onClick={() => setAbaMob('feed')}
+            role="tab"
+            aria-selected={abaMob === 'feed'}
+          >
+            {t('app_aba_galeria')}
+            {feedNovo && <span className="cr-mobtab-bolha" />}
+          </button>
+        </div>
 
         {/* ═══ Painel ═══ */}
         <aside className="cr-painel">

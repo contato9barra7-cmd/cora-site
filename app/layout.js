@@ -1,4 +1,5 @@
 import './globals.css';
+import './responsivo.css';
 import RodapeGlobal from '../components/RodapeGlobal';
 import CookieConsent from '../components/CookieConsent';
 import { IdiomaProvider } from '../lib/i18n';
@@ -9,6 +10,27 @@ export const metadata = {
   title: 'Cora Render — Render com IA para SketchUp',
   description:
     'Gere imagens, vídeos e apresentações a partir do seu modelo 3D no SketchUp, com IA. Planos a partir de R$97/mês.',
+};
+
+/* ── A janela ──
+   `viewportFit: 'cover'` faz a página ir até as bordas nos iPhone com
+   notch/ilha; quem cuida de não deixar botão embaixo do queixo são as
+   `env(safe-area-inset-*)` do responsivo.css.
+
+   `maximumScale: 5` — o zoom de pinça CONTINUA liberado. Travar em 1 mataria
+   o acesso de quem enxerga pouco, e o motivo comum para travar (o Safari dá
+   zoom sozinho ao focar um campo com fonte < 16px) já está resolvido no CSS,
+   que sobe todo controle para 16px no celular. */
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#FFFFFF' },
+    { media: '(prefers-color-scheme: dark)', color: '#1A1A1E' },
+  ],
 };
 
 export default function RootLayout({ children }) {

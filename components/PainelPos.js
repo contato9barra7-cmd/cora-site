@@ -258,6 +258,10 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
   const [pan, setPan]     = useState({ x: 0, y: 0 });
   const [ajustando, setAjustando] = useState(false);
   const [mostraAtalhos, setMostraAtalhos] = useState(false);
+  // A coluna de camadas (296px) só cabe ao lado da tela num monitor. Abaixo de
+  // 1024px ela vira gaveta e desliza por cima — ver responsivo.css. No desktop
+  // este estado não muda nada: lá a coluna está sempre presente.
+  const [camadasAbertas, setCamadasAbertas] = useState(false);
   const [erro, setErro]   = useState('');
   const [ocupado, setOcupado] = useState(false);
 
@@ -2911,7 +2915,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
   const naMasc = ativa && alvoMasc === ativa.id && ativa.mascara;
 
   return (
-    <section className="ps">
+    <section className={'ps' + (camadasAbertas ? ' camadas-abertas' : '')}>
 
       {/* ══ A topbar ══ */}
       <header className="ps-top">
@@ -3337,8 +3341,35 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
           )}
         </div>
 
+        {/* O chamador da gaveta de camadas. Só existe abaixo de 1024px (o CSS
+            o esconde no desktop, onde a coluna já está à vista); e some
+            enquanto a gaveta está aberta, para não ficar por cima dela. */}
+        <button
+          className="ps-col-abrir"
+          onClick={() => setCamadasAbertas(true)}
+          aria-label={t('painelpos_camadas_sec')}
+        >
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+               strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5" />
+          </svg>
+          {t('painelpos_camadas_sec')}
+        </button>
+
+        {/* O véu que fecha a gaveta ao tocar na imagem. Sem alvo no desktop. */}
+        {camadasAbertas && (
+          <div className="ps-col-veu" onClick={() => setCamadasAbertas(false)} aria-hidden="true" />
+        )}
+
         {/* ══ A coluna ══ */}
         <aside className="ps-col">
+          {/* O X da gaveta, no topo da coluna. */}
+          <button
+            className="ps-col-fechar"
+            onClick={() => setCamadasAbertas(false)}
+            aria-label={t('fechar')}
+          >×</button>
+
 
           <div className="ps-bloco">
             <button

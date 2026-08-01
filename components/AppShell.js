@@ -99,6 +99,13 @@ export default function AppShell({ children }) {
   });
   const [menuUser, setMenuUser] = useState(false);
   const [credCardVisivel, setCredCardVisivel] = useState(false);
+  // ── A gaveta (só existe até 1024px, ver responsivo.css) ──
+  // No desktop a lateral é fixa e este estado nunca muda nada. No tablet e no
+  // celular ela desliza por cima: 240px de moldura permanente numa tela de
+  // 375px seriam 64% do espaço gasto numa navegação que se usa uma vez por
+  // sessão. Só o estado mora aqui; quem decide se ela é gaveta ou coluna é o
+  // CSS — assim não há um segundo layout escrito em JavaScript para manter.
+  const [gaveta, setGaveta] = useState(false);
 
   useEffect(() => {
     const c = lerConta();
@@ -116,6 +123,28 @@ export default function AppShell({ children }) {
       aplicarTema(tema);
     }
   }, [pathname]);
+
+  // Chegou na página de destino: a gaveta já cumpriu o papel dela e sai.
+  useEffect(() => { setGaveta(false); }, [pathname]);
+
+  // Enquanto a gaveta está aberta, o que está por baixo não rola. Sem isto, o
+  // dedo deslizando sobre o véu leva a página junto — e ao fechar a gaveta a
+  // pessoa está num lugar do documento onde nunca pediu para estar.
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (!gaveta) return;
+    const antes = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = antes; };
+  }, [gaveta]);
+
+  // Esc fecha a gaveta — é o gesto esperado de qualquer camada por cima.
+  useEffect(() => {
+    if (!gaveta) return;
+    function aoTeclar(e) { if (e.key === 'Escape') setGaveta(false); }
+    window.addEventListener('keydown', aoTeclar);
+    return () => window.removeEventListener('keydown', aoTeclar);
+  }, [gaveta]);
 
   // Alguém gastou crédito (uma geração no /app)? Atualiza o número, o anel
   // e tudo mais — sem precisar de F5.
@@ -235,10 +264,19 @@ export default function AppShell({ children }) {
   const naApp = pathname === '/app';
 
   return (
-    <div className={'app-shell' + (recolhido ? ' recolhido' : '')}>
-      {/* MENU LATERAL FIXO */}
+    <div className={'app-shell' + (recolhido ? ' recolhido' : '') + (gaveta ? ' gaveta' : '')}>
+      {/* MENU LATERAL FIXO (gaveta no tablet/celular) */}
       <aside className="app-side">
         <div className="app-side-topo">
+          {/* Na gaveta o menu está sempre por extenso: o botão de recolher não
+              faz sentido ali (o CSS o esconde), e o X toma o lugar dele. */}
+          <Link href="/" className="app-logo app-logo--gaveta">Cora Render</Link>
+          <button
+            className="app-side-fechar"
+            onClick={() => setGaveta(false)}
+            aria-label={t('fechar')}
+          >×</button>
+
           {recolhido ? (
             <button
               className="app-side-toggle app-side-toggle--so"
@@ -277,7 +315,11 @@ export default function AppShell({ children }) {
                 title={i.rotulo}
               >
                 <span className="app-nav-ic">{i.icone}</span>
-                {!recolhido && <span className="app-nav-lbl">{i.rotulo}</span>}
+                {/* O rótulo é SEMPRE renderizado; quem o esconde no menu
+                    recolhido é o CSS. Antes ele nem existia no HTML quando
+                    recolhido — e aí, ao virar gaveta no celular (onde há
+                    largura de sobra), a gaveta abria só com ícones. */}
+                <span className="app-nav-lbl">{i.rotulo}</span>
               </Link>
             </div>
           ))}
@@ -286,6 +328,18 @@ export default function AppShell({ children }) {
 
       {/* HEADER FIXO */}
       <header className="app-header">
+        {/* O hambúrguer só aparece abaixo de 1024px, onde a lateral virou
+            gaveta. `margin-right: auto` (no CSS) é o que mantém o avatar
+            colado à direita sem precisar de um espaçador vazio. */}
+        <button
+          className="app-burger"
+          onClick={() => setGaveta(true)}
+          aria-label="Menu"
+          aria-expanded={gaveta}
+        >
+          <span /><span /><span />
+        </button>
+
         <div className="app-header-dir">
           <div className="app-user-wrap">
             <button className="app-user-btn" onClick={() => setMenuUser(!menuUser)} title={t('nav_minhaconta')}>
@@ -388,6 +442,10 @@ export default function AppShell({ children }) {
           </div>
         </div>
       </header>
+
+      {/* O véu da gaveta. Fica sempre no HTML (invisível e sem alvo até
+          abrir) para que a transição de opacidade tenha de onde partir. */}
+      <div className="app-veu" onClick={() => setGaveta(false)} aria-hidden="true" />
 
       {/* CONTEÚDO */}
       <main className="app-main">

@@ -1,0 +1,1193 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVO — Cora Render
+
+   Este arquivo entra DEPOIS do globals.css (ver app/layout.js). Nada aqui
+   redesenha o site: ele só ensina o layout de desktop a caber em telas
+   menores. Por vir por último, uma regra daqui vence a de lá quando as duas
+   têm o mesmo peso — então dá para corrigir sem mexer no original.
+
+   ── A ESCADA DE LARGURAS ───────────────────────────────────────────────────
+   Os cortes não são números redondos por gosto: cada um é o ponto em que um
+   aparelho real deixa de caber.
+
+     ≥ 1280px   Desktop. Nada muda.
+     ≤ 1279px   Notebook pequeno, iPad Pro 12.9" deitado.
+     ≤ 1024px   iPad deitado / iPad Pro em pé. Aqui a barra lateral vira
+                gaveta e o studio ganha as abas Criar/Galeria: é o ponto em
+                que duas colunas + painel de 400px param de caber.
+     ≤ 820px    iPad Air / iPad 10" em pé, celular deitado.
+     ≤ 640px    Celulares grandes em pé (iPhone Pro Max, Galaxy Ultra).
+     ≤ 480px    Celulares comuns (iPhone 14/15/16, Pixel).
+     ≤ 380px    iPhone SE, iPhone 12/13 mini, Galaxy S pequeno.
+
+   Além da largura, três consultas cuidam do resto:
+     (pointer: coarse)                 → dedo em vez de mouse
+     (orientation: landscape) + altura → celular deitado, onde falta ALTURA
+     (prefers-reduced-motion)          → quem pediu menos movimento
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   1. FUNDAÇÕES
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* A altura da janela no celular NÃO é 100vh.
+   No Safari do iPhone, `100vh` conta a tela inteira — inclusive o pedaço que
+   a barra de endereço tapa. Um `height: 100vh` corta o rodapé para fora da
+   tela e ele só aparece se a pessoa rolar. `dvh` mede o que está REALMENTE
+   visível e reajusta quando a barra recolhe.
+
+   As duas linhas juntas: navegador velho lê a primeira e ignora a segunda. */
+:root {
+  --altura-tela: 100vh;
+  --altura-tela: 100dvh;
+
+  /* O queixo do iPhone, a ilha dinâmica, os cantos arredondados. Guardadas
+     em variáveis porque `env()` dentro de `calc()` aninhado fica ilegível. */
+  --seg-topo: env(safe-area-inset-top, 0px);
+  --seg-base: env(safe-area-inset-bottom, 0px);
+  --seg-esq: env(safe-area-inset-left, 0px);
+  --seg-dir: env(safe-area-inset-right, 0px);
+}
+
+html {
+  /* O iOS aumenta a fonte sozinho quando o celular deita. O site já tem
+     tamanhos pensados — o "reajuste" só quebrava as linhas. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: var(--altura-tela);
+
+  /* Uma tabela larga, um card que passa da margem, um texto sem quebra: basta
+     um para o site inteiro ganhar rolagem lateral e a página "escorregar" ao
+     tocar. `clip` corta o excesso SEM criar contexto de rolagem — ao
+     contrário de `hidden`, que quebraria todo `position: sticky` da página. */
+  overflow-x: clip;
+}
+
+/* Mídia nunca estoura a coluna. As exceções (o canvas do editor, a imagem do
+   visualizador com zoom) estão listadas logo abaixo — lá o transbordo é o
+   comportamento certo. */
+img, video, iframe {
+  max-width: 100%;
+}
+.ps-folha canvas,
+.ps-folha img,
+.pn-draw,
+.vz-img {
+  max-width: none;
+}
+
+/* Palavras que não quebram — um e-mail longo, um ID, uma URL — empurram a
+   caixa e produzem a rolagem lateral. Só nos lugares onde de fato entra
+   texto de tamanho imprevisível. */
+.admin-email, .app-user-nome, .disp-nome, .ws-slot-linha,
+.conta-linha strong, .cr-erro-txt, .promp-nm, .promp-al-mail {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Quem pediu menos movimento no sistema recebe menos movimento. Vale para as
+   gavetas e transições que este arquivo introduz. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   2. DEDO EM VEZ DE MOUSE
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@media (pointer: coarse) {
+  /* ── O zoom que ninguém pediu ──
+     O Safari do iPhone dá zoom na página ao focar um campo cuja fonte seja
+     MENOR que 16px. O painel do app usa 13px, e cada toque num campo jogava
+     a tela para fora do lugar. Subir para 16px no toque resolve na origem —
+     melhor do que travar o zoom da página, que prejudicaria quem enxerga
+     pouco. No celular o painel ocupa a largura toda, então sobra espaço.
+
+     O `!important` é deliberado e tem alvo estreito: só campos de DIGITAÇÃO,
+     e só no toque. Sem ele, qualquer regra com classe (`.cr-ta`, `.sup-campo`,
+     `.login-input`) ganharia do seletor de elemento e o zoom voltaria — foi
+     exatamente o que a auditoria pegou. `<select>` fica de fora: no iOS ele
+     abre uma roleta nativa, não dá zoom. */
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']),
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* ── Tooltip de hover não existe no toque ──
+     Sem mouse, o `:hover` do navegador "gruda" no último elemento tocado: a
+     caixinha preta ficava aberta na tela até se tocar em outro lugar. Os
+     botões todos têm `aria-label`, então nada se perde. */
+  [data-tip]:hover::after {
+    content: none;
+  }
+
+  /* ── O que só aparecia no hover ──
+     Ações escondidas atrás do mouse são, no toque, ações que NÃO EXISTEM.
+     Estas voltam a ficar visíveis (mais discretas, para não poluir). */
+  .cr-card .cr-card-acoes,
+  .cr-card .cr-card-info,
+  .hl-item .hl-lixo,
+  .seq-slot--clic .seq-slot-acoes,
+  .cr-bcena .cr-bcena-x,
+  .ps-filtro .ps-filtro-x,
+  .promp-av-wrap .promp-av-cam,
+  .perfil-avatar-box .perfil-avatar-editar,
+  .perfil-avatar-box .perfil-avatar-x {
+    opacity: 1;
+  }
+  .ps-filtro .ps-filtro-x { opacity: .7; }
+  .perfil-avatar-box .perfil-avatar-editar { background: rgba(0, 0, 0, .28); }
+
+  /* ── O alvo do dedo ──
+     Um botão de 20×20 é um alvo que se erra. A área clicável cresce por fora,
+     sem mexer no desenho: o `::after` invisível é o que o dedo acerta. A lista
+     saiu da auditoria (scripts/ — ver o resumo) e não de palpite: são os
+     controles que mediam menos de 36px em algum aparelho. */
+  .cr-fbtn, .cr-mini, .ps-ic, .cr-seta, .link-botao,
+  .perfil-ajuda, .cr-busca-x, .cred-nudge-x, .senha-olho,
+  .login-visual-dot, .app-side-fechar, .ps-col-fechar,
+  .promp-av-x, .pk-multi-x, .ps-filtro-x {
+    position: relative;
+  }
+  .cr-fbtn::after, .cr-mini::after, .ps-ic::after, .cr-seta::after,
+  .perfil-ajuda::after, .cr-busca-x::after, .cred-nudge-x::after,
+  .senha-olho::after, .app-side-fechar::after, .ps-col-fechar::after,
+  .promp-av-x::after, .pk-multi-x::after, .ps-filtro-x::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+  /* As bolinhas do carrossel do login ficam a 7px uma da outra: um alvo de
+     44px de LARGURA faria uma cobrir a vizinha e o dedo acertaria o slide
+     errado. Cresce só na altura. */
+  .login-visual-dot::after { width: 100%; height: 44px; }
+
+  /* ── Onde o alvo invisível NÃO serve ──
+     Estes vivem em fila, encostados: um retângulo de 44px por cima passaria
+     sobre o vizinho e o toque cairia no botão errado. Aqui o botão cresce de
+     verdade, e o grupo inteiro cresce junto. */
+  .cr-tam { width: 38px; height: 34px; font-size: 12px; }
+  .cr-nav button { padding: 8px 12px; font-size: 22px; }
+
+  /* O − e o + da quantidade: 20×20 encostados um no outro, com o número no
+     meio. Um alvo invisível de 44px por cima faria o − cobrir o + — então
+     eles crescem de verdade, e a cápsula cresce junto. Continua sendo um
+     controle só, agora acertável. */
+  .cr-qty { height: 46px; padding: 0 5px; gap: 2px; }
+  .cr-qty button { width: 36px; height: 36px; font-size: 18px; }
+  .cr-qty span { min-width: 22px; }
+
+  /* O cursor-círculo do pincel segue o MOUSE. Sem mouse ele fica parado num
+     canto da tela, parecendo um defeito. */
+  .pn-cursor { display: none !important; }
+
+  /* Barras de rolagem horizontais com inércia, como o resto do sistema. */
+  .tabela-wrap, .admin-tabela-wrap, .cr-cards--linha, .aj-abas {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   3. NAVEGAÇÃO PÚBLICA — o menu de hambúrguer
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* O botão só existe no celular; no desktop os links cabem em fila. */
+.nav__burger {
+  display: none;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+}
+.nav__burger span {
+  display: block;
+  width: 17px;
+  height: 1.8px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform .2s ease, opacity .15s ease;
+}
+/* Aberto, os três traços viram um X — a mesma peça diz "abrir" e "fechar". */
+.nav__burger[aria-expanded='true'] span:nth-child(1) { transform: translateY(5.8px) rotate(45deg); }
+.nav__burger[aria-expanded='true'] span:nth-child(2) { opacity: 0; }
+.nav__burger[aria-expanded='true'] span:nth-child(3) { transform: translateY(-5.8px) rotate(-45deg); }
+
+@media (max-width: 720px) {
+  .nav {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px 0;
+  }
+  .nav__burger { display: flex; }
+
+  /* Fechado o menu não ocupa altura nenhuma; aberto ele desce em coluna,
+     ocupando a linha inteira abaixo do logo. */
+  .nav__links {
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height .26s ease, opacity .2s ease;
+  }
+  .nav__links--aberto {
+    max-height: 420px;
+    opacity: 1;
+    padding-top: 6px;
+  }
+  .nav__links a {
+    padding: 12px 4px;
+    font-size: 16.5px;
+    border-bottom: 1px solid var(--line);
+  }
+  /* O CTA continua sendo um botão, não mais um item de lista. */
+  .nav__links a.btn {
+    border-bottom: none;
+    margin-top: 10px !important;
+    width: 100% !important;
+    padding: 13px 20px !important;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4. LANDING / HOME
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  .container { padding: 0 22px; }
+}
+
+@media (max-width: 820px) {
+  .hero { padding: 56px 0 48px; }
+  .hero__titulo { font-size: clamp(30px, 7.4vw, 44px); line-height: 1.08; }
+  .hero__sub { font-size: 17px; margin-top: 16px; }
+
+  /* Em fila, os dois CTAs viravam duas colunas magras com o texto quebrado no
+     meio. Empilhados, cada um tem a linha inteira. */
+  .hero__ctas { flex-direction: column; align-items: stretch; }
+  .hero__ctas .btn { width: 100% !important; }
+
+  .sec { padding: 52px 0 6px; }
+  .sec__titulo { font-size: clamp(23px, 5.4vw, 32px); }
+  .cta-final { padding: 62px 0; }
+  .cta-final h2 { font-size: clamp(24px, 5.6vw, 34px); }
+  .foot { margin-top: 52px; padding: 28px 0; }
+}
+
+@media (max-width: 640px) {
+  .container { padding: 0 18px; }
+  .card, .depo { padding: 20px; }
+  .marquee__track { gap: 34px; }
+  .marquee__item { font-size: 18px; }
+  .faixa__label { font-size: 13px; }
+  .galeria__item { aspect-ratio: 16 / 10; font-size: 14px; }
+  .destaque { padding: 32px 20px; border-radius: 16px; }
+  .destaque h2 { font-size: 22px; }
+  .destaque p { font-size: 16px; margin-top: 12px; }
+  .hero__tag { font-size: 12.5px; padding: 5px 12px; }
+}
+
+@media (max-width: 380px) {
+  .container { padding: 0 14px; }
+  .hero { padding: 42px 0 38px; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   5. PREÇOS, COMPARAÇÃO E TEAMS
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  /* Quatro planos lado a lado ficam com 200px cada — o preço quebra em duas
+     linhas. Dois e dois é o limite antes de espremer. */
+  .planos { grid-template-columns: repeat(2, 1fr); }
+  .recargas { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 820px) {
+  .head { padding: 44px 0 30px; }
+  .head p { font-size: 16px; }
+  .toggle { margin-top: 20px; }
+  .toggle button { padding: 10px 18px; font-size: 14.5px; }
+
+  /* A tabela de comparação tem largura mínima de 640px e rola dentro do
+     .tabela-wrap. A sombra na direita avisa que há mais coisa ali — sem ela,
+     a coluna cortada parece o fim da tabela. */
+  .tabela-wrap {
+    -webkit-overflow-scrolling: touch;
+    background:
+      linear-gradient(to right, var(--paper) 30%, transparent) left center / 34px 100% no-repeat,
+      linear-gradient(to left, var(--paper) 30%, transparent) right center / 34px 100% no-repeat,
+      radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, .13), transparent) left center / 12px 100% no-repeat,
+      radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, .13), transparent) right center / 12px 100% no-repeat;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  .custo-abas { gap: 6px; }
+  .custo-aba { padding: 9px 16px; font-size: 14px; }
+  .faq summary { font-size: 16px; padding: 16px 2px; }
+  .faq p { font-size: 15px; }
+}
+
+@media (max-width: 640px) {
+  .planos { grid-template-columns: 1fr; gap: 14px; }
+  .recargas { grid-template-columns: 1fr; }
+  .plano { padding: 22px 18px; }
+
+  /* Com um plano por linha, a altura mínima que igualava os cards em grade
+     vira só espaço vazio. */
+  .plano__desc { min-height: 0; }
+  .plano__cred { min-height: 0; }
+  .plano__cobranca { min-height: 0; }
+  .plano__valor { font-size: 34px; }
+
+  .teams__lado, .teams__tabelas { padding: 24px 18px; }
+  .teams__tabela th, .teams__tabela td { padding: 11px 12px; font-size: 14px; }
+
+  /* As tabelas do Teams têm quatro colunas e não cabem: rolam dentro do
+     próprio card, em vez de estourar a página. */
+  .teams__tabela .tab { overflow-x: auto; }
+  .teams__tabela table { min-width: 420px; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   6. ENTRAR / CADASTRO
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.login-split, .login-wrap {
+  min-height: 100vh;
+  min-height: var(--altura-tela);
+}
+
+/* O painel visual some abaixo de 900px (regra do globals.css). Entre 900 e
+   1100 ele fica estreito demais para a frase caber em duas linhas. */
+@media (max-width: 1100px) {
+  .login-visual { padding: 26px; }
+  .login-visual-frase { font-size: 24px; }
+  .login-visual-sub { font-size: 14px; }
+}
+
+@media (max-width: 900px) {
+  .login-form-lado {
+    min-height: 100vh;
+    min-height: var(--altura-tela);
+    padding: 32px 20px calc(32px + var(--seg-base));
+  }
+}
+
+@media (max-width: 480px) {
+  .login-form-lado { padding: 22px 14px calc(28px + var(--seg-base)); }
+  .login-form-lado .login-card,
+  .login-card { padding: 26px 20px; border-radius: 18px; }
+  .login-titulo { font-size: 24px; margin-top: 16px; }
+  .login-sub { font-size: 14px; margin-bottom: 18px; }
+  .cad-passo-tag { margin-top: 12px; }
+}
+
+/* Celular deitado: sobra largura e falta altura. Centralizar verticalmente um
+   formulário mais alto que a tela esconde o topo dele. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .login-wrap, .login-form-lado {
+    align-items: flex-start;
+    padding-top: 22px;
+    padding-bottom: 22px;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   7. LEGAL, SUPORTE, PROMPTADORES
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+  .legal-wrap { padding: 34px 18px 64px; }
+  .sup-wrap { padding: 28px 16px 48px; }
+  .promp-wrap { padding-left: 16px; padding-right: 16px; }
+  .promp-busca, .promp-busca--sm { max-width: none; }
+  .promp-lista { grid-template-columns: 1fr; }
+  /* A tabela de usuários do promptador tem seis colunas: rola em vez de
+     estourar a página. */
+  .promp-tabela-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .promp-tabela { min-width: 560px; }
+}
+
+@media (max-width: 480px) {
+  .promp-top, .promp-barra, .promp-filtros, .promp-top-acoes, .promp-acoes-top {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  /* O menu abre ancorado à direita do botão; com 300px fixos, a ponta
+     esquerda saía da tela em aparelhos de 360px. */
+  .promp-drop { width: min(300px, calc(100vw - 36px)); }
+}
+
+/* O rodapé legal é um bloco de texto corrido com "·" entre os links. Quebrando
+   em três linhas, os separadores ficam órfãos no começo da linha.
+
+   Vira flex: os itens quebram como unidades e o `gap` dá o respiro. Os "·"
+   CONTINUAM aqui — eram eles que carregavam a margem lateral, e escondê-los
+   colava "SuporteTermos de UsoPolítica de Privacidade" numa palavra só. */
+@media (max-width: 560px) {
+  .rodape-legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px 7px;
+    padding: 20px 16px calc(20px + var(--seg-base));
+    text-align: center;
+  }
+  .rodape-legal .rl-sep { margin: 0; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   8. APPSHELL — a barra lateral vira gaveta
+   ══════════════════════════════════════════════════════════════════════════
+
+   Até 1024px a lateral fixa é um imposto: 240px (ou 68px recolhida) que o
+   conteúdo nunca recupera. Numa tela de 375px, os 68px da versão só-ícones
+   levam 18% da largura para uma navegação que se usa uma vez por sessão.
+
+   Ela passa a deslizar por cima, chamada por um botão no cabeçalho, e sai
+   quando se toca fora ou se escolhe um destino. */
+
+/* O botão do hambúrguer, o véu e o logo da gaveta não existem no desktop. */
+.app-burger { display: none; }
+.app-veu { display: none; }
+.app-logo--gaveta { display: none; }
+
+/* O rótulo agora vem sempre no HTML (ver AppShell.js). Quem o esconde no menu
+   recolhido do desktop é esta linha — e a gaveta do celular a desfaz. */
+.app-shell.recolhido .app-nav-lbl { display: none; }
+
+@media (max-width: 1024px) {
+  .app-burger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    width: 42px;
+    height: 42px;
+    margin-right: auto;         /* empurra o resto do cabeçalho para a direita */
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .app-burger span {
+    display: block;
+    width: 17px;
+    height: 1.8px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+
+  .app-header {
+    left: 0;
+    justify-content: space-between;
+    padding-left: max(14px, var(--seg-esq));
+    padding-right: max(14px, var(--seg-dir));
+    padding-top: var(--seg-topo);
+    height: calc(var(--header-h) + var(--seg-topo));
+  }
+  /* O "recolhido" do desktop não vale mais nada aqui: a gaveta é inteira ou
+     não é nada. */
+  .app-shell.recolhido .app-header { left: 0; }
+
+  .app-side,
+  .app-shell.recolhido .app-side {
+    width: min(272px, 82vw);
+    padding-top: var(--seg-topo);
+    padding-left: var(--seg-esq);
+    z-index: 120;
+    transform: translateX(-100%);
+    transition: transform .24s cubic-bezier(.4, 0, .2, 1);
+    box-shadow: none;
+    will-change: transform;
+  }
+  .app-shell.gaveta .app-side {
+    transform: translateX(0);
+    box-shadow: 0 0 44px rgba(0, 0, 0, .22);
+  }
+
+  /* Dentro da gaveta a lateral está sempre por extenso — ícone sozinho num
+     menu que já ocupa 272px seria enigma sem motivo. O "recolhido" do
+     desktop continua salvo; ele só não se aplica aqui. */
+  .app-shell.recolhido .app-side-topo { justify-content: space-between; padding: 0 14px; }
+  .app-shell.recolhido .app-nav-item { justify-content: flex-start; padding: 11px 14px; }
+  .app-shell.recolhido .app-nav-div { margin: 10px 12px; }
+  .app-nav-item { padding: 11px 14px; font-size: 15.5px; }
+  .app-shell .app-nav-lbl,
+  .app-shell.recolhido .app-nav-lbl { display: inline; }
+
+  /* O botão de recolher não faz sentido numa gaveta: ela já se fecha
+     inteira. Some, e o X do topo assume o papel. (`--so` é a variante que
+     aparece com o menu recolhido — o seletor pega as duas.) */
+  .app-side-toggle { display: none; }
+
+  /* Dois logos no HTML, um para cada mundo: o do desktop some, o da gaveta
+     aparece. Assim a gaveta tem cabeçalho mesmo quando o menu do desktop
+     estava recolhido — estado em que o logo original nem é renderizado. */
+  .app-logo--gaveta { display: block; }
+  .app-side-topo .app-logo:not(.app-logo--gaveta) { display: none; }
+
+  .app-veu {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    background: rgba(0, 0, 0, .42);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .24s ease;
+  }
+  .app-shell.gaveta .app-veu {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .app-main,
+  .app-shell.recolhido .app-main {
+    margin-left: 0;
+    padding-top: calc(var(--header-h) + var(--seg-topo));
+  }
+}
+
+/* O X que fecha a gaveta, no topo dela. */
+.app-side-fechar { display: none; }
+@media (max-width: 1024px) {
+  .app-side-fechar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ink3);
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+  }
+  .app-side-fechar:hover { background: var(--wash); color: var(--ink); }
+}
+
+@media (max-width: 480px) {
+  .app-header { gap: 10px; }
+  /* O anel + avatar somam 46px; num cabeçalho de 60px com o hambúrguer do
+     outro lado, ainda cabe — mas o menu que ele abre precisa caber na tela. */
+  .app-user-menu {
+    width: min(300px, calc(100vw - 24px));
+    right: 0;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   9. PÁGINAS DO PAINEL — conta, perfil, assinatura, equipe, admin
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  .admin-wrap { padding: 24px 20px; }
+  .tm-wrap { padding: 34px 20px 64px; }
+}
+
+@media (max-width: 820px) {
+  .conta-wrap { padding: 24px 18px 64px; }
+  .conta-card { padding: 22px 18px; }
+  .conta-topo { flex-wrap: wrap; gap: 12px; }
+  .conta-ola { font-size: 24px; }
+
+  .perfil-sec { padding: 20px 16px; }
+  .dash-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+}
+
+@media (max-width: 820px) {
+  /* As abas do admin (Assinantes, Trial, Membros de equipe, Cancelados,
+     Recargas) são um flex sem quebra: em 393px a "Recargas" ficava FORA da
+     página e levava a rolagem lateral junto. Passam a rolar dentro da própria
+     faixa, com a linha do sublinhado ativo acompanhando. */
+  .admin-abas {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+  }
+  .admin-abas::-webkit-scrollbar { display: none; }
+  .admin-aba { flex-shrink: 0; white-space: nowrap; padding: 10px 14px; }
+}
+
+@media (max-width: 640px) {
+  .admin-wrap { padding: 18px 14px; }
+  .admin-topo { flex-direction: column; align-items: stretch; }
+  .admin-tabela-wrap { -webkit-overflow-scrolling: touch; }
+  .admin-filtros { gap: 8px; }
+  .admin-export-menu { right: 0; min-width: 0; width: min(260px, calc(100vw - 40px)); }
+
+  /* A ficha lateral do admin ocupa a tela toda: 320px numa tela de 360
+     deixava uma faixa de fundo inútil de 40px. */
+  .admin-pf { width: 100%; }
+  .admin-geo-janela { max-height: calc(var(--altura-tela) - 40px); }
+
+  /* Linhas "rótulo à esquerda / valor à direita" que não cabem: o valor cai
+     para baixo do rótulo em vez de espremer os dois. */
+  .conta-linha { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .disp-item { flex-wrap: wrap; }
+  .disp-remover { width: 100%; text-align: center; }
+
+  .tm-planos { grid-template-columns: 1fr; }
+  .ws-identidade { flex-direction: column; align-items: flex-start; }
+
+  /* Os pacotes de recarga: quatro colunas viram duas. */
+  .rec-grade { grid-template-columns: repeat(2, 1fr); }
+  .rec-destino { max-width: none; }
+}
+
+@media (max-width: 380px) {
+  .rec-grade { grid-template-columns: 1fr; }
+  .dash-grid { grid-template-columns: 1fr; }
+  .perfil-sec { padding: 16px 13px; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   10. STUDIO (/app) — Criar e Galeria viram abas
+   ══════════════════════════════════════════════════════════════════════════
+
+   No desktop a tela é painel + feed lado a lado, e é assim que deve ser: se
+   escreve à esquerda e se vê o resultado à direita, sem trocar de contexto.
+
+   Num celular não há "lado a lado" possível — 375px divididos em dois dão
+   duas colunas inúteis. Em vez de espremer, a tela passa a mostrar UMA das
+   duas por vez, com um seletor no topo. É o mesmo conteúdo; muda só o que
+   está à vista. Ao gerar, o app pula sozinho para a Galeria — o resultado é
+   o que a pessoa quer ver. */
+
+.cr-tela {
+  /* `100vh` no iPhone conta a barra de endereço: a barra de filtros do feed
+     ficava para fora da tela. */
+  height: calc(var(--altura-tela) - var(--header-h));
+}
+
+/* O seletor Criar/Galeria: existe sempre no HTML, aparece só no estreito. */
+.cr-mobtabs { display: none; }
+
+@media (max-width: 1279px) {
+  /* Notebook pequeno / iPad deitado: o painel cede largura para o feed antes
+     de precisar virar aba. */
+  .cr-painel { width: 340px; }
+}
+
+@media (max-width: 1024px) {
+  .cr-tela {
+    flex-direction: column;
+    height: calc(var(--altura-tela) - var(--header-h) - var(--seg-topo));
+  }
+
+  .cr-mobtabs {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .cr-mobtab {
+    flex: 1;
+    padding: 10px 8px;
+    border: none;
+    border-radius: 100px;
+    background: var(--wash2);
+    color: var(--ink3);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+  .cr-mobtab--on {
+    background: var(--accent);
+    color: var(--accent-txt);
+  }
+  /* A bolinha avisa que saiu geração nova enquanto a pessoa estava na aba
+     Criar — sem ela, o resultado chegaria em silêncio, fora da vista. */
+  .cr-mobtab-bolha {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--alerta);
+  }
+  .cr-mobtab--on .cr-mobtab-bolha { display: none; }
+
+  /* Só a aba escolhida ocupa o corpo. `display: none` na outra, e não
+     `visibility`, para que ela não continue reservando altura. */
+  .cr-painel, .cr-feed {
+    width: 100%;
+    min-height: 0;
+    border-right: none;
+  }
+  .cr-tela[data-mob='feed'] .cr-painel { display: none; }
+  .cr-tela[data-mob='painel'] .cr-feed { display: none; }
+  .cr-painel { flex: 1; }
+
+  .cr-busca { margin-left: 0; }
+}
+
+/* No iPad em pé o painel ganha 820px de largura — e um botão "Manhã" de 400px
+   de comprimento não fica melhor por ser maior, fica só estranho. O formulário
+   para de crescer e se centra; o painel continua ocupando a tela toda. */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .cr-form, .cr-painel-vazio {
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+  }
+  .cr-pills { justify-content: center; }
+  .cr-sulco { max-width: 680px; }
+}
+
+@media (max-width: 820px) {
+  /* A barra do feed tem filtros, A/B, seleção, layout, tamanhos e busca.
+     Quebrando em quatro linhas ela comia metade da tela; rolando na
+     horizontal, ocupa uma linha só e nada se perde.
+
+     Só a partir daqui, e não já em 1024: `overflow-x` recorta nos dois eixos
+     (o navegador ignora um `overflow-y: visible` ao lado dele) e decapitaria
+     o tooltip. Entre 820 e 1024 há largura para a barra quebrar em duas
+     linhas com os tooltips inteiros; abaixo disso, quem chega é dedo — e no
+     toque o tooltip já não existe (ver bloco 2). */
+  .cr-barra {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+  .cr-barra::-webkit-scrollbar { display: none; }
+  .cr-barra > * { flex-shrink: 0; }
+  .cr-busca input { width: 130px; }
+
+  /* Em fila, os cards seguem uma fração fixa da largura (1/8, 1/6, 1/4, 1/3).
+     Num celular, 1/8 dá 44px — um selo, não uma imagem. As frações sobem para
+     algo que ainda deixe ver o que foi gerado. */
+  .cr-cards--linha.cr-cards--p  .cr-card,
+  .cr-cards--linha.cr-cards--p  .cr-slot { width: calc((100% - 24px) / 4); }
+  .cr-cards--linha.cr-cards--m  .cr-card,
+  .cr-cards--linha.cr-cards--m  .cr-slot { width: calc((100% - 16px) / 3); }
+  .cr-cards--linha.cr-cards--g  .cr-card,
+  .cr-cards--linha.cr-cards--g  .cr-slot { width: calc((100% - 8px) / 2); }
+  .cr-cards--linha.cr-cards--gg .cr-card,
+  .cr-cards--linha.cr-cards--gg .cr-slot { width: 100%; }
+
+  /* Na grade, o `minmax` de 330/460px é MAIOR que a tela: o navegador estoura
+     a coluna em vez de encolher. O `min(…, 100%)` devolve o controle. */
+  .cr-cards--grade.cr-cards--p  { grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr)); }
+  .cr-cards--grade.cr-cards--m  { grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr)); }
+  .cr-cards--grade.cr-cards--g  { grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); }
+  .cr-cards--grade.cr-cards--gg { grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); }
+
+  .cr-lista { padding: 14px 14px calc(20px + var(--seg-base)); }
+  .cr-form { padding: 14px 12px calc(24px + var(--seg-base)); }
+
+  /* O A/B compara duas imagens lado a lado — no estreito, uma sobre a outra. */
+  .cr-ab-slots { flex-wrap: wrap; }
+  .cr-ab { flex-wrap: wrap; gap: 10px; }
+}
+
+@media (max-width: 480px) {
+  .cr-cards--linha.cr-cards--p  .cr-card,
+  .cr-cards--linha.cr-cards--p  .cr-slot { width: calc((100% - 16px) / 3); }
+  .cr-cards--linha.cr-cards--m  .cr-card,
+  .cr-cards--linha.cr-cards--m  .cr-slot { width: calc((100% - 8px) / 2); }
+  .cr-cards--linha.cr-cards--g  .cr-card,
+  .cr-cards--linha.cr-cards--g  .cr-slot,
+  .cr-cards--linha.cr-cards--gg .cr-card,
+  .cr-cards--linha.cr-cards--gg .cr-slot { width: 100%; }
+
+  .cr-lote-cab { flex-wrap: wrap; gap: 6px; }
+  .cr-mes-tit { font-size: 15px; }
+  .cr-voltar-topo {
+    bottom: calc(16px + var(--seg-base));
+    right: 14px;
+  }
+}
+
+/* A barra de seleção múltipla é fixa no rodapé — precisa passar por cima do
+   queixo do iPhone, e caber em 320px. */
+.cr-selbar {
+  bottom: calc(24px + var(--seg-base));
+  max-width: calc(100vw - 24px);
+}
+@media (max-width: 480px) {
+  .cr-selbar {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    max-width: none;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 18px;
+  }
+  .cr-selbar-acoes { flex: 1; justify-content: flex-end; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   11. EDITOR PÓS — barra rolável e camadas em gaveta
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* No desktop a coluna de camadas está sempre à vista: nada disto existe. */
+.ps-col-abrir { display: none; }
+.ps-col-fechar { display: none; }
+.ps-col-veu { display: none; }
+
+@media (max-width: 1024px) {
+  /* A coluna de camadas passa a deslizar por cima da tela do editor. */
+  .ps-col {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    width: min(296px, 86vw);
+    transform: translateX(100%);
+    transition: transform .22s cubic-bezier(.4, 0, .2, 1);
+    box-shadow: -10px 0 34px rgba(0, 0, 0, .18);
+  }
+  .ps.camadas-abertas .ps-col { transform: translateX(0); }
+
+  /* O botão que a chama — flutua no canto, onde a coluna vai aparecer. */
+  .ps-col-abrir {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 55;
+    height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    background: var(--paper);
+    color: var(--ink2);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+  }
+  .ps.camadas-abertas .ps-col-abrir { display: none; }
+
+  .ps-col-fechar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-end;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    margin: 8px 10px 0 0;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ink3);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  /* Tocar na imagem fecha a gaveta — o gesto natural de "sair daqui". */
+  .ps-col-veu {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 55;
+    background: rgba(0, 0, 0, .28);
+  }
+
+  .ps-main { position: relative; }
+  .ps-tl-acoes { bottom: calc(20px + var(--seg-base)); }
+}
+
+@media (max-width: 820px) {
+  /* A topbar tem uns 25 botões. Quebrada em linhas, sobrava um dedo de tela
+     para a imagem — que é o assunto de um editor.
+
+     O globals.css evitava `overflow-x` de propósito: ele recorta nos DOIS
+     eixos, e decapitaria o tooltip que nasce abaixo do botão. Continua
+     verdade — por isso a barra só passa a rolar aqui, onde quem opera é o
+     dedo e o tooltip de hover já não existe (bloco 2). Entre 820 e 1024 ela
+     segue quebrando em linhas, com os tooltips inteiros. */
+  .ps-top {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    padding: 9px 12px;
+  }
+  .ps-top::-webkit-scrollbar { display: none; }
+  .ps-top > * { flex-shrink: 0; }
+  /* O espaçador tem `flex: 1`. Numa barra que rola, ele empurraria tudo o que
+     vem depois para fora do alcance do dedo. */
+  .ps-esticar { flex: 0 0 10px; }
+}
+
+@media (max-width: 640px) {
+  .ps-zoom { left: 12px; bottom: calc(12px + var(--seg-base)); }
+  .ps-toast {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    bottom: calc(18px + var(--seg-base));
+    justify-content: space-between;
+  }
+  /* Menus de contexto e flyouts: presos à largura da tela. */
+  .mc { max-width: calc(100vw - 20px); }
+  .ps-fly { max-width: calc(100vw - 24px); }
+}
+
+/* O editor pinta com o dedo. Sem `touch-action: none`, o primeiro traço vira
+   rolagem de página e o pincel não desenha nada. */
+@media (pointer: coarse) {
+  .ps-tela, .ps-folha, .ps-folha canvas { touch-action: none; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   12. JANELAS E MODAIS
+   ══════════════════════════════════════════════════════════════════════════
+
+   Quase todas já têm `max-width`, então o problema não é a largura: é o
+   PADDING do véu (24px de cada lado somem de uma tela de 320) e as alturas
+   mínimas em pixel, que numa tela deitada de 390px de altura não cabem. */
+
+@media (max-width: 640px) {
+  .cr-overlay,
+  .vz-prompt-fundo,
+  .promp-ov,
+  .promp-exp-ov,
+  .up-modal-fundo,
+  .modal-overlay,
+  .ea-ov,
+  .aj-fundo {
+    padding: 12px;
+    padding-bottom: calc(12px + var(--seg-base));
+    padding-top: calc(12px + var(--seg-topo));
+  }
+}
+
+/* ── O visualizador ──
+   O palco é fixo de propósito: 1120×82vh, para a imagem não pular de tamanho
+   ao trocar de modo. O `min-height: 560px` é o que quebra no celular — uma
+   tela deitada tem 390px de altura e a janela vazava por cima e por baixo. */
+@media (max-width: 1024px) {
+  .vz {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: calc(var(--altura-tela) - 24px);
+    min-height: 0;
+  }
+}
+@media (max-width: 640px) {
+  .vz { border-radius: 14px; }
+  .vz-acoes {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px;
+  }
+}
+
+/* ── O picker de imagem ──
+   É um flex de duas colunas (a lista e a prévia) com altura travada em
+   min(78vh, 640px). Em pé, as duas colunas viram duas faixas magras. */
+@media (max-width: 820px) {
+  .pk {
+    flex-direction: column;
+    height: auto;
+    max-height: calc(var(--altura-tela) - 40px);
+  }
+  /* A coluna de origens (132px, à esquerda) vira uma fita de abas horizontal
+     no topo; a grade fica com a largura inteira. */
+  .pk-lado {
+    width: 100%;
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    padding: 9px 10px;
+  }
+  .pk-lado::-webkit-scrollbar { display: none; }
+  .pk-lado > * { flex-shrink: 0; }
+  .pk-main { min-height: 0; }
+  .pk-previa { height: auto; }
+}
+
+/* ── A janela de ajustes ──
+   Imagem à esquerda, controles numa coluna de 330px à direita. Empilhadas, a
+   imagem fica em cima (é o que se está julgando) e os controles embaixo. */
+@media (max-width: 1024px) {
+  .aj-win {
+    max-width: 100%;
+    max-height: calc(var(--altura-tela) - 24px);
+  }
+}
+@media (max-width: 820px) {
+  .aj-corpo { flex-direction: column; }
+  .aj-lado {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--line);
+    max-height: 48%;
+  }
+  .aj-abas { overflow-x: auto; scrollbar-width: none; }
+  .aj-abas::-webkit-scrollbar { display: none; }
+}
+
+/* ── As janelas menores ──
+   Todas passam a caber em 320px com folga, e nenhuma ultrapassa a altura
+   visível da tela. */
+@media (max-width: 640px) {
+  .cr-modal, .dt, .hl, .at-win, .cr-picker, .vz-prompt-janela,
+  .promp-modal, .ea-modal, .admin-geo-janela {
+    max-width: 100%;
+    max-height: calc(var(--altura-tela) - 24px);
+  }
+  .dl, .bx, .up-modal, .cf, .modal-cpf {
+    max-width: calc(100vw - 24px);
+  }
+  .modal-cpf { padding: 22px 18px; min-height: 0; }
+  .modal-cpf-desc { min-height: 0; }
+  .modal-cpf-dupla { flex-direction: column; gap: 0; }
+  .modal-acoes { flex-direction: column-reverse; }
+
+  /* O recorte da foto tem 260px de diâmetro dentro de um modal de 340px —
+     numa tela de 320 ele vazava. */
+  .foto-modal { width: 100%; max-width: calc(100vw - 24px); }
+  .foto-crop { width: min(260px, calc(100vw - 84px)); height: min(260px, calc(100vw - 84px)); }
+
+  /* A janela de desfoque é arrastável e nasce centrada por margens negativas
+     calculadas para os 430px dela. Numa tela de 360 ela nascia deslocada para
+     fora, meio metida na borda esquerda. */
+  .df {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    margin-left: 0;
+    max-width: none;
+  }
+
+  /* O painel de filtros abre ancorado à direita do botão; com 330px, a ponta
+     esquerda saía da tela. */
+  .ft {
+    width: min(330px, calc(100vw - 24px));
+    right: 0;
+  }
+}
+
+/* Janelas altas numa tela deitada: o conteúdo rola dentro, o cabeçalho e o
+   rodapé ficam. Sem isto, o botão de confirmar some abaixo da dobra. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .cr-modal, .dt, .hl, .at-win, .cr-picker, .vz-prompt-janela, .aj-win, .pk,
+  .promp-modal, .ea-modal, .admin-geo-janela, .vz {
+    max-height: calc(var(--altura-tela) - 16px);
+  }
+  .cr-overlay, .promp-ov, .up-modal-fundo, .modal-overlay, .aj-fundo { padding: 8px; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   13. CARTÕES FLUTUANTES FIXOS
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Todos moram no rodapé da tela — é lá que fica o queixo do iPhone. */
+.cookie-bar { bottom: calc(18px + var(--seg-base)); }
+.trial-card { bottom: calc(22px + var(--seg-base)); }
+.ps-toast   { bottom: calc(28px + var(--seg-base)); }
+
+@media (max-width: 640px) {
+  .trial-card {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+  .trial-card-btn { flex-shrink: 0; }
+
+  .trial-bloqueio-card { padding: 30px 20px; }
+  .trial-bloqueio-card h1 { font-size: 24px; }
+}
+
+@media (max-width: 380px) {
+  .cookie-bar { left: 8px; right: 8px; padding: 14px; }
+  .cookie-btn { font-size: 12px; padding: 10px 14px; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   14. CELULAR DEITADO — falta altura, não largura
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@media (orientation: landscape) and (max-height: 480px) {
+  /* Um cabeçalho de 60px numa tela de 390 é 15% só de moldura. */
+  :root { --header-h: 48px; }
+  .app-header { height: calc(48px + var(--seg-topo)); }
+  .app-user-btn { width: 38px; height: 38px; }
+  .app-avatar { width: 30px; height: 30px; font-size: 14px; }
+  .app-anel { width: 38px; height: 38px; }
+
+  /* Com a tela deitada há largura para as duas colunas do studio de volta. */
+  .cr-tela[data-mob] { flex-direction: row; }
+  .cr-mobtabs { display: none; }
+  .cr-tela[data-mob='feed'] .cr-painel,
+  .cr-tela[data-mob='painel'] .cr-feed { display: flex; }
+  .cr-painel { width: 46%; max-width: 340px; flex: 0 0 auto; border-right: 1px solid var(--line); }
+}
