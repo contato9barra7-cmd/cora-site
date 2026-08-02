@@ -649,15 +649,31 @@ select.login-input { padding-right: 34px; }
 }
 .modal-seg-btn.on { border-color: var(--roxo); background: var(--roxo-suave, #f3f2fe); color: var(--roxo-escuro, #4b48c7); }
 
-/* Segundo nível: dentro de "Brasil", escolher entre CPF e CNPJ.
-   Menor e mais próximo do campo que a escolha de país acima, para a hierarquia
-   ficar óbvia — primeiro ONDE, depois QUAL documento. */
-.modal-seg--sub { gap: 6px; margin-top: -6px; margin-bottom: 14px; }
-.modal-seg--sub .modal-seg-btn { padding: 7px 10px; font-size: 12.5px; }
+/* ── Os dropdowns da janela de nota fiscal ──
+   País e tipo de documento usam o DropdownCora (o mesmo pill roxo de
+   Idioma/Tema em Minha conta). Aqui eles só crescem para o tamanho de
+   formulário e passam a ter EXATAMENTE a altura do .modal-input ao lado —
+   os três campos empilhados precisam formar uma coluna, não uma escada.
+   Mesma ideia do .cad-dd, que faz isto no cadastro. */
+.modal-dd { margin-bottom: 14px; }
+.modal-dd .cora-dd-btn {
+  height: 48px;
+  padding: 0 20px;
+  font-size: 15px;
+  background: var(--paper);
+  border-color: var(--line);
+  border-width: 1.5px;
+}
+.modal-dd .cora-dd-lista { border-radius: 16px; padding: 6px; }
+.modal-dd .cora-dd-opt { padding: 11px 14px; border-radius: 10px; font-size: 14px; }
 .modal-campo-rot { font-size: 12px; font-weight: 600; color: var(--ink3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .4px; }
 .modal-cpf-dupla { display: flex; gap: 10px; }
 .modal-input {
-  width: 100%; padding: 13px 20px; border: 1.5px solid var(--line); border-radius: 100px;
+  /* Altura fixa, a mesma do .modal-dd ao lado: na janela de nota fiscal os
+     três campos ficam empilhados e precisam formar uma coluna reta. Antes a
+     altura vinha do padding + line-height e dava ~49px, um degrau de 1px. */
+  width: 100%; height: 48px; padding: 0 20px;
+  border: 1.5px solid var(--line); border-radius: 100px;
   font-size: 15px; margin-bottom: 6px; box-sizing: border-box; font-family: inherit;
 }
 .modal-input:focus { outline: none; border-color: var(--roxo); box-shadow: 0 0 0 3px rgba(164,161,243,.18); }

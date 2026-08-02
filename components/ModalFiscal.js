@@ -9,8 +9,7 @@
 //
 //  Estava copiada em /precos e /teams, e faltava em /assinatura — onde comprar
 //  crédito sem CPF virava a mensagem "Dados fiscais necessários" e parava ali,
-//  sem oferecer o campo. Virou componente para as três usarem o mesmo, e para
-//  o CNPJ ser acrescentado num lugar só.
+//  sem oferecer o campo. Virou componente para as três usarem o mesmo.
 //
 //  Uso:
 //    const [fiscal, setFiscal] = useState(false);
@@ -20,9 +19,11 @@
 //                 onSalvo={() => { setFiscal(false); tentarDeNovo(); }} />
 // ═══════════════════════════════════════════════════════════════════════════
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { salvarDadosFiscais } from '../lib/auth';
 import { useIdioma } from '../lib/i18n';
+import DropdownCora from './DropdownCora';
+import { BRASIL, opcoesDePais, nomeDoPais } from '../lib/paises';
 
 // 000.000.000-00
 function formatarCpf(v) {
@@ -44,46 +45,65 @@ function formatarCnpj(v) {
 }
 
 export default function ModalFiscal({ aberto, onFechar, onSalvo }) {
-  const { t } = useIdioma();
-  const [onde, setOnde] = useState('br');        // 'br' | 'intl'
+  const { t, idioma } = useIdioma();
+  const [pais, setPais] = useState(BRASIL);
   const [tipoBr, setTipoBr] = useState('cpf');   // 'cpf' | 'cnpj'
-  const [doc, setDoc] = useState('');            // CPF ou CNPJ, conforme tipoBr
-  const [docIntl, setDocIntl] = useState('');
-  const [paisIntl, setPaisIntl] = useState('');
+  const [doc, setDoc] = useState('');
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
 
+  // A lista sai do `Intl.DisplayNames` e é ordenada por nome traduzido — cara
+  // o bastante para não refazer a cada tecla digitada no campo do documento.
+  const paises = useMemo(() => opcoesDePais(idioma), [idioma]);
+
   if (!aberto) return null;
 
-  const ehCnpj = tipoBr === 'cnpj';
+  const noBrasil = pais === BRASIL;
+  const ehCnpj = noBrasil && tipoBr === 'cnpj';
 
-  // Trocar entre CPF e CNPJ limpa o campo: os formatos são diferentes, e um
-  // CPF meio digitado reformatado como CNPJ vira um número sem sentido.
+  // Trocar o documento limpa o campo: as máscaras são diferentes, e um CPF
+  // meio digitado reformatado como CNPJ vira um número sem sentido.
+  function trocarPais(novo) {
+    setPais(novo);
+    setDoc('');
+    setErro('');
+  }
   function trocarTipoBr(novo) {
     setTipoBr(novo);
     setDoc('');
     setErro('');
   }
 
+  function aoDigitar(v) {
+    if (!noBrasil) return setDoc(v);            // documento estrangeiro é livre
+    setDoc(ehCnpj ? formatarCnpj(v) : formatarCpf(v));
+  }
+
   async function salvar() {
     setErro('');
     setSalvando(true);
     try {
-      if (onde === 'br') {
+      if (noBrasil) {
         const digitos = doc.replace(/\D/g, '');
         const precisa = ehCnpj ? 14 : 11;
         if (digitos.length !== precisa) {
-          // Conferência local só do tamanho — quem valida os dígitos
-          // verificadores é o servidor, que é onde a regra tem que morar.
+          // Aqui só se confere o TAMANHO. Os dígitos verificadores ficam no
+          // servidor, que é onde a regra tem que morar.
           setErro(ehCnpj ? t('precos_cnpj_incompleto') : t('precos_cpf_incompleto'));
           setSalvando(false);
           return;
         }
         await salvarDadosFiscais({ cpf: digitos });
       } else {
-        if (!docIntl.trim()) { setErro(t('precos_inf_doc')); setSalvando(false); return; }
-        if (!paisIntl.trim()) { setErro(t('precos_inf_pais')); setSalvando(false); return; }
-        await salvarDadosFiscais({ internacional: true, documento: docIntl, pais: paisIntl });
+        if (!doc.trim()) { setErro(t('precos_inf_doc')); setSalvando(false); return; }
+        // O país vai gravado SEMPRE em português, qualquer que seja o idioma da
+        // tela. Senão o relatório fiscal misturaria "Germany" e "Alemanha"
+        // conforme o idioma de quem comprou.
+        await salvarDadosFiscais({
+          internacional: true,
+          documento: doc.trim(),
+          pais: nomeDoPais(pais, 'pt'),
+        });
       }
       onSalvo();
     } catch (e) {
@@ -93,78 +113,50 @@ export default function ModalFiscal({ aberto, onFechar, onSalvo }) {
     }
   }
 
+  const rotuloDoc = noBrasil ? (ehCnpj ? 'CNPJ' : 'CPF') : t('precos_doc_label');
+  const placeholderDoc = noBrasil
+    ? (ehCnpj ? '00.000.000/0000-00' : '000.000.000-00')
+    : t('precos_doc_ph');
+
   return (
     <div className="modal-overlay" onClick={() => !salvando && onFechar()}>
       <div className="modal-cpf" onClick={(e) => e.stopPropagation()}>
         <h3>{t('precos_nota')}</h3>
+        <p className="modal-cpf-desc">
+          {noBrasil
+            ? (ehCnpj ? t('precos_cnpj_desc') : t('precos_cpf_desc'))
+            : t('precos_intl_desc')}
+        </p>
 
-        <div className="modal-seg">
-          <button
-            className={'modal-seg-btn' + (onde === 'br' ? ' on' : '')}
-            onClick={() => { setOnde('br'); setErro(''); }}
-          >{t('precos_brasil')}</button>
-          <button
-            className={'modal-seg-btn' + (onde === 'intl' ? ' on' : '')}
-            onClick={() => { setOnde('intl'); setErro(''); }}
-          >{t('precos_outro_pais')}</button>
+        <div className="modal-campo-rot">{t('precos_pais')}</div>
+        <div className="modal-dd">
+          <DropdownCora valor={pais} opcoes={paises} onEscolher={trocarPais} />
         </div>
 
-        {onde === 'br' ? (
+        {/* Só o Brasil separa pessoa física de empresa. Fora daqui, o campo é
+            um documento fiscal genérico — cada país tem o seu. */}
+        {noBrasil && (
           <>
-            {/* Pessoa física ou empresa. O documento muda junto. */}
-            <div className="modal-seg modal-seg--sub">
-              <button
-                className={'modal-seg-btn' + (!ehCnpj ? ' on' : '')}
-                onClick={() => trocarTipoBr('cpf')}
-              >CPF</button>
-              <button
-                className={'modal-seg-btn' + (ehCnpj ? ' on' : '')}
-                onClick={() => trocarTipoBr('cnpj')}
-              >CNPJ</button>
-            </div>
-
-            <p className="modal-cpf-desc">
-              {ehCnpj ? t('precos_cnpj_desc') : t('precos_cpf_desc')}
-            </p>
-            <div className="modal-campo-rot">{ehCnpj ? 'CNPJ' : 'CPF'}</div>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder={ehCnpj ? '00.000.000/0000-00' : '000.000.000-00'}
-              value={doc}
-              onChange={(e) => setDoc(ehCnpj ? formatarCnpj(e.target.value) : formatarCpf(e.target.value))}
-              className="modal-input"
-              autoFocus
-            />
-          </>
-        ) : (
-          <>
-            <p className="modal-cpf-desc">{t('precos_intl_desc')}</p>
-            <div className="modal-cpf-dupla">
-              <div style={{ flex: 2 }}>
-                <div className="modal-campo-rot">{t('precos_doc_label')}</div>
-                <input
-                  type="text"
-                  placeholder={t('precos_doc_ph')}
-                  value={docIntl}
-                  onChange={(e) => setDocIntl(e.target.value)}
-                  className="modal-input"
-                  autoFocus
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div className="modal-campo-rot">{t('precos_pais')}</div>
-                <input
-                  type="text"
-                  placeholder={t('precos_pais_ph')}
-                  value={paisIntl}
-                  onChange={(e) => setPaisIntl(e.target.value)}
-                  className="modal-input"
-                />
-              </div>
+            <div className="modal-campo-rot">{t('precos_tipo_doc')}</div>
+            <div className="modal-dd">
+              <DropdownCora
+                valor={tipoBr}
+                opcoes={[{ v: 'cpf', n: 'CPF' }, { v: 'cnpj', n: 'CNPJ' }]}
+                onEscolher={trocarTipoBr}
+              />
             </div>
           </>
         )}
+
+        <div className="modal-campo-rot">{rotuloDoc}</div>
+        <input
+          type="text"
+          inputMode={noBrasil ? 'numeric' : 'text'}
+          placeholder={placeholderDoc}
+          value={doc}
+          onChange={(e) => aoDigitar(e.target.value)}
+          className="modal-input"
+        />
 
         {erro && <div className="modal-erro">{erro}</div>}
 
