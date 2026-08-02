@@ -65,6 +65,14 @@ export default function Assinatura() {
         setModalFiscal(true);
         return;
       }
+      // Recarga sem plano ativo: o aviso sozinho deixaria a pessoa parada numa
+      // tela sem botão de assinar. Mostra o motivo e leva para os planos, que é
+      // o que ela precisa fazer para poder comprar.
+      if (e.precisaPlano) {
+        setErro(t('recarga_precisa_plano'));
+        setTimeout(() => router.push('/precos'), 1800);
+        return;
+      }
       setErro(e.message);
     } finally {
       setComprando(false);
