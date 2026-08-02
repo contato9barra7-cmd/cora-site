@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import { lerConta, abrirPortal, lerEquipe, iniciarCheckout } from '../../lib/auth';
 import { recargas } from '../../lib/planos';
-import { STRIPE_PRICES } from '../../lib/stripe-prices';
+import { itemDaRecarga } from '../../lib/stripe-prices';
 import { useIdioma, tOpt, localeDeIdioma } from '../../lib/i18n';
 
 const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
@@ -48,7 +48,7 @@ export default function Assinatura() {
   async function comprarRecarga() {
     setErro(''); setComprando(true);
     try {
-      const priceId = STRIPE_PRICES.recargas[recargaSel];
+      const priceId = itemDaRecarga(recargaSel);
       // se for dono, direciona ao assento escolhido; senão, recarga na própria conta
       const assento = conta.eh_dono_equipe ? assentoSel : null;
       await iniciarCheckout(priceId, null, assento);

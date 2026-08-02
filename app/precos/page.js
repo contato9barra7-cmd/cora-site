@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { iniciarCheckout, salvarCPF, salvarDadosFiscais, lerConta, abrirPortal } from '../../lib/auth';
-import { STRIPE_PRICES } from '../../lib/stripe-prices';
+import { itemDoPlano, itemDaRecarga } from '../../lib/stripe-prices';
 import Nav from '../../components/Nav';
 import { useIdioma } from '../../lib/i18n';
 import {
@@ -154,7 +154,7 @@ export default function Precos() {
                         && conta.status === 'ativo';
 
   async function comprarRecarga(recargaId) {
-    const priceId = STRIPE_PRICES.recargas[recargaId];
+    const priceId = itemDaRecarga(recargaId);
     if (!priceId) return;
     const logada = typeof window !== 'undefined' && localStorage.getItem('cora_conta');
     if (!logada) { router.push('/cadastro'); return; }
@@ -178,22 +178,23 @@ export default function Precos() {
       setModalUpgrade(true);
       return;
     }
-    const grupo = STRIPE_PRICES[planoId];
-    if (!grupo) return;
-    const priceId = anual ? grupo.anual : grupo.mensal;
+    const priceId = itemDoPlano(planoId, anual ? 'anual' : 'mensal');
+    if (!priceId) return;
     const logada = typeof window !== 'undefined' && localStorage.getItem('cora_conta');
     const guia = null;
     await comprar(priceId, guia);
   }
 
-  async function irParaPortal() {
-    const guia = null;
+  // Quem já tem plano vai para a própria página de assinatura, onde estão o
+  // plano atual, os créditos, a renovação e os botões de gerenciar e comprar.
+  //
+  // Antes isto chamava `abrirPortal(null)`, que termina num `window.open` — e
+  // como ele roda DEPOIS do await, fora do gesto do clique, o navegador
+  // bloqueava como pop-up. O botão simplesmente não fazia nada, sem erro
+  // nenhum na tela. Navegação interna não tem esse problema.
+  function irParaAssinatura() {
     setModalUpgrade(false);
-    try {
-      await abrirPortal(guia);
-    } catch (e) {
-      setErroCheckout(e.message);
-    }
+    router.push('/assinatura');
   }
   const colunas = ['Free', 'Starter', 'Pro', 'Studio'];
 
@@ -438,7 +439,7 @@ export default function Precos() {
               <button className="btn btn--ghost" onClick={() => setModalUpgrade(false)}>
                 {t('comum_cancelar')}
               </button>
-              <button className="btn btn--verde" onClick={irParaPortal}>
+              <button className="btn btn--verde" onClick={irParaAssinatura}>
                 {conta?.plano === planoAlvo ? t('precos_gerenciar') : t('precos_mudar')}
               </button>
             </div>
