@@ -242,16 +242,17 @@ export default function AppShell({ children }) {
   const planoExpirado = !!(conta && !conta.is_admin && !ehTrial
     && conta.status && conta.status !== 'ativo');
 
-  // Recarga válida (6 meses) sobrevive ao fim do teste E ao cancelamento — quem
-  // pagou por ela precisa conseguir gastar. O servidor já pensa assim: o
-  // /creditos/debitar aceita o gasto de recarga com plano inválido, tratando a
-  // parte do plano como zero. A tela é que não pensava, e prendia do lado de
-  // fora crédito que a pessoa comprou.
+  // Quem decide se a tela abre é o SERVIDOR, no campo `pode_gerar`.
   //
-  // Quem cai aqui é sobretudo o ex-assinante: ao cancelar, o plano volta para
-  // `free`, e conta free com mais de 7 dias é lida como teste vencido — ele
-  // levava o bloqueio de tela cheia com saldo comprado na mão.
-  const temRecarga = (conta?.creditos_recarga ?? 0) > 0;
+  // Esta regra já esteve escrita aqui, no plugin e no /creditos/debitar, com
+  // três critérios diferentes — e eles discordavam: inadimplente com recarga
+  // válida gerava pelo site e era barrado no plugin, com o servidor debitando
+  // numa boa. Agora a resposta vem pronta e a tela só obedece.
+  //
+  // Ausente (servidor antigo, resposta em cache de antes do deploy) NÃO
+  // bloqueia: `!== false` mantém a tela aberta em vez de trancar um pagante por
+  // causa de um campo que ainda não chegou.
+  const podeGerar = conta?.pode_gerar !== false;
 
   // Card de crédito baixo (mesmo canto do "Dia X de 7"). NÃO fica fixo: aparece
   // no máximo 1x a cada 6h. Só para conta paga (não trial, não ilimitada) com
@@ -498,7 +499,7 @@ export default function AppShell({ children }) {
       )}
 
       {/* Bloqueio de tela cheia (trial expirado, e sem recarga para gastar) */}
-      {ehTrial && trialExpirado && !temRecarga && (
+      {ehTrial && trialExpirado && !podeGerar && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
             <span className="trial-bloqueio-eb">{t('teste_encerrado')}</span>
@@ -512,7 +513,7 @@ export default function AppShell({ children }) {
 
       {/* Bloqueio do /app quando o plano vence / cartão falha (conta e
           assinatura continuam acessíveis pela navegação lateral) */}
-      {planoExpirado && naApp && !temRecarga && (
+      {planoExpirado && naApp && !podeGerar && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
             <span className="trial-bloqueio-eb">{t('plano_inativo')}</span>
