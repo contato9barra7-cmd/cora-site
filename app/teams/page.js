@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Nav from '../../components/Nav';
+import ModalFiscal from '../../components/ModalFiscal';
 import { calcularTeams, descontoAssentos } from '../../lib/planos';
-import { iniciarCheckoutEquipe, salvarCPF, lerEquipePendente, limparEquipePendente } from '../../lib/auth';
+import { iniciarCheckoutEquipe, lerEquipePendente, limparEquipePendente } from '../../lib/auth';
 import { useIdioma } from '../../lib/i18n';
 
 function brl(n) { return 'R$ ' + n.toLocaleString('pt-BR'); }
@@ -17,9 +18,6 @@ export default function Teams() {
   const [ciclo, setCiclo] = useState('mensal'); // mensal | anual
   const [erro, setErro] = useState('');
   const [modalCpf, setModalCpf] = useState(false);
-  const [cpf, setCpf] = useState('');
-  const [cpfErro, setCpfErro] = useState('');
-  const [salvandoCpf, setSalvandoCpf] = useState(false);
 
   // Se a pessoa voltou de login/cadastro com uma escolha pendente, restaura e retoma.
   useEffect(() => {
@@ -43,11 +41,6 @@ export default function Teams() {
     setAssentos((a) => Math.max(2, Math.min(100, a + delta)));
   }
 
-  function formatarCpf(v) {
-    const d = v.replace(/\D/g, '').slice(0, 11);
-    return d.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-  }
-
   async function assinar(guia) {
     setErro('');
     try {
@@ -65,22 +58,6 @@ export default function Teams() {
     const logada = typeof window !== 'undefined' && localStorage.getItem('cora_conta');
     const guia = null;
     assinar(guia);
-  }
-
-  async function confirmarCpf() {
-    setCpfErro('');
-    setSalvandoCpf(true);
-    try {
-      await salvarCPF(cpf);
-      const guia = null;
-      setModalCpf(false);
-      setCpf('');
-      await assinar(guia);
-    } catch (e) {
-      setCpfErro(e.message);
-    } finally {
-      setSalvandoCpf(false);
-    }
   }
 
   return (
@@ -173,28 +150,14 @@ export default function Teams() {
         </div>
       </div>
 
-      {modalCpf && (
-        <div className="foto-overlay" onClick={() => setModalCpf(false)}>
-          <div className="modal-cpf" onClick={(e) => e.stopPropagation()}>
-            <div className="foto-titulo">{t('teams_cpf_titulo')}</div>
-            <p className="tm-sub" style={{ marginBottom: 14 }}>
-              {t('teams_cpf_desc')}
-            </p>
-            <input
-              className="tm-input"
-              value={cpf}
-              onChange={(e) => setCpf(formatarCpf(e.target.value))}
-              placeholder="000.000.000-00"
-              inputMode="numeric"
-            />
-            {cpfErro && <p className="tm-erro">{cpfErro}</p>}
-            <button className="btn btn--verde" style={{ width: '100%', marginTop: 16, padding: '12px' }} onClick={confirmarCpf} disabled={salvandoCpf}>
-              {salvandoCpf ? t('comum_salvando') : t('confirma_btn_continuar')}
-            </button>
-            <div className="foto-cancelar" onClick={() => setModalCpf(false)} style={{ marginTop: 12 }}>{t('comum_cancelar')}</div>
-          </div>
-        </div>
-      )}
+      {/* A mesma janela de /precos e /assinatura. Antes esta tela tinha uma
+          cópia própria que só aceitava CPF — e Teams é justamente onde o CNPJ
+          mais aparece, porque quem compra assentos costuma ser empresa. */}
+      <ModalFiscal
+        aberto={modalCpf}
+        onFechar={() => setModalCpf(false)}
+        onSalvo={() => { setModalCpf(false); assinar(null); }}
+      />
     </>
   );
 }

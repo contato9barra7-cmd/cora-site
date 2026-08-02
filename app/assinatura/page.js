@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
+import ModalFiscal from '../../components/ModalFiscal';
 import { lerConta, abrirPortal, lerEquipe, iniciarCheckout } from '../../lib/auth';
 import { recargas } from '../../lib/planos';
 import { itemDaRecarga } from '../../lib/stripe-prices';
@@ -27,6 +28,9 @@ export default function Assinatura() {
   const recargaEscolhida = recargas.find((r) => r.id === recargaSel);
   const [assentoSel, setAssentoSel] = useState('');
   const [comprando, setComprando] = useState(false);
+  // Janela de CPF/CNPJ: abre quando o servidor recusa o checkout por falta de
+  // dados fiscais (428), e a compra segue sozinha assim que a pessoa salva.
+  const [modalFiscal, setModalFiscal] = useState(false);
 
   useEffect(() => {
     const c = lerConta();
@@ -53,10 +57,21 @@ export default function Assinatura() {
       const assento = conta.eh_dono_equipe ? assentoSel : null;
       await iniciarCheckout(priceId, null, assento);
     } catch (e) {
+      // Sem CPF/CNPJ na conta, o servidor recusa o checkout (428). Antes isso
+      // virava só a mensagem "Dados fiscais necessários" e a pessoa ficava sem
+      // saída — o campo para preencher só existia na página de preços. Agora a
+      // janela abre aqui também, e a compra segue sozinha depois de salvar.
+      if (e.precisaCpf) {
+        setModalFiscal(true);
+        return;
+      }
       setErro(e.message);
     } finally {
       setComprando(false);
-      setModalRecarga(false);
+      // (havia um `setModalRecarga(false)` aqui, chamando uma função que nunca
+      //  foi declarada — a escolha de recarga é inline nesta tela, não um
+      //  modal. Todo clique em "Comprar" jogava um ReferenceError, invisível
+      //  porque a página navegava logo em seguida.)
     }
   }
 
@@ -213,6 +228,11 @@ export default function Assinatura() {
         )}
       </div>
 
+      <ModalFiscal
+        aberto={modalFiscal}
+        onFechar={() => setModalFiscal(false)}
+        onSalvo={() => { setModalFiscal(false); comprarRecarga(); }}
+      />
     </AppShell>
   );
 }

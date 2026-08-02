@@ -648,6 +648,12 @@ select.login-input { padding-right: 34px; }
   border-radius: 100px; padding: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
 .modal-seg-btn.on { border-color: var(--roxo); background: var(--roxo-suave, #f3f2fe); color: var(--roxo-escuro, #4b48c7); }
+
+/* Segundo nível: dentro de "Brasil", escolher entre CPF e CNPJ.
+   Menor e mais próximo do campo que a escolha de país acima, para a hierarquia
+   ficar óbvia — primeiro ONDE, depois QUAL documento. */
+.modal-seg--sub { gap: 6px; margin-top: -6px; margin-bottom: 14px; }
+.modal-seg--sub .modal-seg-btn { padding: 7px 10px; font-size: 12.5px; }
 .modal-campo-rot { font-size: 12px; font-weight: 600; color: var(--ink3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .4px; }
 .modal-cpf-dupla { display: flex; gap: 10px; }
 .modal-input {

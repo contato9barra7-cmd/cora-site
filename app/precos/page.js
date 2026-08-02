@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { iniciarCheckout, salvarCPF, salvarDadosFiscais, lerConta, abrirPortal } from '../../lib/auth';
+import { iniciarCheckout, lerConta } from '../../lib/auth';
 import { itemDoPlano, itemDaRecarga } from '../../lib/stripe-prices';
 import Nav from '../../components/Nav';
+import ModalFiscal from '../../components/ModalFiscal';
 import { useIdioma } from '../../lib/i18n';
 import {
   planos, recargas, descontoAnual,
@@ -78,14 +79,11 @@ export default function Precos() {
   const [anual, setAnual] = useState(false);
   const [abaCusto, setAbaCusto] = useState('imagens');
   const [erroCheckout, setErroCheckout] = useState('');
+  // A janela de CPF/CNPJ virou componente (ModalFiscal) — campos, formatação e
+  // salvamento moram lá, e /assinatura e /teams usam a mesma. Aqui fica só se
+  // ela está aberta e qual compra retomar quando a pessoa terminar.
   const [modalCpf, setModalCpf] = useState(false);
-  const [fiscalTipo, setFiscalTipo] = useState('br');   // 'br' (CPF) | 'intl'
-  const [cpf, setCpf] = useState('');
-  const [docIntl, setDocIntl] = useState('');
-  const [paisIntl, setPaisIntl] = useState('');
-  const [cpfErro, setCpfErro] = useState('');
   const [priceIdPendente, setPriceIdPendente] = useState(null);
-  const [salvandoCpf, setSalvandoCpf] = useState(false);
   const [conta, setConta] = useState(null);
   const [modalUpgrade, setModalUpgrade] = useState(false);
   const [avisoRecarga, setAvisoRecarga] = useState(false);
@@ -105,11 +103,6 @@ export default function Precos() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function formatarCpf(v) {
-    const d = v.replace(/\D/g, '').slice(0, 11);
-    return d.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-  }
-
   async function comprar(priceId, guia) {
     setErroCheckout('');
     try {
@@ -125,28 +118,6 @@ export default function Precos() {
         return;
       }
       setErroCheckout(e.message);
-    }
-  }
-
-  async function confirmarCpf() {
-    setCpfErro('');
-    setSalvandoCpf(true);
-    try {
-      if (fiscalTipo === 'intl') {
-        if (!docIntl.trim()) { setCpfErro(t('precos_inf_doc')); setSalvandoCpf(false); return; }
-        if (!paisIntl.trim()) { setCpfErro(t('precos_inf_pais')); setSalvandoCpf(false); return; }
-        await salvarDadosFiscais({ internacional: true, documento: docIntl.trim(), pais: paisIntl.trim() });
-      } else {
-        await salvarDadosFiscais({ cpf });
-      }
-      const guia = null;
-      setModalCpf(false);
-      setCpf(''); setDocIntl(''); setPaisIntl('');
-      if (priceIdPendente) await comprar(priceIdPendente, guia);
-    } catch (e) {
-      setCpfErro(e.message);
-    } finally {
-      setSalvandoCpf(false);
     }
   }
 
@@ -447,77 +418,14 @@ export default function Precos() {
         </div>
       )}
 
-      {modalCpf && (
-        <div className="modal-overlay" onClick={() => !salvandoCpf && setModalCpf(false)}>
-          <div className="modal-cpf" onClick={(e) => e.stopPropagation()}>
-            <h3>{t('precos_nota')}</h3>
-
-            <div className="modal-seg">
-              <button
-                className={'modal-seg-btn' + (fiscalTipo === 'br' ? ' on' : '')}
-                onClick={() => { setFiscalTipo('br'); setCpfErro(''); }}
-              >{t('precos_brasil')}</button>
-              <button
-                className={'modal-seg-btn' + (fiscalTipo === 'intl' ? ' on' : '')}
-                onClick={() => { setFiscalTipo('intl'); setCpfErro(''); }}
-              >{t('precos_outro_pais')}</button>
-            </div>
-
-            {fiscalTipo === 'br' ? (
-              <>
-                <p className="modal-cpf-desc">{t('precos_cpf_desc')}</p>
-                <div className="modal-campo-rot">CPF</div>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="000.000.000-00"
-                  value={cpf}
-                  onChange={(e) => setCpf(formatarCpf(e.target.value))}
-                  className="modal-input"
-                  autoFocus
-                />
-              </>
-            ) : (
-              <>
-                <p className="modal-cpf-desc">{t('precos_intl_desc')}</p>
-                <div className="modal-cpf-dupla">
-                  <div style={{ flex: 2 }}>
-                    <div className="modal-campo-rot">{t('precos_doc_label')}</div>
-                    <input
-                      type="text"
-                      placeholder={t('precos_doc_ph')}
-                      value={docIntl}
-                      onChange={(e) => setDocIntl(e.target.value)}
-                      className="modal-input"
-                      autoFocus
-                    />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div className="modal-campo-rot">{t('precos_pais')}</div>
-                    <input
-                      type="text"
-                      placeholder={t('precos_pais_ph')}
-                      value={paisIntl}
-                      onChange={(e) => setPaisIntl(e.target.value)}
-                      className="modal-input"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {cpfErro && <div className="modal-erro">{cpfErro}</div>}
-            <div className="modal-acoes">
-              <button className="btn btn--ghost" onClick={() => setModalCpf(false)} disabled={salvandoCpf}>
-                {t('comum_cancelar')}
-              </button>
-              <button className="btn btn--verde" onClick={confirmarCpf} disabled={salvandoCpf}>
-                {salvandoCpf ? t('comum_salvando') : t('confirma_btn_continuar')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ModalFiscal
+        aberto={modalCpf}
+        onFechar={() => setModalCpf(false)}
+        onSalvo={() => {
+          setModalCpf(false);
+          if (priceIdPendente) comprar(priceIdPendente, null);
+        }}
+      />
     </>
   );
 }
