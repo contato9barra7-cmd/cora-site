@@ -45,6 +45,21 @@ function VerificarConteudo() {
     }
   }
 
+  // Limpa PRIMEIRO, corta DEPOIS.
+  //
+  // Antes o input tinha maxLength={6}, e o navegador aplica esse corte no texto
+  // colado antes de qualquer código nosso rodar. Como o e-mail mandava o código
+  // com espaço no meio ("254 016", 7 caracteres), sobrava "254 01" — que o
+  // replace virava "25401". Cinco dígitos: faltava o último, e a pessoa tinha
+  // que digitar na mão.
+  //
+  // O e-mail já não manda espaço, mas o campo não pode depender disso: as
+  // pessoas colam com espaço no fim, com hífen, com o texto inteiro da linha.
+  // Tirando os não-dígitos antes de limitar a 6, qualquer um desses entra certo.
+  function digitarCodigo(e) {
+    setCodigo(e.target.value.replace(/\D/g, '').slice(0, 6));
+  }
+
   async function reenviar() {
     setErro(''); setAviso('');
     await reenviarCodigo(email);
@@ -62,9 +77,9 @@ function VerificarConteudo() {
 
         <label className="login-label">{t('ver_codigo_label')}</label>
         <input
-          className="login-input" type="text" inputMode="numeric" maxLength={6}
+          className="login-input" type="text" inputMode="numeric"
           placeholder="000000" value={codigo}
-          onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ''))}
+          onChange={digitarCodigo}
           onKeyDown={(e) => e.key === 'Enter' && confirmar()}
           style={{ letterSpacing: '6px', textAlign: 'center', fontSize: 20 }}
         />
