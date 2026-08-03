@@ -108,6 +108,8 @@ export default function Precos() {
     try {
       await iniciarCheckout(priceId, guia);
     } catch (e) {
+      // Ocupa assento de equipe: a saida e sair da equipe, nao renovar nada.
+      if (e.jaNaEquipe) { setErroCheckout(t('equipe_ja_ocupa')); return; }
       if (e.precisaCpf) {
         setPriceIdPendente(priceId);
         setModalCpf(true);

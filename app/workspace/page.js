@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import { useIdioma, localeDeIdioma } from '../../lib/i18n';
-import { lerConta, lerEquipe, convidarMembro, removerMembro, atribuirAMim, dispositivosDoMembro, nomearEquipe, reenviarConvite, salvarFotoEquipe } from '../../lib/auth';
+import { lerConta, lerEquipe, convidarMembro, removerMembro, atribuirAMim, dispositivosDoMembro, nomearEquipe, reenviarConvite, salvarFotoEquipe, reativarAssento } from '../../lib/auth';
 
 const NOME_PLANO = { pro: 'Pro', studio: 'Studio' };
 
@@ -199,6 +199,21 @@ function WorkspaceConteudo() {
     catch (e) { setErro(e.message); }
   }
 
+  // Assento suspenso por excedente: devolve o acesso. Sem assento livre o
+  // servidor recusa, e a saida e liberar um antes — o proprio painel ja tem o
+  // botao de remover, entao a mensagem manda para la em vez de inventar um
+  // seletor de troca aqui dentro.
+  async function reativar(id) {
+    setErro(''); setAviso('');
+    try {
+      await reativarAssento(id);
+      setExpandido(null);
+      await carregar();
+    } catch (e) {
+      setErro(e.precisaTroca ? t('ws_reativar_sem_vaga') : e.message);
+    }
+  }
+
   async function reenviar(id) {
     setErro(''); setAviso('');
     try { await reenviarConvite(id); setAviso(t('ws_convite_reenviado')); }
@@ -352,6 +367,7 @@ function WorkspaceConteudo() {
                 {m.eh_dono && <span className="ws-tag ws-tag-dono">{t('ws_dono')}</span>}
                 {m.status === 'convidado' && <span className="ws-tag ws-tag-pend">{t('ws_convite_pendente')}</span>}
                 {m.status === 'ativo' && !m.eh_dono && <span className="ws-tag ws-tag-ativo">{t('ws_ativo')}</span>}
+                {m.status === 'suspenso' && <span className="ws-tag ws-tag-pend">{t('ws_suspenso')}</span>}
               </div>
               <div className="ws-slot-dir">
                 {m.status === 'ativo' && m.creditos_total != null && (() => {
@@ -382,6 +398,8 @@ function WorkspaceConteudo() {
               <div className="ws-detalhe">
                 {m.status === 'convidado' ? (
                   <p className="ws-obs" style={{ marginTop: 0 }}>{t('ws_convite_nao_aceito')}</p>
+                ) : m.status === 'suspenso' ? (
+                  <p className="ws-obs" style={{ marginTop: 0 }}>{t('ws_suspenso_obs')}</p>
                 ) : (
                   <>
                     <div className="ws-disp-tit">{t('ws_disp_tit')}</div>
@@ -399,6 +417,9 @@ function WorkspaceConteudo() {
                 <div className="ws-acoes">
                   {!m.eh_dono && m.status === 'convidado' && (
                     <button className="ws-btn-sec" onClick={() => reenviar(m.id)}>{t('ws_reenviar_acesso')}</button>
+                  )}
+                  {m.status === 'suspenso' && (
+                    <button className="ws-btn-sec" onClick={() => reativar(m.id)}>{t('ws_reativar_acesso')}</button>
                   )}
                   {m.eh_dono ? (
                     <button className="ws-remover" onClick={() => remover(m.id)}>{t('ws_liberar_assento')}</button>

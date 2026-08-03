@@ -254,6 +254,12 @@ export default function AppShell({ children }) {
   // causa de um campo que ainda não chegou.
   const podeGerar = conta?.pode_gerar !== false;
 
+  // Suspenso por excedente de assentos: o dono da equipe reduziu a quantidade e
+  // esta pessoa ficou fora do contratado. O bloqueio e o mesmo, a mensagem nao
+  // pode ser — "seu plano expirou, renove" e conselho errado para quem nunca
+  // assinou nada: quem paga e a empresa dela.
+  const suspensoEquipe = conta?.equipe_suspenso === true;
+
   // Card de crédito baixo (mesmo canto do "Dia X de 7"). NÃO fica fixo: aparece
   // no máximo 1x a cada 6h. Só para conta paga (não trial, não ilimitada) com
   // saldo <= 10%. Ao zerar, vira o estado "acabaram".
@@ -513,13 +519,28 @@ export default function AppShell({ children }) {
 
       {/* Bloqueio do /app quando o plano vence / cartão falha (conta e
           assinatura continuam acessíveis pela navegação lateral) */}
-      {planoExpirado && naApp && !podeGerar && (
+      {planoExpirado && naApp && !podeGerar && !suspensoEquipe && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
             <span className="trial-bloqueio-eb">{t('plano_inativo')}</span>
             <h1>{t('plano_expirou_h1')}</h1>
             <p>{t('plano_expirou_p')}</p>
             <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/assinatura')}>{t('renovar_assinatura')}</button>
+            <button className="trial-bloqueio-sair" onClick={() => router.push('/conta')}>{t('sair')}</button>
+          </div>
+        </div>
+      )}
+
+      {/* Suspenso por excedente de assentos (a equipe reduziu a quantidade).
+          Mesma moldura do bloqueio de plano, outra mensagem: aqui nao ha o que
+          renovar — quem resolve e o administrador da equipe. O botao oferece a
+          unica saida que depende so dela: assinar por conta propria. */}
+      {suspensoEquipe && naApp && !podeGerar && (
+        <div className="trial-bloqueio">
+          <div className="trial-bloqueio-card">
+            <span className="trial-bloqueio-eb">{t('susp_badge')}</span>
+            <p>{t('susp_texto')}</p>
+            <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/precos')}>{t('susp_botao')}</button>
             <button className="trial-bloqueio-sair" onClick={() => router.push('/conta')}>{t('sair')}</button>
           </div>
         </div>
