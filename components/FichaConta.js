@@ -41,9 +41,9 @@ function motivoDoAcesso(a) {
 
 function Linha({ rotulo, children }) {
   return (
-    <div style={{ display: 'flex', gap: 12, padding: '6px 0', borderBottom: '1px solid var(--line, #eee)' }}>
-      <span style={{ minWidth: 170, color: '#777', fontSize: 13 }}>{rotulo}</span>
-      <span style={{ fontSize: 13 }}>{children}</span>
+    <div style={{ display: 'flex', gap: 16, padding: '12px 0', borderBottom: '1px solid var(--line, #eee)', alignItems: 'flex-start' }}>
+      <span style={{ minWidth: 170, color: '#777', fontSize: 13, lineHeight: 1.7 }}>{rotulo}</span>
+      <span style={{ fontSize: 13, lineHeight: 1.7 }}>{children}</span>
     </div>
   );
 }
@@ -82,10 +82,13 @@ export default function FichaConta() {
 
   return (
     <div>
-      <form onSubmit={procurar} style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
+      {/* O .login-input traz margin-bottom: 18px do CSS global — era ela que
+          empurrava o botao para baixo da caixa. Zerada aqui, com o alinhamento
+          pelo centro para os dois ficarem na mesma linha. */}
+      <form onSubmit={procurar} style={{ display: 'flex', gap: 8, marginBottom: 18, alignItems: 'center' }}>
         <input
           className="login-input" value={busca} onChange={(e) => setBusca(e.target.value)}
-          placeholder="e-mail, nome ou id da conta" style={{ maxWidth: 380 }}
+          placeholder="e-mail, nome ou id da conta" style={{ maxWidth: 380, marginBottom: 0 }}
         />
         <button className="btn btn--ink" style={{ width: 'auto', padding: '11px 22px' }} disabled={carregando}>
           {carregando ? 'Buscando…' : 'Buscar'}
@@ -139,7 +142,7 @@ export default function FichaConta() {
           </div>
 
           {aba === 'resumo' && (
-            <div>
+            <div style={{ paddingBottom: 24 }}>
               <Linha rotulo="Plano">{NOME_PLANO[a?.plano] || a?.plano} · {a?.status}</Linha>
               <Linha rotulo="Créditos do plano">{num(a?.creditos_total)} total · {num(a?.creditos_usados)} usados</Linha>
               <Linha rotulo="Teste de 7 dias">

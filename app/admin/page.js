@@ -1000,7 +1000,10 @@ export default function Admin() {
         </div>
       )}
 
-      {aba === 'compras' ? (
+      {/* A ficha e uma tela inteira, nao uma listagem: nao entra neste ternario.
+          Sem o `null` explicito ela caia no ELSE e a tabela geral de contas
+          aparecia solta embaixo da ficha aberta. */}
+      {aba === 'ficha' ? null : aba === 'compras' ? (
         <div className="admin-tabela-wrap">
           <table className="admin-tabela">
             <thead>
