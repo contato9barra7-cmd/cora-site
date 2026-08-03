@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import EmailAssinantes from '../../components/EmailAssinantes';
 import DropdownCora from '../../components/DropdownCora';
+import FichaConta from '../../components/FichaConta';
 import { useIdioma } from '../../lib/i18n';
 import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais, adminDeletarConta, adminCompras, adminSincronizarStripe } from '../../lib/auth';
 
@@ -774,9 +775,23 @@ export default function Admin() {
         <button className={'admin-aba' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
           {t('adm_aba_recargas')} <span className="admin-aba-n">{compras.length}</span>
         </button>
+        {/* Ficha da conta: busca uma pessoa e mostra tudo dela numa tela.
+            As outras abas sao listagens; esta e o inverso — um cliente por vez,
+            que e como uma pergunta de suporte chega. */}
+        <button className={'admin-aba' + (aba === 'ficha' ? ' ativa' : '')} onClick={() => setAba('ficha')}>
+          {t('adm_aba_ficha')}
+        </button>
       </div>
 
-      <div className="admin-barra">
+      {aba === 'ficha' && (
+        <div style={{ marginTop: 18 }}><FichaConta /></div>
+      )}
+
+      {/* A barra de filtro/busca e das LISTAGENS. Na ficha ela nao se aplica —
+          escondida por estilo em vez de condicional, para nao mexer no
+          aninhamento do JSX que segue abaixo. Os blocos de conteudo ja sao
+          condicionais por aba, entao nada mais precisa ser escondido. */}
+      <div className="admin-barra" style={aba === 'ficha' ? { display: 'none' } : undefined}>
         <div className="admin-busca-wrap">
           <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
                stroke="currentColor" strokeWidth="1.6">
