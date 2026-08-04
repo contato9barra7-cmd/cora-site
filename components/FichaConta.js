@@ -82,6 +82,22 @@ export default function FichaConta({ abrirConta }) {
   const [confirmaEmail, setConfirmaEmail] = useState('');
   const [executando, setExecutando] = useState(false);
   const [aviso, setAviso] = useState('');
+  const [menu, setMenu] = useState(false);
+
+  // Fecha o menu ao clicar em qualquer outro lugar e ao apertar Esc. O listener
+  // só existe enquanto o menu está aberto — deixá-lo ligado o tempo todo faria
+  // cada clique da página passar por ele à toa.
+  useEffect(() => {
+    if (!menu) return;
+    const fora = () => setMenu(false);
+    const tecla = (e) => { if (e.key === 'Escape') setMenu(false); };
+    document.addEventListener('click', fora);
+    document.addEventListener('keydown', tecla);
+    return () => {
+      document.removeEventListener('click', fora);
+      document.removeEventListener('keydown', tecla);
+    };
+  }, [menu]);
 
   // A lista chega uma vez, ao abrir a aba.
   useEffect(() => {
@@ -290,31 +306,63 @@ export default function FichaConta({ abrirConta }) {
           Ficam aqui, coladas na conta, e não numa tabela de outra aba: agir
           sobre a linha errada de uma lista era o risco real do arranjo antigo.
           Logo abaixo do cabeçalho, a decisão é tomada com o estado à vista. */}
+      {/* Uma ação visível, o resto no "⋯". Cinco pills lado a lado davam o mesmo
+          peso visual para "ver a tela do cliente" e para "apagar a conta"; o
+          menu recolhe as menos frequentes e põe a irreversível atrás de mais um
+          gesto — sem tirar nenhuma trava: deletar e cancelar seguem exigindo o
+          e-mail digitado no painel de confirmação. */}
       <div className="ficha-acoes">
-        <button className="admin-aba" onClick={() => abrirAcao('plano')}>
-          Trocar plano
-        </button>
-        <button className="admin-aba" onClick={() => abrirAcao('creditar')}>
-          Creditar
-        </button>
-        {a?.plano !== 'free' && (
-          <button className="admin-btn-cancelar" onClick={() => abrirAcao('cancelar')}>
-            Cancelar plano
-          </button>
-        )}
-        <button className="admin-btn-deletar" onClick={() => abrirAcao('deletar')}>
-          Deletar conta
-        </button>
-        <button className="admin-aba" onClick={() => abrirAcao('personificar')}>
+        <button className="ficha-btn-principal" onClick={() => abrirAcao('personificar')}>
           Ver como o cliente
         </button>
-        <a
-          className="admin-btn-stripe"
-          href={`https://dashboard.stripe.com/test/customers?email=${encodeURIComponent(ficha.conta.email)}`}
-          target="_blank" rel="noopener noreferrer"
-        >
-          Stripe
-        </a>
+
+        <div className="ficha-mais-wrap">
+          <button
+            className="ficha-btn-mais"
+            onClick={(e) => { e.stopPropagation(); setMenu((v) => !v); }}
+            aria-haspopup="menu"
+            aria-expanded={menu}
+            aria-label="Mais ações"
+          >
+            {/* Três pontos desenhados: o caractere "⋯" muda de largura e de
+                altura conforme a fonte instalada e desalinha o círculo. */}
+            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+              <circle cx="4" cy="10" r="1.6" fill="currentColor" />
+              <circle cx="10" cy="10" r="1.6" fill="currentColor" />
+              <circle cx="16" cy="10" r="1.6" fill="currentColor" />
+            </svg>
+          </button>
+
+          {menu && (
+            <div className="ficha-menu" role="menu">
+              <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('plano'); }}>
+                Trocar plano
+              </button>
+              <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('creditar'); }}>
+                Creditar
+              </button>
+              {/* Fica acima da divisória: cancelar tira o plano, mas dá para
+                  devolvê-lo. Abaixo da linha só entra o que não tem volta. */}
+              {a?.plano !== 'free' && (
+                <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('cancelar'); }}>
+                  Cancelar plano
+                </button>
+              )}
+              <a
+                role="menuitem"
+                href={`https://dashboard.stripe.com/test/customers?email=${encodeURIComponent(ficha.conta.email)}`}
+                target="_blank" rel="noopener noreferrer"
+                onClick={() => setMenu(false)}
+              >
+                Stripe ↗
+              </a>
+              <hr />
+              <button role="menuitem" className="perigo" onClick={() => { setMenu(false); abrirAcao('deletar'); }}>
+                Deletar conta
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {aviso && <div className="ficha-aviso" style={{ marginBottom: 16 }}>{aviso}</div>}
