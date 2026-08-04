@@ -461,12 +461,12 @@ export default function FichaConta({ abrirConta }) {
         </div>
       )}
 
-      <div className="admin-abas">
+      <div className="seg-track">
         {[['resumo', 'Resumo'], ['creditos', 'Créditos'], ['equipe', 'Equipe'],
           ['uso', 'Uso'], ['logs', 'Logs'], ['imagens', 'Imagens']].map(([k, r]) => (
-          <button key={k} onClick={() => setAba(k)} className={'admin-aba' + (aba === k ? ' ativa' : '')}>
+          <button key={k} onClick={() => setAba(k)} className={'seg-item' + (aba === k ? ' ativa' : '')}>
             {r}
-            {k === 'logs' && <span className="admin-aba-n">{ficha.eventos.length}</span>}
+            {k === 'logs' && <span className="seg-badge">{ficha.eventos.length}</span>}
           </button>
         ))}
       </div>

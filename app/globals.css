@@ -779,6 +779,63 @@ select.login-input { padding-right: 34px; }
    CORES vêm dos tokens do site, e não dos hex do mockup, porque o app tem tema
    escuro que troca --paper e --ink — um menu #fff fixo apareceria branco sobre
    a tela escura. */
+/* ══ Faixa de abas (segmented control) ══
+   Usada nos dois grupos: o filtro do topo do painel e as sub-abas da Ficha.
+   A faixa ocupa a largura toda do contêiner; os itens mantêm o tamanho do
+   proprio texto e o espaco sobra distribuido entre eles (space-between), em vez
+   de esticar "Uso" ate o tamanho de "Membros de equipe".
+
+   NAO reaproveita `.admin-aba`: aquela classe tambem veste os botoes Confirmar
+   e Cancelar do painel de confirmacao, que precisam continuar sendo pills com
+   borda. Redesenhar a classe deixaria os dois sem fundo e sem contorno. */
+/* As cores do tema claro sao as do mockup, literais. Cheguei a usar os tokens
+   do site (--wash2), mas o contraste entre a faixa e o fundo caia de 18 para 13
+   e a faixa quase sumia contra a pagina — o efeito de "trilho" depende dessa
+   diferenca. O tema escuro e o unico lugar onde nao da para seguir o mockup:
+   ver o bloco abaixo. */
+.seg-track {
+  display: flex; gap: 2px; padding: 4px;
+  width: 100%; justify-content: space-between;
+  background: #e9e9ec; border-radius: 999px;
+  margin-bottom: 18px;
+  /* Seis itens numa tela estreita estouram a faixa: nowrap neles impede a
+     quebra, entao o excedente rola em vez de deformar o layout. */
+  overflow-x: auto; scrollbar-width: thin;
+}
+.seg-item {
+  padding: 8px 16px; border-radius: 999px;
+  font-size: 13px; font-weight: 600; color: #71717a;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  white-space: nowrap; border: none; background: none;
+  cursor: pointer; font-family: inherit;
+}
+.seg-item:hover { color: #18181b; }
+/* O item ativo simula estar POR CIMA dos outros: fundo solido e sombra leve. */
+.seg-item.ativa {
+  background: #fff; color: #18181b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+}
+.seg-badge {
+  background: #dcdce0; color: #71717a;
+  font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 10px;
+}
+.seg-item.ativa .seg-badge { background: #e4e4e7; color: #18181b; }
+
+/* ÚNICO desvio do mockup, e forçado: no escuro a faixa #e9e9ec e o pill #fff
+   seriam duas manchas claras sobre a tela escura, e o texto #18181b sumiria.
+   Invertem-se os papéis — a trilha escurece, o item ativo assume o tom claro —
+   para o relevo continuar apontando para o mesmo lado: o ativo salta, os outros
+   afundam. A sombra praticamente não aparece no escuro, então quem marca o
+   relevo ali é o contraste entre os dois tons. */
+:root[data-theme="dark"] .seg-track { background: rgba(0, 0, 0, .32); }
+:root[data-theme="dark"] .seg-item { color: var(--ink3); }
+:root[data-theme="dark"] .seg-item:hover { color: var(--ink); }
+:root[data-theme="dark"] .seg-item.ativa {
+  background: var(--wash2); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .45);
+}
+:root[data-theme="dark"] .seg-badge { background: rgba(255, 255, 255, .10); color: var(--ink3); }
+:root[data-theme="dark"] .seg-item.ativa .seg-badge { background: rgba(255, 255, 255, .16); color: var(--ink); }
+
 .ficha-acoes {
   display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px;
 }

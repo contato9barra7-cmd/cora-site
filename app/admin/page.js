@@ -711,26 +711,26 @@ export default function Admin() {
         </div>
       )}
 
-      <div className="admin-abas">
-        <button className={'admin-aba' + (aba === 'pagantes' ? ' ativa' : '')} onClick={() => setAba('pagantes')}>
-          {t('adm_aba_assinantes')} <span className="admin-aba-n">{pagos}</span>
+      <div className="seg-track">
+        <button className={'seg-item' + (aba === 'pagantes' ? ' ativa' : '')} onClick={() => setAba('pagantes')}>
+          {t('adm_aba_assinantes')} <span className="seg-badge">{pagos}</span>
         </button>
-        <button className={'admin-aba' + (aba === 'trial' ? ' ativa' : '')} onClick={() => setAba('trial')}>
-          {t('adm_aba_trial')} <span className="admin-aba-n">{totalTrial}</span>
+        <button className={'seg-item' + (aba === 'trial' ? ' ativa' : '')} onClick={() => setAba('trial')}>
+          {t('adm_aba_trial')} <span className="seg-badge">{totalTrial}</span>
         </button>
-        <button className={'admin-aba' + (aba === 'convidados' ? ' ativa' : '')} onClick={() => setAba('convidados')}>
-          {t('adm_aba_membros')} <span className="admin-aba-n">{totalConvidados}</span>
+        <button className={'seg-item' + (aba === 'convidados' ? ' ativa' : '')} onClick={() => setAba('convidados')}>
+          {t('adm_aba_membros')} <span className="seg-badge">{totalConvidados}</span>
         </button>
-        <button className={'admin-aba' + (aba === 'cancelados' ? ' ativa' : '')} onClick={() => setAba('cancelados')}>
-          {t('adm_aba_cancelados')} <span className="admin-aba-n">{totalCancelados}</span>
+        <button className={'seg-item' + (aba === 'cancelados' ? ' ativa' : '')} onClick={() => setAba('cancelados')}>
+          {t('adm_aba_cancelados')} <span className="seg-badge">{totalCancelados}</span>
         </button>
-        <button className={'admin-aba' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
-          {t('adm_aba_recargas')} <span className="admin-aba-n">{compras.length}</span>
+        <button className={'seg-item' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
+          {t('adm_aba_recargas')} <span className="seg-badge">{compras.length}</span>
         </button>
         {/* Ficha da conta: busca uma pessoa e mostra tudo dela numa tela.
             As outras abas sao listagens; esta e o inverso — um cliente por vez,
             que e como uma pergunta de suporte chega. */}
-        <button className={'admin-aba' + (aba === 'ficha' ? ' ativa' : '')} onClick={() => setAba('ficha')}>
+        <button className={'seg-item' + (aba === 'ficha' ? ' ativa' : '')} onClick={() => setAba('ficha')}>
           {t('adm_aba_ficha')}
         </button>
       </div>
