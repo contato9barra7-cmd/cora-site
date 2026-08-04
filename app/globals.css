@@ -795,7 +795,11 @@ select.login-input { padding-right: 34px; }
    ver o bloco abaixo. */
 .seg-track {
   display: flex; gap: 2px; padding: 4px;
-  width: 100%; justify-content: space-between;
+  /* A faixa ocupa a largura toda, mas os itens ficam JUNTOS no começo dela, e
+     não espalhados de ponta a ponta. Com `space-between` o espaço vago era
+     dividido entre os itens e eles se afastavam tanto que deixavam de parecer
+     um controle único — viravam palavras soltas sobre uma barra cinza. */
+  width: 100%; justify-content: flex-start;
   background: #e9e9ec; border-radius: 999px;
   margin-bottom: 18px;
   /* Seis itens numa tela estreita estouram a faixa: nowrap neles impede a
