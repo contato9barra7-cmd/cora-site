@@ -279,10 +279,55 @@ export default function AppShell({ children }) {
     setCredCardVisivel(false);
     try { localStorage.setItem('cora_cred_card_visto', String(Date.now())); } catch (e) {}
   }
+  // A altura da tarja não pode ser um número chutado no CSS: o texto quebra em
+  // duas linhas na tela estreita, e um valor fixo deixaria o menu por baixo
+  // dela. Medimos a tarja de verdade e o CSS usa essa medida para deslocar o
+  // menu, o cabeçalho e o conteúdo.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const raiz = document.documentElement;
+    if (!conta?.personificado) { raiz.style.removeProperty('--tarja-h'); return; }
+    const el = document.querySelector('.tarja-personificacao');
+    if (!el) return;
+    const medir = () => raiz.style.setProperty('--tarja-h', `${Math.ceil(el.getBoundingClientRect().height)}px`);
+    medir();
+    const obs = new ResizeObserver(medir);
+    obs.observe(el);
+    return () => { obs.disconnect(); raiz.style.removeProperty('--tarja-h'); };
+  }, [conta?.personificado, conta?.email]);
+
   const naApp = pathname === '/app';
 
+  // Encerrar é sair de verdade: o token de personificação é a sessão inteira
+  // do navegador agora. Voltar direto para o admin exigiria guardar a sessão
+  // antiga em algum lugar, e essa comodidade custaria transformar um token de
+  // cliente em chave de admin — ver o comentário da rota no cora-auth.
+  async function sairDaPersonificacao() {
+    try { await sair(); } catch (e) {}
+    window.location.href = '/login';
+  }
+
   return (
-    <div className={'app-shell' + (recolhido ? ' recolhido' : '') + (gaveta ? ' gaveta' : '')}>
+    <div className={'app-shell' + (recolhido ? ' recolhido' : '') + (gaveta ? ' gaveta' : '')
+      + (conta?.personificado ? ' com-tarja' : '')}>
+      {/* ── TARJA DE PERSONIFICAÇÃO ──
+          Fica no AppShell, e não só no /admin, porque o ponto todo de "ver como
+          o cliente" é sair do painel e andar pelas telas dele. É justamente
+          longe do admin que dá para esquecer de quem é a conta na tela. */}
+      {conta?.personificado && (
+        <div className="tarja-personificacao" role="status">
+          <span>
+            {t('pers_tarja')} <b>{conta.nome || conta.email}</b>
+            {conta.personificado.minutos_restantes != null &&
+              ` · ${conta.personificado.minutos_restantes} min`}
+          </span>
+          <span className="tarja-personificacao-nota">{t('pers_so_leitura')}</span>
+          <button className="tarja-personificacao-sair" onClick={sairDaPersonificacao}>
+            {t('pers_encerrar')}
+          </button>
+        </div>
+      )}
+
       {/* MENU LATERAL FIXO (gaveta no tablet/celular) */}
       <aside className="app-side">
         <div className="app-side-topo">

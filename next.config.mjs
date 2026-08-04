@@ -22,6 +22,23 @@ const CSP = [
   "form-action 'self' https://*.stripe.com",
 ].join('; ');
 
+// ── Desenvolvimento ──
+// Rodando `next dev` contra um cora-auth local, o `connect-src` acima barra a
+// chamada e o site não sai da tela de login — impossível conferir qualquer tela
+// autenticada localmente.
+//
+// `next build` roda com NODE_ENV=production, então isto NUNCA entra no que vai
+// para o Vercel. Vale só o processo de desenvolvimento na sua máquina.
+// Duas frouxidões, ambas só em desenvolvimento:
+//   connect-src  → falar com o cora-auth local
+//   unsafe-eval  → o hot-reload do `next dev` avalia string como JS; sem isto a
+//                  aplicação nem hidrata e a tela fica em "Carregando..."
+const CSP_FINAL = process.env.NODE_ENV === 'production'
+  ? CSP
+  : CSP
+      .replace("connect-src 'self'", "connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:*")
+      .replace("script-src 'self' 'unsafe-inline'", "script-src 'self' 'unsafe-inline' 'unsafe-eval'");
+
 const nextConfig = {
   async headers() {
     return [
@@ -39,7 +56,7 @@ const nextConfig = {
           // Força HTTPS por 2 anos (HSTS).
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
           // CSP ENFORCE — bloqueia de verdade.
-          { key: 'Content-Security-Policy', value: CSP },
+          { key: 'Content-Security-Policy', value: CSP_FINAL },
         ],
       },
     ];

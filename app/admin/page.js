@@ -8,9 +8,8 @@ import EmailAssinantes from '../../components/EmailAssinantes';
 import DropdownCora from '../../components/DropdownCora';
 import FichaConta from '../../components/FichaConta';
 import { useIdioma } from '../../lib/i18n';
-import { lerConta, adminListarAssinantes, adminMudarPlano, adminCancelar, adminDadosFiscais, adminDeletarConta, adminCompras, adminSincronizarStripe } from '../../lib/auth';
+import { lerConta, adminListarAssinantes, adminDadosFiscais, adminCompras, adminSincronizarStripe } from '../../lib/auth';
 
-const PLANOS = ['free', 'starter', 'pro', 'studio'];
 
 function fmtData(d) {
   if (!d) return '—';
@@ -39,10 +38,6 @@ function fmtValor(centavos, moeda) {
   const v = (centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
   return (moeda === 'brl' || !moeda ? 'R$ ' : (moeda.toUpperCase() + ' ')) + v;
 }
-// Interpola {chaves} numa string traduzida (para confirmações).
-function interp(str, vars) {
-  return str.replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? vars[k] : ''));
-}
 
 export default function Admin() {
   const router = useRouter();
@@ -57,6 +52,8 @@ export default function Admin() {
   const [porPag, setPorPag] = useState(50);
   const [pag, setPag]       = useState(1);
   const [busca, setBusca] = useState('');
+  // Qual conta a Ficha deve abrir quando se clica numa linha da tabela.
+  const [fichaAbrir, setFichaAbrir] = useState(null);
   const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'trial' | 'convidados' | 'cancelados' | 'compras'
   const [filtroData, setFiltroData] = useState('todos'); // todos | mes | 12meses | ano | periodo
   const [anoFiltro, setAnoFiltro] = useState(String(new Date().getFullYear()));
@@ -70,7 +67,6 @@ export default function Admin() {
   const [filtroPais, setFiltroPais] = useState('');
   const [verGeo, setVerGeo] = useState(false);
   const [erro, setErro] = useState('');
-  const [ocupado, setOcupado] = useState(null); // id da conta em ação
   const [exportando, setExportando] = useState(false);
   const [emailAberto, setEmailAberto] = useState(false);
   const [dadosFiscais, setDadosFiscais] = useState(null); // { email: {telefone, endereco} }
@@ -330,52 +326,8 @@ export default function Admin() {
     }
   }
 
-  async function mudarPlano(id, plano, email, planoAtual) {
-    if (plano === planoAtual) return;
-    if (!confirm(interp(t('adm_conf_mudar_plano'), { email, de: planoAtual, para: plano }))) {
-      // recarrega para o dropdown voltar ao valor original
-      await carregar();
-      return;
-    }
-    setOcupado(id);
-    setErro('');
-    try {
-      await adminMudarPlano(id, plano);
-      await carregar();
-    } catch (e) {
-      setErro(e.message);
-    } finally {
-      setOcupado(null);
-    }
-  }
 
-  async function deletar(id, email) {
-    if (!confirm(interp(t('adm_conf_deletar'), { email }))) return;
-    setOcupado(id);
-    setErro('');
-    try {
-      await adminDeletarConta(id);
-      await carregar();
-    } catch (e) {
-      setErro(e.message);
-    } finally {
-      setOcupado(null);
-    }
-  }
 
-  async function cancelar(id, email) {
-    if (!confirm(interp(t('adm_conf_cancelar'), { email }))) return;
-    setOcupado(id);
-    setErro('');
-    try {
-      await adminCancelar(id);
-      await carregar();
-    } catch (e) {
-      setErro(e.message);
-    } finally {
-      setOcupado(null);
-    }
-  }
 
   // Trocar de aba, filtrar ou buscar recomeça da primeira página: continuar na
   // página 7 de uma lista que agora tem 2 mostraria uma tela vazia.
@@ -784,7 +736,7 @@ export default function Admin() {
       </div>
 
       {aba === 'ficha' && (
-        <div style={{ marginTop: 18 }}><FichaConta /></div>
+        <div style={{ marginTop: 18 }}><FichaConta abrirConta={fichaAbrir} /></div>
       )}
 
       {/* A barra de filtro/busca e das LISTAGENS. Na ficha ela nao se aplica —
@@ -1075,7 +1027,7 @@ export default function Admin() {
               {aba === 'cancelados' && <th>{t('adm_h_cancelado_em')}</th>}
               <th>{t('adm_status')}</th>
               {!mostrarPerfil && <th>{t('adm_h_creditos')}</th>}
-              <th>{t('adm_h_acoes')}</th>
+              <th>{t('adm_h_ficha')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1096,14 +1048,8 @@ export default function Admin() {
                       Teams · {a.assentos || '?'} {t('adm_teams_assentos')}
                     </span>
                   ) : (
-                    <select
-                      value={a.plano}
-                      disabled={ocupado === a.id}
-                      onChange={(e) => mudarPlano(a.id, e.target.value, a.email, a.plano)}
-                      className="admin-select"
-                    >
-                      {PLANOS.map(p => <option key={p} value={p}>{p}</option>)}
-                    </select>
+                    /* Só leitura: trocar plano é ação, e ação agora é na Ficha. */
+                    <span style={{ textTransform: 'capitalize' }}>{a.plano}</span>
                   )}
                 </td>
                 )}
@@ -1130,32 +1076,18 @@ export default function Admin() {
                 {aba === 'cancelados' && <td>{a.cancelado_em ? fmtData(a.cancelado_em) : '—'}</td>}
                 <td><span className={'admin-badge ' + (a.assinatura_status === 'cancelado' ? 'off' : (a.status === 'ativo' ? 'ok' : 'off'))}>{a.assinatura_status === 'cancelado' ? t('adm_st_cancelado') : a.status}</span></td>
                 {!mostrarPerfil && <td>{a.plano === 'free' && !a.eh_dono_equipe ? '—' : `${a.creditos_restantes}/${a.creditos_total}`}</td>}
+                {/* As tabelas viraram lista. Cancelar, deletar e trocar plano
+                    moram na Ficha, junto da conta: com a ação aqui, era fácil
+                    aplicar na linha de cima ou de baixo — e são irreversíveis.
+                    Aqui fica só o atalho que leva para lá. */}
                 <td>
                   <div className="admin-acoes">
-                    {a.plano !== 'free' && (
-                      <button
-                        className="admin-btn-cancelar"
-                        disabled={ocupado === a.id}
-                        onClick={() => cancelar(a.id, a.email)}
-                      >
-                        {t('adm_cancelar')}
-                      </button>
-                    )}
-                    <a
-                      href={`https://dashboard.stripe.com/test/customers?email=${encodeURIComponent(a.email)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="admin-btn-stripe"
-                    >
-                      Stripe
-                    </a>
                     <button
-                      className="admin-btn-deletar"
-                      disabled={ocupado === a.id}
-                      onClick={() => deletar(a.id, a.email)}
-                      title={t('adm_deletar_conta')}
+                      className="admin-btn-stripe"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => { setFichaAbrir({ id: a.id, seq: Date.now() }); setAba('ficha'); }}
                     >
-                      {t('adm_deletar')}
+                      {t('adm_abrir_ficha')}
                     </button>
                   </div>
                 </td>
