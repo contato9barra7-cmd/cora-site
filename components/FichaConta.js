@@ -25,6 +25,20 @@ import {
 const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
 const PLANOS = ['free', 'starter', 'pro', 'studio'];
 
+// ── O painel do Stripe: teste ou produção ──
+//
+// O caminho estava fixo em `/test/`. Depois do lançamento isso levaria o suporte
+// ao painel de TESTE — que abre normalmente, com uma busca que não acha ninguém.
+// O modo de falha é o pior possível para esta tela: parece funcionar, e a
+// conclusão natural de "não achei o cliente no Stripe" é que ele não pagou.
+//
+// O padrão é o modo de teste de propósito: um ambiente sem a variável é um
+// ambiente de desenvolvimento, e errar para o lado do painel de teste não
+// estraga nada. Em produção, defina NEXT_PUBLIC_STRIPE_MODO=live no Vercel.
+const STRIPE_MODO = process.env.NEXT_PUBLIC_STRIPE_MODO === 'live' ? '' : 'test/';
+const stripeCliente = (email) =>
+  `https://dashboard.stripe.com/${STRIPE_MODO}customers?email=${encodeURIComponent(email)}`;
+
 // Cancelar e deletar exigem digitar o e-mail da conta. É de propósito que
 // incomode: a Ficha deixa agir rápido, e as duas ações irreversíveis precisam
 // de um passo que não dá para fazer no automático. Ler o e-mail em voz alta é
@@ -51,6 +65,58 @@ function motivoDoAcesso(a) {
   if (a.status === 'inativo') return { texto: 'BLOQUEADO — pagamento falhou', cor: '#C53030' };
   if (a.status === 'expirado') return { texto: 'BLOQUEADO — período pago venceu', cor: '#C53030' };
   return { texto: `BLOQUEADO — ${a.status || 'sem plano ativo'}`, cor: '#C53030' };
+}
+
+// ── Quanto já foi consumido, para decidir reembolso ──
+//
+// Duas leituras, porque são duas perguntas diferentes e a errada custa caro:
+//
+//   ciclo atual   — o que `creditos_usados` sempre soube. Responde certo para
+//                   um mensal no primeiro mês.
+//   desde a compra— soma os débitos desde `assinou_em`. É o único número que
+//                   serve para um ANUAL: a cota renova todo mês, então quem
+//                   está no oitavo mês tem um "ciclo atual" baixo e pode já ter
+//                   gasto quase tudo que pagou.
+//
+// O equivalente em dinheiro é proporção, não custo real de IA: serve para dizer
+// "devolver o valor cheio devolve mais do que sobrou", que é a decisão em jogo.
+function consumoDaConta(ficha) {
+  const a = ficha?.acesso;
+  const c = ficha?.consumo;
+  const ass = ficha?.assinatura;
+  if (!a || !c || !ass) return null;
+  // Conta ilimitada usa `creditos_total: -1` como sentinela. Sem esta saída, a
+  // cota contratada viraria negativa e a Ficha exibiria "0 de -8 créditos". E
+  // não há o que decidir: numa conta ilimitada não existe reembolso a calcular.
+  if (a.ilimitado || (a.creditos_total ?? 0) < 0) return null;
+
+  const pct = (parte, todo) => (todo > 0 ? Math.round((parte / todo) * 100) : null);
+  const pctCiclo = pct(a.creditos_usados, a.creditos_total);
+  const pctDesde = pct(c.creditos_liquidos, c.contratado);
+  const proporcao = (valor, p) => (p == null ? null : Math.round((valor || 0) * p / 100));
+
+  return {
+    moeda: c.moeda,
+    ciclo: {
+      usados: a.creditos_usados, total: a.creditos_total, pct: pctCiclo,
+      cobranca: ass.valor_centavos || 0,
+      equivalente: proporcao(ass.valor_centavos, pctCiclo),
+    },
+    desde: {
+      creditos: c.creditos_liquidos, contratado: c.contratado, pct: pctDesde,
+      pago: c.pago_centavos, quando: c.desde,
+      equivalente: proporcao(c.pago_centavos, pctDesde),
+    },
+  };
+}
+
+// Acima de 70% consumido, devolver o valor cheio é prejuízo dos dois lados: a
+// geração já foi paga ao provedor. A cor diz isso antes da leitura do número.
+function corDoConsumo(p) {
+  if (p == null) return 'var(--ink2)';
+  if (p >= 70) return '#C53030';
+  if (p >= 40) return '#B7791F';
+  return '#2E9E5B';
 }
 
 function Linha({ rotulo, children }) {
@@ -202,6 +268,7 @@ export default function FichaConta({ abrirConta }) {
     String(c.id) === termo);
 
   const a = ficha?.acesso;
+  const consumo = consumoDaConta(ficha);
   const motivo = motivoDoAcesso(a);
 
   // ── A LISTA ──────────────────────────────────────────────────────────────
@@ -300,6 +367,58 @@ export default function FichaConta({ abrirConta }) {
             {a.expira_em && ` · vence ${data(a.expira_em)}`}
           </div>
         )}
+
+        {/* ── Consumo ──
+            Fica no cabeçalho, e não numa aba, porque a decisão que ele existe
+            para informar é tomada a partir daqui: quem vai ao Stripe escolher
+            um valor de reembolso precisa deste número ANTES de sair da tela. */}
+        {consumo && (
+          <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--line)' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--ink3)', marginBottom: 10 }}>
+              Já consumido
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, fontSize: 13, lineHeight: 1.7 }}>
+              <span style={{ minWidth: 110, color: 'var(--ink3)' }}>Ciclo atual</span>
+              <span>
+                <b style={{ color: corDoConsumo(consumo.ciclo.pct) }}>
+                  {consumo.ciclo.pct == null ? '—' : consumo.ciclo.pct + '%'}
+                </b>
+                {' · '}{num(consumo.ciclo.usados)} de {num(consumo.ciclo.total)} créditos
+                {consumo.ciclo.equivalente != null && consumo.ciclo.cobranca > 0 && (
+                  <span style={{ color: 'var(--ink3)' }}>
+                    {' ≈ '}{dinheiro(consumo.ciclo.equivalente, consumo.moeda)} de {dinheiro(consumo.ciclo.cobranca, consumo.moeda)}
+                  </span>
+                )}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, fontSize: 13, lineHeight: 1.7 }}>
+              <span style={{ minWidth: 110, color: 'var(--ink3)' }}>Desde a compra</span>
+              <span>
+                <b style={{ color: corDoConsumo(consumo.desde.pct) }}>
+                  {consumo.desde.pct == null ? '—' : consumo.desde.pct + '%'}
+                </b>
+                {' · '}{num(consumo.desde.creditos)} de {num(consumo.desde.contratado)} créditos
+                {consumo.desde.equivalente != null && consumo.desde.pago > 0 && (
+                  <span style={{ color: 'var(--ink3)' }}>
+                    {' ≈ '}{dinheiro(consumo.desde.equivalente, consumo.moeda)} de {dinheiro(consumo.desde.pago, consumo.moeda)} pagos
+                  </span>
+                )}
+                <span style={{ color: 'var(--ink3)' }}> · desde {data(consumo.desde.quando)}</span>
+              </span>
+            </div>
+
+            {/* O consumo sai do plano; recarga é dinheiro à parte e tem outro
+                destino no reembolso. Dizer isso aqui evita a leitura errada de
+                que o percentual cobriria tudo que a pessoa comprou. */}
+            {a?.creditos_recarga > 0 && (
+              <div style={{ fontSize: 12, color: 'var(--ink3)', marginTop: 8 }}>
+                Só o consumo do plano. A recarga é compra à parte — reembolsá-la revoga o saldo dela, não o plano.
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* ── AÇÕES ──
@@ -348,13 +467,24 @@ export default function FichaConta({ abrirConta }) {
                   Cancelar plano
                 </button>
               )}
+              {/* O número aparece DE NOVO aqui, e não é redundância: este é o
+                  clique que leva para fora da tela, e o valor do reembolso é
+                  escolhido lá, sem nada disto à vista. Repetir custa uma linha;
+                  voltar para conferir custa a decisão. */}
               <a
                 role="menuitem"
-                href={`https://dashboard.stripe.com/test/customers?email=${encodeURIComponent(ficha.conta.email)}`}
+                href={stripeCliente(ficha.conta.email)}
                 target="_blank" rel="noopener noreferrer"
                 onClick={() => setMenu(false)}
               >
                 Stripe ↗
+                {consumo && consumo.desde.pct != null && (
+                  <span style={{ display: 'block', fontSize: 11, color: corDoConsumo(consumo.desde.pct), marginTop: 2 }}>
+                    {consumo.desde.pct}% consumido
+                    {consumo.desde.equivalente != null && consumo.desde.pago > 0 &&
+                      ` · ${dinheiro(consumo.desde.equivalente, consumo.moeda)} de ${dinheiro(consumo.desde.pago, consumo.moeda)}`}
+                  </span>
+                )}
               </a>
               <hr />
               <button role="menuitem" className="perigo" onClick={() => { setMenu(false); abrirAcao('deletar'); }}>
