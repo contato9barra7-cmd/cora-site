@@ -982,7 +982,7 @@ export default function Admin() {
                   <td>{fmtData(c.criado_em)}</td>
                   <td>
                     <div className="admin-nome">{c.nome || '—'}</div>
-                    <div className="admin-email">{c.email}</div>
+                    <div className="admin-email"><span className="admin-email-txt" title={c.email}>{c.email}</span></div>
                   </td>
                   <td><DocFiscal cpf={c.cpf} doc_intl={c.doc_intl} doc_pais={c.doc_pais} /></td>
                   {dadosFiscais && <td>{dadosFiscais[c.email]?.telefone || '—'}</td>}
@@ -1035,7 +1035,12 @@ export default function Admin() {
               <tr key={a.id}>
                 <td>
                   <div className="admin-nome">{a.nome || '—'}</div>
-                  <div className="admin-email">{a.email}{!a.email_verificado && <span className="admin-tag-nv">{t('adm_nao_verificado')}</span>}</div>
+                  {/* O e-mail vai num span próprio para poder cortar com reticências
+                      sem levar o selo "não verificado" junto — ver .admin-email-txt. */}
+                  <div className="admin-email">
+                    <span className="admin-email-txt" title={a.email}>{a.email}</span>
+                    {!a.email_verificado && <span className="admin-tag-nv">{t('adm_nao_verificado')}</span>}
+                  </div>
                 </td>
                 {!mostrarPerfil && <td><DocFiscal cpf={a.cpf} doc_intl={a.doc_intl} doc_pais={a.doc_pais} /></td>}
                 {dadosFiscais && <td>{dadosFiscais[a.email]?.telefone || '—'}</td>}
@@ -1056,7 +1061,7 @@ export default function Admin() {
                 {aba === 'convidados' && (
                   <td style={{ fontSize: 13 }}>
                     <div>{a.equipe_participa_nome || '—'}</div>
-                    <div className="admin-email">{a.equipe_dono_email || ''}</div>
+                    <div className="admin-email"><span className="admin-email-txt" title={a.equipe_dono_email || ''}>{a.equipe_dono_email || ''}</span></div>
                   </td>
                 )}
                 {mostrarPerfil && <td style={{ fontSize: 13 }}>{GENERO_LBL[a.genero] || a.genero || '—'}</td>}

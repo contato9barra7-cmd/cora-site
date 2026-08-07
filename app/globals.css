@@ -719,11 +719,37 @@ select.login-input { padding-right: 34px; }
 /* Célula CPF / ID */
 .idcel { font-variant-numeric: tabular-nums; }
 .admin-pais-tag { display: inline-block; margin-left: 8px; font-size: 11px; font-weight: 700; color: var(--roxo-escuro, #4b48c7); background: var(--roxo-suave, #f3f2fe); border-radius: 100px; padding: 2px 8px; vertical-align: middle; }
-/* Visão "respostas do cadastro": muitas colunas — compacta pra caber sem barra horizontal. */
-.admin-tabela--compacto { font-size: 13px; table-layout: fixed; }
+/* Visão "respostas do cadastro": muitas colunas, compacta.
+   `table-layout: fixed` com `width: 100%` e NENHUMA largura declarada reparte a
+   tabela em partes iguais — com 13 colunas, a de Nome/Email ficava com 1/13 e o
+   e-mail se estilhaçava em quatro linhas. A intenção original era caber sem
+   barra horizontal; o preço estava sendo um endereço ilegível, que é caro
+   demais numa tela cujo trabalho é justamente identificar quem é a pessoa.
+   Agora a primeira coluna tem largura própria e a tabela tem um mínimo: em tela
+   estreita aparece a barra do `.admin-tabela-wrap` (que já existia e nunca
+   disparava), em vez de espremer tudo. */
+.admin-tabela--compacto { font-size: 13px; table-layout: fixed; min-width: 1160px; }
+.admin-tabela--compacto th:first-child,
+.admin-tabela--compacto td:first-child { width: 250px; }
 .admin-tabela--compacto th, .admin-tabela--compacto td { padding: 8px 8px; }
 .admin-tabela--compacto th { font-size: 11.5px; letter-spacing: .03em; }
 .admin-tabela--compacto .admin-email { font-size: 12px; }
+
+/* ── Dentro de tabela, e-mail não quebra ──
+   O `.admin-email` cai na regra de `overflow-wrap: anywhere` do responsivo.css,
+   que é o certo para um card estreito no celular e o errado para uma célula:
+   ali ela parte "mail-tester.com" no meio e o endereço vira um bloco de texto
+   que ninguém consegue ler de relance.
+   Um e-mail é uma palavra só — ou cabe, ou termina em reticências com o valor
+   inteiro no `title`. O selo "não verificado" fica FORA do trecho que corta
+   (por isso o `flex` e o span próprio): ele é a informação mais importante da
+   célula e não pode ser a primeira coisa a sumir. */
+.admin-tabela .admin-email { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; }
+.admin-tabela .admin-email-txt {
+  min-width: 0; max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.admin-tabela .admin-email .admin-tag-nv { margin-left: 0; flex-shrink: 0; }
 .admin-tabela--compacto .admin-btn-cancelar,
 .admin-tabela--compacto .admin-btn-stripe,
 .admin-tabela--compacto .admin-btn-deletar { padding: 4px 8px; font-size: 12px; }
