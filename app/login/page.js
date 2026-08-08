@@ -22,7 +22,7 @@ export default function Login() {
   useEffect(() => {
     if (lerConta()) { router.push('/conta'); return; }
     if (typeof window !== 'undefined') {
-      const em = localStorage.getItem('cora_convite_email');
+      const em = sessionStorage.getItem('cora_convite_email');
       if (em) { setEmail(em); setEmailTravado(true); }
     }
   }, [router]);
@@ -34,7 +34,7 @@ export default function Login() {
     try {
       await entrar({ email, senha });
       // Retoma convite de equipe pendente, se houver.
-      const convite = typeof window !== 'undefined' && localStorage.getItem('cora_convite_token');
+      const convite = typeof window !== 'undefined' && sessionStorage.getItem('cora_convite_token');
       if (convite) { router.push('/convite?token=' + convite); return; }
       // Retoma compra pendente (equipe ou plano/recarga individual), se houver.
       // Só considera o pendente de equipe se tiver dados válidos (evita lixo antigo).

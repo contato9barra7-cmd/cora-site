@@ -19,11 +19,16 @@ function ConviteConteudo() {
       if (!token) { setEstado('erro'); setMsg(t('conv_invalido')); return; }
       const jwt = estaLogado();
       if (!jwt) {
-        // guarda o token e o email convidado; manda logar/cadastrar
+        // guarda o token e o email convidado; manda logar/cadastrar.
+        // sessionStorage (não localStorage): o token de convite é uma CREDENCIAL
+        // (quem o tem ocupa o assento). Ele só precisa sobreviver ao ida-e-volta
+        // do login na MESMA aba — não a reinícios do navegador. Assim a capability
+        // não fica largada num storage persistente (o JWT já ficou fora dele de
+        // propósito; este segue a mesma regra). O link do e-mail regrava se preciso.
         if (typeof window !== 'undefined') {
-          localStorage.setItem('cora_convite_token', token);
+          sessionStorage.setItem('cora_convite_token', token);
           const em = await infoConvite(token);
-          if (em) localStorage.setItem('cora_convite_email', em);
+          if (em) sessionStorage.setItem('cora_convite_email', em);
         }
         setEstado('precisa_login');
         return;
@@ -31,16 +36,16 @@ function ConviteConteudo() {
       try {
         await aceitarConvite(token);
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('cora_convite_token');
-          localStorage.removeItem('cora_convite_email');
+          sessionStorage.removeItem('cora_convite_token');
+          sessionStorage.removeItem('cora_convite_email');
         }
         setEstado('ok');
       } catch (e) {
         // Convite inválido/expirado: limpa o token guardado, senão o site fica
         // redirecionando pra cá em todo login/verificação (loop do "Convite indisponível").
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('cora_convite_token');
-          localStorage.removeItem('cora_convite_email');
+          sessionStorage.removeItem('cora_convite_token');
+          sessionStorage.removeItem('cora_convite_email');
         }
         setEstado('erro');
         setMsg(e.message);

@@ -54,7 +54,7 @@ export default function Cadastro() {
       }
     } catch (e) {}
     // Convite trava o email (a conta tem que ser desse email).
-    const em = localStorage.getItem('cora_convite_email');
+    const em = sessionStorage.getItem('cora_convite_email');
     if (em) { setEmail(em); setEmailTravado(true); }
   }, []);
 
