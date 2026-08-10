@@ -32,6 +32,7 @@ import CampoRefs from './CampoRefs';
 import IconeCredito from './IconeCredito';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import { bytesDaGeracao } from '../lib/geracoes';
+import { salvarLeitura } from '../lib/leituras';
 import {
   analisarBatch, gerarBatch, CREDITOS, custoBatchCena,
   PROPORCOES, RESOLUCOES, MAX_REFS
@@ -316,6 +317,11 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
         previa:    marcadas[i]?.previa,
         materiais: c.materiais_completos || c.leitura || c.materiais_novos || '',
         aprovada:  false,
+        // Para a versão "Editada" na aba Análises: a chave agrupa no MESMO
+        // card da leitura original (o servidor a devolve por cena), e o
+        // snapshot diz se o texto mudou de verdade antes de aprovar.
+        chaveImagem: c.chaveImagem || null,
+        _materiaisOriginais: c.materiais_completos || c.leitura || c.materiais_novos || '',
         cfg: { qtd: 1, proporcao: '4:5', resolucao: '2k' }
       }));
 
@@ -365,11 +371,14 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
     const primeira = cenasAprovadasSnap[0];
     const printDa = (c) => cenasSnap.find((x) => x.id === c?.cenaId)?.previa || null;
 
-    const tarefa = async () => {
+    const tarefa = async (canalProg) => {
+      // Canal próprio do pool: o batch tem o SEU bloco de slots e corre em
+      // paralelo com outras gerações (editar, render...).
+      const prog = canalProg || onProgresso;
       setOcupado(true);
       const prontas = [];   // imagens já prontas (data URL), por índice do slot
 
-      onProgresso({
+      prog({
         feito: 0,
         total: totalImagensSnap,
         estado: 'gerando',
@@ -409,7 +418,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                 ordem,
               };
             }
-            onProgresso({
+            prog({
               feito, total,
               estado: 'gerando',
               proporcao: c?.cfg.proporcao || '4:5',
@@ -428,18 +437,18 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
           }));
         }
 
-        onProgresso(null);
+        prog(null);
         setOcupado(false);
         onPronto(r);
         limparRascunho('batch');
 
       } catch (e) {
         setErro(e.message);
-        onProgresso(null);
+        prog(null);
         setOcupado(false);
       }
     };
-    if (enfileirar) enfileirar(tarefa); else tarefa();
+    if (enfileirar) enfileirar(tarefa, totalImagensSnap); else tarefa();
   }
 
   function resetar() {
@@ -657,9 +666,31 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
 
                   <button
                     className={c.aprovada ? 'cr-b cr-b--on' : 'cr-b-conf'}
-                    onClick={() => setAnalise((a) => a.map((x, j) => (
-                      j === i ? { ...x, aprovada: !x.aprovada } : x
-                    )))}
+                    onClick={() => {
+                      // Aprovou com o texto EDITADO? Salva uma versão nova na
+                      // aba Análises, agrupada no card da leitura original
+                      // (mesma chaveImagem). Sem recobrar: é só o texto.
+                      const aprovando = !c.aprovada;
+                      if (aprovando && c.chaveImagem &&
+                          (c.materiais || '').trim() !== (c._materiaisOriginais || '').trim()) {
+                        salvarLeitura({
+                          origem: 'batch',
+                          titulo: c.nome,
+                          materiais: c.materiais,
+                          chaveImagem: c.chaveImagem
+                        }).catch(() => {});
+                      }
+                      setAnalise((a) => a.map((x, j) => (
+                        j === i
+                          ? {
+                              ...x,
+                              aprovada: aprovando,
+                              // evita salvar de novo se aprovar/desaprovar sem mexer
+                              _materiaisOriginais: aprovando ? x.materiais : x._materiaisOriginais
+                            }
+                          : x
+                      )));
+                    }}
                   >
                     {c.aprovada ? '✓ ' + t('painelbatch_aprovada') : t('painelbatch_aprovar')}
                   </button>

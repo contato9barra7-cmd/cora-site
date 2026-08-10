@@ -76,8 +76,10 @@ console.log('— #97 id de timelapse com aleatório —');
 checar('tl_inicial com Math.random', APP.includes("'tl_inicial_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)"));
 
 console.log('— #127 custo analiseBatch documentado —');
-checar('comentário corrigido para 8', REND.includes('Custa 8 por') && !/Custa 15\s*\n\/\/\s*por cena \(o mesmo do "Ler materiais"/.test(REND));
-checar('valor segue 8', /analiseBatch: 8,/.test(REND));
+// O preço subiu para 16 em 10/08 (2 promptadores por cena: série + tradutor);
+// o guarda continua o mesmo — comentário e valor têm que andar JUNTOS.
+checar('comentário bate com o valor (16)', REND.includes('Custa 16 por'));
+checar('valor bate com o servidor (16)', /analiseBatch: 16,/.test(REND));
 
 console.log('— #128 ordem do feed sem colisão —');
 checar('ordemFeed = base0 + imagens.length', REND.includes('const ordemFeed = base0 + imagens.length;'));

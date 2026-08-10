@@ -261,9 +261,12 @@ export default function PainelEditar({
       .join('. ');
     const completo = [extras, texto.trim()].filter(Boolean).join('. ');
 
-    const tarefa = async () => {
+    const tarefa = async (canalProg) => {
+      // Canal próprio do pool: cada edição tem o seu bloco de slots e corre
+      // em paralelo com o que mais estiver gerando.
+      const prog = canalProg || onProgresso;
       setOcupado(true);
-      onProgresso({
+      prog({
         feito: 0, total: qtdSnap, estado: 'processando',
         proporcao: propSlot,
         base: previaSnap
@@ -289,7 +292,7 @@ export default function PainelEditar({
                 ordem:  extra.ordem
               };
             }
-            onProgresso((p) => ({
+            prog((p) => ({
               ...(p || {}),
               feito, total,
               estado: 'processando',
@@ -311,7 +314,7 @@ export default function PainelEditar({
         setErro(e.message);
       } finally {
         setOcupado(false);
-        onProgresso(null);
+        prog(null);
       }
     };
 
@@ -319,7 +322,7 @@ export default function PainelEditar({
     // É o mesmo contrato do Render/Batch/Planta — antes o Editar ficava FORA
     // da fila e o `ocupado` global simplesmente travava o botão: com um batch
     // rodando, não dava nem para preparar, nem para mandar.
-    if (enfileirar) enfileirar(tarefa);
+    if (enfileirar) enfileirar(tarefa, qtdSnap);
     else tarefa();
   }
 

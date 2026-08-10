@@ -322,12 +322,15 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       }))
     };
 
-    const tarefa = async () => {
+    const tarefa = async (canalProg) => {
+      // O pool entrega um canal próprio: cada geração tem o seu bloco de
+      // slots e pode correr em paralelo com as outras.
+      const prog = canalProg || onProgresso;
       setOcupado(true);
-      onProgresso({ feito: 0, total: totalSnap, estado: 'enviado', proporcao: proporcaoSnap, base: previaSnap });
+      prog({ feito: 0, total: totalSnap, estado: 'enviado', proporcao: proporcaoSnap, base: previaSnap });
       try {
         const r = await gerarRender(cfg, {
-          onProgresso: (feito, total, estado, extra) => onProgresso((p) => {
+          onProgresso: (feito, total, estado, extra) => prog((p) => {
             const prev = p || {};
             const prontas = (prev.prontas || []).slice();
             if (estado === 'pronto' && extra && extra.url) {
@@ -349,19 +352,20 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           }),
           loteAnterior: loteAntSnap
         });
-        onProgresso(null);
+        prog(null);
         setOcupado(false);
         onPronto(r);
         limparRascunho('render');
       } catch (e) {
         setErro(e.message);
-        onProgresso(null);
+        prog(null);
         setOcupado(false);
       }
     };
 
-    // Fila: dispara sem esperar; roda uma por vez. (Sem a prop, roda direto.)
-    if (enfileirar) enfileirar(tarefa);
+    // Pool: dispara NA HORA, em paralelo; o peso (nº de imagens) conta no
+    // teto de simultâneas. (Sem a prop, roda direto.)
+    if (enfileirar) enfileirar(tarefa, totalSnap);
     else tarefa();
   }
 

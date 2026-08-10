@@ -361,8 +361,9 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
   // ── onProgresso do feed (idêntico p/ 2D e 3D) ──
   //  `baseImg` é a prévia que aparece desfocada no slot enquanto gera:
   //  no 2D é a planta; no 3D é a imagem da cena.
-  function montarOnProgresso(baseImg, propArg) {
-    return (feito, total, estado, extra) => onProgresso((p) => {
+  function montarOnProgresso(baseImg, propArg, sink) {
+    const escrever = sink || onProgresso;
+    return (feito, total, estado, extra) => escrever((p) => {
       const prev = p || {};
       const prontas = (prev.prontas || []).slice();
       if (estado === 'pronto' && extra && extra.url) {
@@ -412,24 +413,26 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
       refTexto: refTexto.trim()
     };
 
-    const tarefa = async () => {
+    const tarefa = async (canalProg) => {
+      // Canal próprio do pool: bloco de slots próprio, geração em paralelo.
+      const prog = canalProg || onProgresso;
       setOcupado(true);
-      onProgresso({ feito: 0, total: totalSnap, estado: 'enviado', proporcao: proporcaoSnap, base: previaSnap });
+      prog({ feito: 0, total: totalSnap, estado: 'enviado', proporcao: proporcaoSnap, base: previaSnap });
       try {
         const r = await gerarRender(cfg, {
-          onProgresso: montarOnProgresso(previaSnap, proporcaoSnap),
+          onProgresso: montarOnProgresso(previaSnap, proporcaoSnap, prog),
           loteAnterior: loteAntSnap
         });
-        onProgresso(null);
+        prog(null);
         setOcupado(false);
         onPronto(r);
       } catch (e) {
         setErro(e.message);
-        onProgresso(null);
+        prog(null);
         setOcupado(false);
       }
     };
-    if (enfileirar) enfileirar(tarefa); else tarefa();
+    if (enfileirar) enfileirar(tarefa, totalSnap); else tarefa();
   }
 
   // ═══ 3D — FASE 1: analisar materiais da cena a partir das referências ═══
@@ -487,24 +490,26 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
       quantidade: totalSnap
     };
 
-    const tarefa = async () => {
+    const tarefa = async (canalProg) => {
+      // Canal próprio do pool: bloco de slots próprio, geração em paralelo.
+      const prog = canalProg || onProgresso;
       setOcupado(true);
-      onProgresso({ feito: 0, total: totalSnap, estado: 'enviado', proporcao: proporcaoSnap, base: previaSnap });
+      prog({ feito: 0, total: totalSnap, estado: 'enviado', proporcao: proporcaoSnap, base: previaSnap });
       try {
         const r = await gerarRender(cfg, {
-          onProgresso: montarOnProgresso(previaSnap, proporcaoSnap),
+          onProgresso: montarOnProgresso(previaSnap, proporcaoSnap, prog),
           loteAnterior: loteAntSnap
         });
-        onProgresso(null);
+        prog(null);
         setOcupado(false);
         onPronto(r);
       } catch (e) {
         setErro(e.message);
-        onProgresso(null);
+        prog(null);
         setOcupado(false);
       }
     };
-    if (enfileirar) enfileirar(tarefa); else tarefa();
+    if (enfileirar) enfileirar(tarefa, totalSnap); else tarefa();
   }
 
   const custo = custoRender(quantidade, resolucao);

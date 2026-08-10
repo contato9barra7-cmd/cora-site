@@ -12,7 +12,7 @@
 //  assinaturaConfig, no lib/render.)
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect, useCallback, useRef, Fragment } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import PainelRender from '../../components/PainelRender';
@@ -293,9 +293,32 @@ export default function AppPage() {
     setPnRh(b || '');
   }
   const [ocupado, setOcupado]       = useState(false);
-  // O progresso aceita função: os painéis ACUMULAM as falhas nele
-  // (setProgresso(p => ({...p, falhas}))), em vez de sobrescrever.
-  const [progresso, setProgresso]   = useState(null);
+  // `ocupado` virou CONTAGEM: várias gerações correm em paralelo e a flag só
+  // cai quando a última termina. Os painéis continuam chamando
+  // setOcupado(true/false) uma vez por tarefa — quem soma é este wrapper.
+  const ocupadosRef = useRef(0);
+  const marcarOcupado = useCallback((v) => {
+    ocupadosRef.current = Math.max(0, ocupadosRef.current + (v ? 1 : -1));
+    setOcupado(ocupadosRef.current > 0);
+  }, []);
+
+  // O progresso virou um MAPA id → progresso: cada geração ativa tem o SEU
+  // bloco de slots no feed. Cada tarefa escreve pelo canal que recebe do pool
+  // (aceita objeto, função-updater ou null para encerrar o bloco).
+  const [progressos, setProgressos] = useState({});
+  const geraSeqRef = useRef(0);
+  const canalProgresso = useCallback((id) => (v) => {
+    setProgressos((m) => {
+      const atual = m[id] || null;
+      const novo = (typeof v === 'function') ? v(atual) : v;
+      const nm = { ...m };
+      if (!novo) delete nm[id]; else nm[id] = novo;
+      return nm;
+    });
+  }, []);
+  // Canal reserva para chamadas fora do pool (fallback dos painéis).
+  const canalAvulso = useMemo(() => canalProgresso('avulso'), [canalProgresso]);
+  const gerandoAlgo = Object.keys(progressos).length > 0;
 
   // ── Criar / Galeria: as duas abas do celular ──
   //
@@ -315,11 +338,11 @@ export default function AppPage() {
   // slots com o andamento — ficar no formulário seria olhar para um botão já
   // pressionado enquanto o trabalho acontece fora de vista.
   useEffect(() => {
-    if (progresso || ocupado) {
+    if (gerandoAlgo || ocupado) {
       setAbaMob('feed');
       setFeedNovo(false);
     }
-  }, [progresso, ocupado]);
+  }, [gerandoAlgo, ocupado]);
 
   // A bolinha no rótulo "Galeria": chegou coisa nova enquanto a pessoa estava
   // em Criar. Sem ela, o resultado chega em silêncio, fora da vista.
@@ -327,30 +350,38 @@ export default function AppPage() {
     if (abaMob === 'feed') setFeedNovo(false);
   }, [abaMob]);
 
-  // ── Fila de gerações ──
-  // A pessoa dispara sem esperar: cada geração entra numa fila e roda UMA por
-  // vez, automaticamente. O servidor roda cada uma como job próprio; a fila só
-  // serializa o indicador de progresso (que é único) e o `ocupado`.
-  const filaRef = useRef([]);
-  const rodandoFilaRef = useRef(false);
+  // ── Pool de gerações: dispara NA HORA, em paralelo ──
+  // A pessoa manda e a geração começa imediatamente — nada de esperar a
+  // anterior acabar. O único freio é o teto de IMAGENS simultâneas: o que
+  // passar dele aguarda vaga (o rótulo "na fila" dos painéis mostra isso).
+  // Cada tarefa declara o peso (nº de imagens) ao entrar e recebe o próprio
+  // canal de progresso — o bloco de slots dela no feed.
+  const MAX_IMAGENS_SIMULTANEAS = 10;
+  const poolRef = useRef({ pesoAtivo: 0, fila: [] });
   const [naFila, setNaFila] = useState(0);
 
-  const drenarFila = useCallback(async () => {
-    if (rodandoFilaRef.current) return;
-    rodandoFilaRef.current = true;
-    while (filaRef.current.length) {
-      const tarefa = filaRef.current.shift();
-      setNaFila(filaRef.current.length);
-      try { await tarefa(); } catch (e) { /* cada tarefa trata o próprio erro */ }
+  const bombearPool = useCallback(function bombear() {
+    const pool = poolRef.current;
+    while (pool.fila.length) {
+      const prox = pool.fila[0];
+      // Não cabe agora? Espera vaga. (Pedido maior que o teto roda sozinho,
+      // com o pool vazio — senão nunca sairia.)
+      if (pool.pesoAtivo > 0 && pool.pesoAtivo + prox.peso > MAX_IMAGENS_SIMULTANEAS) break;
+      pool.fila.shift();
+      pool.pesoAtivo += prox.peso;
+      Promise.resolve()
+        .then(() => prox.tarefa(prox.canal))
+        .catch(() => { /* cada tarefa trata o próprio erro */ })
+        .finally(() => { poolRef.current.pesoAtivo -= prox.peso; bombear(); });
     }
-    rodandoFilaRef.current = false;
+    setNaFila(pool.fila.length);
   }, []);
 
-  const enfileirarGeracao = useCallback((tarefa) => {
-    filaRef.current.push(tarefa);
-    setNaFila(filaRef.current.length);
-    drenarFila();
-  }, [drenarFila]);
+  const enfileirarGeracao = useCallback((tarefa, peso) => {
+    const canal = canalProgresso('ger' + (++geraSeqRef.current));
+    poolRef.current.fila.push({ tarefa, canal, peso: Math.max(1, (peso | 0) || 1) });
+    bombearPool();
+  }, [bombearPool, canalProgresso]);
 
   // O modal vive na PÁGINA, não no card: dentro da grade ele nasceria preso
   // ao recorte dela e ficaria cortado.
@@ -759,28 +790,34 @@ export default function AppPage() {
   //
   //  Quem sabe refazer é o PAINEL (ele tem a configuração). A página só
   //  avisa: "refaça a ordem N".
-  function tentarDeNovo(ordem) {
+  function tentarDeNovo(gid, ordem) {
     setRefazer({ ordem, quando: Date.now() });
 
     // Tira o cartão de erro: o slot volta a "gerando".
-    setProgresso((p) => p && ({
-      ...p,
-      falhas: (p.falhas || []).filter((f) => f.ordem !== ordem)
-    }));
+    setProgressos((m) => {
+      const p = m[gid];
+      if (!p) return m;
+      return { ...m, [gid]: { ...p, falhas: (p.falhas || []).filter((f) => f.ordem !== ordem) } };
+    });
   }
 
   // Descartar: a falha some da tela. Não há o que desfazer — os créditos já
   // voltaram, e a imagem nunca existiu.
-  function descartarFalha(ordem) {
-    setProgresso((p) => {
-      if (!p) return p;
+  function descartarFalha(gid, ordem) {
+    setProgressos((m) => {
+      const p = m[gid];
+      if (!p) return m;
 
       const falhas = (p.falhas || []).filter((f) => f.ordem !== ordem);
 
-      // Era a última coisa na tela? Some com o bloco inteiro.
-      if (falhas.length === 0 && !ocupado) return null;
+      // Era a última coisa DESTE bloco? Some com ele inteiro.
+      if (falhas.length === 0 && !ocupado) {
+        const nm = { ...m };
+        delete nm[gid];
+        return nm;
+      }
 
-      return { ...p, falhas };
+      return { ...m, [gid]: { ...p, falhas } };
     });
   }
 
@@ -994,16 +1031,21 @@ export default function AppPage() {
   // uma com seu lote). Enquanto `progresso` existe, esses lotes ficam FORA do
   // feed — quem os mostra é o bloco de slots em cima. Ao terminar, `progresso`
   // vira null e eles voltam ao feed normalmente.
-  const lotesAtivos = progresso
-    ? new Set((progresso.prontas || []).filter(Boolean).map((p) => p.loteId).filter(Boolean))
-    : null;
+  const lotesAtivos = (() => {
+    if (!gerandoAlgo) return null;
+    const s = new Set();
+    for (const p of Object.values(progressos)) {
+      (p.prontas || []).filter(Boolean).forEach((x) => { if (x.loteId) s.add(x.loteId); });
+    }
+    return s;
+  })();
   const lotesVisiveis = (lotesAtivos && lotesAtivos.size)
     ? lotes.filter((l) => !lotesAtivos.has(l.loteId))
     : lotes;
 
   // A grade contínua: todas as imagens, por mês (sem separar por lote)
   const porMes = agruparPorMes(lotesVisiveis);
-  const vazio  = !carregando && porMes.length === 0 && !progresso && upsAtivos.length === 0;
+  const vazio  = !carregando && porMes.length === 0 && !gerandoAlgo && upsAtivos.length === 0;
 
   // A Pós não cabe num painel de 380px: um editor de camadas espremido numa
   // coluna seria inútil. Enquanto ela está aberta, o painel e o feed saem.
@@ -1092,8 +1134,8 @@ export default function AppPage() {
               leituraInicial={leituraDeOutraAba?.destino === 'render' ? leituraDeOutraAba : null}
               refazer={refazer}
               ocupado={ocupado}
-              setOcupado={setOcupado}
-              onProgresso={setProgresso}
+              setOcupado={marcarOcupado}
+              onProgresso={canalAvulso}
               onPronto={aoGerar}
               enfileirar={enfileirarGeracao}
               naFila={naFila}
@@ -1108,8 +1150,8 @@ export default function AppPage() {
               aprovadas={aprovadas}
               onDesaprovar={desaprovarPorId}
               ocupado={ocupado}
-              setOcupado={setOcupado}
-              onProgresso={setProgresso}
+              setOcupado={marcarOcupado}
+              onProgresso={canalAvulso}
               onPronto={aoGerarBatch}
               onFeedAtualizar={recarregarComFolga}
               enfileirar={enfileirarGeracao}
@@ -1157,9 +1199,9 @@ export default function AppPage() {
               ferramentas={conta?.ferramentas || []}
               ehAdmin={ehAdmin}
               ocupado={ocupado}
-              setOcupado={setOcupado}
-              onProgresso={setProgresso}
-              onPronto={() => { setProgresso(null); recarregarComFolga(); }}
+              setOcupado={marcarOcupado}
+              onProgresso={canalAvulso}
+              onPronto={() => recarregarComFolga()}
               enfileirar={enfileirarGeracao}
               naFila={naFila}
               onAbrirPincel={(p) => {
@@ -1177,8 +1219,8 @@ export default function AppPage() {
           <div hidden={ferramenta !== 'planta'}>
             <PainelPlanta
               ocupado={ocupado}
-              setOcupado={setOcupado}
-              onProgresso={setProgresso}
+              setOcupado={marcarOcupado}
+              onProgresso={canalAvulso}
               onPronto={aoGerar}
               enfileirar={enfileirarGeracao}
               naFila={naFila}
@@ -1449,10 +1491,10 @@ export default function AppPage() {
 
             {/* ── Gerando ──
                 Sem cabeçalho solto: o contador vai PARA DENTRO do slot, sobre
-                a imagem base desfocada. O que era um texto flutuando no branco
-                agora é parte da própria imagem que está nascendo. */}
-            {progresso && (
-              <div className="cr-gerando">
+                a imagem base desfocada. Cada geração ATIVA tem o seu bloco —
+                elas correm em paralelo, e cada bloco nasce e morre sozinho. */}
+            {Object.entries(progressos).map(([gid, progresso]) => (
+              <div className="cr-gerando" key={gid}>
 
                 {/* O aviso de fila FICA: é informação real, não decoração.
                     A pessoa precisa saber por que está demorando. */}
@@ -1509,13 +1551,12 @@ export default function AppPage() {
                               <div className="cr-erro-btns">
                                 <button
                                   className="cr-erro-b"
-                                  onClick={() => tentarDeNovo(i)}
-                                  disabled={ocupado}
+                                  onClick={() => tentarDeNovo(gid, i)}
                                 >{t('app_tentar_de_novo')}</button>
 
                                 <button
                                   className="cr-erro-x"
-                                  onClick={() => descartarFalha(i)}
+                                  onClick={() => descartarFalha(gid, i)}
                                   aria-label={t('app_descartar')}
                                 >
                                   <svg viewBox="0 0 20 20" width="13" height="13" fill="none"
@@ -1570,19 +1611,17 @@ export default function AppPage() {
                 {/* Isto não é promessa: o servidor estorna de verdade ao
                     falhar (`estornarPedido`). Dizer isso ANTES tira o medo de
                     quem está vendo os créditos saírem da conta. */}
-                {progresso && (
-                  <p className="cr-estorno">
-                    <svg viewBox="0 0 16 16" width="11" height="11" fill="none"
-                         stroke="currentColor" strokeWidth="1.4">
-                      <circle cx="8" cy="8" r="6.2"/>
-                      <path d="M8 5.2v3.4" strokeLinecap="round"/>
-                      <circle cx="8" cy="11" r=".7" fill="currentColor" stroke="none"/>
-                    </svg>
-                    {t('app_creditos_voltam_auto')}
-                  </p>
-                )}
+                <p className="cr-estorno">
+                  <svg viewBox="0 0 16 16" width="11" height="11" fill="none"
+                       stroke="currentColor" strokeWidth="1.4">
+                    <circle cx="8" cy="8" r="6.2"/>
+                    <path d="M8 5.2v3.4" strokeLinecap="round"/>
+                    <circle cx="8" cy="11" r=".7" fill="currentColor" stroke="none"/>
+                  </svg>
+                  {t('app_creditos_voltam_auto')}
+                </p>
               </div>
-            )}
+            ))}
 
             {carregando && <p className="cr-msg">{t('comum_carregando')}</p>}
 
