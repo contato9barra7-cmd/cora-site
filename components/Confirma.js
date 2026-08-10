@@ -8,16 +8,25 @@
 // ═══════════════════════════════════════════════════════════
 
 import { createPortal } from 'react-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useIdioma } from '../lib/i18n';
 
 export default function Confirma({ texto, ok, aoOk, aoCancelar }) {
   const { t } = useIdioma();
   const okLabel = ok ?? t('confirma_btn_continuar');
+  // Enter confirma — mas não o Enter que veio JUNTO do gesto que abriu o
+  // modal (tecla segurada gerando repeat, ou o Enter da ação anterior ainda
+  // no ar). Como aoOk é a ação de PERIGO, um respiro curto separa a intenção
+  // do resíduo. Escape cancela sempre, sem espera.
+  const armado = useRef(false);
+  useEffect(() => {
+    const tm = setTimeout(() => { armado.current = true; }, 250);
+    return () => clearTimeout(tm);
+  }, []);
   useEffect(() => {
     const tecla = (e) => {
       if (e.key === 'Escape') aoCancelar();
-      if (e.key === 'Enter')  aoOk();
+      if (e.key === 'Enter' && armado.current && !e.repeat) aoOk();
     };
     window.addEventListener('keydown', tecla);
     return () => window.removeEventListener('keydown', tecla);

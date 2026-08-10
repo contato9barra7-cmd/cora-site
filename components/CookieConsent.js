@@ -30,17 +30,24 @@ export default function CookieConsent() {
       localStorage.setItem('cora_cookie_consent', aceitou ? 'accepted' : 'rejected');
     } catch (e) {}
     try {
-      if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
-        window.gtag('consent', 'update', {
-          ad_storage: aceitou ? 'granted' : 'denied',
-          ad_user_data: aceitou ? 'granted' : 'denied',
-          ad_personalization: aceitou ? 'granted' : 'denied',
-          analytics_storage: aceitou ? 'granted' : 'denied',
-        });
-        // avisa o GTM que a escolha foi feita (útil para gatilhos lá dentro)
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({ event: aceitou ? 'cookie_consent_accept' : 'cookie_consent_reject' });
-      }
+      // O clique pode vir ANTES do script do gtag carregar. A escolha não pode
+      // se perder por isso: o gtag.js processa a fila do dataLayer quando
+      // chega, então na ausência da função vale o stub do snippet oficial
+      // (push do `arguments` — o formato que ele reconhece). Antes, o update
+      // inteiro era pulado e o consentimento ficava preso em 'denied' na
+      // sessão, mesmo com o aceite gravado no localStorage.
+      window.dataLayer = window.dataLayer || [];
+      const gtag = typeof window.gtag === 'function'
+        ? window.gtag
+        : function () { window.dataLayer.push(arguments); };
+      gtag('consent', 'update', {
+        ad_storage: aceitou ? 'granted' : 'denied',
+        ad_user_data: aceitou ? 'granted' : 'denied',
+        ad_personalization: aceitou ? 'granted' : 'denied',
+        analytics_storage: aceitou ? 'granted' : 'denied',
+      });
+      // avisa o GTM que a escolha foi feita (útil para gatilhos lá dentro)
+      window.dataLayer.push({ event: aceitou ? 'cookie_consent_accept' : 'cookie_consent_reject' });
     } catch (e) {}
     setMostrar(false);
   }

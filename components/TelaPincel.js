@@ -229,6 +229,13 @@ export default function TelaPincel({
       imgRef.current = img;
       nativo.current = { w: img.width, h: img.height };
       pintUndo.current = [];   // zera o desfazer da nova imagem
+      // A pintura também é da imagem ANTERIOR. ajustar() preserva o desenho de
+      // propósito (é o caminho do resize), então sem limpar aqui as pinceladas
+      // antigas continuavam sobre a imagem nova — e o Gerar enviava (e cobrava)
+      // uma máscara que não corresponde ao que está na tela.
+      const dc = drawRef.current;
+      if (dc && dc.width) dc.getContext('2d').clearRect(0, 0, dc.width, dc.height);
+      setPintou(false);
       ajustar();
     };
     img.src = 'data:image/png;base64,' + base;

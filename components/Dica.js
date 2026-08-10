@@ -36,9 +36,23 @@ export default function Dica({ texto, children, lado = 'baixo' }) {
   return (
     <>
       {cloneElement(children, {
-        ref: alvo,
-        onMouseEnter: entrar,
-        onMouseLeave: sair,
+        // Tudo COMPOSTO com o que o filho já tinha — injetar por cima fazia um
+        // filho com onMouseEnter/onMouseLeave (ou ref) próprios perdê-los em
+        // silêncio ao ganhar uma <Dica> por fora.
+        ref: (el) => {
+          alvo.current = el;
+          const anterior = (children.props && children.props.ref) || children.ref;
+          if (typeof anterior === 'function') anterior(el);
+          else if (anterior && typeof anterior === 'object') anterior.current = el;
+        },
+        onMouseEnter: (e) => {
+          entrar();
+          if (children.props.onMouseEnter) children.props.onMouseEnter(e);
+        },
+        onMouseLeave: (e) => {
+          sair();
+          if (children.props.onMouseLeave) children.props.onMouseLeave(e);
+        },
         // Sair no clique também: com o botão apertado, a dica sobrando na tela
         // fica parecendo um resto de tela que não sumiu.
         onClick: (e) => {

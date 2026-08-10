@@ -256,9 +256,11 @@ function WorkspaceConteudo() {
     );
   }
 
-  const livres = equipe.assentos - membros.length;
+  // Depois de um downgrade, ocupados > assentos e a conta fica negativa —
+  // o badge estampava "-2 assentos livres". Zero é o piso em toda a tela.
+  const livres = Math.max(0, equipe.assentos - membros.length);
   const donoNaEquipe = membros.some((m) => m.eh_dono);
-  const slotsVazios = Array.from({ length: Math.max(0, livres) });
+  const slotsVazios = Array.from({ length: livres });
 
   return (
     <div className="admin-wrap">

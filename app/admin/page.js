@@ -102,11 +102,14 @@ export default function Admin() {
   const [compras, setCompras] = useState([]);
 
   useEffect(() => {
-    adminCompras().then(setCompras).catch(() => {});
+    // catch com log (não vazio): uma falha em compras/sincronização deixava a
+    // aba Recargas vazia sem nenhum sinal, e o admin concluía "não houve compra"
+    // sobre dados que na verdade não carregaram.
+    adminCompras().then(setCompras).catch((e) => { console.error('[admin] compras:', e); });
     // sincroniza os valores com o Stripe em segundo plano (sem travar a tela)
     adminSincronizarStripe()
       .then((n) => { if (n > 0) carregar(); })
-      .catch(() => {});
+      .catch((e) => { console.error('[admin] sincronizar stripe:', e); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -135,11 +138,15 @@ export default function Admin() {
   // senão ele converte para notação científica (ex: 5,552E+12).
   const COLUNAS_TEXTO = ['telefone', 'cpf', 'cep'];
 
-  // Relatório geográfico: agrupa por estado (BR) e por país
+  // Relatório geográfico: agrupa por estado (BR) e por país.
+  // A receita é toda exibida como R$ e não há câmbio: somar centavos de moedas
+  // diferentes (USD + BRL) num único total inflava o valor. Então a RECEITA
+  // conta só linhas em BRL (número honesto); a CONTAGEM de clientes inclui todos.
+  const ehBRL = (a) => (a.moeda || 'brl').toString().toLowerCase() === 'brl';
   function relatorioGeo() {
     const pagantes = assinantes.filter(a => a.id !== meuId && !a.eh_convidado && !a.eh_trial);
     const totalClientes = pagantes.length;
-    const totalValor = pagantes.reduce((s, a) => s + (a.valor_centavos || 0), 0);
+    const totalValor = pagantes.reduce((s, a) => s + (ehBRL(a) ? (a.valor_centavos || 0) : 0), 0);
 
     const agrupa = (campo) => {
       const mapa = {};
@@ -147,7 +154,7 @@ export default function Admin() {
         const k = (a[campo] || '').toUpperCase() || '—';
         if (!mapa[k]) mapa[k] = { n: 0, valor: 0 };
         mapa[k].n += 1;
-        mapa[k].valor += (a.valor_centavos || 0);
+        mapa[k].valor += (ehBRL(a) ? (a.valor_centavos || 0) : 0);
       });
       return Object.entries(mapa)
         .map(([k, v]) => ({
@@ -195,7 +202,14 @@ export default function Admin() {
       .map((c, i) => COLUNAS_TEXTO.includes(String(c).toLowerCase().trim()) ? i : -1)
       .filter(i => i >= 0);
     const esc = (v, i) => {
-      const s = String(v ?? '').replace(/"/g, '""');
+      let raw = String(v ?? '');
+      // Anti-injeção de fórmula: célula começando com = + - @ (ou TAB/CR) é
+      // avaliada como fórmula pelo Excel/LibreOffice. Nome/endereço vêm do
+      // cadastro do usuário — um "=HYPERLINK(...)" exfiltraria dados no PC do
+      // admin. Prefixa com apóstrofo para forçar texto (só quando não é uma
+      // coluna já protegida com ="...").
+      if (raw && !idxTexto.includes(i) && /^[=+\-@\t\r]/.test(raw)) raw = "'" + raw;
+      const s = raw.replace(/"/g, '""');
       // ="valor" faz o Excel tratar como texto puro
       if (idxTexto.includes(i) && s) return `="${s}"`;
       return `"${s}"`;
@@ -433,11 +447,16 @@ export default function Admin() {
 
   const nFiltros = chipsAtivos.length;
 
-  // O total da aba, SEM filtro: é a régua contra a qual "9 de 43" faz sentido
+  // O total da aba, SEM filtro: é a régua contra a qual "9 de 43" faz sentido.
+  // 'pagantes' e 'cancelados' são conjuntos DISJUNTOS (status cancelado ou não);
+  // o else genérico contava ativos+cancelados juntos, inflando o "de Y" na aba
+  // Cancelados (mostrava '3 de 43' em vez de '3 de 3').
   const totalAba = assinantes.filter((a) => {
     if (a.id === meuId) return false;
     if (aba === 'convidados') return !!a.eh_convidado;
     if (aba === 'trial')      return !!a.eh_trial;
+    if (aba === 'cancelados') return !a.eh_convidado && !a.eh_trial && a.assinatura_status === 'cancelado';
+    if (aba === 'pagantes')   return !a.eh_convidado && !a.eh_trial && a.assinatura_status !== 'cancelado';
     return !a.eh_convidado && !a.eh_trial;
   }).length;
 

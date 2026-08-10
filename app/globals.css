@@ -473,8 +473,11 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
      linguagem de forma. O padding lateral sobe de 14 para 18 porque, com a
      borda arredondada, o texto colado na curva fica apertado. */
   width: 100%; padding: 12px 18px; border: 1px solid var(--line2); border-radius: var(--r);
-  font-family: inherit; font-size: 16px; background: var(--wash); color: var(--ink3);
+  font-family: inherit; font-size: 16px; background: var(--wash); color: var(--ink);
 }
+/* O cinza que estava no color era coisa de placeholder e vazava para o texto
+   digitado (contraste ~2.4:1 sobre --wash). Cada um com a sua cor. */
+.login-input::placeholder { color: var(--ink3); }
 /* O <select> herda a classe, mas o navegador desenha a setinha colada na borda
    quando o raio e grande — um respiro extra a direita resolve. */
 select.login-input { padding-right: 34px; }
@@ -5345,6 +5348,11 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   align-items: center;
   justify-content: center;
   color: var(--ink3);
+  /* Virou <button> de verdade (era span): zera o cromo padrão do navegador */
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
   opacity: 0;
   transition: opacity .12s, background .12s, color .12s;
 }
@@ -11930,7 +11938,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .up-slider > span { font-size: 12px; color: var(--ink3); min-width: 34px; text-align: right; }
 
 /* O "?" com dica — a bolha não é cortada (posição fixa acima, largura folgada) */
-.up-ajuda { position: relative; display: inline-flex; color: var(--ink4); cursor: help; }
+/* --ink4 nunca existiu (os tokens param no --ink3): var() inválido fazia o "?"
+   herdar a cor do rótulo em vez de recuar. --ink3 É o tom apagado da paleta. */
+.up-ajuda { position: relative; display: inline-flex; color: var(--ink3); cursor: help; }
 .up-ajuda-bolha {
   position: absolute; bottom: calc(100% + 8px); left: -8px;
   width: max-content; max-width: 230px; padding: 8px 11px; border-radius: 10px;

@@ -91,12 +91,17 @@ export default function AppShell({ children }) {
   const router = useRouter();
   const { t, idioma, trocarIdioma } = useIdioma();
   const [conta, setConta] = useState(null);
-  // Lê o localStorage ANTES da primeira pintura: sem isso o menu nascia
-  // expandido e recolhia logo depois — o flash que se via a cada troca de aba.
-  const [recolhido, setRecolhido] = useState(() => {
-    if (typeof window === 'undefined') return false;   // no servidor não há localStorage
-    return localStorage.getItem('cora_menu_recolhido') === '1';
-  });
+  // Quem evita o flash é o <html class="menu-recolhido"> (script do layout.js
+  // + regras-espelho no globals.css): o menu nasce fechado antes do React
+  // rodar. Então o estado pode começar IGUAL ao servidor (false) e ler o
+  // localStorage depois de montar — iniciar direto do localStorage fazia o
+  // HTML do SSR divergir do primeiro render do cliente (warning de hidratação
+  // em toda carga com o menu fechado). A classe no <html> segura o layout até
+  // o efeito rodar; visualmente é a mesma janela que já existia.
+  const [recolhido, setRecolhido] = useState(false);
+  useEffect(() => {
+    if (localStorage.getItem('cora_menu_recolhido') === '1') setRecolhido(true);
+  }, []);
   const [menuUser, setMenuUser] = useState(false);
   const [credCardVisivel, setCredCardVisivel] = useState(false);
   // ── A gaveta (só existe até 1024px, ver responsivo.css) ──
@@ -118,7 +123,7 @@ export default function AppShell({ children }) {
     }).catch(() => {});
     // aplica o tema salvo (da conta ou do navegador)
     if (typeof window !== 'undefined') {
-      // (o recolhido já veio no useState, acima — reler aqui causava o flash)
+      // (o recolhido tem efeito próprio, acima — o visual pré-React é do <html>)
       const tema = (c && c.tema) || localStorage.getItem('cora_tema') || 'sistema';
       aplicarTema(tema);
     }

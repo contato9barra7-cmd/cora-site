@@ -222,7 +222,9 @@ export default function AppPage() {
   // Card "pronto" no bloco gerando: a imagem inicial do timelapse (a que a
   // pessoa enviou) fica ao lado dos placeholders enquanto a sequência roda.
   function mostrarInicialTimelapse(base, proporcao) {
-    const id = 'tl_inicial_' + Date.now();
+    // sufixo aleatório (igual iniciarGeracaoAtiva): só Date.now() colidia em
+    // duas chamadas no mesmo ms → keys duplicadas e remoção do card errado.
+    const id = 'tl_inicial_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
     setUpsAtivos((l) => [...l, { id, base, proporcao: proporcao || null, pronta: true }]);
     return id;
   }
@@ -395,18 +397,17 @@ export default function AppPage() {
       const ext = formato === 'jpeg' ? 'jpg' : 'png';
       const todos = lotes.flatMap((l) => l.itens);
       let nImg = 1, nVid = 1, ok = 0, falhas = 0;
-      console.log('[zip] selecionados:', selecionados);
+      // (logs de depuração que imprimiam os IDs internos das gerações removidos —
+      //  poluíam o console em produção e vazavam identificadores no DevTools.)
       for (const id of selecionados) {
         const item = todos.find((i) => i.id === id);
         const ehVideo = item && (item.tipo === 'video' || /\.(mp4|webm)(\?|$)/i.test(item.url || ''));
-        console.log('[zip] processando', id, '| item?', !!item, '| video?', ehVideo);
         try {
           if (ehVideo) {
             // Vídeo: busca os bytes pelo SERVIDOR (o R2 não manda CORS, então
             // um fetch direto na URL assinada falharia).
             const b64v = await bytesDaGeracao(id);
             const bytesV = base64ParaBytes(b64v);
-            console.log('[zip] video', id, 'bytes=', bytesV.length);
             if (!bytesV.length) throw new Error('vídeo vazio');
             zip.file(`cora-video-${String(nVid).padStart(2, '0')}.mp4`, bytesV);
             nVid++; ok++;
@@ -414,17 +415,16 @@ export default function AppPage() {
             let b64 = await bytesDaGeracao(id);
             if (formato === 'jpeg') b64 = await pngParaJpeg(b64);
             const bytes = base64ParaBytes(b64);
-            console.log('[zip] imagem', id, 'bytes=', bytes.length);
             if (!bytes.length) throw new Error('imagem vazia');
             zip.file(`cora-${String(nImg).padStart(2, '0')}.${ext}`, bytes);
             nImg++; ok++;
           }
         } catch (e) {
+          // Mantém só o erro (caminho de falha, sem poluir o fluxo normal).
           falhas++;
-          console.error('[zip] falhou no id', id, ':', e && e.message);
+          console.error('[zip] falhou no download de um item:', e && e.message);
         }
       }
-      console.log('[zip] resultado: ok=' + ok + ' falhas=' + falhas);
       if (!ok) throw new Error('nenhuma imagem pôde ser baixada');
       const blob = await zip.generateAsync({ type: 'blob' });
       const url = URL.createObjectURL(blob);
@@ -640,7 +640,7 @@ export default function AppPage() {
       if (avancados.favoritos) f.favoritos = true;
 
       const novos = await listarGeracoes(f);
-      console.log('[feed] recarregou:', novos.length, 'lotes | silencioso=', silencioso, '| loteIds:', novos.map((l) => l.loteId));
+      // (log de depuração que imprimia todos os loteIds do feed removido.)
       // Num recarregar silencioso, se vier vazio mas já havia lotes, não
       // apaga a tela: provavelmente o banco ainda não persistiu a geração
       // recém-salva (salvamento é async). O próximo recarregar traz tudo.
@@ -1160,6 +1160,8 @@ export default function AppPage() {
               setOcupado={setOcupado}
               onProgresso={setProgresso}
               onPronto={() => { setProgresso(null); recarregarComFolga(); }}
+              enfileirar={enfileirarGeracao}
+              naFila={naFila}
               onAbrirPincel={(p) => {
                 // Cada abertura começa limpa: a marcação da anterior não
                 // tem nada a ver com a imagem nova.
@@ -1706,7 +1708,7 @@ export default function AppPage() {
                         onSelecionar={() => alternarSelecao(item.id)}
                         onClick={() => {
                           if (modoSelecao) { alternarSelecao(item.id); return; }
-                          if (modoAB) { escolherAB({ ...item, loteId: lote.loteId }); return; }
+                          if (modoAB) { escolherAB({ ...item, loteId: lote.loteId, proporcao: lote.proporcao }); return; }
                           setVendo({ loteId: lote.loteId, itemId: item.id });
                         }}
                         onBaixar={baixarItem}

@@ -13,21 +13,25 @@
 
 import { useState, useEffect } from 'react';
 import { listarLeituras, apagarLeitura } from '../lib/leituras';
+import { useIdioma } from '../lib/i18n';
 
-function quando(iso) {
+const LOCALE = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
+
+function quando(iso, t, idioma) {
   const d = new Date(iso);
   const min = Math.floor((Date.now() - d) / 60000);
-  if (min < 1)    return 'agora';
+  if (min < 1)    return t('historicoleituras_agora');
   if (min < 60)   return `${min} min`;
   const h = Math.floor(min / 60);
   if (h < 24)     return `${h}h`;
   const dias = Math.floor(h / 24);
-  if (dias === 1) return 'ontem';
-  if (dias < 30)  return `${dias} dias`;
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  if (dias === 1) return t('historicoleituras_ontem');
+  if (dias < 30)  return `${dias} ${t('historicoleituras_dias')}`;
+  return d.toLocaleDateString(LOCALE[idioma] || 'pt-BR', { day: '2-digit', month: 'short' });
 }
 
 export default function HistoricoLeituras({ aberto, onFechar, onEscolher }) {
+  const { t, idioma } = useIdioma();
   const [itens, setItens]         = useState([]);
   const [carregando, setCarreg]   = useState(true);
   const [busca, setBusca]         = useState('');
@@ -78,7 +82,7 @@ export default function HistoricoLeituras({ aberto, onFechar, onEscolher }) {
     <div className="cr-overlay cr-overlay--alto" onClick={onFechar}>
       <div className="hl" onClick={(e) => e.stopPropagation()}>
 
-        <button className="hl-x" onClick={onFechar} aria-label="Fechar">
+        <button className="hl-x" onClick={onFechar} aria-label={t('historicoleituras_fechar')}>
           <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" strokeLinecap="round"/>
           </svg>
@@ -86,8 +90,8 @@ export default function HistoricoLeituras({ aberto, onFechar, onEscolher }) {
 
         <header className="hl-cab">
           <div>
-            <h3>Leituras anteriores</h3>
-            <p>Reaproveite uma leitura já feita — sem pagar de novo.</p>
+            <h3>{t('historicoleituras_titulo')}</h3>
+            <p>{t('historicoleituras_sub')}</p>
           </div>
 
           <input
@@ -95,29 +99,44 @@ export default function HistoricoLeituras({ aberto, onFechar, onEscolher }) {
             type="text"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar nos materiais..."
+            placeholder={t('historicoleituras_buscar')}
             spellCheck={false}
           />
         </header>
 
         <div className="hl-lista">
-          {carregando && <p className="cr-msg">Carregando...</p>}
+          {carregando && <p className="cr-msg">{t('comum_carregando')}</p>}
 
           {!carregando && filtrados.length === 0 && (
             <div className="hl-vazio">
               <p>
                 {busca
-                  ? 'Nenhuma leitura corresponde a essa busca.'
-                  : 'Nenhuma leitura ainda. As que você fizer aparecem aqui.'}
+                  ? t('historicoleituras_vazio_busca')
+                  : t('historicoleituras_vazio')}
               </p>
             </div>
           )}
 
+          {/* O item era um <button> com o lixo (span role=button) DENTRO —
+              botão dentro de botão é HTML inválido e o lixo não respondia a
+              teclado. Agora o item é div[role=button] com teclado próprio e o
+              lixo é um <button> de verdade, irmão válido, com Enter/Espaço
+              nativos. */}
           {!carregando && filtrados.map((l) => (
-            <button
+            <div
               key={l.id}
               className="hl-item"
+              role="button"
+              tabIndex={0}
               onClick={() => { onEscolher(l); onFechar(); }}
+              onKeyDown={(e) => {
+                if (e.target !== e.currentTarget) return;   // Enter no lixo é do lixo
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onEscolher(l);
+                  onFechar();
+                }
+              }}
             >
               {l.thumb
                 ? <img src={l.thumb} alt="" className="hl-thumb" />
@@ -125,19 +144,18 @@ export default function HistoricoLeituras({ aberto, onFechar, onEscolher }) {
 
               <span className="hl-txt">
                 <span className="hl-topo">
-                  <span className="hl-tit">{l.titulo || 'Sem título'}</span>
+                  <span className="hl-tit">{l.titulo || t('historicoleituras_sem_titulo')}</span>
                   <span className="hl-tag">{l.origem === 'batch' ? 'Batch' : 'Render'}</span>
-                  <span className="hl-quando">{quando(l.criadoEm)}</span>
+                  <span className="hl-quando">{quando(l.criadoEm, t, idioma)}</span>
                 </span>
                 <span className="hl-prev">{l.materiais}</span>
               </span>
 
-              <span
+              <button
+                type="button"
                 className="hl-lixo"
                 onClick={(e) => apagar(e, l.id)}
-                role="button"
-                tabIndex={0}
-                aria-label="Apagar leitura"
+                aria-label={t('historicoleituras_apagar')}
               >
                 {apagando === l.id ? '...' : (
                   <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -145,14 +163,14 @@ export default function HistoricoLeituras({ aberto, onFechar, onEscolher }) {
                     <path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" strokeLinecap="round"/>
                   </svg>
                 )}
-              </span>
-            </button>
+              </button>
+            </div>
           ))}
         </div>
 
         {!carregando && itens.length > 0 && (
           <footer className="hl-pe">
-            As leituras ficam guardadas por 90 dias.
+            {t('historicoleituras_pe')}
           </footer>
         )}
       </div>

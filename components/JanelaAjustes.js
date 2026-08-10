@@ -1213,9 +1213,15 @@ function Curva({ pontos, cor, onMudar }) {
       // As pontas só sobem e descem: mover o x delas deixaria a curva sem
       // definição fora do intervalo.
       const ehPonta = (i === 0 || i === novo.length - 1);
-      novo[i] = ehPonta ? { x: novo[i].x, y: v.y } : v;
+      const movido = ehPonta ? { x: novo[i].x, y: v.y } : v;
+      novo[i] = movido;
 
-      onMudar(novo.sort((a, b) => a.x - b.x));
+      novo.sort((a, b) => a.x - b.x);
+      // O sort reordena quando um ponto do meio cruza o vizinho no X — e o
+      // índice guardado passava a apontar para OUTRO ponto: o cursor "pulava"
+      // de nó no meio do arraste. Reancora no objeto que se está movendo.
+      arrastando.current = novo.indexOf(movido);
+      onMudar(novo);
     };
 
     const soltar = () => { arrastando.current = null; };

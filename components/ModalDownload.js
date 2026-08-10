@@ -32,13 +32,14 @@ export default function ModalDownload({ item, dim: dimFixa, aoBaixar, onFechar }
   const [dim, setDim]           = useState(dimFixa || null);
 
   // Mede a imagem para estimar o peso. Na pós, as dimensões já vêm prontas
-  // (`dimFixa`) — não há `item.url` de onde medir.
+  // (`dimFixa`) — não há `item.url` de onde medir. No feed, mede a imagem
+  // REAL: o download é dela, e a thumb subestimaria o peso por ~10x.
   useEffect(() => {
     if (dimFixa) { setDim(dimFixa); return; }
     if (!item?.url) return;
     const img = new Image();
     img.onload = () => setDim({ w: img.naturalWidth, h: img.naturalHeight });
-    img.src = item.thumb || item.url;
+    img.src = item.url;
   }, [item, dimFixa]);
 
   useEffect(() => {

@@ -134,7 +134,7 @@ const MODOS = [
 
 export default function PainelEditar({
   imagemInicial, onPronto, onProgresso, ocupado, setOcupado,
-  ferramentas, ehAdmin, onAbrirPincel
+  ferramentas, ehAdmin, onAbrirPincel, enfileirar, naFila
 }) {
   const { t } = useIdioma();
 
@@ -232,7 +232,7 @@ export default function PainelEditar({
     setModo(mod.id);
   }
 
-  async function gerar() {
+  function gerar() {
     if (!base || !m) return;
 
     if (!m.semTexto && !texto.trim()) {
@@ -241,69 +241,86 @@ export default function PainelEditar({
     }
 
     setErro('');
-    setOcupado(true);
 
+    // Congela o pedido no CLIQUE: na fila, a tarefa roda depois — e o painel
+    // pode já estar preparando OUTRA edição quando chegar a vez desta.
+    const modoSnap   = modo;
+    const baseSnap   = base;
+    const previaSnap = previa;
+    const refsSnap   = refs.map((x) => ({ base64: x.base64, mimeType: 'image/png' }));
+    const qtdSnap    = quantidade;
+    const propSnap   = proporcao;
+    const resSnap    = resolucao;
     // 'auto' = a forma da própria base, não um 4/3 genérico
     const propSlot = (proporcao === 'auto' && propBase) ? propBase : proporcao;
-    onProgresso({
-      feito: 0, total: quantidade, estado: 'processando',
-      proporcao: propSlot,
-      base: previa
-    });
+    // As escolhas dos botões entram no texto: o servidor recebe uma
+    // instrução só, e o promptador dele sabe o que fazer com ela.
+    const extras = Object.entries(escolhas)
+      .map(([k, v]) => t(v))
+      .filter(Boolean)
+      .join('. ');
+    const completo = [extras, texto.trim()].filter(Boolean).join('. ');
 
-    const prontas = [];   // cada variação aparece no slot assim que fica pronta
-    try {
-      // As escolhas dos botões entram no texto: o servidor recebe uma
-      // instrução só, e o promptador dele sabe o que fazer com ela.
-      const extras = Object.entries(escolhas)
-        .map(([k, v]) => t(v))
-        .filter(Boolean)
-        .join('. ');
-
-      const completo = [extras, texto.trim()].filter(Boolean).join('. ');
-
-      const r = await editarImagem({
-        modo,
-        imagem: base,
-        texto: completo,
-        referencias: refs.map((x) => ({ base64: x.base64, mimeType: 'image/png' })),
-        quantidade,
-        proporcao,
-        resolucao,
-        // Mostra cada variação no slot na hora, sem esperar todas — e sem
-        // recarregar o feed (que duplicava: slot + feed).
-        onProgresso: (feito, total, estado, extra) => {
-          if (estado === 'ok' && extra && extra.url) {
-            prontas[feito - 1] = {
-              url: /^https?:/.test(extra.url) ? extra.url : ('data:image/png;base64,' + extra.url),
-              loteId: extra.loteId,
-              ordem:  extra.ordem
-            };
-          }
-          onProgresso((p) => ({
-            ...(p || {}),
-            feito, total,
-            estado: 'processando',
-            proporcao: propSlot,
-            base: previa,
-            prontas: prontas.slice(),
-            falhas: (estado === 'erro' && extra)
-              ? [...((p && p.falhas) || []), extra]
-              : ((p && p.falhas) || [])
-          }));
-        }
+    const tarefa = async () => {
+      setOcupado(true);
+      onProgresso({
+        feito: 0, total: qtdSnap, estado: 'processando',
+        proporcao: propSlot,
+        base: previaSnap
       });
 
-      onPronto(r);
-      // NÃO fecha o modo: o painel continua preenchido (texto, refs, escolhas),
-      // igual ao Render. Fechar aqui apagava tudo da tela ao terminar.
+      const prontas = [];   // cada variação aparece no slot assim que fica pronta
+      try {
+        const r = await editarImagem({
+          modo: modoSnap,
+          imagem: baseSnap,
+          texto: completo,
+          referencias: refsSnap,
+          quantidade: qtdSnap,
+          proporcao: propSnap,
+          resolucao: resSnap,
+          // Mostra cada variação no slot na hora, sem esperar todas — e sem
+          // recarregar o feed (que duplicava: slot + feed).
+          onProgresso: (feito, total, estado, extra) => {
+            if (estado === 'ok' && extra && extra.url) {
+              prontas[feito - 1] = {
+                url: /^https?:/.test(extra.url) ? extra.url : ('data:image/png;base64,' + extra.url),
+                loteId: extra.loteId,
+                ordem:  extra.ordem
+              };
+            }
+            onProgresso((p) => ({
+              ...(p || {}),
+              feito, total,
+              estado: 'processando',
+              proporcao: propSlot,
+              base: previaSnap,
+              prontas: prontas.slice(),
+              falhas: (estado === 'erro' && extra)
+                ? [...((p && p.falhas) || []), extra]
+                : ((p && p.falhas) || [])
+            }));
+          }
+        });
 
-    } catch (e) {
-      setErro(e.message);
-    } finally {
-      setOcupado(false);
-      onProgresso(null);
-    }
+        onPronto(r);
+        // NÃO fecha o modo: o painel continua preenchido (texto, refs, escolhas),
+        // igual ao Render. Fechar aqui apagava tudo da tela ao terminar.
+
+      } catch (e) {
+        setErro(e.message);
+      } finally {
+        setOcupado(false);
+        onProgresso(null);
+      }
+    };
+
+    // Fila: dispara sem esperar; roda uma por vez. (Sem a prop, roda direto.)
+    // É o mesmo contrato do Render/Batch/Planta — antes o Editar ficava FORA
+    // da fila e o `ocupado` global simplesmente travava o botão: com um batch
+    // rodando, não dava nem para preparar, nem para mandar.
+    if (enfileirar) enfileirar(tarefa);
+    else tarefa();
   }
 
   const custo = custoEditar(resolucao) * quantidade;
@@ -349,7 +366,6 @@ export default function PainelEditar({
                     key={mod.id}
                     className={'ed-card' + (travado ? ' ed-card--travado' : '')}
                     onClick={() => abrir(mod)}
-                    disabled={ocupado}
                   >
                     {travado && (
                       <span className="ed-cad" data-tip={t('paineleditar_travado_tip')}>
@@ -545,14 +561,18 @@ export default function PainelEditar({
             </div>
           </div>
 
-          <button className="cr-btn-gerar" onClick={gerar} disabled={ocupado || !base}>
-            <span>{ocupado ? t('paineleditar_gerando') : t('paineleditar_gerar')}</span>
-            {!ocupado && base && (
+          <button className="cr-btn-gerar" onClick={gerar} disabled={!base}>
+            <span>{t('paineleditar_gerar')}</span>
+            {base && (
               <span className="cr-custo-tag">
                 <IconeCredito /> {custo}
               </span>
             )}
           </button>
+
+          {naFila > 0 && (
+            <p className="cr-custo">{naFila} {t('fila_rotulo')}</p>
+          )}
 
         </div>
       )}

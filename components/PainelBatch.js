@@ -108,11 +108,16 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
         }
       }));
 
-      // Marca ANTES do setState: se o componente sair do ar no meio, o ref
-      // já sabe o que foi buscado.
-      Object.assign(jaBuscados.current, novos);
-
-      if (vivo) setBytesPorId((b) => ({ ...b, ...novos }));
+      // Marca JUNTO do setState, só com o efeito vivo. Marcar antes parecia
+      // prudente ("se o componente sair do ar..."), mas na desmontagem o ref
+      // morre junto — o único caso real de vivo=false com o ref vivo é o
+      // RE-RUN do efeito (ids mudaram no meio do fetch): aí marcava o id como
+      // buscado, descartava os bytes, e a imagem aprovada nunca virava
+      // referência nem era rebuscada.
+      if (vivo) {
+        Object.assign(jaBuscados.current, novos);
+        setBytesPorId((b) => ({ ...b, ...novos }));
+      }
     })();
 
     return () => { vivo = false; };
@@ -343,11 +348,20 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
 
     setErro('');
 
+    // Entrada aprovada sem imagem (leitura que chegou sem base64 tem
+    // cenaId null e nenhuma cena correspondente): não há o que gerar dela —
+    // seguiria para o servidor como cena com base64 undefined. Fica de fora,
+    // e se não sobrar nenhuma, vale o mesmo aviso de "aprove uma cena".
+    const geraveis = cenasAprovadas.filter(
+      (c) => cenas.find((x) => x.id === c.cenaId)?.base64
+    );
+    if (geraveis.length === 0) { setErro(t('painelbatch_erro_aprove')); return; }
+
     // A tarefa roda DEPOIS (na fila), então congela o que foi aprovado no clique.
-    const cenasAprovadasSnap = cenasAprovadas;
+    const cenasAprovadasSnap = geraveis;
     const todasRefsSnap      = todasRefs;
     const cenasSnap          = cenas;
-    const totalImagensSnap   = totalImagens;
+    const totalImagensSnap   = geraveis.reduce((s, c) => s + c.cfg.qtd, 0);
     const primeira = cenasAprovadasSnap[0];
     const printDa = (c) => cenasSnap.find((x) => x.id === c?.cenaId)?.previa || null;
 
@@ -588,7 +602,12 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
 
             {analise.map((c, i) => (
               <div
-                key={i}
+                // key posicional fazia o React reaproveitar instâncias ao
+                // remover uma cena do meio: o estado transitório do CfgCena
+                // (popover aberto, foco) "pulava" para a cena seguinte. O
+                // cenaId é o id estável da cena; o índice fica só para a
+                // entrada rara sem cena (leitura sem imagem).
+                key={c.cenaId || 'sem-cena-' + i}
                 className={'cr-bcena' + (c.aprovada ? ' cr-bcena--ok' : '')}
               >
                 <div className="cr-bcena-cab">

@@ -62,8 +62,14 @@ function VerificarConteudo() {
 
   async function reenviar() {
     setErro(''); setAviso('');
-    await reenviarCodigo(email);
-    setAviso(t('ver_reenviado'));
+    // Sem o catch, uma falha (rede, 429) sumia em silêncio: nem aviso, nem
+    // erro — parecia que o clique não fez nada. confirmar() já tratava.
+    try {
+      await reenviarCodigo(email);
+      setAviso(t('ver_reenviado'));
+    } catch (e) {
+      setErro(e.message);
+    }
   }
 
   return (

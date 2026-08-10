@@ -51,7 +51,13 @@ function data(d, comHora) {
   const dia = x.toLocaleDateString('pt-BR');
   return comHora ? `${dia} ${x.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : dia;
 }
-const dinheiro = (c, m) => (c == null ? '—' : `${(m || 'brl').toUpperCase() === 'BRL' ? 'R$' : ''} ${(c / 100).toFixed(2)}`);
+// Moeda não-BRL sai com o CÓDIGO na frente ("USD 29.00") — omitir deixava o
+// suporte lendo valor internacional como se fosse R$ na hora do reembolso.
+const dinheiro = (c, m) => {
+  if (c == null) return '—';
+  const moeda = (m || 'brl').toUpperCase();
+  return `${moeda === 'BRL' ? 'R$' : moeda} ${(c / 100).toFixed(2)}`;
+};
 const num = (n) => (n == null ? '—' : Number(n).toLocaleString('pt-BR'));
 
 // O motivo do bloqueio, em uma frase. É a primeira pergunta do suporte, e

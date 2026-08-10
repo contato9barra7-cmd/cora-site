@@ -14,7 +14,7 @@
 import { useState, useEffect, useRef } from 'react';
 import PickerImagem from './PickerImagem';
 import ModalDownload from './ModalDownload';
-import { salvarEtapaTimelapse } from '../lib/geracoes';
+import { salvarEtapaTimelapse, apagarGeracao } from '../lib/geracoes';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import { creditosMudaram } from '../lib/auth';
 import { listarNarrativas, criarNarrativa, atualizarNarrativa, pegarNarrativa, apagarNarrativa } from '../lib/narrativas';
@@ -510,6 +510,18 @@ export default function PainelAnimacao({
     const pos = (N - 1) - i;
     const acc = tlImgs.slice();
     acc[pos] = null;         // limpa o slot
+    // A versão descartada sai do feed ANTES da nova entrar. Sem isto, o
+    // dedup do salvarEtapaNoFeed (chave seqId:ordem) bloqueava o re-save e a
+    // etapa refeita vivia só em memória — ao recarregar, o feed devolvia a
+    // versão antiga. Apagar depois também não dava: as duas linhas dividem a
+    // mesma chave saida_N no R2, e o delete levaria a imagem nova junto.
+    const chave = tlSeqId + ':' + (i + 1);
+    const velho = (lotes || []).find((l) => l.loteId === tlSeqId);
+    const item = velho && velho.itens && velho.itens.find((y) => y.ordem === i + 1);
+    if (item && item.id) {
+      try { await apagarGeracao(item.id); } catch (e) { /* best-effort, como o save */ }
+    }
+    jaSalvasRef.current.delete(chave);
     patchTl({ imgs: acc, passo: i });
     await gerarEtapaPasso(i, tlEtapas, acc, tlBase.base64, tlBase.proporcao || 'auto', tlRes, tlSeqId);
   }
@@ -569,8 +581,10 @@ export default function PainelAnimacao({
     setNarrStatus(t('painelanimacao_st_analisando'));
     try {
       const ordem = await narrativaOrdem(narrImagens.map((im) => ({ n: im.n, base64: im.base64 })));
-      // valida: só números que existem; completa com os que faltarem
-      const validos = ordem.filter((n) => narrImagens.some((im) => im.n === n));
+      // valida: só números que existem, SEM repetição (a IA já devolveu o
+      // mesmo número duas vezes — o grid mostrava a imagem em dobro e a
+      // sequência ficava maior que o nº de imagens); completa com os que faltarem
+      const validos = [...new Set(ordem)].filter((n) => narrImagens.some((im) => im.n === n));
       narrImagens.forEach((im) => { if (!validos.includes(im.n)) validos.push(im.n); });
       patchNarr({ ordem: validos, confirmado: false, takes: null });
       // Salva no servidor (imagens + ordem) p/ poder continuar depois de sair/recarregar.

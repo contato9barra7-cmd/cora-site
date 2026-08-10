@@ -42,7 +42,9 @@ export default function Cadastro() {
       if (s) {
         if (s.nome != null) setNome(s.nome);
         if (s.email != null) setEmail(s.email);
-        if (s.senha != null) { setSenha(s.senha); setSenhaValida(senhaForte(s.senha)); }
+        // senha NÃO é restaurada: nunca vai para o sessionStorage (ver o setItem
+        // abaixo). A pessoa redigita ao voltar dos Termos — um campo a mais é
+        // preço barato para não deixar a senha em texto puro no storage.
         if (s.genero != null) setGenero(s.genero);
         if (s.profissao != null) setProfissao(s.profissao);
         if (s.origem != null) setOrigem(s.origem);
@@ -59,14 +61,16 @@ export default function Cadastro() {
   }, []);
 
   // Salva o formulário enquanto é preenchido, para sobreviver à ida aos Termos.
+  // A senha é DE PROPÓSITO deixada de fora: credencial em texto puro no
+  // sessionStorage é lida por qualquer XSS/extensão do mesmo origin.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
       sessionStorage.setItem('cora_cad_form', JSON.stringify({
-        nome, email, senha, genero, profissao, origem, usaRender, tamanho, volume, aceite, passo,
+        nome, email, genero, profissao, origem, usaRender, tamanho, volume, aceite, passo,
       }));
     } catch (e) {}
-  }, [nome, email, senha, genero, profissao, origem, usaRender, tamanho, volume, aceite, passo]);
+  }, [nome, email, genero, profissao, origem, usaRender, tamanho, volume, aceite, passo]);
 
   // Passo 1 -> 2: valida so o que cria a conta.
   // Formato de e-mail: precisa de algo antes do @, um domínio e um TLD (ex: .com).

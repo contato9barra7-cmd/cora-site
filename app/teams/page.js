@@ -24,13 +24,21 @@ export default function Teams() {
     const pend = lerEquipePendente();
     const logada = typeof window !== 'undefined' && localStorage.getItem('cora_conta');
     if (pend && logada) {
-      setPlano(pend.plano === 'studio' ? 'studio' : 'pro');
-      setAssentos(Math.max(2, Math.min(100, pend.assentos || 2)));
-      if (pend.ciclo) setCiclo(pend.ciclo === 'anual' ? 'anual' : 'mensal');
+      const p = pend.plano === 'studio' ? 'studio' : 'pro';
+      const a = Math.max(2, Math.min(100, pend.assentos || 2));
+      const c = pend.ciclo === 'anual' ? 'anual' : 'mensal';
+      setPlano(p);
+      setAssentos(a);
+      if (pend.ciclo) setCiclo(c);
       limparEquipePendente();
-      // retoma o checkout (vai pedir CPF se precisar, ou abrir o pagamento)
-      const guia = null;
-      assinar(guia);
+      // retoma o checkout lendo a escolha pendente DIRETO (os setState acima só
+      // valem no próximo render; assinar() leria plano/assentos/ciclo obsoletos).
+      setErro('');
+      iniciarCheckoutEquipe(p, a, null, c).catch((e) => {
+        if (e.precisaCpf) { setModalCpf(true); return; }
+        if (e.jaTemEquipe) { setErro(t('teams_ja_equipe')); return; }
+        setErro(e.message);
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

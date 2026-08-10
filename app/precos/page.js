@@ -142,11 +142,7 @@ export default function Precos() {
     if (planoId === 'free') { router.push('/cadastro'); return; }
     const temPlanoPago = conta && conta.plano && conta.plano !== 'free' && conta.status === 'ativo';
     if (temPlanoPago) {
-      if (conta.plano === planoId) {
-        setPlanoAlvo(planoId);
-        setModalUpgrade(true);
-        return;
-      }
+      // Mesmo plano ou troca: o modal decide o texto (conta?.plano === planoAlvo).
       setPlanoAlvo(planoId);
       setModalUpgrade(true);
       return;

@@ -36,12 +36,19 @@ export default function MenuDownload({ item, className = 'vz-ico' }) {
 
   const wrapRef = useRef(null);
 
-  // Mede a imagem para estimar o peso
+  // Trocou o item com o componente montado (reuso na lista): a medida guardada
+  // é do item ANTERIOR — sem isto, o guard `dim ||` abaixo nunca deixava
+  // remedir e o menu mostrava o peso da imagem errada.
+  useEffect(() => { setDim(null); }, [item?.id]);
+
+  // Mede a imagem para estimar o peso. Tem que ser a imagem REAL: o download
+  // é dela, e a thumb (~600px) subestimaria o peso por ~10x. O visualizador
+  // já exibe item.url, então o navegador tem os bytes — medir sai de graça.
   useEffect(() => {
     if (!aberto || dim || !item?.url) return;
     const img = new Image();
     img.onload = () => setDim({ w: img.naturalWidth, h: img.naturalHeight });
-    img.src = item.thumb || item.url;
+    img.src = item.url;
   }, [aberto, dim, item]);
 
   // Fecha ao clicar fora ou apertar Esc

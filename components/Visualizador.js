@@ -146,9 +146,12 @@ export default function Visualizador({
   // "Ver prompt" (só admin): abre uma janela, igual ao plugin, com "Copiar prompt".
   const [verPrompt, setVerPrompt]     = useState(false);
   const [promptCopiado, setPromptCop] = useState(false);
-  function copiarPrompt() {
+  async function copiarPrompt() {
+    // writeText devolve uma Promise: sem o await, a rejeição (permissão
+    // negada, contexto inseguro) escapava do catch e o "Copiado!" aparecia
+    // mesmo sem nada ter ido para a área de transferência.
     try {
-      navigator.clipboard.writeText(prompt || '');
+      await navigator.clipboard.writeText(prompt || '');
       setPromptCop(true);
       setTimeout(() => setPromptCop(false), 1600);
     } catch {}

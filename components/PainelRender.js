@@ -14,7 +14,7 @@
 //    - "Ler materiais" lê da IMAGEM (no plugin, lê a lista do modelo)
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PickerImagem from './PickerImagem';
 import IconeCredito from './IconeCredito';
 import Seta from './Seta';
@@ -47,6 +47,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   const [materiais, setMateriais] = useState('');
   const [matEstado, setMatEstado] = useState('vazio');  // vazio | lendo | revisar | confirmado
   const editandoMat = matEstado === 'revisar';
+  const matRef = useRef(null);   // o textarea dos materiais, para o "Editar" focar
 
   const [luzTipo, setLuzTipo]       = useState('Direta');
   const [mood, setMood]             = useState('Dia claro editorial');
@@ -465,6 +466,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
         {(matEstado === 'revisar' || matEstado === 'confirmado') && (
           <>
             <textarea
+              ref={matRef}
               className="cr-ta cr-ta--mat"
               placeholder={materiais ? t('painelrender_ph_edite_materiais') : t('painelrender_ph_cole_analise')}
               value={materiais}
@@ -477,7 +479,10 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               <>
                 <p className="cr-hint">{t('painelrender_materiais_identificados')}</p>
                 <div className="cr-g2 cr-mat-acoes">
-                  <button className="cr-b" onClick={() => setMatEstado('confirmado')}>
+                  {/* "Editar" fazia o MESMO que "Seguir assim" (confirmava e
+                      travava o campo) — o rótulo prometia o contrário. O campo
+                      já é editável em 'revisar': editar é focar nele. */}
+                  <button className="cr-b" onClick={() => matRef.current && matRef.current.focus()}>
                     {t('painelrender_editar')}
                   </button>
                   <button className="cr-b-conf" onClick={() => setMatEstado('confirmado')}>

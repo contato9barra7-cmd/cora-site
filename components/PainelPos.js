@@ -895,7 +895,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
       mudar(ativa.id, { mascara: m });
       setAlvo(ativa.id);
-      desmarcar();
+      limparSelecao();   // o guardar() lá de cima já cobre este passo inteiro
       return;
     }
 
@@ -969,6 +969,10 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       mascara: ativa.mascara ? clonarCanvas(ativa.mascara) : null,
       original: ativa.original ? clonarCanvas(ativa.original) : null,
       smart: ativa.smart,          // a cópia de um objeto inteligente também é um
+      // ...e a RECEITA vai junto: sem os filtros, a cópia mostra o desfoque
+      // carimbado no canvas mas reedita a partir do original nítido — o
+      // primeiro OK em Ajustes descartava o desfoque.
+      filtros: ativa.filtros ? ativa.filtros.map((f) => ({ ...f })) : undefined,
       ajustes: ativa.ajustes,
       grupo: ativa.grupo
     });
@@ -1235,6 +1239,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
           mascara:  l.mascara  ? clonarCanvas(l.mascara)  : null,
           original: l.original ? clonarCanvas(l.original) : null,
           smart: l.smart,
+          filtros: l.filtros ? l.filtros.map((f) => ({ ...f })) : undefined,   // a receita vai junto (igual ao duplicar)
           ajustes: l.ajustes,
           grupo: l.grupo
         }));
@@ -1425,7 +1430,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     // marca, e o letreiro parava de responder para sempre.
     const PRECISA_CAMADA = ['varinha', 'selRapida', 'pincel', 'borracha',
                             'desfGauss', 'desfMov'];
-    if (PRECISA_CAMADA.includes(ferr) && !ativa) return;
+    if (PRECISA_CAMADA.includes(ferr) && (!ativa || ativa.tipo === 'grupo')) return;
 
     // ── A varinha: um clique, e pronto ──
     if (ferr === 'varinha') {
@@ -1995,6 +2000,15 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
   function desmarcar() {
     if (!selRef.current) return;
     guardar();
+    limparSelecao();
+  }
+
+  // Só o apagar da seleção, sem tocar no histórico — para ações que JÁ
+  // guardaram o estado e desmarcam como parte do MESMO passo (toggleMascara).
+  // Chamar desmarcar() nelas empilhava dois snapshots idênticos e um dos
+  // Ctrl+Z não fazia nada visível.
+  function limparSelecao() {
+    if (!selRef.current) return;
     const cx = selRef.current.getContext('2d');
     cx.clearRect(0, 0, med.w, med.h);
     contornoRef.current = null;
@@ -2878,8 +2892,13 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     }
 
     const composto = new Image();
-    await new Promise((ok) => {
+    await new Promise((ok, erro) => {
       composto.onload = ok;
+      // Decode que falha dispara 'error', não 'load'. Sem este ramo a Promise
+      // nunca resolvia: o await pendurava o export para sempre, sem mensagem
+      // nenhuma. Rejeitar deixa o ModalDownload (que chama isto no aoBaixar)
+      // mostrar o erro e destravar o botão.
+      composto.onerror = () => erro(new Error('Não foi possível compor a imagem para exportar'));
       composto.src = exportar(camadas, med.w, med.h);
     });
     fc.drawImage(composto, 0, 0);
@@ -2889,6 +2908,9 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
     const qual = formato === 'jpeg' ? 0.9 : undefined;
 
     const blob = await new Promise((res) => flat.toBlob(res, tipo, qual));
+    // toBlob devolve null quando a codificação falha (documento grande demais);
+    // createObjectURL(null) lançaria um TypeError seco dentro do modal.
+    if (!blob) throw new Error('Não foi possível codificar a imagem para exportar');
 
     // Vai direto para a pasta Downloads, igual aos botões do feed — sem janela
     // de escolher pasta.

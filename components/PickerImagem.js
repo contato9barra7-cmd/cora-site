@@ -147,8 +147,24 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
 
   useEffect(() => {
     if (!aberto || origem === 'enviar') return;
-    carregarFeed(origem, busca);
+    // Digitar dispara este efeito a CADA tecla, e cada carga faz o servidor
+    // assinar URLs do R2. O respiro junta a digitação numa busca só — e o
+    // cleanup descarta o timer da tecla anterior, o que também corta a race
+    // de uma resposta velha chegar por cima da nova. Abrir/trocar de aba
+    // (busca vazia) continua carregando na hora.
+    const tm = setTimeout(() => { carregarFeed(origem, busca); }, busca ? 300 : 0);
+    return () => clearTimeout(tm);
   }, [aberto, origem, busca, carregarFeed]);
+
+  // Blob URLs (as prévias de upload) seguram o ARQUIVO INTEIRO na memória até
+  // serem revogadas — e nada revogava: sessão longa acumulava dezenas. Só as
+  // de 'enviar' são blobs; as do feed são URLs http normais. A que vai para o
+  // chamador no confirmar() NÃO é revogada — ele ainda a exibe.
+  const soltarPrevia = (p) => {
+    if (p && p.de === 'enviar' && p.previa && p.previa.startsWith('blob:')) {
+      URL.revokeObjectURL(p.previa);
+    }
+  };
 
   // Esc fecha; Ctrl+V cola (só na aba Enviar)
   useEffect(() => {
@@ -184,7 +200,10 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
         const base64 = await arquivoParaBase64(file);
         const previa = URL.createObjectURL(file);
         setMultiSel((l) => [...l, { base64, previa, nome: file.name, de: 'enviar' }]);
-        salvarUpload(base64, file.name);   // guarda na aba Uploads (dispare-e-esqueça)
+        // dispare-e-esqueça, mas com catch: sem ele a falha virava unhandled
+        // rejection e a imagem sumia da aba Uploads sem rastro nenhum
+        salvarUpload(base64, file.name)
+          .catch((e) => console.error('[picker] upload não guardado:', e && e.message));
       } catch (e) { setErro(e.message); }
     }
   }
@@ -197,6 +216,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
       const base64 = await arquivoParaBase64(file);
       const previa = URL.createObjectURL(file);
 
+      soltarPrevia(pendente);   // a prévia substituída não é mais de ninguém
       setPendente({
         base64,
         previa,
@@ -207,7 +227,8 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
       setOrigem('enviar');   // se colou estando no histórico, mostra o que colou
 
       medir(previa);
-      salvarUpload(base64, file.name);   // guarda na aba Uploads (dispare-e-esqueça)
+      salvarUpload(base64, file.name)
+        .catch((e) => console.error('[picker] upload não guardado:', e && e.message));
     } catch (e) { setErro(e.message); }
   }
 
@@ -284,6 +305,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
       return;
     }
 
+    soltarPrevia(pendente);   // trocar um upload pendente por item do feed solta o blob
     setPendente({
       base64: null,             // vem depois, no confirmar
       previa: item.url,
@@ -316,6 +338,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
       }
       if (!lista.length) { setErro(t('pickerimagem_erro_carregar')); setConfirmandoMulti(false); return; }
       if (onEscolherVarias) onEscolherVarias(lista);
+      multiSel.forEach(soltarPrevia);   // o que segue adiante é o base64, não a prévia
       setMultiSel([]);
       setConfirmandoMulti(false);
       onFechar();
@@ -327,6 +350,8 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
 
   // Fechar limpa o que estava pendente
   function fechar() {
+    soltarPrevia(pendente);
+    multiSel.forEach(soltarPrevia);
     setPendente(null);
     setMultiSel([]);
     onFechar();
@@ -422,7 +447,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
             {multi && origem === 'enviar' && multiSel.length > 0 && (
               <div className="pk-multi-tira">
                 {multiSel.map((s, i) => (
-                  <button key={(s.id || s.nome || 'i') + i} className="pk-multi-mini" onClick={() => setMultiSel((l) => l.filter((_, j) => j !== i))} title={t('comum_remover')}>
+                  <button key={(s.id || s.nome || 'i') + i} className="pk-multi-mini" onClick={() => { soltarPrevia(s); setMultiSel((l) => l.filter((_, j) => j !== i)); }} title={t('comum_remover')}>
                     <img src={s.previa} alt="" />
                     <span className="pk-multi-x">×</span>
                   </button>
@@ -509,7 +534,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
                 <strong>{multiSel.length === 1 ? t('pickerimagem_uma_escolhida') : multiSel.length + ' ' + t('pickerimagem_n_escolhidas')}</strong>
                 <span>{t('pickerimagem_historico_ou_pc')}</span>
               </div>
-              <button className="pk-ok-outra" onClick={() => setMultiSel([])} disabled={confirmandoMulti}>{t('pickerimagem_limpar')}</button>
+              <button className="pk-ok-outra" onClick={() => { multiSel.forEach(soltarPrevia); setMultiSel([]); }} disabled={confirmandoMulti}>{t('pickerimagem_limpar')}</button>
               <button className="pk-ok-btn" onClick={confirmarMulti} disabled={confirmandoMulti}>
                 {confirmandoMulti ? t('pickerimagem_adicionando') : (multiSel.length === 1 ? t('pickerimagem_usar_uma') : t('pickerimagem_usar') + ' ' + multiSel.length + ' ' + t('pickerimagem_imagens'))}
               </button>

@@ -74,6 +74,11 @@ export default function JanelaAtalhos({ atalhos, aoSalvar, aoFechar }) {
   // As mudanças ficam aqui, e só valem quando a pessoa aperta Salvar. Gravar na
   // hora seria uma armadilha: um toque errado de tecla mudaria um atalho sem
   // volta, e não haveria como recuar sem redescobrir o que era.
+  //
+  // O prop entra SÓ na montagem, de propósito — e isso é seguro porque a
+  // janela é renderizada condicionalmente ({mostraAtalhos && ...}): cada
+  // abertura remonta e parte do valor fresco. Se um dia ela ficar montada
+  // direto, este initializer vira estado obsoleto (auditoria #112).
   const [rascunho, setRascunho] = useState(atalhos);
   const [gravando, setGravando] = useState(null);
   const [aviso, setAviso] = useState('');
