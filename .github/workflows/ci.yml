@@ -1,0 +1,30 @@
+# CI — as guardas estáticas dos lotes da auditoria, em TODO push e PR.
+#
+# As quatro baterias (S1–S4) parseiam os fontes com o parser do próprio Next
+# e travam a FORMA dos fixes da auditoria (#79–#130): quem reverter um fix
+# por engano quebra o CI. Elas não abrem navegador — teste de runtime
+# (gerações, fila, slots) continua manual, com o roteiro do
+# cora-docs/COMO-TESTAR.md.
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  baterias:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Lote S1 (libs/seguranca)
+        run: node testar-fixes-s1.js
+      - name: Lote S2 (admin/business)
+        run: node testar-fixes-s2.js
+      - name: Lote S3 (editor)
+        run: node testar-fixes-s3.js
+      - name: Lote S4 (baixos restantes)
+        run: node testar-fixes-s4.js
