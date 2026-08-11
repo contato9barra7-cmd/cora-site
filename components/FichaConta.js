@@ -17,6 +17,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
+import DropdownCora from './DropdownCora';
 import {
   adminBuscarContas, adminFichaDaConta, adminExtratoDaConta, adminCreditar,
   adminMudarPlano, adminCancelar, adminDeletarConta, adminPersonificar,
@@ -759,11 +760,15 @@ export default function FichaConta({ abrirConta }) {
           {/* "Essa geração foi cobrada, falhou, e o crédito voltou?" — cada
               linha responde sozinha: débito↔estorno pareados pela ref, com o
               desfecho do pedido no servidor de geração. */}
-          <div style={{ marginBottom: 14 }}>
-            <select className="admin-select" style={{ width: 'auto' }}
-                    value={extratoDias} onChange={(e) => setExtratoDias(parseInt(e.target.value, 10))}>
-              {[30, 90, 180, 365].map((d) => <option key={d} value={d}>{d} dias</option>)}
-            </select>
+          {/* DropdownCora, e não <select>: a lista nativa abre com a cara do
+              sistema (bordas retas, seleção azul) e destoa dos outros
+              dropdowns do app — idioma, tema, filtros. */}
+          <div style={{ marginBottom: 14, width: 140 }}>
+            <DropdownCora
+              valor={extratoDias}
+              opcoes={[30, 90, 180, 365].map((d) => ({ v: d, n: `${d} dias` }))}
+              onEscolher={(v) => setExtratoDias(v)}
+            />
           </div>
 
           {extratoErro && <div className="login-erro" style={{ marginBottom: 14 }}>{extratoErro}</div>}
