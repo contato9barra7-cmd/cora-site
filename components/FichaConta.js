@@ -18,7 +18,7 @@
 
 import { useState, useEffect } from 'react';
 import {
-  adminBuscarContas, adminFichaDaConta, adminCreditar,
+  adminBuscarContas, adminFichaDaConta, adminExtratoDaConta, adminCreditar,
   adminMudarPlano, adminCancelar, adminDeletarConta, adminPersonificar,
 } from '../lib/auth';
 
@@ -125,6 +125,28 @@ function corDoConsumo(p) {
   return '#2E9E5B';
 }
 
+// ── Extrato: o rótulo de cada situação, calculada no servidor ──
+// A cor carrega a leitura: verde = dinheiro devolvido, cinza = caso normal,
+// âmbar = ainda aberto, vermelho = precisa de gente. O texto de "em voo" ganha
+// a idade na hora de exibir — 10min é geração rodando, 5h é crédito preso.
+const SITUACAO_EXTRATO = {
+  devolvido:            { texto: 'devolvido ✓',            cor: '#2E9E5B' },
+  devolvido_parcial:    { texto: 'devolvido parcial',      cor: '#B7791F' },
+  entregue:             { texto: 'entregue',               cor: 'var(--ink3)' },
+  em_voo:               { texto: 'em voo',                 cor: '#B7791F' },
+  conferir:             { texto: 'CONFERIR',               cor: '#C53030' },
+  sem_registro:         { texto: '—',                      cor: 'var(--ink3)' },
+  devolucao:            { texto: 'devolução',              cor: '#2E9E5B' },
+  devolucao_pos_deploy: { texto: 'devolução (pós-deploy)', cor: '#2E9E5B' },
+};
+
+function idade(d) {
+  const min = Math.round((Date.now() - new Date(d).getTime()) / 60000);
+  if (min < 60) return `há ${min}min`;
+  const h = Math.round(min / 60);
+  return h < 48 ? `há ${h}h` : `há ${Math.round(h / 24)}d`;
+}
+
 function Linha({ rotulo, children }) {
   return (
     <div style={{ display: 'flex', gap: 16, padding: '12px 0', borderBottom: '1px solid var(--line)', alignItems: 'flex-start' }}>
@@ -144,6 +166,14 @@ export default function FichaConta({ abrirConta }) {
   const [aba, setAba] = useState('resumo');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(true);
+
+  // ── Extrato ──
+  // Carrega quando a aba abre, não junto com a ficha: são até 500 linhas que a
+  // maioria das visitas ao painel nunca olha. Trocar o período recarrega.
+  const [extrato, setExtrato] = useState(null);
+  const [extratoDias, setExtratoDias] = useState(90);
+  const [extratoErro, setExtratoErro] = useState('');
+  const [extratoCarregando, setExtratoCarregando] = useState(false);
 
   // ── Ações ──
   // `acao` é qual painel de confirmação está aberto. Só um por vez: duas
@@ -197,12 +227,30 @@ export default function FichaConta({ abrirConta }) {
 
   async function abrir(id) {
     setErro(''); setAviso(''); setCarregando(true); fecharAcao();
+    // O extrato é da conta anterior: sem esta limpeza, trocar de conta com a
+    // aba Extrato aberta mostraria as transações de outra pessoa por um instante.
+    setExtrato(null); setExtratoErro('');
     try {
       setFicha(await adminFichaDaConta(id));
       setAba('resumo');
     } catch (ex) { setErro(ex.message); }
     finally { setCarregando(false); }
   }
+
+  // O extrato chega quando a aba abre (e recarrega quando o período muda).
+  // `extrato` guarda o resultado: reabrir a aba não refaz a chamada.
+  useEffect(() => {
+    if (aba !== 'extrato' || !ficha?.conta?.id) return;
+    if (extrato && extrato.conta.id === ficha.conta.id && extrato.dias === extratoDias) return;
+    let vivo = true;
+    setExtratoCarregando(true); setExtratoErro('');
+    adminExtratoDaConta(ficha.conta.id, extratoDias)
+      .then((r) => { if (vivo) setExtrato(r); })
+      .catch((e) => { if (vivo) setExtratoErro(e.message); })
+      .finally(() => { if (vivo) setExtratoCarregando(false); });
+    return () => { vivo = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aba, extratoDias, ficha?.conta?.id]);
 
   // Recarrega a ficha depois de agir. Não é enfeite: é o que faz a consequência
   // aparecer na hora — o evento novo na aba Logs, o plano novo no cabeçalho.
@@ -599,7 +647,7 @@ export default function FichaConta({ abrirConta }) {
 
       <div className="seg-track">
         {[['resumo', 'Resumo'], ['creditos', 'Créditos'], ['equipe', 'Equipe'],
-          ['uso', 'Uso'], ['logs', 'Logs'], ['imagens', 'Imagens']].map(([k, r]) => (
+          ['uso', 'Uso'], ['extrato', 'Extrato'], ['logs', 'Logs'], ['imagens', 'Imagens']].map(([k, r]) => (
           <button key={k} onClick={() => setAba(k)} className={'seg-item' + (aba === k ? ' ativa' : '')}>
             {r}
             {k === 'logs' && <span className="seg-badge">{ficha.eventos.length}</span>}
@@ -702,6 +750,95 @@ export default function FichaConta({ abrirConta }) {
                 ))}
               </tbody>
             </table>
+          )}
+        </div>
+      )}
+
+      {aba === 'extrato' && (
+        <div style={{ paddingBottom: 24 }}>
+          {/* "Essa geração foi cobrada, falhou, e o crédito voltou?" — cada
+              linha responde sozinha: débito↔estorno pareados pela ref, com o
+              desfecho do pedido no servidor de geração. */}
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 14, flexWrap: 'wrap' }}>
+            {[30, 90, 180, 365].map((d) => (
+              <button key={d} className={'admin-aba' + (extratoDias === d ? ' ativa' : '')}
+                      onClick={() => setExtratoDias(d)}>
+                {d} dias
+              </button>
+            ))}
+          </div>
+
+          {extratoErro && <div className="login-erro" style={{ marginBottom: 14 }}>{extratoErro}</div>}
+          {extratoCarregando && <p style={{ color: 'var(--ink3)' }}>Carregando extrato…</p>}
+
+          {extrato && !extratoCarregando && (
+            <>
+              <div style={{ fontSize: 13, color: 'var(--ink2)', marginBottom: 6 }}>
+                {num(extrato.resumo.debitado)} debitados · {num(extrato.resumo.estornado)} devolvidos
+                {' · '}líquido {num(extrato.resumo.liquido)} · {extrato.resumo.lancamentos} lançamento(s)
+                {extrato.resumo.suspeitos > 0 && (
+                  <span style={{ color: '#C53030', fontWeight: 700 }}>
+                    {' — '}{extrato.resumo.suspeitos} sem retorno, conferir
+                  </span>
+                )}
+              </div>
+              {!extrato.pedidos_ok && (
+                <p style={{ fontSize: 12, color: '#B7791F', marginBottom: 10 }}>
+                  Sem os pedidos do servidor de geração neste ambiente — a Situação
+                  mostra só o pareamento débito↔estorno.
+                </p>
+              )}
+              {extrato.transacoes.length === 500 && (
+                <p style={{ fontSize: 12, color: 'var(--ink3)', marginBottom: 10 }}>
+                  Mostrando os 500 lançamentos mais recentes do período.
+                </p>
+              )}
+
+              {extrato.transacoes.length === 0 ? (
+                <p style={{ color: 'var(--ink3)' }}>Nenhum lançamento no período.</p>
+              ) : (
+                <table className="admin-tabela">
+                  <thead><tr>
+                    <th>Quando</th><th>Ferramenta</th><th>Créditos</th><th>Situação</th><th>Saldo depois</th><th>Ref</th>
+                  </tr></thead>
+                  <tbody>
+                    {extrato.transacoes.map((t) => {
+                      const s = SITUACAO_EXTRATO[t.situacao] || { texto: t.situacao, cor: 'var(--ink3)' };
+                      const emVooVelho = t.situacao === 'em_voo' &&
+                        Date.now() - new Date(t.criado_em).getTime() > 3600 * 1000;
+                      return (
+                        <tr key={t.id}>
+                          <td>{data(t.criado_em, true)}</td>
+                          <td>{t.rota || '—'}</td>
+                          <td style={{ color: t.tipo === 'estorno' ? '#2E9E5B' : undefined }}>
+                            {t.tipo === 'estorno' ? '+' : '−'}{num(t.quantidade)}
+                          </td>
+                          <td style={{ color: emVooVelho ? '#C53030' : s.cor, fontWeight: t.situacao === 'conferir' || emVooVelho ? 700 : 400 }}
+                              title={t.situacao === 'devolvido' && t.estorno_em ? `estorno em ${data(t.estorno_em, true)}`
+                                   : t.situacao === 'sem_registro' ? 'Sem registro de pedido: cobrança do plugin, ou anterior à tabela de pedidos.'
+                                   : undefined}>
+                            {s.texto}
+                            {t.situacao === 'devolvido_parcial' && ` (${num(t.estorno_qtd)} de ${num(t.quantidade)})`}
+                            {t.situacao === 'em_voo' && ` ${idade(t.criado_em)}`}
+                          </td>
+                          <td>{num(t.saldo_depois)}</td>
+                          <td style={{ fontFamily: 'monospace', fontSize: 11 }} title={t.ref}>
+                            {t.ref && t.ref.length > 22 ? t.ref.slice(0, 22) + '…' : (t.ref || '—')}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+
+              <p style={{ fontSize: 12, color: 'var(--ink3)', marginTop: 10 }}>
+                Débito com situação <b>entregue</b> é o caso normal (gerou e não há o que
+                devolver). <b>Em voo</b> além de 1h e <b>CONFERIR</b> são candidatos a
+                devolução. “—” é cobrança sem registro de pedido (plugin) — cruze com a
+                aba Uso antes de decidir.
+              </p>
+            </>
           )}
         </div>
       )}
