@@ -19,7 +19,9 @@ import DatePickerCora from '../../../components/DatePickerCora';
 import EmailAssinantes from '../../../components/EmailAssinantes';
 import { useIdioma } from '../../../lib/i18n';
 import { lerConta, atualizarConta, listarPromptadores, salvarPromptador, excluirPromptador, reordenarPromptadores,
-  adminListarAcessos, adminAddAcessoManual, adminEnviarConvite, adminRevogarAcesso } from '../../../lib/auth';
+  adminListarAcessos, adminAddAcessoManual, adminEnviarConvite, adminRevogarAcesso,
+  adminImportarAcessos, adminEditarAcesso } from '../../../lib/auth';
+import { lerPlanilha, paraDataISO } from '../../../lib/planilha';
 
 // TODO: trocar pelos links das OFERTAS DE EX-ALUNO (renovação mais barata), um por curso.
 const LINKS_RENOVAR = {
@@ -100,6 +102,21 @@ export default function PromptadoresCurso() {
   const [filtroStatus, setFiltroStatus] = useState('todos'); // todos|avencer|vencidos|pendentes
   const [buscaAcesso, setBuscaAcesso] = useState('');
   const [emailAberto, setEmailAberto] = useState(false);
+
+  // Importação em massa (planilha da Cademi)
+  const [impAberto, setImpAberto] = useState(false);
+  const [impArquivo, setImpArquivo] = useState('');
+  const [impLinhas, setImpLinhas] = useState([]);
+  const [impPuladas, setImpPuladas] = useState(null);   // { sem_email, nao_aprov, data_inv }
+  const [impPeriodo, setImpPeriodo] = useState('1');
+  const [impRodando, setImpRodando] = useState(false);
+  const [impResultado, setImpResultado] = useState(null);
+  const [impErro, setImpErro] = useState('');
+  const fileImpRef = useRef(null);
+
+  // Edição de validade de um acesso (mais tempo / vitalício)
+  const [editAcesso, setEditAcesso] = useState(null);   // { id, email, nome, validade, vitalicio }
+  const [salvandoEdit, setSalvandoEdit] = useState(false);
 
   // edição (admin)
   const [editando, setEditando] = useState(null);
@@ -245,6 +262,82 @@ export default function PromptadoresCurso() {
     if (!confirm(`${t('promp_conf_revogar')} ${a.email}?`)) return;
     try { await adminRevogarAcesso(a.id); await recarregarAcessos(); } catch (e) { setErroAcesso(e.message); }
   }
+
+  // ── Importação em massa ──
+  function abrirImportar() {
+    setDropAberto(false); setErroAcesso('');
+    setImpAberto(true); setImpArquivo(''); setImpLinhas([]); setImpPuladas(null);
+    setImpResultado(null); setImpErro(''); setImpPeriodo('1');
+  }
+  /* Lê a planilha e mapeia as colunas PELO CABEÇALHO, não pela posição: a
+     Cademi já mudou a ordem das colunas uma vez e nada aqui pode depender
+     de "e-mail é a coluna F". Acha a linha de cabeçalho (a primeira que
+     contém "email"), e dela tira e-mail, nome, data e status. */
+  async function lerArquivoImportacao(file) {
+    setImpErro(''); setImpResultado(null);
+    try {
+      const linhas = await lerPlanilha(file);
+      const iCab = linhas.findIndex((l) => l.some((c) => /email/i.test(String(c))));
+      if (iCab < 0) { setImpLinhas([]); setImpPuladas(null); setImpErro(t('promp_imp_nada')); return; }
+      const cab = linhas[iCab].map((c) => String(c).toLowerCase().trim());
+      const col = (...padroes) => {
+        for (const p of padroes) { const i = cab.findIndex((c) => c.includes(p)); if (i >= 0) return i; }
+        return -1;
+      };
+      const cEmail = col('cliente_email', 'email', 'e-mail');
+      const cNome = col('cliente_nome', 'nome', 'name');
+      const cData = col('comecou_em', 'comecou', 'data', 'date');
+      const cStatus = col('status');
+
+      const prontas = [];
+      const puladas = { sem_email: 0, nao_aprov: 0, data_inv: 0 };
+      for (const l of linhas.slice(iCab + 1)) {
+        if (!l.some((c) => String(c).trim() !== '')) continue;   // linha em branco
+        const email = String(l[cEmail] ?? '').trim().toLowerCase();
+        if (!email || email.indexOf('@') < 1) { puladas.sem_email++; continue; }
+        if (cStatus >= 0) {
+          const st = String(l[cStatus] ?? '').trim().toLowerCase();
+          // Só entra o que a Cademi marcou como aprovado: reembolsado,
+          // cancelado e pendente NÃO ganham acesso por engano.
+          if (st && !st.startsWith('aprovad')) { puladas.nao_aprov++; continue; }
+        }
+        const dataISO = cData >= 0 ? paraDataISO(l[cData]) : null;
+        if (!dataISO) { puladas.data_inv++; continue; }
+        prontas.push({ nome: cNome >= 0 ? String(l[cNome] ?? '').trim() : '', email, data_acesso: dataISO });
+      }
+      setImpArquivo(file.name); setImpLinhas(prontas); setImpPuladas(puladas);
+      if (!prontas.length) setImpErro(t('promp_imp_nada'));
+    } catch (e) {
+      setImpLinhas([]); setImpPuladas(null); setImpErro(e.message);
+    }
+  }
+  async function importarPlanilha() {
+    setImpRodando(true); setImpErro('');
+    try {
+      const r = await adminImportarAcessos({ curso, periodo: impPeriodo, linhas: impLinhas });
+      setImpResultado(r);
+      await recarregarAcessos();
+    } catch (e) { setImpErro(e.message); } finally { setImpRodando(false); }
+  }
+
+  // ── Editar validade de um acesso ──
+  function abrirEditar(a) {
+    setErroAcesso('');
+    setEditAcesso({
+      id: a.id, email: a.email, nome: a.nome,
+      vitalicio: !a.validade,
+      validade: a.validade ? String(a.validade).slice(0, 10) : hojeISO(),
+    });
+  }
+  async function salvarEdicao() {
+    if (!editAcesso) return;
+    setSalvandoEdit(true); setErroAcesso('');
+    try {
+      await adminEditarAcesso(editAcesso.id, editAcesso.vitalicio ? { vitalicio: true } : { validade: editAcesso.validade });
+      await recarregarAcessos();
+      setEditAcesso(null);
+    } catch (e) { setErroAcesso(e.message); } finally { setSalvandoEdit(false); }
+  }
   // "Vencido" decidido no próprio front (fonte única) pra status, selo e filtro
   // nunca discordarem. Vale ATÉ o fim do dia da validade (inclusive).
   function estaVencido(a) {
@@ -277,7 +370,7 @@ export default function PromptadoresCurso() {
       linhas.push([
         a.nome || '', a.email || '', fmtDataLong(a.data_acesso),
         a.validade ? fmtDataLong(a.validade) : t('promp_vitalicio'),
-        a.origem === 'convite' ? t('promp_origem_convite') : t('promp_origem_manual'), statusAcesso(a).txt,
+        a.origem === 'convite' ? t('promp_origem_convite') : a.origem === 'importacao' ? t('promp_origem_importacao') : t('promp_origem_manual'), statusAcesso(a).txt,
       ]);
     });
     const csv = linhas.map(l => l.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\r\n');
@@ -360,6 +453,10 @@ export default function PromptadoresCurso() {
                     <div className="promp-dico r"><svg viewBox="0 0 24 24" fill="none" stroke="#6d6ae0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg></div>
                     <div><div className="t">{t('promp_add_email_t')}</div><div className="s">{t('promp_add_email_s')}</div></div>
                   </div>
+                  <div className="promp-dopt" onClick={abrirImportar}>
+                    <div className="promp-dico g"><svg viewBox="0 0 24 24" fill="none" stroke="#3f9d54" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15V3" /><path d="M8 7l4-4 4 4" /><rect x="4" y="15" width="16" height="6" rx="1.5" /></svg></div>
+                    <div><div className="t">{t('promp_importar_t')}</div><div className="s">{t('promp_importar_s')}</div></div>
+                  </div>
                 </div>
               )}
             </div>
@@ -403,9 +500,12 @@ export default function PromptadoresCurso() {
                         <td>{!a.validade
                           ? <span className="promp-badge vital">{t('promp_vitalicio')}</span>
                           : <span className={'promp-badge ' + (estaVencido(a) ? 'venc' : 'data')}>{t('promp_ate')} {fmtDataLong(a.validade)}</span>}</td>
-                        <td><span className="promp-tag">{a.origem === 'convite' ? t('promp_origem_convite') : t('promp_origem_manual')}</span></td>
+                        <td><span className="promp-tag">{a.origem === 'convite' ? t('promp_origem_convite') : a.origem === 'importacao' ? t('promp_origem_importacao') : t('promp_origem_manual')}</span></td>
                         <td><span className={'promp-st ' + st.cls}><span className="promp-dot" />{st.txt}</span></td>
-                        <td><button className="promp-revogar" onClick={() => revogarAcesso(a)}>{t('promp_revogar')}</button></td>
+                        <td style={{ whiteSpace: 'nowrap' }}>
+                          <button className="promp-revogar" style={{ color: 'var(--ink2)', marginRight: 10 }} onClick={() => abrirEditar(a)}>{t('promp_editar')}</button>
+                          <button className="promp-revogar" onClick={() => revogarAcesso(a)}>{t('promp_revogar')}</button>
+                        </td>
                       </tr>
                     );
                   })}
@@ -452,6 +552,108 @@ export default function PromptadoresCurso() {
             </div>
           </div>
         )}
+        {impAberto && (
+          <div className="promp-ov" onMouseDown={(e) => { if (e.target === e.currentTarget && !impRodando) setImpAberto(false); }}>
+            <div className="promp-modal promp-modal--acesso">
+              <div className="promp-mh"><h3>{t('promp_importar_t')}</h3></div>
+              <div className="promp-mb">
+                <div className="promp-curso-tag">{t('promp_curso_l')} <b>{cursoLabel}</b></div>
+
+                {/* o resultado substitui o formulário: depois de importar não
+                    há o que reenviar — só ler o relatório e fechar */}
+                {impResultado ? (
+                  <div style={{ fontSize: 14, lineHeight: 2 }}>
+                    <div><b>{impResultado.novos}</b> {t('promp_imp_novos')}</div>
+                    <div><b>{impResultado.atualizados}</b> {t('promp_imp_atualizados')}</div>
+                    <div><b>{impResultado.mantidos}</b> {t('promp_imp_mantidos')}</div>
+                    {impResultado.invalidos && impResultado.invalidos.length > 0 && (
+                      <div style={{ color: 'var(--alerta)' }}>
+                        <b>{impResultado.invalidos.length}</b> {t('promp_imp_invalidos')}
+                        <div style={{ fontSize: 12, lineHeight: 1.6 }}>
+                          {impResultado.invalidos.slice(0, 5).map((iv, i) => <div key={i}>linha {iv.linha}: {iv.email || '—'} ({iv.motivo})</div>)}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <input ref={fileImpRef} type="file" accept=".xlsx,.csv" style={{ display: 'none' }}
+                           onChange={(e) => { const f = e.target.files && e.target.files[0]; if (f) lerArquivoImportacao(f); e.target.value = ''; }} />
+                    <div className="promp-fld">
+                      <button className="promp-btn promp-cancelar" style={{ width: '100%' }} onClick={() => fileImpRef.current && fileImpRef.current.click()}>
+                        {impArquivo ? `${impArquivo} — ${t('promp_imp_trocar')}` : t('promp_imp_escolher')}
+                      </button>
+                    </div>
+                    {impArquivo && impLinhas.length > 0 && (
+                      <>
+                        <div className="promp-nota">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="#6d6ae0" strokeWidth="1.8"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" strokeLinecap="round" /></svg>
+                          <span>
+                            <b>{impLinhas.length}</b> {t('promp_imp_validas')}
+                            {impPuladas && (impPuladas.sem_email + impPuladas.nao_aprov + impPuladas.data_inv) > 0 && (
+                              <> · {t('promp_imp_puladas')}{' '}
+                                {[impPuladas.nao_aprov ? `${impPuladas.nao_aprov} ${t('promp_imp_nao_aprov')}` : '',
+                                  impPuladas.sem_email ? `${impPuladas.sem_email} ${t('promp_imp_sem_email')}` : '',
+                                  impPuladas.data_inv ? `${impPuladas.data_inv} ${t('promp_imp_data_inv')}` : '']
+                                  .filter(Boolean).join(', ')}</>
+                            )}
+                          </span>
+                        </div>
+                        <div className="promp-fld"><label>{t('promp_periodo')}</label>
+                          <DropdownCora valor={impPeriodo} opcoes={PERIODOS} onEscolher={setImpPeriodo} /></div>
+                      </>
+                    )}
+                  </>
+                )}
+                {impErro && <p className="promp-erro">{impErro}</p>}
+              </div>
+              <div className="promp-mf">
+                <span />
+                <div className="promp-dir">
+                  <button className="promp-btn promp-cancelar" onClick={() => setImpAberto(false)} disabled={impRodando}>
+                    {impResultado ? t('fechar') : t('comum_cancelar')}
+                  </button>
+                  {!impResultado && (
+                    <button className="promp-btn promp-add" onClick={importarPlanilha} disabled={impRodando || impLinhas.length === 0}>
+                      {impRodando ? t('promp_imp_rodando') : `${t('promp_importar_t')}${impLinhas.length ? ` (${impLinhas.length})` : ''}`}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {editAcesso && (
+          <div className="promp-ov" onMouseDown={(e) => { if (e.target === e.currentTarget) setEditAcesso(null); }}>
+            <div className="promp-modal promp-modal--acesso">
+              <div className="promp-mh"><h3>{t('promp_edit_t')}</h3></div>
+              <div className="promp-mb">
+                <div className="promp-curso-tag">{editAcesso.nome ? `${editAcesso.nome} · ` : ''}<b>{editAcesso.email}</b></div>
+                <div className="promp-fld"><label>{t('promp_periodo')}</label>
+                  <DropdownCora
+                    valor={editAcesso.vitalicio ? 'vitalicio' : 'data'}
+                    opcoes={[{ v: 'data', n: t('promp_edit_ate') }, { v: 'vitalicio', n: t('promp_vitalicio') }]}
+                    onEscolher={(v) => setEditAcesso(x => ({ ...x, vitalicio: v === 'vitalicio' }))} /></div>
+                {!editAcesso.vitalicio && (
+                  <div className="promp-fld"><label>{t('promp_edit_ate')}</label>
+                    <DatePickerCora valor={editAcesso.validade} onEscolher={(iso) => setEditAcesso(x => ({ ...x, validade: iso }))} /></div>
+                )}
+                {erroAcesso && <p className="promp-erro">{erroAcesso}</p>}
+              </div>
+              <div className="promp-mf">
+                <span />
+                <div className="promp-dir">
+                  <button className="promp-btn promp-cancelar" onClick={() => setEditAcesso(null)} disabled={salvandoEdit}>{t('comum_cancelar')}</button>
+                  <button className="promp-btn promp-salvar" onClick={salvarEdicao} disabled={salvandoEdit}>
+                    {salvandoEdit ? t('comum_salvando') : t('comum_salvar')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {emailAberto && <EmailAssinantes curso={curso} cursoLabel={cursoLabel} onClose={() => setEmailAberto(false)} />}
       </AppShell>
     );
