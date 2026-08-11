@@ -241,6 +241,13 @@ export default function AppShell({ children }) {
   const trialExpirado = conta?.trial_expirado === true;
   const trialDiaAtual = Math.min(7, Math.max(1, 8 - (conta?.trial_dias_restantes ?? 7)));
 
+  // Aluno dos Promptadores (acesso vigente OU vencido): a conta dele existe por
+  // causa do curso da 9barra7, não do Cora. O teste vencido não pode trancar a
+  // tela inteira — os Promptadores são o que ele veio buscar. Para ele, o
+  // bloqueio vira um aviso SÓ dentro do /app: "sem assinatura, conheça o Cora".
+  const ehAlunoPromptador = !!(conta && conta.promptador_cursos &&
+    Object.values(conta.promptador_cursos).some((c) => c && (c.acesso || c.expirado)));
+
   // Plano pago vencido / cartão falhou: o servidor marca status != 'ativo'.
   // Bloqueia SÓ o /app (onde se gera); minha conta e assinatura seguem abertas
   // para a pessoa poder renovar. Trial e free não entram aqui (status 'ativo').
@@ -554,8 +561,10 @@ export default function AppShell({ children }) {
         </div>
       )}
 
-      {/* Bloqueio de tela cheia (trial expirado, e sem recarga para gastar) */}
-      {ehTrial && trialExpirado && !podeGerar && (
+      {/* Bloqueio de tela cheia (trial expirado, e sem recarga para gastar).
+          Aluno dos Promptadores NÃO cai aqui — para ele o aviso é só no /app,
+          logo abaixo, e o resto da conta (inclusive os Promptadores) segue. */}
+      {ehTrial && trialExpirado && !podeGerar && !ehAlunoPromptador && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
             <span className="trial-bloqueio-eb">{t('teste_encerrado')}</span>
@@ -563,6 +572,21 @@ export default function AppShell({ children }) {
             <p>{t('teste_terminou_p')}</p>
             <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/precos')}>{t('ver_planos_assinar')}</button>
             <button className="trial-bloqueio-sair" onClick={logout}>{t('sair')}</button>
+          </div>
+        </div>
+      )}
+
+      {/* Aluno dos Promptadores sem assinatura do Cora: aviso amigável, só no
+          /app (onde se gera). Ele não "perdeu" nada — nunca assinou; o botão
+          apresenta o produto em vez de cobrar renovação. */}
+      {ehAlunoPromptador && ehTrial && trialExpirado && !podeGerar && naApp && (
+        <div className="trial-bloqueio">
+          <div className="trial-bloqueio-card">
+            <span className="trial-bloqueio-eb">{t('aluno_sem_assin_eb')}</span>
+            <h1>{t('aluno_sem_assin_h1')}</h1>
+            <p>{t('aluno_sem_assin_p')}</p>
+            <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/')}>{t('aluno_conhecer')}</button>
+            <button className="trial-bloqueio-sair" onClick={() => router.push('/conta')}>{t('sair')}</button>
           </div>
         </div>
       )}

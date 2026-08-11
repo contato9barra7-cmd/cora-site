@@ -20,7 +20,7 @@ import EmailAssinantes from '../../../components/EmailAssinantes';
 import { useIdioma } from '../../../lib/i18n';
 import { lerConta, atualizarConta, listarPromptadores, salvarPromptador, excluirPromptador, reordenarPromptadores,
   adminListarAcessos, adminAddAcessoManual, adminEnviarConvite, adminRevogarAcesso,
-  adminImportarAcessos, adminEditarAcesso } from '../../../lib/auth';
+  adminImportarAcessos, adminEditarAcesso, adminNotificarAcessos } from '../../../lib/auth';
 import { lerPlanilha, paraDataISO } from '../../../lib/planilha';
 
 // TODO: trocar pelos links das OFERTAS DE EX-ALUNO (renovação mais barata), um por curso.
@@ -117,6 +117,14 @@ export default function PromptadoresCurso() {
   // Edição de validade de um acesso (mais tempo / vitalício)
   const [editAcesso, setEditAcesso] = useState(null);   // { id, email, nome, validade, vitalicio }
   const [salvandoEdit, setSalvandoEdit] = useState(false);
+
+  // Aviso por e-mail (revisar antes de enviar — nunca automático)
+  const [notifAberto, setNotifAberto] = useState(false);
+  const [notifSel, setNotifSel] = useState({});         // id -> marcado?
+  const [notifRodando, setNotifRodando] = useState(false);
+  const [notifResultado, setNotifResultado] = useState(null);
+  const [notifErro, setNotifErro] = useState('');
+  const [avisoAcesso, setAvisoAcesso] = useState('');   // feedback verde (reenvio ok)
 
   // edição (admin)
   const [editando, setEditando] = useState(null);
@@ -320,6 +328,38 @@ export default function PromptadoresCurso() {
     } catch (e) { setImpErro(e.message); } finally { setImpRodando(false); }
   }
 
+  // ── Aviso por e-mail ──
+  // Quem nunca foi avisado (importação e adição manual; o convite já avisa).
+  const pendentesNotif = acessos.filter((a) => !a.notificado_em);
+  function abrirNotificar() {
+    setErroAcesso(''); setNotifResultado(null); setNotifErro('');
+    const sel = {};
+    pendentesNotif.forEach((a) => { sel[a.id] = true; });
+    setNotifSel(sel);
+    setNotifAberto(true);
+  }
+  const notifMarcados = Object.keys(notifSel).filter((id) => notifSel[id]);
+  async function enviarNotificacoes() {
+    if (!notifMarcados.length) return;
+    setNotifRodando(true); setNotifErro('');
+    try {
+      setNotifResultado(await adminNotificarAcessos({ curso, ids: notifMarcados.map(Number) }));
+      await recarregarAcessos();
+    } catch (e) { setNotifErro(e.message); } finally { setNotifRodando(false); }
+  }
+  // Reenviar para UMA pessoa (perdeu o e-mail, caiu no spam, trocou de caixa).
+  async function reenviarAviso(a) {
+    if (!confirm(`${t('promp_reenviar_conf')} ${a.email}?`)) return;
+    setErroAcesso(''); setAvisoAcesso('');
+    try {
+      const r = await adminNotificarAcessos({ curso, ids: [a.id] });
+      if (r.sem_resend) setErroAcesso(t('promp_notif_sem_resend'));
+      else if (r.falhas > 0) setErroAcesso(`${r.falhas} ${t('promp_notif_falhas')}`);
+      else setAvisoAcesso(`${t('promp_reenviar_ok')} ${a.email}`);
+      await recarregarAcessos();
+    } catch (e) { setErroAcesso(e.message); }
+  }
+
   // ── Editar validade de um acesso ──
   function abrirEditar(a) {
     setErroAcesso('');
@@ -475,6 +515,12 @@ export default function PromptadoresCurso() {
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="7" cy="7" r="4.5" /><path d="M11 11l3 3" /></svg>
                 <input value={buscaAcesso} onChange={e => setBuscaAcesso(e.target.value)} placeholder={t('promp_busca_ph')} />
               </div>
+              {pendentesNotif.length > 0 && (
+                <button className="promp-usuarios" onClick={abrirNotificar} title={t('promp_notif_t')}>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg>
+                  {t('promp_notif_btn')} <span className="promp-chip-n">{pendentesNotif.length}</span>
+                </button>
+              )}
               <button className="promp-usuarios" onClick={exportarCSV} disabled={acessosFiltrados.length === 0} title={t('promp_csv_title')}>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 11l4 4 4-4" /><path d="M5 21h14" /></svg>
                 CSV
@@ -483,6 +529,7 @@ export default function PromptadoresCurso() {
           </div>
 
           {erroAcesso && <p className="promp-erro">{erroAcesso}</p>}
+          {avisoAcesso && <p style={{ color: '#2E9E5B', fontSize: 13, fontWeight: 600 }}>{avisoAcesso}</p>}
 
           <div className="promp-tabela-wrap">
             {carrAcessos ? <p style={{ padding: 20, color: 'var(--ink3)' }}>{t('comum_carregando')}</p> : (
@@ -500,10 +547,18 @@ export default function PromptadoresCurso() {
                         <td>{!a.validade
                           ? <span className="promp-badge vital">{t('promp_vitalicio')}</span>
                           : <span className={'promp-badge ' + (estaVencido(a) ? 'venc' : 'data')}>{t('promp_ate')} {fmtDataLong(a.validade)}</span>}</td>
-                        <td><span className="promp-tag">{a.origem === 'convite' ? t('promp_origem_convite') : a.origem === 'importacao' ? t('promp_origem_importacao') : t('promp_origem_manual')}</span></td>
+                        <td>
+                          <span className="promp-tag">{a.origem === 'convite' ? t('promp_origem_convite') : a.origem === 'importacao' ? t('promp_origem_importacao') : t('promp_origem_manual')}</span>
+                          {!a.notificado_em && (
+                            <span title={t('promp_notif_nao_avisado')} style={{ marginLeft: 6, color: '#B7791F', fontSize: 12 }}>
+                              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: '-2px' }}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg>
+                            </span>
+                          )}
+                        </td>
                         <td><span className={'promp-st ' + st.cls}><span className="promp-dot" />{st.txt}</span></td>
                         <td style={{ whiteSpace: 'nowrap' }}>
                           <button className="promp-revogar" style={{ color: 'var(--ink2)', marginRight: 10 }} onClick={() => abrirEditar(a)}>{t('promp_editar')}</button>
+                          <button className="promp-revogar" style={{ color: 'var(--ink2)', marginRight: 10 }} onClick={() => reenviarAviso(a)}>{t('promp_reenviar')}</button>
                           <button className="promp-revogar" onClick={() => revogarAcesso(a)}>{t('promp_revogar')}</button>
                         </td>
                       </tr>
@@ -616,6 +671,77 @@ export default function PromptadoresCurso() {
                   {!impResultado && (
                     <button className="promp-btn promp-add" onClick={importarPlanilha} disabled={impRodando || impLinhas.length === 0}>
                       {impRodando ? t('promp_imp_rodando') : `${t('promp_importar_t')}${impLinhas.length ? ` (${impLinhas.length})` : ''}`}
+                    </button>
+                  )}
+                  {impResultado && pendentesNotif.length > 0 && (
+                    <button className="promp-btn promp-salvar" onClick={() => { setImpAberto(false); abrirNotificar(); }}>
+                      {t('promp_notif_revisar')} ({pendentesNotif.length})
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {notifAberto && (
+          <div className="promp-ov" onMouseDown={(e) => { if (e.target === e.currentTarget && !notifRodando) setNotifAberto(false); }}>
+            <div className="promp-modal promp-modal--acesso">
+              <div className="promp-mh"><h3>{t('promp_notif_t')}</h3></div>
+              <div className="promp-mb">
+                <div className="promp-curso-tag">{t('promp_curso_l')} <b>{cursoLabel}</b></div>
+
+                {notifResultado ? (
+                  <div style={{ fontSize: 14, lineHeight: 2 }}>
+                    {notifResultado.sem_resend ? (
+                      <p className="promp-erro">{t('promp_notif_sem_resend')}</p>
+                    ) : (
+                      <>
+                        <div><b>{notifResultado.enviados}</b> {t('promp_notif_ok')}</div>
+                        {notifResultado.falhas > 0 && (
+                          <div style={{ color: 'var(--alerta)' }}><b>{notifResultado.falhas}</b> {t('promp_notif_falhas')}</div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                ) : pendentesNotif.length === 0 ? (
+                  <p style={{ color: 'var(--ink3)', fontSize: 14 }}>{t('promp_notif_vazio')}</p>
+                ) : (
+                  <>
+                    <div className="promp-nota">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="#6d6ae0" strokeWidth="1.8"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" strokeLinecap="round" /></svg>
+                      {t('promp_notif_s')}
+                    </div>
+                    <div style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid var(--line)', borderRadius: 12 }}>
+                      {pendentesNotif.map((a, i) => (
+                        <label key={a.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '10px 14px',
+                                                    borderTop: i > 0 ? '1px solid var(--line)' : 'none', cursor: 'pointer', fontSize: 13 }}>
+                          <input type="checkbox" checked={!!notifSel[a.id]}
+                                 onChange={(e) => setNotifSel((s) => ({ ...s, [a.id]: e.target.checked }))} />
+                          <span style={{ flex: 1, minWidth: 0 }}>
+                            <span style={{ fontWeight: 700 }}>{a.nome || '—'}</span>
+                            <span style={{ color: 'var(--ink3)' }}> · {a.email}</span>
+                          </span>
+                          {!a.tem_conta && <span className="promp-tag">{t('promp_notif_sem_conta')}</span>}
+                          <span style={{ color: 'var(--ink3)', whiteSpace: 'nowrap' }}>
+                            {a.validade ? `${t('promp_ate')} ${fmtDataLong(a.validade)}` : t('promp_vitalicio')}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </>
+                )}
+                {notifErro && <p className="promp-erro">{notifErro}</p>}
+              </div>
+              <div className="promp-mf">
+                <span />
+                <div className="promp-dir">
+                  <button className="promp-btn promp-cancelar" onClick={() => setNotifAberto(false)} disabled={notifRodando}>
+                    {notifResultado ? t('fechar') : t('comum_cancelar')}
+                  </button>
+                  {!notifResultado && pendentesNotif.length > 0 && (
+                    <button className="promp-btn promp-salvar" onClick={enviarNotificacoes} disabled={notifRodando || notifMarcados.length === 0}>
+                      {notifRodando ? t('promp_notif_rodando') : `${t('promp_notif_enviar')} ${notifMarcados.length} ${t('promp_notif_emails')}`}
                     </button>
                   )}
                 </div>
