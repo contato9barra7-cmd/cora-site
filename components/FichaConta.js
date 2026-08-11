@@ -759,13 +759,11 @@ export default function FichaConta({ abrirConta }) {
           {/* "Essa geração foi cobrada, falhou, e o crédito voltou?" — cada
               linha responde sozinha: débito↔estorno pareados pela ref, com o
               desfecho do pedido no servidor de geração. */}
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 14, flexWrap: 'wrap' }}>
-            {[30, 90, 180, 365].map((d) => (
-              <button key={d} className={'admin-aba' + (extratoDias === d ? ' ativa' : '')}
-                      onClick={() => setExtratoDias(d)}>
-                {d} dias
-              </button>
-            ))}
+          <div style={{ marginBottom: 14 }}>
+            <select className="admin-select" style={{ width: 'auto' }}
+                    value={extratoDias} onChange={(e) => setExtratoDias(parseInt(e.target.value, 10))}>
+              {[30, 90, 180, 365].map((d) => <option key={d} value={d}>{d} dias</option>)}
+            </select>
           </div>
 
           {extratoErro && <div className="login-erro" style={{ marginBottom: 14 }}>{extratoErro}</div>}
