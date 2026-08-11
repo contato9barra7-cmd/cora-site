@@ -410,7 +410,7 @@ export default function PromptadoresCurso() {
       linhas.push([
         a.nome || '', a.email || '', fmtDataLong(a.data_acesso),
         a.validade ? fmtDataLong(a.validade) : t('promp_vitalicio'),
-        a.origem === 'convite' ? t('promp_origem_convite') : a.origem === 'importacao' ? t('promp_origem_importacao') : t('promp_origem_manual'), statusAcesso(a).txt,
+        a.origem === 'convite' ? t('promp_origem_convite') : a.origem === 'importacao' ? t('promp_origem_importacao') : a.origem === 'greenn' ? 'Greenn' : t('promp_origem_manual'), statusAcesso(a).txt,
       ]);
     });
     const csv = linhas.map(l => l.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\r\n');
@@ -548,7 +548,7 @@ export default function PromptadoresCurso() {
                           ? <span className="promp-badge vital">{t('promp_vitalicio')}</span>
                           : <span className={'promp-badge ' + (estaVencido(a) ? 'venc' : 'data')}>{t('promp_ate')} {fmtDataLong(a.validade)}</span>}</td>
                         <td>
-                          <span className="promp-tag">{a.origem === 'convite' ? t('promp_origem_convite') : a.origem === 'importacao' ? t('promp_origem_importacao') : t('promp_origem_manual')}</span>
+                          <span className="promp-tag">{a.origem === 'convite' ? t('promp_origem_convite') : a.origem === 'importacao' ? t('promp_origem_importacao') : a.origem === 'greenn' ? 'Greenn' : t('promp_origem_manual')}</span>
                           {!a.notificado_em && (
                             <span title={t('promp_notif_nao_avisado')} style={{ marginLeft: 6, color: '#B7791F', fontSize: 12 }}>
                               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: '-2px' }}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg>
