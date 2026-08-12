@@ -89,6 +89,9 @@ export default function PromptadoresCurso() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [expirado, setExpirado] = useState(false);
   const [diasRestantes, setDiasRestantes] = useState(null);
+  // Validade do acesso do PRÓPRIO aluno (badge no topo da aba)
+  const [validadeAcesso, setValidadeAcesso] = useState(null);
+  const [vitalicioAcesso, setVitalicioAcesso] = useState(false);
 
   // Usuários (admin)
   const [tela, setTela] = useState('lista');
@@ -160,6 +163,7 @@ export default function PromptadoresCurso() {
   useEffect(() => {
     setCarregando(true); setNegado(false); setExpirado(false); setTela('lista');
     setBusca(''); setDiasRestantes(null); setErro('');
+    setValidadeAcesso(null); setVitalicioAcesso(false);
     const c = lerConta();
     if (!c) { router.push('/login'); return; }
     setIsAdmin(!!c.is_admin);
@@ -169,6 +173,7 @@ export default function PromptadoresCurso() {
       setIsAdmin(!!cc.is_admin);
       const est = cc.promptador_cursos && cc.promptador_cursos[curso];
       if (!cc.is_admin && est && typeof est.dias === 'number') setDiasRestantes(est.dias);
+      if (!cc.is_admin && est) { setValidadeAcesso(est.validade || null); setVitalicioAcesso(!!est.vitalicio); }
       if (!cc.is_admin && est && est.expirado) { setExpirado(true); setCarregando(false); return; }
       carregar();
     })();
@@ -806,6 +811,11 @@ export default function PromptadoresCurso() {
           <div>
             <h1>Promptadores {cursoLabel}</h1>
             <p className="promp-sub">{t('promp_sub_full')}</p>
+            {!isAdmin && (vitalicioAcesso || validadeAcesso) && (
+              <span className={'promp-badge ' + (vitalicioAcesso ? 'vital' : 'data')} style={{ marginTop: 8 }}>
+                {vitalicioAcesso ? t('promp_meu_vital') : `${t('promp_meu_ate')} ${fmtDataLong(validadeAcesso)}`}
+              </span>
+            )}
           </div>
           {isAdmin && (
             <div className="promp-acoes-top">
