@@ -6,7 +6,8 @@ import RodapeLegal from './RodapeLegal';
 // As páginas do painel usam o AppShell, que já mostra o RodapeLegal DENTRO do
 // conteúdo (respeitando a barra lateral fixa). Aqui cobrimos só as páginas
 // públicas, para não duplicar o rodapé.
-const PREFIXOS_APP = ['/conta', '/app', '/admin', '/workspace', '/assinatura', '/promptadores'];
+// (/em-construcao não é do painel, mas também fica sem rodapé: é só o aviso.)
+const PREFIXOS_APP = ['/conta', '/app', '/admin', '/workspace', '/assinatura', '/promptadores', '/em-construcao'];
 
 export default function RodapeGlobal() {
   const pathname = usePathname() || '';
