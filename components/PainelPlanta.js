@@ -467,6 +467,7 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
   // ═══ 3D — FASE 2: renderizar (mesmo fluxo do 2D) ═══
   function gerar3d() {
     if (!cena3d || !analise3d) { setErro(L.erro_cena); return; }
+    if (!matConfirmado3d) return;   // botão já vem desabilitado; isto é a 2ª tranca
     setErro('');
 
     const previaSnap    = cena3d.previa;
@@ -515,7 +516,10 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
   const custo = custoRender(quantidade, resolucao);
   // Sem `ocupado`: dá pra disparar mais — entram na fila.
   const podeGerar   = !!imagem && !travadoLeitura;
-  const podeGerar3d = !!cena3d && !!analise3d;
+  // 3D: só depois de CONFIRMAR os materiais — o texto da análise é o que vai
+  // pro prompt; renderizar com ele ainda em edição gastava crédito com uma
+  // leitura que a pessoa não tinha fechado. "Editar" desconfirma e trava de novo.
+  const podeGerar3d = !!cena3d && !!analise3d && matConfirmado3d;
 
   return (
     <>
