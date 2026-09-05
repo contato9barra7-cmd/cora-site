@@ -12460,3 +12460,94 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 .cs-req--ok { color: #2e7d32; font-weight: 600; }
 .cs-req--ok .cs-req-ic { color: #2e7d32; }
 .cs-nao-bate { color: var(--alerta); font-size: 12.5px; margin: 6px 0 0; }
+
+/* ══════════════════════════════════════════════════════════
+   404 — a mesma página em todos os sites da casa
+
+   Sem cor de marca e sem ilustração, de propósito (decisão do dono,
+   05/09/2026): tinta, papel e cinza. Uma 404 pintada pede uma decisão por
+   site — e nos Promptadores, uma por área. Neutra, ela é a mesma em todo
+   lugar e nunca aparece com a cor errada num canto esquecido.
+
+   O gêmeo dela é `cora-promptadores/public/404.html`. Mesmo desenho, mesmos
+   tokens, mesmos nomes de classe: quem mexer num, mexe no outro.
+   ══════════════════════════════════════════════════════════ */
+.p404 {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  padding: clamp(32px, 6vh, 72px) clamp(20px, 4vw, 32px);
+  text-align: center;
+}
+.p404__miolo { max-width: 30rem; }
+
+/* O número é o desenho da página. Fica no cinza dos tokens — presente o
+   bastante para dar escala, apagado o bastante para o título ser lido
+   primeiro. `tabular-nums` porque, sem ele, os dois zeros abraçam o 4 e o
+   conjunto fica torto no meio. */
+.p404__n {
+  font-size: clamp(76px, 17vw, 148px);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.86;
+  color: var(--ink3);
+  margin: 0 0 clamp(18px, 3vh, 28px);
+  font-variant-numeric: tabular-nums;
+}
+.p404__t {
+  font-size: clamp(21px, 3.2vw, 27px);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin: 0 0 10px;
+  text-wrap: balance;
+}
+.p404__sub {
+  margin: 0 auto clamp(24px, 4vh, 34px);
+  color: var(--ink2);
+  font-size: clamp(14px, 1.6vw, 16px);
+  line-height: 1.6;
+  max-width: 36ch;
+  text-wrap: pretty;
+}
+
+/* Duas saídas, e nunca mais: a de sempre em pílula cheia, e a de socorro em
+   texto. 404 com seis links vira menu, e quem chega ali está perdido, não
+   pesquisando. */
+.p404__acoes {
+  display: flex;
+  gap: clamp(10px, 1.6vw, 16px);
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.p404__bt {
+  display: inline-block;
+  text-decoration: none;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 100px;
+  padding: 13px 26px;
+  font-weight: 600;
+  font-size: 14.5px;
+  transition: opacity 0.2s ease;
+}
+.p404__bt:hover { opacity: 0.86; }
+.p404__voltar {
+  background: none;
+  border: 0;
+  padding: 13px 10px;
+  cursor: pointer;
+  color: var(--ink2);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14.5px;
+}
+.p404__voltar:hover { color: var(--ink); }
+.p404__bt:focus-visible,
+.p404__voltar:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 100px;
+}
+@media (prefers-reduced-motion: reduce) { .p404__bt { transition: none; } }
