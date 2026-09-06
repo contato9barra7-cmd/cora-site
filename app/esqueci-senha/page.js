@@ -30,7 +30,9 @@ export default function EsqueciSenha() {
   return (
     <LoginSplit>
       <div className="login-card">
-        <Link href="/" className="login-logo">Cora Render</Link>
+        <Link href="/" className="login-logo">
+          <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
+        </Link>
 
         {enviado ? (
           <>

@@ -149,7 +149,9 @@ export default function Cadastro() {
   return (
     <LoginSplit>
       <div className="login-card">
-        <Link href="/" className="login-logo">Cora Render</Link>
+        <Link href="/" className="login-logo">
+          <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
+        </Link>
         <p className="cad-passo-tag">{t('cad_passo').replace('{n}', String(passo))}</p>
         <h1 className="login-titulo">{passo === 1 ? t('cad_criar') : t('cad_sobre_voce')}</h1>
         <p className="login-sub">{passo === 1 ? t('cad_sub') : t('cad_sobre_voce_sub')}</p>

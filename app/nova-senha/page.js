@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { validarTokenReset, definirNovaSenha } from '../../lib/auth';
 import CampoSenha, { senhaForte } from '../../components/CampoSenha';
+import LoginSplit from '../../components/LoginSplit';
 import { useIdioma } from '../../lib/i18n';
 
 function NovaSenhaConteudo() {
@@ -49,7 +50,9 @@ function NovaSenhaConteudo() {
   if (validando) {
     return (
       <div className="login-card">
-        <Link href="/" className="login-logo">Cora Render</Link>
+        <Link href="/" className="login-logo">
+          <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
+        </Link>
         <p className="login-sub">{t('nova_verificando')}</p>
       </div>
     );
@@ -58,7 +61,9 @@ function NovaSenhaConteudo() {
   if (!valido) {
     return (
       <div className="login-card">
-        <Link href="/" className="login-logo">Cora Render</Link>
+        <Link href="/" className="login-logo">
+          <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
+        </Link>
         <h1 className="login-titulo">{t('nova_link_invalido')}</h1>
         <p className="login-sub">
           {t('nova_expirado')}
@@ -76,7 +81,9 @@ function NovaSenhaConteudo() {
   if (pronto) {
     return (
       <div className="login-card">
-        <Link href="/" className="login-logo">Cora Render</Link>
+        <Link href="/" className="login-logo">
+          <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
+        </Link>
         <h1 className="login-titulo">{t('nova_alterada')}</h1>
         <p className="login-sub">{t('nova_salva')}</p>
         <Link href="/login" className="btn btn--verde" style={{ marginTop: 18, display: 'block', textAlign: 'center' }}>
@@ -88,7 +95,9 @@ function NovaSenhaConteudo() {
 
   return (
     <div className="login-card">
-      <Link href="/" className="login-logo">Cora Render</Link>
+      <Link href="/" className="login-logo">
+          <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
+        </Link>
       <h1 className="login-titulo">{t('nova_criar')}</h1>
       <p className="login-sub">{t('nova_definindo1')} <strong>{emailConta}</strong>.</p>
 
@@ -106,10 +115,10 @@ function NovaSenhaConteudo() {
 export default function NovaSenha() {
   const { t } = useIdioma();
   return (
-    <div className="login-wrap">
+    <LoginSplit>
       <Suspense fallback={<div className="login-card"><p className="login-sub">{t('comum_carregando')}</p></div>}>
         <NovaSenhaConteudo />
       </Suspense>
-    </div>
+    </LoginSplit>
   );
 }

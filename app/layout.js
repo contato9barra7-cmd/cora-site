@@ -1,5 +1,8 @@
 import './globals.css';
 import './responsivo.css';
+// Depois dos dois de cima de proposito: as telas de conta reescrevem
+// regras que nascem no globals.css.
+import './telas-de-conta.css';
 import RodapeGlobal from '../components/RodapeGlobal';
 import CookieConsent from '../components/CookieConsent';
 import { IdiomaProvider } from '../lib/i18n';

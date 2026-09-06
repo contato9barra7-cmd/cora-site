@@ -75,7 +75,9 @@ function VerificarConteudo() {
   return (
     <LoginSplit>
       <div className="login-card">
-        <Link href="/" className="login-logo">Cora Render</Link>
+        <Link href="/" className="login-logo">
+          <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
+        </Link>
         <h1 className="login-titulo">{t('ver_confirme')}</h1>
         <p className="login-sub">
           {t('ver_enviamos')}<br /><strong>{email || t('ver_seu_email')}</strong>.

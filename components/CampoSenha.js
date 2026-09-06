@@ -38,7 +38,7 @@ export default function CampoSenha({ senha, setSenha, onValidez, erroCampo, labe
   const [confirma, setConfirma] = useState('');
   const [ver, setVer] = useState(false);
   const [verC, setVerC] = useState(false);
-  const [focou, setFocou] = useState(false);
+  const [noCampo, setNoCampo] = useState(false);
 
   const status = REQUISITOS_SENHA.map((r) => ({ ...r, ok: r.teste(senha || '') }));
   const forte = status.every((r) => r.ok);
@@ -47,7 +47,9 @@ export default function CampoSenha({ senha, setSenha, onValidez, erroCampo, labe
 
   useEffect(() => { if (onValidez) onValidez(valido); }, [valido]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const mostrarReqs = focou || (senha && senha.length > 0);
+  // Enquanto escreve, sempre. Depois de sair, so se ainda falta alguma regra:
+  // senha pronta nao precisa de lembrete cobrindo o campo de baixo.
+  const mostrarReqs = noCampo || (senha && senha.length > 0 && !forte);
 
   return (
     <div className="cs-wrap">
@@ -58,31 +60,32 @@ export default function CampoSenha({ senha, setSenha, onValidez, erroCampo, labe
           type={ver ? 'text' : 'password'}
           placeholder={t('camposenha_ph_criar')}
           value={senha}
-          onFocus={() => setFocou(true)}
+          onFocus={() => setNoCampo(true)}
+          onBlur={() => setNoCampo(false)}
           onChange={(e) => setSenha(e.target.value)}
           autoComplete="new-password"
         />
         <button type="button" className="senha-olho" onClick={() => setVer(!ver)} aria-label={ver ? t('camposenha_esconder') : t('camposenha_mostrar')}>
           <OlhoIcone aberto={ver} />
         </button>
-      </div>
 
-      {mostrarReqs && (
-        <ul className="cs-reqs">
-          {status.map((r) => (
-            <li key={r.chave} className={'cs-req' + (r.ok ? ' cs-req--ok' : '')}>
-              <span className="cs-req-ic" aria-hidden="true">
-                {r.ok ? (
-                  <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg>
-                ) : (
-                  <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="8" cy="8" r="5.2" /></svg>
-                )}
-              </span>
-              {t('camposenha_req_' + r.chave)}
-            </li>
-          ))}
-        </ul>
-      )}
+        {mostrarReqs && (
+          <ul className="cs-reqs">
+            {status.map((r) => (
+              <li key={r.chave} className={'cs-req' + (r.ok ? ' cs-req--ok' : '')}>
+                <span className="cs-req-ic" aria-hidden="true">
+                  {r.ok ? (
+                    <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg>
+                  ) : (
+                    <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="8" cy="8" r="5.2" /></svg>
+                  )}
+                </span>
+                {t('camposenha_req_' + r.chave)}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       <label className="login-label">{t('camposenha_repetir')} {obrigatorio && <span className="obrig">*</span>}</label>
       <div className="senha-campo">
