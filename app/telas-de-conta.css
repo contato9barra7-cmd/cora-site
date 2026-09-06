@@ -23,6 +23,18 @@
      cheio, que ali da 14,2:1 com texto preto. */
   --turq-texto:#196C5B;
   --e-2:8px; --e-3:12px; --e-4:16px; --e-5:24px; --e-6:32px; --e-7:48px;
+  /* ── A escala do painel ──
+     O artefato aprovado foi desenhado numa tela de 1280, com o painel em 655.
+     Ali a margem era 32, o selo 60 e o respiro do selo pro texto 24. Em pixel
+     fixo esses numeros so valem naquela largura: num monitor de 1900 o painel
+     vai a 973 e o selo, parado em 50, cai de 9% pra 5% da largura. Ele nao
+     mudou de tamanho, o painel e que cresceu em volta dele.
+     Em vw os mesmos numeros do artefato voltam identicos em 1280 e acompanham
+     o painel a partir dali. O piso segura janela estreita, o teto impede que
+     o pelo vire bola de praia em tela larga. */
+  --margem-painel:clamp(32px, 2.5vw, 60px);   /* 32 do artefato = 2,5vw       */
+  --selo-painel:clamp(44px, 3.9vw, 84px);     /* 60 do artefato menos o pouco */
+  --respiro-selo:clamp(20px, 1.9vw, 44px);    /* 24 do artefato = 1,9vw       */
   --r-pill:100px;
   --tr-padrao:180ms; --easing:cubic-bezier(0.16,1,0.3,1);
 }
@@ -216,7 +228,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      e o bloco leva as barrinhas no pe: sem esta compensacao o selo desce
      metade delas e fica um degrau abaixo do titulo. O valor e a altura que as
      barrinhas ocupam, o respiro mais os 3px da barra. */
-  .tc .selo{ flex:0 0 auto; width:50px; margin-bottom:calc(var(--e-4) + 3px); }.tc .selo__zoom{ animation:respirar 18s ease-in-out infinite; will-change:transform; }
+  .tc .selo{ flex:0 0 auto; width:var(--selo-painel); margin-bottom:calc(var(--e-4) + 3px); }.tc .selo__zoom{ animation:respirar 18s ease-in-out infinite; will-change:transform; }
   /* Reto, sem giro. Zoom de 7% em 18s, subindo um pouco enquanto cresce. */
   @keyframes respirar{
     0%,100%{ transform:translateY(0)     scale(1);    }
@@ -260,7 +272,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      O selo la embaixo segue nos 32, que sao o respiro INTERNO da faixa de
      vidro. Sao duas contas diferentes de proposito: a faixa e um objeto com
      recheio proprio, o logo nao tem caixa nenhuma em volta. */
-  .tc .marca{ position:absolute; left:var(--e-7); top:var(--e-7); z-index:5; }
+  .tc .marca{ position:absolute; left:var(--margem-painel); top:var(--margem-painel); z-index:5; }
 /* Quem tem largura e o contentor, nao a imagem. Porcentagem NA IMAGEM
      resolve contra o pai, e o pai e shrink-to-fit: se um dia entrar um <a>
      em volta (e no site entrou, pra levar pra home), o pai passa a medir a
@@ -277,12 +289,12 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      pinta nada, so cresce. */
   .tc .rodape-painel{
     position:absolute; left:0; right:0; bottom:0; z-index:5;
-    display:flex; align-items:center; gap:var(--e-5);
+    display:flex; align-items:center; gap:var(--respiro-selo);
     /* 48 nos lados, o mesmo do logo la em cima. O painel tem UMA margem, e
        tudo que encosta nela obedece: o logo no alto, o selo no pe e a ponta
        das barrinhas na direita. Com 32 aqui o selo ficava colado na quina e,
        depois que o logo subiu pra 48, ainda por cima desalinhado dele. */
-    padding:var(--e-5) var(--e-7);
+    padding:var(--e-5) var(--margem-painel);
     background:rgba(12,12,12,.58);
     -webkit-backdrop-filter:blur(26px) saturate(170%);
             backdrop-filter:blur(26px) saturate(170%);
