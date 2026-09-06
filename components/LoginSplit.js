@@ -245,14 +245,19 @@ export default function LoginSplit({ children, denso = false }) {
   return (
     <main className={'login-split tc' + (denso ? ' tc--denso' : '')}>
       {/* Vento: ruído de baixa frequência deslocando o pelo de leve. Uma oitava
-          tira o granulado, e 4px bastam pra respirar sem a silhueta derreter. */}
+          tira o granulado.
+
+          A frequência e o deslocamento são os do SELO, de 50px, e não os do
+          ícone grande que morava no meio do painel. O filtro desloca em pixel:
+          os 4px de antes, numa figura de 50, não fariam o pelo respirar,
+          fariam a silhueta derreter. */}
       <svg width="0" height="0" aria-hidden="true" style={{ position: 'absolute' }}>
-        <filter id="vento" x="-12%" y="-12%" width="124%" height="124%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.007 0.016" numOctaves="1" seed="7" result="ruido">
+        <filter id="vento-selo" x="-12%" y="-12%" width="124%" height="124%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.02 0.045" numOctaves="1" seed="7" result="ruido">
             <animate attributeName="baseFrequency" dur="22s" repeatCount="indefinite"
-                     values="0.007 0.016; 0.010 0.013; 0.006 0.018; 0.007 0.016" />
+                     values="0.02 0.045; 0.028 0.036; 0.017 0.05; 0.02 0.045" />
           </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" in2="ruido" scale="4"
+          <feDisplacementMap in="SourceGraphic" in2="ruido" scale="1.4"
                              xChannelSelector="R" yChannelSelector="G" />
         </filter>
       </svg>
@@ -260,11 +265,6 @@ export default function LoginSplit({ children, denso = false }) {
       <div className="painel" ref={painelRef} data-textos={JSON.stringify(textos)}>
         <div className="slide slide--grade" data-ativo="true">
           <GradeCora />
-          <div className="icone" aria-hidden="true">
-            <div className="icone__zoom">
-              <img src="/img/icone-3d.webp" alt="" width="320" height="303" />
-            </div>
-          </div>
         </div>
 
         {SLIDES.map((s) => (
@@ -280,6 +280,13 @@ export default function LoginSplit({ children, denso = false }) {
         </div>
 
         <div className="rodape-painel">
+          {/* O selo vem antes do texto porque a faixa é um flex: a ordem do
+              DOM é a ordem na linha. */}
+          <div className="selo" aria-hidden="true">
+            <div className="selo__zoom">
+              <img src="/img/icone-3d.webp" alt="" width="320" height="303" />
+            </div>
+          </div>
           <div className="texto">
             <p className="frase" />
             <p className="apoio" />

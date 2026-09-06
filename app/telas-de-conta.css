@@ -185,43 +185,34 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
   }
   @keyframes colunaEntra { from{ transform:translateX(-148%); } }
   @keyframes colunaFirma { from{ filter:blur(16px); opacity:0; } }
-/* O icone nao viaja com as colunas. Se saisse pro lado junto, seria uma bola
-     de pelo atravessando a foto; ele so escorrega um pouco e se dissolve no
-     lugar, enquanto as colunas ainda estao a caminho. */
-  .tc .slide--grade[data-saindo="true"] .icone{
-    animation:iconeSai 1100ms 120ms cubic-bezier(.45,0,.55,1) forwards;
-  }
-  @keyframes iconeSai{
-    from{ transform:translate(-50%,-50%); filter:blur(0px);  opacity:1; }
-    to  { transform:translate(-74%,-50%); filter:blur(14px); opacity:0; }
-  }.tc .slide--grade[data-entrando="true"] .icone{
-    animation:iconeEntra 1100ms 400ms cubic-bezier(.25,.55,.5,1) backwards;
-  }
-  @keyframes iconeEntra{
-    from{ transform:translate(-74%,-50%); filter:blur(14px); opacity:0; }
-    to  { transform:translate(-50%,-50%); filter:blur(0px);  opacity:1; }
-  }
-/* ---- icone ---- */
-  /* Duas camadas: a de fora (.icone) so posiciona e faz a saida e a entrada,
-     a de dentro (.icone__zoom) respira. Antes as duas animacoes disputavam o
-     mesmo transform, e na hora da saida o zoom voltava a 1 de um pulo.
-     Separadas, a respiracao segue de onde estava enquanto o icone se dissolve. */
-  .tc .icone{
-    position:absolute; left:50%; top:50%; z-index:3;
-    width:38%; max-width:360px; transform:translate(-50%,-50%);
-    will-change:transform, filter, opacity;
-  }.tc .icone__zoom{ animation:respirar 18s ease-in-out infinite; will-change:transform; }
+/* ---- selo ----
+     O pelo saiu do meio do painel e foi morar na faixa de vidro. Duas razoes:
+     no centro ele cobria o padrao, que e a imagem da marca, e virava alvo no
+     meio da tela. Na faixa ele fica do tamanho de uma assinatura.
+
+     A faixa nunca sai de cena, entao o selo segue de pe tambem sobre as
+     fotos, e as duas animacoes que dissolviam o icone na troca de slide
+     deixaram de existir junto com ele.
+
+     Duas camadas, como antes: a de fora (.selo) reserva a largura na faixa, a
+     de dentro (.selo__zoom) respira. Juntas, as duas disputariam o mesmo
+     transform. */
+  .tc .selo{ flex:0 0 auto; width:50px; }.tc .selo__zoom{ animation:respirar 18s ease-in-out infinite; will-change:transform; }
   /* Reto, sem giro. Zoom de 7% em 18s, subindo um pouco enquanto cresce. */
   @keyframes respirar{
     0%,100%{ transform:translateY(0)     scale(1);    }
     50%    { transform:translateY(-1.5%) scale(1.07); }
   }
-/* 38% e sombra leve: em 52% com sombra pesada o icone parecia adesivo
-     colado por cima do padrao, em vez de marca dentro dele. */
-  .tc .icone img{
+/* Vento proprio, e nao o do icone grande: o deslocamento do filtro e em pixel,
+     entao os 4px que faziam o pelo respirar num icone de 280 derretiam a
+     silhueta num de 50. Frequencia mais alta e deslocamento de 1,4px dao o
+     mesmo efeito na escala nova.
+     A sombra tambem fecha: sobre o vidro escuro, um drop-shadow largo vira
+     mancha em vez de relevo. */
+  .tc .selo img{
     width:100%; height:auto; display:block;
-    filter:url(#vento) drop-shadow(0 12px 28px rgba(0,0,0,.10));
-  }.tc [data-vento="off"] .icone img{ filter:drop-shadow(0 12px 28px rgba(0,0,0,.10)); }
+    filter:url(#vento-selo) drop-shadow(0 4px 10px rgba(0,0,0,.35));
+  }.tc [data-vento="off"] .selo img{ filter:drop-shadow(0 4px 10px rgba(0,0,0,.35)); }
 /* ---- barrinhas de progresso ---- */
   /* Barrinhas curtas embaixo do texto, como no login antigo. Ficam no fluxo do
      bloco, nao soltas no topo, entao andam junto com a frase. */
