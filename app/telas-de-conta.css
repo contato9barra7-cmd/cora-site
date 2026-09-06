@@ -306,25 +306,14 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
     min-width:0;
     transition:opacity 240ms var(--easing), transform 240ms var(--easing);
   }.tc .texto[data-trocando="true"]{ opacity:0; transform:translateY(8px); }.tc .frase{
-    /* Teto de 35 e nao de 23. O 1,65vw ja era a conta do artefato (21px numa
-       tela de 1280), mas o teto antigo travava em 1394 de janela: dali pra
-       cima a frase parava e o painel continuava crescendo, entao ela encolhia
-       contra ele, igual ao que acontecia com o selo. O teto novo e o mesmo
-       ponto onde o selo para, 2154 de janela. */
-    font-size:clamp(18px,1.65vw,35px); font-weight:500; letter-spacing:-.02em; line-height:1.2;
+    font-size:clamp(18px,1.65vw,23px); font-weight:500; letter-spacing:-.02em; line-height:1.2;
     text-wrap:balance;
   }
 /* O apoio anda colado na frase. Os 6px de respiro somavam com a entrelinha
      das duas caixas e davam 11px de branco no meio de um par que le como uma
      coisa so. Com 2px de margem e entrelinha de 1,35, o par inteiro mede 46px,
      que e a altura do selo ao lado. */
-/* O apoio sobe junto, senao o par se desfaz: no artefato a frase era 21 e o
-     apoio 14, e uma frase de 31 com um apoio parado em 14 vira titulo com
-     legenda, nao mais o bloco de duas linhas que foi aprovado. 14/1280 = 1,09vw,
-     a mesma conta da frase.
-     E e isso que mantem o par na altura do selo: em 1280 da 46 contra 50, em
-     1900 da 68 contra 74, a mesma proporcao. */
-  .tc .apoio{ margin-top:2px; font-size:clamp(13px,1.09vw,23px); line-height:1.35; color:rgba(255,255,255,.74); }
+  .tc .apoio{ margin-top:2px; font-size:14px; line-height:1.35; color:rgba(255,255,255,.74); }
 /* ---- toque pra avançar e voltar ---- */
   .tc .toque{ position:absolute; inset:0; z-index:5; display:flex; }.tc .toque button{ height:100%; background:none; border:0; cursor:pointer; }.tc .toque button:first-child{ width:32%; }.tc .toque button:last-child{ width:68%; }
 
