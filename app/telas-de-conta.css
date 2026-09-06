@@ -278,7 +278,11 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
   .tc .rodape-painel{
     position:absolute; left:0; right:0; bottom:0; z-index:5;
     display:flex; align-items:center; gap:var(--e-5);
-    padding:var(--e-5) var(--e-6);
+    /* 48 nos lados, o mesmo do logo la em cima. O painel tem UMA margem, e
+       tudo que encosta nela obedece: o logo no alto, o selo no pe e a ponta
+       das barrinhas na direita. Com 32 aqui o selo ficava colado na quina e,
+       depois que o logo subiu pra 48, ainda por cima desalinhado dele. */
+    padding:var(--e-5) var(--e-7);
     background:rgba(12,12,12,.58);
     -webkit-backdrop-filter:blur(26px) saturate(170%);
             backdrop-filter:blur(26px) saturate(170%);
