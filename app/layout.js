@@ -10,7 +10,7 @@ import { IdiomaProvider } from '../lib/i18n';
 const GTM_ID = 'GTM-T7JBWLZ5';
 
 export const metadata = {
-  title: 'Cora Render — Render com IA para SketchUp',
+  title: 'Cora Render',
   description:
     'Gere imagens, vídeos e apresentações a partir do seu modelo 3D no SketchUp, com IA. Planos a partir de R$97/mês.',
 };

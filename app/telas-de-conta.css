@@ -78,6 +78,9 @@
   padding:0; gap:0;
 }
 .tc .login-card{ border:0; border-radius:0; background:transparent; padding:0; }
+/* A pilula do passo abraca o proprio texto. Ela e um bloco dentro de um
+   cartao em coluna flex, entao por padrao esticava de ponta a ponta. */
+.tc .cad-passo-tag{ display:inline-block; align-self:flex-start; width:auto; }
 /* O rodape legal do site fica ABAIXO da tela de conta, que ocupa a janela
    inteira e nao rola. Sessenta e quatro pixels pendurados ali poem barra de
    rolagem na pagina e comem 9px de largura do painel. O desenho aprovado nao
@@ -241,11 +244,22 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      Como a barra e sempre escura, o texto e as barrinhas nao precisam trocar de
      cor entre a grade e a foto: fica branco e lima o tempo todo. O veu antigo,
      que mudava de turquesa pra preto, saiu junto. */
-  .tc .veu{ display:none; }.tc .marca{ position:absolute; left:var(--e-6); top:var(--e-6); z-index:5; }.tc .marca img{ width:min(196px,22%); height:auto; display:block; transition:filter 400ms var(--easing); }.tc .painel[data-sobre="foto"] .marca img{ filter:invert(1); }.tc .rodape-painel{
+  .tc .veu{ display:none; }.tc .marca{ position:absolute; left:var(--e-6); top:var(--e-6); z-index:5; }
+/* Quem tem largura e o contentor, nao a imagem. Porcentagem NA IMAGEM
+     resolve contra o pai, e o pai e shrink-to-fit: se um dia entrar um <a>
+     em volta (e no site entrou, pra levar pra home), o pai passa a medir a
+     largura intrinseca do PNG e os 22% viram 22% de 300px. O logo encolhia
+     de 155 pra 66 sem ninguem tocar no CSS. */
+  .tc .marca{ width:min(196px,21%); }.tc .marca a{ display:block; }.tc .marca img{ width:100%; height:auto; display:block; transition:filter 400ms var(--easing); }.tc .painel[data-sobre="foto"] .marca img{ filter:invert(1); }.tc .rodape-painel{
     position:absolute; left:0; right:0; bottom:0; z-index:5;
     display:flex; align-items:center; gap:var(--e-5);
     padding:var(--e-5) var(--e-6);
     background:rgba(12,12,12,.58);
+  }
+/* O bloco cresce ate a margem da faixa. Quem aproveita sao as barrinhas,
+     que tem flex:1 e passam a dividir a largura toda. A frase e o apoio sao
+     bloco alinhado a esquerda, entao ficam exatamente onde estavam. */
+  .tc .rodape-painel .texto{ flex:1; min-width:0;
     -webkit-backdrop-filter:blur(26px) saturate(170%);
             backdrop-filter:blur(26px) saturate(170%);
     border-top:1px solid rgba(255,255,255,.10);
@@ -338,9 +352,13 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 .tc .cs-nao-bate{ margin:var(--e-2) 0 0; font-size:12.5px; color:var(--alerta); }
 
 /* ---- aceite dos termos ---- */
+/* A frase inteira numa linha so. A 13px ela estourava os 333px que sobram
+   ao lado da caixinha e largava "Privacidade." sozinha embaixo. A 11.5
+   sobram uns 40px de folga, que e o bastante pra aguentar a fonte de
+   sistema quando a DM Sans ainda nao carregou. */
 .tc .cad-aceite{
   display:flex; align-items:flex-start; gap:10px; margin-top:var(--e-5);
-  font-size:13px; line-height:1.5; color:var(--ink2); cursor:pointer;
+  font-size:11.5px; line-height:1.55; color:var(--ink2); cursor:pointer;
 }
 .tc .cad-aceite input{
   flex:0 0 auto; width:17px; height:17px; margin-top:1px;
@@ -466,7 +484,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
   .tc--denso .login-sub, .tc .cartao__apoio{ font-size:13.5px; }
   .tc--denso .login-label, .tc .campo label{ margin-top:var(--e-3); margin-bottom:4px; font-size:12.5px; }
   .tc--denso .login-input, .tc .campo input, .tc .cad-dd .cora-dd-btn{ height:44px; }
-  .tc--denso .cad-aceite{ margin-top:var(--e-3); font-size:12.5px; }
+  .tc--denso .cad-aceite{ margin-top:var(--e-3); }
   .tc--denso .btn{ height:46px; margin-top:var(--e-4); }
   .tc--denso .login-rodape{ margin-top:var(--e-4); padding-top:var(--e-3); font-size:13.5px; }
 }
@@ -480,7 +498,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
   .tc--denso .login-label, .tc .campo label{ margin-top:9px; margin-bottom:3px; font-size:11.5px; }
   .tc--denso .login-input, .tc .campo input, .tc .cad-dd .cora-dd-btn{ height:38px; font-size:14px; }
   .tc--denso .cora-dd-opt{ padding:8px var(--e-3); font-size:13.5px; }
-  .tc--denso .cad-aceite{ margin-top:10px; font-size:12px; }
+  .tc--denso .cad-aceite{ margin-top:10px; font-size:11px; }
   .tc--denso .btn{ height:40px; margin-top:12px; font-size:14px; }
   .tc--denso .login-rodape{ margin-top:12px; padding-top:9px; font-size:12.5px; }
   .tc--denso .cad-voltar{ margin-top:2px; font-size:12.5px; }
