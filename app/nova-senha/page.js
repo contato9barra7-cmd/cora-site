@@ -115,7 +115,7 @@ function NovaSenhaConteudo() {
 export default function NovaSenha() {
   const { t } = useIdioma();
   return (
-    <LoginSplit>
+    <LoginSplit denso>
       <Suspense fallback={<div className="login-card"><p className="login-sub">{t('comum_carregando')}</p></div>}>
         <NovaSenhaConteudo />
       </Suspense>

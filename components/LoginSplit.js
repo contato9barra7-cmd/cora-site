@@ -41,7 +41,11 @@ const SLIDES = [
 const DUR_GRADE = 7000;
 const DUR_FOTO = 5200;
 
-export default function LoginSplit({ children }) {
+// `denso`: a tela tem campo demais pra caber numa janela baixa e aceita
+// encolher o respiro. Vale pro cadastro e pra nova senha. Entrar, confirmar
+// e-mail e esqueci a senha tem dois campos e sobra espaco: encolher ali seria
+// perder tamanho de graca.
+export default function LoginSplit({ children, denso = false }) {
   const { t } = useIdioma();
   const painelRef = useRef(null);
 
@@ -239,7 +243,7 @@ export default function LoginSplit({ children }) {
   }, [JSON.stringify(textos)]);
 
   return (
-    <main className="login-split tc">
+    <main className={'login-split tc' + (denso ? ' tc--denso' : '')}>
       {/* Vento: ruído de baixa frequência deslocando o pelo de leve. Uma oitava
           tira o granulado, e 4px bastam pra respirar sem a silhueta derreter. */}
       <svg width="0" height="0" aria-hidden="true" style={{ position: 'absolute' }}>

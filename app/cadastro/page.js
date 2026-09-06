@@ -147,7 +147,7 @@ export default function Cadastro() {
   const cls = (campo) => 'login-input' + (faltando[campo] ? ' campo-erro' : '');
 
   return (
-    <LoginSplit>
+    <LoginSplit denso>
       <div className="login-card">
         <Link href="/" className="login-logo">
           <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
