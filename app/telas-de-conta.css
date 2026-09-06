@@ -34,7 +34,12 @@
      o pelo vire bola de praia em tela larga. */
   --margem-painel:clamp(32px, 2.5vw, 60px);   /* 32 do artefato = 2,5vw       */
   --selo-painel:clamp(44px, 3.9vw, 84px);     /* 60 do artefato menos o pouco */
-  --respiro-selo:clamp(20px, 1.9vw, 44px);    /* 24 do artefato = 1,9vw       */
+  /* Borda e respiro sao a MESMA medida, e e isso que poe o selo no centro do
+     vao entre a borda do painel e o comeco do texto. No artefato eram 32 e 24,
+     4px fora do centro; o dono pediu centrado de verdade. A soma (56 em 1280)
+     e a mesma do artefato, entao o texto nao sai do lugar: so o selo desliza
+     ate o meio. 28/1280 = 2,19vw. Mexer num sem o outro descentraliza. */
+  --respiro-selo:clamp(24px, 2.19vw, 52px);
   --r-pill:100px;
   --tr-padrao:180ms; --easing:cubic-bezier(0.16,1,0.3,1);
 }
@@ -223,12 +228,11 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      Duas camadas, como antes: a de fora (.selo) reserva a largura na faixa, a
      de dentro (.selo__zoom) respira. Juntas, as duas disputariam o mesmo
      transform. */
-  /* A margem de baixo desencosta o selo do centro da faixa e o poe no centro
-     do PAR frase mais apoio. A faixa centraliza pela altura do bloco inteiro,
-     e o bloco leva as barrinhas no pe: sem esta compensacao o selo desce
-     metade delas e fica um degrau abaixo do titulo. O valor e a altura que as
-     barrinhas ocupam, o respiro mais os 3px da barra. */
-  .tc .selo{ flex:0 0 auto; width:var(--selo-painel); margin-bottom:calc(var(--e-4) + 3px); }.tc .selo__zoom{ animation:tc-respirar 18s ease-in-out infinite; will-change:transform; }
+  /* Sem margem de baixo: o `align-items:center` da faixa poe o selo no centro
+     do bloco INTEIRO de texto, da frase ate a barrinha. Ja houve aqui uma
+     compensacao pra centrar so no par frase mais apoio; o dono pediu o bloco
+     inteiro, e foi ele quem mediu na tela. Nao voltar com a compensacao. */
+  .tc .selo{ flex:0 0 auto; width:var(--selo-painel); }.tc .selo__zoom{ animation:tc-respirar 18s ease-in-out infinite; will-change:transform; }
   /* Reto, sem giro. Zoom de 7% em 18s, subindo um pouco enquanto cresce. */
   @keyframes tc-respirar{
     0%,100%{ transform:translateY(0)     scale(1);    }
@@ -301,7 +305,9 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
        tudo que encosta nela obedece: o logo no alto, o selo no pe e a ponta
        das barrinhas na direita. Com 32 aqui o selo ficava colado na quina e,
        depois que o logo subiu pra 48, ainda por cima desalinhado dele. */
-    padding:var(--e-5) var(--margem-painel);
+    /* Esquerda = respiro do selo, pelo centro do vao. Direita = margem do painel,
+       pra ponta das barrinhas continuar alinhada com o resto. */
+    padding:var(--e-5) var(--margem-painel) var(--e-5) var(--respiro-selo);
     background:rgba(12,12,12,.58);
     -webkit-backdrop-filter:blur(26px) saturate(170%);
             backdrop-filter:blur(26px) saturate(170%);
