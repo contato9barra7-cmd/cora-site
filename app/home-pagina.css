@@ -56,7 +56,6 @@
     font-size:16px; line-height:1.55;
     color:var(--ink); background:var(--wash);
     -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-    overflow-x:hidden;
   }
   @media (min-width:1024px){.hm{ font-size:17px; }}.hm img, .hm svg, .hm video{ display:block; max-width:100%; }.hm button{ font:inherit; color:inherit; background:none; border:none; cursor:pointer; }.hm a{ color:inherit; text-decoration:none; }.hm ul{ list-style:none; padding:0; }.hm ::selection{ background:var(--lima); color:var(--ink); }.hm :focus-visible{ outline:2px solid var(--preto); outline-offset:2px; border-radius:inherit; }/* ===== Tipografia v2.0 ===== */.hm h1, .hm h2, .hm h3, .hm h4{ font-weight:500; text-wrap:balance; }/* Peso 400, não 500 — teste aprovado por William em 21/08/2026, a partir da
      auditoria do academypass.ai (§1 do "Vidro & Bento"): título grande não
