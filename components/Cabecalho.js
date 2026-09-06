@@ -20,6 +20,26 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useIdioma } from '../lib/i18n';
 
+// ── quem tem o quê ──────────────────────────────────────────────────────────
+// As seções que existem DENTRO de cada página, conferidas no DOM. A home tem
+// as quatro: antes disso não estar escrito em lugar nenhum, "Planos" e
+// "Perguntas frequentes" mandavam quem estava na home para /precos, ou seja,
+// saíam de uma página que tinha a resposta para outra que também tinha,
+// fazendo a pessoa perder o lugar. Página nova entra com uma linha aqui.
+const ANCORAS = {
+  home: ['passos', 'ferramentas', 'planos', 'faq'],
+  precos: ['planos', 'faq'],
+  suporte: ['faq'],
+};
+
+// `fora` é para onde ir quando a seção não está na página atual.
+const NAV = [
+  { id: 'passos', fora: '/#passos', chave: 'nav_como_funciona' },
+  { id: 'ferramentas', fora: '/#ferramentas', chave: 'nav_ferramentas' },
+  { id: 'planos', fora: '/precos', chave: 'nav_planos' },
+  { id: 'faq', fora: '/precos#faq', chave: 'nav_faq' },
+];
+
 export default function Cabecalho({ aqui = 'precos' }) {
   const { t } = useIdioma();
   const [aberto, setAberto] = useState(false);
@@ -33,15 +53,13 @@ export default function Cabecalho({ aqui = 'precos' }) {
     return () => window.removeEventListener('keydown', tecla);
   }, [aberto]);
 
-  const elos = [
-    { href: '/#passos', rotulo: t('nav_como_funciona') },
-    { href: '/#ferramentas', rotulo: t('nav_ferramentas') },
-    { href: aqui === 'precos' ? '#planos' : '/precos', rotulo: t('nav_planos') },
-    // No suporte, a lista de perguntas esta na propria pagina: mandar pra
-    // /precos#faq faria o link sair de uma pagina de perguntas para outra.
-    { href: aqui === 'precos' || aqui === 'suporte' ? '#faq' : '/precos#faq',
-      rotulo: t('nav_faq') },
-  ];
+  // Cada item tem dois destinos: a âncora, quando a seção está NESTA página, e
+  // o caminho de fora, quando não está.
+  const daqui = ANCORAS[aqui] || [];
+  const elos = NAV.map((n) => ({
+    href: daqui.includes(n.id) ? '#' + n.id : n.fora,
+    rotulo: t(n.chave),
+  }));
 
   return (
     <header className="cabecalho">

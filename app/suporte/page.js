@@ -113,6 +113,11 @@ export default function Suporte() {
   const [erro, setErro] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
+  // O servidor diz se o recibo saiu mesmo. A frase "uma confirmacao acabou de
+  // sair" so aparece quando ele confirma: o envio do recibo tem try proprio la,
+  // entao ele pode falhar sem derrubar o chamado, e afirmar sem saber deixaria
+  // a pessoa esperando um e-mail que nunca vem.
+  const [recibo, setRecibo] = useState(false);
 
   const [grupo, setGrupo] = useState('tudo');
   const [aberta, setAberta] = useState(0);
@@ -152,7 +157,8 @@ export default function Suporte() {
     setFaltando({});
     setEnviando(true);
     try {
-      await enviarSuporte({ nome, email, assunto, mensagem });
+      const r = await enviarSuporte({ nome, email, assunto, mensagem });
+      setRecibo(r && r.recibo === true);
       setEnviado(true);
     } catch (err) {
       setErro(err.message);
@@ -244,7 +250,7 @@ export default function Suporte() {
                 <p>
                   {t('sup_recebemos1')} <strong>{email}</strong> {t('sup_recebemos2')}
                 </p>
-                <p className="miudo">{t('sup_recibo')}</p>
+                {recibo && <p className="miudo">{t('sup_recibo')}</p>}
                 <a className="btn btn--linha" href="#faq">{t('sup_ver_faq')}</a>
               </div>
             ) : (
