@@ -67,7 +67,7 @@
 }
 .legal-marcas__fio {
   width: 1px;
-  height: 22px;
+  height: 19px;
   background: var(--line);
 }
 .legal-marca {
@@ -77,19 +77,19 @@
 }
 .legal-marca img {
   display: block;
-  width: 108px;
+  width: 92px;
   height: auto;
 }
 /* Nao e elo, e assinatura: sem estado de hover. Preto cheio, igual ao do
    Cora, so um pouco menor pra o produto seguir na frente. */
 .legal-marca--academy { cursor: default; }
-.legal-marca--academy img { width: 116px; }
+.legal-marca--academy img { width: 99px; }
 .legal-marca:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
 
 @media (max-width: 520px) {
   .legal-marcas { gap: 11px; }
-  .legal-marca img { width: 92px; }
-  .legal-marca--academy img { width: 104px; }
+  .legal-marca img { width: 80px; }
+  .legal-marca--academy img { width: 86px; }
 }
 
 /* O elo de voltar é o único controle da página, então ele tem forma de
