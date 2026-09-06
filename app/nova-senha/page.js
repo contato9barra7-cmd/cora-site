@@ -68,7 +68,7 @@ function NovaSenhaConteudo() {
         <p className="login-sub">
           {t('nova_expirado')}
         </p>
-        <Link href="/esqueci-senha" className="btn btn--roxo" style={{ marginTop: 18, display: 'block', textAlign: 'center' }}>
+        <Link href="/esqueci-senha" className="btn btn--roxo" style={{ display: 'block', textAlign: 'center' }}>
           {t('nova_pedir')}
         </Link>
         <p className="login-rodape">
@@ -86,7 +86,7 @@ function NovaSenhaConteudo() {
         </Link>
         <h1 className="login-titulo">{t('nova_alterada')}</h1>
         <p className="login-sub">{t('nova_salva')}</p>
-        <Link href="/login" className="btn btn--verde" style={{ marginTop: 18, display: 'block', textAlign: 'center' }}>
+        <Link href="/login" className="btn btn--verde" style={{ display: 'block', textAlign: 'center' }}>
           {t('nova_entrar_agora')}
         </Link>
       </div>
@@ -105,7 +105,7 @@ function NovaSenhaConteudo() {
 
       {erro && <p className="login-erro">{erro}</p>}
 
-      <button className="btn btn--verde" style={{ marginTop: 18 }} onClick={salvar} disabled={salvando}>
+      <button className="btn btn--verde" onClick={salvar} disabled={salvando}>
         {salvando ? t('comum_salvando') : t('nova_salvar')}
       </button>
     </div>

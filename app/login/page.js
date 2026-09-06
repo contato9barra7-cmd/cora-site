@@ -95,15 +95,16 @@ export default function Login() {
 
         {erro && <p className="login-erro">{erro}</p>}
 
-        <button className="btn btn--roxo" style={{ marginTop: 18 }} onClick={fazerLogin} disabled={carregando}>
+        <button className="btn btn--roxo" onClick={fazerLogin} disabled={carregando}>
           {carregando ? t('login_entrando') : t('login_entrar')}
         </button>
 
-        <p className="login-rodape" style={{ marginTop: 14 }}>
-          <Link href="/esqueci-senha">{t('login_esqueci')}</Link>
-        </p>
+        {/* O elo solto NAO leva risco em cima, o risco vem so antes do convite
+            pra criar conta. Com os dois como `login-rodape` a regra punha a
+            linha no primeiro, que e o contrario do desenho aprovado. */}
+        <Link href="/esqueci-senha" className="elo">{t('login_esqueci')}</Link>
 
-        <p className="login-rodape">
+        <p className="rodape-cartao">
           {t('login_sem_conta')} <Link href="/cadastro">{t('login_criar_conta')}</Link>
         </p>
       </div>

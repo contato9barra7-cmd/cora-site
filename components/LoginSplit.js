@@ -294,7 +294,15 @@ export default function LoginSplit({ children, denso = false }) {
         </div>
       </div>
 
-      <div className="lado-form">{children}</div>
+      {/* O cartao mora DENTRO de uma area que cresce ate a altura da tela e
+          centraliza. A area nao e enfeite: sem ela, a regra que centraliza
+          (`.tc .cartao-area`) caia no proprio cartao, e ai ele ganhava
+          `min-height:100%` mais `align-items:center`. O resultado era um vao
+          de 134px acima do logo e todo o texto centralizado, quando o desenho
+          aprovado tem o texto alinhado a esquerda. */}
+      <div className="lado-form">
+        <div className="cartao-area">{children}</div>
+      </div>
     </main>
   );
 }

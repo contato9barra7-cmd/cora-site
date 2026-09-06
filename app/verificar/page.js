@@ -89,13 +89,12 @@ function VerificarConteudo() {
           placeholder="000000" value={codigo}
           onChange={digitarCodigo}
           onKeyDown={(e) => e.key === 'Enter' && confirmar()}
-          style={{ letterSpacing: '6px', textAlign: 'center', fontSize: 20 }}
         />
 
         {erro && <p className="login-erro">{erro}</p>}
         {aviso && <p className="login-aviso">{aviso}</p>}
 
-        <button className="btn btn--verde" style={{ marginTop: 18 }} onClick={confirmar} disabled={carregando}>
+        <button className="btn btn--verde" onClick={confirmar} disabled={carregando}>
           {carregando ? t('ver_confirmando') : t('ver_confirmar_entrar')}
         </button>
 

@@ -40,7 +40,7 @@ export default function EsqueciSenha() {
             <p className="login-sub">
               {t('esq_enviado1')} <strong>{email}</strong>{t('esq_enviado2')}
             </p>
-            <p className="login-sub" style={{ marginTop: 16 }}>
+            <p className="login-sub">
               {t('esq_nao_recebeu')}{' '}
               <button
                 className="link-inline"
@@ -49,7 +49,7 @@ export default function EsqueciSenha() {
                 {t('esq_tente_outro')}
               </button>.
             </p>
-            <p className="login-rodape" style={{ marginTop: 22 }}>
+            <p className="login-rodape">
               <Link href="/login">{t('esq_voltar_login')}</Link>
             </p>
           </>
@@ -67,7 +67,7 @@ export default function EsqueciSenha() {
 
             {erro && <p className="login-erro">{erro}</p>}
 
-            <button className="btn btn--roxo" style={{ marginTop: 18 }} onClick={enviar} disabled={carregando}>
+            <button className="btn btn--roxo" onClick={enviar} disabled={carregando}>
               {carregando ? t('esq_enviando') : t('esq_enviar_link')}
             </button>
 

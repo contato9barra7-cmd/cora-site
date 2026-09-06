@@ -32,25 +32,77 @@
    checklist na tela mesmo com o atributo posto. */
 .tc [hidden]{ display:none !important; }
 
+/* ═══════════════ a fonte, em tamanho nominal ═══════════════
+   A DM Sans do site vai com `size-adjust:88%`. Isso veio do plugin, onde ela
+   precisava bater a altura-x da Degular antiga. No site o efeito e que TODO
+   texto sai 12% menor do que o numero escrito no CSS: um corpo de 14px chega
+   na tela como 12,3px.
+
+   E por isso que estas telas nunca fechavam com o artefato. Os corpos batiam
+   no CSS e nao no vidro: a mesma frase, no mesmo 14px, media 506px no
+   artefato e 444px aqui, que e exatamente 88%.
+
+   `size-adjust` e descritor de @font-face, nao propriedade, entao nao da pra
+   desligar por seletor. A saida e uma familia irma, mesmo arquivo, sem o
+   ajuste, usada so dentro do `.tc`. O resto do site segue como estava. */
+@font-face{
+  font-family:'DM Sans TC';
+  src:url('/fontes/DMSans-latin.woff2') format('woff2');
+  font-weight:100 1000; font-style:normal; font-display:swap;
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family:'DM Sans TC';
+  src:url('/fontes/DMSans-latin-ext.woff2') format('woff2');
+  font-weight:100 1000; font-style:normal; font-display:swap;
+  unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+.tc, .tc *{
+  font-family:'DM Sans TC','DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+
+
 /* ═══════════════ a moldura ═══════════════ */
+/* O molde antigo continua mandando em tudo que o `.tc` nao desmancha, e ele
+   nao desmancha o que nao nomeia. Duas herancas escapavam:
+   1. `.login-split` do globals traz `padding:16px; gap:16px`, e o painel
+      ficava flutuando em vez de sangrar ate a borda.
+   2. `.login-card` do globals traz moldura, raio e `padding:40px 36px`. O
+      `.login-form-lado .login-card` que zera isso la pede um ancestral que
+      o LoginSplit novo nao tem, entao nunca pegava.
+   Zerar aqui, e nao no globals, e de proposito: o globals atende telas que
+   ainda usam o molde antigo. */
 .tc.login-split{
   min-height:100dvh; display:grid; grid-template-columns:1fr;
   background:var(--paper); color:var(--ink);
+  padding:0; gap:0;
 }
+.tc .login-card{ border:0; border-radius:0; background:transparent; padding:0; }
+/* O rodape legal do site fica ABAIXO da tela de conta, que ocupa a janela
+   inteira e nao rola. Sessenta e quatro pixels pendurados ali poem barra de
+   rolagem na pagina e comem 9px de largura do painel. O desenho aprovado nao
+   tem esse rodape aqui, e os elos dele seguem no resto do site. */
+body:has(.tc.login-split) .rodape-legal{ display:none; }
+/* O molde antigo poe 18px embaixo do campo de senha e 18px acima do botao. No
+   desenho aprovado o respiro e um so, de 32px, e vem do botao. */
+.tc .senha-campo{ margin-bottom:0; }
+.tc .login-card .btn{ margin-top:var(--e-6); }
 @media (min-width:900px){
   .tc.login-split{ grid-template-columns:1.05fr 1fr; }
   /* Quem rola e o lado do formulario, senao o painel rolaria junto e a barra
      preta sairia da tela. Mas centralizar DENTRO do proprio contentor que rola
      corta o topo quando o cartao passa da altura da tela (o cadastro com o
      checklist aberto passa). Entao o contentor so rola, e quem centraliza e o
-     `.cartao-area`, que cresce junto e nunca estoura.
+     `.cartao-area`, que cresce junto e nunca estoura. Ela precisa EXISTIR no
+     LoginSplit: sem ela a regra cairia no proprio cartao, que ganharia
+     `min-height:100%` mais `align-items:center` e centralizaria o texto.
 
      `width:100%` nao e enfeite: `.lado-form` tem `place-items:center`, e
      `justify-items` tambem vale pra caixa de bloco (vira `justify-self`),
      entao sem isto o filho encolhe ate o conteudo. */
   .tc.login-split{ height:100dvh; overflow:hidden; }
   .tc .lado-form{ display:block; overflow-y:auto; }
-  .tc .lado-form > *{
+  .tc .cartao-area{
     width:100%; min-height:100%;
     display:flex; flex-direction:column; justify-content:center; align-items:center;
   }
@@ -171,7 +223,7 @@
   /* Barrinhas curtas embaixo do texto, como no login antigo. Ficam no fluxo do
      bloco, nao soltas no topo, entao andam junto com a frase. */
   .tc .barras{ display:flex; gap:6px; margin-top:var(--e-4); }.tc .barra{
-    position:relative; width:34px; height:3px; padding:0; border:0; overflow:hidden;
+    position:relative; flex:1; min-width:0; height:3px; padding:0; border:0; overflow:hidden;
     border-radius:var(--r-pill); background:rgba(17,17,17,.20); cursor:pointer;
   }.tc .barra::after{ content:""; position:absolute; inset:-14px 0; }
 /* O preenchimento e `scaleX`, nao `width`: animar largura refaz o layout a
