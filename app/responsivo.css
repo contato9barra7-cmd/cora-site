@@ -60,11 +60,23 @@ html {
 body {
   min-height: 100vh;
   min-height: var(--altura-tela);
+}
 
-  /* Uma tabela larga, um card que passa da margem, um texto sem quebra: basta
-     um para o site inteiro ganhar rolagem lateral e a página "escorregar" ao
-     tocar. `clip` corta o excesso SEM criar contexto de rolagem — ao
-     contrário de `hidden`, que quebraria todo `position: sticky` da página. */
+/* Uma tabela larga, um card que passa da margem, um texto sem quebra: basta um
+   para o site inteiro ganhar rolagem lateral e a página "escorregar" ao tocar.
+   `clip` corta o excesso sem criar contexto de rolagem, ao contrário de
+   `hidden`, que quebraria todo `position: sticky` da página.
+
+   O corte fica no EMBRULHO do layout, e não no `body`. No body ele parecia
+   inofensivo, porque `clip` não cria contexto de rolagem, mas o overflow do
+   body é o que define o overflow da JANELA: com um eixo em `clip`, a janela
+   inteira passou a cortar em vez de rolar, e a roda do mouse não movia a
+   página. Nenhuma delas, o site todo.
+
+   Medido nas três combinações: com o clip no body a roda não rolava nada, com
+   ele no `html` também não, e no embrulho a roda anda, o cabeçalho continua
+   grudando no topo e não sobra rolagem lateral. */
+.site-conteudo {
   overflow-x: clip;
 }
 
