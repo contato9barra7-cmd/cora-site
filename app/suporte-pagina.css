@@ -1,0 +1,170 @@
+/* ============================================================================
+   PAGINA DO ARTEFATO, ESCOPADA
+
+   Gerado por gerar-css-artefato.py a partir do <style> do artefato, que e o
+   desenho aprovado. NAO editar aqui: editar o artefato e rodar o script de
+   novo, senao os dois desencontram na primeira mudanca.
+
+   Tudo depende da classe da pagina. Isso resolve dois problemas de
+   uma vez: o desenho aprovado ganha do molde antigo por especificidade, sem
+   `!important`, e nada dele vaza pras outras telas do site.
+
+   O bloco de variaveis do artefato virou essa classe em vez de `:root` de
+   proposito: ele redefine `--wash`, `--rc` e outras que ja existem no
+   globals com outro valor, e como `:root` isso mudaria o site inteiro.
+   ========================================================================= */
+
+.sp{
+  --ink:#111111; --ink2:#5b5b57; --ink3:#8e8e88;
+  --paper:#ffffff; --wash:#f6f6f4; --wash2:#efefeb; --preto:#000000;
+  --line:#e4e4df; --line2:#d2d2cb;
+  --lima:#c4fba7; --lima-esc:#a5f37d;
+  --turquesa:#adecdf; --periwinkle:#a3a6fa;
+  --sobre-escuro:rgba(255,255,255,.72); --linha-escura:rgba(255,255,255,.14);
+  --fonte:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --rc:20px; --r-pill:100px; --r-md:12px; --r-sm:8px;
+  --largura-max:1200px; --gutter:clamp(16px,3.5vw,32px);
+  --altura-cabecalho:60px; --secao-y:clamp(56px,6vw,88px);
+  --e-1:4px; --e-2:8px; --e-3:12px; --e-4:16px; --e-5:24px;
+  --e-6:32px; --e-7:48px; --e-8:64px; --e-9:80px;
+  --tr-padrao:.2s; --tr-rapida:.12s; --tr-press:.1s; --tr-acordeao:.24s;
+  --easing:cubic-bezier(.16,1,.3,1);
+}
+@media (min-width:1024px){.sp{ --gutter:32px; --altura-cabecalho:72px; }}.sp *, .sp *::before, .sp *::after{ box-sizing:border-box; margin:0; padding:0; }.sp{ scroll-behavior:smooth; }.sp{
+  background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:16px; line-height:1.55;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  min-height:100vh; display:flex; flex-direction:column;
+}.sp h1, .sp h2, .sp h3, .sp h4{ font-weight:500; text-wrap:balance; }.sp h1{ font-size:clamp(30px,4.2vw,52px); letter-spacing:-.035em; line-height:1.12; }.sp h2{ font-size:clamp(24px,3vw,36px); letter-spacing:-.03em; line-height:1.15; }.sp h3{ font-size:clamp(18px,2vw,22px); letter-spacing:-.02em; line-height:1.25; }.sp p{ text-wrap:pretty; }.sp a{ color:inherit; }.sp .env{ width:100%; max-width:var(--largura-max); margin-inline:auto; padding-inline:var(--gutter); }.sp .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }.sp [id]{ scroll-margin-top:calc(var(--altura-cabecalho) + var(--e-4)); }.sp :focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }/* botoes oficiais */.sp .btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:var(--e-2);
+  width:fit-content; min-width:160px; min-height:48px;
+  padding:var(--e-3) var(--e-5); white-space:nowrap;
+  border-radius:var(--r-pill); border:1px solid transparent;
+  font-family:inherit; font-weight:600; font-size:15px; letter-spacing:-.005em;
+  line-height:1.2; text-align:center; text-decoration:none; cursor:pointer;
+  transition:transform var(--tr-press) var(--easing),
+             background-color var(--tr-padrao) var(--easing),
+             border-color var(--tr-padrao) var(--easing),
+             color var(--tr-padrao) var(--easing);
+}.sp .btn:active{ transform:scale(.97); }.sp .btn--largo{ width:100%; }.sp .btn--lima{ background:var(--lima); color:var(--ink); }.sp .btn--escuro{ background:var(--ink); color:var(--paper); }.sp .btn--linha{ border-color:var(--ink3); color:var(--ink); background:transparent; }.sp .btn--claro{ background:var(--paper); color:var(--ink); border-color:var(--line); }.sp .btn[disabled]{ background:var(--wash2); color:var(--ink3); cursor:not-allowed; }.sp .btn[disabled]:active{ transform:none; }
+@media (hover:hover) and (pointer:fine){.sp .btn--lima:hover{ background:var(--lima-esc); }.sp .btn--escuro:hover{ background:#242424; }.sp .btn--linha:hover{ background:var(--wash2); border-color:var(--ink); }.sp .btn--claro:hover{ background:var(--wash2); }.sp .btn[disabled]:hover{ background:var(--wash2); }}/* cabecalho */.sp .cabecalho{ position:sticky; top:0; z-index:50; background:var(--wash);
+  border-bottom:1px solid var(--line); }.sp .cabecalho__interno{ position:relative; display:flex; align-items:center;
+  gap:var(--e-5); min-height:var(--altura-cabecalho); }.sp .cabecalho__marca{ margin-right:auto; display:inline-flex; align-items:center; min-height:44px; }.sp .cabecalho__marca img{ width:auto; height:20px; }
+@media (min-width:1024px){.sp .cabecalho__marca img{ height:24px; }}.sp .cabecalho__nav{ display:none; gap:var(--e-5); font-size:15px; letter-spacing:-.005em; }.sp .cabecalho__nav a{ display:inline-flex; align-items:center; min-height:44px;
+  padding-inline:var(--e-2); border-radius:var(--r-sm); color:var(--ink2);
+  text-decoration:none; transition:color var(--tr-rapida) var(--easing); }.sp .cabecalho__acoes{ display:none; gap:var(--e-2); }.sp .cabecalho__acoes .btn{ min-width:0; min-height:40px; padding:var(--e-2) var(--e-4); font-size:14px; }.sp .burger{ display:flex; align-items:center; justify-content:center; width:44px; height:44px;
+  margin-left:auto; border-radius:var(--r-sm); border:none; background:transparent;
+  color:var(--ink); cursor:pointer; transition:background-color var(--tr-padrao) var(--easing); }
+@media (hover:hover) and (pointer:fine){.sp .cabecalho__nav a:hover{ color:var(--ink); }.sp .burger:hover{ background:var(--wash2); }}
+@media (min-width:900px){.sp .cabecalho__nav{ display:flex; }.sp .cabecalho__acoes{ display:flex; margin-left:auto; }.sp .burger{ display:none; }}.sp .menu{ display:grid; gap:var(--e-2); padding:var(--e-4) var(--gutter) var(--e-6);
+  border-top:1px solid var(--line); background:var(--paper); }.sp .menu a{ display:flex; align-items:center; min-height:44px; padding:var(--e-3) 0;
+  font-size:17px; letter-spacing:-.015em; color:var(--ink); text-decoration:none; }.sp .menu__acoes{ display:grid; gap:var(--e-2); margin-top:var(--e-4); }.sp .menu[hidden]{ display:none; }
+@media (min-width:900px){.sp .menu{ display:none; }}/* conteudo */.sp main{ flex:1; }.sp .secao{ padding-block:var(--secao-y); }.sp .olho{ display:inline-block; font-size:11.5px; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3); }/* campos */.sp .campo{ display:grid; gap:var(--e-2); }.sp .campo > label{ font-size:13px; font-weight:500; color:var(--ink2); }.sp .campo input, .sp .campo select, .sp .campo textarea{
+  width:100%; font-family:inherit; font-size:15px; color:var(--ink);
+  background:var(--paper); border:1px solid var(--line);
+  transition:border-color var(--tr-padrao) var(--easing),
+             box-shadow var(--tr-padrao) var(--easing);
+}.sp .campo input, .sp .campo select{ height:50px; padding:0 var(--e-5); border-radius:var(--r-pill); }.sp .campo textarea{ min-height:150px; padding:var(--e-4) var(--e-5); border-radius:var(--rc);
+  resize:vertical; line-height:1.55; }.sp .campo input::placeholder, .sp .campo textarea::placeholder{ color:var(--ink3); }.sp .campo input:focus, .sp .campo select:focus, .sp .campo textarea:focus{
+  outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }.sp .campo select{
+  appearance:none; cursor:pointer; padding-right:48px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238e8e88' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat:no-repeat; background-position:right 20px center;
+}.sp .dupla{ display:grid; gap:var(--e-4); }
+@media (min-width:640px){.sp .dupla{ grid-template-columns:1fr 1fr; }}.sp .ajuda{ font-size:13px; color:var(--ink3); line-height:1.5; }/* rodape fino, o mesmo que o site ja usa hoje */.sp .rodape-legal{ padding:22px var(--gutter) 26px; text-align:center;
+  font-size:12.5px; color:var(--ink3); border-top:1px solid var(--line);
+  background:var(--wash); }.sp .rodape-legal a{ color:inherit; text-decoration:none; opacity:.9; }.sp .rodape-legal a:hover{ opacity:1; text-decoration:underline; }.sp .rodape-legal .sep{ margin:0 8px; opacity:.5; }/* ── o topo mora DENTRO da coluna ───────────────────────────────────────────
+   Antes o titulo e o subtitulo eram uma faixa de largura inteira em cima da
+   grade. Com isso a linha do titulo passava por cima da coluna das perguntas,
+   e o bloco de cima nao batia com o de baixo: dois blocos de texto na mesma
+   borda esquerda, com larguras diferentes, leem como desalinho.
+   Aqui os dois viraram um so, dentro da coluna da esquerda.
+
+   O preco e que o titulo nao cabe mais numa linha nessa largura. A quebra fica
+   em "Como podemos / ajudar?", que e onde ela cai sozinha, e e a mesma forma
+   de duas linhas que a coluna ja tinha. */.sp .faq-grade{ display:grid; grid-template-columns:1fr; gap:clamp(24px,3vw,40px);
+  align-items:start; padding-top:clamp(36px,4.4vw,64px); }
+@media (min-width:900px){.sp .faq-grade{ grid-template-columns:34fr 66fr; gap:var(--e-8); }.sp .faq-lado{ position:sticky; top:calc(var(--altura-cabecalho) + var(--e-6)); }}.sp .faq-lado h1{ margin-top:var(--e-3); font-size:clamp(30px,3.5vw,42px);
+  letter-spacing:-.032em; line-height:1.1; }.sp .faq-lado > p{ margin-top:var(--e-4); font-size:15px; color:var(--ink2); line-height:1.55; }/* ── o indice ───────────────────────────────────────────────────────────────
+   O mesmo controle das paginas de Termos e Privacidade, que ja estao no ar:
+   fio de 2px na esquerda, e o item ativo com o lima da marca em 3px. A
+   contagem do lado diz o tamanho de cada grupo sem precisar abrir. */.sp .indice{ margin-top:var(--e-6); display:grid; gap:2px; }.sp .indice button{ display:flex; align-items:center; justify-content:space-between;
+  gap:var(--e-3); width:100%; padding:8px 14px; border:0;
+  border-left:2px solid var(--line); background:none; color:var(--ink2);
+  font-family:inherit; font-size:13.5px; line-height:1.45; text-align:left;
+  cursor:pointer;
+  transition:color var(--tr-rapida) var(--easing),
+             border-color var(--tr-rapida) var(--easing); }.sp .indice button[aria-pressed="true"]{ color:var(--ink); font-weight:500;
+  border-left-color:var(--lima); border-left-width:3px; }.sp .indice .qt{ font-size:12px; color:var(--ink3); font-variant-numeric:tabular-nums; }
+@media (hover:hover) and (pointer:fine){.sp .indice button:hover{ color:var(--ink); border-left-color:var(--ink3); }.sp .indice button[aria-pressed="true"]:hover{ border-left-color:var(--lima); }}.sp .faq-item{ border-bottom:1px solid var(--line); }.sp .faq-item[hidden]{ display:none; }.sp .faq-gat{ width:100%; display:flex; justify-content:space-between; align-items:center;
+  gap:var(--e-4); padding:19px 0; text-align:left; border:none; background:none;
+  cursor:pointer; font-family:inherit; font-weight:500;
+  font-size:clamp(15.5px,1.2vw,17px); letter-spacing:-.015em; line-height:1.35;
+  color:var(--ink); }
+@media (min-width:768px){.sp .faq-gat{ padding:22px 0; }}.sp .faq-ic{ flex:none; color:var(--ink3); display:inline-flex;
+  transition:transform var(--tr-padrao) var(--easing), color var(--tr-padrao) var(--easing); }.sp .faq-gat[aria-expanded="true"] .faq-ic{ transform:rotate(45deg); color:var(--ink); }
+@media (hover:hover) and (pointer:fine){.sp .faq-gat:hover .faq-ic{ color:var(--ink); }}.sp .faq-resp{ display:grid; grid-template-rows:0fr;
+  transition:grid-template-rows var(--tr-acordeao) var(--easing); }.sp .faq-gat[aria-expanded="true"] + .faq-resp{ grid-template-rows:1fr; }.sp .faq-resp > div{ overflow:hidden; }.sp .faq-txt{ padding-bottom:22px; font-size:15px; line-height:1.62; color:var(--ink2);
+  max-width:60ch; }/* ── a virada ───────────────────────────────────────────────────────────────
+   A faixa dos Promptadores fecha as perguntas e abre o formulario, do mesmo
+   jeito que ela abre o cartao do e-mail. Geometria descrita em
+   cerebro/specs/emails.md e desenhada em base_suporte.py. */.sp .faixa{ height:clamp(64px,8vw,112px); background-color:#C4FBA7;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); background-repeat:repeat-x;
+  background-position:left center; background-size:auto 100%; }.sp .sup-virada{ background:var(--paper); border-bottom:1px solid var(--line); }.sp .sup-form{ max-width:640px; margin-inline:auto; }.sp .sup-form__cab{ text-align:center; }.sp .sup-form__cab h2{ margin-top:var(--e-3); font-size:clamp(22px,2.6vw,30px); }.sp .sup-form__cab p{ margin-top:var(--e-3); font-size:15px; color:var(--ink2); }.sp .sup-form form{ margin-top:var(--e-7); display:grid; gap:var(--e-5); }/* `background-color`, e nao o atalho `background`: o atalho apagaria a seta
+   do campo, que e um background-image. */.sp .sup-form .campo input, .sp .sup-form .campo textarea, .sp .sup-form .gat{ background-color:var(--wash); }.sp .sup-form .campo input:focus, .sp .sup-form .campo textarea:focus, .sp .sup-form .gat.aberto{
+  background-color:var(--paper); }/* ── dropdown da marca ──────────────────────────────────────────────────────
+   O <select> do sistema pinta a lista com o azul do Windows, que nao e nossa
+   cor e nao respeita nem a fonte nem o raio dos outros campos. Este e o mesmo
+   desenho do CoraSelect que o painel ja usa, vestido com a paleta nova. */.sp .sel{ position:relative; }.sp .gat{ display:flex; align-items:center; gap:var(--e-2); width:100%; height:50px;
+  padding:0 var(--e-5); border:1px solid var(--line); border-radius:var(--r-pill);
+  background:var(--paper); color:var(--ink); font-family:inherit; font-size:15px;
+  text-align:left; cursor:pointer;
+  transition:border-color var(--tr-padrao) var(--easing),
+             box-shadow var(--tr-padrao) var(--easing),
+             background-color var(--tr-padrao) var(--easing); }.sp .gat.vazio{ color:var(--ink3); }.sp .gat.aberto{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+@media (hover:hover) and (pointer:fine){.sp .gat:hover{ border-color:var(--ink3); }}.sp .gat__rot{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }.sp .gat__seta{ flex:none; color:var(--ink3);
+  transition:transform var(--tr-padrao) var(--easing); }.sp .gat.aberto .gat__seta{ transform:rotate(180deg); color:var(--ink); }.sp .pop{ position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:60;
+  padding:6px; background:var(--paper); border:1px solid var(--line2);
+  border-radius:var(--rc); box-shadow:0 14px 38px rgba(17,17,17,.13);
+  max-height:288px; overflow-y:auto; }.sp .pop[hidden]{ display:none; }.sp .op{ display:flex; align-items:center; gap:var(--e-3); width:100%;
+  padding:10px 14px; border:0; border-radius:var(--r-md); background:none;
+  color:var(--ink2); font-family:inherit; font-size:14.5px; text-align:left;
+  cursor:pointer; transition:background-color var(--tr-rapida) var(--easing),
+                             color var(--tr-rapida) var(--easing); }.sp .op__mira{ flex:none; width:7px; height:7px; border-radius:50%;
+  background:transparent; transition:background-color var(--tr-rapida) var(--easing); }.sp .op[aria-selected="true"]{ background:var(--lima); color:var(--ink); font-weight:500; }.sp .op[aria-selected="true"] .op__mira{ background:var(--ink); }
+@media (hover:hover) and (pointer:fine){.sp .op:hover{ background:var(--wash2); color:var(--ink); }.sp .op[aria-selected="true"]:hover{ background:var(--lima-esc); }}/* ── campo que faltou ───────────────────────────────────────────────────────
+   O aviso e a borda vermelha andam juntos: so a frase em cima obriga a
+   procurar qual campo, e so a borda nao diz o que aconteceu. */.sp .sup-erro{ margin-bottom:var(--e-2); padding:12px 18px; border-radius:var(--r-md);
+  background:#FCEDEC; border:1px solid #E9BFBB; color:#8E2620;
+  font-size:14px; line-height:1.5; }.sp .campo input.erro, .sp .campo textarea.erro, .sp .gat.erro{ border-color:#C8342A; }.sp .campo input.erro:focus, .sp .campo textarea.erro:focus{
+  border-color:#C8342A; box-shadow:0 0 0 3px rgba(200,52,42,.12); }/* ── depois de enviar ───────────────────────────────────────────────────────
+   Ocupa o lugar do formulario, e nao aparece embaixo dele. Deixar o
+   formulario vazio na tela depois do envio convida a mandar de novo, e ai
+   chegam duas mensagens iguais no suporte.
+
+   O circulo lima e o mesmo sinal de conclusao das telas de conta. */.sp .sup-ok{ text-align:center; display:grid; justify-items:center; gap:var(--e-4); }.sp .sup-ok__marca{ width:58px; height:58px; border-radius:50%; background:var(--lima);
+  display:grid; place-items:center; color:var(--ink); }.sp .sup-ok h2{ font-size:clamp(22px,2.6vw,30px); }.sp .sup-ok p{ font-size:15px; color:var(--ink2); max-width:44ch; }.sp .sup-ok strong{ color:var(--ink); font-weight:600; }.sp .sup-ok .miudo{ font-size:13.5px; color:var(--ink3); }.sp .sup-ok .btn{ margin-top:var(--e-3); }.sp [hidden]{ display:none !important; }.sp .sup-pe{ margin-top:var(--e-5); text-align:center; font-size:14px; color:var(--ink2); }.sp .sup-pe a{ color:var(--ink); text-decoration:underline; text-underline-offset:3px;
+  text-decoration-thickness:1px; text-decoration-color:var(--line2); }.sp .sup-pe a:hover{ text-decoration-color:var(--ink); }
+
+/* ── a fonte, em tamanho nominal ──
+   Ver a nota no gerador: o site serve a DM Sans com size-adjust de 88%, o que
+   encolhe todo texto em 12% e faz a pagina nunca fechar com o artefato. Como
+   size-adjust e descritor de @font-face, a unica saida e uma familia irma,
+   mesmo arquivo, sem o ajuste, usada so aqui dentro. */
+@font-face{
+  font-family:'DM Sans TC';
+  src:url('/fontes/DMSans-latin.woff2') format('woff2');
+  font-weight:100 1000; font-style:normal; font-display:swap;
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family:'DM Sans TC';
+  src:url('/fontes/DMSans-latin-ext.woff2') format('woff2');
+  font-weight:100 1000; font-style:normal; font-display:swap;
+  unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+.sp, .sp *{
+  font-family:'DM Sans TC','DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}

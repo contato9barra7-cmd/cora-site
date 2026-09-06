@@ -37,7 +37,10 @@ export default function Cabecalho({ aqui = 'precos' }) {
     { href: '/#passos', rotulo: t('nav_como_funciona') },
     { href: '/#ferramentas', rotulo: t('nav_ferramentas') },
     { href: aqui === 'precos' ? '#planos' : '/precos', rotulo: t('nav_planos') },
-    { href: aqui === 'precos' ? '#faq' : '/precos#faq', rotulo: t('nav_faq') },
+    // No suporte, a lista de perguntas esta na propria pagina: mandar pra
+    // /precos#faq faria o link sair de uma pagina de perguntas para outra.
+    { href: aqui === 'precos' || aqui === 'suporte' ? '#faq' : '/precos#faq',
+      rotulo: t('nav_faq') },
   ];
 
   return (
