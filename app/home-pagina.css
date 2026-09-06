@@ -1,0 +1,1006 @@
+/* ============================================================================
+   PAGINA DO ARTEFATO, ESCOPADA
+
+   Gerado por gerar-css-artefato.py a partir do <style> do artefato, que e o
+   desenho aprovado. NAO editar aqui: editar o artefato e rodar o script de
+   novo, senao os dois desencontram na primeira mudanca.
+
+   Tudo depende da classe da pagina. Isso resolve dois problemas de
+   uma vez: o desenho aprovado ganha do molde antigo por especificidade, sem
+   `!important`, e nada dele vaza pras outras telas do site.
+
+   O bloco de variaveis do artefato virou essa classe em vez de `:root` de
+   proposito: ele redefine `--wash`, `--rc` e outras que ja existem no
+   globals com outro valor, e como `:root` isso mudaria o site inteiro.
+   ========================================================================= */
+
+.hm{/* Identidade 30/08 (DESIGN-SYSTEM-ID-CORA.md §2): paleta amostrada por
+       pixel de cora-ref-visual-criativo.ai. Lima substitui o verde 1:1
+       (17,70:1 contra 17,72:1 com preto). Roxo saiu — a marca nao tem roxo. *//* §3 do design system: e-8 -> e-9 (>=768) -> e-10 (>=1024). Estava em `vh`,
+       o que fazia o ritmo da pagina inteira mudar conforme a altura da janela
+       (76px a 118.8px medidos) e nunca bater com o valor documentado. *//* Diametro de marcador circular — eram tres valores soltos (27/30/36px)
+       para o mesmo tipo de elemento. */
+    --ink:#111111; --ink2:#5b5b57; --ink3:#8e8e88;
+    --paper:#ffffff; --wash:#f6f6f4; --wash2:#efefeb; --preto:#000000;
+    --line:#e4e4df; --line2:#d2d2cb;
+    
+    --lima:#C4FBA7; --lima-esc:#a9ef86;
+    --turquesa:#ADECDF;
+    --sobre-escuro:rgba(255,255,255,.72);
+    --linha-escura:rgba(255,255,255,.14);
+
+    --e-1:4px; --e-2:8px; --e-3:12px; --e-4:16px; --e-5:24px;
+    --e-6:32px; --e-7:48px; --e-8:64px; --e-9:96px; --e-10:128px;
+
+    --r-xs:6px; --r-sm:10px; --r-md:14px; --r-lg:20px; --r-pill:100px;
+
+    --tr-press:140ms; --tr-rapida:140ms; --tr-padrao:180ms;
+    --tr-acordeao:240ms; --tr-menu:260ms; --tr-entrada:260ms;
+    --easing:cubic-bezier(0.16,1,0.3,1);
+    --ease-in-out:cubic-bezier(0.77,0,0.175,1);
+
+    --fonte:'DM Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+    --fonte-mono:'Space Mono','Courier New',monospace;
+
+    --largura-max:1180px; --gutter:20px;
+    --altura-cabecalho:60px;
+    
+    --secao-y:var(--e-8);
+    
+    --marca-xs:12px; --marca-sm:28px; --marca-md:36px;
+    color-scheme:light;
+  }
+  @media (min-width:768px){.hm{ --gutter:24px; --secao-y:var(--e-9); }}
+  @media (min-width:1024px){.hm{ --gutter:32px; --altura-cabecalho:72px; --secao-y:var(--e-10); }}.hm *, .hm *::before, .hm *::after{ box-sizing:border-box; }.hm *{ margin:0; }.hm{ scroll-behavior:smooth; }.hm{
+    font-family:var(--fonte); font-optical-sizing:auto;
+    font-size:16px; line-height:1.55;
+    color:var(--ink); background:var(--wash);
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    overflow-x:hidden;
+  }
+  @media (min-width:1024px){.hm{ font-size:17px; }}.hm img, .hm svg, .hm video{ display:block; max-width:100%; }.hm button{ font:inherit; color:inherit; background:none; border:none; cursor:pointer; }.hm a{ color:inherit; text-decoration:none; }.hm ul{ list-style:none; padding:0; }.hm ::selection{ background:var(--lima); color:var(--ink); }.hm :focus-visible{ outline:2px solid var(--preto); outline-offset:2px; border-radius:inherit; }/* ===== Tipografia v2.0 ===== */.hm h1, .hm h2, .hm h3, .hm h4{ font-weight:500; text-wrap:balance; }/* Peso 400, não 500 — teste aprovado por William em 21/08/2026, a partir da
+     auditoria do academypass.ai (§1 do "Vidro & Bento"): título grande não
+     precisa de peso pra ter presença, o tracking fechado já resolve isso. */.hm .display, .hm h1{ font-size:clamp(42px,5.9vw,76px); font-weight:400; letter-spacing:-.038em; line-height:1.02; }.hm h2{ font-size:clamp(30px,4vw,52px); letter-spacing:-.032em; line-height:1.08; }.hm h3{ font-size:clamp(22px,2.2vw,26px); letter-spacing:-.022em; line-height:1.22; }.hm h4, .hm .h4{ font-size:18px; font-weight:600; letter-spacing:-.01em; line-height:1.35; }/* Papel novo (§2): titulo de card grande de imagem. Fica abaixo do H2 de
+     proposito — a 42px ele empatava com o titulo da secao e achatava a
+     hierarquia. */.hm .h3-cartao{ font-size:clamp(26px,2.6vw,34px); font-weight:500; letter-spacing:-.028em; line-height:1.08; }.hm .corpo-g{ font-size:clamp(17px,1.4vw,19px); line-height:1.5; letter-spacing:0; }.hm .corpo-p{ font-size:14px; letter-spacing:.005em; line-height:1.5; }.hm .legenda{ font-size:13px; letter-spacing:.01em; line-height:1.45; }.hm .eyebrow{ font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--ink2); }.hm p{ text-wrap:pretty; }.hm .prosa{ max-width:66ch; }.hm .env{ width:100%; max-width:var(--largura-max); margin-inline:auto; padding-inline:var(--gutter); }.hm .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }/* ===== Botões v3.5 — pílula (pedido do William, 27/08; ver design system §4) =====
+     Largura é `min-width`, não `width` fixo — mesmo modelo do `.filtro`, que foi a
+     referência que ele mandou. 160px é o piso: cobre o rótulo mais longo que
+     divide linha com outro botão ("Criar conta", medido em 30/08), então todo par
+     lado a lado sai idêntico. Rótulo solitário e mais longo ("Conheça o 9barra7",
+     187px) cresce sozinho, sem par pra desalinhar.
+     O `width:220px` da primeira tentativa era indefensável: sobrava 33px até no
+     rótulo mais longo e 125px no "Entrar". Proporção agora 160/48 = 3,33:1, na
+     mesma faixa do `.filtro` (132/44 = 3:1). */.hm .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:var(--e-2);
+    width:fit-content; min-width:160px; min-height:48px; padding:var(--e-3) var(--e-5); box-sizing:border-box;
+    white-space:nowrap;
+    border-radius:var(--r-pill); border:1px solid transparent;
+    font-weight:600; font-size:15px; letter-spacing:-.005em; line-height:1.2; text-align:center;
+    transition:transform var(--tr-press) var(--easing),
+               background-color var(--tr-padrao) var(--easing),
+               border-color var(--tr-padrao) var(--easing),
+               color var(--tr-padrao) var(--easing);
+  }.hm .btn:active{ transform:scale(0.97); }.hm .btn--lima{ background:var(--lima); color:var(--ink); }.hm .btn--preto{ background:var(--preto); color:var(--paper); }.hm .btn--linha{ border-color:var(--ink3); color:var(--ink); }.hm .btn--escuro{ background:var(--ink); color:var(--paper); }.hm .btn--claro{ background:var(--paper); color:var(--ink); border-color:var(--line); }/* --sm/--lg aposentados na v3.5 (pedido do William, 27/08): um só tamanho
+     de botão agora, altura e largura iguais em toda a home. As classes ficam
+     nas marcações antigas até serem limpas, mas não têm mais efeito aqui. */.hm .btn--largo{ width:100%; }.hm .btn[aria-disabled="true"]{ opacity:.4; cursor:not-allowed; }/* O anel de foco global (:focus-visible acima) usa --r-sm, cantos retos
+     demais para um botão em pílula — o anel precisa acompanhar a forma. */.hm .btn:focus-visible{ border-radius:var(--r-pill); }
+  @media (hover:hover) and (pointer:fine){.hm .btn--lima:hover{ background:var(--lima-esc); }.hm .btn--preto:hover{ background:#242424; }.hm .btn--linha:hover{ background:var(--wash2); border-color:var(--ink); }.hm .btn--escuro:hover{ background:#242424; }.hm .btn--claro:hover{ background:var(--wash2); }}.hm .btn-grupo{ display:flex; flex-wrap:wrap; gap:var(--e-3); }.hm .btn-grupo--centro{ justify-content:center; }
+  @media (max-width:519px){.hm .btn-grupo--empilha{ flex-direction:column; align-items:stretch; }}.hm .link-cta{
+    display:inline-flex; align-items:center; gap:var(--e-2);
+    font-weight:600; font-size:15px; letter-spacing:-.005em;
+    border-bottom:1px solid currentColor; padding-bottom:2px;
+    transition:gap var(--tr-padrao) var(--easing), color var(--tr-padrao) var(--easing);
+  }
+  @media (hover:hover) and (pointer:fine){.hm .link-cta:hover{ gap:var(--e-3); color:var(--ink); }}/* ===== Seções ===== */.hm .secao{ padding-block:var(--secao-y); }.hm .secao--wash{ background:var(--wash); }.hm .secao--papel{ background:var(--paper); }.hm .secao--wash2{ background:var(--wash2); }.hm .secao--escura{ background:var(--preto); color:var(--paper); }.hm .secao--escura p{ color:var(--sobre-escuro); }.hm .secao--escura .eyebrow{ color:var(--sobre-escuro); }.hm [id]{ scroll-margin-top:calc(var(--altura-cabecalho) + var(--e-4)); }/* Cabeçalho de seção — variantes de composição (§3b) */.hm .cab{ display:grid; gap:var(--e-5); margin-bottom:var(--e-8); }/* No mobile toda medida vertical cai pela metade (seção de 128 para 64) menos
+     esta, que ficava em 64 — o cabeçalho passava a estar só 2x mais perto do
+     seu corpo do que da seção anterior, contra 4x no desktop. DEPOIS da regra
+     base, senão a media query perde na cascata. */
+  
+  @media (max-width:767px){.hm .cab{ margin-bottom:var(--e-7); gap:var(--e-4); }}/* 46ch, não 54: na DM Sans o `ch` (largura do zero) vale 1,42 caractere real,
+     então 54ch entregava 77 caracteres por linha — acima da faixa de 65-75
+     (auditoria de 22/08, achado 04). 46ch ≈ 65 caracteres. */.hm .cab p{ color:var(--ink2); max-width:46ch; }.hm .secao--escura .cab p{ color:var(--sobre-escuro); }.hm .cab--esq{ max-width:44rem; }/* Composição única de cabeçalho de seção (2026-08-21): título à esquerda,
+     apoio à direita, os dois alinhados pela base. Antes o cabeçalho era um
+     bloco estreito à esquerda (ou centralizado), o que deixava de 37% a 52%
+     da largura útil vazia — medido em todas as seis seções. O corpo de cada
+     seção preenche a largura inteira; o cabeçalho precisava fazer o mesmo,
+     senão a página inteira parece começar torta a cada bloco.
+     O que alterna de seção pra seção é o CORPO, não o cabeçalho: o cabeçalho
+     constante é a espinha que dá o alinhamento repetido. */.hm .cab--split{ max-width:none; }/* Botão dentro do cabeçalho: alinhado à mesma margem do título e do texto,
+     e não esticado pela grade. */.hm .cab__acao{ justify-self:start; margin-top:var(--e-2); }.hm .cab--centro{ justify-items:center; text-align:center; max-width:40rem; margin-inline:auto; }.hm .cab--split{ gap:var(--e-4); }.hm .cab--split h2{ max-width:16ch; }/* Título que deve caber numa linha só: sem o teto de largura que força quebra. */.hm .cab--linha-unica h2{ max-width:none; }
+  @media (min-width:900px){.hm .cab--split{
+      grid-template-columns:minmax(0,1fr) minmax(300px,36ch);
+      column-gap:var(--e-8); row-gap:var(--e-6);
+      align-items:end;
+    }.hm .cab--split > h2{ grid-column:1; max-width:15ch; }/* Variante alinhada pelo topo (pedido do William, 21/08 — Passos, Depoimentos
+       e Planos): o apoio começa na mesma linha do título em vez de terminar nela. */.hm .cab--split.cab--topo{ align-items:start; }.hm .cab--split.cab--topo > p{ padding-bottom:0; padding-top:.5em; }/* `justify-self:end` é o que faz a borda direita do apoio bater com a
+       borda direita do container — é dela que vem o alinhamento. */.hm .cab--split > p{ grid-column:2; justify-self:end; max-width:none; padding-bottom:.4em; }/* Filtro, switch e botão descem pra uma linha própria, sob o título. */.hm .cab--split > .filtros, .hm .cab--split > .switch, .hm .cab--split > .cab__acao{ grid-column:1 / -1; }}/* ===== Imagem real no lugar do placeholder (2026-08-21) ===== */.hm .foto{ display:block; width:100%; height:100%; object-fit:cover; }/* Selo discreto onde a imagem é substituta de um conteúdo de outro tipo —
+     captura de tela do plugin e retrato. Render ilustrando render não leva selo. */.hm .selo-marcacao{
+    position:absolute; left:var(--e-3); bottom:var(--e-3); z-index:3;
+    padding:3px var(--e-3); border-radius:var(--r-pill);
+    background:rgba(0,0,0,.78);
+    font-family:var(--fonte-mono); font-size:11px; letter-spacing:.08em;
+    text-transform:uppercase; color:rgba(255,255,255,.88);
+  }/* ===== Marcação de pendência ===== */.hm .marcacao{
+    display:flex; align-items:center; justify-content:center;
+    width:100%; min-height:120px; padding:var(--e-5);
+    border:1px dashed rgba(0,0,0,.32); border-radius:var(--r-md);
+    background-color:var(--wash2);
+    background-image:repeating-linear-gradient(45deg, rgba(0,0,0,.08) 0, rgba(0,0,0,.08) 1px, transparent 1px, transparent 8px);
+  }.hm .marcacao__rotulo{ display:flex; flex-direction:column; gap:var(--e-1); align-items:center; text-align:center; font-family:var(--fonte-mono); font-size:11px; line-height:1.45; color:var(--ink); }.hm .marcacao__tipo{ padding:2px var(--e-2); border-radius:var(--r-pill); background:var(--preto); color:var(--paper); font-weight:700; text-transform:uppercase; letter-spacing:.08em; }.hm .marcacao__desc{ max-width:38ch; color:var(--ink2); }/* ===== Cabeçalho ===== *//* Blur subiu de 14 pra 24px — medido no cabeçalho equivalente do academypass.ai
+     (mesma receita: bg quase branco a 82%, blur alto, saturate junto). O nosso
+     já tinha saturate(160%); só faltava o blur na medida certa. */.hm .cabecalho{/* Vidro de volta (06/09), no mesmo par do PromptHub: fundo a 94% do papel
+       com 12px de desfoque. O conteúdo passa por baixo insinuado, sem competir
+       com o menu — o 94% é opaco o bastante pra não virar leitura dupla. */
+    position:sticky; top:0; z-index:50;
+    
+    background:color-mix(in srgb, var(--wash) 94%, transparent);
+    -webkit-backdrop-filter:blur(12px);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }.hm .cabecalho__interno{ position:relative; display:flex; align-items:center; gap:var(--e-5); min-height:var(--altura-cabecalho); }.hm .cabecalho__marca{ margin-right:auto; }.hm .cabecalho__marca img{ width:auto; height:20px; }
+  @media (min-width:1024px){.hm .cabecalho__marca img{ height:24px; }}.hm .cabecalho__nav{ display:none; gap:var(--e-5); font-size:15px; letter-spacing:-.005em; }/* Alvo de toque de 44px também nos links de navegação (WCAG 2.5.5) */.hm .cabecalho__nav a{
+    display:inline-flex; align-items:center; min-height:44px; padding-inline:var(--e-2);
+    border-radius:var(--r-sm); color:var(--ink2);
+    transition:color var(--tr-rapida) var(--easing), background-color var(--tr-rapida) var(--easing);
+  }.hm .cabecalho__acoes{ display:none; gap:var(--e-2); }/* Largura idêntica já vem do `min-width:160px` do `.btn` base — não precisa
+     mais de regra própria aqui. 328 = 160 + 160 + 8 do gap. */.hm .cabecalho__acoes{ min-width:328px; }.hm .cabecalho__marca{ display:inline-flex; align-items:center; min-height:44px; }.hm .menu a{ display:flex; align-items:center; min-height:44px; }.hm .burger{ display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-left:auto; border-radius:var(--r-sm); transition:transform var(--tr-press) var(--easing), background-color var(--tr-padrao) var(--easing); }.hm .burger:active{ transform:scale(0.97); }
+  @media (hover:hover) and (pointer:fine){/* Sem retângulo de fundo no hover: só o texto escurece. */.hm .cabecalho__nav a:hover{ color:var(--ink); }.hm .burger:hover{ background:var(--wash2); }}
+  @media (min-width:900px){/* Centralizada ENTRE o logo e os botões, com a mesma distância dos dois
+       lados (pedido do William, 21/08). O centro da janela não serve aqui: o
+       logo é estreito e o par de botões é largo, então centrar na página
+       deixava a nav visivelmente mais perto do logo. Como `.cabecalho__marca`
+       tem `margin-right:auto` e `.cabecalho__acoes` tem `margin-left:auto`, a
+       sobra de espaço é dividida em duas partes iguais pelo próprio flex —
+       basta a nav voltar ao fluxo. */.hm .cabecalho__nav{ display:flex; }.hm .cabecalho__acoes{ display:flex; margin-left:auto; }.hm .burger{ display:none; }}.hm .menu{
+    display:grid; gap:var(--e-2);
+    padding:var(--e-4) var(--gutter) var(--e-6);
+    border-top:1px solid var(--line); background:var(--paper);
+    overscroll-behavior:contain; max-height:calc(100vh - var(--altura-cabecalho)); overflow-y:auto;
+  }.hm .menu a{ padding:var(--e-3) 0; font-size:17px; letter-spacing:-.015em; }.hm .menu__acoes{ display:grid; gap:var(--e-2); margin-top:var(--e-4); }/* `display:grid` acima venceria o `display:none` que o atributo `hidden` aplica
+     pela folha de estilo do navegador — sem esta regra o menu nasce aberto. */.hm .menu[hidden]{ display:none; }/* E nunca aparece em desktop, mesmo se o atributo `hidden` sair */
+  
+  @media (min-width:900px){.hm .menu{ display:none; }}/* =========================================================
+     01 · HERO — CENTRALIZADO, densidade baixa
+     ========================================================= *//* `--secao-y`, não `clamp(vh)`: o hero era o único bloco cuja respiração mudava
+     com a ALTURA da janela (133px em 768, 100px em 1024, 140px em 1920, contra
+     os 96/128 do resto). Mesma correção feita no resto da página em 21/08 — só
+     não tinha passado por aqui (auditoria de 22/08, achado 06). */.hm .hero{ position:relative; isolation:isolate; overflow:hidden; padding-block:var(--secao-y); background:var(--wash); }/* Altura por conteudo com piso generoso, nao por largura da janela.
+     Com `aspect-ratio:16/9` o hero virava 1080px de altura em 1920 pra 329px de
+     conteudo — 70% de vazio. O 16:9 segue valendo pra midia (o video), nao pra
+     caixa de conteudo. */
+  
+  @media (min-width:768px){.hm .hero{ min-height:min(88vh,780px); display:grid; align-content:center; }}.hm .hero__fundo{ position:absolute; inset:0; z-index:-2; }.hm .hero__fundo::before{
+    content:''; position:absolute; left:50%; top:-46%; width:132%; aspect-ratio:1;
+    transform:translateX(-50%); border-radius:50%;
+    background:radial-gradient(circle at 50% 56%, #fff 0%, #f0f1f5 34%, #d6d8e1 62%, transparent 76%);
+    animation:respirar 18s var(--easing) infinite;
+  }
+  @keyframes respirar{ 0%,100%{ transform:translateX(-50%) scale(1); } 50%{ transform:translateX(-50%) scale(1.05); } }.hm .hero__interno{ display:grid; justify-items:center; text-align:center; gap:var(--e-5); }.hm .hero h1{ max-width:16ch; }.hm .hero__apoio{ color:var(--ink2); max-width:46ch; }.hm .hero__acoes{ margin-top:var(--e-4); }.hm .hero__nota{ margin-top:var(--e-6); display:flex; align-items:center; gap:var(--e-3); color:var(--ink3); font-family:var(--fonte-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; }.hm .hero__nota::before, .hm .hero__nota::after{ content:''; width:28px; height:1px; background:var(--line2); }/* O vídeo ocupa o hero inteiro; o véu garante contraste do texto por cima. */.hm .hero__video{ position:absolute; inset:0; z-index:-2; }/* O rotulo sobe pro alto do hero: centralizado ele caia exatamente em cima do
+     H1 e da linha de apoio (medido: invadia 18px do H1 e 14px do apoio).
+     Mesma receita ja aplicada no card de problema. */.hm .hero__video .marcacao{
+    height:100%; min-height:0; border-radius:0; border:0;
+    align-items:flex-start; padding-top:var(--e-7);
+  }/* Recalibrado quando o vídeo real entrou (2026-08-21): o véu anterior foi
+     ajustado sobre a hachura do placeholder, que é lisa. Sobre imagem real o
+     texto disputava com folhagem e esquadria. O desfoque é o que resolve —
+     o vídeo vira atmosfera em movimento, não concorrente do título — e deixa
+     manter o véu leve o bastante pra imagem continuar legível. *//* Véu preto, não branco: o branco lavava o render e tirava a profundidade. */.hm .hero__veu{/* O miolo subiu de .26 pra .44 quando o vidro saiu do texto (21/08, 18h01):
+       o vidro era o que garantia leitura, e sem ele o subtítulo caía pra
+       2,5–3,3:1 sobre os frames claros do vídeo (piso de texto normal é 4,5:1).
+       Quem devolve a leitura é o próprio véu que já estava aprovado — nenhuma
+       superfície nova sobre as letras. */
+    position:absolute; inset:0; z-index:-1;
+    
+    background:
+      radial-gradient(ellipse 78% 56% at 50% 43%, rgba(0,0,0,.50) 0%, rgba(0,0,0,0) 74%),
+      linear-gradient(180deg, rgba(0,0,0,.48) 0%, rgba(0,0,0,.32) 45%, rgba(0,0,0,.58) 100%);
+  }/* Sem vidro nenhum no hero (pedido do William, 21/08 — 18h01): nem retângulo
+     atrás do texto, nem faixa nas letras. Só o texto sobre o véu preto do vídeo.
+     O bloco continua existindo como pilha centralizada, sem superfície. */.hm .hero__vidro{
+    display:grid; justify-items:center; gap:var(--e-5);
+    padding:0; border:0; background:none; box-shadow:none;
+  }.hm .hero h1{ color:var(--paper); }.hm .hero .hero__apoio{ color:var(--paper); }/* Linha de apoio do CTA (30/08): a duracao do teste vive aqui, nao dentro do
+     botao, para poder ser corrigida sem mexer no rotulo. */.hm .hero__apoio-cta{
+    margin:0; font-size:14px; letter-spacing:.005em;
+    color:var(--sobre-escuro); text-align:center;
+  }.hm .nao-quebra{ display:inline-block; }
+  @media (min-width:640px){.hm .nao-quebra{ white-space:nowrap; }}/* =========================================================
+     04 · PASSOS — ALINHADO À ESQUERDA, claro
+     ========================================================= *//* Palco: imagem ocupa a seção inteira, blocos sobrepostos na base */.hm .passos__palco{
+    position:relative; border-radius:var(--r-lg); overflow:hidden;
+    min-height:clamp(420px,62vh,640px); display:grid;
+  }/* 4:3 mantendo a largura — só a altura muda. No mobile os 3 blocos empilham
+     sobre a imagem e não caberiam em 4:3, então lá segue a proporção vertical
+     própria. */
+  
+  @media (min-width:768px){.hm .passos__palco{ aspect-ratio:4/3; min-height:0; }}/* A troca de quadro ganhou um zoom mínimo além do fade: só o fade lia como
+     piscada, e era parte do que fazia a seção parecer travada. */.hm .passos__quadro{
+    grid-area:1/1; opacity:0; overflow:hidden; pointer-events:none;
+    transform:scale(1.02); transform-origin:50% 50%;
+    transition:opacity 400ms var(--easing), transform 600ms var(--easing);
+    will-change:opacity, transform;
+  }.hm .passos__quadro[data-ativo="true"]{ opacity:1; transform:scale(1); pointer-events:auto; }.hm .passos__quadro .marcacao{ height:100%; min-height:0; border-radius:0; border:0; }.hm .passos__quadro img, .hm .passos__quadro video{ width:100%; height:100%; object-fit:cover; display:block; }/* Véu para o texto sobreposto manter contraste */.hm .passos__veu{
+    position:absolute; inset:auto 0 0 0; height:62%; z-index:1; pointer-events:none;
+    background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.34) 42%, rgba(0,0,0,.76) 100%);
+  }/* Mesma célula dos quadros: os blocos ficam SOBRE a imagem, não abaixo dela. *//* Nota da versão web (30/08): menor, cinza, centralizada e descolada do
+     bloco acima. A classe existia no markup sem nenhuma regra, então herdava
+     corpo e cor de parágrafo padrão e nascia colada no palco. */.hm .passos__nota{
+    margin:var(--e-6) auto 0;
+    text-align:center; font-size:14px; letter-spacing:.005em;
+    color:var(--ink2);
+  }/* Uma linha só: o cap de 52ch quebrava a frase e deixava "igual." órfão. */
+  
+  @media (min-width:768px){.hm .passos__nota{ margin-top:var(--e-7); white-space:nowrap; }}.hm .passos__lista{
+    grid-area:1/1; position:relative; z-index:2; align-self:end;
+    display:grid; gap:var(--e-2); padding:var(--e-4);
+  }
+  @media (min-width:768px){.hm .passos__lista{ grid-template-columns:repeat(3,1fr); gap:var(--e-3); padding:var(--e-5); }}/* Os três blocos eram quase idênticos — só o fundo mudava de .42 para .72 —,
+     então a troca de passo não tinha para onde ir e a seção lia como travada.
+     Agora o passo ativo se destaca pelo fundo, pela borda e pela descrição que
+     acende — os inativos recuam de verdade, o que dá ao rodízio um lugar para
+     chegar.
+     **Sem deslocamento vertical.** A primeira versão levantava o bloco ativo em
+     6px; o efeito quebrava a base e o topo comuns dos três e lia como defeito
+     de alinhamento, não como destaque (§3b: colunas de um bloco compartilham
+     topo E base). Estado se marca por peso, não tirando a peça da linha. */.hm .passo{
+    text-align:left; display:grid; gap:var(--e-2); align-content:start;
+    padding:var(--e-4);
+    border-radius:var(--r-md); border:1px solid rgba(255,255,255,.10);
+    background:rgba(10,10,10,.62);
+    color:var(--paper);
+    transition:background-color var(--tr-entrada) var(--easing),
+               border-color var(--tr-entrada) var(--easing),
+               transform var(--tr-press) var(--easing);
+  }.hm .passo:active{ transform:scale(0.97); }.hm .passo[aria-selected="true"]{ background:rgba(10,10,10,.78); border-color:rgba(255,255,255,.40); }
+  @media (hover:hover) and (pointer:fine){.hm .passo:not([aria-selected="true"]):hover{ background:rgba(10,10,10,.52); border-color:rgba(255,255,255,.2); }}/* Barra de progresso no topo de cada bloco *//* Barra no fluxo do bloco, não sobreposta: primeira linha do grid. */.hm .passo{ position:relative; }.hm .passo__barra{
+    height:3px; width:100%; margin-bottom:var(--e-2);
+    background:rgba(255,255,255,.20); border-radius:var(--r-pill); overflow:hidden;
+  }.hm .passo__barra i{ display:block; height:100%; width:0; background:var(--lima); border-radius:var(--r-pill); }.hm .passo[aria-selected="true"] .passo__barra i{ animation:preencher var(--passo-dur,7s) linear forwards; }/* WCAG 2.2.2 — o rodizio para enquanto o ponteiro ou o foco estao no palco. */.hm .passos__palco[data-pausado="true"] .passo__barra i{ animation-play-state:paused; }
+  @keyframes preencher{ from{ width:0; } to{ width:100%; } }/* 30/08: vidro removido. Numero em superficie solida clara. Quem sinaliza o passo
+     ativo passa a ser a barra lima acima. */.hm .passo__n{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:var(--marca-sm); height:var(--marca-sm); border-radius:var(--r-pill);
+    background:rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.28);
+    font-family:var(--fonte); font-weight:600; font-size:14px; letter-spacing:0; color:var(--paper);
+    transition:background-color var(--tr-padrao) var(--easing), border-color var(--tr-padrao) var(--easing);
+  }.hm .passo[aria-selected="true"] .passo__n{ background:rgba(255,255,255,.24); border-color:rgba(255,255,255,.44); }.hm .passo__t{ font-weight:600; font-size:18px; letter-spacing:-.01em; line-height:1.35; }/* A descrição do passo inativo recua; a do ativo acende. É o que faz a leitura
+     ir para o bloco certo sem esconder nada (esconder mexeria na altura). */.hm .passo__x{
+    font-size:14px; letter-spacing:.005em; color:rgba(255,255,255,.5);
+    transition:color var(--tr-entrada) var(--easing);
+  }.hm .passo[aria-selected="true"] .passo__x{ color:var(--sobre-escuro); }/* =========================================================
+     04 · PASSOS — MOBILE REFINADO (Apple-grade)
+     =========================================================
+     Proporção 5:7 vertical com imagem imersiva. No rodapé da imagem, card
+     translúcido em vidro escuro (blur 24px + 180% saturação) com barra
+     de progresso verde-lima no topo do bloco de texto, pill alinhado
+     "PASSO X · NOME", título nítido e descrição completa.
+     Zero salto de layout, transições em cross-fade. */
+  
+  @media (max-width:767px){.hm .passos__palco{
+      aspect-ratio:5/7; min-height:490px;
+      border-radius:var(--r-lg); position:relative; overflow:hidden;
+      display:grid; grid-template-rows:1fr;
+      box-shadow:0 12px 36px -8px rgba(0,0,0,.14);
+    }.hm .passos__quadro{
+      grid-area:1/1; width:100%; height:100%;
+      border-radius:var(--r-lg); overflow:hidden;
+      aspect-ratio:auto;
+    }.hm .passos__quadro .marcacao{
+      height:100%; min-height:0; border-radius:0; border:0;
+      padding-bottom:190px; box-sizing:border-box;
+    }.hm .passos__veu{
+      display:block; position:absolute; inset:auto 0 0 0;
+      height:62%; z-index:1; pointer-events:none;
+      background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.32) 30%, rgba(0,0,0,.88) 100%);
+    }/* Lista de passos posicionada no rodapé da imagem */.hm .passos__lista{
+      grid-area:1/1; position:relative; z-index:2;
+      align-self:end; display:grid; grid-template-columns:1fr;
+      padding:var(--e-4); width:100%; box-sizing:border-box;
+    }/* Card translúcido Apple-grade */.hm .passo{
+      grid-area:1/1;
+      display:grid;
+      grid-template-columns:22px 1fr;
+      grid-template-areas:
+        "barra barra"
+        "num tit"
+        ". desc";
+      column-gap:var(--e-3);
+      row-gap:0;
+      align-items:start; text-align:left;
+      width:100%; padding:var(--e-4); box-sizing:border-box;
+      border-radius:var(--r-md);
+      background:rgba(14,14,14,.78);
+      -webkit-backdrop-filter:blur(24px) saturate(180%);
+      backdrop-filter:blur(24px) saturate(180%);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 12px 32px rgba(0,0,0,.5);
+      color:var(--paper);
+      transition:opacity 240ms var(--easing), transform 240ms var(--easing), visibility 240ms;
+    }.hm .passo:not([aria-selected="true"]){
+      opacity:0; pointer-events:none; visibility:hidden;
+      transform:scale(0.985);
+    }.hm .passo[aria-selected="true"]{
+      opacity:1; pointer-events:auto; visibility:visible;
+      transform:scale(1);
+    }.hm .passo[aria-selected="true"]:active{
+      transform:scale(0.97);
+    }/* Barra de progresso lima carregando no topo do bloco de texto */.hm .passo .passo__barra{
+      grid-area:barra;
+      display:block; width:100%; height:2px;
+      background:rgba(255,255,255,.20); border-radius:var(--r-pill);
+      overflow:hidden; margin-bottom:var(--e-2);
+    }.hm .passo .passo__barra i{
+      display:block; height:100%; width:0;
+      background:var(--lima); border-radius:var(--r-pill);
+    }.hm .passo[aria-selected="true"] .passo__barra i{
+      animation:preencher var(--passo-dur,7s) linear forwards;
+    }/* Número dentro do círculo (exatamente: '1. modele e enquadre...') */.hm .passo .passo__n{
+      grid-area:num;
+      display:inline-flex; align-items:center; justify-content:center;
+      width:22px; height:22px; margin:0;
+      border-radius:var(--r-pill);
+      background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.30);
+      font-family:var(--fonte); font-size:12px; font-weight:600; line-height:1;
+      color:var(--paper); flex-shrink:0;
+      align-self:start;
+    }.hm .passo[aria-selected="true"] .passo__n{
+      background:rgba(255,255,255,.24); border-color:rgba(255,255,255,.44);
+    }.hm .passo .passo__t{
+      grid-area:tit;
+      display:block; font-family:var(--fonte);
+      font-size:18px; font-weight:600; letter-spacing:-.01em; line-height:1.35;
+      color:var(--paper); margin:0;
+      align-self:start;
+    }.hm .passo .passo__x{
+      grid-area:desc;
+      display:block; font-family:var(--fonte);
+      font-size:14px; line-height:1.5; letter-spacing:normal;
+      color:rgba(255,255,255,.76);
+      margin-top:var(--e-2);
+    }}/* =========================================================
+     05 · FERRAMENTAS — GRADE com abas
+     ========================================================= */.hm .filtros{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:var(--e-2);
+    width:100%;
+    max-width:340px;
+    margin-inline:auto;
+    justify-content:center;
+  }
+  @media (min-width:640px){.hm .filtros{
+      display:flex;
+      flex-wrap:wrap;
+      width:auto;
+      max-width:none;
+    }}.hm .filtros--centro{ justify-content:center; }/* Dentro do cabecalho de secao o vao ja vem do grid do `.cab`. */.hm .cab .filtros{ margin-bottom:0; }/* Centralizado de largura cheia: título em uma linha, apoio abaixo, controle
+     abaixo — os três centrados (pedido do William, 21/08, para Ferramentas e
+     Onde usar). */.hm .cab--centro-cheio{ justify-items:center; text-align:center; max-width:none; }.hm .cab--centro-cheio h2{ max-width:none; }.hm .cab--centro-cheio p{ max-width:46ch; }.hm .cab--centro-cheio .switch{ justify-self:center; }.hm .filtro{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:var(--e-2) var(--e-4); min-height:44px; border-radius:var(--r-pill);
+    border:1px solid var(--line); background:var(--paper);
+    font-size:14px; font-weight:600; letter-spacing:-.005em; color:var(--ink2);
+    cursor:pointer;
+    transition:background-color var(--tr-padrao) var(--easing), color var(--tr-padrao) var(--easing), border-color var(--tr-padrao) var(--easing), transform var(--tr-press) var(--easing);
+  }
+  @media (min-width:640px){.hm .filtro{ min-width:120px; }}.hm .filtro:active{ transform:scale(0.97); }.hm .filtro[aria-pressed="true"]{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+  @media (hover:hover) and (pointer:fine){.hm .filtro:not([aria-pressed="true"]):hover{ border-color:var(--ink3); color:var(--ink); }}/* Carrossel arrastável. Sem movimento automático: o usuário arrasta com o mouse,
+     e a posição também acompanha o avanço da seção pela viewport (§7 — motion com propósito). */.hm #ferramentas{ overflow:hidden; }.hm .ferramentas{
+    position:relative;
+    margin-inline:calc(-1 * (var(--gutter) + max(0px, (100vw - var(--largura-max)) / 2)));
+    overflow-x:auto; overscroll-behavior-x:contain;
+    scrollbar-width:none; -ms-overflow-style:none;
+    cursor:grab; scroll-behavior:auto;
+    touch-action:pan-y;
+    -webkit-overflow-scrolling:touch;
+  }.hm .ferramentas::-webkit-scrollbar{ display:none; }.hm .ferramentas[data-arrastando="true"]{ cursor:grabbing; scroll-snap-type:none; }.hm .ferramentas[data-arrastando="true"] *{ user-select:none; pointer-events:none; }.hm .ferramentas__trilha{
+    display:flex; gap:var(--e-4); width:max-content;
+    padding-inline:calc(var(--gutter) + max(0px, (100vw - var(--largura-max)) / 2));
+  }/* Sem foto (pedido do William, 21/08): estes cards vão receber ARTE DE DESIGN.
+     Até lá o card é superfície de papel com o texto ancorado no pé. *//* Base escura e texto branco (pedido do William, 21/08): "igual fizemos no
+     carrossel da seção abaixo" — os painéis do MAPA. Quando a arte de design
+     chegar, ela entra no lugar deste fundo e o resto do card não muda. */.hm .ferramenta{
+    position:relative; flex:0 0 clamp(232px,26vw,286px);
+    aspect-ratio:2/3; overflow:hidden;
+    border:1px solid rgba(255,255,255,.12); border-radius:var(--r-md);
+    background:linear-gradient(168deg, #17171c 22%, #24242c);
+    transition:border-color var(--tr-padrao) var(--easing), transform var(--tr-padrao) var(--easing);
+  }
+  @media (hover:hover) and (pointer:fine){.hm .ferramenta:hover{ border-color:rgba(255,255,255,.3); transform:translateY(-2px); }}.hm .ferramenta__visual{ position:absolute; inset:0; }.hm .ferramenta__visual .marcacao{ height:100%; min-height:0; border:0; border-radius:0; }/* §2: etiqueta de card e papel da Space Mono. Em DM Sans caixa alta ela
+     violava a regra 4 ("caixa alta e exclusiva do eyebrow"). */.hm .ferramenta__selo{
+    position:absolute; left:var(--e-3); top:var(--e-3); z-index:2;
+    padding:var(--e-1) var(--e-3); border-radius:var(--r-pill);
+    background:rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.28);
+    font-family:var(--fonte); font-size:11px; font-weight:500;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--paper);
+  }/* Etiqueta de plano (30/08). Nunca so cor: WCAG 1.4.1, regra herdada do
+     design system. Fica a direita, oposta ao selo de categoria. */.hm .ferramenta__pro{
+    position:absolute; right:var(--e-3); top:var(--e-3); z-index:2;
+    padding:var(--e-1) var(--e-3); border-radius:var(--r-pill);
+    background:var(--lima); color:var(--ink);
+    font-family:var(--fonte); font-size:11px; font-weight:600;
+    letter-spacing:.08em; text-transform:uppercase;
+  }/* Véu no pé do card: sem ele o texto claro brigaria com a imagem por baixo.
+     Duas camadas — blur + gradiente —, técnica medida no academypass.ai e
+     aprovada como "Adotar" no levantamento de 21/08. A máscara faz o próprio
+     blur entrar de forma progressiva; sem ela aparece uma linha dura onde o
+     desfoque começa. */.hm .ferramenta__texto{
+    position:absolute; inset:auto 0 0 0; z-index:2;
+    display:grid; gap:var(--e-2);
+    padding:var(--e-5) var(--e-4) var(--e-4);
+  }.hm .ferramenta h3{
+    font-size:18px; letter-spacing:-.02em; color:var(--paper);
+    line-height:1.22;
+  }/* Padronização pedida pelo William: os onze cards com três linhas de texto, pra
+     o título cair na mesma altura em todos. O bloco de texto é ancorado na base e
+     cresce pra cima, então uma descrição de quatro linhas empurrava o título
+     daquele card pra cima e quebrava o alinhamento da fileira inteira.
+     Os textos foram encurtados pra caber em três linhas na largura MÍNIMA do card
+     (232px) — na máxima (286px) também dá três. O `min-height` é rede de segurança:
+     se um texto futuro couber em duas, o card continua alinhado com os vizinhos. */.hm .ferramenta p{
+    font-size:13px; letter-spacing:.005em; line-height:1.45; color:var(--sobre-escuro);
+    min-height:calc(3 * 1.45em);
+  }.hm .ferramenta[hidden]{ display:none; }/* =========================================================
+     07 · ONDE USAR — painel largo, cartão com altura estável e abas fluidas
+     ========================================================= */.hm .switch{
+    display:inline-flex;
+    gap:var(--e-1);
+    padding:var(--e-1);
+    border:1px solid var(--line);
+    border-radius:var(--r-pill);
+    background:var(--paper);
+    box-shadow:0 1px 3px rgba(0,0,0,.03);
+  }.hm .switch__op{
+    padding:var(--e-2) var(--e-5);
+    min-height:44px;
+    border-radius:var(--r-pill);
+    border:0;
+    background:transparent;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:-.005em;
+    color:var(--ink2);
+    cursor:pointer;
+    transition:background-color var(--tr-padrao) var(--easing),
+               color var(--tr-padrao) var(--easing),
+               box-shadow var(--tr-padrao) var(--easing),
+               transform var(--tr-press) var(--easing);
+  }.hm .switch__op:active{ transform:scale(0.97); }.hm .switch__op[aria-selected="true"]{
+    background:var(--ink);
+    color:var(--paper);
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+  }
+  @media (hover:hover) and (pointer:fine){.hm .switch__op:not([aria-selected="true"]):hover{
+      color:var(--ink);
+    }}/* O retângulo cinza com tamanho fixo/estável: ambos os painéis ocupam a mesma célula de grid ("painel").
+     Dessa forma o retângulo cinza NUNCA oscila ou muda de altura ao alternar as abas. */.hm .painel-onde{
+    position:relative;
+    padding:var(--e-5);
+    border-radius:var(--r-lg);
+    background:var(--wash2);
+    border:1px solid rgba(0,0,0,.04);
+    display:grid;
+    grid-template-areas:"painel";
+    overflow:hidden;
+  }
+  @media (min-width:900px){.hm .painel-onde{
+      padding:var(--e-8);
+      min-height:420px;
+    }}.hm .painel{
+    grid-area:painel;
+    display:grid;
+    gap:var(--e-5);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transform:translateY(6px);
+    transition:opacity 280ms cubic-bezier(0.16, 1, 0.3, 1),
+               transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
+               visibility 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  }.hm .painel[aria-hidden="false"]{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    transform:translateY(0);
+  }
+  @media (min-width:900px){.hm .painel{
+      grid-template-columns:36fr 64fr;
+      align-items:center;
+      gap:var(--e-8);
+    }}.hm .painel__texto{
+    display:flex;
+    flex-direction:column;
+    gap:var(--e-3);
+  }.hm .painel__texto h3{
+    font-size:clamp(22px,2.2vw,26px);
+    font-weight:500;
+    letter-spacing:-.022em;
+    line-height:1.22;
+    color:var(--ink);
+  }.hm .painel__texto p{
+    color:var(--ink2);
+    font-size:15px;
+    line-height:1.55;
+    letter-spacing:.005em;
+  }.hm .painel__interno{
+    position:relative;
+    border-radius:var(--r-md);
+    overflow:hidden;
+    aspect-ratio:16/9;
+    background:var(--preto);
+    box-shadow:0 6px 20px rgba(0,0,0,.06);
+  }.hm .painel__interno .marcacao{
+    aspect-ratio:16/9;
+    min-height:0;
+    height:100%;
+    width:100%;
+    border-color:rgba(255,255,255,.2);
+    background-color:var(--preto);
+  }.hm .painel__interno .marcacao__rotulo{ color:var(--paper); }.hm .painel__interno .marcacao__desc{ color:var(--sobre-escuro); }.hm .painel[hidden]{ display:none; }/* 08 · AUTORIA
+     Diagramacao copiada da secao "Criado por quem já faz isso todo dia" do
+     PromptHub (30/08, pedido do William): duas colunas iguais, texto a
+     esquerda e foto a direita como imagem CONTIDA em 1:1, nao mais sangrada
+     ocupando a altura da coluna.
+
+     Isto reverte a decisao de design 4 da Secao 04, que mantinha a citacao
+     sobreposta a foto com veu (medida em 8,9:1). No PromptHub nao existe
+     citacao sobre a foto, entao ela desceu para o fim da coluna de texto, em
+     bloco proprio. Consequencia boa: some o veu em gradiente, que era um dos
+     recursos que a identidade nova cortou.
+
+     O bloco de numeros vira cartao, como o `.autora__numero` de la — com
+     borda solida em vez de vidro, pela decisao 5 da identidade. *//* =========================================================
+     07 · QUEM CRIOU — Padrão PromptHub com citação no retrato
+     ========================================================= */.hm .autoria{ display:grid; gap:var(--e-6); align-items:center; }.hm .autoria__texto{ display:flex; flex-direction:column; align-items:flex-start; gap:var(--e-5); margin:0; }.hm .autoria__texto h2{ color:var(--paper); font-size:clamp(30px,4vw,52px); font-weight:500; letter-spacing:-0.032em; line-height:1.08; }.hm .autoria__texto p.prosa{ max-width:46ch; margin:0; font-size:clamp(17px,1.4vw,19px); font-weight:400; line-height:1.5; color:var(--sobre-escuro); }/* Card do número gráfico em vidro — idêntico ao PromptHub */.hm .autoria__numero{
+    display:flex; flex-direction:column; gap:var(--e-2);
+    align-self:flex-start; margin:var(--e-2) 0 0;
+    padding:var(--e-5) var(--e-6);
+    border-radius:var(--r-lg);
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.16);
+    backdrop-filter:blur(16px) saturate(1.4);
+    -webkit-backdrop-filter:blur(16px) saturate(1.4);
+  }.hm .autoria__valor{
+    display:grid; margin:0;
+    font-size:clamp(28px,3.2vw,44px); font-weight:600; letter-spacing:-0.04em;
+    line-height:.95; font-variant-numeric:tabular-nums; color:var(--paper);
+  }.hm .autoria__valor > *{ grid-area:1 / 1; }.hm .autoria__fantasma{ visibility:hidden; }.hm .autoria__rotulo{ margin:0; font-size:clamp(14px,1.2vw,15px); line-height:1.4; color:var(--sobre-escuro); }.hm .autoria__retrato{ position:relative; margin:0; width:100%; }.hm .autoria__foto{
+    position:relative; width:100%; aspect-ratio:3/4;
+    border-radius:var(--r-lg); overflow:hidden;
+    background:#121316; border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 16px 40px rgba(0,0,0,.45);
+  }.hm .autoria__foto img{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; object-position:50% 18%; display:block;
+  }.hm .autoria__foto .marcacao{
+    position:absolute; inset:0; width:100%; height:100%;
+    min-height:0; border:0; border-radius:0;
+  }/* Véu gradiente elegante: escurece do terço médio para baixo, garantindo contraste AAA
+     para a citação sem ofuscar o rosto de Marilia. */.hm .autoria__foto::after{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg,
+      transparent 0%,
+      transparent 28%,
+      rgba(10,10,14,.25) 45%,
+      rgba(10,10,14,.75) 65%,
+      rgba(10,10,14,.92) 85%,
+      rgba(10,10,14,.98) 100%
+    );
+    z-index:1;
+  }/* Citação posicionada dentro da imagem, sobre o rodapé da foto */.hm .autoria__fala{
+    position:absolute; left:var(--e-4); right:var(--e-4); bottom:var(--e-4);
+    margin:0; display:flex; flex-direction:column; align-items:flex-start;
+    gap:var(--e-3); z-index:2;
+  }
+  @media (min-width:640px){.hm .autoria__fala{
+      left:var(--e-6); right:var(--e-6); bottom:var(--e-6);
+    }}.hm .autoria__fala blockquote{
+    margin:0;
+    font-size:clamp(15px,1.45vw,17px); font-weight:400; line-height:1.48;
+    letter-spacing:-.01em; color:var(--paper);
+    text-indent:-.36em; text-wrap:pretty;
+  }.hm .autoria__credito{ display:grid; gap:2px; }.hm .autoria__nome{ font-weight:600; font-size:15px; letter-spacing:-.01em; color:var(--paper); }.hm .autoria__papel{ font-size:13px; letter-spacing:.005em; color:var(--sobre-escuro); }
+
+  @media (min-width:900px){.hm .autoria{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--e-8); align-items:center; }.hm .autoria__foto{ aspect-ratio:4/5; }}/* =========================================================
+     09 · DEMONSTRACAO — provas empilhadas, largura inteira
+     Substituiu a parede de depoimentos em 30/08: nao existe depoimento real
+     do Cora Render, e os 12 nomes eram marcacao. Cada prova precisa ser
+     grande para funcionar como prova, entao empilha em vez de virar esteira.
+     ========================================================= *//* Diagramacao copiada da secao "Feito por alunos do 9barra7 Academy" do
+     PromptHub (30/08, pedido do William): a legenda sai de baixo da imagem e
+     entra sobreposta no canto inferior esquerdo a partir de 768px, com largura
+     limitada. Abaixo disso ela volta para fora, porque legenda sobre imagem em
+     coluna estreita cobre a prova que deveria mostrar. */.hm .provas{ display:grid; gap:var(--e-6); }.hm .prova{ margin:0; }.hm .prova__quadro{
+    position:relative; border-radius:var(--r-lg); overflow:hidden;
+    aspect-ratio:4/3; min-height:280px;
+    background:var(--preto);
+  }.hm .prova__quadro::after{
+    content:""; position:absolute; inset:auto 0 0 0; height:48%;
+    background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.55) 100%);
+    pointer-events:none; z-index:2;
+  }.hm .prova__quadro .marcacao{ width:100%; height:100%; min-height:0; border-radius:var(--r-lg); border:0; }.hm .prova__quadro img, .hm .prova__quadro video{ width:100%; height:100%; object-fit:cover; display:block; border-radius:var(--r-lg); }/* Bloco de texto/descrição com tamanho padrão e materialidade idêntica a O fluxo inteiro em três passos (liquid glass sem sombra) */.hm .prova__legenda{/* Vidro do PromptHub: 41% de preenchimento com 8px de desfoque, no lugar
+       dos 78% / 24px que fechavam a caixa. Os dois números andam juntos — o
+       desfoque não muda o brilho médio atrás da caixa, só apaga o detalhe fino
+       entre as letras — e a sombra do texto não é enfeite: com pouco
+       preenchimento, é ela que segura a leitura sobre detalhe fino.
+       Trocou a imagem de fundo, remede o contraste. */
+    position:absolute;
+    left:var(--e-3); right:var(--e-3); bottom:var(--e-3);
+    box-sizing:border-box;
+    margin:0;
+    padding:var(--e-3) var(--e-4);
+    border-radius:var(--r-md);
+    
+    background:rgba(0,0,0,.41);
+    -webkit-backdrop-filter:blur(8px) saturate(1.4);
+    backdrop-filter:blur(8px) saturate(1.4);
+    border:0;
+    box-shadow:none;
+    color:var(--paper);
+    text-shadow:0 1px 3px rgba(0,0,0,.55);
+    z-index:3;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:var(--e-1);
+    min-height:86px;
+  }.hm .prova__legenda h3{ font-size:18px; font-weight:600; letter-spacing:-.01em; line-height:1.35; margin:0; color:var(--paper); }.hm .prova__legenda p{ margin:0; color:var(--paper); font-size:14px; letter-spacing:.005em; line-height:1.45; }/* Assinatura de quem fez o projeto, no canto oposto ao da legenda. Mesmo
+     vidro dela, um pouco mais cheio (43%) porque este canto costuma ser mais
+     claro na foto, e em corpo menor: é assinatura, não conteúdo. */.hm .prova__credito{
+    position:absolute; z-index:3; pointer-events:none;
+    right:var(--e-3); bottom:var(--e-3);
+    margin:0; padding:var(--e-2) var(--e-3);
+    border-radius:var(--r-sm);
+    background:rgba(0,0,0,.43);
+    border:0;
+    -webkit-backdrop-filter:blur(8px) saturate(1.4);
+    backdrop-filter:blur(8px) saturate(1.4);
+    color:var(--paper);
+    text-shadow:0 1px 3px rgba(0,0,0,.55);
+    font-size:12px; line-height:1.2; letter-spacing:.005em;
+    white-space:nowrap;
+  }
+  @media (min-width:768px){.hm .prova__credito{ right:var(--e-5); bottom:var(--e-5); }}
+  @media (min-width:1024px){.hm .prova__credito{ right:var(--e-6); bottom:var(--e-6); }}
+  @media (min-width:768px){.hm .provas{ gap:var(--e-8); }.hm .prova__quadro{
+      aspect-ratio:16/9; min-height:0;
+    }.hm .prova__legenda{
+      left:var(--e-5); right:auto; bottom:var(--e-5);
+      padding:var(--e-4) var(--e-5);
+      width:440px;
+      min-height:114px;
+      height:auto;
+      gap:var(--e-2);
+    }.hm .prova__legenda h3{ font-size:18px; line-height:1.35; }.hm .prova__legenda p{ font-size:15px; line-height:1.45; }}
+  @media (min-width:1024px){.hm .provas{ gap:var(--e-8); }.hm .prova__legenda{
+      left:var(--e-6); bottom:var(--e-6);
+      width:460px;
+      min-height:114px;
+      height:auto;
+    }}/* Estilização temática escura para marcações da Seção 03 */.hm .secao--escura .marcacao{
+    border-color:rgba(255,255,255,.14);
+    background-color:#121316;
+    background-image:repeating-linear-gradient(45deg, rgba(255,255,255,.03) 0, rgba(255,255,255,.03) 1px, transparent 1px, transparent 8px);
+  }.hm .secao--escura .marcacao__rotulo{ color:var(--paper); }.hm .secao--escura .marcacao__tipo{
+    background:rgba(255,255,255,.14); color:var(--paper);
+    border:1px solid rgba(255,255,255,.18);
+  }.hm .secao--escura .marcacao__desc{ color:var(--sobre-escuro); }/* Comparador print × render idêntico ao PromptHub (9barra7) */.hm .comparador{
+    position:absolute; inset:0; width:100%; height:100%;
+    border-radius:var(--r-lg); overflow:hidden;
+    background:var(--wash2);
+    --pos:50%;
+    user-select:none; -webkit-user-select:none;
+    touch-action:pan-y;
+  }.hm .comparador__img{
+    position:absolute; inset:0;
+    width:100%; height:100%; object-fit:cover;
+  }.hm .comparador__camada{
+    position:absolute; inset:0; width:100%; height:100%;
+  }.hm .comparador__camada .marcacao{ height:100%; border:0; }.hm .comparador__camada--depois .marcacao{
+    background-color:#0d0f12;
+    background-image:radial-gradient(ellipse at 50% 40%, rgba(206,255,0,.08) 0%, transparent 65%);
+  }.hm .comparador__frente{
+    position:absolute; inset:0; width:100%; height:100%;
+    clip-path:inset(0 calc(100% - var(--pos)) 0 0);
+    -webkit-clip-path:inset(0 calc(100% - var(--pos)) 0 0);
+  }.hm .comparador__frente .marcacao{
+    height:100%; border:0;
+    background-color:#131519;
+    background-image:linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:24px 24px;
+  }.hm .comparador__linha{
+    position:absolute; top:0; bottom:0; left:var(--pos);
+    width:2px; background:var(--paper);
+    transform:translateX(-50%); pointer-events:none;
+    box-shadow:0 0 12px rgba(0,0,0,.4);
+    z-index:2;
+  }.hm .comparador__botao{
+    position:absolute; top:40%; left:var(--pos);
+    transform:translate(-50%, -50%);
+    width:var(--e-7); height:var(--e-7); border-radius:50%;
+    background:var(--paper); color:var(--ink);
+    box-shadow:0 4px 20px rgba(0,0,0,.35);
+    display:grid; place-items:center;
+    pointer-events:none; z-index:3;
+  }
+  @media (min-width:768px){.hm .comparador__botao{ top:50%; }}.hm .comparador__botao svg{ width:20px; height:20px; }.hm .comparador__alca{
+    position:absolute; inset:0;
+    width:100%; height:100%; margin:0; padding:0;
+    background:transparent; border:0;
+    -webkit-appearance:none; appearance:none;
+    cursor:ew-resize; z-index:4;
+  }.hm .comparador__alca::-webkit-slider-runnable-track{ background:transparent; }.hm .comparador__alca::-moz-range-track{ background:transparent; }.hm .comparador__alca::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none;
+    width:var(--e-7); height:var(--e-7); border:0; border-radius:50%;
+    background:transparent; box-shadow:none; opacity:0;
+    cursor:ew-resize;
+  }.hm .comparador__alca::-moz-range-thumb{
+    width:var(--e-7); height:var(--e-7); border:0; border-radius:50%;
+    background:transparent; box-shadow:none; opacity:0;
+    cursor:ew-resize;
+  }/* Prova 2: As cinco vistas (estilo stories só com barrinhas) */.hm .vistas-stories{
+    position:absolute; inset:0; width:100%; height:100%;
+    border-radius:var(--r-lg); overflow:hidden;
+    user-select:none; -webkit-user-select:none;
+  }.hm .vistas-stories__barras{
+    position:absolute; top:var(--e-3); inset-inline:var(--e-3); z-index:4;
+    display:grid; grid-template-columns:repeat(5, 1fr); gap:var(--e-1);
+    cursor:pointer;
+  }
+  @media (min-width:768px){.hm .vistas-stories__barras{ top:var(--e-4); inset-inline:var(--e-4); }}.hm .vistas-stories__barra{
+    position:relative;
+    height:3px; border-radius:var(--r-pill); padding:0; border:0;
+    background:rgba(255,255,255,.24); overflow:hidden;
+    cursor:pointer;
+  }.hm .vistas-stories__barra::after{
+    content:''; position:absolute; top:-18px; bottom:-18px; left:0; right:0;
+  }.hm .vistas-stories__barra i{
+    display:block; height:100%; width:0%; background:var(--lima);
+    border-radius:var(--r-pill); pointer-events:none;
+  }.hm .vistas-stories__barra[data-status="completa"] i{ width:100%; }.hm .vistas-stories__barra[data-status="pendente"] i{ width:0%; }/* Mesma âncora dos passos: a barra é uma animação (não uma transição), o que
+     permite pausar de verdade com `animation-play-state` e avançar o ródizio no
+     `animationend`. Com transição + setTimeout eram dois relógios soltos. */.hm .vistas-stories__barra[data-status="ativa"] i{
+    animation:preencher var(--vista-dur,5s) linear forwards;
+  }.hm .vistas-stories[data-pausado="true"] .vistas-stories__barra[data-status="ativa"] i{
+    animation-play-state:paused;
+  }.hm .vistas-stories__camadas{ position:absolute; inset:0; width:100%; height:100%; }.hm .vistas-stories__item{
+    position:absolute; inset:0; opacity:0; pointer-events:none;
+    transition:opacity 350ms var(--easing);
+  }.hm .vistas-stories__item[data-ativo="true"]{ opacity:1; pointer-events:auto; }.hm .vistas-stories__item .marcacao{ height:100%; border:0; }.hm .vistas-stories__item img{ width:100%; height:100%; object-fit:cover; display:block; }.hm .vistas-stories__toque{
+    position:absolute; inset:0; z-index:2; display:flex; pointer-events:none;
+  }.hm .vistas-stories__toque-ant{
+    width:35%; height:100%; pointer-events:auto; background:none; border:none; cursor:pointer;
+  }.hm .vistas-stories__toque-prox{
+    width:65%; height:100%; pointer-events:auto; background:none; border:none; cursor:pointer;
+  }/* Prova 3: Vídeo / GIF looping */.hm .prova__video-wrap{
+    position:absolute; inset:0; width:100%; height:100%;
+    border-radius:var(--r-lg); overflow:hidden;
+  }.hm .prova__video-wrap .marcacao{ height:100%; border:0; }.hm .prova__video-wrap video, .hm .prova__video-wrap img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }/* Prova 5: 360° interativo */.hm .visor-360{
+    position:absolute; inset:0; width:100%; height:100%;
+    border-radius:var(--r-lg); overflow:hidden; cursor:grab;
+    touch-action:none; user-select:none; -webkit-user-select:none;
+  }.hm .visor-360:active{ cursor:grabbing; }.hm .visor-360 canvas{ width:100%; height:100%; display:block; }/* =========================================================
+     10 · PLANOS — GRADE DENSA
+     ========================================================= */.hm .grade-planos{ display:grid; gap:var(--e-4); }
+  @media (min-width:700px){.hm .grade-planos{ grid-template-columns:repeat(3,1fr); gap:var(--e-4); }}
+  @media (min-width:1024px){.hm .grade-planos{ grid-template-columns:repeat(3,1fr); gap:var(--e-5); }}.hm .planos__garantia{
+    margin:var(--e-5) 0 0; text-align:center;
+    font-size:14px; color:var(--ink2); letter-spacing:.005em;
+  }.hm .plano{
+    position:relative; display:flex; flex-direction:column;
+    padding:var(--e-5) var(--e-4); border:1px solid var(--line); border-radius:var(--r-lg); background:var(--paper);
+    transition:border-color var(--tr-padrao) var(--easing);
+  }
+  @media (min-width:700px) and (max-width:1023px){.hm .plano{ padding:var(--e-5) var(--e-4); }}
+  @media (min-width:1024px){.hm .plano{ padding:var(--e-6) var(--e-5); }}
+  @media (hover:hover) and (pointer:fine){.hm .plano:hover{ border-color:var(--line2); }}.hm .plano--destaque{
+    border-color:var(--ink);
+    border-width:1.5px;
+  }
+  @media (hover:hover) and (pointer:fine){.hm .plano--destaque:hover{ border-color:var(--preto); }}.hm .plano__selo{
+    position:absolute; top:-12px; left:var(--e-4); z-index:2;
+    padding:var(--e-1) var(--e-3); border-radius:var(--r-pill);
+    background:var(--ink); color:var(--paper);
+    font-family:var(--fonte); font-size:11px; font-weight:600;
+    letter-spacing:.08em; text-transform:uppercase; line-height:1.3;
+  }
+  @media (min-width:1024px){.hm .plano__selo{ left:var(--e-5); }}.hm .plano__cab{ display:grid; gap:var(--e-1); margin-bottom:var(--e-3); }
+  @media (min-width:700px){.hm .plano__cab{ margin-bottom:var(--e-4); }}.hm .plano__nome{ font-size:17px; font-weight:600; letter-spacing:-.015em; color:var(--ink); }.hm .plano__pitch{ font-size:14px; letter-spacing:.005em; line-height:1.45; color:var(--ink2); min-height:0; }
+  @media (min-width:700px){.hm .plano__pitch{ min-height:2.9em; }}.hm .plano__preco{
+    font-size:34px; font-weight:600; letter-spacing:-.035em; line-height:1;
+    font-variant-numeric:tabular-nums; display:flex; align-items:baseline; gap:var(--e-2);
+    flex-wrap:wrap; color:var(--ink); margin-bottom:var(--e-3);
+  }
+  @media (min-width:700px){.hm .plano__preco{ font-size:34px; margin-bottom:var(--e-4); }}.hm .plano__per{ font-size:14px; font-weight:400; letter-spacing:.005em; color:var(--ink2); }.hm .plano__linha{ height:1px; background:var(--line); margin-bottom:var(--e-3); }
+  @media (min-width:700px){.hm .plano__linha{ margin-bottom:var(--e-4); }}.hm .plano__beneficios{ display:grid; gap:var(--e-2); margin-bottom:var(--e-4); flex-grow:1; }
+  @media (min-width:700px){.hm .plano__beneficios{ margin-bottom:var(--e-6); }}.hm .plano__cred{ font-size:14px; font-weight:600; letter-spacing:-.005em; font-variant-numeric:tabular-nums; color:var(--ink); }.hm .plano__rend{ font-size:13px; letter-spacing:.01em; color:var(--ink2); line-height:1.4; font-variant-numeric:tabular-nums; }.hm .plano .btn{ margin-top:auto; width:100%; }.hm .equipe{
+    margin-top:var(--e-4); padding:var(--e-5) var(--e-4); border-radius:var(--r-lg);
+    background:var(--paper); border:1px solid var(--line);
+    display:grid; gap:var(--e-4); align-items:center;
+  }.hm .equipe .btn{ width:100%; }
+  @media (min-width:768px){.hm .equipe{ grid-template-columns:1fr auto; gap:var(--e-7); padding:var(--e-6) var(--e-7); margin-top:var(--e-6); }.hm .equipe .btn{ width:auto; }}.hm .equipe h3{ font-size:16px; font-weight:600; letter-spacing:-.01em; color:var(--ink); line-height:1.4; }
+  @media (min-width:768px){.hm .equipe h3{ font-size:18px; line-height:1.35; }}/* =========================================================
+     11 · FAQ — DUAS COLUNAS assimétricas
+     ========================================================= *//* Coluna unica, centralizada (30/08). FECHA O ACHADO 03 da auditoria de
+     22/08, "coluna morta do FAQ": em duas colunas de acordeao, abrir uma
+     pergunta de um lado deixa o outro com um buraco do tamanho da resposta.
+     Com a passagem de 6 para 10 perguntas o vazio so cresceria. Coluna unica
+     resolve a causa em vez de administrar o sintoma. *//* Diagramacao copiada da secao "Perguntas" do PromptHub (30/08, pedido do
+     William): 34/66 com o titulo sticky na coluna esquerda. Isto reverte a
+     decisao de design 1 da Secao 09, que tinha posto tudo em coluna unica
+     centralizada para fechar o achado 03 de 22/08 ("coluna morta"). A reversao
+     e segura porque o achado era sobre DUAS COLUNAS DE ACORDEAO lado a lado:
+     abrir uma pergunta de um lado deixava buraco do outro. Aqui a lista de
+     acordeao continua em uma coluna so; a outra tem apenas o titulo. */.hm .faq__grade{ display:grid; gap:var(--e-6); align-items:start; }.hm .faq__aside{ display:grid; gap:var(--e-3); align-content:start; }.hm .faq__aside p{ color:var(--ink2); font-size:15px; letter-spacing:.005em; }/* A capitular do H2 de 52px nasce 15px abaixo do topo da caixa e o texto da
+     primeira pergunta, 8: alinhados pela caixa, o título afundava 7px. */
+  
+  @media (min-width:1024px){.hm .faq__grade{ grid-template-columns:34fr 66fr; gap:var(--e-8); }.hm .faq__aside{ position:sticky; top:calc(var(--altura-cabecalho) + var(--e-6)); margin-top:-7px; }}.hm .faq__grade h2{ max-width:none; }.hm .faq__lista{ display:grid; }.hm .faq__item{ border-bottom:1px solid var(--line); }.hm .faq__item:first-child{ border-top:1px solid var(--line); }.hm .faq__gat{
+    width:100%; display:flex; justify-content:space-between; align-items:center; gap:var(--e-4);
+    padding:var(--e-4) 0; text-align:left;
+    font-weight:500; font-size:17px; letter-spacing:-.018em; line-height:1.3;
+    transition:color var(--tr-padrao) var(--easing);
+  }
+  @media (min-width:768px){.hm .faq__gat{ padding:var(--e-5) 0; }}.hm .faq__ic{ flex:none; color:var(--ink3); transition:transform var(--tr-padrao) var(--easing), color var(--tr-padrao) var(--easing); }.hm .faq__gat[aria-expanded="true"] .faq__ic{ transform:rotate(45deg); color:var(--ink); }
+  @media (hover:hover) and (pointer:fine){.hm .faq__gat:hover .faq__ic{ color:var(--ink); }}.hm .faq__resp{ display:grid; grid-template-rows:0fr; transition:grid-template-rows var(--tr-acordeao) var(--easing); }.hm .faq__gat[aria-expanded="true"] + .faq__resp{ grid-template-rows:1fr; }.hm .faq__resp > div{ overflow:hidden; }/* 44ch ≈ 62 caracteres. Em 62ch a resposta rodava a 88 caracteres por linha,
+     em cinco linhas seguidas — o único texto corrido longo da página. */.hm .faq__resp p{ padding-bottom:var(--e-5); font-size:15px; letter-spacing:.005em; color:var(--ink2); max-width:44ch; }.hm .faq__resp .marcacao{ margin-bottom:var(--e-5); }/* 12 · CTA FINAL — CENTRALIZADO */.hm .cta{ position:relative; overflow:hidden; isolation:isolate; }/* Luz ambiente (pedido do William, 21/08 — 20h40: "iluminação cinematográfica
+     do YouTube"). O modo ambiente do YouTube pega a imagem em exibição, borra
+     muito e pinta isso como brilho atrás do player. Aqui a fonte da luz é a
+     PRÓPRIA fita de imagens: uma cópia da esteira, feita de miniaturas de 48x60,
+     borrada e saturada, andando exatamente junto com a fita de cima. Por ser a
+     mesma imagem no mesmo lugar, o brilho sempre corresponde ao que está na
+     tela — sem amostrar cor, sem canvas, sem custo de leitura de pixel.
+     As miniaturas são minúsculas de propósito: o borrão come a resolução, e
+     borrar 12 imagens grandes a cada quadro seria caro. *//* 30/08: luz ambiente removida (DESIGN-SYSTEM-ID-CORA §5.5). A regra do
+     elemento fica para nao quebrar o JS que move o trilho junto da esteira. */.hm .cta__luz{/* Sem máscara o borrão encosta na borda da seção e vira uma faixa com
+       começo e fim; com ela a luz nasce do meio e some antes de tocar o limite. */
+    display:none;
+    position:absolute; left:-10%; right:-10%; bottom:-14%; height:96%;
+    z-index:-1; pointer-events:none;
+    filter:blur(78px) saturate(2.1) brightness(1.1);
+    opacity:.62;
+    
+    -webkit-mask-image:radial-gradient(118% 96% at 50% 80%, #000 0%, #000 34%, transparent 82%);
+    mask-image:radial-gradient(118% 96% at 50% 80%, #000 0%, #000 34%, transparent 82%);
+    will-change:transform;
+  }.hm .cta__luz-trilho{ display:flex; gap:var(--e-3); height:100%; width:max-content; }.hm .cta__luz-quadro{
+    flex:0 0 clamp(208px,23vw,300px); height:100%;
+    background-size:cover; background-position:center;
+  }.hm .cta__interno{ display:grid; gap:var(--e-5); justify-items:center; text-align:center; }/* Mesma medida do H1 do hero (814px): hero e CTA são o par que abre e fecha
+     a página, e estavam com caps diferentes (auditoria de 22/08, achado 16). *//* O título do CTA cabe numa linha só no desktop; o cap de 23ch quebrava em
+     duas. Abaixo de 900px ele volta a quebrar sozinho. */.hm .cta h2{ max-width:none; }.hm .cta p{ max-width:46ch; }/* Sobe pertinho do título: o grid do bloco tem gap de 24px, e entre título e
+     linha de apoio isso abre demais. */.hm .cta__sub{ margin-top:calc(var(--e-5) * -1 + var(--e-2)); color:var(--sobre-escuro); }/* Esteira do CTA final — ref. 21st.dev hero-3 "Animated Marquee Hero".
+     §4 do design system: marquee full-bleed é o único bloco sem raio, porque
+     encosta na borda da viewport. §6: as imagens ainda não existem, então cada
+     quadro é `.marcacao` — placeholder assumido, nunca disfarçado de final.
+     Decorativa: `aria-hidden` no HTML, o que também neutraliza a pendência de
+     pausa acessível do §7 (não carrega informação, só ambienta). *//* A esteira deixou de ser `@keyframes` e passou a ser rolagem conduzida por
+     JS (pedido do William, 21/08 — 20h15: precisa arrastar com o mouse e as
+     imagens precisam ampliar no clique). Mesma mecânica do carrossel de
+     Ferramentas — `scrollLeft` + normalização de período —, o que dá arraste,
+     inércia e volta infinita de graça.
+     De quebra corrige um defeito que estava lá: o keyframe ia até `-50%`
+     supondo a lista duplicada, mas as 12 imagens são todas diferentes, então a
+     esteira dava um salto visível ao voltar. As cópias agora são feitas pelo JS. */.hm .esteira{
+    margin-top:var(--e-8);
+    overflow-x:auto; overscroll-behavior-x:contain;
+    scrollbar-width:none; -ms-overflow-style:none;
+    cursor:grab; scroll-behavior:auto;
+  }.hm .esteira::-webkit-scrollbar{ display:none; }.hm .esteira[data-arrastando="true"]{ cursor:grabbing; }.hm .esteira[data-arrastando="true"] *{ user-select:none; pointer-events:none; }.hm .esteira__trilho{ display:flex; gap:var(--e-3); width:max-content; }.hm .esteira__item{
+    flex:0 0 clamp(208px,23vw,300px); aspect-ratio:4/5;
+    border-radius:var(--r-md); overflow:hidden; padding:0; border:0; background:none;
+    cursor:zoom-in; position:relative;
+    transition:transform var(--tr-padrao) var(--easing), opacity var(--tr-padrao) var(--easing);
+  }.hm .esteira__item:active{ transform:scale(0.97); }
+  @media (hover:hover) and (pointer:fine){.hm .esteira__item:hover{ opacity:.86; }}.hm .esteira__item img{
+    width:100%; height:100%; object-fit:cover; display:block; border-radius:var(--r-md);
+  }.hm .esteira .marcacao{
+    aspect-ratio:4/5; min-height:0; height:auto; border-radius:var(--r-md);
+    border-color:rgba(255,255,255,.34); background-color:rgba(255,255,255,.03);
+  }.hm .esteira .marcacao__rotulo{ color:var(--paper); }.hm .esteira .marcacao__desc{ color:var(--sobre-escuro); }
+  @media (hover:hover) and (pointer:fine){.hm .esteira:hover .esteira__trilho{ animation-play-state:paused; }}/* Lupa — a imagem da esteira ampliada (pedido do William, 21/08 — 20h15).
+     Entra com fade + escala curta, sai mais rápido do que entra (§7). */.hm .lupa{
+    position:fixed; inset:0; z-index:200; display:none; place-items:center;
+    padding:var(--e-6);
+    background:rgba(8,8,10,.86);
+    opacity:0; transition:opacity 160ms var(--easing);
+  }.hm .lupa[data-aberta]{ display:grid; }.hm .lupa[data-aberta="true"]{ opacity:1; }.hm .lupa__foto{
+    width:auto; height:86vh; max-width:94vw; max-height:86vh; object-fit:contain;
+    border-radius:var(--r-md); box-shadow:0 40px 120px rgba(0,0,0,.6);
+    transform:scale(.985); transition:transform var(--tr-entrada) var(--easing);
+  }.hm .lupa[data-aberta="true"] .lupa__foto{ transform:scale(1); }.hm .lupa__fechar{
+    position:absolute; top:var(--e-5); right:var(--e-5);
+    width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center;
+    border-radius:var(--r-pill); color:var(--paper);
+    background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.28);
+    transition:background-color var(--tr-padrao) var(--easing), transform var(--tr-press) var(--easing);
+  }.hm .lupa__fechar:active{ transform:scale(0.97); }
+  @media (hover:hover) and (pointer:fine){.hm .lupa__fechar:hover{ background:rgba(255,255,255,.24); }}/* Navegação entre as imagens ampliadas: mesmas pastilhas do botão de fechar,
+     coladas nas laterais. As setas do teclado fazem o mesmo. */.hm .lupa__nav{
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center;
+    border-radius:var(--r-pill); color:var(--paper);
+    background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.28);
+    transition:background-color var(--tr-padrao) var(--easing);
+  }.hm .lupa__nav--ant{ left:var(--e-5); }.hm .lupa__nav--prox{ right:var(--e-5); }.hm .lupa__nav:active{ transform:translateY(-50%) scale(0.97); }
+  @media (hover:hover) and (pointer:fine){.hm .lupa__nav:hover{ background:rgba(255,255,255,.24); }}.hm .lupa__nav svg{ width:22px; height:22px; }/* Rodapé *//* O copyright encosta no fim da página (pedido do William, 21/08 — 18h21):
+     os 128px de respiro embaixo faziam a página parecer que continuava. O que
+     sobra é o mesmo `--e-5` que separa o filete do texto, então a linha fica
+     centrada na própria faixa. */.hm .rodape{ background:var(--preto); color:var(--sobre-escuro); padding-block:var(--e-6) var(--e-5); }.hm .rodape__grade{ display:grid; grid-template-columns:repeat(2,1fr); gap:var(--e-6) var(--e-4); }.hm .rodape__marca{ grid-column:1 / -1; display:grid; justify-items:start; gap:var(--e-5); }
+  @media (min-width:768px){.hm .rodape__grade{ grid-template-columns:2fr repeat(4,1fr); gap:var(--e-7); }.hm .rodape__marca{ grid-column:auto; }}/* O logo do Cora só existe em preto; invertido vira branco puro sobre o rodapé. */.hm .rodape{ position:relative; overflow:hidden; }.hm .rodape__logo{ width:min(230px,60%); height:auto; }/* Marca d'água do Cora, no fluxo entre a grade de links e o copyright.
+     Revisão de 21/08 (18h03): deixou de sangrar e de ser cortada — aparece
+     INTEIRA. O alinhamento agora é o da própria página: a caixa é um `.env`,
+     então a borda esquerda da marca cai na mesma vertical do logo e a direita
+     na mesma vertical da última coluna de links. O respiro é simétrico —
+     `--e-8` acima e abaixo —, então ela não "pertence" nem à grade nem ao
+     copyright. Decorativa: `aria-hidden` no HTML. */.hm .rodape__agua-caixa{ margin-block:var(--e-8); }.hm .rodape__agua{
+    display:block; width:100%; height:auto;
+    opacity:.11; filter:invert(1); pointer-events:none;
+  }.hm .rodape .env{ position:relative; z-index:1; }/* Era o mesmo tratamento do eyebrow (11px, caixa alta, tracking aberto) — que
+     saiu da página inteira. Título de coluna passa a ser texto normal em DM Sans. */.hm .rodape__t{ font-size:14px; font-weight:600; letter-spacing:-.005em; color:var(--paper); margin-bottom:var(--e-2); }.hm .rodape__links{ display:grid; font-size:14px; letter-spacing:.005em; }/* O espaço largo entre os links vinha do alvo de toque de 44px, aplicado em
+     todo mundo. No mouse ele não serve pra nada e só afasta os links, então os
+     44px ficam só onde há dedo; no ponteiro fino cai pra 32px, ainda acima do
+     piso de 24px da WCAG 2.5.8. */.hm .rodape__links a{ display:flex; align-items:center; min-height:44px; transition:color var(--tr-rapida) var(--easing); }
+  @media (pointer:fine){.hm .rodape__links a{ min-height:32px; }}
+  @media (hover:hover) and (pointer:fine){.hm .rodape__links a:hover{ color:var(--paper); }}.hm .rodape__base{ padding-top:var(--e-5); border-top:1px solid var(--linha-escura); font-size:13px; letter-spacing:.01em; text-align:center; display:grid; gap:var(--e-2); justify-items:center; }.hm .rodape__copy{ margin:0; color:var(--sobre-escuro); }/* Uma linha so: o cap de 82ch e o <br> quebravam a frase em tres pedacos.
+     A partir de 1140px a linha inteira cabe no container; abaixo disso ela
+     volta a quebrar sozinha em vez de estourar na horizontal. */.hm .rodape__disclaimer{ margin:0; color:rgba(255,255,255,.32); font-size:12px; line-height:1.5; text-wrap:balance; }
+  @media (min-width:1140px){.hm .rodape__disclaimer{ white-space:nowrap; }}/* =========================================================
+     BARRA DE COOKIES (LGPD) — rodapé
+     =========================================================
+     Portada do componente do cora-site (`components/CookieConsent.js` +
+     `.cookie-bar` no globals.css). A única diferença é a ação, que usa a lima
+     daqui em vez do `--verde` de lá — é o mesmo verde do "Criar conta". *//* Centralizado e em duas linhas, com a chamada da política inteira embaixo —
+     o <br> é o mesmo do componente do cora-site. Sem ele, "Veja a" fica pendurado
+     no fim da primeira linha e o link nasce órfão na segunda. *//* Duas linhas e só duas: a primeira frase inteira em cima, a chamada da
+     política embaixo. Sem o `nowrap` a frase quebrava sozinha em telas menores e
+     o bloco virava três linhas, com "Veja a Política" órfão no fim. A frase mede
+     412px; com os botões e o respiro das bordas, a faixa em linha precisa de
+     ~710px, e por isso a virada pra coluna subiu de 620 pra 760px. */
+  /* Branco cheio e sublinhado: sobre o vidro escuro, link colorido perde. *//* Pill, como manda o padrão visual, mas em corpo menor que o `.btn` da
+     página: a barra é aviso, não chamada principal. */
+  .hm .pular{
+    position:absolute; top:var(--e-2); left:var(--e-2); z-index:100;
+    padding:var(--e-3) var(--e-5); background:var(--ink); color:var(--paper);
+    border-radius:var(--r-sm); transform:translateY(-200%);
+    transition:transform var(--tr-padrao) var(--easing);
+  }.hm .pular:focus{ transform:translateY(0); }.hm .revelar{ transition:opacity var(--tr-entrada) var(--easing), transform var(--tr-entrada) var(--easing); }/* §7 do design system: "conteúdo nunca depende de JS para aparecer".
+     Quem esconde é esta regra de CSS, então quem garante a volta também é CSS —
+     a rede de segurança é uma animação com 4s de atraso, que revela o conteúdo
+     mesmo se o script morrer ou nunca rodar. Antes ela morava DENTRO do script
+     principal, ou seja, falhava junto com ele: foi assim que a página inteira
+     foi publicada com o texto invisível em 20/08/2026.
+     Quando o script está vivo ele marca data-vis="true" antes dos 4s e esta
+     regra para de valer, então o efeito de revelação por scroll segue igual. */.hm .js .revelar[data-vis="false"]{
+    opacity:0; transform:translateY(10px);
+    animation:rede-de-seguranca var(--tr-entrada) var(--easing) 4s forwards;
+  }
+  @keyframes rede-de-seguranca{ to{ opacity:1; transform:none; } }/* ---- voltar ao topo ----
+   A home e longa. O botao so aparece depois de a pessoa ter descido de
+   verdade, senao ele fica ali no primeiro quadro sem ter pra onde voltar.
+   Circulo claro com borda fina: precisa ler tanto sobre as secoes brancas
+   quanto sobre a preta do "Criado por quem". */
+
+/* ── a fonte, em tamanho nominal ──
+   Ver a nota no gerador: o site serve a DM Sans com size-adjust de 88%, o que
+   encolhe todo texto em 12% e faz a pagina nunca fechar com o artefato. Como
+   size-adjust e descritor de @font-face, a unica saida e uma familia irma,
+   mesmo arquivo, sem o ajuste, usada so aqui dentro. */
+@font-face{
+  font-family:'DM Sans TC';
+  src:url('/fontes/DMSans-latin.woff2') format('woff2');
+  font-weight:100 1000; font-style:normal; font-display:swap;
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family:'DM Sans TC';
+  src:url('/fontes/DMSans-latin-ext.woff2') format('woff2');
+  font-weight:100 1000; font-style:normal; font-display:swap;
+  unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+.hm, .hm *{
+  font-family:'DM Sans TC','DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}

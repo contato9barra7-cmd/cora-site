@@ -1,15 +1,15 @@
 /* ============================================================================
-   PAGINA DE PLANOS E PRECOS
+   PAGINA DO ARTEFATO, ESCOPADA
 
-   Gerado por gerar-css-precos.py a partir do <style> de precos.html, que e o
+   Gerado por gerar-css-artefato.py a partir do <style> do artefato, que e o
    desenho aprovado. NAO editar aqui: editar o artefato e rodar o script de
    novo, senao os dois desencontram na primeira mudanca.
 
-   Tudo depende de `.pr`, a classe da pagina. Isso resolve dois problemas de
+   Tudo depende da classe da pagina. Isso resolve dois problemas de
    uma vez: o desenho aprovado ganha do molde antigo por especificidade, sem
    `!important`, e nada dele vaza pras outras telas do site.
 
-   O bloco de variaveis do artefato virou `.pr` em vez de `:root` de
+   O bloco de variaveis do artefato virou essa classe em vez de `:root` de
    proposito: ele redefine `--wash`, `--rc` e outras que ja existem no
    globals com outro valor, e como `:root` isso mudaria o site inteiro.
    ========================================================================= */

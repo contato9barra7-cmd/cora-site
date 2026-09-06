@@ -73,7 +73,14 @@
    Zerar aqui, e nao no globals, e de proposito: o globals atende telas que
    ainda usam o molde antigo. */
 .tc.login-split{
-  min-height:100dvh; display:grid; grid-template-columns:1fr;
+  /* `--aviso` e a altura do aviso de cookies, medida em tempo de execucao e
+     escrita pelo LoginSplit. Zero quando ele nao esta na tela. Ver o comentario
+     no componente para o porque de ela vir de la e nao daqui.
+
+     O desconto tem que estar AQUI tambem, e nao so no `height` do desktop:
+     `min-height` ganha de `height`, entao um `height` menor sozinho nao
+     encurtava nada e a tela seguia com os 100dvh inteiros. */
+  min-height:calc(100dvh - var(--aviso, 0px)); display:grid; grid-template-columns:1fr;
   background:var(--paper); color:var(--ink);
   padding:0; gap:0;
 }
@@ -103,8 +110,15 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      `width:100%` nao e enfeite: `.lado-form` tem `place-items:center`, e
      `justify-items` tambem vale pra caixa de bloco (vira `justify-self`),
      entao sem isto o filho encolhe ate o conteudo. */
-  .tc.login-split{ height:100dvh; overflow:hidden; }
-  .tc .lado-form{ display:block; overflow-y:auto; }
+/* A tela inteira para ANTES do aviso de cookies, em vez de ficar embaixo dele.
+     A faixa de vidro do painel mora no pe, entao sem isto o aviso cortava a
+     frase, engolia o apoio e as barrinhas e cobria metade do selo. Medido no ar
+     antes do conserto: rodape de 784 a 900, aviso comecando em 829.
+     Aqui e `height` porque o desktop ja trava a altura e quem rola e o lado do
+     formulario. No celular a conta e outra, no `padding-bottom` do lado-form. */
+  .tc.login-split{ height:calc(100dvh - var(--aviso, 0px)); overflow:hidden; }
+  /* O respiro do celular nao serve aqui: a tela ja acaba acima do aviso. */
+  .tc .lado-form{ display:block; overflow-y:auto; padding-bottom:var(--e-7); }
   .tc .cartao-area{
     width:100%; min-height:100%;
     display:flex; flex-direction:column; justify-content:center; align-items:center;
@@ -282,7 +296,14 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
   .tc .toque{ position:absolute; inset:0; z-index:5; display:flex; }.tc .toque button{ height:100%; background:none; border:0; cursor:pointer; }.tc .toque button:first-child{ width:32%; }.tc .toque button:last-child{ width:68%; }
 
 /* ═══ cartao ═══ */
-.tc .lado-form{ background:var(--paper); display:grid; place-items:center; padding:var(--e-7) 20px; }.tc .cartao{ width:100%; max-width:360px; }.tc .cartao__marca{ margin-bottom:var(--e-7); }.tc .cartao__marca img{ height:34px; width:auto; }.tc .cartao h1{ font-size:34px; font-weight:500; letter-spacing:-.03em; line-height:1.1; }.tc .cartao__apoio{ margin-top:var(--e-2); color:var(--ink2); font-size:14.5px; }.tc .campo{ margin-top:var(--e-5); }.tc .campo label{ display:block; font-size:13px; font-weight:500; color:var(--ink2); margin-bottom:var(--e-2); }.tc .campo__caixa{ position:relative; }.tc .campo input{
+/* O pe reserva a altura do aviso de cookies. No celular o painel some, a tela
+   e so o cartao, e a pagina rola: como o aviso e fixo no pe da JANELA, encolher
+   a altura nao adianta, quem estiver no fim do documento continua atras dele.
+   Com o respiro, o fim do cartao para acima do aviso.
+   Sem isto, medido no ar em 360x640: "Esqueci minha senha" cortado ao meio e
+   "Criar conta gratis" inteiro atras da faixa, com o toque caindo no botao
+   "Aceitar" do aviso. */
+.tc .lado-form{ background:var(--paper); display:grid; place-items:center; padding:var(--e-7) 20px calc(var(--e-7) + var(--aviso, 0px)); }.tc .cartao{ width:100%; max-width:360px; }.tc .cartao__marca{ margin-bottom:var(--e-7); }.tc .cartao__marca img{ height:34px; width:auto; }.tc .cartao h1{ font-size:34px; font-weight:500; letter-spacing:-.03em; line-height:1.1; }.tc .cartao__apoio{ margin-top:var(--e-2); color:var(--ink2); font-size:14.5px; }.tc .campo{ margin-top:var(--e-5); }.tc .campo label{ display:block; font-size:13px; font-weight:500; color:var(--ink2); margin-bottom:var(--e-2); }.tc .campo__caixa{ position:relative; }.tc .campo input{
     width:100%; height:50px; padding:0 var(--e-5); font-family:inherit; font-size:15px; color:var(--ink);
     background:var(--paper); border:1px solid var(--line); border-radius:var(--r-pill);
     transition:border-color var(--tr-padrao) var(--easing), box-shadow var(--tr-padrao) var(--easing);

@@ -23,7 +23,7 @@
 //  Cada slide tem imagem, alt e as chaves de traducao da frase.
 // ═══════════════════════════════════════════════════════════
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useIdioma } from '../lib/i18n';
 import GradeCora from './GradeCora';
@@ -48,6 +48,39 @@ const DUR_FOTO = 5200;
 export default function LoginSplit({ children, denso = false }) {
   const { t } = useIdioma();
   const painelRef = useRef(null);
+
+  // ── A altura do aviso de cookies ──
+  // Ele e fixo no pe da janela e mora no mesmo canto que a faixa de vidro. Sem
+  // tratar, cobre o pe destas telas: no desktop cortava a frase, engolia o
+  // apoio e as barrinhas e comia metade do selo; no celular o "Criar conta
+  // grátis" ficava atrás dele e o toque caia no botao "Aceitar".
+  //
+  // A medida sai daqui porque o aviso quebra em mais linhas no celular, 71px de
+  // altura no desktop e 135 no telefone, e porque ele nasce DEPOIS, quando o
+  // CookieConsent le o localStorage. Por isso o observador: ele pega tanto a
+  // entrada quanto a saida, e quando a pessoa escolhe o valor volta a zero
+  // sozinho. Mesmo caminho do AoTopo, que divide o canto com ele.
+  //
+  // Vai como variavel de CSS, e nao como estilo direto, porque o desktop e o
+  // celular precisam do numero em propriedades diferentes (altura la, respiro
+  // de baixo aqui). O `px` no fim nao e enfeite: `calc()` com numero puro e
+  // invalido, a declaracao inteira cai, e e assim que uma conta dessas volta
+  // silenciosamente pro valor de antes.
+  const [aviso, setAviso] = useState(0);
+  useEffect(() => {
+    const medir = () => {
+      const barra = document.querySelector('.cookie-bar');
+      setAviso(barra ? Math.round(barra.getBoundingClientRect().height) : 0);
+    };
+    medir();
+    const olho = new MutationObserver(medir);
+    olho.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('resize', medir);
+    return () => {
+      olho.disconnect();
+      window.removeEventListener('resize', medir);
+    };
+  }, []);
 
   // As frases entram pelo dataset pra o motor nao depender do React pra
   // escrever texto no meio de uma transicao.
@@ -243,7 +276,8 @@ export default function LoginSplit({ children, denso = false }) {
   }, [JSON.stringify(textos)]);
 
   return (
-    <main className={'login-split tc' + (denso ? ' tc--denso' : '')}>
+    <main className={'login-split tc' + (denso ? ' tc--denso' : '')}
+          style={{ '--aviso': aviso + 'px' }}>
       {/* Vento: ruído de baixa frequência deslocando o pelo de leve. Uma oitava
           tira o granulado.
 
