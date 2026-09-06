@@ -227,8 +227,16 @@ export default function Precos() {
                   <p className="plano__credsub">{t(p.creditosSubKey)}</p>
                 </div>
                 <div className="plano__cta">
+                  {/* O artefato escreve o nome do plano no botao: "Assinar Pro",
+                      nao so "Assinar". Com quatro cartoes lado a lado isso
+                      importa, porque o botao passa a dizer sozinho o que faz. O
+                      Free fica de fora, o rotulo dele e "Testar 7 dias". */}
                   <button type="button" className={'btn btn--largo btn--' + p.ctaEstilo}
-                          onClick={() => assinarPlano(p.id)}>{t(p.ctaKey)}</button>
+                          onClick={() => assinarPlano(p.id)}>
+                    {p.mensal === 0
+                      ? t(p.ctaKey)
+                      : t('assinar_plano').replace('{plano}', p.nome)}
+                  </button>
                 </div>
                 <ul className="plano__beneficios">
                   {p.feats.map((f, i) => (

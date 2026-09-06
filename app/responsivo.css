@@ -1147,8 +1147,12 @@ img, video, iframe {
    13. CARTÕES FLUTUANTES FIXOS
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Todos moram no rodapé da tela — é lá que fica o queixo do iPhone. */
-.cookie-bar { bottom: calc(18px + var(--seg-base)); }
+/* Todos moram no rodapé da tela, que é onde fica o queixo do iPhone.
+   O aviso de cookies é a exceção: ele ENCOSTA no fundo, como no desenho
+   aprovado. Levantar ele 18px o transformava num cartão flutuante, e a leitura
+   muda: flutuando ele parece um aviso a mais na página, encostado ele lê como
+   a faixa do sistema que é. O queixo do iPhone é resolvido no padding-bottom,
+   dentro do globals, e não empurrando a barra pra cima. */
 .trial-card { bottom: calc(22px + var(--seg-base)); }
 .ps-toast   { bottom: calc(28px + var(--seg-base)); }
 
@@ -1167,7 +1171,9 @@ img, video, iframe {
 }
 
 @media (max-width: 380px) {
-  .cookie-bar { left: 8px; right: 8px; padding: 14px; }
+  /* De ponta a ponta tambem no celular: recuo lateral aqui deixaria a
+     faixa com cara de cartao, e ela nao e cartao. */
+  .cookie-bar { padding: 14px; }
   .cookie-btn { font-size: 12px; padding: 10px 14px; }
 }
 

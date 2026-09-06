@@ -727,11 +727,18 @@ select.login-input { padding-right: 34px; }
    última nasceu em 35% de branco no meu mockup e dava 2,68, abaixo do mínimo
    de 3 para contorno.
    ══════════════════════════════════════════════════════════ */
+/* Vidro liquido, o mesmo material da faixa do painel de login: transparente o
+   bastante pra cor de tras atravessar, saturacao alta, e um fio de luz na
+   borda de cima, que e o que da a leitura de vidro em vez de faixa escura.
+   Opacidade .62 e o piso: abaixo disso o texto branco cai de 5:1 pra menos de
+   4,5 quando a faixa passa por cima de uma secao clara. */
 .cookie-bar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 3000;
-  background: var(--vidro-preto); color: var(--paper);
-  -webkit-backdrop-filter: blur(26px) saturate(115%);
-  backdrop-filter: blur(26px) saturate(115%);
+  background: rgba(12, 12, 12, .62); color: var(--paper);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 -10px 34px rgba(12, 12, 12, .16);
   padding: 16px clamp(20px, 5vw, 44px);
   display: flex; align-items: center; gap: 24px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
@@ -745,15 +752,16 @@ select.login-input { padding-right: 34px; }
 .cookie-txt a { color: var(--paper); text-decoration: underline; text-underline-offset: 2px; }
 .cookie-acoes { display: flex; gap: 8px; flex-shrink: 0; }
 .cookie-btn {
-  border: 1px solid transparent; border-radius: var(--r);
-  font-family: inherit; font-size: 12.5px; font-weight: 600;
+  border: 1px solid transparent; border-radius: 100px;
+  min-height: 38px; display: inline-flex; align-items: center; justify-content: center;
+  font-family: inherit; font-size: 12.5px; font-weight: 600; letter-spacing: -.005em;
   padding: 9px 20px; cursor: pointer; white-space: nowrap;
   transition: background .15s, border-color .15s, opacity .15s;
 }
-/* O verde continua sendo a ação: é o do site inteiro (ver `.btn--verde`), e
-   sobre o vidro ele ganha destaque em vez de perder. */
-.cookie-btn--verde { background: var(--verde); color: var(--ink); }
-.cookie-btn--verde:hover { background: var(--verde-esc); }
+/* A acao vai no lima da marca, como no desenho aprovado. Sobre o vidro escuro
+   ele ganha destaque em vez de perder. */
+.cookie-btn--verde { background: #C4FBA7; color: var(--ink); }
+.cookie-btn--verde:hover { background: #A5F37D; }
 .cookie-btn--ghost {
   background: transparent; color: var(--paper);
   border-color: rgba(255, 255, 255, .45);
