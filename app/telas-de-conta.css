@@ -34,7 +34,14 @@
      o pelo vire bola de praia em tela larga. */
   --margem-painel:clamp(32px, 2.5vw, 60px);   /* 32 do artefato = 2,5vw       */
   --selo-painel:clamp(44px, 3.9vw, 84px);     /* 60 do artefato menos o pouco */
-  --respiro-selo:clamp(20px, 1.9vw, 44px);    /* 24 do artefato = 1,9vw       */
+  /* ── O selo no centro do vao ──
+     O dono pediu o selo no centro entre a borda esquerda e o comeco do texto.
+     A conta que garante isso e uma so: o respiro DA BORDA tem que ser igual ao
+     respiro ATE O TEXTO. Enquanto os dois forem diferentes o selo fica fora do
+     centro, e era o caso: 48 de um lado, 36 do outro, 6px fora.
+     Por isso a faixa usa a MESMA ficha nos dois. Mexer num sem mexer no outro
+     desalinha de novo, entao nao separar. */
+  --respiro-selo:clamp(36px, 3.1vw, 76px);
   --r-pill:100px;
   --tr-padrao:180ms; --easing:cubic-bezier(0.16,1,0.3,1);
 }
@@ -301,7 +308,9 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
        tudo que encosta nela obedece: o logo no alto, o selo no pe e a ponta
        das barrinhas na direita. Com 32 aqui o selo ficava colado na quina e,
        depois que o logo subiu pra 48, ainda por cima desalinhado dele. */
-    padding:var(--e-5) var(--margem-painel);
+    /* Os lados usam a MESMA ficha do respiro do selo. E o que poe ele no centro
+       do vao ate o texto, que foi o pedido. Ver a ficha, no topo do arquivo. */
+    padding:var(--e-5) var(--respiro-selo);
     background:rgba(12,12,12,.58);
     -webkit-backdrop-filter:blur(26px) saturate(170%);
             backdrop-filter:blur(26px) saturate(170%);
