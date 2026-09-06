@@ -26,6 +26,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useIdioma } from '../lib/i18n';
+import AoTopo from './AoTopo';
 
 // Vira "1-aceitacao" a partir de "1. Aceitação": o id precisa sobreviver a
 // acento e pontuação porque ele vai virar âncora na barra de endereço.
@@ -136,6 +137,8 @@ export default function PaginaLegal({ titulo, data, children }) {
           {children}
         </div>
       </div>
+
+      <AoTopo rotulo={t('legal_ao_topo')} />
     </div>
   );
 }

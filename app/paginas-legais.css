@@ -269,3 +269,40 @@
 .legal-link:hover,
 .legal-p a:hover,
 .legal-lista a:hover { color: var(--ink); }
+
+/* ── a seta de voltar ao topo ──
+   Mesmo desenho do site: círculo branco, fio fino, sombra baixa. Ela nasce
+   escondida e entra depois que a pessoa desceu.
+
+   O `z-index` fica ACIMA do aviso de cookies, que vive em 3000. Os dois moram
+   no mesmo canto, e sem isso a seta nasce atrás do botão "Aceitar" e vira
+   clique perdido. Quem calcula o `bottom` é o componente, em estilo direto:
+   a conta depende da altura do aviso, que só existe em tempo de execução. */
+.ao-topo {
+  position: fixed;
+  right: 24px;
+  z-index: 3100;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid rgba(17, 17, 17, .14);
+  border-radius: 50%;
+  box-shadow: 0 6px 20px rgba(17, 17, 17, .14);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 260ms ease, transform 260ms ease, visibility 260ms,
+              bottom 220ms ease, background-color 160ms ease;
+}
+.ao-topo[data-ver="true"] { opacity: 1; visibility: visible; transform: translateY(0); }
+.ao-topo:hover { background: #F2F2EF; }
+.ao-topo:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+@media (max-width: 640px) {
+  .ao-topo { right: 16px; width: 42px; height: 42px; }
+}
