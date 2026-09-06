@@ -38,14 +38,37 @@
 }
 
 /* ── o cabeçalho ── */
+/* Uma linha so, com os dois nas pontas: o voltar na esquerda, porque e a
+   saida e saida se procura onde a leitura comeca, e a assinatura na direita,
+   onde ela fecha a linha sem disputar espaco com o controle.
+   Em tela estreita a linha quebra em vez de espremer. */
 .legal-topo {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 26px 0 30px;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  padding: 22px 0 26px;
   margin-bottom: 34px;
   border-bottom: 1px solid var(--line);
+}
+/* Quando a linha quebra, os logos vao pra esquerda junto com o voltar em vez
+   de ficarem pendurados sozinhos na direita. */
+@media (max-width: 560px) {
+  .legal-topo { justify-content: flex-start; }
+}
+/* Os dois lado a lado, separados por um fio. O do Cora manda, o da Academy
+   entra menor e mais quieto: um e o produto, o outro e a assinatura. */
+.legal-marcas {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.legal-marcas__fio {
+  width: 1px;
+  height: 22px;
+  background: var(--line);
 }
 .legal-marca {
   display: inline-flex;
@@ -54,8 +77,19 @@
 }
 .legal-marca img {
   display: block;
-  width: 112px;
+  width: 108px;
   height: auto;
+}
+/* Nao e elo, e assinatura: sem estado de hover. Preto cheio, igual ao do
+   Cora, so um pouco menor pra o produto seguir na frente. */
+.legal-marca--academy { cursor: default; }
+.legal-marca--academy img { width: 116px; }
+.legal-marca:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+
+@media (max-width: 520px) {
+  .legal-marcas { gap: 11px; }
+  .legal-marca img { width: 92px; }
+  .legal-marca--academy img { width: 104px; }
 }
 
 /* O elo de voltar é o único controle da página, então ele tem forma de

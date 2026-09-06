@@ -92,11 +92,24 @@ export default function PaginaLegal({ titulo, data, children }) {
 
   return (
     <div className="legal-wrap">
+      {/* Numa linha so, um em cada ponta: o voltar na esquerda, porque e a
+          saida e saida se procura onde a leitura comeca, e os logos na
+          direita, fechando a linha.
+
+          Os logos nao sao enfeite num documento legal, sao a identificacao de
+          quem assina: o Cora e o produto, a Academy e quem responde por ele.
+          So o do Cora leva a algum lugar. */}
       <header className="legal-topo">
-        <Link href="/" className="legal-marca" aria-label="Cora Render">
-          <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
-        </Link>
         <a href="/" className="legal-voltar" onClick={voltar}>{t('legal_voltar')}</a>
+        <div className="legal-marcas">
+          <Link href="/" className="legal-marca" aria-label="Cora Render">
+            <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
+          </Link>
+          <span className="legal-marcas__fio" aria-hidden="true" />
+          <span className="legal-marca legal-marca--academy">
+            <img src="/img/logo-9barra7.png" alt="9barra7 Academy" width="300" height="36" />
+          </span>
+        </div>
       </header>
 
       <div className="legal-grade">
