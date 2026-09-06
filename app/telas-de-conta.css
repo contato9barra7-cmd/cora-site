@@ -254,7 +254,13 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      Como a barra e sempre escura, o texto e as barrinhas nao precisam trocar de
      cor entre a grade e a foto: fica branco e lima o tempo todo. O veu antigo,
      que mudava de turquesa pra preto, saiu junto. */
-  .tc .veu{ display:none; }.tc .marca{ position:absolute; left:var(--e-6); top:var(--e-6); z-index:5; }
+  .tc .veu{ display:none; }
+/* 48 e nao 32: o logo flutua solto sobre o padrao, e forma solta pede mais ar
+     que texto dentro de caixa. Com 32 ele encostava na quina.
+     O selo la embaixo segue nos 32, que sao o respiro INTERNO da faixa de
+     vidro. Sao duas contas diferentes de proposito: a faixa e um objeto com
+     recheio proprio, o logo nao tem caixa nenhuma em volta. */
+  .tc .marca{ position:absolute; left:var(--e-7); top:var(--e-7); z-index:5; }
 /* Quem tem largura e o contentor, nao a imagem. Porcentagem NA IMAGEM
      resolve contra o pai, e o pai e shrink-to-fit: se um dia entrar um <a>
      em volta (e no site entrou, pra levar pra home), o pai passa a medir a
