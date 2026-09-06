@@ -250,21 +250,40 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      em volta (e no site entrou, pra levar pra home), o pai passa a medir a
      largura intrinseca do PNG e os 22% viram 22% de 300px. O logo encolhia
      de 155 pra 66 sem ninguem tocar no CSS. */
-  .tc .marca{ width:min(196px,21%); }.tc .marca a{ display:block; }.tc .marca img{ width:100%; height:auto; display:block; transition:filter 400ms var(--easing); }.tc .painel[data-sobre="foto"] .marca img{ filter:invert(1); }.tc .rodape-painel{
+  .tc .marca{ width:min(196px,21%); }.tc .marca a{ display:block; }.tc .marca img{ width:100%; height:auto; display:block; transition:filter 400ms var(--easing); }.tc .painel[data-sobre="foto"] .marca img{ filter:invert(1); }
+/* O pe do painel: degrade, nao retangulo.
+     Eram DUAS bordas retas aqui, e as duas apareciam.
+     A primeira era a propria faixa: um bloco chapado de rgba(12,12,12,.58)
+     com uma linha branca no topo. Bloco translucido deixa passar inteiro o
+     que esta atras, entao quando uma forma clara da grade caia ali, ela
+     virava um segundo retangulo mais claro atras do texto.
+     A segunda era o bloco de texto, que tinha vidro proprio de blur 26. Com
+     ele estreito ninguem reparava; quando as barrinhas o esticaram ate a
+     margem, o vidro virou um retangulo do tamanho da faixa inteira.
+     Agora o vidro e um so, ele e degrade, e nasce do nada la em cima: nao ha
+     topo pra enxergar, e o que passa por tras chega como sombra e nao como
+     bloco. O bloco de texto nao pinta mais nada, so cresce. */
+  .tc .rodape-painel{
     position:absolute; left:0; right:0; bottom:0; z-index:5;
-    display:flex; align-items:center; gap:var(--e-5);
-    padding:var(--e-5) var(--e-6);
-    background:rgba(12,12,12,.58);
-  }
-/* O bloco cresce ate a margem da faixa. Quem aproveita sao as barrinhas,
-     que tem flex:1 e passam a dividir a largura toda. A frase e o apoio sao
-     bloco alinhado a esquerda, entao ficam exatamente onde estavam. */
-  .tc .rodape-painel .texto{ flex:1; min-width:0;
-    -webkit-backdrop-filter:blur(26px) saturate(170%);
-            backdrop-filter:blur(26px) saturate(170%);
-    border-top:1px solid rgba(255,255,255,.10);
+    display:flex; align-items:flex-end; gap:var(--e-5);
+    padding:96px var(--e-6) var(--e-5);
     color:#fff;
-  }.tc .texto{
+    /* As paradas nao sao gosto, sao contraste. Na altura em que o titulo cai,
+       a tinta precisa chegar perto de .60 pra o branco passar em AA mesmo com
+       a forma OSSO da grade atras, que e quase branca. */
+    background:linear-gradient(to bottom,
+      rgba(12,12,12,0) 0%,
+      rgba(12,12,12,.24) 30%,
+      rgba(12,12,12,.66) 56%,
+      rgba(12,12,12,.88) 100%);
+    -webkit-backdrop-filter:blur(3px);
+    backdrop-filter:blur(3px);
+    -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 45%);
+    mask-image:linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 45%);
+  }
+/* So cresce ate a margem, pras barrinhas dividirem a largura toda. Nada de
+     fundo, vidro ou borda aqui: quem faz o escuro e a faixa. */
+  .tc .rodape-painel .texto{ flex:1; min-width:0; }.tc .texto{
     min-width:0;
     transition:opacity 240ms var(--easing), transform 240ms var(--easing);
   }.tc .texto[data-trocando="true"]{ opacity:0; transform:translateY(8px); }.tc .frase{
