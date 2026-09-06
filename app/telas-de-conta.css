@@ -197,7 +197,12 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      Duas camadas, como antes: a de fora (.selo) reserva a largura na faixa, a
      de dentro (.selo__zoom) respira. Juntas, as duas disputariam o mesmo
      transform. */
-  .tc .selo{ flex:0 0 auto; width:50px; }.tc .selo__zoom{ animation:respirar 18s ease-in-out infinite; will-change:transform; }
+  /* A margem de baixo desencosta o selo do centro da faixa e o poe no centro
+     do PAR frase mais apoio. A faixa centraliza pela altura do bloco inteiro,
+     e o bloco leva as barrinhas no pe: sem esta compensacao o selo desce
+     metade delas e fica um degrau abaixo do titulo. O valor e a altura que as
+     barrinhas ocupam, o respiro mais os 3px da barra. */
+  .tc .selo{ flex:0 0 auto; width:50px; margin-bottom:calc(var(--e-4) + 3px); }.tc .selo__zoom{ animation:respirar 18s ease-in-out infinite; will-change:transform; }
   /* Reto, sem giro. Zoom de 7% em 18s, subindo um pouco enquanto cresce. */
   @keyframes respirar{
     0%,100%{ transform:translateY(0)     scale(1);    }
@@ -267,7 +272,12 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
   }.tc .texto[data-trocando="true"]{ opacity:0; transform:translateY(8px); }.tc .frase{
     font-size:clamp(18px,1.65vw,23px); font-weight:500; letter-spacing:-.02em; line-height:1.2;
     text-wrap:balance;
-  }.tc .apoio{ margin-top:6px; font-size:14px; line-height:1.45; color:rgba(255,255,255,.74); }
+  }
+/* O apoio anda colado na frase. Os 6px de respiro somavam com a entrelinha
+     das duas caixas e davam 11px de branco no meio de um par que le como uma
+     coisa so. Com 2px de margem e entrelinha de 1,35, o par inteiro mede 46px,
+     que e a altura do selo ao lado. */
+  .tc .apoio{ margin-top:2px; font-size:14px; line-height:1.35; color:rgba(255,255,255,.74); }
 /* ---- toque pra avançar e voltar ---- */
   .tc .toque{ position:absolute; inset:0; z-index:5; display:flex; }.tc .toque button{ height:100%; background:none; border:0; cursor:pointer; }.tc .toque button:first-child{ width:32%; }.tc .toque button:last-child{ width:68%; }
 
