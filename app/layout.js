@@ -4,6 +4,7 @@ import './responsivo.css';
 // regras que nascem no globals.css.
 import './telas-de-conta.css';
 import './paginas-legais.css';
+import './precos-pagina.css';
 import RodapeGlobal from '../components/RodapeGlobal';
 import CookieConsent from '../components/CookieConsent';
 import { IdiomaProvider } from '../lib/i18n';

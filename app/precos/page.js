@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { iniciarCheckout, lerConta } from '../../lib/auth';
 import { itemDoPlano, itemDaRecarga } from '../../lib/stripe-prices';
-import Nav from '../../components/Nav';
+import Cabecalho from '../../components/Cabecalho';
 import ModalFiscal from '../../components/ModalFiscal';
 import { useIdioma } from '../../lib/i18n';
 import {
@@ -17,14 +17,19 @@ function brl(n) { return 'R$ ' + n.toFixed(2).replace('.', ','); }
 function brlInt(n) { return 'R$ ' + n.toLocaleString('pt-BR'); }
 function num(v) { return typeof v === 'number' ? v.toLocaleString('pt-BR') : v; }
 
+// O mesmo cheque do artefato: traco de 2.2, ponta redonda, herdando a cor do
+// item. O item apagado leva um X mais fino, pra ele nao competir com os que
+// estao ligados.
 function Check({ on }) {
   return on ? (
-    <svg className="ic" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M13 4.5 6.5 11 3 7.5" stroke="var(--verde-esc)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+    <svg className="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 6L9 17l-5-5" />
     </svg>
   ) : (
-    <svg className="ic" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M4 4l8 8M12 4l-8 8" stroke="var(--ink3)" strokeWidth="1.6" strokeLinecap="round" />
+    <svg className="ic-check ic-check--nao" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   );
 }
@@ -168,21 +173,24 @@ export default function Precos() {
   const colunas = ['Free', 'Starter', 'Pro', 'Studio'];
 
   return (
-    <>
-      <Nav />
+    /* `pr` e a classe da pagina. Todo o CSS aprovado (precos-pagina.css)
+       depende dela, e e por ela que ele ganha do molde antigo sem precisar
+       apagar nada do globals. */
+    <main className="pr">
+      <Cabecalho aqui="precos" />
 
-      {/* CABEÇALHO + PLANOS */}
-      <div className="container">
-        <div className="head">
-          <h1>{t('precos_h1')}</h1>
-          <p>{t('precos_sub')}</p>
-          <div className="toggle">
-            <button className={!anual ? 'ativo' : ''} onClick={() => setAnual(false)}>{t('precos_mensal')}</button>
-            <button className={anual ? 'ativo' : ''} onClick={() => setAnual(true)}>
-              {t('precos_anual')}{Math.round(descontoAnual * 100)}%
-            </button>
+      {/* PLANOS */}
+      <section className="secao precos-hero" id="planos">
+        <div className="env">
+          <div className="precos-hero__topo">
+            <h1 className="hero__titulo">{t('precos_sub')}</h1>
+            <div className="toggle-wrap" role="group" aria-label={t('precos_mensal')}>
+              <button type="button" className={'toggle-btn' + (!anual ? ' ativo' : '')}
+                      aria-pressed={!anual} onClick={() => setAnual(false)}>{t('precos_mensal')}</button>
+              <button type="button" className={'toggle-btn' + (anual ? ' ativo' : '')}
+                      aria-pressed={anual} onClick={() => setAnual(true)}>{t('precos_anual')}</button>
+            </div>
           </div>
-        </div>
 
         <div className="planos">
           {planos.map((p) => {
@@ -200,39 +208,46 @@ export default function Precos() {
               cobranca = t('precos_por_mes');
             }
             return (
-              <div key={p.id} className={'plano' + (p.destaque ? ' plano--destaque' : '')}>
-                <div className="plano__topo">
-                  {p.tagKey && <span className="plano__tag">{t(p.tagKey)}</span>}
-                  <h3 className="plano__nome">{p.nome}</h3>
+              <article key={p.id} className={'plano' + (p.destaque ? ' plano--destaque' : '')}>
+                {p.tagKey && <span className="plano__selo">{t(p.tagKey)}</span>}
+                <div className="plano__cab">
+                  <h2 className="plano__nome">{p.nome}</h2>
                   <p className="plano__desc">{t(p.descKey)}</p>
+                </div>
+                <div className="plano__preco-bloco">
                   <div className="plano__preco">
                     {risco && <span className="plano__risco">{risco}</span>}
                     <span className="plano__valor">{preco}</span>
-                    {p.mensal > 0 && <span className="plano__mes">{t('conta_mes')}</span>}
+                    {p.mensal > 0 && <span className="plano__per">{t('conta_mes')}</span>}
                   </div>
                   <p className="plano__cobranca">{cobranca}</p>
-                  <div className="plano__cred">
-                    <div className="plano__credtxt">{t(p.creditosTxtKey)}</div>
-                    <div className="plano__credsub">{t(p.creditosSubKey)}</div>
-                  </div>
                 </div>
-                <button className={'btn btn--' + p.ctaEstilo} onClick={() => assinarPlano(p.id)}>{t(p.ctaKey)}</button>
-                <ul className="feats">
+                <div className="plano__cred">
+                  <p className="plano__credtxt">{t(p.creditosTxtKey)}</p>
+                  <p className="plano__credsub">{t(p.creditosSubKey)}</p>
+                </div>
+                <div className="plano__cta">
+                  <button type="button" className={'btn btn--largo btn--' + p.ctaEstilo}
+                          onClick={() => assinarPlano(p.id)}>{t(p.ctaKey)}</button>
+                </div>
+                <ul className="plano__beneficios">
                   {p.feats.map((f, i) => (
-                    <li key={i} className={f[0] ? '' : 'off'}>
-                      <Check on={f[0]} />{t(f[1])}
+                    <li key={i} className={f[0] ? '' : 'esta-fora'}>
+                      <Check on={f[0]} />
+                      <span className={i === 0 && /mais:/.test(t(f[1])) ? 'plano__beneficio-topo' : ''}>{t(f[1])}</span>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </article>
             );
           })}
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* CORA TEAMS */}
-      <div className="sec sec--wash">
-        <div className="container">
+      <section className="secao secao--wash">
+        <div className="env">
           <div className="teams">
             <div className="teams__lado">
               <h2 className="teams__titulo">Cora Teams</h2>
@@ -254,11 +269,11 @@ export default function Precos() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* O QUE VEM EM CADA PLANO */}
-      <div className="sec">
-        <div className="container">
+      <section className="secao secao--papel">
+        <div className="env">
           <h2>{t('precos_oque_vem')}</h2>
           <p className="sub">{t('precos_compare')}</p>
           <div className="tabela-wrap">
@@ -289,11 +304,11 @@ export default function Precos() {
             </table>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* QUANTO CUSTA CADA GERAÇÃO */}
-      <div className="sec sec--wash">
-        <div className="container">
+      <section className="secao secao--wash">
+        <div className="env">
           <h2>{t('precos_quanto_custa')}</h2>
           <p className="sub">{t('precos_custa_sub')}</p>
 
@@ -330,11 +345,11 @@ export default function Precos() {
             </table>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* RECARGAS */}
-      <div className="sec">
-        <div className="container">
+      <section className="secao secao--papel">
+        <div className="env">
           <h2>{t('precos_acabaram')}</h2>
           <p className="sub">
             {t('precos_recarga_sub')}
@@ -355,11 +370,11 @@ export default function Precos() {
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* FAQ */}
-      <div className="sec sec--wash">
-        <div className="container">
+      <section className="secao secao--wash">
+        <div className="env">
           <h2>{t('precos_faq_titulo')}</h2>
           <div className="faq">
             {faq.map((item, i) => (
@@ -370,7 +385,7 @@ export default function Precos() {
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
       {avisoRecarga && (
         <div className="foto-overlay" onClick={() => setAvisoRecarga(false)}>
@@ -424,6 +439,6 @@ export default function Precos() {
           if (priceIdPendente) comprar(priceIdPendente, null);
         }}
       />
-    </>
+    </main>
   );
 }
