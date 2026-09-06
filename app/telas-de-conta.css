@@ -272,7 +272,14 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      O selo la embaixo segue nos 32, que sao o respiro INTERNO da faixa de
      vidro. Sao duas contas diferentes de proposito: a faixa e um objeto com
      recheio proprio, o logo nao tem caixa nenhuma em volta. */
-  .tc .marca{ position:absolute; left:var(--margem-painel); top:var(--margem-painel); z-index:5; }
+/* A esquerda do logo e fixa em 32, o valor do artefato em absoluto, e nao a
+     margem proporcional do painel. Decisao do dono, depois de ver os dois: em
+     tela larga a margem proporcional joga o logo pra 48 e ele fica longe demais
+     da borda. Aqui a marca quer ficar perto da quina, e nao acompanhar o
+     painel.
+     O topo segue na margem do painel, que e o que ele aprovou. O canto fica
+     assimetrico de proposito, entao nao "consertar" isso sem perguntar. */
+  .tc .marca{ position:absolute; left:var(--e-6); top:var(--margem-painel); z-index:5; }
 /* Quem tem largura e o contentor, nao a imagem. Porcentagem NA IMAGEM
      resolve contra o pai, e o pai e shrink-to-fit: se um dia entrar um <a>
      em volta (e no site entrou, pra levar pra home), o pai passa a medir a
