@@ -34,14 +34,7 @@
      o pelo vire bola de praia em tela larga. */
   --margem-painel:clamp(32px, 2.5vw, 60px);   /* 32 do artefato = 2,5vw       */
   --selo-painel:clamp(44px, 3.9vw, 84px);     /* 60 do artefato menos o pouco */
-  /* ── O selo no centro do vao ──
-     O dono pediu o selo no centro entre a borda esquerda e o comeco do texto.
-     A conta que garante isso e uma so: o respiro DA BORDA tem que ser igual ao
-     respiro ATE O TEXTO. Enquanto os dois forem diferentes o selo fica fora do
-     centro, e era o caso: 48 de um lado, 36 do outro, 6px fora.
-     Por isso a faixa usa a MESMA ficha nos dois. Mexer num sem mexer no outro
-     desalinha de novo, entao nao separar. */
-  --respiro-selo:clamp(36px, 3.1vw, 76px);
+  --respiro-selo:clamp(20px, 1.9vw, 44px);    /* 24 do artefato = 1,9vw       */
   --r-pill:100px;
   --tr-padrao:180ms; --easing:cubic-bezier(0.16,1,0.3,1);
 }
@@ -172,13 +165,13 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
   .tc .campo-pad{ position:absolute; inset:0; display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:100%; overflow:hidden; }.tc .coluna-pad{ overflow:hidden; background:var(--turquesa); will-change:transform, filter, opacity; }.tc .tira{ display:flex; flex-direction:column; will-change:transform; }
 /* Quatro tempos primos entre si, dois invertidos: a combinacao so se repete
      depois de horas, entao o olho nao acha o ponto de emenda. */
-  .tc .coluna-pad:nth-child(1) .tira{ animation:correr 107s linear infinite; }.tc .coluna-pad:nth-child(2) .tira{ animation:correr  79s linear infinite reverse; }.tc .coluna-pad:nth-child(3) .tira{ animation:correr 149s linear infinite; }.tc .coluna-pad:nth-child(4) .tira{ animation:correr  97s linear infinite reverse; }
-  @keyframes correr{ from{ transform:translateY(0); } to{ transform:translateY(-50%); } }.tc .cel{ aspect-ratio:1/1; position:relative; flex:0 0 auto; --giro:0deg; }.tc .cel::before{ content:""; position:absolute; inset:0; transform-origin:center; }.tc .cel--lima::before{ background:var(--lima); }.tc .cel--osso::before{ background:var(--osso); }.tc .cel--c::before{ border-radius:50%; }.tc .cel--s::before{ inset:0 0 50%; border-radius:999px 999px 0 0; }.tc .cel--g1{ --giro:90deg; }.tc .cel--g2{ --giro:180deg; }.tc .cel--g3{ --giro:270deg; }.tc .cel--v::before{ display:none; }
+  .tc .coluna-pad:nth-child(1) .tira{ animation:tc-correr 107s linear infinite; }.tc .coluna-pad:nth-child(2) .tira{ animation:tc-correr  79s linear infinite reverse; }.tc .coluna-pad:nth-child(3) .tira{ animation:tc-correr 149s linear infinite; }.tc .coluna-pad:nth-child(4) .tira{ animation:tc-correr  97s linear infinite reverse; }
+  @keyframes tc-correr{ from{ transform:translateY(0); } to{ transform:translateY(-50%); } }.tc .cel{ aspect-ratio:1/1; position:relative; flex:0 0 auto; --giro:0deg; }.tc .cel::before{ content:""; position:absolute; inset:0; transform-origin:center; }.tc .cel--lima::before{ background:var(--lima); }.tc .cel--osso::before{ background:var(--osso); }.tc .cel--c::before{ border-radius:50%; }.tc .cel--s::before{ inset:0 0 50%; border-radius:999px 999px 0 0; }.tc .cel--g1{ --giro:90deg; }.tc .cel--g2{ --giro:180deg; }.tc .cel--g3{ --giro:270deg; }.tc .cel--v::before{ display:none; }
 /* Os meio-circulos viram de quarto em quarto: seguram, giram rapido, seguram
      de novo. Tempo e atraso vem inline, um por celula, senao a fileira inteira
      viraria junto e pareceria um piscar. */
-  .tc .cel--s{ rotate:var(--giro); animation:quarto var(--tgiro,18s) infinite; }
-  @keyframes quarto{
+  .tc .cel--s{ rotate:var(--giro); animation:tc-quarto var(--tgiro,18s) infinite; }
+  @keyframes tc-quarto{
     0%,   19% { rotate:calc(var(--giro) +   0deg); }
     25%,  44% { rotate:calc(var(--giro) +  90deg); }
     50%,  69% { rotate:calc(var(--giro) + 180deg); }
@@ -199,25 +192,25 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      instante, entao nenhuma coluna fica parada e visivel esperando sumir, que
      era o pedaco de circulo travado sobre a foto. */
   .tc .slide--grade{ transition:none; }.tc .slide--grade[data-saindo="true"] .coluna-pad{
-    animation-name:colunaSai, colunaDesfaz;
+    animation-name:tc-colunaSai, tc-colunaDesfaz;
     animation-duration:1600ms, 1000ms;
     animation-timing-function:cubic-bezier(.42,0,.18,1), cubic-bezier(.45,0,.55,1);
     animation-delay:calc(var(--c,0) * 110ms), calc(var(--c,0) * 110ms + 600ms);
     animation-fill-mode:forwards, forwards;
   }
-  @keyframes colunaSai  { to{ transform:translateX(-148%); } }
-  @keyframes colunaDesfaz{ to{ filter:blur(16px); opacity:0; } }
+  @keyframes tc-colunaSai  { to{ transform:translateX(-148%); } }
+  @keyframes tc-colunaDesfaz{ to{ filter:blur(16px); opacity:0; } }
 /* Na volta, a ordem se inverte: entra primeiro a coluna da direita, e o
      desfoque limpa na primeira metade do percurso, pra forma chegar nitida. */
   .tc .slide--grade[data-entrando="true"] .coluna-pad{
-    animation-name:colunaEntra, colunaFirma;
+    animation-name:tc-colunaEntra, tc-colunaFirma;
     animation-duration:1600ms, 1000ms;
     animation-timing-function:cubic-bezier(.42,0,.18,1), cubic-bezier(.25,.55,.5,1);
     animation-delay:calc((3 - var(--c,0)) * 110ms), calc((3 - var(--c,0)) * 110ms);
     animation-fill-mode:backwards, backwards;
   }
-  @keyframes colunaEntra { from{ transform:translateX(-148%); } }
-  @keyframes colunaFirma { from{ filter:blur(16px); opacity:0; } }
+  @keyframes tc-colunaEntra { from{ transform:translateX(-148%); } }
+  @keyframes tc-colunaFirma { from{ filter:blur(16px); opacity:0; } }
 /* ---- selo ----
      O pelo saiu do meio do painel e foi morar na faixa de vidro. Duas razoes:
      no centro ele cobria o padrao, que e a imagem da marca, e virava alvo no
@@ -235,9 +228,9 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      e o bloco leva as barrinhas no pe: sem esta compensacao o selo desce
      metade delas e fica um degrau abaixo do titulo. O valor e a altura que as
      barrinhas ocupam, o respiro mais os 3px da barra. */
-  .tc .selo{ flex:0 0 auto; width:var(--selo-painel); margin-bottom:calc(var(--e-4) + 3px); }.tc .selo__zoom{ animation:respirar 18s ease-in-out infinite; will-change:transform; }
+  .tc .selo{ flex:0 0 auto; width:var(--selo-painel); margin-bottom:calc(var(--e-4) + 3px); }.tc .selo__zoom{ animation:tc-respirar 18s ease-in-out infinite; will-change:transform; }
   /* Reto, sem giro. Zoom de 7% em 18s, subindo um pouco enquanto cresce. */
-  @keyframes respirar{
+  @keyframes tc-respirar{
     0%,100%{ transform:translateY(0)     scale(1);    }
     50%    { transform:translateY(-1.5%) scale(1.07); }
   }
@@ -265,8 +258,8 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
     display:block; height:100%; width:100%; border-radius:var(--r-pill);
     background:var(--ink); transform:scaleX(0); transform-origin:left center;
     will-change:transform;
-  }.tc .barra[data-status="completa"] i{ transform:scaleX(1); }.tc .barra[data-status="pendente"] i{ transform:scaleX(0); }.tc .barra[data-status="ativa"] i{ animation:preencher var(--dur,6s) linear forwards; }
-  @keyframes preencher{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+  }.tc .barra[data-status="completa"] i{ transform:scaleX(1); }.tc .barra[data-status="pendente"] i{ transform:scaleX(0); }.tc .barra[data-status="ativa"] i{ animation:tc-preencher var(--dur,6s) linear forwards; }
+  @keyframes tc-preencher{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
 /* A barra vive sobre o vidro escuro, entao trilho claro e lima sempre. */
   .tc .barra{ background:rgba(255,255,255,.28); }.tc .barra i{ background:var(--lima); }.tc .painel[data-pausado="true"] .barra[data-status="ativa"] i{ animation-play-state:paused; }
 /* ---- barra preta de vidro no pe ----
@@ -308,9 +301,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
        tudo que encosta nela obedece: o logo no alto, o selo no pe e a ponta
        das barrinhas na direita. Com 32 aqui o selo ficava colado na quina e,
        depois que o logo subiu pra 48, ainda por cima desalinhado dele. */
-    /* Os lados usam a MESMA ficha do respiro do selo. E o que poe ele no centro
-       do vao ate o texto, que foi o pedido. Ver a ficha, no topo do arquivo. */
-    padding:var(--e-5) var(--respiro-selo);
+    padding:var(--e-5) var(--margem-painel);
     background:rgba(12,12,12,.58);
     -webkit-backdrop-filter:blur(26px) saturate(170%);
             backdrop-filter:blur(26px) saturate(170%);

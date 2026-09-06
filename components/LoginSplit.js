@@ -204,7 +204,7 @@ export default function LoginSplit({ children, denso = false }) {
     // A barra e o relogio: quando ela enche, passa pra proxima.
     let ultimo = 0;
     function aoTerminar(e) {
-      if (e.animationName !== 'preencher') return;
+      if (e.animationName !== 'tc-preencher') return;
       const b = e.target.parentElement;
       if (b.dataset.status !== 'ativa') return;
       const agora = Date.now();
