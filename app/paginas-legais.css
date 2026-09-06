@@ -1,0 +1,237 @@
+/* ============================================================================
+   TERMOS DE USO E POLÍTICA DE PRIVACIDADE
+
+   As duas páginas ficaram no molde antigo enquanto o resto do site mudou de
+   identidade: título em peso 700, elo em roxo, e uma coluna de 3.200px de
+   altura sem nenhuma referência de onde a pessoa está.
+
+   Aqui elas passam a ler como documento, não como parede de texto:
+
+   1. Cabeçalho com o logo, que também é o caminho de volta pra home. A página
+      pode ser a PRIMEIRA que alguém abre, porque o link dela circula solto
+      (vai no rodapé, no cadastro e nos e-mails). Sem o logo, quem chega assim
+      não sabe de quem é o documento.
+
+   2. Índice das seções, grudado na lateral em tela larga. Ele não é enfeite:
+      são catorze seções e mais de três metros de rolagem, e a pergunta que
+      alguém faz num documento desses é sempre "onde está a parte de X". Ele é
+      montado do próprio DOM, então acompanha a tradução sem lista paralela
+      pra manter.
+
+   3. Medida de leitura em 74 caracteres, medida contando os caracteres de
+      cada linha renderizada e não confiando na unidade `ch`: `ch` resolve
+      contra o corpo do CONTENTOR (16px), e os parágrafos são 15,5px, então
+      `68ch` ali entregava 93 caracteres por linha. Acima de uns 75 o olho
+      começa a perder o caminho de volta pro começo da próxima.
+
+   O CSS mora aqui e não no globals porque o globals já tem doze mil linhas e
+   atende telas que ainda usam o molde antigo. Tudo abaixo depende de
+   `.legal-wrap`, então nada disso vaza pro resto do site.
+   ========================================================================= */
+
+/* ── a folha ── */
+.legal-wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 26px 100px;
+  color: var(--ink);
+}
+
+/* ── o cabeçalho ── */
+.legal-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 26px 0 30px;
+  margin-bottom: 34px;
+  border-bottom: 1px solid var(--line);
+}
+.legal-marca {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.legal-marca img {
+  display: block;
+  width: 112px;
+  height: auto;
+}
+
+/* O elo de voltar é o único controle da página, então ele tem forma de
+   controle: pílula com contorno, não texto solto que se confunde com o corpo. */
+.legal-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 8px 16px 8px 13px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink2);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color .15s ease, color .15s ease;
+}
+.legal-voltar:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.legal-voltar:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ── a grade: índice à esquerda, documento à direita ── */
+.legal-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+@media (min-width: 1040px) {
+  .legal-grade {
+    grid-template-columns: 216px minmax(0, 520px);
+    gap: 56px;
+    justify-content: center;
+  }
+}
+
+.legal-indice { display: none; }
+@media (min-width: 1040px) {
+  .legal-indice {
+    display: block;
+    position: sticky;
+    top: 28px;
+    max-height: calc(100dvh - 56px);
+    overflow-y: auto;
+    padding-right: 10px;
+  }
+}
+.legal-indice__rotulo {
+  margin: 0 0 12px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+.legal-indice ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.legal-indice a {
+  display: block;
+  padding: 6px 12px;
+  border-left: 2px solid var(--line);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink2);
+  text-decoration: none;
+  transition: color .15s ease, border-color .15s ease;
+}
+.legal-indice a:hover { color: var(--ink); border-left-color: var(--ink3); }
+.legal-indice a:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+/* A seção em que a pessoa está fica marcada com o lima da marca. */
+.legal-indice a[data-aqui="sim"] {
+  color: var(--ink);
+  font-weight: 500;
+  border-left-color: var(--lima, #C4FBA7);
+  border-left-width: 3px;
+}
+
+/* ── o documento ── */
+/* 520px em 15,5px dá 74 caracteres por linha. Valor em pixel de propósito:
+   ver a nota 3 no topo sobre por que `ch` engana aqui. */
+.legal-doc { max-width: 520px; margin-inline: auto; }
+
+.legal-titulo {
+  margin: 0 0 10px;
+  font-size: 38px;
+  font-weight: 600;
+  letter-spacing: -.028em;
+  line-height: 1.1;
+  color: var(--ink);
+  text-wrap: balance;
+}
+@media (max-width: 640px) { .legal-titulo { font-size: 30px; } }
+
+/* A data vira etiqueta: num documento legal ela é dado, não legenda. */
+.legal-data {
+  display: inline-block;
+  margin: 0 0 40px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  background: var(--wash, #F4F4F1);
+  font-size: 12.5px;
+  color: var(--ink2);
+}
+
+.legal-sec { margin-top: 42px; scroll-margin-top: 24px; }
+.legal-sec:first-of-type { margin-top: 0; }
+
+.legal-h2 {
+  margin: 0 0 14px;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  line-height: 1.25;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.legal-p {
+  margin: 0 0 16px;
+  font-size: 15.5px;
+  line-height: 1.75;
+  color: var(--ink2);
+}
+.legal-p:last-child { margin-bottom: 0; }
+.legal-p strong { color: var(--ink); font-weight: 600; }
+
+.legal-lista {
+  margin: 0 0 16px;
+  padding-left: 0;
+  list-style: none;
+}
+.legal-lista li {
+  position: relative;
+  margin-bottom: 10px;
+  padding-left: 22px;
+  font-size: 15.5px;
+  line-height: 1.75;
+  color: var(--ink2);
+}
+/* Marcador em lima: é a única cor da marca no documento, e ela pontua a
+   leitura sem competir com o texto. */
+.legal-lista li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: .68em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lima, #C4FBA7);
+}
+.legal-lista li strong { color: var(--ink); font-weight: 600; }
+
+/* O roxo saiu. O elo agora é o turquesa escurecido, que é o mesmo das telas
+   de conta e o único tom da marca que passa em AA como texto (6,3:1). */
+.legal-link,
+.legal-p a,
+.legal-lista a {
+  color: var(--turq-texto, #196C5B);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+.legal-link:hover,
+.legal-p a:hover,
+.legal-lista a:hover { color: var(--ink); }
