@@ -32,7 +32,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useMemo, useState } from 'react';
-import { adminDinheiro, baixarDinheiroCSV } from '../lib/auth';
+import { adminDinheiro, baixarDinheiroPlanilha } from '../lib/auth';
 
 const MES_NOME = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
                   'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -57,7 +57,16 @@ export default function AdminDinheiro() {
   const [mesAberto, setMesAberto] = useState(null);   // null = o período inteiro
   const [atalho, setAtalho] = useState('12m');
   const [verLiquido, setVerLiquido] = useState(false);
-  const [baixando, setBaixando] = useState(false);
+  // Guarda QUAL formato está baixando, e não um sim/não: com dois botões, um
+  // booleano faria os dois dizerem "Gerando..." ao mesmo tempo.
+  const [baixando, setBaixando] = useState(null);
+
+  function baixar(formato) {
+    setBaixando(formato);
+    baixarDinheiroPlanilha(formato)
+      .catch((e) => setErro(e.message))
+      .finally(() => setBaixando(null));
+  }
 
   useEffect(() => {
     adminDinheiro()
@@ -480,20 +489,24 @@ export default function AdminDinheiro() {
       <div className="conta-card adm-card">
         <div className="adm-ficha-cab">
           <h2 className="conta-h2">Levar para a contabilidade</h2>
-          <button className="fat-ver" disabled={baixando}
-                  onClick={() => {
-                    setBaixando(true);
-                    baixarDinheiroCSV()
-                      .catch((e) => setErro(e.message))
-                      .finally(() => setBaixando(false));
-                  }}>
-            {baixando ? 'Gerando...' : 'Baixar a planilha'}
-          </button>
+          {/* Excel primeiro, CSV ao lado. O Excel e o que se usa: coluna na
+              largura certa e valor como numero, entao a coluna soma. O CSV
+              fica porque ele e o que outros sistemas importam. */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="fat-ver" disabled={!!baixando}
+                    onClick={() => baixar('xlsx')}>
+              {baixando === 'xlsx' ? 'Gerando...' : 'Baixar em Excel'}
+            </button>
+            <button className="fat-ver" disabled={!!baixando}
+                    onClick={() => baixar('csv')}>
+              {baixando === 'csv' ? 'Gerando...' : 'CSV'}
+            </button>
+          </div>
         </div>
         <p className="conta-p">
-          Uma linha por mês e moeda, com bruto, taxa, líquido, reembolso e quantas cobranças.
-          É o formato que entra direto numa apuração, e sai com vírgula decimal para abrir
-          em colunas sem ninguém mexer.
+          Uma linha por mês e moeda, com bruto, taxa, líquido, reembolso e quantas
+          cobranças. No Excel os valores vão como número, e não como texto: a coluna
+          soma sem ninguém reformatar nada.
         </p>
       </div>
     </>
