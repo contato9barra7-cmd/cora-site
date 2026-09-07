@@ -12715,3 +12715,75 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 :root[data-theme="dark"] .admin-ac-hash.quebrado { background: rgba(200, 52, 42, .16); color: #F0A9A3; }
 :root[data-theme="dark"] .admin-ac-doc { background: rgba(255, 255, 255, .08); }
 :root[data-theme="dark"] .admin-ac-papel__cab button { background: rgba(255, 255, 255, .08); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SALVAR A FATURA EM PDF
+
+   Estas regras ficam aqui e não no painel.html porque impressão é assunto do
+   documento inteiro. A janela da fatura nasce dentro do painel, mas o rodapé
+   do site e a barra de cookies são irmãs dela lá em cima, fora do escopo
+   `.pn`. Uma folha escopada não alcança as duas, e elas sairiam impressas
+   junto com a fatura.
+
+   O tamanho do papel (`@page{size:A4;margin:0}`) não está aqui: ele vive numa
+   folha que só existe enquanto a janela da fatura está aberta, dentro do
+   componente. Escrito aqui, ele valeria para toda impressão do site, e quem
+   imprimisse a página de preços receberia uma A4 sangrada até a borda.
+
+   Desenho da folha em A4: ferramentas/fatura-a4.html.
+   ═══════════════════════════════════════════════════════════════════════ */
+@media print {
+  body:has(.doc-fundo) { margin: 0; padding: 0; background: #FFFFFF; }
+
+  /* Sai da folha tudo que não é a fatura nem caminho até ela. Quem diz o que
+     é caminho é o `:has`, então a regra continua valendo se a janela mudar de
+     lugar na árvore. Sem o `body:has` na frente, uma página sem fatura teria
+     TODOS os elementos escondidos e sairia em branco. */
+  body:has(.doc-fundo) *:not(:has(.doc-fundo)):not(.doc-fundo):not(.doc-fundo *) {
+    display: none !important;
+  }
+
+  /* E o caminho perde o que ele era na tela: a coluna da lateral, o recuo do
+     miolo, a altura de tela cheia, o fundo. */
+  body:has(.doc-fundo) :has(.doc-fundo) {
+    display: block !important; position: static !important;
+    margin: 0 !important; padding: 0 !important; border: 0 !important;
+    width: auto !important; max-width: none !important;
+    height: auto !important; min-height: 0 !important; max-height: none !important;
+    background: none !important; box-shadow: none !important;
+    overflow: visible !important; transform: none !important;
+  }
+
+  /* ── A FOLHA ── */
+  .doc-fundo {
+    position: static !important; inset: auto !important;
+    padding: 0 !important; overflow: visible !important;
+    background: none !important; backdrop-filter: none !important;
+  }
+  .doc {
+    /* 296 e não 297: a altura cravada às vezes empurra uma segunda página em
+       branco por arredondamento. */
+    width: 210mm !important; min-height: 296mm !important;
+    max-width: none !important; margin: 0 !important;
+    display: flex !important; flex-direction: column;
+    border-radius: 0 !important; box-shadow: none !important;
+    /* Por padrão o navegador joga fundo colorido fora para poupar tinta, e a
+       fatura sairia sem a faixa nem o selo. */
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .doc__faixa {
+    height: 17mm !important; flex: none;
+    background-size: calc(17mm * 8) 100% !important;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .doc__miolo {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 16mm !important;
+  }
+  .doc__marca { width: 36mm !important; height: 8.6mm !important; }
+  /* O pé desce para a base da folha. Numa fatura de um item só ele ficaria
+     boiando no meio da página. */
+  .doc__pe { margin-top: auto !important; }
+  .doc__acoes { display: none !important; }
+  .fat-selo { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

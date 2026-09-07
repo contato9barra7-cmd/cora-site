@@ -38,6 +38,11 @@
   --pad-heroi:136px;      /* a coluna da esteira */
   --pad-deitado:58px;     /* a mesma esteira, virada, no celular */
   --r:20px; --r-peq:12px; --r-heroi:22px; --pill:100px;
+  /* O vidro das pastilhas que ficam EM CIMA da padronagem. Ele não muda
+     no tema escuro: a lima e a turquesa da faixa também não mudam, e um
+     vidro escuro sobre elas ficaria sujo. */
+  --vidro:rgba(255,255,255,.82); --vidro-forte:rgba(255,255,255,.93);
+  --vidro-linha:rgba(17,17,17,.12);
   --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
   --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --t:170ms cubic-bezier(.16,1,.3,1);
@@ -169,6 +174,37 @@
 .app-shell.recolhido .app-header{ left:var(--side-w-min); }
 .app-header-aqui{ font-size:14.5px; font-weight:600; letter-spacing:-.012em; color:var(--ink); }
 .app-header-dir{ margin-left:auto; display:flex; align-items:center; gap:16px; }
+
+/* ── O CABEÇALHO COM A PADRONAGEM ──
+   Em Minha conta e Assinatura o cabeçalho recebe a faixa, do jeito que o
+   PromptHub faz. Nas outras telas ele fica liso, e é assim de propósito: no
+   Início a padronagem já mora na esteira do herói, e duas na mesma tela
+   competem. Foi a mesma conclusão do lado dos Promptadores.
+
+   Sobre a faixa nada de texto solto. O nome do lugar vira pastilha de vidro,
+   que é o que segura o contraste tanto sobre a lima quanto sobre a turquesa.
+
+   A faixa entra numa camada absoluta e não no fundo do próprio cabeçalho:
+   assim quem fica em cima sobe com z-index, em vez de disputar com o pai.
+   E o `background-size` vai em conta, nunca `auto`: o SVG da faixa carrega
+   preserveAspectRatio="none" e o `auto` não devolve a proporção dele. */
+.app-header--faixa{ border-bottom-color:var(--vidro-linha); }
+.app-header--faixa::before{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:var(--faixa-deitada) repeat-x left center;
+  background-size:calc(var(--header-h) * 8) 100%;
+}
+.app-header--faixa > *{ position:relative; z-index:1; }
+.app-header--faixa .app-header-aqui{
+  padding:8px 15px; border-radius:var(--pill);
+  /* Preto fixo, e não var(--ink): no tema escuro o --ink é claro, e sobre o
+     vidro branco ele sumiria. A faixa é clara nos dois temas. */
+  color:#111111;
+  background:var(--vidro);
+  backdrop-filter:blur(14px) saturate(150%);
+  -webkit-backdrop-filter:blur(14px) saturate(150%);
+}
+.app-header--faixa .app-burger span{ background:#111111; }
 .app-burger{ display:none; }
 
 .app-user-wrap{ position:relative; }
@@ -952,7 +988,10 @@
 .rec-op strong{ font-size:26px; font-weight:500; letter-spacing:-.032em; color:var(--ink); }
 .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
 .rec-preco{ margin-top:2px; font-size:15px; color:var(--ink2); }
-.rec-prazo{ margin-top:2px; font-size:12.5px; color:var(--ink3); }
+/* Duas linhas curtas dentro de um cartão estreito: sem `balance` a
+   segunda quebrava com uma palavra sozinha no fim. */
+.rec-prazo{ margin-top:2px; font-size:12.5px; line-height:1.45; color:var(--ink3);
+  text-wrap:balance; }
 .rec-tag{
   position:absolute; top:-11px; left:50%; transform:translateX(-50%);
   font-style:normal; white-space:nowrap; line-height:1;
@@ -1095,23 +1134,14 @@
 .doc__bt--linha{ background:var(--paper); border:1px solid var(--line2); color:var(--ink); }
 .doc__bt--linha:hover{ background:var(--wash); border-color:var(--ink); }
 
-/* Salvo em PDF, some tudo que é da tela e sobra o documento.
-   `print-color-adjust:exact` é o que faz o navegador imprimir a faixa e os
-   selos: por padrão ele joga fundo colorido fora para poupar tinta, e a
-   fatura sairia sem a marca em cima. */
-@media print{
-  .doc-fundo{
-    position:static; inset:auto; padding:0; overflow:visible;
-    background:none; backdrop-filter:none;
-  }
-  .doc{
-    width:100%; max-width:none; box-shadow:none; border-radius:0;
-    -webkit-print-color-adjust:exact; print-color-adjust:exact;
-  }
-  .doc__faixa,.fat-selo{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  .doc__acoes{ display:none; }
-  @page{ margin:14mm; }
-}
+/* O que sai no papel NÃO está aqui, está no `@media print` do globals.css.
+   Impressão é assunto do documento inteiro: a janela da fatura nasce dentro
+   do painel, mas o rodapé do site e a barra de cookies são irmãs dela lá em
+   cima, fora do escopo `.pn`. Uma folha escopada não alcança as duas, e elas
+   sairiam impressas junto com a fatura. O que este bloco fazia antes era só
+   endireitar a janela, e o painel inteiro ia junto para a folha.
+
+   A fatura em A4 tem artefato próprio: ferramentas/fatura-a4.html. */
 
 /* ══════════════════════════════════════════════════════════════════════
    ATÉ 1024px a lateral vira gaveta, e a esteira deita
@@ -1918,8 +1948,8 @@ body{ margin:0; background:#F6F6F4; }
         <div class="conta-card">
           <h2 class="conta-h2">Precisa de mais créditos?</h2>
           <p class="conta-p">
-            Recargas avulsas valem por 6 meses e são usadas depois que os créditos
-            do plano acabam.
+            Crédito avulso, para quando o mês apertar. Ele não zera na virada
+            do plano.
           </p>
 
           <div class="rec-grade">
@@ -1927,14 +1957,16 @@ body{ margin:0; background:#F6F6F4; }
               <span class="rec-nome">Pequena</span>
               <strong>2.000</strong>
               <span class="rec-preco">créditos</span>
-              <span class="rec-prazo">vale 6 meses</span>
+              <span class="rec-prazo">válido por 6 meses</span>
+              <span class="rec-prazo">só entra quando o crédito do plano acabar</span>
               <button class="rec-comprar">Comprar por R$ 30</button>
             </div>
             <div class="rec-op">
               <span class="rec-nome">Média</span>
               <strong>5.000</strong>
               <span class="rec-preco">créditos</span>
-              <span class="rec-prazo">vale 6 meses</span>
+              <span class="rec-prazo">válido por 6 meses</span>
+              <span class="rec-prazo">só entra quando o crédito do plano acabar</span>
               <button class="rec-comprar">Comprar por R$ 65</button>
             </div>
             <div class="rec-op rec-op--pop">
@@ -1942,14 +1974,16 @@ body{ margin:0; background:#F6F6F4; }
               <span class="rec-nome">Grande</span>
               <strong>12.000</strong>
               <span class="rec-preco">créditos</span>
-              <span class="rec-prazo">vale 6 meses</span>
+              <span class="rec-prazo">válido por 6 meses</span>
+              <span class="rec-prazo">só entra quando o crédito do plano acabar</span>
               <button class="rec-comprar">Comprar por R$ 140</button>
             </div>
             <div class="rec-op">
               <span class="rec-nome">Enorme</span>
               <strong>30.000</strong>
               <span class="rec-preco">créditos</span>
-              <span class="rec-prazo">vale 6 meses</span>
+              <span class="rec-prazo">válido por 6 meses</span>
+              <span class="rec-prazo">só entra quando o crédito do plano acabar</span>
               <button class="rec-comprar">Comprar por R$ 320</button>
             </div>
           </div>
@@ -2314,6 +2348,10 @@ body{ margin:0; background:#F6F6F4; }
       el.hidden = el.dataset.tela !== qual;
     });
     document.querySelector('.app-header-aqui').textContent = NOMES[qual];
+    // A padronagem só em Minha conta e Assinatura. No Início ela já está na
+    // esteira do herói, e duas na mesma tela competem.
+    document.querySelector('.app-header')
+      .classList.toggle('app-header--faixa', qual === 'conta' || qual === 'assinatura');
     // O índice mede as seções, e elemento escondido mede zero: rodando com a
     // tela fechada, TODAS passavam no teste e a última ganhava. Refaz a conta
     // depois que a tela aparece. (No site isto não existe: lá cada tela é uma

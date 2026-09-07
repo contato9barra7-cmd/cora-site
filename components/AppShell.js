@@ -316,6 +316,13 @@ export default function AppShell({ children }) {
   // barra vazia de ponta a ponta com o avatar num canto.
   const aqui = (itens.find((i) => i.href === pathname) || {}).rotulo || '';
 
+  // A padronagem no cabeçalho fica só em Minha conta e Assinatura, do jeito
+  // que o PromptHub faz. No Início ela já mora na esteira do herói, e duas na
+  // mesma tela competem. Foi a mesma conclusão do lado dos Promptadores, e é
+  // por isso que lá o cabeçalho liso é o normal e a faixa é a exceção.
+  const TELAS_COM_FAIXA = ['/conta/perfil', '/assinatura'];
+  const cabecalhoComFaixa = TELAS_COM_FAIXA.includes(pathname);
+
   return (
     // `pn` é a classe da página. Todo o desenho aprovado do painel vive em
     // painel-pagina.css, escopado nela: assim ele ganha do molde antigo por
@@ -407,7 +414,7 @@ export default function AppShell({ children }) {
       </aside>
 
       {/* HEADER FIXO */}
-      <header className="app-header">
+      <header className={'app-header' + (cabecalhoComFaixa ? ' app-header--faixa' : '')}>
         {/* O hambúrguer só aparece abaixo de 1024px, onde a lateral virou
             gaveta. `margin-right: auto` (no CSS) é o que mantém o avatar
             colado à direita sem precisar de um espaçador vazio. */}

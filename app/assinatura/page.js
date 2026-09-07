@@ -198,9 +198,15 @@ export default function Assinatura() {
             className="conta-cabeca__foto"
             style={conta.foto_url ? { backgroundImage: `url(${conta.foto_url})`, color: 'transparent' } : undefined}
           >{conta.foto_url ? '' : (conta.nome || conta.email || '?').charAt(0).toUpperCase()}</div>
+          {/* A pastilha do cabeçalho já diz "Assinatura". Repetir a palavra
+              trinta pixels abaixo não conta nada a mais, e é a mesma conclusão
+              que os Promptadores escreveram no PromptHub deles: no bloco fica
+              a PESSOA, e o nome do lugar fica só na pastilha. O h1 continua
+              existindo, agora com o nome de quem está logado, que é de quem a
+              assinatura é. */}
           <div className="conta-cabeca__txt">
-            <p className="eyebrow">{t('pn_sua_conta')}</p>
-            <h1 className="conta-cabeca__nome">{t('assinatura_titulo')}</h1>
+            <p className="eyebrow">{t('assinatura_titulo')}</p>
+            <h1 className="conta-cabeca__nome">{conta.nome || conta.email}</h1>
             <p className="conta-cabeca__email">{t('assinatura_recibos_stripe')}</p>
           </div>
         </div>
@@ -307,6 +313,7 @@ export default function Assinatura() {
                   <strong>{r.creditos.toLocaleString(localeDeIdioma(idioma))}</strong>
                   <span className="rec-preco">{t('pn_creditos_min')}</span>
                   <span className="rec-prazo">{t('pn_vale_6_meses')}</span>
+                  <span className="rec-prazo">{t('pn_so_depois')}</span>
                   {/* O preço mora no botão, e não no corpo do cartão: é no
                       clique que a pessoa assume o valor, e ali ele também
                       preenche uma pílula que com um "Comprar" sozinho ficava
@@ -406,6 +413,14 @@ export default function Assinatura() {
           mesma empresa. */}
       {fatura && (
         <div className="doc-fundo" onClick={() => setFatura(null)}>
+          {/* O tamanho do papel só pode ser dito num `@page`, e `@page` não
+              aceita seletor: escrito no globals.css ele valeria para toda
+              impressão do site. Por isso esta folha nasce e morre com a
+              janela da fatura, e o A4 vale só enquanto ela está aberta.
+              Sem declarar o tamanho, o navegador usa o papel da última
+              impressão, que em muita gente é Carta. Margem zero porque o
+              recuo é da folha, e assim a faixa chega na borda do papel. */}
+          <style>{'@page{size:A4;margin:0}'}</style>
           <div className="doc" onClick={(e) => e.stopPropagation()}>
             <div className="doc__faixa" aria-hidden="true" />
             <div className="doc__miolo">
@@ -471,8 +486,8 @@ export default function Assinatura() {
               <div className="doc__acoes">
                 {/* "Salvar em PDF" e não "Imprimir": a janela do navegador
                     abre com "Salvar como PDF" já disponível, e é isso que a
-                    pessoa quer. O @media print da folha deixa só o documento
-                    na página. */}
+                    pessoa quer. O @media print do globals.css deixa só o
+                    documento na folha, em A4. */}
                 <button className="doc__bt" onClick={() => window.print()}>{t('pn_salvar_pdf')}</button>
                 <button className="doc__bt doc__bt--linha" onClick={() => setFatura(null)}>{t('fechar')}</button>
               </div>

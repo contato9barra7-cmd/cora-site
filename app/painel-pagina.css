@@ -16,7 +16,9 @@
 
 .pn{/* ── a identidade nova, a mesma das páginas públicas ── *//* Lima e turquesa, e mais nada. O roxo saiu da marca, entao ele nao pode
      sobrar num canto do painel: cor que ficou para tras e a que mais denuncia
-     uma tela que nao foi revisada. *//* a coluna da esteira *//* a mesma esteira, virada, no celular */
+     uma tela que nao foi revisada. *//* a coluna da esteira *//* a mesma esteira, virada, no celular *//* O vidro das pastilhas que ficam EM CIMA da padronagem. Ele não muda
+     no tema escuro: a lima e a turquesa da faixa também não mudam, e um
+     vidro escuro sobre elas ficaria sujo. */
   
   --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
   --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
@@ -30,6 +32,9 @@
   --pad-heroi:136px;      
   --pad-deitado:58px;     
   --r:20px; --r-peq:12px; --r-heroi:22px; --pill:100px;
+  
+  --vidro:rgba(255,255,255,.82); --vidro-forte:rgba(255,255,255,.93);
+  --vidro-linha:rgba(17,17,17,.12);
   --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
   --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --t:170ms cubic-bezier(.16,1,.3,1);
@@ -106,7 +111,31 @@
   position:fixed; top:0; right:0; left:var(--side-w); height:var(--header-h); z-index:40;
   background:var(--paper); border-bottom:1px solid var(--line);
   display:flex; align-items:center; padding:0 26px; transition:left var(--t);
-}.pn .app-shell.recolhido .app-header{ left:var(--side-w-min); }.pn .app-header-aqui{ font-size:14.5px; font-weight:600; letter-spacing:-.012em; color:var(--ink); }.pn .app-header-dir{ margin-left:auto; display:flex; align-items:center; gap:16px; }.pn .app-burger{ display:none; }.pn .app-user-wrap{ position:relative; }.pn .app-user-btn{
+}.pn .app-shell.recolhido .app-header{ left:var(--side-w-min); }.pn .app-header-aqui{ font-size:14.5px; font-weight:600; letter-spacing:-.012em; color:var(--ink); }.pn .app-header-dir{ margin-left:auto; display:flex; align-items:center; gap:16px; }/* ── O CABEÇALHO COM A PADRONAGEM ──
+   Em Minha conta e Assinatura o cabeçalho recebe a faixa, do jeito que o
+   PromptHub faz. Nas outras telas ele fica liso, e é assim de propósito: no
+   Início a padronagem já mora na esteira do herói, e duas na mesma tela
+   competem. Foi a mesma conclusão do lado dos Promptadores.
+
+   Sobre a faixa nada de texto solto. O nome do lugar vira pastilha de vidro,
+   que é o que segura o contraste tanto sobre a lima quanto sobre a turquesa.
+
+   A faixa entra numa camada absoluta e não no fundo do próprio cabeçalho:
+   assim quem fica em cima sobe com z-index, em vez de disputar com o pai.
+   E o `background-size` vai em conta, nunca `auto`: o SVG da faixa carrega
+   preserveAspectRatio="none" e o `auto` não devolve a proporção dele. */.pn .app-header--faixa{ border-bottom-color:var(--vidro-linha); }.pn .app-header--faixa::before{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:var(--faixa-deitada) repeat-x left center;
+  background-size:calc(var(--header-h) * 8) 100%;
+}.pn .app-header--faixa > *{ position:relative; z-index:1; }.pn .app-header--faixa .app-header-aqui{/* Preto fixo, e não var(--ink): no tema escuro o --ink é claro, e sobre o
+     vidro branco ele sumiria. A faixa é clara nos dois temas. */
+  padding:8px 15px; border-radius:var(--pill);
+  
+  color:#111111;
+  background:var(--vidro);
+  backdrop-filter:blur(14px) saturate(150%);
+  -webkit-backdrop-filter:blur(14px) saturate(150%);
+}.pn .app-header--faixa .app-burger span{ background:#111111; }.pn .app-burger{ display:none; }.pn .app-user-wrap{ position:relative; }.pn .app-user-btn{
   position:relative; width:46px; height:46px; display:grid; place-items:center;
   background:none; border:0; padding:0; cursor:pointer;
 }/* O anel diz quanto resta. Ele é informação, então a cor dele é a do texto e
@@ -525,7 +554,9 @@
   background:var(--wash2); color:var(--ink);
   font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
   transition:background-color var(--t);
-}.pn .rec-comprar:hover{ background:var(--lima); }.pn .rec-op--pop .rec-comprar{ background:var(--lima); }.pn .rec-op--pop .rec-comprar:hover{ background:var(--lima-esc); }.pn .rec-comprar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }.pn .rec-op strong{ font-size:26px; font-weight:500; letter-spacing:-.032em; color:var(--ink); }.pn .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }.pn .rec-preco{ margin-top:2px; font-size:15px; color:var(--ink2); }.pn .rec-prazo{ margin-top:2px; font-size:12.5px; color:var(--ink3); }.pn .rec-tag{
+}.pn .rec-comprar:hover{ background:var(--lima); }.pn .rec-op--pop .rec-comprar{ background:var(--lima); }.pn .rec-op--pop .rec-comprar:hover{ background:var(--lima-esc); }.pn .rec-comprar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }.pn .rec-op strong{ font-size:26px; font-weight:500; letter-spacing:-.032em; color:var(--ink); }.pn .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }.pn .rec-preco{ margin-top:2px; font-size:15px; color:var(--ink2); }/* Duas linhas curtas dentro de um cartão estreito: sem `balance` a
+   segunda quebrava com uma palavra sozinha no fim. */.pn .rec-prazo{ margin-top:2px; font-size:12.5px; line-height:1.45; color:var(--ink3);
+  text-wrap:balance; }.pn .rec-tag{
   position:absolute; top:-11px; left:50%; transform:translateX(-50%);
   font-style:normal; white-space:nowrap; line-height:1;
   font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
@@ -605,22 +636,18 @@
   background:var(--lima); color:#111111;
   font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
   display:inline-flex; align-items:center;
-}.pn .doc__bt:hover{ background:var(--lima-esc); }.pn .doc__bt--linha{ background:var(--paper); border:1px solid var(--line2); color:var(--ink); }.pn .doc__bt--linha:hover{ background:var(--wash); border-color:var(--ink); }/* Salvo em PDF, some tudo que é da tela e sobra o documento.
-   `print-color-adjust:exact` é o que faz o navegador imprimir a faixa e os
-   selos: por padrão ele joga fundo colorido fora para poupar tinta, e a
-   fatura sairia sem a marca em cima. */
+}.pn .doc__bt:hover{ background:var(--lima-esc); }.pn .doc__bt--linha{ background:var(--paper); border:1px solid var(--line2); color:var(--ink); }.pn .doc__bt--linha:hover{ background:var(--wash); border-color:var(--ink); }/* O que sai no papel NÃO está aqui, está no `@media print` do globals.css.
+   Impressão é assunto do documento inteiro: a janela da fatura nasce dentro
+   do painel, mas o rodapé do site e a barra de cookies são irmãs dela lá em
+   cima, fora do escopo `.pn`. Uma folha escopada não alcança as duas, e elas
+   sairiam impressas junto com a fatura. O que este bloco fazia antes era só
+   endireitar a janela, e o painel inteiro ia junto para a folha.
 
-
-@media print{.pn .doc-fundo{
-    position:static; inset:auto; padding:0; overflow:visible;
-    background:none; backdrop-filter:none;
-  }.pn .doc{
-    width:100%; max-width:none; box-shadow:none; border-radius:0;
-    -webkit-print-color-adjust:exact; print-color-adjust:exact;
-  }.pn .doc__faixa, .pn .fat-selo{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }.pn .doc__acoes{ display:none; }
-  @page{ margin:14mm; }}/* ══════════════════════════════════════════════════════════════════════
+   A fatura em A4 tem artefato próprio: ferramentas/fatura-a4.html. *//* ══════════════════════════════════════════════════════════════════════
    ATÉ 1024px a lateral vira gaveta, e a esteira deita
    ══════════════════════════════════════════════════════════════════════ */
+
+
 
 
 @media (max-width:1024px){.pn .app-side{ transform:translateX(-100%); width:var(--side-w); transition:transform var(--t); }.pn .app-shell.gaveta .app-side{ transform:none; box-shadow:var(--sombra); }.pn .app-shell.recolhido .app-side{ width:var(--side-w); }.pn .app-shell.gaveta .app-veu{ opacity:1; pointer-events:auto; }.pn .app-header, .pn .app-shell.recolhido .app-header{ left:0; padding:0 16px; }.pn .app-main, .pn .app-shell.recolhido .app-main{ margin-left:0; }.pn .app-burger{
