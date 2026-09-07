@@ -76,8 +76,10 @@ export default function CookieConsent() {
 
   return (
     <div className="cookie-bar" ref={barraRef} role="dialog" aria-label={t('cookieconsent_aria')}>
+      {/* A primeira frase vai num span próprio porque ela não quebra: são duas
+          linhas e só duas, a frase em cima e a chamada da política embaixo. */}
       <div className="cookie-txt">
-        {t('cookieconsent_texto')}<br />
+        <span className="cookie-frase">{t('cookieconsent_texto')}</span><br />
         {t('cookieconsent_veja')} <Link href="/privacidade">{t('cookieconsent_link_privacidade')}</Link>.
       </div>
       <div className="cookie-acoes">

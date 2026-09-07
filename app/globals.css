@@ -752,10 +752,23 @@ select.login-input { padding-right: 34px; }
   display: flex; align-items: center; gap: 24px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
+/* O bloco de texto fica CENTRADO na faixa, e a acao encostada na direita.
+   Quem faz isso e a margem automatica: ela come o espaco sobrando dos dois
+   lados do texto, e o bloco de botoes, que nao encolhe, vai pro fim da linha.
+   Com `flex:1` o texto esticava ate 70ch e empurrava os botoes pro meio da
+   barra, que nao e o desenho aprovado.
+   `text-align:left` de proposito: o bloco e que esta no meio, as duas linhas
+   comecam na mesma coluna. Centrado, "Veja a Politica" nascia recuado, porque
+   e mais curto que a primeira frase. */
 .cookie-txt {
-  flex: 1; font-size: 12.5px; line-height: 1.5; max-width: 70ch;
+  margin: 0 auto; text-align: left;
+  font-size: 12.5px; line-height: 1.5;
   color: rgba(255, 255, 255, .82);
 }
+/* Duas linhas e so duas: a frase inteira em cima, a chamada da politica
+   embaixo. Sem o `nowrap` ela quebra sozinha em tela menor e o bloco vira
+   tres linhas, com "Veja a Politica" orfao no fim. */
+.cookie-frase { white-space: nowrap; }
 /* Branco cheio e sublinhado: sobre o vidro, um link colorido perderia para o
    fundo escuro em qualquer tom da nossa paleta. */
 .cookie-txt a { color: var(--paper); text-decoration: underline; text-underline-offset: 2px; }
@@ -776,15 +789,18 @@ select.login-input { padding-right: 34px; }
   border-color: rgba(255, 255, 255, .45);
 }
 .cookie-btn--ghost:hover { border-color: var(--paper); }
+.cookie-btn:active { transform: scale(.97); }
 .cookie-btn:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
-@media (max-width: 620px) {
+/* 760 e nao 620: a frase mede 412px e nao quebra, e com os dois botoes mais o
+   respiro das bordas a faixa em linha precisa de uns 710px. Entre 620 e 760 a
+   linha unica ja nao cabia. */
+@media (max-width: 760px) {
   /* No telefone o texto ocupa a linha inteira e os botões descem para a
      seguinte, dividindo a largura. A faixa continua encostada na borda. */
   .cookie-bar { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px 20px; }
-  .cookie-acoes { }
+  .cookie-frase { white-space: normal; }
   .cookie-btn { flex: 1; }
 }
-@media (prefers-reduced-motion: reduce) { .cookie-btn { transition: none; } }
 
 /* Célula CPF / ID */
 .idcel { font-variant-numeric: tabular-nums; }
