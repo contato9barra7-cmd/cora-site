@@ -11,7 +11,7 @@ import DropdownCora from '../../components/DropdownCora';
 
 export default function Cadastro() {
   const router = useRouter();
-  const { t } = useIdioma();
+  const { t, idioma } = useIdioma();
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -134,7 +134,7 @@ export default function Cadastro() {
     setFaltando({});
     setCarregando(true);
     try {
-      await registrar({ email, senha, nome, genero, profissao, origem, usa_render: usaRender, tamanho, volume });
+      await registrar({ email, senha, nome, genero, profissao, origem, usa_render: usaRender, tamanho, volume, aceite, idioma });
       try { sessionStorage.removeItem('cora_cad_form'); } catch (e) {}
       router.push('/verificar?email=' + encodeURIComponent(email));
     } catch (e) {

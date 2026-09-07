@@ -12607,3 +12607,95 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
   border-radius: 100px;
 }
 @media (prefers-reduced-motion: reduce) { .p404__bt { transition: none; } }
+
+/* ══════════════════════════════════════════════════════════
+   A PROVA DO ACEITE (aba Aceites do admin)
+
+   Quem aceitou os Termos, quando, de onde, e qual texto leu.
+   Reusa `.admin-tabela` e `.admin-vazio`, que as outras abas já usam: a
+   tela nova não inventa um segundo jeito de desenhar uma listagem.
+   ══════════════════════════════════════════════════════════ */
+.admin-ac__topo {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 14px;
+}
+.admin-ac__nums { font-size: 13.5px; color: var(--ink3); }
+.admin-ac__nums strong { color: var(--ink); font-weight: 600; }
+.admin-ac__sep { margin: 0 8px; opacity: .45; }
+/* Vermelho de propósito: é quanta gente a gente NÃO consegue provar que
+   aceitou. O número só some da tela quando chega a zero. */
+.admin-ac__falta { color: #C8342A; }
+.admin-ac__falta strong { color: #C8342A; }
+.admin-ac__busca {
+  min-width: 240px; height: 36px; padding: 0 14px;
+  border: 1px solid var(--line); border-radius: 100px;
+  background: var(--paper); color: var(--ink);
+  font-family: inherit; font-size: 13.5px;
+}
+.admin-ac__busca:focus { outline: 0; border-color: var(--ink); }
+
+.admin-ac .admin-tabela th,
+.admin-ac .admin-tabela td {
+  padding: 10px 12px; text-align: left; vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+.admin-ac .admin-tabela th {
+  font-size: 11.5px; font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--ink3);
+}
+.admin-ac-nome { font-size: 14px; font-weight: 500; }
+.admin-ac-email { font-size: 12.5px; color: var(--ink3); }
+.admin-ac-doc {
+  display: inline-block; padding: 2px 9px; border-radius: 100px;
+  background: var(--wash2, #efefeb); font-size: 12px; font-weight: 500;
+}
+.admin-ac-versao { margin-top: 3px; font-size: 11.5px; color: var(--ink3); }
+.admin-ac-num { font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.admin-ac-ua { color: var(--ink3); font-size: 11px; }
+.admin-ac-ver {
+  padding: 6px 13px; border: 1px solid var(--line); border-radius: 100px;
+  background: none; color: var(--ink); font-family: inherit; font-size: 12.5px;
+  white-space: nowrap; cursor: pointer;
+}
+.admin-ac-ver:hover { border-color: var(--ink); }
+
+/* A janela do texto. Fundo escuro por trás, e o documento numa folha branca
+   com rolagem própria: são 7 KB, e ler isso na página inteira empurraria a
+   listagem para longe. */
+.admin-ac-janela {
+  position: fixed; inset: 0; z-index: 3000;
+  display: grid; place-items: center; padding: 24px;
+  background: rgba(12, 12, 12, .55);
+}
+.admin-ac-papel {
+  width: min(760px, 100%); max-height: 84vh; overflow-y: auto;
+  padding: 24px 28px 28px; border-radius: 16px;
+  background: var(--paper); color: var(--ink);
+}
+.admin-ac-papel__cab {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+}
+.admin-ac-papel__cab h3 { margin: 0; font-size: 17px; font-weight: 600; }
+.admin-ac-papel__cab p { margin: 4px 0 0; font-size: 12.5px; color: var(--ink3); }
+.admin-ac-papel__cab button {
+  flex: none; width: 30px; height: 30px; border: 0; border-radius: 50%;
+  background: var(--wash2, #efefeb); color: var(--ink); cursor: pointer;
+}
+.admin-ac-hash {
+  margin: 16px 0 0; padding: 9px 13px; border-radius: 9px;
+  background: #EAF6EE; color: #1F7A44; font-size: 12px; line-height: 1.5;
+}
+.admin-ac-hash code { display: block; margin-top: 3px; opacity: .7; font-size: 10.5px;
+  word-break: break-all; }
+.admin-ac-hash.quebrado { background: #FCEDEC; color: #8E2620; }
+.admin-ac-texto {
+  margin: 16px 0 0; padding: 18px 20px; border: 1px solid var(--line);
+  border-radius: 12px; background: var(--wash, #f6f6f4);
+  font-family: inherit; font-size: 13px; line-height: 1.7;
+  white-space: pre-wrap; word-break: break-word;
+}
+
+:root[data-theme="dark"] .admin-ac-hash { background: rgba(31, 122, 68, .16); color: #7BD3A0; }
+:root[data-theme="dark"] .admin-ac-hash.quebrado { background: rgba(200, 52, 42, .16); color: #F0A9A3; }
+:root[data-theme="dark"] .admin-ac-doc { background: rgba(255, 255, 255, .08); }
+:root[data-theme="dark"] .admin-ac-papel__cab button { background: rgba(255, 255, 255, .08); }

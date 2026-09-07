@@ -9,6 +9,7 @@ import DropdownCora from '../../components/DropdownCora';
 import FichaConta from '../../components/FichaConta';
 import { useIdioma } from '../../lib/i18n';
 import { lerConta, adminListarAssinantes, adminDadosFiscais, adminCompras, adminSincronizarStripe } from '../../lib/auth';
+import PainelAceites from '../../components/PainelAceites';
 
 
 function fmtData(d) {
@@ -54,7 +55,7 @@ export default function Admin() {
   const [busca, setBusca] = useState('');
   // Qual conta a Ficha deve abrir quando se clica numa linha da tabela.
   const [fichaAbrir, setFichaAbrir] = useState(null);
-  const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'trial' | 'convidados' | 'cancelados' | 'compras'
+  const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'trial' | 'convidados' | 'cancelados' | 'compras' | 'aceites' | 'ficha'
   const [filtroData, setFiltroData] = useState('todos'); // todos | mes | 12meses | ano | periodo
   const [anoFiltro, setAnoFiltro] = useState(String(new Date().getFullYear()));
   const [dataDe, setDataDe] = useState('');
@@ -746,6 +747,12 @@ export default function Admin() {
         <button className={'seg-item' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
           {t('adm_aba_recargas')} <span className="seg-badge">{compras.length}</span>
         </button>
+        {/* A prova do aceite dos Termos. Fica aqui, e nao numa pagina propria,
+            porque a pergunta que leva ate ela ("essa pessoa aceitou?") nasce
+            do mesmo lugar que as outras abas: uma duvida sobre um cliente. */}
+        <button className={'seg-item' + (aba === 'aceites' ? ' ativa' : '')} onClick={() => setAba('aceites')}>
+          {t('adm_aba_aceites')}
+        </button>
         {/* Ficha da conta: busca uma pessoa e mostra tudo dela numa tela.
             As outras abas sao listagens; esta e o inverso — um cliente por vez,
             que e como uma pergunta de suporte chega. */}
@@ -756,6 +763,10 @@ export default function Admin() {
 
       {aba === 'ficha' && (
         <div style={{ marginTop: 18 }}><FichaConta abrirConta={fichaAbrir} /></div>
+      )}
+
+      {aba === 'aceites' && (
+        <div style={{ marginTop: 18 }}><PainelAceites /></div>
       )}
 
       {/* A barra de filtro/busca e das LISTAGENS. Na ficha ela nao se aplica —
