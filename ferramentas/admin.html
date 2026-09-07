@@ -1021,6 +1021,27 @@
 .din-taxa__linha--fim{ border-bottom:0; padding-bottom:0; }
 .din-taxa__linha--fim b{ font-size:16px; }
 
+/* O botao de todas as moedas fica no fim da fila e um pouco separado: ele
+   nao e uma moeda, e uma leitura diferente. Texto em vez de simbolo pelo
+   mesmo motivo. */
+.per__moeda--todas{ margin-left:2px; padding:5px 12px; }
+
+/* A nota da regua quando ela conta cobrancas em vez de valor. */
+.per__regua{
+  margin:10px 0 0; font-size:11.5px; color:var(--ink3); text-align:center;
+}
+
+/* ── TODAS AS MOEDAS ──
+   Com a tabela no lugar do numero grande, o cartao ocupa a largura inteira: o
+   vizinho "De onde vem" some, porque ele so sabe falar de uma moeda por vez. */
+.din-topo--todas{ grid-template-columns:minmax(0,1fr) !important; }
+.din-tabela-moedas{ margin-top:4px; }
+.din-moeda-nome{ font-weight:600; }
+.din-moeda-cod{
+  margin-left:8px; font-size:11px; color:var(--ink3); letter-spacing:.04em;
+}
+.din-menos{ color:var(--alerta); }
+
 /* De onde vem o dinheiro. Barra empilhada de duas cores, e a legenda embaixo
    com o valor: a proporção se lê na barra, o número se lê na linha. */
 .din-fonte{ margin-top:18px; }
@@ -1036,6 +1057,9 @@
 }
 .din-legenda em.a{ background:var(--turquesa); }
 .din-legenda em.b{ background:var(--lima); }
+/* Cinza, e nao uma terceira cor da marca: esta fatia nao e uma linha de
+   receita, e o que a gente ainda nao soube explicar. */
+.din-legenda em.c{ background:var(--ink3); }
 .din-legenda b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }
 
 /* Os números menores, em fila. Eles são o contexto do número grande, e por
@@ -1240,24 +1264,24 @@
 }
 .app-header--faixa .app-burger span{ background:#111111; }
 /* ── O ANEL SOBRE A FAIXA ──
-   Ele sumia. Turquesa num fio de tres, em cima de uma faixa que ja e lima e
-   turquesa, nao tem com o que contrastar, e o trilho cinza claro desaparecia
-   junto.
+   O anel tem duas partes e elas precisam dizer coisas diferentes: o trilho e
+   o credito que ja foi, o fio e o que ainda tem. Isso e mais dificil aqui do
+   que no corpo da pagina, porque a faixa e clara e colorida.
 
-   A primeira tentativa foi uma placa de vidro por tras, como a do rotulo do
-   cabecalho. Ela resolvia o contraste e criava outro problema: virava uma
-   caixa maior que o proprio avatar, e chamava mais atencao que o dado.
+   Duas tentativas antes desta. A primeira foi uma placa de vidro por tras do
+   avatar: resolvia o contraste e virava uma caixa maior que o proprio avatar.
+   A segunda deixou o trilho branco: ai o consumido sumia, e o anel parecia um
+   contorno decorativo em vez de uma medida.
 
-   O conserto e no proprio anel. O trilho vira branco solido, que ja abre o
-   espaco claro de que o fio precisa, e o fio vira preto, que e o que o
-   comentario la de cima diz que ele deveria ser: o anel e informacao, e
-   informacao se le na cor do texto. Nada cresce, e a marca continua no
-   avatar, onde ela e area e nao fio.
+   O que separa os dois e a mesma cor em duas forcas. O trilho e preto fraco,
+   que sobre qualquer parte da faixa le como sulco, como espaco ja gasto. O
+   fio e preto cheio, que le como a parte cheia. Um so tom, duas leituras, e
+   nenhuma delas depende de acertar uma cor nova em cima de lima e turquesa.
 
    Preto e vermelho fixos, e nao var(--ink) e var(--alerta): a faixa e clara
    nos dois temas, e no escuro esses tokens clareiam e sumiriam. */
-.app-header--faixa .app-anel-bg{ stroke:#FFFFFF; stroke-width:3.2; }
-.app-header--faixa .app-anel-fill{ stroke:#111111; }
+.app-header--faixa .app-anel-bg{ stroke:rgba(17,17,17,.22); stroke-width:3; }
+.app-header--faixa .app-anel-fill{ stroke:#111111; stroke-width:3.4; }
 .app-header--faixa .app-anel-fill.baixo{ stroke:#C8342A; }
 .app-burger{ display:none; }
 
@@ -3082,12 +3106,17 @@
           </div>
 
           <div class="per__meses" data-meses></div>
+          <!-- Com todas as moedas juntas, a regua troca de assunto: real e
+               dolar nao tem escala em comum, entao ela passa a contar
+               cobrancas, e diz isso aqui em vez de deixar a pessoa supor. -->
+          <p class="per__regua" data-per-regua hidden></p>
           <p class="per__vazio" data-per-vazio hidden>Nenhuma cobrança neste ano. A primeira
             foi em janeiro de 2026.</p>
         </div>
 
         <div class="din-topo">
           <div class="conta-card adm-card din-grande">
+           <div data-din-so-uma>
             <!-- ── BRUTO OU LÍQUIDO ──
                  Duas leituras do mesmo dinheiro, e por isso ficam no mesmo
                  lugar em vez de virarem dois cartões: ninguém precisa dos dois
@@ -3122,9 +3151,37 @@
 
             <p class="din-nota" data-din-nota>Tudo que foi pago no período, assinatura mais
               recarga. É dinheiro que entrou de verdade, e não cobrança em aberto.</p>
+           </div>
+
+            <!-- ══ TODAS AS MOEDAS ══
+                 Uma linha por moeda, e nenhuma somada com outra. Somar real
+                 com dolar da um valor que nao existe, e ele apareceria no
+                 lugar mais visivel da tela. Assim da para ver tudo de uma vez
+                 e cada numero continua sendo verdade.
+
+                 O liquido de cada linha ja desconta a taxa daquela moeda, que
+                 nao e a mesma nas tres: cobranca internacional custa mais. -->
+            <div data-din-todas hidden>
+              <h2 class="conta-h2">O que entrou, moeda por moeda</h2>
+              <p class="conta-p" data-todas-quando>Nos últimos 12 meses.</p>
+              <div class="fat-rolo">
+                <table class="fat din-tabela-moedas">
+                  <thead>
+                    <tr><th>Moeda</th><th class="adm-num">Bruto</th>
+                        <th class="adm-num">Taxa</th><th class="adm-num">Líquido</th>
+                        <th class="adm-num">Cobranças</th><th class="fat__acao"></th></tr>
+                  </thead>
+                  <tbody data-todas-corpo></tbody>
+                </table>
+              </div>
+              <p class="din-nota">Cada linha é uma moeda inteira, com a taxa que o Stripe
+                reteve nela. Não há total geral de propósito: para somar as três seria
+                preciso câmbio com a data de cada cobrança, e o número passaria a mudar
+                sozinho conforme o dólar.</p>
+            </div>
           </div>
 
-          <div class="conta-card adm-card">
+          <div class="conta-card adm-card" data-card-fonte>
             <h2 class="conta-h2">De onde vem</h2>
             <p class="conta-p" data-fonte-quando>Nos últimos 12 meses.</p>
             <div class="din-fonte">
@@ -3139,6 +3196,14 @@
                 <div>
                   <span><em class="b"></em>Recarga avulsa</span>
                   <b data-fonte-recarga>R$&nbsp;4.010,00</b>
+                </div>
+                <!-- Cobranca que entrou e nao bate com assinatura nem com
+                     recarga nossa. So aparece quando existe: numa tela onde
+                     ela e zero, mostra-la faria procurar um problema que nao
+                     tem. Quando aparece, e para ser olhada. -->
+                <div data-fonte-outro-linha hidden>
+                  <span><em class="c"></em>Sem origem conhecida</span>
+                  <b data-fonte-outro>R$&nbsp;0,00</b>
                 </div>
               </div>
             </div>
@@ -4130,161 +4195,344 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
      de faturamento: o número grande falando de um período e o gráfico ao
      lado falando de outro.
 
-     POR QUE A MOEDA É UM SELETOR, E NÃO UMA COLUNA A MAIS
-     Real, dólar e euro não se somam. Um total que junta os três é um número
-     inventado, e ele apareceria justamente no lugar mais visível da tela.
-     Aqui cada moeda tem a sua própria leitura completa, e a régua de meses
-     também: um mês pode ter movimento em real e nenhum em euro.
+     ── DE ONDE VÊM OS NÚMEROS ──
+     `RESPOSTA` abaixo é, letra por letra, o corpo de `GET /admin/dinheiro`
+     do cora-auth. No site esta constante não existe: entra um fetch, e o
+     resto do arquivo continua igual. Escrever a demonstração no formato do
+     endpoint é o que faz portar isto ser copiar e colar, em vez de traduzir
+     campo a campo e descobrir a diferença depois, em produção.
 
-     Aqui os valores estão escritos à mão para a demonstração. No sistema
-     eles vêm de uma consulta só, agrupada por moeda e mês, com três colunas:
-     assinatura, recarga e taxa.
+     Do outro lado, o servidor varre as COBRANÇAS do Stripe, e não as
+     faturas: recarga passa por Checkout de pagamento único e não gera
+     fatura. A taxa é `balance_transaction.fee`, o que o Stripe reteve
+     naquela cobrança, e não uma porcentagem de tabela.
 
-     A TAXA é `balance_transaction.fee` do Stripe, ou seja, o que ele
-     REALMENTE reteve em cada cobrança. Não é 3,99% aplicado no total:
-     cartão internacional, parcelamento e conversão de moeda cobram
-     diferente, e uma porcentagem fixa no código erraria em todos esses
-     casos, para mais ou para menos, sem ninguém perceber.
+     ── TUDO EM CENTAVOS ──
+     Inteiro do começo ao fim, e a divisão por 100 acontece só na hora de
+     escrever na tela. Fração no meio de uma soma de dinheiro é como nasce a
+     diferença de um centavo que ninguém consegue explicar.
+
+     ── MOEDA NÃO SE SOMA ──
+     Cada moeda tem a sua leitura completa, inclusive a régua de meses: um
+     mês pode ter movimento em real e nenhum em euro. E as moedas saem do que
+     existe, não de uma lista escrita aqui: se entrar peso amanhã, o peso
+     aparece sozinho.
      ═══════════════════════════════════════════════════════════════════ */
   var MES_NOME = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
                   'jul', 'ago', 'set', 'out', 'nov', 'dez'];
   var MES_LONGO = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
                    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
-  var MOEDAS = {
-    BRL: { nome: 'Real', simbolo: 'R$', local: 'pt-BR', desde: 'janeiro de 2026' },
-    USD: { nome: 'Dólar', simbolo: 'US$', local: 'pt-BR', desde: 'maio de 2026' },
-    EUR: { nome: 'Euro', simbolo: '€', local: 'pt-BR', desde: 'agosto de 2026' },
+  var RESPOSTA = {
+      "unidade": "centavos",
+      "moedas": [
+          {
+              "codigo": "brl",
+              "simbolo": "R$",
+              "nome": "Real",
+              "primeira": "2026-01",
+              "cobrancas": 135
+          },
+          {
+              "codigo": "usd",
+              "simbolo": "US$",
+              "nome": "Dólar",
+              "primeira": "2026-05",
+              "cobrancas": 10
+          },
+          {
+              "codigo": "eur",
+              "simbolo": "€",
+              "nome": "Euro",
+              "primeira": "2026-08",
+              "cobrancas": 2
+          }
+      ],
+      "meses": {
+          "brl": {
+              "2026-01": {
+                  "assinatura": 74200,
+                  "recarga": 10000,
+                  "outro": 0,
+                  "taxa": 3608,
+                  "reembolso": 0,
+                  "cobrancas": 9
+              },
+              "2026-02": {
+                  "assinatura": 100400,
+                  "recarga": 10000,
+                  "outro": 0,
+                  "taxa": 4645,
+                  "reembolso": 0,
+                  "cobrancas": 11
+              },
+              "2026-03": {
+                  "assinatura": 118600,
+                  "recarga": 30000,
+                  "outro": 0,
+                  "taxa": 6210,
+                  "reembolso": 0,
+                  "cobrancas": 13
+              },
+              "2026-04": {
+                  "assinatura": 150200,
+                  "recarga": 30000,
+                  "outro": 0,
+                  "taxa": 7500,
+                  "reembolso": 0,
+                  "cobrancas": 15
+              },
+              "2026-05": {
+                  "assinatura": 190400,
+                  "recarga": 61000,
+                  "outro": 0,
+                  "taxa": 10473,
+                  "reembolso": 0,
+                  "cobrancas": 17
+              },
+              "2026-06": {
+                  "assinatura": 183800,
+                  "recarga": 40000,
+                  "outro": 0,
+                  "taxa": 9331,
+                  "reembolso": 29400,
+                  "cobrancas": 16
+              },
+              "2026-07": {
+                  "assinatura": 210200,
+                  "recarga": 80000,
+                  "outro": 0,
+                  "taxa": 12079,
+                  "reembolso": 0,
+                  "cobrancas": 19
+              },
+              "2026-08": {
+                  "assinatura": 201600,
+                  "recarga": 70000,
+                  "outro": 0,
+                  "taxa": 11307,
+                  "reembolso": 0,
+                  "cobrancas": 18
+              },
+              "2026-09": {
+                  "assinatura": 191400,
+                  "recarga": 70000,
+                  "outro": 0,
+                  "taxa": 10884,
+                  "reembolso": 0,
+                  "cobrancas": 17
+              }
+          },
+          "usd": {
+              "2026-05": {
+                  "assinatura": 9900,
+                  "recarga": 0,
+                  "outro": 0,
+                  "taxa": 434,
+                  "reembolso": 0,
+                  "cobrancas": 1
+              },
+              "2026-06": {
+                  "assinatura": 9900,
+                  "recarga": 0,
+                  "outro": 0,
+                  "taxa": 434,
+                  "reembolso": 0,
+                  "cobrancas": 1
+              },
+              "2026-07": {
+                  "assinatura": 19800,
+                  "recarga": 0,
+                  "outro": 0,
+                  "taxa": 829,
+                  "reembolso": 0,
+                  "cobrancas": 2
+              },
+              "2026-08": {
+                  "assinatura": 19800,
+                  "recarga": 4900,
+                  "outro": 0,
+                  "taxa": 1034,
+                  "reembolso": 0,
+                  "cobrancas": 3
+              },
+              "2026-09": {
+                  "assinatura": 29700,
+                  "recarga": 0,
+                  "outro": 0,
+                  "taxa": 1224,
+                  "reembolso": 0,
+                  "cobrancas": 3
+              }
+          },
+          "eur": {
+              "2026-08": {
+                  "assinatura": 8900,
+                  "recarga": 0,
+                  "outro": 0,
+                  "taxa": 394,
+                  "reembolso": 0,
+                  "cobrancas": 1
+              },
+              "2026-09": {
+                  "assinatura": 8900,
+                  "recarga": 0,
+                  "outro": 0,
+                  "taxa": 394,
+                  "reembolso": 0,
+                  "cobrancas": 1
+              }
+          }
+      },
+      "aviso": null
   };
 
-  /* [assinatura, recarga, taxa] por mês, dentro de cada moeda e cada ano.
-     `null` é mês sem cobrança nenhuma, que é diferente de mês com zero: um
-     ainda não aconteceu, o outro aconteceu e não entrou nada. */
-  var VAZIO12 = [null, null, null, null, null, null, null, null, null, null, null, null];
-  var CAIXA = {
-    BRL: {
-      2025: VAZIO12,
-      2026: [
-        [742, 100, 36.08], [1004, 100, 46.45], [1186, 300, 62.10], [1502, 300, 75.00],
-        [1904, 610, 104.73], [1838, 400, 93.31], [2102, 800, 120.79], [2016, 700, 113.07],
-        [1914, 700, 108.84], null, null, null,
-      ],
-    },
-    USD: {
-      2025: VAZIO12,
-      2026: [
-        null, null, null, null,
-        [99, 0, 4.34], [99, 0, 4.34], [198, 0, 8.29], [198, 49, 10.34],
-        [297, 0, 12.24], null, null, null,
-      ],
-    },
-    EUR: {
-      2025: VAZIO12,
-      2026: [
-        null, null, null, null, null, null, null,
-        [89, 0, 3.94], [89, 0, 3.94], null, null, null,
-      ],
-    },
-  };
-  var PRIMEIRO_ANO = 2025;   // o ano mais antigo que existe no sistema
-  var ULTIMO_ANO = 2026;
+  var TODAS = '__todas__';   // a moeda que não é uma moeda
   var HOJE_ANO = 2026;
 
-  var moeda = 'BRL';
-  var anoAberto = 2026;
+  var moeda = RESPOSTA.moedas.length ? RESPOSTA.moedas[0].codigo : TODAS;
+  var anoAberto = HOJE_ANO;
   var mesAberto = null;       // null quer dizer "o período inteiro"
   var atalho = '12m';
   var verLiquido = false;
 
-  function dinheiro(n) {
-    var m = MOEDAS[moeda];
-    return m.simbolo + ' ' + n.toLocaleString(m.local,
+  function infoMoeda(cod) {
+    for (var i = 0; i < RESPOSTA.moedas.length; i++) {
+      if (RESPOSTA.moedas[i].codigo === cod) return RESPOSTA.moedas[i];
+    }
+    return { codigo: cod, simbolo: cod.toUpperCase(), nome: cod.toUpperCase(), primeira: '' };
+  }
+
+  function dinheiro(centavos, cod) {
+    var m = infoMoeda(cod || moeda);
+    return m.simbolo + ' ' + (centavos / 100).toLocaleString('pt-BR',
       { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  function anosDaMoeda() { return CAIXA[moeda] || {}; }
-
-  /* Soma o que está no período escolhido e devolve as três parcelas. */
-  function somaDoPeriodo() {
-    var todos = anosDaMoeda();
-    var anos = atalho === 'tudo' ? Object.keys(todos) : [String(anoAberto)];
-    var a = 0, r = 0, t = 0, meses = 0;
-    anos.forEach(function (ano) {
-      (todos[ano] || []).forEach(function (m, i) {
-        if (!m) return;
-        if (mesAberto !== null && (i !== mesAberto || +ano !== anoAberto)) return;
-        a += m[0]; r += m[1]; t += m[2]; meses++;
-      });
-    });
-    return { assinatura: a, recarga: r, taxa: t, bruto: a + r, meses: meses };
+  /* "2026-01" vira "janeiro de 2026". A chave do endpoint é ordenável como
+     texto de propósito, e a tradução para gente acontece só aqui. */
+  function mesPorExtenso(chave) {
+    var p = String(chave).split('-');
+    return MES_LONGO[(+p[1] || 1) - 1] + ' de ' + p[0];
   }
 
-  /* Quanto cada moeda movimentou no ano aberto. É o que decide se a pílula
-     dela aparece: moeda sem nenhuma cobrança não vira botão, senão a barra
-     enche de opções que só levam a telas zeradas. */
-  function moedasComMovimento() {
-    return Object.keys(MOEDAS).filter(function (cod) {
-      return Object.keys(CAIXA[cod] || {}).some(function (ano) {
-        return (CAIXA[cod][ano] || []).some(function (m) { return !!m; });
-      });
+  /* Um mês do período conta? A regra é a mesma para todos os blocos, então
+     ela mora num lugar só. */
+  function noPeriodo(chave) {
+    var ano = +String(chave).slice(0, 4);
+    var mes = +String(chave).slice(5, 7) - 1;
+    if (mesAberto !== null) return ano === anoAberto && mes === mesAberto;
+    if (atalho === 'tudo') return true;
+    return ano === anoAberto;
+  }
+
+  function somaDaMoeda(cod) {
+    var s = { assinatura: 0, recarga: 0, outro: 0, taxa: 0, reembolso: 0,
+              cobrancas: 0, meses: 0 };
+    var m = RESPOSTA.meses[cod] || {};
+    Object.keys(m).forEach(function (k) {
+      if (!noPeriodo(k)) return;
+      var v = m[k];
+      s.assinatura += v.assinatura; s.recarga += v.recarga; s.outro += v.outro;
+      s.taxa += v.taxa; s.reembolso += v.reembolso; s.cobrancas += v.cobrancas;
+      s.meses++;
     });
+    s.bruto = s.assinatura + s.recarga + s.outro;
+    s.liquido = s.bruto - s.taxa;
+    return s;
   }
 
   function nomeDoPeriodo() {
     if (mesAberto !== null) return MES_LONGO[mesAberto] + ' de ' + anoAberto;
-    if (atalho === 'tudo') return MOEDAS[moeda].desde;
+    if (atalho === 'tudo') return 'o começo';
     if (atalho === 'ano') return anoAberto;
     return 'nos últimos 12 meses';
+  }
+
+  /* A data da primeira cobrança. Com uma moeda, é a dela; com todas, é a mais
+     antiga entre elas, que é quando o negócio começou a receber. */
+  function desdeQuando() {
+    if (moeda !== TODAS) return mesPorExtenso(infoMoeda(moeda).primeira);
+    var menor = null;
+    RESPOSTA.moedas.forEach(function (m) {
+      if (!menor || m.primeira < menor) menor = m.primeira;
+    });
+    return menor ? mesPorExtenso(menor) : 'o começo';
   }
 
   function desenharMoedas() {
     var caixa = d.querySelector('[data-moedas]');
     if (!caixa) return;
-    var lista = moedasComMovimento();
-    /* Uma moeda só não vira seletor: não há entre o que escolher. */
-    caixa.hidden = lista.length < 2;
+    /* Uma moeda só não vira seletor: não há entre o que escolher, e o botão
+       de "todas" ao lado de uma única moeda seria o mesmo botão duas vezes. */
+    caixa.hidden = RESPOSTA.moedas.length < 2;
     caixa.innerHTML = '';
-    lista.forEach(function (cod) {
-      var b = d.createElement('button');
-      b.type = 'button';
-      b.className = 'per__moeda' + (cod === moeda ? ' ativo' : '');
-      b.textContent = MOEDAS[cod].simbolo;
-      b.title = MOEDAS[cod].nome;
-      b.setAttribute('aria-pressed', cod === moeda ? 'true' : 'false');
-      b.addEventListener('click', function () {
-        moeda = cod;
-        /* Trocar de moeda zera o mês: maio existe em real e não existe em
-           euro, e manter a escolha levaria a uma tela vazia sem explicação. */
-        mesAberto = null;
-        pintar();
+    RESPOSTA.moedas.concat([{ codigo: TODAS, simbolo: 'Todas', nome: 'Todas as moedas' }])
+      .forEach(function (m) {
+        var b = d.createElement('button');
+        b.type = 'button';
+        b.className = 'per__moeda' + (m.codigo === moeda ? ' ativo' : '')
+          + (m.codigo === TODAS ? ' per__moeda--todas' : '');
+        b.textContent = m.simbolo;
+        b.title = m.nome;
+        b.setAttribute('aria-pressed', m.codigo === moeda ? 'true' : 'false');
+        b.addEventListener('click', function () {
+          moeda = m.codigo;
+          /* Trocar de moeda zera o mês: maio existe em real e não existe em
+             euro, e manter a escolha levaria a uma tela vazia sem aviso. */
+          mesAberto = null;
+          pintar();
+        });
+        caixa.appendChild(b);
       });
-      caixa.appendChild(b);
-    });
   }
 
   function desenharMeses() {
     var caixa = d.querySelector('[data-meses]');
     if (!caixa) return;
-    var ano = anosDaMoeda()[anoAberto] || [];
+    var todas = moeda === TODAS;
+
+    /* COM TODAS AS MOEDAS, A RÉGUA MEDE COBRANÇAS, E NÃO VALOR.
+       Altura de barra pede uma escala, e real e dólar não têm uma em comum.
+       Cobrança tem: ela é contável e vale o mesmo em qualquer moeda. Então a
+       régua troca de assunto e passa a mostrar o ritmo do mês, com o rótulo
+       dizendo isso ao lado. Empilhar valores de moedas diferentes na mesma
+       barra daria um desenho bonito e sem significado nenhum. */
+    var alturas = {};
     var maior = 0;
-    ano.forEach(function (m) { if (m) maior = Math.max(maior, m[0] + m[1]); });
+    MES_NOME.forEach(function (_, i) {
+      var chave = anoAberto + '-' + String(i + 1).padStart(2, '0');
+      var v = 0, existe = false;
+      (todas ? RESPOSTA.moedas.map(function (m) { return m.codigo; }) : [moeda])
+        .forEach(function (cod) {
+          var linha = (RESPOSTA.meses[cod] || {})[chave];
+          if (!linha) return;
+          existe = true;
+          v += todas ? linha.cobrancas
+            : linha.assinatura + linha.recarga + linha.outro;
+        });
+      alturas[i] = existe ? v : null;
+      if (v > maior) maior = v;
+    });
 
     caixa.innerHTML = '';
     MES_NOME.forEach(function (nome, i) {
-      var m = ano[i];
+      var v = alturas[i];
       var b = d.createElement('button');
       b.className = 'per__mes' + (mesAberto === i ? ' ativo' : '');
       b.type = 'button';
-      /* Mês sem cobrança não aceita clique: abrir um mês vazio só troca a
-         tela toda por zeros, e isso não é uma resposta que alguém pediu. */
-      if (!m) b.disabled = true;
-      var alt = m && maior ? Math.round(((m[0] + m[1]) / maior) * 100) : 0;
+      // Mês sem cobrança não aceita clique: abrir um mês vazio só troca a
+      // tela toda por zeros, e isso não é uma resposta que alguém pediu.
+      if (v === null) b.disabled = true;
+      var alt = v && maior ? Math.round((v / maior) * 100) : 0;
       b.innerHTML = '<i style="--h:' + (alt ? alt + '%' : '2px') + '"></i><b>' + nome + '</b>';
-      if (m) {
-        b.title = MES_LONGO[i] + ': ' + dinheiro(m[0] + m[1]);
+      if (v !== null) {
+        b.title = MES_LONGO[i] + ': ' + (todas
+          ? v + (v === 1 ? ' cobrança' : ' cobranças')
+          : dinheiro(v));
         b.addEventListener('click', function () {
-          /* Clicar de novo no mês aberto volta para o ano: é o mesmo
-             gesto de ida e volta, sem precisar procurar um "limpar". */
+          /* Clicar de novo no mês aberto volta para o ano: é o mesmo gesto
+             de ida e volta, sem precisar procurar um "limpar". */
           mesAberto = (mesAberto === i) ? null : i;
           if (mesAberto !== null) atalho = 'ano';
           pintar();
@@ -4293,59 +4541,112 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
       caixa.appendChild(b);
     });
 
+    var reg = d.querySelector('[data-per-regua]');
+    if (reg) {
+      reg.hidden = !todas;
+      reg.textContent = 'as barras contam cobranças, porque moedas diferentes não têm escala em comum';
+    }
     var vazio = d.querySelector('[data-per-vazio]');
     if (vazio) {
       vazio.hidden = !!maior;
-      vazio.textContent = 'Nenhuma cobrança em ' + MOEDAS[moeda].nome.toLowerCase()
-        + ' neste ano. A primeira foi em ' + MOEDAS[moeda].desde + '.';
+      vazio.textContent = 'Nenhuma cobrança em ' + anoAberto + '. A primeira foi em '
+        + desdeQuando() + '.';
     }
   }
 
+  /* A tabela que aparece no lugar do número grande quando são todas as
+     moedas. Cada linha é uma moeda inteira, e nenhuma delas é somada com
+     outra: é isso que faz a tela responder "quanto entrou" sem inventar um
+     total que não existe. */
+  function desenharTodas() {
+    var corpo = d.querySelector('[data-todas-corpo]');
+    if (!corpo) return;
+    corpo.innerHTML = '';
+    RESPOSTA.moedas.forEach(function (m) {
+      var s = somaDaMoeda(m.codigo);
+      var tr = d.createElement('tr');
+      tr.innerHTML =
+        '<td><b class="din-moeda-nome">' + m.nome + '</b>'
+        + '<span class="din-moeda-cod">' + m.codigo.toUpperCase() + '</span></td>'
+        + '<td class="adm-num">' + dinheiro(s.bruto, m.codigo) + '</td>'
+        + '<td class="adm-num din-menos">' + (s.taxa ? '− ' + dinheiro(s.taxa, m.codigo) : '—') + '</td>'
+        + '<td class="adm-num"><b>' + dinheiro(s.liquido, m.codigo) + '</b></td>'
+        + '<td class="adm-num">' + s.cobrancas + '</td>'
+        + '<td class="fat__acao"><button class="fat-ver">Ver só ' + m.nome.toLowerCase() + '</button></td>';
+      tr.querySelector('button').addEventListener('click', function () {
+        moeda = m.codigo; mesAberto = null; pintar();
+      });
+      corpo.appendChild(tr);
+    });
+  }
+
   function pintar() {
+    var todas = moeda === TODAS;
     desenharMoedas();
     desenharMeses();
 
     d.querySelector('[data-ano-todo]').textContent = anoAberto;
-    d.querySelector('[data-ano-passo="-1"]').disabled = anoAberto <= PRIMEIRO_ANO;
-    d.querySelector('[data-ano-passo="1"]').disabled = anoAberto >= ULTIMO_ANO;
+    /* Os limites de ano saem dos dados: não dá para navegar até um ano que o
+       sistema nunca viu, e o ano corrente é a fronteira do outro lado. */
+    var primeiro = HOJE_ANO;
+    RESPOSTA.moedas.forEach(function (m) {
+      var a = +String(m.primeira).slice(0, 4);
+      if (a && a < primeiro) primeiro = a;
+    });
+    d.querySelector('[data-ano-passo="-1"]').disabled = anoAberto <= primeiro;
+    d.querySelector('[data-ano-passo="1"]').disabled = anoAberto >= HOJE_ANO;
     d.querySelectorAll('[data-atalho]').forEach(function (b) {
       b.classList.toggle('ativo', mesAberto === null && b.dataset.atalho === atalho);
     });
     /* O atalho diz a data em vez de "o começo": "desde o começo" faz quem lê
        parar para calcular de quando é esse começo, e a resposta cabe no
        próprio botão. */
-    d.querySelector('[data-atalho="tudo"]').textContent = 'Desde ' + MOEDAS[moeda].desde;
+    d.querySelector('[data-atalho="tudo"]').textContent = 'Desde ' + desdeQuando();
 
-    var s = somaDoPeriodo();
+    // ── com todas as moedas, a tabela toma o lugar do número grande ──
+    d.querySelector('.din-topo').classList.toggle('din-topo--todas', todas);
+    d.querySelector('[data-din-so-uma]').hidden = todas;
+    d.querySelector('[data-din-todas]').hidden = !todas;
+    d.querySelector('[data-card-fonte]').hidden = todas;
+    if (todas) {
+      desenharTodas();
+      d.querySelector('[data-todas-quando]').textContent =
+        mesAberto !== null || atalho === 'ano' ? 'Em ' + nomeDoPeriodo() + '.'
+          : atalho === 'tudo' ? 'Desde ' + desdeQuando() + '.'
+          : 'Nos últimos 12 meses.';
+      return;
+    }
+
+    var s = somaDaMoeda(moeda);
     var quando = nomeDoPeriodo();
 
     d.querySelector('[data-din-rotulo]').textContent =
       mesAberto !== null || atalho === 'ano' ? 'Entrou em ' + quando
-        : atalho === 'tudo' ? 'Entrou desde ' + quando : 'Entrou nos últimos 12 meses';
+        : atalho === 'tudo' ? 'Entrou desde ' + desdeQuando() : 'Entrou nos últimos 12 meses';
     d.querySelector('[data-din-num]').innerHTML =
-      dinheiro(verLiquido ? s.bruto - s.taxa : s.bruto);
+      dinheiro(verLiquido ? s.liquido : s.bruto);
 
     /* A comparação só faz sentido com um mês aberto: comparar "o ano todo"
        com o quê? Sem mês, a linha vira a média mensal do período, que é a
        leitura que serve para os dois. */
     var caixaVar = d.querySelector('[data-din-var]');
-    if (mesAberto !== null) {
-      var ant = mesAberto > 0 ? (anosDaMoeda()[anoAberto] || [])[mesAberto - 1] : null;
-      if (ant) {
-        var agora = verLiquido ? s.bruto - s.taxa : s.bruto;
-        var antes = verLiquido ? ant[0] + ant[1] - ant[2] : ant[0] + ant[1];
-        var difer = agora - antes;
-        caixaVar.hidden = false;
-        caixaVar.classList.toggle('din-var--sobe', difer >= 0);
-        caixaVar.classList.toggle('din-var--desce', difer < 0);
-        caixaVar.querySelector('svg path').setAttribute('d', difer >= 0 ? 'M3 11l5-5 5 5' : 'M3 5l5 5 5-5');
-        caixaVar.querySelector('[data-din-var-valor]').innerHTML =
-          (difer >= 0 ? '' : '− ') + dinheiro(Math.abs(difer));
-        caixaVar.querySelector('[data-din-var-txt]').textContent =
-          'em relação a ' + MES_LONGO[mesAberto - 1];
-      } else {
-        caixaVar.hidden = true;
-      }
+    var chaveAnt = mesAberto !== null && mesAberto > 0
+      ? anoAberto + '-' + String(mesAberto).padStart(2, '0') : null;
+    var ant = chaveAnt ? (RESPOSTA.meses[moeda] || {})[chaveAnt] : null;
+    if (mesAberto !== null && ant) {
+      var antes = ant.assinatura + ant.recarga + ant.outro - (verLiquido ? ant.taxa : 0);
+      var difer = (verLiquido ? s.liquido : s.bruto) - antes;
+      caixaVar.hidden = false;
+      caixaVar.classList.toggle('din-var--sobe', difer >= 0);
+      caixaVar.classList.toggle('din-var--desce', difer < 0);
+      caixaVar.querySelector('svg path').setAttribute('d',
+        difer >= 0 ? 'M3 11l5-5 5 5' : 'M3 5l5 5 5-5');
+      caixaVar.querySelector('[data-din-var-valor]').innerHTML =
+        (difer >= 0 ? '' : '− ') + dinheiro(Math.abs(difer));
+      caixaVar.querySelector('[data-din-var-txt]').textContent =
+        'em relação a ' + MES_LONGO[mesAberto - 1];
+    } else if (mesAberto !== null) {
+      caixaVar.hidden = true;
     } else {
       caixaVar.hidden = false;
       caixaVar.classList.add('din-var--sobe');
@@ -4353,9 +4654,9 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
       caixaVar.querySelector('svg path').setAttribute('d', 'M3 11l5-5 5 5');
       /* A média segue a aba: número líquido em cima e média bruta embaixo
          seriam dois valores diferentes do mesmo período, lado a lado. */
-      var total = verLiquido ? s.bruto - s.taxa : s.bruto;
+      var total = verLiquido ? s.liquido : s.bruto;
       caixaVar.querySelector('[data-din-var-valor]').innerHTML =
-        dinheiro(s.meses ? total / s.meses : 0);
+        dinheiro(s.meses ? Math.round(total / s.meses) : 0);
       caixaVar.querySelector('[data-din-var-txt]').textContent = 'por mês, na média';
     }
 
@@ -4364,7 +4665,7 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
     if (verLiquido) {
       d.querySelector('[data-taxa-bruto]').innerHTML = dinheiro(s.bruto);
       d.querySelector('[data-taxa-valor]').innerHTML = '− ' + dinheiro(s.taxa);
-      d.querySelector('[data-taxa-liquido]').innerHTML = dinheiro(s.bruto - s.taxa);
+      d.querySelector('[data-taxa-liquido]').innerHTML = dinheiro(s.liquido);
       d.querySelector('[data-taxa-pct]').textContent =
         s.bruto ? (s.taxa / s.bruto * 100).toFixed(2).replace('.', ',') + '%' : '';
     }
@@ -4373,16 +4674,22 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
       ? 'O que o Stripe reteve em cada cobrança, somado. A taxa muda por cobrança: cartão de fora do Brasil e parcelamento custam mais que o cartão nacional à vista. Imposto não entra nesta conta.'
       : 'Tudo que foi pago no período, assinatura mais recarga. É dinheiro que entrou de verdade, e não cobrança em aberto.';
 
-    /* De onde vem, no mesmo período e na mesma moeda. */
+    // ── de onde vem, no mesmo período e na mesma moeda ──
     var pa = s.bruto ? (s.assinatura / s.bruto * 100) : 0;
     d.querySelector('[data-fonte-barra-a]').style.width = pa + '%';
     d.querySelector('[data-fonte-barra-b]').style.width = (100 - pa) + '%';
     d.querySelector('[data-fonte-assinatura]').innerHTML = dinheiro(s.assinatura);
     d.querySelector('[data-fonte-recarga]').innerHTML = dinheiro(s.recarga);
+    var linhaOutro = d.querySelector('[data-fonte-outro-linha]');
+    /* "Outro" é cobrança que entrou e não bate com assinatura nem com recarga
+       nossa. A linha só aparece quando existe: numa tela onde ela é zero,
+       mostrá-la seria fazer a pessoa procurar um problema que não tem. */
+    linhaOutro.hidden = !s.outro;
+    if (s.outro) d.querySelector('[data-fonte-outro]').innerHTML = dinheiro(s.outro);
     d.querySelector('[data-fonte-quando]').textContent =
-      mesAberto !== null || atalho === 'ano' ? 'Em ' + quando + ', em ' + MOEDAS[moeda].nome.toLowerCase() + '.'
-        : atalho === 'tudo' ? 'Desde ' + quando + ', em ' + MOEDAS[moeda].nome.toLowerCase() + '.'
-        : 'Nos últimos 12 meses, em ' + MOEDAS[moeda].nome.toLowerCase() + '.';
+      mesAberto !== null || atalho === 'ano' ? 'Em ' + quando + ', em ' + infoMoeda(moeda).nome.toLowerCase() + '.'
+        : atalho === 'tudo' ? 'Desde ' + desdeQuando() + ', em ' + infoMoeda(moeda).nome.toLowerCase() + '.'
+        : 'Nos últimos 12 meses, em ' + infoMoeda(moeda).nome.toLowerCase() + '.';
   }
 
   d.querySelectorAll('[data-ano-passo]').forEach(function (b) {

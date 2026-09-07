@@ -136,22 +136,22 @@
   backdrop-filter:blur(14px) saturate(150%);
   -webkit-backdrop-filter:blur(14px) saturate(150%);
 }.pn .app-header--faixa .app-burger span{ background:#111111; }/* ── O ANEL SOBRE A FAIXA ──
-   Ele sumia. Turquesa num fio de tres, em cima de uma faixa que ja e lima e
-   turquesa, nao tem com o que contrastar, e o trilho cinza claro desaparecia
-   junto.
+   O anel tem duas partes e elas precisam dizer coisas diferentes: o trilho e
+   o credito que ja foi, o fio e o que ainda tem. Isso e mais dificil aqui do
+   que no corpo da pagina, porque a faixa e clara e colorida.
 
-   A primeira tentativa foi uma placa de vidro por tras, como a do rotulo do
-   cabecalho. Ela resolvia o contraste e criava outro problema: virava uma
-   caixa maior que o proprio avatar, e chamava mais atencao que o dado.
+   Duas tentativas antes desta. A primeira foi uma placa de vidro por tras do
+   avatar: resolvia o contraste e virava uma caixa maior que o proprio avatar.
+   A segunda deixou o trilho branco: ai o consumido sumia, e o anel parecia um
+   contorno decorativo em vez de uma medida.
 
-   O conserto e no proprio anel. O trilho vira branco solido, que ja abre o
-   espaco claro de que o fio precisa, e o fio vira preto, que e o que o
-   comentario la de cima diz que ele deveria ser: o anel e informacao, e
-   informacao se le na cor do texto. Nada cresce, e a marca continua no
-   avatar, onde ela e area e nao fio.
+   O que separa os dois e a mesma cor em duas forcas. O trilho e preto fraco,
+   que sobre qualquer parte da faixa le como sulco, como espaco ja gasto. O
+   fio e preto cheio, que le como a parte cheia. Um so tom, duas leituras, e
+   nenhuma delas depende de acertar uma cor nova em cima de lima e turquesa.
 
    Preto e vermelho fixos, e nao var(--ink) e var(--alerta): a faixa e clara
-   nos dois temas, e no escuro esses tokens clareiam e sumiriam. */.pn .app-header--faixa .app-anel-bg{ stroke:#FFFFFF; stroke-width:3.2; }.pn .app-header--faixa .app-anel-fill{ stroke:#111111; }.pn .app-header--faixa .app-anel-fill.baixo{ stroke:#C8342A; }.pn .app-burger{ display:none; }.pn .app-user-wrap{ position:relative; }.pn .app-user-btn{
+   nos dois temas, e no escuro esses tokens clareiam e sumiriam. */.pn .app-header--faixa .app-anel-bg{ stroke:rgba(17,17,17,.22); stroke-width:3; }.pn .app-header--faixa .app-anel-fill{ stroke:#111111; stroke-width:3.4; }.pn .app-header--faixa .app-anel-fill.baixo{ stroke:#C8342A; }.pn .app-burger{ display:none; }.pn .app-user-wrap{ position:relative; }.pn .app-user-btn{
   position:relative; width:46px; height:46px; display:grid; place-items:center;
   background:none; border:0; padding:0; cursor:pointer;
 }/* O anel diz quanto resta. Ele é informação, então a cor dele é a do texto e

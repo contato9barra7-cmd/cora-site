@@ -964,6 +964,27 @@
 .din-taxa__linha--fim{ border-bottom:0; padding-bottom:0; }
 .din-taxa__linha--fim b{ font-size:16px; }
 
+/* O botao de todas as moedas fica no fim da fila e um pouco separado: ele
+   nao e uma moeda, e uma leitura diferente. Texto em vez de simbolo pelo
+   mesmo motivo. */
+.per__moeda--todas{ margin-left:2px; padding:5px 12px; }
+
+/* A nota da regua quando ela conta cobrancas em vez de valor. */
+.per__regua{
+  margin:10px 0 0; font-size:11.5px; color:var(--ink3); text-align:center;
+}
+
+/* ── TODAS AS MOEDAS ──
+   Com a tabela no lugar do numero grande, o cartao ocupa a largura inteira: o
+   vizinho "De onde vem" some, porque ele so sabe falar de uma moeda por vez. */
+.din-topo--todas{ grid-template-columns:minmax(0,1fr) !important; }
+.din-tabela-moedas{ margin-top:4px; }
+.din-moeda-nome{ font-weight:600; }
+.din-moeda-cod{
+  margin-left:8px; font-size:11px; color:var(--ink3); letter-spacing:.04em;
+}
+.din-menos{ color:var(--alerta); }
+
 /* De onde vem o dinheiro. Barra empilhada de duas cores, e a legenda embaixo
    com o valor: a proporção se lê na barra, o número se lê na linha. */
 .din-fonte{ margin-top:18px; }
@@ -979,6 +1000,9 @@
 }
 .din-legenda em.a{ background:var(--turquesa); }
 .din-legenda em.b{ background:var(--lima); }
+/* Cinza, e nao uma terceira cor da marca: esta fatia nao e uma linha de
+   receita, e o que a gente ainda nao soube explicar. */
+.din-legenda em.c{ background:var(--ink3); }
 .din-legenda b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }
 
 /* Os números menores, em fila. Eles são o contexto do número grande, e por

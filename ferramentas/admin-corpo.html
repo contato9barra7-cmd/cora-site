@@ -493,12 +493,17 @@
           </div>
 
           <div class="per__meses" data-meses></div>
+          <!-- Com todas as moedas juntas, a regua troca de assunto: real e
+               dolar nao tem escala em comum, entao ela passa a contar
+               cobrancas, e diz isso aqui em vez de deixar a pessoa supor. -->
+          <p class="per__regua" data-per-regua hidden></p>
           <p class="per__vazio" data-per-vazio hidden>Nenhuma cobrança neste ano. A primeira
             foi em janeiro de 2026.</p>
         </div>
 
         <div class="din-topo">
           <div class="conta-card adm-card din-grande">
+           <div data-din-so-uma>
             <!-- ── BRUTO OU LÍQUIDO ──
                  Duas leituras do mesmo dinheiro, e por isso ficam no mesmo
                  lugar em vez de virarem dois cartões: ninguém precisa dos dois
@@ -533,9 +538,37 @@
 
             <p class="din-nota" data-din-nota>Tudo que foi pago no período, assinatura mais
               recarga. É dinheiro que entrou de verdade, e não cobrança em aberto.</p>
+           </div>
+
+            <!-- ══ TODAS AS MOEDAS ══
+                 Uma linha por moeda, e nenhuma somada com outra. Somar real
+                 com dolar da um valor que nao existe, e ele apareceria no
+                 lugar mais visivel da tela. Assim da para ver tudo de uma vez
+                 e cada numero continua sendo verdade.
+
+                 O liquido de cada linha ja desconta a taxa daquela moeda, que
+                 nao e a mesma nas tres: cobranca internacional custa mais. -->
+            <div data-din-todas hidden>
+              <h2 class="conta-h2">O que entrou, moeda por moeda</h2>
+              <p class="conta-p" data-todas-quando>Nos últimos 12 meses.</p>
+              <div class="fat-rolo">
+                <table class="fat din-tabela-moedas">
+                  <thead>
+                    <tr><th>Moeda</th><th class="adm-num">Bruto</th>
+                        <th class="adm-num">Taxa</th><th class="adm-num">Líquido</th>
+                        <th class="adm-num">Cobranças</th><th class="fat__acao"></th></tr>
+                  </thead>
+                  <tbody data-todas-corpo></tbody>
+                </table>
+              </div>
+              <p class="din-nota">Cada linha é uma moeda inteira, com a taxa que o Stripe
+                reteve nela. Não há total geral de propósito: para somar as três seria
+                preciso câmbio com a data de cada cobrança, e o número passaria a mudar
+                sozinho conforme o dólar.</p>
+            </div>
           </div>
 
-          <div class="conta-card adm-card">
+          <div class="conta-card adm-card" data-card-fonte>
             <h2 class="conta-h2">De onde vem</h2>
             <p class="conta-p" data-fonte-quando>Nos últimos 12 meses.</p>
             <div class="din-fonte">
@@ -550,6 +583,14 @@
                 <div>
                   <span><em class="b"></em>Recarga avulsa</span>
                   <b data-fonte-recarga>R$&nbsp;4.010,00</b>
+                </div>
+                <!-- Cobranca que entrou e nao bate com assinatura nem com
+                     recarga nossa. So aparece quando existe: numa tela onde
+                     ela e zero, mostra-la faria procurar um problema que nao
+                     tem. Quando aparece, e para ser olhada. -->
+                <div data-fonte-outro-linha hidden>
+                  <span><em class="c"></em>Sem origem conhecida</span>
+                  <b data-fonte-outro>R$&nbsp;0,00</b>
                 </div>
               </div>
             </div>
