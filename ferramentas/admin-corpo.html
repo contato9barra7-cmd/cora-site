@@ -76,25 +76,27 @@
 
       <!-- ══════════════ AS ABAS ══════════════ -->
       <div class="adm-abas" role="tablist">
+        <span class="adm-abas__g">Pessoas</span>
         <button class="adm-aba ativa" data-aba="assinantes">Assinantes <b>2</b></button>
         <button class="adm-aba" data-aba="trial">Trial <b>12</b></button>
         <button class="adm-aba" data-aba="membros">Membros de equipe <b>3</b></button>
         <button class="adm-aba" data-aba="cancelados">Cancelados <b>2</b></button>
+        <i class="adm-abas__fio" aria-hidden="true"></i>
+        <span class="adm-abas__g">Movimento</span>
         <button class="adm-aba" data-aba="recargas">Recargas <b>6</b></button>
         <button class="adm-aba" data-aba="faturas">Faturas <b>24</b></button>
-        <button class="adm-aba" data-aba="aceites">Aceites</button>
-        <button class="adm-aba" data-aba="ficha">Ficha da conta</button>
+        <button class="adm-aba" data-aba="aceites">Aceites <b>21</b></button>
       </div>
 
       <!-- ══════════════ BUSCA ══════════════ -->
-      <div class="adm-barra" data-some-na-ficha>
-        <div class="adm-busca">
+      <div class="adm-barra">
+        <div class="adm-busca" data-some-na-ficha>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
             <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
           </svg>
           <input class="perfil-input" placeholder="Buscar por nome, e-mail ou CPF">
         </div>
-        <div class="adm-filtros" id="caixa-filtros">
+        <div class="adm-filtros" id="caixa-filtros" data-some-na-ficha>
           <button class="adm-btn-linha" id="bt-filtros">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
               <path d="M3 5h18M6 12h12M10 19h4"/>
@@ -103,6 +105,15 @@
           </button>
 @@DROPDOWN@@
         </div>
+
+        <button class="adm-btn-ficha" id="bt-ficha">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <path d="M14 2v6h6M9 13h6M9 17h4"/>
+          </svg>
+          Ficha da conta
+        </button>
       </div>
 
       <div class="adm-filtros-linha" data-some-na-ficha>
@@ -538,6 +549,78 @@
               <div><dt>Pode gerar</dt><dd>Sim</dd></div>
               <div><dt>Ferramentas</dt><dd>17 liberadas</dd></div>
             </dl>
+          </div>
+        </div>
+
+        <!-- A LISTA GERAL CONTINUA EXISTINDO, e estas duas são o recorte DESTA
+             conta. Quem chega aqui veio de uma pergunta sobre uma pessoa, e
+             mandar essa pessoa procurar a fatura dela numa lista de 24 é
+             devolver a pergunta. -->
+        <div class="adm-ficha-grade" style="margin-top:14px">
+          <div class="conta-card adm-card" style="margin-top:0">
+            <div class="adm-ficha-cab">
+              <h2 class="conta-h2">Faturas desta conta</h2>
+              <button class="fat-ver" data-vai="faturas">Ver todas</button>
+            </div>
+            <div class="fat-rolo">
+              <table class="fat">
+                <thead><tr><th>Data</th><th>Número</th><th>Compra</th><th class="adm-num">Valor</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="adm-mono">02/09/2026</td>
+                    <td class="adm-mono">QBPKH43R-0003</td>
+                    <td>Plano Pro, mensal</td>
+                    <td class="adm-num">R$&nbsp;197,00</td>
+                  </tr>
+                  <tr>
+                    <td class="adm-mono">19/08/2026</td>
+                    <td class="adm-mono">REC-01204</td>
+                    <td>Recarga de 5.000 créditos</td>
+                    <td class="adm-num">R$&nbsp;65,00</td>
+                  </tr>
+                  <tr>
+                    <td class="adm-mono">24/07/2026</td>
+                    <td class="adm-mono">QBPKH43R-0002</td>
+                    <td>Plano Pro, mensal</td>
+                    <td class="adm-num">R$&nbsp;197,00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="adm-total">8 cobranças, <b>R$&nbsp;1.641,00</b> pagos.</p>
+          </div>
+
+          <div class="conta-card adm-card" style="margin-top:0">
+            <div class="adm-ficha-cab">
+              <h2 class="conta-h2">Aceites desta conta</h2>
+              <button class="fat-ver" data-vai="aceites">Ver todos</button>
+            </div>
+            <div class="fat-rolo">
+              <table class="fat">
+                <thead><tr><th>Documento</th><th>Versão</th><th>Aceito em</th><th class="fat__acao"></th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td>Termos de Uso</td>
+                    <td class="adm-mono">2026-08-14</td>
+                    <td class="adm-mono">24/08/2026</td>
+                    <td class="fat__acao"><button class="fat-ver">Ver</button></td>
+                  </tr>
+                  <tr>
+                    <td>Política de Privacidade</td>
+                    <td class="adm-mono">2026-08-14</td>
+                    <td class="adm-mono">24/08/2026</td>
+                    <td class="fat__acao"><button class="fat-ver">Ver</button></td>
+                  </tr>
+                  <tr>
+                    <td>Termos de Uso</td>
+                    <td class="adm-mono">2026-01-09</td>
+                    <td class="adm-mono">24/01/2026</td>
+                    <td class="fat__acao"><button class="fat-ver">Ver</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="adm-total">3 aceites guardados.</p>
           </div>
         </div>
 

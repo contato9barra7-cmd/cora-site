@@ -74,10 +74,23 @@
 
    Rolam na horizontal no telefone e a barra some. Empilhar oito abas em
    duas linhas empurraria a tabela para baixo da dobra.
-   ══════════════════════════════════════════════════════════════════════ */.adm-abas{
-  display:flex; gap:clamp(16px,2.4vw,26px); margin-bottom:20px;
+   ══════════════════════════════════════════════════════════════════════ *//* AS ABAS SAO CATEGORIZADAS.
+   Oito abas em fila misturavam coisas de naturezas diferentes: quatro listas
+   de PESSOAS, tres de MOVIMENTO, e a Ficha, que nem lista e. A Ficha saiu da
+   fila e virou botao ao lado da busca, porque ela nao e uma lista: e a tela
+   de UMA conta. As sete que sobraram ganharam o nome do grupo antes delas e
+   um fio entre os dois grupos. */.adm-abas{
+  display:flex; align-items:baseline; gap:clamp(13px,1.8vw,20px); margin-bottom:20px;
   border-bottom:1px solid var(--line);
   overflow-x:auto; scrollbar-width:none;
+}.adm-abas__g{
+  flex:none; padding-bottom:13px; white-space:nowrap;
+  font-size:10px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3);
+}.adm-abas__g + .adm-aba{ margin-left:-4px; }/* O fio entre os grupos. Ele para antes da linha de baixo para os dois nao
+   se encontrarem num T. */.adm-abas__fio{
+  flex:none; width:1px; height:16px; margin:0 clamp(4px,1vw,10px);
+  align-self:center; background:var(--line2);
 }.adm-abas::-webkit-scrollbar{ display:none; }.adm-aba{
   position:relative; flex:none; padding:0 0 13px; border:0; background:none;
   font-family:inherit; font-size:14.5px; font-weight:500; letter-spacing:-.008em;
@@ -95,7 +108,15 @@
    ══════════════════════════════════════════════════════════════════════ */.adm-barra{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }.adm-busca{ position:relative; flex:1; min-width:230px; }.adm-busca svg{
   position:absolute; left:18px; top:50%; transform:translateY(-50%);
   width:17px; height:17px; color:var(--ink3); pointer-events:none;
-}.adm-busca .perfil-input{ padding-left:46px; }/* O que está filtrando não vira etiqueta com cápsula: vira texto sublinhado
+}.adm-busca .perfil-input{ padding-left:46px; }/* A FICHA NAO E UMA ABA. Ela e a tela de UMA conta, e quem chega nela vem de
+   uma linha da tabela ou da busca. Como botao ao lado da busca ela para de
+   fingir que e mais uma lista. */.adm-btn-ficha{
+  flex:none; display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 18px;
+  border:1px solid var(--line2); border-radius:var(--pill);
+  background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  transition:border-color var(--t), background-color var(--t), color var(--t);
+}.adm-btn-ficha:hover{ border-color:var(--ink); }.adm-btn-ficha svg{ width:16px; height:16px; }.adm-btn-ficha--on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }/* O que está filtrando não vira etiqueta com cápsula: vira texto sublinhado
    de lima, o mesmo gesto do "Ver" da lista de faturas. Clicar tira. */.adm-filtros-linha{
   display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; margin-bottom:16px;
   font-size:13.5px; color:var(--ink3);
@@ -241,11 +262,15 @@
   width:36px; height:36px; flex:none; border-radius:12px; border:1px solid var(--line);
   background:var(--paper); color:var(--ink2); cursor:pointer; font-size:19px; line-height:1;
   display:grid; place-items:center;
-}.adm-modal__x:hover{ border-color:var(--ink); color:var(--ink); }.adm-modal__corpo{ display:grid; grid-template-columns:1fr; }
-@media (min-width:860px){.adm-modal__corpo{ grid-template-columns:1fr 1fr; }}.adm-modal__lado{ padding:22px 24px; display:grid; gap:16px; align-content:start; }.adm-modal__lado + .adm-modal__lado{
+}.adm-modal__x:hover{ border-color:var(--ink); color:var(--ink); }.adm-modal__corpo{ display:grid; grid-template-columns:1fr; }/* `minmax(0,1fr)` e nao `1fr`. O `1fr` tem largura minima AUTOMATICA, que
+   nasce do conteudo: um campo de texto largo empurrava a coluna para fora do
+   modal e os botoes saiam cortados na direita. Com o minimo em zero a coluna
+   pode encolher e o campo encolhe junto. */
+
+@media (min-width:860px){.adm-modal__corpo{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); }}.adm-modal__lado{ padding:22px 24px; display:grid; gap:16px; align-content:start; min-width:0; }.adm-modal__lado + .adm-modal__lado{
   background:var(--wash); border-left:1px solid var(--line);
 }
-@media (max-width:859px){.adm-modal__lado + .adm-modal__lado{ border-left:0; border-top:1px solid var(--line); }}.adm-campo > label{
+@media (max-width:859px){.adm-modal__lado + .adm-modal__lado{ border-left:0; border-top:1px solid var(--line); }}.adm-campo{ min-width:0; }.adm-campo > label{
   display:block; margin-bottom:7px;
   font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
 }.adm-campo input[type="text"], .adm-campo textarea{
@@ -256,7 +281,8 @@
 }.adm-campo textarea{ min-height:180px; resize:vertical; }.adm-campo input:focus, .adm-campo textarea:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }.adm-campo__nota{ margin:7px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.5; }.adm-campo__nota code{
   padding:1px 6px; border-radius:6px; background:var(--wash2);
   font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; color:var(--ink2);
-}.adm-dupla{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }/* ── a prévia ── */.adm-previa__rot{
+}/* Mesmo motivo: o link do botao e comprido e empurrava o campo do lado. */.adm-dupla{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; }
+@media (max-width:520px){.adm-dupla{ grid-template-columns:1fr; }}/* ── a prévia ── */.adm-previa__rot{
   margin:0 0 10px; font-size:11px; font-weight:700;
   letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
 }.adm-previa{
@@ -286,30 +312,11 @@
 }.adm-modal__pe{
   display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
   padding:16px 24px; border-top:1px solid var(--line);
-}.adm-modal__quantos{ font-size:13.5px; color:var(--ink2); }.adm-modal__quantos b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }/* ══════════════════════════════════════════════════════════════════════
-   A BARRA DA DEMONSTRAÇÃO
-
-   Ela mora DENTRO do painel de admin, e não numa tarja por cima da tela.
-   O menu e o cabeçalho são do site inteiro: uma tarja preta em cima deles
-   dizia que a demonstração era da casca, e não desta tela.
-
-   Ela existe só no artefato. O gerador ignora o `<style data-demo>`, mas
-   esta regra fica aqui de propósito: assim a barra usa os mesmos tokens e
-   não vira uma peça solta com cores próprias.
-   ══════════════════════════════════════════════════════════════════════ */.adm-demo{
-  margin-bottom:20px; padding:12px 16px; border-radius:16px;
-  background:var(--ink); color:var(--paper);
-  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
-  font-size:12.5px;
-}.adm-demo b{
-  font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
-  opacity:.55;
-}.adm-demo button{
-  height:28px; padding:0 12px; border-radius:var(--pill);
-  border:1px solid rgba(255,255,255,.22); background:none; color:inherit;
-  font-family:inherit; font-size:12.5px; cursor:pointer;
-  transition:background-color var(--t), border-color var(--t), color var(--t);
-}.adm-demo button:hover{ background:rgba(255,255,255,.12); }.adm-demo button.on{ background:var(--lima); border-color:var(--lima); color:#111111; font-weight:600; }
+}.adm-modal__quantos{ font-size:13.5px; color:var(--ink2); }.adm-modal__quantos b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }/* O cabeçalho dos blocos da Ficha: o título de um lado, o atalho para a lista
+   geral do outro. As duas coisas existem, e o atalho é o que impede a Ficha
+   de virar um beco. */.adm-ficha-cab{
+  display:flex; align-items:baseline; justify-content:space-between; gap:14px;
+}
 
 /* ── a fonte, em tamanho nominal ──
    Ver a nota no gerador: o site serve a DM Sans com size-adjust de 88%, o que

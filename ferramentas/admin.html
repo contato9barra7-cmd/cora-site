@@ -128,10 +128,28 @@
    Rolam na horizontal no telefone e a barra some. Empilhar oito abas em
    duas linhas empurraria a tabela para baixo da dobra.
    ══════════════════════════════════════════════════════════════════════ */
+/* AS ABAS SAO CATEGORIZADAS.
+   Oito abas em fila misturavam coisas de naturezas diferentes: quatro listas
+   de PESSOAS, tres de MOVIMENTO, e a Ficha, que nem lista e. A Ficha saiu da
+   fila e virou botao ao lado da busca, porque ela nao e uma lista: e a tela
+   de UMA conta. As sete que sobraram ganharam o nome do grupo antes delas e
+   um fio entre os dois grupos. */
 .adm-abas{
-  display:flex; gap:clamp(16px,2.4vw,26px); margin-bottom:20px;
+  display:flex; align-items:baseline; gap:clamp(13px,1.8vw,20px); margin-bottom:20px;
   border-bottom:1px solid var(--line);
   overflow-x:auto; scrollbar-width:none;
+}
+.adm-abas__g{
+  flex:none; padding-bottom:13px; white-space:nowrap;
+  font-size:10px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.adm-abas__g + .adm-aba{ margin-left:-4px; }
+/* O fio entre os grupos. Ele para antes da linha de baixo para os dois nao
+   se encontrarem num T. */
+.adm-abas__fio{
+  flex:none; width:1px; height:16px; margin:0 clamp(4px,1vw,10px);
+  align-self:center; background:var(--line2);
 }
 .adm-abas::-webkit-scrollbar{ display:none; }
 .adm-aba{
@@ -164,6 +182,20 @@
   width:17px; height:17px; color:var(--ink3); pointer-events:none;
 }
 .adm-busca .perfil-input{ padding-left:46px; }
+
+/* A FICHA NAO E UMA ABA. Ela e a tela de UMA conta, e quem chega nela vem de
+   uma linha da tabela ou da busca. Como botao ao lado da busca ela para de
+   fingir que e mais uma lista. */
+.adm-btn-ficha{
+  flex:none; display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 18px;
+  border:1px solid var(--line2); border-radius:var(--pill);
+  background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  transition:border-color var(--t), background-color var(--t), color var(--t);
+}
+.adm-btn-ficha:hover{ border-color:var(--ink); }
+.adm-btn-ficha svg{ width:16px; height:16px; }
+.adm-btn-ficha--on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
 
 /* O que está filtrando não vira etiqueta com cápsula: vira texto sublinhado
    de lima, o mesmo gesto do "Ver" da lista de faturas. Clicar tira. */
@@ -419,14 +451,19 @@
 }
 .adm-modal__x:hover{ border-color:var(--ink); color:var(--ink); }
 .adm-modal__corpo{ display:grid; grid-template-columns:1fr; }
-@media (min-width:860px){ .adm-modal__corpo{ grid-template-columns:1fr 1fr; } }
-.adm-modal__lado{ padding:22px 24px; display:grid; gap:16px; align-content:start; }
+/* `minmax(0,1fr)` e nao `1fr`. O `1fr` tem largura minima AUTOMATICA, que
+   nasce do conteudo: um campo de texto largo empurrava a coluna para fora do
+   modal e os botoes saiam cortados na direita. Com o minimo em zero a coluna
+   pode encolher e o campo encolhe junto. */
+@media (min-width:860px){ .adm-modal__corpo{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); } }
+.adm-modal__lado{ padding:22px 24px; display:grid; gap:16px; align-content:start; min-width:0; }
 .adm-modal__lado + .adm-modal__lado{
   background:var(--wash); border-left:1px solid var(--line);
 }
 @media (max-width:859px){
   .adm-modal__lado + .adm-modal__lado{ border-left:0; border-top:1px solid var(--line); }
 }
+.adm-campo{ min-width:0; }
 .adm-campo > label{
   display:block; margin-bottom:7px;
   font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
@@ -446,7 +483,9 @@
   padding:1px 6px; border-radius:6px; background:var(--wash2);
   font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; color:var(--ink2);
 }
-.adm-dupla{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+/* Mesmo motivo: o link do botao e comprido e empurrava o campo do lado. */
+.adm-dupla{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; }
+@media (max-width:520px){ .adm-dupla{ grid-template-columns:1fr; } }
 
 /* ── a prévia ── */
 .adm-previa__rot{
@@ -492,35 +531,13 @@
 .adm-modal__quantos{ font-size:13.5px; color:var(--ink2); }
 .adm-modal__quantos b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }
 
-/* ══════════════════════════════════════════════════════════════════════
-   A BARRA DA DEMONSTRAÇÃO
 
-   Ela mora DENTRO do painel de admin, e não numa tarja por cima da tela.
-   O menu e o cabeçalho são do site inteiro: uma tarja preta em cima deles
-   dizia que a demonstração era da casca, e não desta tela.
-
-   Ela existe só no artefato. O gerador ignora o `<style data-demo>`, mas
-   esta regra fica aqui de propósito: assim a barra usa os mesmos tokens e
-   não vira uma peça solta com cores próprias.
-   ══════════════════════════════════════════════════════════════════════ */
-.adm-demo{
-  margin-bottom:20px; padding:12px 16px; border-radius:16px;
-  background:var(--ink); color:var(--paper);
-  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
-  font-size:12.5px;
+/* O cabeçalho dos blocos da Ficha: o título de um lado, o atalho para a lista
+   geral do outro. As duas coisas existem, e o atalho é o que impede a Ficha
+   de virar um beco. */
+.adm-ficha-cab{
+  display:flex; align-items:baseline; justify-content:space-between; gap:14px;
 }
-.adm-demo b{
-  font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
-  opacity:.55;
-}
-.adm-demo button{
-  height:28px; padding:0 12px; border-radius:var(--pill);
-  border:1px solid rgba(255,255,255,.22); background:none; color:inherit;
-  font-family:inherit; font-size:12.5px; cursor:pointer;
-  transition:background-color var(--t), border-color var(--t), color var(--t);
-}
-.adm-demo button:hover{ background:rgba(255,255,255,.12); }
-.adm-demo button.on{ background:var(--lima); border-color:var(--lima); color:#111111; font-weight:600; }
 
 </style>
 
@@ -1782,6 +1799,36 @@
 .dd__tique{ flex:none; width:15px; height:15px; opacity:0; }
 .dd__op--sel .dd__tique{ opacity:1; }
 
+/* ══════════════════════════════════════════════════════════════════════
+   A BARRA DA DEMONSTRAÇÃO
+
+   Ela mora DENTRO do painel de admin, e não numa tarja por cima da tela.
+   O menu e o cabeçalho são do site inteiro: uma tarja preta em cima deles
+   dizia que a demonstração era da casca, e não desta tela.
+
+   Ela existe só no artefato. O gerador ignora o `<style data-demo>`, mas
+   esta regra fica aqui de propósito: assim a barra usa os mesmos tokens e
+   não vira uma peça solta com cores próprias.
+   ══════════════════════════════════════════════════════════════════════ */
+.adm-demo{
+  margin-bottom:20px; padding:12px 16px; border-radius:16px;
+  background:var(--ink); color:var(--paper);
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  font-size:12.5px;
+}
+.adm-demo b{
+  font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  opacity:.55;
+}
+.adm-demo button{
+  height:28px; padding:0 12px; border-radius:var(--pill);
+  border:1px solid rgba(255,255,255,.22); background:none; color:inherit;
+  font-family:inherit; font-size:12.5px; cursor:pointer;
+  transition:background-color var(--t), border-color var(--t), color var(--t);
+}
+.adm-demo button:hover{ background:rgba(255,255,255,.12); }
+.adm-demo button.on{ background:var(--lima); border-color:var(--lima); color:#111111; font-weight:600; }
+
 [hidden]{ display:none!important; }
 /* A gaveta acima da barra da demonstracao, que e grudada no topo. */
 .adm-gaveta{ z-index:300; }
@@ -2043,25 +2090,27 @@
 
       <!-- ══════════════ AS ABAS ══════════════ -->
       <div class="adm-abas" role="tablist">
+        <span class="adm-abas__g">Pessoas</span>
         <button class="adm-aba ativa" data-aba="assinantes">Assinantes <b>2</b></button>
         <button class="adm-aba" data-aba="trial">Trial <b>12</b></button>
         <button class="adm-aba" data-aba="membros">Membros de equipe <b>3</b></button>
         <button class="adm-aba" data-aba="cancelados">Cancelados <b>2</b></button>
+        <i class="adm-abas__fio" aria-hidden="true"></i>
+        <span class="adm-abas__g">Movimento</span>
         <button class="adm-aba" data-aba="recargas">Recargas <b>6</b></button>
         <button class="adm-aba" data-aba="faturas">Faturas <b>24</b></button>
-        <button class="adm-aba" data-aba="aceites">Aceites</button>
-        <button class="adm-aba" data-aba="ficha">Ficha da conta</button>
+        <button class="adm-aba" data-aba="aceites">Aceites <b>21</b></button>
       </div>
 
       <!-- ══════════════ BUSCA ══════════════ -->
-      <div class="adm-barra" data-some-na-ficha>
-        <div class="adm-busca">
+      <div class="adm-barra">
+        <div class="adm-busca" data-some-na-ficha>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
             <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
           </svg>
           <input class="perfil-input" placeholder="Buscar por nome, e-mail ou CPF">
         </div>
-        <div class="adm-filtros" id="caixa-filtros">
+        <div class="adm-filtros" id="caixa-filtros" data-some-na-ficha>
           <button class="adm-btn-linha" id="bt-filtros">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
               <path d="M3 5h18M6 12h12M10 19h4"/>
@@ -2074,6 +2123,15 @@
             <div class="adm-pop__pe"><span class="adm-pop__conta">5 de 19</span><button class="as-btn-cta">Ver 5 contas</button></div>
           </div>
         </div>
+
+        <button class="adm-btn-ficha" id="bt-ficha">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <path d="M14 2v6h6M9 13h6M9 17h4"/>
+          </svg>
+          Ficha da conta
+        </button>
       </div>
 
       <div class="adm-filtros-linha" data-some-na-ficha>
@@ -2512,6 +2570,78 @@
           </div>
         </div>
 
+        <!-- A LISTA GERAL CONTINUA EXISTINDO, e estas duas são o recorte DESTA
+             conta. Quem chega aqui veio de uma pergunta sobre uma pessoa, e
+             mandar essa pessoa procurar a fatura dela numa lista de 24 é
+             devolver a pergunta. -->
+        <div class="adm-ficha-grade" style="margin-top:14px">
+          <div class="conta-card adm-card" style="margin-top:0">
+            <div class="adm-ficha-cab">
+              <h2 class="conta-h2">Faturas desta conta</h2>
+              <button class="fat-ver" data-vai="faturas">Ver todas</button>
+            </div>
+            <div class="fat-rolo">
+              <table class="fat">
+                <thead><tr><th>Data</th><th>Número</th><th>Compra</th><th class="adm-num">Valor</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="adm-mono">02/09/2026</td>
+                    <td class="adm-mono">QBPKH43R-0003</td>
+                    <td>Plano Pro, mensal</td>
+                    <td class="adm-num">R$&nbsp;197,00</td>
+                  </tr>
+                  <tr>
+                    <td class="adm-mono">19/08/2026</td>
+                    <td class="adm-mono">REC-01204</td>
+                    <td>Recarga de 5.000 créditos</td>
+                    <td class="adm-num">R$&nbsp;65,00</td>
+                  </tr>
+                  <tr>
+                    <td class="adm-mono">24/07/2026</td>
+                    <td class="adm-mono">QBPKH43R-0002</td>
+                    <td>Plano Pro, mensal</td>
+                    <td class="adm-num">R$&nbsp;197,00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="adm-total">8 cobranças, <b>R$&nbsp;1.641,00</b> pagos.</p>
+          </div>
+
+          <div class="conta-card adm-card" style="margin-top:0">
+            <div class="adm-ficha-cab">
+              <h2 class="conta-h2">Aceites desta conta</h2>
+              <button class="fat-ver" data-vai="aceites">Ver todos</button>
+            </div>
+            <div class="fat-rolo">
+              <table class="fat">
+                <thead><tr><th>Documento</th><th>Versão</th><th>Aceito em</th><th class="fat__acao"></th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td>Termos de Uso</td>
+                    <td class="adm-mono">2026-08-14</td>
+                    <td class="adm-mono">24/08/2026</td>
+                    <td class="fat__acao"><button class="fat-ver">Ver</button></td>
+                  </tr>
+                  <tr>
+                    <td>Política de Privacidade</td>
+                    <td class="adm-mono">2026-08-14</td>
+                    <td class="adm-mono">24/08/2026</td>
+                    <td class="fat__acao"><button class="fat-ver">Ver</button></td>
+                  </tr>
+                  <tr>
+                    <td>Termos de Uso</td>
+                    <td class="adm-mono">2026-01-09</td>
+                    <td class="adm-mono">24/01/2026</td>
+                    <td class="fat__acao"><button class="fat-ver">Ver</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="adm-total">3 aceites guardados.</p>
+          </div>
+        </div>
+
         <div class="conta-card adm-card">
           <h2 class="conta-h2">O que aconteceu na conta</h2>
           <p class="conta-p">Débito, estorno e o que o Stripe mandou, na ordem. É por aqui que
@@ -2659,10 +2789,29 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
        não valem nela. */
     var naFicha = qual === 'ficha';
     d.querySelectorAll('[data-some-na-ficha]').forEach(function (e) { e.hidden = naFicha; });
+    d.getElementById('bt-ficha').classList.toggle('adm-btn-ficha--on', naFicha);
+    /* Na Ficha nenhuma aba fica acesa: ela nao e uma delas. */
+    if (naFicha) d.querySelectorAll('.adm-aba').forEach(function (a) { a.classList.remove('ativa'); });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   d.querySelectorAll('.adm-aba').forEach(function (a) {
     a.addEventListener('click', function () { mostrar(a.dataset.aba); });
+  });
+
+  /* A Ficha nao e aba: quem abre e o botao ao lado da busca, ou o botao
+     Ficha de uma linha da tabela. */
+  d.getElementById('bt-ficha').addEventListener('click', function () {
+    var jaNaFicha = !d.querySelector('[data-tela="ficha"]').hidden;
+    mostrar(jaNaFicha ? 'assinantes' : 'ficha');
+  });
+  d.querySelectorAll('.fat-ver').forEach(function (b) {
+    if (b.textContent.trim() === 'Ficha') {
+      b.addEventListener('click', function () { mostrar('ficha'); });
+    }
+  });
+  /* E os atalhos de dentro da Ficha levam para a lista geral. */
+  d.querySelectorAll('[data-vai]').forEach(function (b) {
+    b.addEventListener('click', function () { mostrar(b.dataset.vai); });
   });
   d.querySelector('[data-abre="vazio"]').addEventListener('click', function () {
     d.querySelectorAll('[data-tela]').forEach(function (t) { t.hidden = t.dataset.tela !== 'vazio'; });

@@ -105,10 +105,29 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
        não valem nela. */
     var naFicha = qual === 'ficha';
     d.querySelectorAll('[data-some-na-ficha]').forEach(function (e) { e.hidden = naFicha; });
+    d.getElementById('bt-ficha').classList.toggle('adm-btn-ficha--on', naFicha);
+    /* Na Ficha nenhuma aba fica acesa: ela nao e uma delas. */
+    if (naFicha) d.querySelectorAll('.adm-aba').forEach(function (a) { a.classList.remove('ativa'); });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   d.querySelectorAll('.adm-aba').forEach(function (a) {
     a.addEventListener('click', function () { mostrar(a.dataset.aba); });
+  });
+
+  /* A Ficha nao e aba: quem abre e o botao ao lado da busca, ou o botao
+     Ficha de uma linha da tabela. */
+  d.getElementById('bt-ficha').addEventListener('click', function () {
+    var jaNaFicha = !d.querySelector('[data-tela="ficha"]').hidden;
+    mostrar(jaNaFicha ? 'assinantes' : 'ficha');
+  });
+  d.querySelectorAll('.fat-ver').forEach(function (b) {
+    if (b.textContent.trim() === 'Ficha') {
+      b.addEventListener('click', function () { mostrar('ficha'); });
+    }
+  });
+  /* E os atalhos de dentro da Ficha levam para a lista geral. */
+  d.querySelectorAll('[data-vai]').forEach(function (b) {
+    b.addEventListener('click', function () { mostrar(b.dataset.vai); });
   });
   d.querySelector('[data-abre="vazio"]').addEventListener('click', function () {
     d.querySelectorAll('[data-tela]').forEach(function (t) { t.hidden = t.dataset.tela !== 'vazio'; });
