@@ -1,3 +1,16 @@
+      <div class="adm-demo">
+        <b>ver</b>
+        <button data-liga="fiscais">Dados fiscais</button>
+        <button data-liga="perfil">Cadastro</button>
+        <button data-abre="geo">Geografia</button>
+        <button data-abre="export">Exportar</button>
+        <button data-abre="email">Enviar e-mail</button>
+        <button data-abre="filtros">Filtros</button>
+        <button data-abre="vazio">Nada encontrado</button>
+        <b>tema</b>
+        <button data-tema>Escuro</button>
+      </div>
+
       <div class="adm-cabeca">
         <div class="conta-cabeca">
           <div class="conta-cabeca__txt">
@@ -8,7 +21,7 @@
         </div>
 
         <div class="adm-acoes">
-          <button class="as-btn-cta" style="height:44px">Enviar e-mail</button>
+          <button class="as-btn-cta" style="height:44px" id="bt-email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>Enviar e-mail</button>
 
           <button class="adm-ico" data-liga="fiscais" title="Dados fiscais" aria-label="Dados fiscais">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -81,12 +94,15 @@
           </svg>
           <input class="perfil-input" placeholder="Buscar por nome, e-mail ou CPF">
         </div>
-        <button class="adm-btn-linha" id="bt-filtros">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-            <path d="M3 5h18M6 12h12M10 19h4"/>
-          </svg>
-          Filtros <span class="adm-btn-n">2</span>
-        </button>
+        <div class="adm-filtros" id="caixa-filtros">
+          <button class="adm-btn-linha" id="bt-filtros">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+              <path d="M3 5h18M6 12h12M10 19h4"/>
+            </svg>
+            Filtros <span class="adm-btn-n">2</span>
+          </button>
+@@DROPDOWN@@
+        </div>
       </div>
 
       <div class="adm-filtros-linha" data-some-na-ficha>
@@ -141,9 +157,21 @@
             <table class="fat">
               <thead>
                 <tr>
-                  <th>Nome e e-mail</th><th>Documento</th><th>Plano</th>
-                  <th class="adm-num">Valor</th><th>Renova em</th><th>Status</th>
-                  <th class="adm-num">Créditos</th><th class="fat__acao"></th>
+                  <th>Nome e e-mail</th>
+                  <th>Documento</th>
+                  <th class="adm-col-fiscal">Telefone</th>
+                  <th class="adm-col-fiscal">CEP</th>
+                  <th class="adm-col-fiscal">Endereço</th>
+                  <th class="adm-col-cobranca">Plano</th>
+                  <th class="adm-num adm-col-cobranca">Valor</th>
+                  <th class="adm-col-cobranca">Renova em</th>
+                  <th class="adm-col-perfil">Profissão</th>
+                  <th class="adm-col-perfil">Como conheceu</th>
+                  <th class="adm-col-perfil">Cidade</th>
+                  <th class="adm-col-perfil">Entrou em</th>
+                  <th>Status</th>
+                  <th class="adm-num adm-col-cobranca">Créditos</th>
+                  <th class="fat__acao"></th>
                 </tr>
               </thead>
               <tbody>
@@ -153,11 +181,18 @@
                     <div class="adm-sub"><span class="adm-sub-txt">marilia@corarender.com</span></div>
                   </td>
                   <td class="adm-mono">000.000.000-00</td>
-                  <td>Pro</td>
-                  <td class="adm-num">R$&nbsp;197,00</td>
-                  <td class="adm-mono">24/09/2026</td>
+                  <td class="adm-mono adm-col-fiscal">(11) 90000-0000</td>
+                  <td class="adm-mono adm-col-fiscal">01310-100</td>
+                  <td class="adm-col-fiscal" style="font-size:13px;max-width:210px">Av. Paulista, 1000, São Paulo SP</td>
+                  <td class="adm-col-cobranca">Pro</td>
+                  <td class="adm-num adm-col-cobranca">R$&nbsp;197,00</td>
+                  <td class="adm-mono adm-col-cobranca">24/09/2026</td>
+                  <td class="adm-col-perfil">Arquitetura</td>
+                  <td class="adm-col-perfil">Indicação</td>
+                  <td class="adm-col-perfil">São Paulo</td>
+                  <td class="adm-mono adm-col-perfil">24/01/2026</td>
                   <td><span class="fat-selo">Ativo</span></td>
-                  <td class="adm-num">15.800</td>
+                  <td class="adm-num adm-col-cobranca">15.800</td>
                   <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
                 </tr>
                 <tr>
@@ -169,11 +204,18 @@
                     </div>
                   </td>
                   <td class="adm-mono">00.000.000/0001-00</td>
-                  <td>Studio <span class="fat-selo fat-selo--equipe">5 assentos</span></td>
-                  <td class="adm-num">R$&nbsp;497,00</td>
-                  <td class="adm-mono">11/09/2026</td>
+                  <td class="adm-mono adm-col-fiscal">(41) 90000-0000</td>
+                  <td class="adm-mono adm-col-fiscal">80010-010</td>
+                  <td class="adm-col-fiscal" style="font-size:13px;max-width:210px">R. XV de Novembro, 200, Curitiba PR</td>
+                  <td class="adm-col-cobranca">Studio <span class="fat-selo fat-selo--equipe">5 assentos</span></td>
+                  <td class="adm-num adm-col-cobranca">R$&nbsp;497,00</td>
+                  <td class="adm-mono adm-col-cobranca">11/09/2026</td>
+                  <td class="adm-col-perfil">Escritório</td>
+                  <td class="adm-col-perfil">Instagram</td>
+                  <td class="adm-col-perfil">Curitiba</td>
+                  <td class="adm-mono adm-col-perfil">11/03/2026</td>
                   <td><span class="fat-selo">Ativo</span></td>
-                  <td class="adm-num">60.000</td>
+                  <td class="adm-num adm-col-cobranca">60.000</td>
                   <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
                 </tr>
               </tbody>

@@ -55,6 +55,57 @@ casca = casca.replace('<header class="app-header">',
 casca = casca.replace('<span class="app-header-aqui">Início</span>',
                       '<span class="app-header-aqui">Admin</span>')
 
+# ═══════════════════════════════════════════════════════════════════════════
+#  O DROPDOWN DOS FILTROS
+#
+#  Os sete filtros num lugar so. O montador escreve os sete campos dentro do
+#  dropdown, cada um com o rotulo dentro do proprio controle: e a opcao 2 das
+#  quatro que o dono viu em ferramentas/filtros-admin.html.
+# ═══════════════════════════════════════════════════════════════════════════
+FILTROS = [
+    (u'Período', u'Últimos 12 meses',
+     [u'Todos', u'Este mês', u'Últimos 12 meses', u'Um ano específico', u'Escolher as datas']),
+    (u'Situação', u'Qualquer', [u'Qualquer', u'Quase vencendo', u'Cancelado']),
+    (u'Profissão', u'Arquitetura',
+     [u'Qualquer', u'Arquitetura', u'Design de interiores', u'Engenharia', u'Paisagismo',
+      u'Estudante', u'Outra']),
+    (u'Como conheceu', u'Qualquer',
+     [u'Qualquer', u'Instagram', u'YouTube', u'Indicação', u'Busca no Google', u'Anúncio', u'Outro']),
+    (u'Renderizador', u'Qualquer',
+     [u'Qualquer', u'Nenhum', u'V-Ray', u'Enscape', u'Lumion', u'D5 Render', u'Twinmotion', u'Outro']),
+    (u'País', u'Brasil', [u'Qualquer país', u'Brasil', u'Portugal', u'México', u'Estados Unidos']),
+    (u'Estado', u'São Paulo',
+     [u'Qualquer estado', u'São Paulo', u'Rio de Janeiro', u'Minas Gerais', u'Paraná', u'Pernambuco']),
+]
+
+SETA_DD = (u'<svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" '
+           u'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'
+           u'<path d="M4 6l4 4 4-4"/></svg>')
+
+
+def campo(rotulo, valor, opcoes):
+    return (u'<div class="dd dd--rotulo" data-dd data-ops="%s">'
+            u'<button class="dd__bt" type="button"><span class="dd__mio">'
+            u'<span class="dd__rot">%s</span><span class="dd__val">%s</span></span>%s'
+            u'</button></div>'
+            % (u'|'.join(opcoes), rotulo, valor, SETA_DD))
+
+
+NL = chr(10)
+DROPDOWN = (
+    u'          <div class="adm-pop" id="pop-filtros" hidden>' + NL
+    + u'            <div class="adm-pop__cab"><h2>Filtros</h2>'
+    + u'<button class="adm-limpar">limpar tudo</button></div>' + NL
+    + u'            <div class="adm-pop__corpo">'
+    + u''.join(campo(r, v, ops) for r, v, ops in FILTROS)
+    + u'</div>' + NL
+    + u'            <div class="adm-pop__pe">'
+    + u'<span class="adm-pop__conta">5 de 19</span>'
+    + u'<button class="as-btn-cta">Ver 5 contas</button></div>' + NL
+    + u'          </div>')
+
+corpo = corpo.replace('@@DROPDOWN@@', DROPDOWN)
+
 CABECA = io.open(os.path.join(SCR, 'admin-cabeca.txt'), encoding='utf-8').read()
 RODAPE = io.open(os.path.join(SCR, 'admin-rodape.txt'), encoding='utf-8').read()
 

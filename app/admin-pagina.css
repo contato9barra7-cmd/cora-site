@@ -202,7 +202,114 @@
   transition:background-color var(--t);
 }.adm-export__item:hover:not(:disabled){ background:var(--wash); }.adm-export__item:disabled{ opacity:.4; cursor:default; }.adm-export__item strong{ display:block; font-size:14px; font-weight:600; color:var(--ink); letter-spacing:-.01em; }.adm-export__item em{ display:block; margin-top:2px; font-size:12.5px; font-style:normal; color:var(--ink3); line-height:1.45; }.adm-export__sep{ height:1px; margin:7px 12px; background:var(--line); }
 
-@media (max-width:720px){.adm-cabeca{ align-items:stretch; }.adm-quantos{ margin-left:0; }.adm-sub-txt{ max-width:150px; }}
+@media (max-width:720px){.adm-cabeca{ align-items:stretch; }.adm-quantos{ margin-left:0; }.adm-sub-txt{ max-width:150px; }}/* ══════════════════════════════════════════════════════════════════════
+   AS COLUNAS QUE OS INTERRUPTORES LIGAM
+
+   Os dois primeiros botões do topo trocam o que a tabela mostra, e não
+   abrem nada. É o mesmo comportamento do layout antigo:
+
+     Dados fiscais  acrescenta telefone, CEP e endereço, que é o que a
+                    contabilidade pede
+     Ver cadastro   troca as colunas de cobrança pelas do cadastro: gênero,
+                    profissão, como conheceu, cidade e quando entrou
+
+   No site quem decide isso é o React, e as colunas nem chegam a existir.
+   Aqui elas existem e ficam escondidas, para o desenho poder ser julgado
+   nos dois estados sem duas tabelas separadas.
+   ══════════════════════════════════════════════════════════════════════ */.adm-col-fiscal, .adm-col-perfil{ display:none; }.ad-fiscais .adm-col-fiscal{ display:table-cell; }.ad-perfil .adm-col-perfil{ display:table-cell; }.ad-perfil .adm-col-cobranca{ display:none; }/* ══════════════════════════════════════════════════════════════════════
+   A JANELA DE E-MAIL
+
+   Duas colunas: à esquerda o que se escreve, à direita como fica. A prévia
+   não é enfeite: quem escreve para 19 contas de uma vez precisa ver o que
+   sai antes de sair.
+
+   A casca da prévia é a mesma dos e-mails de verdade (faixa no alto, marca,
+   cartão de papel), pelo mesmo motivo da fatura: quem recebe tem que
+   reconhecer os dois como a mesma empresa.
+   ══════════════════════════════════════════════════════════════════════ */.adm-modal{
+  position:fixed; inset:0; z-index:140; overflow:auto;
+  padding:clamp(16px,4vw,44px);
+  background:rgba(17,17,17,.5); backdrop-filter:blur(5px);
+}.adm-modal__folha{
+  width:min(980px,100%); margin:0 auto;
+  background:var(--paper); border-radius:var(--r); box-shadow:var(--sombra);
+  overflow:hidden;
+}.adm-modal__cab{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:20px 24px; border-bottom:1px solid var(--line);
+}.adm-modal__cab h2{ margin:0; font-size:19px; font-weight:500; letter-spacing:-.024em; }.adm-modal__x{
+  width:36px; height:36px; flex:none; border-radius:12px; border:1px solid var(--line);
+  background:var(--paper); color:var(--ink2); cursor:pointer; font-size:19px; line-height:1;
+  display:grid; place-items:center;
+}.adm-modal__x:hover{ border-color:var(--ink); color:var(--ink); }.adm-modal__corpo{ display:grid; grid-template-columns:1fr; }
+@media (min-width:860px){.adm-modal__corpo{ grid-template-columns:1fr 1fr; }}.adm-modal__lado{ padding:22px 24px; display:grid; gap:16px; align-content:start; }.adm-modal__lado + .adm-modal__lado{
+  background:var(--wash); border-left:1px solid var(--line);
+}
+@media (max-width:859px){.adm-modal__lado + .adm-modal__lado{ border-left:0; border-top:1px solid var(--line); }}.adm-campo > label{
+  display:block; margin-bottom:7px;
+  font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}.adm-campo input[type="text"], .adm-campo textarea{
+  width:100%; padding:12px 16px; border-radius:14px;
+  border:1px solid var(--line); background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:14.5px; line-height:1.6;
+  transition:border-color var(--t), box-shadow var(--t);
+}.adm-campo textarea{ min-height:180px; resize:vertical; }.adm-campo input:focus, .adm-campo textarea:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }.adm-campo__nota{ margin:7px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.5; }.adm-campo__nota code{
+  padding:1px 6px; border-radius:6px; background:var(--wash2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; color:var(--ink2);
+}.adm-dupla{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }/* ── a prévia ── */.adm-previa__rot{
+  margin:0 0 10px; font-size:11px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}.adm-previa{
+  background:var(--paper); border:1px solid var(--line); border-radius:16px; overflow:hidden;
+}.adm-previa__faixa{
+  height:34px; background:var(--faixa-deitada) repeat-x left center;
+  background-size:calc(34px * 8) 100%;
+}.adm-previa__miolo{ padding:22px 22px 26px; }.adm-previa__marca{
+  width:82px; height:20px; background:var(--ink);
+  -webkit-mask:var(--marca) no-repeat left center / contain;
+  mask:var(--marca) no-repeat left center / contain;
+}.adm-previa__tit{/* A cor vai declarada: um h3 sem cor herda o preto puro do navegador, e o
+     preto do Cora é #111111. Num e-mail lado a lado a diferença aparece. */
+  
+  margin:18px 0 0; color:var(--ink);
+  font-size:20px; font-weight:500; letter-spacing:-.028em; line-height:1.2;
+  text-wrap:balance;
+}.adm-previa__txt{
+  margin:12px 0 0; font-size:14px; color:var(--ink2); line-height:1.65;
+  white-space:pre-wrap; text-wrap:pretty;
+}.adm-previa__bt{
+  display:inline-block; margin-top:18px; padding:12px 22px; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-size:14px; font-weight:600;
+}.adm-previa__pe{
+  margin:20px 0 0; padding-top:14px; border-top:1px solid var(--line);
+  font-size:11.5px; color:var(--ink3); line-height:1.6;
+}.adm-modal__pe{
+  display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+  padding:16px 24px; border-top:1px solid var(--line);
+}.adm-modal__quantos{ font-size:13.5px; color:var(--ink2); }.adm-modal__quantos b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }/* ══════════════════════════════════════════════════════════════════════
+   A BARRA DA DEMONSTRAÇÃO
+
+   Ela mora DENTRO do painel de admin, e não numa tarja por cima da tela.
+   O menu e o cabeçalho são do site inteiro: uma tarja preta em cima deles
+   dizia que a demonstração era da casca, e não desta tela.
+
+   Ela existe só no artefato. O gerador ignora o `<style data-demo>`, mas
+   esta regra fica aqui de propósito: assim a barra usa os mesmos tokens e
+   não vira uma peça solta com cores próprias.
+   ══════════════════════════════════════════════════════════════════════ */.adm-demo{
+  margin-bottom:20px; padding:12px 16px; border-radius:16px;
+  background:var(--ink); color:var(--paper);
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  font-size:12.5px;
+}.adm-demo b{
+  font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  opacity:.55;
+}.adm-demo button{
+  height:28px; padding:0 12px; border-radius:var(--pill);
+  border:1px solid rgba(255,255,255,.22); background:none; color:inherit;
+  font-family:inherit; font-size:12.5px; cursor:pointer;
+  transition:background-color var(--t), border-color var(--t), color var(--t);
+}.adm-demo button:hover{ background:rgba(255,255,255,.12); }.adm-demo button.on{ background:var(--lima); border-color:var(--lima); color:#111111; font-weight:600; }
 
 /* ── a fonte, em tamanho nominal ──
    Ver a nota no gerador: o site serve a DM Sans com size-adjust de 88%, o que

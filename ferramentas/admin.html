@@ -365,6 +365,163 @@
   .adm-sub-txt{ max-width:150px; }
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   AS COLUNAS QUE OS INTERRUPTORES LIGAM
+
+   Os dois primeiros botões do topo trocam o que a tabela mostra, e não
+   abrem nada. É o mesmo comportamento do layout antigo:
+
+     Dados fiscais  acrescenta telefone, CEP e endereço, que é o que a
+                    contabilidade pede
+     Ver cadastro   troca as colunas de cobrança pelas do cadastro: gênero,
+                    profissão, como conheceu, cidade e quando entrou
+
+   No site quem decide isso é o React, e as colunas nem chegam a existir.
+   Aqui elas existem e ficam escondidas, para o desenho poder ser julgado
+   nos dois estados sem duas tabelas separadas.
+   ══════════════════════════════════════════════════════════════════════ */
+.adm-col-fiscal,
+.adm-col-perfil{ display:none; }
+.ad-fiscais .adm-col-fiscal{ display:table-cell; }
+.ad-perfil .adm-col-perfil{ display:table-cell; }
+.ad-perfil .adm-col-cobranca{ display:none; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   A JANELA DE E-MAIL
+
+   Duas colunas: à esquerda o que se escreve, à direita como fica. A prévia
+   não é enfeite: quem escreve para 19 contas de uma vez precisa ver o que
+   sai antes de sair.
+
+   A casca da prévia é a mesma dos e-mails de verdade (faixa no alto, marca,
+   cartão de papel), pelo mesmo motivo da fatura: quem recebe tem que
+   reconhecer os dois como a mesma empresa.
+   ══════════════════════════════════════════════════════════════════════ */
+.adm-modal{
+  position:fixed; inset:0; z-index:140; overflow:auto;
+  padding:clamp(16px,4vw,44px);
+  background:rgba(17,17,17,.5); backdrop-filter:blur(5px);
+}
+.adm-modal__folha{
+  width:min(980px,100%); margin:0 auto;
+  background:var(--paper); border-radius:var(--r); box-shadow:var(--sombra);
+  overflow:hidden;
+}
+.adm-modal__cab{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:20px 24px; border-bottom:1px solid var(--line);
+}
+.adm-modal__cab h2{ margin:0; font-size:19px; font-weight:500; letter-spacing:-.024em; }
+.adm-modal__x{
+  width:36px; height:36px; flex:none; border-radius:12px; border:1px solid var(--line);
+  background:var(--paper); color:var(--ink2); cursor:pointer; font-size:19px; line-height:1;
+  display:grid; place-items:center;
+}
+.adm-modal__x:hover{ border-color:var(--ink); color:var(--ink); }
+.adm-modal__corpo{ display:grid; grid-template-columns:1fr; }
+@media (min-width:860px){ .adm-modal__corpo{ grid-template-columns:1fr 1fr; } }
+.adm-modal__lado{ padding:22px 24px; display:grid; gap:16px; align-content:start; }
+.adm-modal__lado + .adm-modal__lado{
+  background:var(--wash); border-left:1px solid var(--line);
+}
+@media (max-width:859px){
+  .adm-modal__lado + .adm-modal__lado{ border-left:0; border-top:1px solid var(--line); }
+}
+.adm-campo > label{
+  display:block; margin-bottom:7px;
+  font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}
+.adm-campo input[type="text"],
+.adm-campo textarea{
+  width:100%; padding:12px 16px; border-radius:14px;
+  border:1px solid var(--line); background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:14.5px; line-height:1.6;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.adm-campo textarea{ min-height:180px; resize:vertical; }
+.adm-campo input:focus,
+.adm-campo textarea:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+.adm-campo__nota{ margin:7px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.5; }
+.adm-campo__nota code{
+  padding:1px 6px; border-radius:6px; background:var(--wash2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; color:var(--ink2);
+}
+.adm-dupla{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+/* ── a prévia ── */
+.adm-previa__rot{
+  margin:0 0 10px; font-size:11px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}
+.adm-previa{
+  background:var(--paper); border:1px solid var(--line); border-radius:16px; overflow:hidden;
+}
+.adm-previa__faixa{
+  height:34px; background:var(--faixa-deitada) repeat-x left center;
+  background-size:calc(34px * 8) 100%;
+}
+.adm-previa__miolo{ padding:22px 22px 26px; }
+.adm-previa__marca{
+  width:82px; height:20px; background:var(--ink);
+  -webkit-mask:var(--marca) no-repeat left center / contain;
+  mask:var(--marca) no-repeat left center / contain;
+}
+.adm-previa__tit{
+  /* A cor vai declarada: um h3 sem cor herda o preto puro do navegador, e o
+     preto do Cora é #111111. Num e-mail lado a lado a diferença aparece. */
+  margin:18px 0 0; color:var(--ink);
+  font-size:20px; font-weight:500; letter-spacing:-.028em; line-height:1.2;
+  text-wrap:balance;
+}
+.adm-previa__txt{
+  margin:12px 0 0; font-size:14px; color:var(--ink2); line-height:1.65;
+  white-space:pre-wrap; text-wrap:pretty;
+}
+.adm-previa__bt{
+  display:inline-block; margin-top:18px; padding:12px 22px; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-size:14px; font-weight:600;
+}
+.adm-previa__pe{
+  margin:20px 0 0; padding-top:14px; border-top:1px solid var(--line);
+  font-size:11.5px; color:var(--ink3); line-height:1.6;
+}
+.adm-modal__pe{
+  display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+  padding:16px 24px; border-top:1px solid var(--line);
+}
+.adm-modal__quantos{ font-size:13.5px; color:var(--ink2); }
+.adm-modal__quantos b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   A BARRA DA DEMONSTRAÇÃO
+
+   Ela mora DENTRO do painel de admin, e não numa tarja por cima da tela.
+   O menu e o cabeçalho são do site inteiro: uma tarja preta em cima deles
+   dizia que a demonstração era da casca, e não desta tela.
+
+   Ela existe só no artefato. O gerador ignora o `<style data-demo>`, mas
+   esta regra fica aqui de propósito: assim a barra usa os mesmos tokens e
+   não vira uma peça solta com cores próprias.
+   ══════════════════════════════════════════════════════════════════════ */
+.adm-demo{
+  margin-bottom:20px; padding:12px 16px; border-radius:16px;
+  background:var(--ink); color:var(--paper);
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  font-size:12.5px;
+}
+.adm-demo b{
+  font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  opacity:.55;
+}
+.adm-demo button{
+  height:28px; padding:0 12px; border-radius:var(--pill);
+  border:1px solid rgba(255,255,255,.22); background:none; color:inherit;
+  font-family:inherit; font-size:12.5px; cursor:pointer;
+  transition:background-color var(--t), border-color var(--t), color var(--t);
+}
+.adm-demo button:hover{ background:rgba(255,255,255,.12); }
+.adm-demo button.on{ background:var(--lima); border-color:var(--lima); color:#111111; font-weight:600; }
+
 </style>
 
 <style data-demo>
@@ -1628,36 +1785,7 @@
 [hidden]{ display:none!important; }
 /* A gaveta acima da barra da demonstracao, que e grudada no topo. */
 .adm-gaveta{ z-index:300; }
-.demo{
-  position:sticky; top:0; z-index:250; display:flex; gap:8px; flex-wrap:wrap;
-  align-items:center; padding:10px 16px; min-height:48px;
-  background:#111111; color:#F2F2EF; font-size:12.5px;
-  font-family:'DM Sans',system-ui,sans-serif;
-}
-.demo b{ font-weight:600; letter-spacing:.06em; text-transform:uppercase; font-size:10px; opacity:.55; }
-.demo button{
-  height:28px; padding:0 12px; border-radius:100px; border:1px solid rgba(255,255,255,.22);
-  background:none; color:inherit; font-family:inherit; font-size:12.5px; cursor:pointer;
-}
-.demo button:hover{ background:rgba(255,255,255,.12); }
-.demo button.on{ background:#C4FBA7; border-color:#C4FBA7; color:#111111; font-weight:600; }
-/* O menu e o cabecalho sao fixos: sem isto a barra da demonstracao passa por
-   cima dos dois. */
-.demo ~ .app-shell .app-side,
-.demo ~ .app-shell .app-header{ top:48px; }
-.demo ~ .app-shell .app-main{ padding-top:calc(var(--header-h) + 48px); }
 </style>
-
-<div class="demo">
-  <b>abrir</b>
-  <button data-abre="geo">Geografia</button>
-  <button data-abre="export">Exportar</button>
-  <button data-abre="filtros">Filtros</button>
-  <button data-abre="vazio">Nada encontrado</button>
-  <b>tema</b>
-  <button data-tema>Escuro</button>
-</div>
-
 <div class="app-shell" id="shell">
 
   <!-- ══════════════ MENU LATERAL ══════════════ -->
@@ -1837,6 +1965,19 @@
     <main class="app-main">
     <div class="app-main-conteudo">
     <div class="admin-wrap" style="max-width:1180px;margin:0 auto">
+      <div class="adm-demo">
+        <b>ver</b>
+        <button data-liga="fiscais">Dados fiscais</button>
+        <button data-liga="perfil">Cadastro</button>
+        <button data-abre="geo">Geografia</button>
+        <button data-abre="export">Exportar</button>
+        <button data-abre="email">Enviar e-mail</button>
+        <button data-abre="filtros">Filtros</button>
+        <button data-abre="vazio">Nada encontrado</button>
+        <b>tema</b>
+        <button data-tema>Escuro</button>
+      </div>
+
       <div class="adm-cabeca">
         <div class="conta-cabeca">
           <div class="conta-cabeca__txt">
@@ -1847,7 +1988,7 @@
         </div>
 
         <div class="adm-acoes">
-          <button class="as-btn-cta" style="height:44px">Enviar e-mail</button>
+          <button class="as-btn-cta" style="height:44px" id="bt-email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>Enviar e-mail</button>
 
           <button class="adm-ico" data-liga="fiscais" title="Dados fiscais" aria-label="Dados fiscais">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1920,12 +2061,19 @@
           </svg>
           <input class="perfil-input" placeholder="Buscar por nome, e-mail ou CPF">
         </div>
-        <button class="adm-btn-linha" id="bt-filtros">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-            <path d="M3 5h18M6 12h12M10 19h4"/>
-          </svg>
-          Filtros <span class="adm-btn-n">2</span>
-        </button>
+        <div class="adm-filtros" id="caixa-filtros">
+          <button class="adm-btn-linha" id="bt-filtros">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+              <path d="M3 5h18M6 12h12M10 19h4"/>
+            </svg>
+            Filtros <span class="adm-btn-n">2</span>
+          </button>
+          <div class="adm-pop" id="pop-filtros" hidden>
+            <div class="adm-pop__cab"><h2>Filtros</h2><button class="adm-limpar">limpar tudo</button></div>
+            <div class="adm-pop__corpo"><div class="dd dd--rotulo" data-dd data-ops="Todos|Este mês|Últimos 12 meses|Um ano específico|Escolher as datas"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Período</span><span class="dd__val">Últimos 12 meses</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Quase vencendo|Cancelado"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Situação</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Arquitetura|Design de interiores|Engenharia|Paisagismo|Estudante|Outra"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Profissão</span><span class="dd__val">Arquitetura</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Instagram|YouTube|Indicação|Busca no Google|Anúncio|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Como conheceu</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Nenhum|V-Ray|Enscape|Lumion|D5 Render|Twinmotion|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Renderizador</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer país|Brasil|Portugal|México|Estados Unidos"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">País</span><span class="dd__val">Brasil</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer estado|São Paulo|Rio de Janeiro|Minas Gerais|Paraná|Pernambuco"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Estado</span><span class="dd__val">São Paulo</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
+            <div class="adm-pop__pe"><span class="adm-pop__conta">5 de 19</span><button class="as-btn-cta">Ver 5 contas</button></div>
+          </div>
+        </div>
       </div>
 
       <div class="adm-filtros-linha" data-some-na-ficha>
@@ -1980,9 +2128,21 @@
             <table class="fat">
               <thead>
                 <tr>
-                  <th>Nome e e-mail</th><th>Documento</th><th>Plano</th>
-                  <th class="adm-num">Valor</th><th>Renova em</th><th>Status</th>
-                  <th class="adm-num">Créditos</th><th class="fat__acao"></th>
+                  <th>Nome e e-mail</th>
+                  <th>Documento</th>
+                  <th class="adm-col-fiscal">Telefone</th>
+                  <th class="adm-col-fiscal">CEP</th>
+                  <th class="adm-col-fiscal">Endereço</th>
+                  <th class="adm-col-cobranca">Plano</th>
+                  <th class="adm-num adm-col-cobranca">Valor</th>
+                  <th class="adm-col-cobranca">Renova em</th>
+                  <th class="adm-col-perfil">Profissão</th>
+                  <th class="adm-col-perfil">Como conheceu</th>
+                  <th class="adm-col-perfil">Cidade</th>
+                  <th class="adm-col-perfil">Entrou em</th>
+                  <th>Status</th>
+                  <th class="adm-num adm-col-cobranca">Créditos</th>
+                  <th class="fat__acao"></th>
                 </tr>
               </thead>
               <tbody>
@@ -1992,11 +2152,18 @@
                     <div class="adm-sub"><span class="adm-sub-txt">marilia@corarender.com</span></div>
                   </td>
                   <td class="adm-mono">000.000.000-00</td>
-                  <td>Pro</td>
-                  <td class="adm-num">R$&nbsp;197,00</td>
-                  <td class="adm-mono">24/09/2026</td>
+                  <td class="adm-mono adm-col-fiscal">(11) 90000-0000</td>
+                  <td class="adm-mono adm-col-fiscal">01310-100</td>
+                  <td class="adm-col-fiscal" style="font-size:13px;max-width:210px">Av. Paulista, 1000, São Paulo SP</td>
+                  <td class="adm-col-cobranca">Pro</td>
+                  <td class="adm-num adm-col-cobranca">R$&nbsp;197,00</td>
+                  <td class="adm-mono adm-col-cobranca">24/09/2026</td>
+                  <td class="adm-col-perfil">Arquitetura</td>
+                  <td class="adm-col-perfil">Indicação</td>
+                  <td class="adm-col-perfil">São Paulo</td>
+                  <td class="adm-mono adm-col-perfil">24/01/2026</td>
                   <td><span class="fat-selo">Ativo</span></td>
-                  <td class="adm-num">15.800</td>
+                  <td class="adm-num adm-col-cobranca">15.800</td>
                   <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
                 </tr>
                 <tr>
@@ -2008,11 +2175,18 @@
                     </div>
                   </td>
                   <td class="adm-mono">00.000.000/0001-00</td>
-                  <td>Studio <span class="fat-selo fat-selo--equipe">5 assentos</span></td>
-                  <td class="adm-num">R$&nbsp;497,00</td>
-                  <td class="adm-mono">11/09/2026</td>
+                  <td class="adm-mono adm-col-fiscal">(41) 90000-0000</td>
+                  <td class="adm-mono adm-col-fiscal">80010-010</td>
+                  <td class="adm-col-fiscal" style="font-size:13px;max-width:210px">R. XV de Novembro, 200, Curitiba PR</td>
+                  <td class="adm-col-cobranca">Studio <span class="fat-selo fat-selo--equipe">5 assentos</span></td>
+                  <td class="adm-num adm-col-cobranca">R$&nbsp;497,00</td>
+                  <td class="adm-mono adm-col-cobranca">11/09/2026</td>
+                  <td class="adm-col-perfil">Escritório</td>
+                  <td class="adm-col-perfil">Instagram</td>
+                  <td class="adm-col-perfil">Curitiba</td>
+                  <td class="adm-mono adm-col-perfil">11/03/2026</td>
                   <td><span class="fat-selo">Ativo</span></td>
-                  <td class="adm-num">60.000</td>
+                  <td class="adm-num adm-col-cobranca">60.000</td>
                   <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
                 </tr>
               </tbody>
@@ -2382,61 +2556,97 @@
   </main>
 </div>
 
-<!-- ══════════════ A GAVETA DOS FILTROS ══════════════ -->
-<div class="adm-gaveta" id="gaveta" hidden>
-  <div class="adm-gaveta__folha">
-    <div class="adm-gaveta__cab">
-      <h2>Filtros</h2>
-      <button class="adm-gaveta__x" id="fecha-gaveta" aria-label="Fechar">&times;</button>
+<!-- ══════════════ A JANELA DE E-MAIL ══════════════
+     Duas colunas: à esquerda o que se escreve, à direita como fica. A prévia
+     não é enfeite. Quem escreve para dezenove contas de uma vez precisa ver
+     o que sai antes de sair. -->
+<div class="adm-modal" id="modal-email" hidden>
+  <div class="adm-modal__folha">
+    <div class="adm-modal__cab">
+      <h2>Enviar e-mail</h2>
+      <button class="adm-modal__x" id="fecha-email" aria-label="Fechar">&times;</button>
     </div>
-    <div class="adm-gaveta__corpo">
-      <div class="adm-gaveta__g">
-        <label>Período</label>
-        <div class="adm-opcoes">
-          <button class="adm-opcao">Todos</button>
-          <button class="adm-opcao on">12 meses</button>
-          <button class="adm-opcao">Este mês</button>
-          <button class="adm-opcao">Escolher</button>
+
+    <div class="adm-modal__corpo">
+      <div class="adm-modal__lado">
+        <div class="adm-campo">
+          <label>Para quem</label>
+          <div class="dd dd--rotulo" data-dd data-ops="Assinantes|Quem está no teste|Membros de equipe|Cancelados|Todo mundo" data-alvo="publico">
+            <button class="dd__bt" type="button">
+              <span class="dd__mio"><span class="dd__rot">Público</span>
+              <span class="dd__val">Assinantes</span></span>
+              <svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+            </button>
+          </div>
+          <p class="adm-campo__nota">Quem desligou as novidades em Minha conta não entra na
+            conta, e a lista já sai sem essas pessoas.</p>
+        </div>
+
+        <div class="adm-campo">
+          <label>Assunto</label>
+          <input type="text" id="e-assunto" value="Uma ferramenta nova no Cora">
+        </div>
+
+        <div class="adm-campo">
+          <label>Título dentro do e-mail</label>
+          <input type="text" id="e-titulo" value="O preenchimento generativo chegou">
+        </div>
+
+        <div class="adm-campo">
+          <label>Texto</label>
+          <textarea id="e-texto">Agora dá para apagar um objeto da cena e o Cora fecha o buraco com o que faria sentido estar ali. Funciona em qualquer render que você já tenha gerado.
+
+Está no Pro e no Studio, sem custo a mais além do crédito da geração.</textarea>
+          <p class="adm-campo__nota">Uma linha em branco vira parágrafo. Use <code>{nome}</code>
+            para chamar a pessoa pelo nome, e quem não preencheu recebe sem o trecho.</p>
+        </div>
+
+        <div class="adm-dupla">
+          <div class="adm-campo">
+            <label>Botão</label>
+            <input type="text" id="e-botao" value="Ver como funciona">
+          </div>
+          <div class="adm-campo">
+            <label>Link do botão</label>
+            <input type="text" id="e-link" value="https://corarender.com/app">
+          </div>
         </div>
       </div>
-      <div class="adm-gaveta__g">
-        <label>Situação</label>
-        <div class="adm-opcoes">
-          <button class="adm-opcao on">Qualquer</button>
-          <button class="adm-opcao">Vencendo</button>
-          <button class="adm-opcao">Cancelado</button>
-        </div>
-      </div>
-      <div class="adm-gaveta__g">
-        <label>Profissão</label>
-        <div class="adm-opcoes">
-          <button class="adm-opcao on">Todas</button>
-          <button class="adm-opcao">Arquitetura</button>
-          <button class="adm-opcao">Interiores</button>
-          <button class="adm-opcao">Paisagismo</button>
-        </div>
-      </div>
-      <div class="adm-gaveta__g">
-        <label>Onde a pessoa está</label>
-        <div class="adm-opcoes">
-          <button class="adm-opcao on">São Paulo</button>
-          <button class="adm-opcao">Rio de Janeiro</button>
-          <button class="adm-opcao">Brasil</button>
-          <button class="adm-opcao">Portugal</button>
+
+      <div class="adm-modal__lado">
+        <p class="adm-previa__rot">Como fica</p>
+        <div class="adm-previa">
+          <div class="adm-previa__faixa" aria-hidden="true"></div>
+          <div class="adm-previa__miolo">
+            <div class="adm-previa__marca" role="img" aria-label="Cora Render"></div>
+            <h3 class="adm-previa__tit" id="p-titulo">O preenchimento generativo chegou</h3>
+            <p class="adm-previa__txt" id="p-texto"></p>
+            <span class="adm-previa__bt" id="p-botao">Ver como funciona</span>
+            <p class="adm-previa__pe">
+              Você recebe porque tem conta no Cora Render.<br>
+              Para parar de receber novidades, é só desligar em Minha conta.<br>
+              9BARRA7 Academy &middot; corarender.com
+            </p>
+          </div>
         </div>
       </div>
     </div>
-    <div class="adm-gaveta__pe">
-      <button class="adm-btn-linha">Limpar</button>
-      <button class="as-btn-cta" id="ok-gaveta">Ver 5 contas</button>
+
+    <div class="adm-modal__pe">
+      <span class="adm-modal__quantos">Vai para <b id="p-quantos">2</b> pessoas.</span>
+      <div style="display:flex;gap:10px">
+        <button class="adm-btn-linha" id="cancela-email">Cancelar</button>
+        <button class="as-btn-cta" style="height:44px">Enviar</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-  /* Só a demonstração. No site quem troca de aba é o React, e quem abre a
-     gaveta é o estado do componente. */
+  /* Só a demonstração. No site quem troca de aba é o React, e quem abre o
+     dropdown e a janela é o estado do componente. */
   var d = document;
+  var raiz = d.querySelector('.admin-wrap');
 
   function mostrar(qual) {
     d.querySelectorAll('[data-tela]').forEach(function (t) {
@@ -2451,72 +2661,199 @@
     d.querySelectorAll('[data-some-na-ficha]').forEach(function (e) { e.hidden = naFicha; });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
   d.querySelectorAll('.adm-aba').forEach(function (a) {
     a.addEventListener('click', function () { mostrar(a.dataset.aba); });
   });
-
   d.querySelector('[data-abre="vazio"]').addEventListener('click', function () {
     d.querySelectorAll('[data-tela]').forEach(function (t) { t.hidden = t.dataset.tela !== 'vazio'; });
   });
 
+  /* ── OS DOIS INTERRUPTORES QUE TROCAM COLUNAS ──
+     Dados fiscais acrescenta telefone, CEP e endereço. Cadastro troca as
+     colunas de cobrança pelas do cadastro. É o mesmo do layout antigo. */
+  function ligar(qual, ligado) {
+    raiz.classList.toggle('ad-' + qual, ligado);
+    d.querySelectorAll('[data-liga="' + qual + '"], #bt-' + qual).forEach(function (b) {
+      b.classList.toggle(b.classList.contains('adm-ico') ? 'adm-ico--on' : 'on', ligado);
+    });
+  }
+  ['fiscais', 'perfil'].forEach(function (qual) {
+    d.querySelectorAll('[data-liga="' + qual + '"], #bt-' + qual).forEach(function (b) {
+      b.addEventListener('click', function () {
+        ligar(qual, !raiz.classList.contains('ad-' + qual));
+      });
+    });
+  });
+
+  /* ── A GEOGRAFIA ── */
   function alternarGeo() {
     var b = d.getElementById('bloco-geo');
     b.hidden = !b.hidden;
     d.getElementById('bt-geo').classList.toggle('adm-ico--on', !b.hidden);
+    d.querySelector('[data-abre="geo"]').classList.toggle('on', !b.hidden);
+    if (!b.hidden) b.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
   d.getElementById('bt-geo').addEventListener('click', alternarGeo);
   d.querySelector('[data-abre="geo"]').addEventListener('click', alternarGeo);
 
+  /* ── O MENU DE EXPORTAR ── */
   function alternarExport() {
     var m = d.getElementById('menu-export');
     m.hidden = !m.hidden;
     d.getElementById('bt-export').classList.toggle('adm-ico--on', !m.hidden);
+    d.querySelector('[data-abre="export"]').classList.toggle('on', !m.hidden);
   }
-  d.getElementById('bt-export').addEventListener('click', alternarExport);
-  d.querySelector('[data-abre="export"]').addEventListener('click', alternarExport);
-
-  function abrirGaveta() {
-    d.getElementById('gaveta').hidden = false;
-    d.getElementById('bt-filtros').classList.add('adm-btn-linha--on');
-  }
-  function fecharGaveta() {
-    d.getElementById('gaveta').hidden = true;
-    d.getElementById('bt-filtros').classList.remove('adm-btn-linha--on');
-  }
-  d.getElementById('bt-filtros').addEventListener('click', abrirGaveta);
-  d.querySelector('[data-abre="filtros"]').addEventListener('click', abrirGaveta);
-  d.getElementById('fecha-gaveta').addEventListener('click', fecharGaveta);
-  d.getElementById('ok-gaveta').addEventListener('click', fecharGaveta);
-  d.getElementById('gaveta').addEventListener('click', function (e) {
-    if (e.target === this) fecharGaveta();
+  d.getElementById('bt-export').addEventListener('click', function (e) {
+    e.stopPropagation(); alternarExport();
+  });
+  d.querySelector('[data-abre="export"]').addEventListener('click', function (e) {
+    e.stopPropagation(); alternarExport();
   });
 
-  d.querySelectorAll('.adm-opcao').forEach(function (o) {
-    o.addEventListener('click', function () {
-      o.parentElement.querySelectorAll('.adm-opcao').forEach(function (x) { x.classList.remove('on'); });
-      o.classList.add('on');
+  /* ── O DROPDOWN DOS FILTROS ── */
+  function abrirFiltros(sim) {
+    d.getElementById('pop-filtros').hidden = !sim;
+    d.getElementById('bt-filtros').classList.toggle('adm-btn-linha--on', sim);
+    d.querySelector('[data-abre="filtros"]').classList.toggle('on', sim);
+  }
+  d.getElementById('bt-filtros').addEventListener('click', function (e) {
+    e.stopPropagation();
+    abrirFiltros(d.getElementById('pop-filtros').hidden);
+  });
+  d.querySelector('[data-abre="filtros"]').addEventListener('click', function (e) {
+    e.stopPropagation();
+    abrirFiltros(d.getElementById('pop-filtros').hidden);
+  });
+  d.getElementById('pop-filtros').addEventListener('click', function (e) { e.stopPropagation(); });
+
+  /* Clicar fora fecha o que estiver aberto. */
+  d.addEventListener('click', function () {
+    fecharDds();
+    abrirFiltros(false);
+    var m = d.getElementById('menu-export');
+    if (m && !m.hidden) alternarExport();
+  });
+  d.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    fecharDds();
+    abrirFiltros(false);
+    d.getElementById('modal-email').hidden = true;
+  });
+
+  /* ── LIMPAR TUDO LIMPA DE VERDADE ── */
+  function limparTudo() {
+    d.querySelectorAll('#pop-filtros [data-ops]').forEach(function (dd) {
+      dd.querySelector('.dd__val').textContent = dd.dataset.ops.split('|')[0];
+    });
+    var linha = d.querySelector('.adm-filtros-linha');
+    if (linha) linha.hidden = true;
+    var n = d.querySelector('.adm-btn-n');
+    if (n) n.hidden = true;
+  }
+  d.querySelectorAll('.adm-limpar').forEach(function (b) {
+    b.addEventListener('click', function (e) { e.stopPropagation(); limparTudo(); });
+  });
+  /* E tirar um filtro sozinho tira só ele. */
+  d.querySelectorAll('.adm-filtro').forEach(function (f) {
+    f.addEventListener('click', function () {
+      f.remove();
+      var resta = d.querySelectorAll('.adm-filtro').length;
+      var n = d.querySelector('.adm-btn-n');
+      if (n) { n.textContent = resta; n.hidden = resta === 0; }
+      if (!resta) d.querySelector('.adm-filtros-linha').hidden = true;
     });
   });
 
-  d.querySelectorAll('.adm-filtro').forEach(function (f) {
-    f.addEventListener('click', function () { f.remove(); });
+  /* ── A JANELA DE E-MAIL ── */
+  function abrirEmail(sim) {
+    d.getElementById('modal-email').hidden = !sim;
+    d.body.style.overflow = sim ? 'hidden' : '';
+  }
+  d.getElementById('bt-email').addEventListener('click', function () { abrirEmail(true); });
+  d.querySelector('[data-abre="email"]').addEventListener('click', function () { abrirEmail(true); });
+  d.getElementById('fecha-email').addEventListener('click', function () { abrirEmail(false); });
+  d.getElementById('cancela-email').addEventListener('click', function () { abrirEmail(false); });
+  d.getElementById('modal-email').addEventListener('click', function (e) {
+    if (e.target === this) abrirEmail(false);
   });
 
-  d.querySelectorAll('.adm-ico[data-liga]').forEach(function (b) {
-    b.addEventListener('click', function () { b.classList.toggle('adm-ico--on'); });
+  /* A prévia acompanha o que se escreve, letra por letra. */
+  var QUANTOS = {
+    'Assinantes': 2, 'Quem está no teste': 13, 'Membros de equipe': 2,
+    'Cancelados': 3, 'Todo mundo': 19,
+  };
+  function pintarPrevia() {
+    d.getElementById('p-titulo').textContent = d.getElementById('e-titulo').value;
+    d.getElementById('p-texto').textContent =
+      d.getElementById('e-texto').value.replace(/\{nome\}/g, 'Marilia');
+    var bt = d.getElementById('p-botao');
+    bt.textContent = d.getElementById('e-botao').value;
+    bt.hidden = !d.getElementById('e-botao').value.trim();
+    var publico = d.querySelector('[data-alvo="publico"] .dd__val').textContent;
+    d.getElementById('p-quantos').textContent = QUANTOS[publico] || 0;
+  }
+  ['e-titulo', 'e-texto', 'e-botao'].forEach(function (id) {
+    d.getElementById(id).addEventListener('input', pintarPrevia);
+  });
+  pintarPrevia();
+
+  /* ── OS DROPDOWNS ──
+     No site quem faz isto é o componente DropdownCora, que joga a lista num
+     PORTAL no fim do documento. Aqui a lista nasce ao lado do botão, só para
+     o desenho poder ser julgado. */
+  function fecharDds(menos) {
+    d.querySelectorAll('.dd--aberto').forEach(function (x) {
+      if (x === menos) return;
+      x.classList.remove('dd--aberto');
+      var l = x.querySelector('.dd__lista');
+      if (l) l.remove();
+    });
+  }
+  d.querySelectorAll('[data-ops]').forEach(function (dd) {
+    var bt = dd.querySelector('.dd__bt');
+    var val = dd.querySelector('.dd__val');
+    if (!bt || !val) return;
+    bt.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var jaAberto = dd.classList.contains('dd--aberto');
+      fecharDds();
+      if (jaAberto) return;
+      var lista = d.createElement('div');
+      lista.className = 'dd__lista';
+      dd.dataset.ops.split('|').forEach(function (nome) {
+        var op = d.createElement('button');
+        op.type = 'button';
+        op.className = 'dd__op' + (nome === val.textContent ? ' dd__op--sel' : '');
+        op.innerHTML = '<span></span>'
+          + '<svg class="dd__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor"'
+          + ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+          + '<path d="m3 8.5 3.5 3.5L13 5"/></svg>';
+        op.firstChild.textContent = nome;
+        op.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          val.textContent = nome;
+          fecharDds();
+          pintarPrevia();
+        });
+        lista.appendChild(op);
+      });
+      dd.appendChild(lista);
+      dd.classList.add('dd--aberto');
+    });
   });
 
+  /* ── A PAGINAÇÃO E O TEMA ── */
   d.querySelectorAll('.adm-pag-n').forEach(function (n) {
     n.addEventListener('click', function () {
       d.querySelectorAll('.adm-pag-n').forEach(function (x) { x.classList.remove('ativa'); });
       n.classList.add('ativa');
     });
   });
-
   d.querySelector('[data-tema]').addEventListener('click', function () {
     var escuro = d.documentElement.getAttribute('data-theme') === 'dark';
     d.documentElement.setAttribute('data-theme', escuro ? 'light' : 'dark');
     this.textContent = escuro ? 'Escuro' : 'Claro';
+    this.classList.toggle('on', !escuro);
   });
 </script>

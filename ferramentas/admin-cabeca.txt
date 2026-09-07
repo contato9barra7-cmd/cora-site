@@ -66,33 +66,4 @@
 [hidden]{ display:none!important; }
 /* A gaveta acima da barra da demonstracao, que e grudada no topo. */
 .adm-gaveta{ z-index:300; }
-.demo{
-  position:sticky; top:0; z-index:250; display:flex; gap:8px; flex-wrap:wrap;
-  align-items:center; padding:10px 16px; min-height:48px;
-  background:#111111; color:#F2F2EF; font-size:12.5px;
-  font-family:'DM Sans',system-ui,sans-serif;
-}
-.demo b{ font-weight:600; letter-spacing:.06em; text-transform:uppercase; font-size:10px; opacity:.55; }
-.demo button{
-  height:28px; padding:0 12px; border-radius:100px; border:1px solid rgba(255,255,255,.22);
-  background:none; color:inherit; font-family:inherit; font-size:12.5px; cursor:pointer;
-}
-.demo button:hover{ background:rgba(255,255,255,.12); }
-.demo button.on{ background:#C4FBA7; border-color:#C4FBA7; color:#111111; font-weight:600; }
-/* O menu e o cabecalho sao fixos: sem isto a barra da demonstracao passa por
-   cima dos dois. */
-.demo ~ .app-shell .app-side,
-.demo ~ .app-shell .app-header{ top:48px; }
-.demo ~ .app-shell .app-main{ padding-top:calc(var(--header-h) + 48px); }
 </style>
-
-<div class="demo">
-  <b>abrir</b>
-  <button data-abre="geo">Geografia</button>
-  <button data-abre="export">Exportar</button>
-  <button data-abre="filtros">Filtros</button>
-  <button data-abre="vazio">Nada encontrado</button>
-  <b>tema</b>
-  <button data-tema>Escuro</button>
-</div>
-
