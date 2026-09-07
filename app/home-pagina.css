@@ -792,15 +792,20 @@
   }.hm .plano{
     position:relative; display:flex; flex-direction:column;
     padding:var(--e-5) var(--e-4); border:1px solid var(--line); border-radius:var(--r-lg); background:var(--paper);
-    transition:border-color var(--tr-padrao) var(--easing);
+    transition:border-color var(--tr-padrao) var(--easing),
+               transform var(--tr-padrao) var(--easing);
   }
   @media (min-width:700px) and (max-width:1023px){.hm .plano{ padding:var(--e-5) var(--e-4); }}
-  @media (min-width:1024px){.hm .plano{ padding:var(--e-6) var(--e-5); }}
-  @media (hover:hover) and (pointer:fine){.hm .plano:hover{ border-color:var(--line2); }}.hm .plano--destaque{
+  @media (min-width:1024px){.hm .plano{ padding:var(--e-6) var(--e-5); }}/* O card sobe com o mouse em cima, do mesmo jeito e na mesma medida da
+     pagina de precos. Sao as mesmas tres assinaturas nas duas telas, e ate
+     agora uma reagia e a outra nao. O destaque sobe 1px a mais, que e o que
+     mantem a hierarquia entre ele e os vizinhos enquanto os tres se movem. */
+  
+  @media (hover:hover) and (pointer:fine){.hm .plano:hover{ border-color:var(--line2); transform:translateY(-3px); }}.hm .plano--destaque{
     border-color:var(--ink);
     border-width:1.5px;
   }
-  @media (hover:hover) and (pointer:fine){.hm .plano--destaque:hover{ border-color:var(--preto); }}.hm .plano__selo{
+  @media (hover:hover) and (pointer:fine){.hm .plano--destaque:hover{ border-color:var(--preto); transform:translateY(-4px); }}.hm .plano__selo{
     position:absolute; top:-12px; left:var(--e-4); z-index:2;
     padding:var(--e-1) var(--e-3); border-radius:var(--r-pill);
     background:var(--ink); color:var(--paper);
