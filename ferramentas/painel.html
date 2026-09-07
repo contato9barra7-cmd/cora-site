@@ -535,21 +535,31 @@
   transition:background-color var(--t);
 }
 .trial-card-btn:hover{ background:var(--lima-esc); }
-/* O aviso de crédito baixo é o único bloco de cor cheia do painel. Ele
-   aparece sozinho, por cima de tudo, e some sozinho: é o lugar certo para o
-   turquesa, que não tem outro trabalho nesta tela.
+/* ── O AVISO DE CRÉDITO ──
+   É o único bloco de SINAL do painel, e sinal é vermelho. Ele fica no cartão
+   branco de propósito: quem avisa é o selo e a barra, não o fundo. Um cartão
+   inteiro em vermelho tomaria a tela por um recado que a pessoa fecha em dois
+   segundos.
    Em coluna, e não em linha: com o botão ao lado, "820 créditos restantes"
    quebrava em duas linhas e o cartão saía torto. */
 .cred-nudge{
-  flex-direction:column; align-items:stretch; gap:12px; padding:24px 18px 18px;
-  background:var(--turquesa); border-color:transparent; color:#111111;
+  flex-direction:column; align-items:stretch; gap:12px; padding:22px 18px 18px;
 }
-.cred-nudge .trial-card-txt strong{ color:#111111; }
-.cred-nudge .trial-card-txt small{ color:rgba(17,17,17,.66); }
-.cred-nudge .trial-card-prog{ background:rgba(17,17,17,.18); }
+.cred-nudge-selo{
+  align-self:flex-start;
+  font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  background:var(--alerta); color:#FFFFFF; padding:4px 11px; border-radius:var(--pill);
+}
+/* No escuro o alerta é um vermelho claro, e branco em cima dele some. */
+:root[data-theme="dark"] .cred-nudge-selo{ color:#2A0F0D; }
+
+/* A barra mede o que JÁ FOI, e não o que sobra. Com 820 de 20.000 ela chega
+   quase no fim, que é a leitura certa: vermelho crescendo é perigo crescendo.
+   A barra da HOME faz o contrário de propósito, porque lá ela é medidor de
+   tanque e não aviso, e por isso ela é lima e esta é vermelha. */
 .cred-nudge .trial-card-prog i,
 .cred-nudge .cred-bar-baixo,
-.cred-nudge .cred-bar-zero{ background:#111111; }
+.cred-nudge .cred-bar-zero{ background:var(--alerta); }
 .cred-nudge .trial-card-btn{ width:100%; background:#111111; color:#FFFFFF; }
 .cred-nudge .trial-card-btn:hover{ background:#2E2E2E; }
 .cred-nudge-x{
@@ -1309,7 +1319,7 @@ body{ margin:0; background:#F6F6F4; }
             <!-- Quem tem assento numa equipe não compra crédito: quem paga é
                  quem é dono do plano. O botão sai, e no lugar entra a razão. -->
             <p class="dash-cartao-nota" id="cred-nota" hidden>
-              Para mais crédito, fale com <b>Marilia Fischer</b>, que paga o plano da equipe.
+              Para mais crédito, fale com <b>Marilia Fischer</b>, que gerencia o seu plano.
             </p>
             <!-- Recarga exige plano ativo: o servidor recusa quem não tem.
                  Sem plano, o botão leva para os preços com o nome certo. -->
@@ -1668,9 +1678,11 @@ body{ margin:0; background:#F6F6F4; }
   <!-- o mesmo canto, quando o crédito está acabando -->
   <div class="trial-card cred-nudge" id="card-cred" hidden>
     <button class="cred-nudge-x" aria-label="Fechar">&times;</button>
+    <span class="cred-nudge-selo">Acabando</span>
     <div class="trial-card-info">
       <span class="trial-card-txt"><strong>820 créditos restantes</strong> <small>de 20.000</small></span>
-      <div class="trial-card-prog"><i class="cred-bar-baixo" style="width:4%"></i></div>
+      <!-- 96% = o que já foi gasto, não o que resta -->
+      <div class="trial-card-prog"><i class="cred-bar-baixo" style="width:96%"></i></div>
     </div>
     <button class="trial-card-btn">Comprar créditos</button>
   </div>

@@ -563,15 +563,24 @@ export default function AppShell({ children }) {
       {credCardVisivel && !ehTrial && !ilimitado && total > 0 && credBaixo && !planoExpirado && (
         <div className="trial-card cred-nudge">
           <button className="cred-nudge-x" onClick={fecharCredCard} aria-label={t('fechar')}>×</button>
+          {/* O selo é quem diz que isto é aviso. Sem ele o cartão parece
+              novidade, que foi o que o dono apontou no desenho anterior. */}
+          <span className="cred-nudge-selo">{restantes <= 0 ? t('cred_sem') : t('cred_acabando')}</span>
           <div className="trial-card-info">
             {restantes <= 0 ? (
               <span className="trial-card-txt"><strong>{t('cred_acabaram')}</strong> <small>{t('cred_recarregue')}</small></span>
             ) : (
               <span className="trial-card-txt"><strong>{restantes.toLocaleString(localeDeIdioma(idioma))} {t('cred_restantes_txt')}</strong> <small>{t('cred_de')} {total.toLocaleString(localeDeIdioma(idioma))}</small></span>
             )}
+            {/* A barra mede o que JÁ FOI, não o que sobra: com 820 de 20.000
+                ela chega quase no fim, e é assim que se lê um aviso. Antes ela
+                usava `pctRestante` e ficava quase vazia bem na hora em que a
+                coisa estava mais séria.
+                O mínimo de 4% é para a barra nunca sumir de todo: pouca coisa
+                gasta ainda precisa aparecer como pouca coisa. */}
             <div className="trial-card-prog">
               <i className={restantes <= 0 ? 'cred-bar-zero' : 'cred-bar-baixo'}
-                 style={{ width: (restantes <= 0 ? 100 : Math.max(4, pctRestante)) + '%' }} />
+                 style={{ width: (restantes <= 0 ? 100 : Math.max(4, 100 - pctRestante)) + '%' }} />
             </div>
           </div>
           <button className="trial-card-btn" onClick={() => router.push('/assinatura')}>
