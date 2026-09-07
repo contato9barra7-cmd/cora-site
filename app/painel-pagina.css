@@ -412,9 +412,14 @@
   padding:0; border:0;   
   max-width:440px;
 }/* A faixa fecha o cartão por cima, como no cabeçalho do e-mail. É a mesma
-   peça, no mesmo lugar: o alto do cartão. */.pn .trial-bloqueio-faixa{
-  height:38px; background:var(--faixa-deitada) repeat-x left center;
-  background-size:calc(38px * 8) 100%;
+   peça, no mesmo lugar: o alto do cartão. *//* A ALTURA DA FAIXA E A MESMA DOS E-MAILS: 73 de altura para 520 de largura.
+   Ela e a primeira coisa que a pessoa ve, no e-mail e na tela, e duas alturas
+   diferentes fazem as duas parecerem de produtos parecidos em vez do mesmo.
+
+   `aspect-ratio` em vez de altura fixa: assim a proporcao se mantem em
+   qualquer largura de cartao, que e o que "mesmo padrao" quer dizer. */.pn .trial-bloqueio-faixa{
+  aspect-ratio:520 / 73; background:var(--faixa-deitada) repeat-x left center;
+  background-size:auto 100%;
 }.pn .trial-bloqueio-miolo{ padding:30px 34px 34px; }.pn .trial-bloqueio-eb{ font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }.pn .trial-bloqueio-card h1{ margin:12px 0 0; font-size:28px; font-weight:500; letter-spacing:-.03em; line-height:1.14; }.pn .trial-bloqueio-card p{ margin:12px 0 0; font-size:14.5px; color:var(--ink2); line-height:1.6; }.pn .trial-bloqueio-card .btn{
   margin-top:24px; height:50px; padding:0 30px; border:0; border-radius:var(--pill);
   background:var(--lima); color:#111111; font-size:15px; font-weight:600; cursor:pointer;

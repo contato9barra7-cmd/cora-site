@@ -23,6 +23,9 @@
 .can-link:hover{ color:var(--ink); }
 /* Dentro da janela ele é a ação de verdade, e ganha o peso do texto normal. */
 .can-link--forte{ color:var(--ink2); font-size:14.5px; }
+/* O que aparece dentro de uma linha da lista: mesmo peso do texto ao redor,
+   sem virar um segundo botao competindo com os de baixo. */
+.can-link--linha{ display:block; margin-top:2px; padding:4px 0; font-size:13.5px; }
 
 /* ── A JANELA ── */
 .can-fundo{
@@ -36,11 +39,18 @@
   border-radius:var(--r); box-shadow:var(--sombra);
 }
 /* A faixa da marca no topo. Ela aparece nas cinco telas e é o que diz, antes
-   de qualquer texto, que a janela é do Cora e não do navegador. */
+   de qualquer texto, que a janela é do Cora e não do navegador.
+
+   A ALTURA É A MESMA DOS E-MAILS: 73 para 520 de largura. Ela é a primeira
+   coisa que a pessoa vê, no e-mail e na tela, e duas alturas diferentes fazem
+   as duas parecerem de produtos parecidos em vez do mesmo.
+
+   `aspect-ratio` em vez de altura fixa: assim a proporção se mantém em
+   qualquer largura de cartão, que é o que "mesmo padrão" quer dizer. */
 .can-faixa{
-  height:10px;
+  aspect-ratio:520 / 73;
   background:var(--faixa-deitada) repeat-x left center;
-  background-size:80px 100%;
+  background-size:auto 100%;
 }
 .can-miolo{ padding:clamp(22px,4vw,30px); }
 .can-miolo--meio{ text-align:center; }
@@ -87,8 +97,12 @@
   background:var(--wash2); font-size:13px; color:var(--ink2); line-height:1.6;
 }
 
+/* O de ficar à esquerda, o de sair à direita, e o espaço entre os dois. Eles
+   não são um par de opções lado a lado: são a ação e a saída, e encostar um no
+   outro faz a pessoa clicar no errado no gesto de fechar. */
 .can-botoes{
-  margin-top:20px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  margin-top:20px; display:flex; align-items:center;
+  justify-content:space-between; gap:14px; flex-wrap:wrap;
 }
 .can-botoes--meio{ justify-content:center; }
 
