@@ -653,6 +653,65 @@
 }
 .adm-medida b{ font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ok); }
 
+/* ══════════════════════════════════════════════════════════════════════
+   A PRIMEIRA LINHA DA FICHA: POR QUE PODE OU NÃO PODE GERAR
+
+   É a primeira pergunta de todo atendimento, e a resposta já é calculada no
+   servidor (`pode_gerar`). Ela só estava enterrada em quatro campos que
+   alguém tinha que juntar de cabeça.
+
+   Verde e vermelho aqui são SINAL, não marca: dizem se está valendo. E o
+   selo tem um DESENHO junto da cor, porque cor sozinha some para quem não
+   distingue bem as duas.
+   ══════════════════════════════════════════════════════════════════════ */
+.adm-porque{
+  margin-top:0; display:flex; align-items:flex-start; gap:14px;
+  border-left:3px solid var(--line2);
+}
+.adm-porque__selo{
+  width:34px; height:34px; flex:none; border-radius:11px;
+  display:grid; place-items:center;
+}
+.adm-porque__selo svg{ width:19px; height:19px; }
+.adm-porque__t{ margin:0; font-size:16px; font-weight:600; letter-spacing:-.016em; }
+.adm-porque__p{ margin:5px 0 0; font-size:13.5px; color:var(--ink2); line-height:1.6; max-width:70ch; }
+
+.adm-porque--ok{ border-left-color:var(--ok); }
+.adm-porque--ok .adm-porque__selo{ background:var(--ok-bg); color:var(--ok); }
+.adm-porque--ok .adm-porque__t{ color:var(--ok); }
+
+.adm-porque--nao{ border-left-color:var(--alerta); }
+.adm-porque--nao .adm-porque__selo{ background:var(--alerta-bg); color:var(--alerta); }
+.adm-porque--nao .adm-porque__t{ color:var(--alerta); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   AS ANOTAÇÕES
+
+   A memória do suporte hoje vive na cabeça de quem atendeu. Cada anotação
+   guarda quem escreveu e quando, senão em três meses ninguém sabe se aquilo
+   ainda vale.
+   ══════════════════════════════════════════════════════════════════════ */
+.adm-notas{ margin-top:18px; display:grid; gap:12px; }
+.adm-nota{
+  padding:13px 15px; border-radius:var(--r-peq);
+  background:var(--wash); border:1px solid var(--line);
+}
+.adm-nota p{ margin:0; font-size:13.5px; color:var(--ink); line-height:1.6; text-wrap:pretty; }
+.adm-nota span{ display:block; margin-top:7px; font-size:12px; color:var(--ink3); }
+.adm-nota-nova{ margin-top:14px; display:grid; gap:10px; justify-items:end; }
+.adm-nota-nova textarea{
+  width:100%; min-height:78px; resize:vertical; padding:12px 15px;
+  border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:14px; line-height:1.6;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.adm-nota-nova textarea:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+
+.adm-acoes-acesso{ margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; }
+.adm-acoes-acesso .adm-btn-linha:disabled{ opacity:.45; cursor:default; }
+.adm-acoes-acesso .adm-btn-linha:disabled:hover{ border-color:var(--line2); }
+
 </style>
 
 <style data-demo>
@@ -2729,6 +2788,45 @@
           </div>
         </div>
 
+        <!-- ── A PRIMEIRA PERGUNTA DO SUPORTE ──
+             "Por que essa pessoa não consegue gerar?" A resposta já é
+             calculada no servidor, mas ficava enterrada em quatro campos.
+             Aqui ela é a primeira linha da ficha, em uma frase. -->
+        <div class="conta-card adm-card adm-porque adm-porque--ok">
+          <div class="adm-porque__selo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>
+          </div>
+          <div>
+            <p class="adm-porque__t">Pode gerar normalmente</p>
+            <p class="adm-porque__p">Plano Pro ativo, 15.800 créditos disponíveis e o
+              cartão em dia. Renova em 24 de setembro.</p>
+          </div>
+        </div>
+
+        <!-- ── O CARTÃO ──
+             Quando alguém escreve "perdi o acesso", a resposta quase sempre é
+             "o cartão foi recusado no dia tal". O motivo vem do Stripe. -->
+        <div class="conta-card adm-card">
+          <div class="adm-ficha-cab">
+            <h2 class="conta-h2">Cartão que paga</h2>
+            <a class="fat-ver" href="#" target="_blank" rel="noopener noreferrer">Stripe ↗</a>
+          </div>
+          <div class="pag-linha">
+            <span class="pag-bandeira pag-bandeira--marca" aria-hidden="true">
+              <svg width="34" height="22" viewBox="0 0 34 22">
+                <circle cx="13" cy="11" r="8.4" fill="#EB001B"/>
+                <circle cx="21" cy="11" r="8.4" fill="#F79E1B"/>
+                <path d="M17 4.7a8.4 8.4 0 0 0 0 12.6 8.4 8.4 0 0 0 0-12.6z" fill="#FF5F00"/>
+              </svg>
+            </span>
+            <div class="pag-txt">
+              <strong>Mastercard terminado em 0352</strong>
+              <span>Vence em 11/2029 &middot; última cobrança aprovada em 02/09/2026</span>
+            </div>
+          </div>
+        </div>
+
         <div class="adm-ficha-grade" style="margin-top:14px">
           <div class="conta-card adm-card" style="margin-top:0">
             <h2 class="conta-h2">Plano e cobrança</h2>
@@ -2855,6 +2953,57 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+        <div class="adm-ficha-grade" style="margin-top:14px">
+          <!-- ── ANOTAÇÕES ──
+               Hoje a memória do suporte vive na cabeça de quem atendeu. Um
+               campo aqui é o que faz a próxima pessoa saber o que já foi
+               combinado sem perguntar de novo. -->
+          <div class="conta-card adm-card" style="margin-top:0">
+            <h2 class="conta-h2">Anotações</h2>
+            <p class="conta-p">Só o time vê. Fica gravado com quem escreveu e quando.</p>
+            <div class="adm-notas">
+              <div class="adm-nota">
+                <p>Pediu nota fiscal com o CNPJ do escritório, não com o CPF dela.
+                  Combinado a partir da próxima cobrança.</p>
+                <span>Marilia &middot; 24/08/2026, 15h10</span>
+              </div>
+              <div class="adm-nota">
+                <p>Cartão recusado em julho, resolveu sozinha trocando no portal.</p>
+                <span>Marilia &middot; 26/07/2026, 09h02</span>
+              </div>
+            </div>
+            <div class="adm-nota-nova">
+              <textarea placeholder="Escrever uma anotação"></textarea>
+              <button class="as-btn-cta" style="height:40px;padding:0 20px;font-size:13.5px">Guardar</button>
+            </div>
+          </div>
+
+          <!-- ── ACESSO ──
+               As duas coisas que o suporte não consegue fazer hoje. Reenviar
+               não entra: a pessoa já tem esse botão nas três telas de acesso.
+               Reenviar para um e-mail errado repete o mesmo nada. -->
+          <div class="conta-card adm-card" style="margin-top:0">
+            <h2 class="conta-h2">Acesso</h2>
+            <p class="conta-p">Só o que a pessoa não consegue resolver sozinha. Reenviar
+              código e trocar senha ela já faz na tela de entrar.</p>
+            <dl class="adm-dl">
+              <div>
+                <dt>E-mail verificado</dt>
+                <dd><span class="fat-selo">Sim, em 24/01/2026</span></dd>
+              </div>
+              <div>
+                <dt>Já usou o teste de 7 dias</dt>
+                <dd>Sim, em janeiro</dd>
+              </div>
+            </dl>
+            <div class="adm-acoes-acesso">
+              <button class="adm-btn-linha" style="height:40px;font-size:13.5px">Corrigir o e-mail</button>
+              <button class="adm-btn-linha" style="height:40px;font-size:13.5px" disabled>Marcar como verificado</button>
+            </div>
+            <p class="conta-p" style="font-size:13px">Marcar como verificado só fica ativo
+              quando o e-mail ainda não foi confirmado.</p>
           </div>
         </div>
       </div>
