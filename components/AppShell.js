@@ -320,7 +320,7 @@ export default function AppShell({ children }) {
   // que o PromptHub faz. No Início ela já mora na esteira do herói, e duas na
   // mesma tela competem. Foi a mesma conclusão do lado dos Promptadores, e é
   // por isso que lá o cabeçalho liso é o normal e a faixa é a exceção.
-  const TELAS_COM_FAIXA = ['/conta/perfil', '/assinatura'];
+  const TELAS_COM_FAIXA = ['/conta/perfil', '/assinatura', '/admin'];
   const cabecalhoComFaixa = TELAS_COM_FAIXA.includes(pathname);
 
   return (

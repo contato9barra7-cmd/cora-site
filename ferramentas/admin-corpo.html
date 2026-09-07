@@ -1,0 +1,539 @@
+      <div class="adm-cabeca">
+        <div class="conta-cabeca">
+          <div class="conta-cabeca__txt">
+            <p class="eyebrow">Administração</p>
+            <h1 class="conta-cabeca__nome">Quem está no Cora</h1>
+            <p class="conta-cabeca__email" id="adm-resumo">19 contas, 2 com plano pago e 12 no teste.</p>
+          </div>
+        </div>
+
+        <div class="adm-acoes">
+          <button class="as-btn-cta" style="height:44px">Enviar e-mail</button>
+
+          <button class="adm-ico" data-liga="fiscais" title="Dados fiscais" aria-label="Dados fiscais">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M5 2.5h7l3 3v12H5z" stroke-linejoin="round"/>
+              <path d="M12 2.5v3h3M7.5 9h5M7.5 12h5M7.5 15h3" stroke-linecap="round"/>
+            </svg>
+          </button>
+
+          <button class="adm-ico" data-liga="perfil" title="Ver o cadastro" aria-label="Ver o cadastro">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M7 4h9M7 10h9M7 16h9" stroke-linecap="round"/>
+              <circle cx="3.5" cy="4" r="1.2"/><circle cx="3.5" cy="10" r="1.2"/><circle cx="3.5" cy="16" r="1.2"/>
+            </svg>
+          </button>
+
+          <button class="adm-ico" id="bt-geo" title="Geografia" aria-label="Geografia">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="10" r="3"/><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/>
+            </svg>
+          </button>
+
+          <div class="adm-export">
+            <button class="adm-ico" id="bt-export" title="Exportar" aria-label="Exportar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>
+              </svg>
+            </button>
+            <div class="adm-export__menu" id="menu-export" hidden>
+              <div class="adm-export__grupo">Fiscal</div>
+              <button class="adm-export__item">
+                <strong>Assinantes</strong>
+                <em>Nome, documento, endereço e o que cada um paga.</em>
+              </button>
+              <button class="adm-export__item">
+                <strong>Recargas</strong>
+                <em>Só as compras avulsas, com o documento de quem comprou.</em>
+              </button>
+              <button class="adm-export__item">
+                <strong>Faturas</strong>
+                <em>Plano e recarga juntos, do jeito que a tela mostra.</em>
+              </button>
+              <div class="adm-export__sep"></div>
+              <div class="adm-export__grupo">Tráfego</div>
+              <button class="adm-export__item">
+                <strong>Origem geográfica</strong>
+                <em>País, estado e cidade, com clientes e receita.</em>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ AS ABAS ══════════════ -->
+      <div class="adm-abas" role="tablist">
+        <button class="adm-aba ativa" data-aba="assinantes">Assinantes <b>2</b></button>
+        <button class="adm-aba" data-aba="trial">Trial <b>12</b></button>
+        <button class="adm-aba" data-aba="membros">Membros de equipe <b>3</b></button>
+        <button class="adm-aba" data-aba="cancelados">Cancelados <b>2</b></button>
+        <button class="adm-aba" data-aba="recargas">Recargas <b>6</b></button>
+        <button class="adm-aba" data-aba="faturas">Faturas <b>24</b></button>
+        <button class="adm-aba" data-aba="aceites">Aceites</button>
+        <button class="adm-aba" data-aba="ficha">Ficha da conta</button>
+      </div>
+
+      <!-- ══════════════ BUSCA ══════════════ -->
+      <div class="adm-barra" data-some-na-ficha>
+        <div class="adm-busca">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+          </svg>
+          <input class="perfil-input" placeholder="Buscar por nome, e-mail ou CPF">
+        </div>
+        <button class="adm-btn-linha" id="bt-filtros">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M3 5h18M6 12h12M10 19h4"/>
+          </svg>
+          Filtros <span class="adm-btn-n">2</span>
+        </button>
+      </div>
+
+      <div class="adm-filtros-linha" data-some-na-ficha>
+        <span>Filtrando por</span>
+        <button class="adm-filtro">Assinou nos últimos 12 meses</button>
+        <button class="adm-filtro">São Paulo</button>
+        <button class="adm-limpar">limpar tudo</button>
+        <span class="adm-quantos">5 de 19</span>
+      </div>
+
+      <!-- ══════════════ GEOGRAFIA ══════════════ -->
+      <div class="conta-card adm-card" id="bloco-geo" hidden style="margin-bottom:16px">
+        <h2 class="conta-h2">De onde vem</h2>
+        <p class="conta-p">Contas e receita por país, estado e cidade. Quem não preencheu o
+          endereço não entra na conta.</p>
+
+        <div class="adm-geo" style="margin-top:22px">
+          <p class="adm-geo-sub">Por país</p>
+          <div class="adm-geo-linha">
+            <div class="adm-geo-cab"><span class="adm-geo-k">Brasil</span><span class="adm-geo-v">16 contas &middot; R$&nbsp;1.285</span></div>
+            <div class="adm-geo-barra">
+              <div class="adm-geo-fill adm-geo-fill--n" style="width:100%"></div>
+              <div class="adm-geo-fill adm-geo-fill--r" style="width:87%"></div>
+            </div>
+          </div>
+          <div class="adm-geo-linha">
+            <div class="adm-geo-cab"><span class="adm-geo-k">Portugal</span><span class="adm-geo-v">2 contas &middot; R$&nbsp;197</span></div>
+            <div class="adm-geo-barra">
+              <div class="adm-geo-fill adm-geo-fill--n" style="width:13%"></div>
+              <div class="adm-geo-fill adm-geo-fill--r" style="width:13%"></div>
+            </div>
+          </div>
+          <div class="adm-geo-linha">
+            <div class="adm-geo-cab"><span class="adm-geo-k">México</span><span class="adm-geo-v">1 conta &middot; R$&nbsp;0</span></div>
+            <div class="adm-geo-barra">
+              <div class="adm-geo-fill adm-geo-fill--n" style="width:7%"></div>
+              <div class="adm-geo-fill adm-geo-fill--r" style="width:3%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="adm-geo-legenda">
+          <span><i class="adm-geo-p adm-geo-p--n"></i>Contas</span>
+          <span><i class="adm-geo-p adm-geo-p--r"></i>Receita</span>
+        </div>
+      </div>
+
+      <!-- ══════════════ ASSINANTES ══════════════ -->
+      <div data-tela="assinantes">
+        <div class="conta-card adm-card">
+          <div class="fat-rolo" style="margin-top:0">
+            <table class="fat">
+              <thead>
+                <tr>
+                  <th>Nome e e-mail</th><th>Documento</th><th>Plano</th>
+                  <th class="adm-num">Valor</th><th>Renova em</th><th>Status</th>
+                  <th class="adm-num">Créditos</th><th class="fat__acao"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Marilia Fischer</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">marilia@corarender.com</span></div>
+                  </td>
+                  <td class="adm-mono">000.000.000-00</td>
+                  <td>Pro</td>
+                  <td class="adm-num">R$&nbsp;197,00</td>
+                  <td class="adm-mono">24/09/2026</td>
+                  <td><span class="fat-selo">Ativo</span></td>
+                  <td class="adm-num">15.800</td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Estúdio Norte</div>
+                    <div class="adm-sub">
+                      <span class="adm-sub-txt">contato@estudionorte.com.br</span>
+                      <span class="adm-tag-nv">não verificado</span>
+                    </div>
+                  </td>
+                  <td class="adm-mono">00.000.000/0001-00</td>
+                  <td>Studio <span class="fat-selo fat-selo--equipe">5 assentos</span></td>
+                  <td class="adm-num">R$&nbsp;497,00</td>
+                  <td class="adm-mono">11/09/2026</td>
+                  <td><span class="fat-selo">Ativo</span></td>
+                  <td class="adm-num">60.000</td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="adm-pag">
+            <span>Mostrando 2 de 2</span>
+            <div class="adm-pag-nums">
+              <button class="adm-pag-seta" disabled aria-label="Anterior">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button class="adm-pag-n ativa">1</button>
+              <button class="adm-pag-n">2</button>
+              <button class="adm-pag-n">3</button>
+              <button class="adm-pag-seta" aria-label="Próxima">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ TRIAL ══════════════ -->
+      <div data-tela="trial" hidden>
+        <div class="conta-card adm-card">
+          <div class="fat-rolo" style="margin-top:0">
+            <table class="fat">
+              <thead>
+                <tr>
+                  <th>Nome e e-mail</th><th>Cadastrou em</th><th>Profissão</th>
+                  <th>Cidade</th><th>Termina em</th><th>Status</th><th class="fat__acao"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Rafael Antunes</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">rafael@atelie.arq.br</span></div>
+                  </td>
+                  <td class="adm-mono">02/09/2026</td>
+                  <td>Arquitetura</td>
+                  <td>Curitiba</td>
+                  <td class="adm-mono">09/09/2026</td>
+                  <td><span class="fat-selo fat-selo--neutro">Dia 5 de 7</span></td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Camila Duarte</div>
+                    <div class="adm-sub">
+                      <span class="adm-sub-txt">camila.duarte@gmail.com</span>
+                      <span class="adm-tag-nv">não verificado</span>
+                    </div>
+                  </td>
+                  <td class="adm-mono">28/08/2026</td>
+                  <td>Design de interiores</td>
+                  <td>Recife</td>
+                  <td class="adm-mono">04/09/2026</td>
+                  <td><span class="fat-selo fat-selo--aberta">Terminou</span></td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ MEMBROS DE EQUIPE ══════════════ -->
+      <div data-tela="membros" hidden>
+        <div class="conta-card adm-card">
+          <h2 class="conta-h2">Quem usa assento de outra pessoa</h2>
+          <p class="conta-p">Membro de equipe não paga e não compra crédito. Quem paga é o dono
+            do assento, e é a ele que o suporte responde sobre cobrança.</p>
+          <div class="fat-rolo">
+            <table class="fat">
+              <thead>
+                <tr><th>Nome e e-mail</th><th>Equipe</th><th>Dono do assento</th>
+                    <th>Status</th><th class="adm-num">Créditos</th><th class="fat__acao"></th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Bruno Vieira</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">bruno@estudionorte.com.br</span></div>
+                  </td>
+                  <td>Estúdio Norte <span class="fat-selo fat-selo--equipe">5 assentos</span></td>
+                  <td class="adm-sub"><span class="adm-sub-txt">contato@estudionorte.com.br</span></td>
+                  <td><span class="fat-selo">Ativo</span></td>
+                  <td class="adm-num">12.000</td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Lia Moraes</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">lia@estudionorte.com.br</span></div>
+                  </td>
+                  <td>Estúdio Norte <span class="fat-selo fat-selo--equipe">5 assentos</span></td>
+                  <td class="adm-sub"><span class="adm-sub-txt">contato@estudionorte.com.br</span></td>
+                  <td><span class="fat-selo fat-selo--neutro">Convite pendente</span></td>
+                  <td class="adm-num">0</td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ CANCELADOS ══════════════ -->
+      <div data-tela="cancelados" hidden>
+        <div class="conta-card adm-card">
+          <div class="fat-rolo" style="margin-top:0">
+            <table class="fat">
+              <thead>
+                <tr><th>Nome e e-mail</th><th>Plano que tinha</th><th class="adm-num">Pagava</th>
+                    <th>Assinou em</th><th>Cancelou em</th><th>Status</th><th class="fat__acao"></th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Joana Reis</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">joana@arquitetura.com</span></div>
+                  </td>
+                  <td>Starter</td>
+                  <td class="adm-num">R$&nbsp;97,00</td>
+                  <td class="adm-mono">02/03/2026</td>
+                  <td class="adm-mono">02/09/2026</td>
+                  <td><span class="fat-selo fat-selo--aberta">Cancelado</span></td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Pedro Salgado</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">pedro@salgado.studio</span></div>
+                  </td>
+                  <td>Pro</td>
+                  <td class="adm-num">R$&nbsp;197,00</td>
+                  <td class="adm-mono">15/01/2026</td>
+                  <td class="adm-mono">15/08/2026</td>
+                  <td><span class="fat-selo fat-selo--aberta">Cancelado</span></td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ RECARGAS ══════════════ -->
+      <div data-tela="recargas" hidden>
+        <div class="conta-card adm-card">
+          <div class="fat-rolo" style="margin-top:0">
+            <table class="fat">
+              <thead>
+                <tr><th>Data</th><th>Comprador</th><th>Documento</th><th>Compra</th>
+                    <th class="adm-num">Créditos</th><th>Para quem</th><th class="adm-num">Valor</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="adm-mono">29/08/2026</td>
+                  <td>
+                    <div class="adm-nome">Estúdio Norte</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">contato@estudionorte.com.br</span></div>
+                  </td>
+                  <td class="adm-mono">00.000.000/0001-00</td>
+                  <td>Recarga de 12.000 créditos</td>
+                  <td class="adm-num">12.000</td>
+                  <td class="adm-sub"><span class="adm-sub-txt">bruno@estudionorte.com.br</span></td>
+                  <td class="adm-num">R$&nbsp;140,00</td>
+                </tr>
+                <tr>
+                  <td class="adm-mono">19/08/2026</td>
+                  <td>
+                    <div class="adm-nome">Marilia Fischer</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">marilia@corarender.com</span></div>
+                  </td>
+                  <td class="adm-mono">000.000.000-00</td>
+                  <td>Recarga de 5.000 créditos</td>
+                  <td class="adm-num">5.000</td>
+                  <td>&mdash;</td>
+                  <td class="adm-num">R$&nbsp;65,00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="adm-total">6 recargas, <b>R$&nbsp;620,00</b> no período.</p>
+        </div>
+      </div>
+
+      <!-- ══════════════ FATURAS ══════════════ -->
+      <div data-tela="faturas" hidden>
+        <div class="conta-card adm-card">
+          <h2 class="conta-h2">Todas as cobranças</h2>
+          <p class="conta-p">O plano vem do Stripe e a recarga vem da nossa tabela. Juntar as
+            duas é o que faz a lista contar a história inteira do dinheiro.</p>
+          <div class="fat-rolo">
+            <table class="fat">
+              <thead>
+                <tr><th>Data</th><th>Número</th><th>Tipo</th><th>Comprador</th>
+                    <th>Compra</th><th>Status</th><th class="adm-num">Valor</th><th class="fat__acao"></th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="adm-mono">02/09/2026</td>
+                  <td class="adm-mono">QBPKH43R-0003</td>
+                  <td>Plano</td>
+                  <td>
+                    <div class="adm-nome">Marilia Fischer</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">marilia@corarender.com</span></div>
+                  </td>
+                  <td>Cora Render Pro, mensal</td>
+                  <td><span class="fat-selo">Paga</span></td>
+                  <td class="adm-num">R$&nbsp;197,00</td>
+                  <td class="fat__acao"><button class="fat-ver">Abrir</button></td>
+                </tr>
+                <tr>
+                  <td class="adm-mono">29/08/2026</td>
+                  <td class="adm-mono">REC-01287</td>
+                  <td>Recarga</td>
+                  <td>
+                    <div class="adm-nome">Estúdio Norte</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">contato@estudionorte.com.br</span></div>
+                  </td>
+                  <td>Recarga de 12.000 créditos</td>
+                  <td><span class="fat-selo">Paga</span></td>
+                  <td class="adm-num">R$&nbsp;140,00</td>
+                  <td class="fat__acao">&mdash;</td>
+                </tr>
+                <tr>
+                  <td class="adm-mono">12/08/2026</td>
+                  <td class="adm-mono">FJPFTZJ8-0002</td>
+                  <td>Plano<div class="adm-sub">pró-rata da troca</div></td>
+                  <td>
+                    <div class="adm-nome">sem conta ligada</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">queridoinacio05@gmail.com</span></div>
+                  </td>
+                  <td>Cora Render Studio, mensal</td>
+                  <td><span class="fat-selo fat-selo--aberta">Aberta</span></td>
+                  <td class="adm-num">R$&nbsp;297,00</td>
+                  <td class="fat__acao"><button class="fat-ver">Abrir</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="adm-total">24 cobranças, <b>R$&nbsp;6.521,36</b> pagos.</p>
+        </div>
+      </div>
+
+      <!-- ══════════════ ACEITES ══════════════ -->
+      <div data-tela="aceites" hidden>
+        <div class="conta-card adm-card">
+          <h2 class="conta-h2">Quem aceitou os Termos, e qual versão</h2>
+          <p class="conta-p">A prova do aceite guarda a versão do texto, a data e o endereço de
+            onde veio. É o que responde a pergunta quando ela chega.</p>
+          <div class="fat-rolo">
+            <table class="fat">
+              <thead>
+                <tr><th>Quem</th><th>Documento</th><th>Versão</th><th>Aceito em</th><th class="fat__acao"></th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Marilia Fischer</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">marilia@corarender.com</span></div>
+                  </td>
+                  <td>Termos de Uso</td>
+                  <td class="adm-mono">2026-08-14</td>
+                  <td class="adm-mono">24/08/2026 &middot; 14h02</td>
+                  <td class="fat__acao"><button class="fat-ver">Ver o texto</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Estúdio Norte</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">contato@estudionorte.com.br</span></div>
+                  </td>
+                  <td>Política de Privacidade</td>
+                  <td class="adm-mono">2026-08-14</td>
+                  <td class="adm-mono">11/08/2026 &middot; 09h37</td>
+                  <td class="fat__acao"><button class="fat-ver">Ver o texto</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ FICHA DA CONTA ══════════════ -->
+      <div data-tela="ficha" hidden>
+        <div class="conta-card adm-card">
+          <div class="conta-cabeca" style="margin-bottom:0">
+            <div class="conta-cabeca__foto">M</div>
+            <div class="conta-cabeca__txt">
+              <p class="eyebrow">Conta #3617</p>
+              <h2 class="conta-cabeca__nome" style="font-size:24px">Marilia Fischer</h2>
+              <p class="conta-cabeca__email">marilia@corarender.com &middot; entrou em janeiro de 2026</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="adm-ficha-grade" style="margin-top:14px">
+          <div class="conta-card adm-card" style="margin-top:0">
+            <h2 class="conta-h2">Plano e cobrança</h2>
+            <dl class="adm-dl">
+              <div><dt>Plano</dt><dd>Pro, mensal</dd></div>
+              <div><dt>Mensalidade</dt><dd class="adm-num">R$&nbsp;197,00</dd></div>
+              <div><dt>Assinou em</dt><dd class="adm-num">24/01/2026</dd></div>
+              <div><dt>Renova em</dt><dd class="adm-num">24/09/2026</dd></div>
+              <div><dt>Renovações</dt><dd class="adm-num">7</dd></div>
+              <div><dt>Cartão</dt><dd>Mastercard ····0352</dd></div>
+            </dl>
+          </div>
+
+          <div class="conta-card adm-card" style="margin-top:0">
+            <h2 class="conta-h2">Crédito</h2>
+            <dl class="adm-dl">
+              <div><dt>Do plano</dt><dd class="adm-num">20.000</dd></div>
+              <div><dt>Usados no ciclo</dt><dd class="adm-num">4.200</dd></div>
+              <div><dt>De recarga</dt><dd class="adm-num">5.000</dd></div>
+              <div><dt>Recarga vence em</dt><dd class="adm-num">19/02/2027</dd></div>
+              <div><dt>Pode gerar</dt><dd>Sim</dd></div>
+              <div><dt>Ferramentas</dt><dd>17 liberadas</dd></div>
+            </dl>
+          </div>
+        </div>
+
+        <div class="conta-card adm-card">
+          <h2 class="conta-h2">O que aconteceu na conta</h2>
+          <p class="conta-p">Débito, estorno e o que o Stripe mandou, na ordem. É por aqui que
+            o suporte responde se uma geração foi cobrada e se o crédito voltou.</p>
+          <div class="fat-rolo">
+            <table class="fat">
+              <thead><tr><th>Quando</th><th>O que</th><th class="adm-num">Crédito</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="adm-mono">02/09/2026 &middot; 16h11</td>
+                  <td>Render 2K</td>
+                  <td class="adm-num">&minus;142</td>
+                  <td><span class="fat-selo">Entregue</span></td>
+                </tr>
+                <tr>
+                  <td class="adm-mono">02/09/2026 &middot; 15h58</td>
+                  <td>Render 4K</td>
+                  <td class="adm-num">&minus;239</td>
+                  <td><span class="fat-selo fat-selo--aberta">Falhou, crédito devolvido</span></td>
+                </tr>
+                <tr>
+                  <td class="adm-mono">24/08/2026 &middot; 09h04</td>
+                  <td>Mensalidade do Pro</td>
+                  <td class="adm-num">+20.000</td>
+                  <td><span class="fat-selo">Paga</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ NADA ENCONTRADO ══════════════ -->
+      <div data-tela="vazio" hidden>
+        <div class="conta-card adm-card">
+          <p class="adm-vazio">Nenhuma conta com esses filtros.<br>Tente limpar a busca ou trocar o período.</p>
+        </div>
+      </div>

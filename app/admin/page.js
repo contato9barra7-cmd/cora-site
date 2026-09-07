@@ -561,33 +561,33 @@ export default function Admin() {
         a folha. */}
     <div className="ad">
     <div className="admin-wrap">
-      <div className="admin-topo">
-        <div>
-          <p className="eyebrow">{t('adm_eyebrow')}</p>
-          <h1>{t('adm_titulo')}</h1>
-          {/* Os números eram uma frase corrida. Em pastilhas eles param de ser
-              texto e viram leitura de relance, que é o que se quer de um
-              número no topo de um painel. */}
-          <div className="admin-medidas">
-            <span className="admin-medida"><b>{totalContas}</b> {t('adm_contas')}</span>
-            <span className="admin-medida admin-medida--paga"><b>{pagos}</b> {t('adm_medida_pago')}</span>
-            <span className="admin-medida"><b>{totalTrial}</b> {t('adm_medida_teste')}</span>
+      {/* A mesma cabeça de Minha conta e Assinatura: olho, nome grande e uma
+          linha de apoio. Os números ficam na linha, e não em pastilhas: a
+          tela já tem pastilha demais sendo botão, campo e selo. */}
+      <div className="adm-cabeca">
+        <div className="conta-cabeca">
+          <div className="conta-cabeca__txt">
+            <p className="eyebrow">{t('adm_eyebrow')}</p>
+            <h1 className="conta-cabeca__nome">{t('adm_titulo')}</h1>
+            <p className="conta-cabeca__email">
+              {totalContas} {t('adm_contas')}, {pagos} {t('adm_medida_pago')} {t('adm_e')} {totalTrial} {t('adm_medida_teste')}.
+            </p>
           </div>
         </div>
-        <div className="admin-acoes">
-          <button className="admin-btn" onClick={() => setEmailAberto(true)}>
+        <div className="adm-acoes">
+          <button className="as-btn-cta" style={{ height: 44 }} onClick={() => setEmailAberto(true)}>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg>
             {t('promp_enviar_email')}
           </button>
           <button
-            className={'admin-ico' + (dadosFiscais ? ' admin-ico--on' : '')}
+            className={'adm-ico' + (dadosFiscais ? ' adm-ico--on' : '')}
             onClick={mostrarFiscais}
             disabled={carregandoFiscais}
             data-tip={dadosFiscais ? t('adm_ocultar_fiscais') : t('adm_ver_fiscais')}
             aria-label={dadosFiscais ? t('adm_ocultar_fiscais') : t('adm_ver_fiscais')}
           >
             {carregandoFiscais ? (
-              <span className="admin-ico-girando" />
+              <span className="adm-girando" />
             ) : (
               <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
                    stroke="currentColor" strokeWidth="1.5">
@@ -598,7 +598,7 @@ export default function Admin() {
           </button>
 
           <button
-            className={'admin-ico' + (verPerfil ? ' admin-ico--on' : '')}
+            className={'adm-ico' + (verPerfil ? ' adm-ico--on' : '')}
             onClick={() => setVerPerfil(v => !v)}
             data-tip={verPerfil ? t('adm_ver_cobranca') : t('adm_ver_cadastro')}
             aria-label={verPerfil ? t('adm_ver_cobranca') : t('adm_ver_cadastro')}
@@ -614,7 +614,7 @@ export default function Admin() {
 
           {geo.totalClientes > 0 && (
             <button
-              className={'admin-ico' + (verGeo ? ' admin-ico--on' : '')}
+              className={'adm-ico' + (verGeo ? ' adm-ico--on' : '')}
               onClick={() => setVerGeo(true)}
               data-tip={t('adm_origem_geo')}
               aria-label={t('adm_origem_geo')}
@@ -627,16 +627,16 @@ export default function Admin() {
             </button>
           )}
 
-          <div className="admin-export-wrap">
+          <div className="adm-export">
             <button
-              className={'admin-ico' + (menuExport ? ' admin-ico--on' : '')}
+              className={'adm-ico' + (menuExport ? ' adm-ico--on' : '')}
               onClick={() => setMenuExport(!menuExport)}
               disabled={exportando}
               data-tip={t('adm_exportar_csv')}
               aria-label={t('adm_exportar_csv')}
             >
               {exportando ? (
-                <span className="admin-ico-girando" />
+                <span className="adm-girando" />
               ) : (
                 <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
                      stroke="currentColor" strokeWidth="1.5">
@@ -646,43 +646,43 @@ export default function Admin() {
               )}
             </button>
             {menuExport && (
-              <div className="admin-export-menu" onMouseLeave={() => setMenuExport(false)}>
+              <div className="adm-export__menu" onMouseLeave={() => setMenuExport(false)}>
 
-                <div className="admin-export-grupo">{t('adm_grupo_fiscal')}</div>
+                <div className="adm-export__grupo">{t('adm_grupo_fiscal')}</div>
 
-                <button className="admin-export-item" onClick={exportarFiscais}>
+                <button className="adm-export__item" onClick={exportarFiscais}>
                   <strong>{t('adm_exp_assinantes')}</strong>
                   <em>{t('adm_exp_assinantes_d')}</em>
                 </button>
 
-                <button className="admin-export-item" onClick={exportarRecargas}>
+                <button className="adm-export__item" onClick={exportarRecargas}>
                   <strong>{t('adm_exp_recargas')}</strong>
                   <em>{t('adm_exp_recargas_d')}</em>
                 </button>
 
-                <button className="admin-export-item" onClick={exportarFaturas}
+                <button className="adm-export__item" onClick={exportarFaturas}
                         disabled={!faturas || !faturas.length}>
                   <strong>{t('adm_exp_faturas')}</strong>
                   <em>{t('adm_exp_faturas_d')}</em>
                 </button>
 
-                <div className="admin-export-sep" />
-                <div className="admin-export-grupo">{t('adm_grupo_trafego')}</div>
+                <div className="adm-export__sep" />
+                <div className="adm-export__grupo">{t('adm_grupo_trafego')}</div>
 
-                <button className="admin-export-item" onClick={() => exportarTrafego('assinantes')}>
+                <button className="adm-export__item" onClick={() => exportarTrafego('assinantes')}>
                   <strong>{t('adm_exp_assinantes')}</strong>
                   <em>{t('adm_exp_traf_assinantes_d')}</em>
                 </button>
 
-                <button className="admin-export-item" onClick={() => exportarTrafego('membros')}>
+                <button className="adm-export__item" onClick={() => exportarTrafego('membros')}>
                   <strong>{t('adm_exp_membros')}</strong>
                 </button>
 
-                <button className="admin-export-item" onClick={() => exportarTrafego('trial')}>
+                <button className="adm-export__item" onClick={() => exportarTrafego('trial')}>
                   <strong>{t('adm_exp_trial')}</strong>
                 </button>
 
-                <button className="admin-export-item" onClick={exportarGeo}>
+                <button className="adm-export__item" onClick={exportarGeo}>
                   <strong>{t('adm_origem_geo')}</strong>
                   <em>{t('adm_exp_geo_d')}</em>
                 </button>
@@ -696,9 +696,9 @@ export default function Admin() {
 
       {verGeo && geo.totalClientes > 0 && (
         <div className="cr-overlay cr-overlay--alto" onClick={() => setVerGeo(false)}>
-          <div className="admin-geo-janela" onClick={(e) => e.stopPropagation()}>
+          <div className="adm-geo-janela" onClick={(e) => e.stopPropagation()}>
 
-            <div className="admin-geo-cab-j">
+            <div className="adm-geo-cab-j">
               <div>
                 <strong>{t('adm_origem_geo')}</strong>
                 <span>
@@ -707,8 +707,8 @@ export default function Admin() {
                 </span>
               </div>
 
-              <div className="admin-geo-cab-acoes">
-                <button className="admin-geo-csv" onClick={exportarGeo}>
+              <div className="adm-geo-cab-acoes">
+                <button className="adm-btn-linha" onClick={exportarGeo}>
                   <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
                        stroke="currentColor" strokeWidth="1.6">
                     <path d="M10 3v9m0 0l-3-3m3 3l3-3" strokeLinecap="round" strokeLinejoin="round"/>
@@ -726,64 +726,64 @@ export default function Admin() {
               </div>
             </div>
 
-            <div className="admin-geo-scroll">
-    <div className="admin-geo-corpo">
+            <div className="adm-geo-scroll">
+    <div className="adm-geo-corpo">
 
-                  <div className="admin-geo-bloco">
-                    <div className="admin-geo-sub">{t('adm_por_pais')}</div>
+                  <div className="adm-geo">
+                    <div className="adm-geo-sub">{t('adm_por_pais')}</div>
                     {geo.paises.map(p => (
-                      <div key={p.chave} className="admin-geo-linha">
-                        <div className="admin-geo-cab">
-                          <span className="admin-geo-k">{p.chave}</span>
-                          <span className="admin-geo-v">
+                      <div key={p.chave} className="adm-geo-linha">
+                        <div className="adm-geo-cab">
+                          <span className="adm-geo-k">{p.chave}</span>
+                          <span className="adm-geo-v">
                             {p.n} · <b>{fmtValor(p.valor, 'brl')}</b>
                           </span>
                         </div>
-                        <div className="admin-geo-barra">
-                          <div className="admin-geo-fill admin-geo-fill--n"
+                        <div className="adm-geo-barra">
+                          <div className="adm-geo-fill admin-geo-fill--n"
                                style={{ width: `${p.pctClientes}%` }} />
-                          <div className="admin-geo-fill admin-geo-fill--r"
+                          <div className="adm-geo-fill admin-geo-fill--r"
                                style={{ width: `${p.pctValor}%` }} />
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="admin-geo-cols">
-                    <div className="admin-geo-bloco">
-                      <div className="admin-geo-sub">{t('adm_por_estado')}</div>
+                  <div className="adm-geo-cols">
+                    <div className="adm-geo">
+                      <div className="adm-geo-sub">{t('adm_por_estado')}</div>
                       {geo.estados.map(e => (
-                        <div key={e.chave} className="admin-geo-linha">
-                          <div className="admin-geo-cab">
-                            <span className="admin-geo-k">{e.chave}</span>
-                            <span className="admin-geo-v">
+                        <div key={e.chave} className="adm-geo-linha">
+                          <div className="adm-geo-cab">
+                            <span className="adm-geo-k">{e.chave}</span>
+                            <span className="adm-geo-v">
                               {e.n} · <b>{fmtValor(e.valor, 'brl')}</b>
                             </span>
                           </div>
-                          <div className="admin-geo-barra">
-                            <div className="admin-geo-fill admin-geo-fill--n"
+                          <div className="adm-geo-barra">
+                            <div className="adm-geo-fill admin-geo-fill--n"
                                  style={{ width: `${e.pctClientes}%` }} />
-                            <div className="admin-geo-fill admin-geo-fill--r"
+                            <div className="adm-geo-fill admin-geo-fill--r"
                                  style={{ width: `${e.pctValor}%` }} />
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <div className="admin-geo-bloco">
-                      <div className="admin-geo-sub">{t('adm_por_cidade')}</div>
+                    <div className="adm-geo">
+                      <div className="adm-geo-sub">{t('adm_por_cidade')}</div>
                       {geo.cidades.map(c => (
-                        <div key={c.chave} className="admin-geo-linha">
-                          <div className="admin-geo-cab">
-                            <span className="admin-geo-k">{c.chave}</span>
-                            <span className="admin-geo-v">
+                        <div key={c.chave} className="adm-geo-linha">
+                          <div className="adm-geo-cab">
+                            <span className="adm-geo-k">{c.chave}</span>
+                            <span className="adm-geo-v">
                               {c.n} · <b>{fmtValor(c.valor, 'brl')}</b>
                             </span>
                           </div>
-                          <div className="admin-geo-barra">
-                            <div className="admin-geo-fill admin-geo-fill--n"
+                          <div className="adm-geo-barra">
+                            <div className="adm-geo-fill admin-geo-fill--n"
                                  style={{ width: `${c.pctClientes}%` }} />
-                            <div className="admin-geo-fill admin-geo-fill--r"
+                            <div className="adm-geo-fill admin-geo-fill--r"
                                  style={{ width: `${c.pctValor}%` }} />
                           </div>
                         </div>
@@ -791,9 +791,9 @@ export default function Admin() {
                     </div>
                   </div>
 
-                  <div className="admin-geo-legenda">
-                    <span><i className="admin-geo-p admin-geo-p--n" />{t('adm_legenda_clientes')}</span>
-                    <span><i className="admin-geo-p admin-geo-p--r" />{t('adm_legenda_receita')}</span>
+                  <div className="adm-geo-legenda">
+                    <span><i className="adm-geo-p admin-geo-p--n" />{t('adm_legenda_clientes')}</span>
+                    <span><i className="adm-geo-p admin-geo-p--r" />{t('adm_legenda_receita')}</span>
                   </div>
                 </div>
             </div>
@@ -801,39 +801,39 @@ export default function Admin() {
         </div>
       )}
 
-      <div className="seg-track">
-        <button className={'seg-item' + (aba === 'pagantes' ? ' ativa' : '')} onClick={() => setAba('pagantes')}>
-          {t('adm_aba_assinantes')} <span className="seg-badge">{pagos}</span>
+      <div className="adm-abas" role="tablist">
+        <button className={'adm-aba' + (aba === 'pagantes' ? ' ativa' : '')} onClick={() => setAba('pagantes')}>
+          {t('adm_aba_assinantes')} <b>{pagos}</b>
         </button>
-        <button className={'seg-item' + (aba === 'trial' ? ' ativa' : '')} onClick={() => setAba('trial')}>
-          {t('adm_aba_trial')} <span className="seg-badge">{totalTrial}</span>
+        <button className={'adm-aba' + (aba === 'trial' ? ' ativa' : '')} onClick={() => setAba('trial')}>
+          {t('adm_aba_trial')} <b>{totalTrial}</b>
         </button>
-        <button className={'seg-item' + (aba === 'convidados' ? ' ativa' : '')} onClick={() => setAba('convidados')}>
-          {t('adm_aba_membros')} <span className="seg-badge">{totalConvidados}</span>
+        <button className={'adm-aba' + (aba === 'convidados' ? ' ativa' : '')} onClick={() => setAba('convidados')}>
+          {t('adm_aba_membros')} <b>{totalConvidados}</b>
         </button>
-        <button className={'seg-item' + (aba === 'cancelados' ? ' ativa' : '')} onClick={() => setAba('cancelados')}>
-          {t('adm_aba_cancelados')} <span className="seg-badge">{totalCancelados}</span>
+        <button className={'adm-aba' + (aba === 'cancelados' ? ' ativa' : '')} onClick={() => setAba('cancelados')}>
+          {t('adm_aba_cancelados')} <b>{totalCancelados}</b>
         </button>
-        <button className={'seg-item' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
-          {t('adm_aba_recargas')} <span className="seg-badge">{compras.length}</span>
+        <button className={'adm-aba' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
+          {t('adm_aba_recargas')} <b>{compras.length}</b>
         </button>
         {/* Recargas é a nossa tabela. Faturas é ela MAIS o que só existe no
             Stripe, que é o que faltava para o dono conferir um mês inteiro
             sem abrir dois painéis. */}
-        <button className={'seg-item' + (aba === 'faturas' ? ' ativa' : '')} onClick={() => setAba('faturas')}>
+        <button className={'adm-aba' + (aba === 'faturas' ? ' ativa' : '')} onClick={() => setAba('faturas')}>
           {t('adm_aba_faturas')}
-          {faturas !== null && <span className="seg-badge">{faturas.length}</span>}
+          {faturas !== null && <b>{faturas.length}</b>}
         </button>
         {/* A prova do aceite dos Termos. Fica aqui, e nao numa pagina propria,
             porque a pergunta que leva ate ela ("essa pessoa aceitou?") nasce
             do mesmo lugar que as outras abas: uma duvida sobre um cliente. */}
-        <button className={'seg-item' + (aba === 'aceites' ? ' ativa' : '')} onClick={() => setAba('aceites')}>
+        <button className={'adm-aba' + (aba === 'aceites' ? ' ativa' : '')} onClick={() => setAba('aceites')}>
           {t('adm_aba_aceites')}
         </button>
         {/* Ficha da conta: busca uma pessoa e mostra tudo dela numa tela.
             As outras abas sao listagens; esta e o inverso — um cliente por vez,
             que e como uma pergunta de suporte chega. */}
-        <button className={'seg-item' + (aba === 'ficha' ? ' ativa' : '')} onClick={() => setAba('ficha')}>
+        <button className={'adm-aba' + (aba === 'ficha' ? ' ativa' : '')} onClick={() => setAba('ficha')}>
           {t('adm_aba_ficha')}
         </button>
       </div>
@@ -850,14 +850,15 @@ export default function Admin() {
           escondida por estilo em vez de condicional, para nao mexer no
           aninhamento do JSX que segue abaixo. Os blocos de conteudo ja sao
           condicionais por aba, entao nada mais precisa ser escondido. */}
-      <div className="admin-barra" style={aba === 'ficha' ? { display: 'none' } : undefined}>
-        <div className="admin-busca-wrap">
+      <div className="adm-barra" style={aba === 'ficha' ? { display: 'none' } : undefined}>
+        <div className="adm-busca">
           <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
                stroke="currentColor" strokeWidth="1.6">
             <circle cx="9" cy="9" r="5.5"/>
             <path d="M13 13l4 4" strokeLinecap="round"/>
           </svg>
           <input
+            className="perfil-input"
             type="text"
             placeholder={t('adm_busca_ph')}
             value={busca}
@@ -866,7 +867,7 @@ export default function Admin() {
         </div>
 
         <button
-          className={'admin-filtros-btn' + (painelFiltros ? ' admin-filtros-btn--on' : '')}
+          className={'adm-btn-linha' + (painelFiltros ? ' adm-btn-linha--on' : '')}
           onClick={() => setPainelFiltros(true)}
         >
           <svg viewBox="0 0 20 20" width="16" height="16" fill="none"
@@ -881,9 +882,9 @@ export default function Admin() {
 
       {/* Os filtros ligados, para poder tirar um sem abrir o painel */}
       {nFiltros > 0 && (
-        <div className="admin-chips">
+        <div className="adm-filtros-linha">
           {chipsAtivos.map((c) => (
-            <button key={c.chave} className="admin-chip" onClick={c.limpar}>
+            <button key={c.chave} className="adm-filtro" onClick={c.limpar}>
               {c.rotulo}
               <svg viewBox="0 0 20 20" width="12" height="12" fill="none"
                    stroke="currentColor" strokeWidth="1.8">
@@ -891,16 +892,16 @@ export default function Admin() {
               </svg>
             </button>
           ))}
-          <button className="admin-chip-limpar" onClick={limparFiltros}>{t('adm_limpar')}</button>
+          <button className="adm-limpar" onClick={limparFiltros}>{t('adm_limpar')}</button>
 
-          <span className="admin-conta">
+          <span className="adm-quantos">
             <b>{filtrados.length}</b> {t('ws_de')} {totalAba}
           </span>
         </div>
       )}
 
       {(aba === 'convidados' || aba === 'trial') && (
-        <p className="admin-aviso">
+        <p className="adm-vazio">
           <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
                stroke="currentColor" strokeWidth="1.5">
             <circle cx="10" cy="10" r="7.5"/>
@@ -911,10 +912,10 @@ export default function Admin() {
       )}
 
       {painelFiltros && (
-        <div className="admin-pf-fundo" onClick={() => setPainelFiltros(false)}>
-          <div className="admin-pf" onClick={(e) => e.stopPropagation()}>
+        <div className="adm-gaveta" onClick={() => setPainelFiltros(false)}>
+          <div className="adm-gaveta__folha" onClick={(e) => e.stopPropagation()}>
 
-            <div className="admin-pf-cab">
+            <div className="adm-gaveta__cab">
               <strong>{t('adm_filtros')}</strong>
               <button onClick={() => setPainelFiltros(false)} aria-label={t('ws_fechar')}>
                 <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
@@ -924,9 +925,9 @@ export default function Admin() {
               </button>
             </div>
 
-            <div className="admin-pf-corpo">
+            <div className="adm-gaveta__corpo">
 
-              <div className="admin-pf-g">
+              <div className="adm-gaveta__g">
                 <label>{t('adm_periodo')}</label>
                 <DropdownCora
                   valor={filtroData}
@@ -946,7 +947,7 @@ export default function Admin() {
                 )}
 
                 {filtroData === 'periodo' && (
-                  <div className="admin-pf-datas">
+                  <div className="adm-opcoes">
                     <input type="date" value={dataDe} onChange={(e) => setDataDe(e.target.value)} />
                     <span>{t('promp_ate')}</span>
                     <input type="date" value={dataAte} onChange={(e) => setDataAte(e.target.value)} />
@@ -955,7 +956,7 @@ export default function Admin() {
               </div>
 
               {aba === 'pagantes' && (
-                <div className="admin-pf-g">
+                <div className="adm-gaveta__g">
                   <label>{t('adm_status')}</label>
                   <DropdownCora
                     valor={filtroStatus}
@@ -968,7 +969,7 @@ export default function Admin() {
                 </div>
               )}
 
-              <div className="admin-pf-g">
+              <div className="adm-gaveta__g">
                 <label>{t('adm_profissao')}</label>
                 <DropdownCora
                   valor={filtroProfissao}
@@ -986,7 +987,7 @@ export default function Admin() {
                 />
               </div>
 
-              <div className="admin-pf-g">
+              <div className="adm-gaveta__g">
                 <label>{t('adm_como_conheceu')}</label>
                 <DropdownCora
                   valor={filtroOrigem}
@@ -1004,7 +1005,7 @@ export default function Admin() {
                 />
               </div>
 
-              <div className="admin-pf-g">
+              <div className="adm-gaveta__g">
                 <label>{t('adm_renderizador')}</label>
                 <DropdownCora
                   valor={filtroRender}
@@ -1022,7 +1023,7 @@ export default function Admin() {
                 />
               </div>
 
-              <div className="admin-pf-sec">
+              <div className="adm-gaveta__g">
                 <label>{t('adm_localizacao')}</label>
 
                 <DropdownCora
@@ -1047,11 +1048,11 @@ export default function Admin() {
               </div>
             </div>
 
-            <div className="admin-pf-pe">
-              <button className="admin-pf-limpar" onClick={limparFiltros}>
+            <div className="adm-gaveta__pe">
+              <button className="adm-btn-linha" onClick={limparFiltros}>
                 {t('adm_limpar_filtros')}
               </button>
-              <button className="admin-pf-ok" onClick={() => setPainelFiltros(false)}>
+              <button className="as-btn-cta" onClick={() => setPainelFiltros(false)}>
                 {t('adm_ver')} {filtrados.length} {filtrados.length === 1 ? t('adm_resultado') : t('adm_resultados')}
               </button>
             </div>
@@ -1063,19 +1064,19 @@ export default function Admin() {
           Sem o `null` explicito ela caia no ELSE e a tabela geral de contas
           aparecia solta embaixo da ficha aberta. */}
       {aba === 'ficha' ? null : aba === 'faturas' ? (
-        <div className="admin-tabela-wrap">
+        <div className="conta-card adm-card">
           {/* O aviso aparece quando o Stripe não respondeu. Sem ele a tela
               mostraria só as recargas e daria a entender que não houve fatura
               de plano nenhuma, que é o pior jeito de errar numa tela de
               dinheiro. */}
-          {avisoFaturas && <p className="admin-vazio">{avisoFaturas}</p>}
+          {avisoFaturas && <p className="adm-vazio">{avisoFaturas}</p>}
 
           {buscandoFaturas ? (
-            <p className="admin-vazio">{t('adm_fat_buscando')}</p>
+            <p className="adm-vazio">{t('adm_fat_buscando')}</p>
           ) : (
             <>
-              <div className="admin-tabela-rolo">
-              <table className="admin-tabela">
+              <div className="fat-rolo">
+              <table className="fat">
                 <thead>
                   <tr>
                     <th>{t('adm_h_data')}</th>
@@ -1099,13 +1100,13 @@ export default function Admin() {
                             no meio do mês. Sem dizer isso, ela parece uma
                             mensalidade com o valor errado. */}
                         {f.motivo === 'subscription_update' && (
-                          <div className="admin-email">{t('adm_fat_prorata')}</div>
+                          <div className="adm-sub">{t('adm_fat_prorata')}</div>
                         )}
                       </td>
                       <td>
-                        <div className="admin-nome">{f.nome || t('adm_fat_sem_conta')}</div>
-                        <div className="admin-email">
-                          <span className="admin-email-txt" title={f.email || ''}>{f.email || '—'}</span>
+                        <div className="adm-nome">{f.nome || t('adm_fat_sem_conta')}</div>
+                        <div className="adm-sub">
+                          <span className="adm-sub-txt" title={f.email || ''}>{f.email || '—'}</span>
                         </div>
                       </td>
                       <td style={{ fontSize: 13, maxWidth: 260 }}>{f.descricao}</td>
@@ -1127,9 +1128,9 @@ export default function Admin() {
               </div>
 
               {faturasFiltradas.length === 0
-                ? <p className="admin-vazio">{t('adm_fat_vazio')}</p>
+                ? <p className="adm-vazio">{t('adm_fat_vazio')}</p>
                 : (
-                  <p className="admin-vazio">
+                  <p className="adm-total">
                     {faturasFiltradas.length} {t('adm_fat_conta')} {fmtValor(totalFaturas, 'brl')} {t('adm_fat_pago')}
                   </p>
                 )}
@@ -1137,9 +1138,9 @@ export default function Admin() {
           )}
         </div>
       ) : aba === 'compras' ? (
-        <div className="admin-tabela-wrap">
-          <div className="admin-tabela-rolo">
-          <table className="admin-tabela">
+        <div className="conta-card adm-card">
+          <div className="fat-rolo">
+          <table className="fat">
             <thead>
               <tr>
                 <th>{t('adm_h_data')}</th>
@@ -1163,8 +1164,8 @@ export default function Admin() {
                 <tr key={c.id}>
                   <td>{fmtData(c.criado_em)}</td>
                   <td>
-                    <div className="admin-nome">{c.nome || '—'}</div>
-                    <div className="admin-email"><span className="admin-email-txt" title={c.email}>{c.email}</span></div>
+                    <div className="adm-nome">{c.nome || '—'}</div>
+                    <div className="adm-sub"><span className="adm-sub-txt" title={c.email}>{c.email}</span></div>
                   </td>
                   <td><DocFiscal cpf={c.cpf} doc_intl={c.doc_intl} doc_pais={c.doc_pais} /></td>
                   {dadosFiscais && <td>{dadosFiscais[c.email]?.telefone || '—'}</td>}
@@ -1179,12 +1180,12 @@ export default function Admin() {
             </tbody>
           </table>
           </div>
-          {compras.length === 0 && <p className="admin-vazio">{t('adm_compras_vazio')}</p>}
+          {compras.length === 0 && <p className="adm-vazio">{t('adm_compras_vazio')}</p>}
         </div>
       ) : (
-      <div className="admin-tabela-wrap">
-        <div className="admin-tabela-rolo">
-        <table className={'admin-tabela' + (mostrarPerfil ? ' admin-tabela--compacto' : '')}>
+      <div className="conta-card adm-card">
+        <div className="fat-rolo">
+        <table className={'fat' + (mostrarPerfil ? ' fat--compacto' : '')}>
           <thead>
             <tr>
               <th>{t('adm_h_nome_email')}</th>
@@ -1218,12 +1219,12 @@ export default function Admin() {
             {pagina.map(a => (
               <tr key={a.id}>
                 <td>
-                  <div className="admin-nome">{a.nome || '—'}</div>
+                  <div className="adm-nome">{a.nome || '—'}</div>
                   {/* O e-mail vai num span próprio para poder cortar com reticências
                       sem levar o selo "não verificado" junto — ver .admin-email-txt. */}
-                  <div className="admin-email">
-                    <span className="admin-email-txt" title={a.email}>{a.email}</span>
-                    {!a.email_verificado && <span className="admin-tag-nv">{t('adm_nao_verificado')}</span>}
+                  <div className="adm-sub">
+                    <span className="adm-sub-txt" title={a.email}>{a.email}</span>
+                    {!a.email_verificado && <span className="adm-tag-nv">{t('adm_nao_verificado')}</span>}
                   </div>
                 </td>
                 {!mostrarPerfil && <td><DocFiscal cpf={a.cpf} doc_intl={a.doc_intl} doc_pais={a.doc_pais} /></td>}
@@ -1233,7 +1234,7 @@ export default function Admin() {
                 {!mostrarPerfil && (
                 <td>
                   {a.eh_dono_equipe ? (
-                    <span className="admin-badge equipe">
+                    <span className="fat-selo fat-selo--equipe">
                       Teams · {a.assentos || '?'} {t('adm_teams_assentos')}
                     </span>
                   ) : (
@@ -1245,7 +1246,7 @@ export default function Admin() {
                 {aba === 'convidados' && (
                   <td style={{ fontSize: 13 }}>
                     <div>{a.equipe_participa_nome || '—'}</div>
-                    <div className="admin-email"><span className="admin-email-txt" title={a.equipe_dono_email || ''}>{a.equipe_dono_email || ''}</span></div>
+                    <div className="adm-sub"><span className="adm-sub-txt" title={a.equipe_dono_email || ''}>{a.equipe_dono_email || ''}</span></div>
                   </td>
                 )}
                 {mostrarPerfil && <td style={{ fontSize: 13 }}>{GENERO_LBL[a.genero] || a.genero || '—'}</td>}
@@ -1263,17 +1264,16 @@ export default function Admin() {
                 {mostrarCobranca && <td>{fmtData(a.renova_em)}</td>}
                 {mostrarCobranca && <td style={{ textAlign: 'center' }}>{a.renovacoes || 0}</td>}
                 {aba === 'cancelados' && <td>{a.cancelado_em ? fmtData(a.cancelado_em) : '—'}</td>}
-                <td><span className={'admin-badge ' + (a.assinatura_status === 'cancelado' ? 'off' : (a.status === 'ativo' ? 'ok' : 'off'))}>{a.assinatura_status === 'cancelado' ? t('adm_st_cancelado') : a.status}</span></td>
+                <td><span className={'fat-selo' + (a.assinatura_status === 'cancelado' || a.status !== 'ativo' ? ' fat-selo--aberta' : '')}>{a.assinatura_status === 'cancelado' ? t('adm_st_cancelado') : a.status}</span></td>
                 {!mostrarPerfil && <td>{a.plano === 'free' && !a.eh_dono_equipe ? '—' : `${a.creditos_restantes}/${a.creditos_total}`}</td>}
                 {/* As tabelas viraram lista. Cancelar, deletar e trocar plano
                     moram na Ficha, junto da conta: com a ação aqui, era fácil
                     aplicar na linha de cima ou de baixo — e são irreversíveis.
                     Aqui fica só o atalho que leva para lá. */}
-                <td>
-                  <div className="admin-acoes">
+                <td className="fat__acao">
+                  <div className="adm-acoes-linha">
                     <button
-                      className="admin-btn-stripe"
-                      style={{ cursor: 'pointer' }}
+                      className="fat-ver"
                       onClick={() => { setFichaAbrir({ id: a.id, seq: Date.now() }); setAba('ficha'); }}
                     >
                       {t('adm_abrir_ficha')}
@@ -1285,11 +1285,11 @@ export default function Admin() {
           </tbody>
         </table>
         </div>
-        {filtrados.length === 0 && <p className="admin-vazio">{t('adm_conta_nao_encontrada')}</p>}
+        {filtrados.length === 0 && <p className="adm-vazio">{t('adm_conta_nao_encontrada')}</p>}
 
         {filtrados.length > 0 && (
-          <div className="admin-pag">
-            <div className="admin-pag-qtd">
+          <div className="adm-pag">
+            <div className="adm-pag-qtd">
               <span>{t('adm_mostrar')}</span>
               <select
                 value={porPag}
@@ -1303,9 +1303,9 @@ export default function Admin() {
             </div>
 
             {nPags > 1 && (
-              <div className="admin-pag-nums">
+              <div className="adm-pag-nums">
                 <button
-                  className="admin-pag-seta"
+                  className="adm-pag-seta"
                   onClick={() => setPag(pagAtual - 1)}
                   disabled={pagAtual === 1}
                   aria-label={t('adm_pag_anterior')}
@@ -1333,7 +1333,7 @@ export default function Admin() {
                 })()}
 
                 <button
-                  className="admin-pag-seta"
+                  className="adm-pag-seta"
                   onClick={() => setPag(pagAtual + 1)}
                   disabled={pagAtual === nPags}
                   aria-label={t('adm_pag_proxima')}

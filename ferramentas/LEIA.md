@@ -153,3 +153,28 @@ painel, não do site. Este script sobe um Chrome com porta de depuração e mede
 por CDP, que é o único jeito de saber se a coisa anda.
 
 Ele também serve de molde para medir qualquer outra animação da página.
+
+
+## O admin: montado, e não escrito à mão
+
+`ferramentas/admin.html` é **gerado** por `python ferramentas/montar-admin.py`,
+rodado de dentro de `cora-site`. Editar o `admin.html` direto é trabalho
+perdido: a próxima montagem passa por cima.
+
+As peças, todas em `ferramentas/`:
+
+| arquivo | o que é |
+|---|---|
+| `admin-css.css` | o CSS que **só o admin tem**. É este que vira `app/admin-pagina.css`. |
+| `admin-corpo.html` | a marcação do miolo: a cabeça, as abas e as oito telas. |
+| `admin-cabeca.txt` | o cabeçalho do arquivo, com os marcadores `@@CSS_ADMIN@@` e `@@CSS_PAINEL@@`. |
+| `admin-rodape.txt` | a gaveta dos filtros e o script da demonstração. |
+
+O montador **copia a casca do `painel.html`**: o menu lateral, o cabeçalho e a
+folha inteira do painel. É por isso que o admin é a mesma tela e não uma
+imitação que envelhece sozinha. A folha copiada entra num `<style data-demo>`,
+que o gerador ignora, porque no site ela já chega pelo `painel-pagina.css`.
+
+Depois de montar, gerar:
+
+    python ferramentas/gerar-css-artefato.py ferramentas/admin.html app/admin-pagina.css ad

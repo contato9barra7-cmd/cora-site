@@ -1,0 +1,98 @@
+<title>Admin do Cora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<!--
+     O ADMIN NA IDENTIDADE NOVA
+
+     A tela inteira, com o menu lateral e o cabecalho de padronagem, do mesmo
+     jeito que a pessoa ve. As oito abas sao clicaveis: cada uma mostra o seu
+     conteudo, e os interruptores do topo abrem a geografia, o menu de
+     exportar e a gaveta de filtros.
+
+     COMO ESTE ARQUIVO E FEITO
+
+     Ele e MONTADO, nao escrito a mao. O bloco `style data-demo` recebe a
+     folha INTEIRA do painel, copiada de painel.html na hora da montagem. Ela
+     nao entra na folha gerada, e nao precisa: no site ela ja chega pelo
+     painel-pagina.css, porque o admin mora dentro do mesmo AppShell. Copiar
+     e o que faz o menu, o cabecalho, o cartao, a tabela e o selo serem
+     exatamente os mesmos, e nao uma imitacao que envelhece sozinha.
+
+     O `style` de cima, esse sim, vira `app/admin-pagina.css` pelo
+     `gerar-css-artefato.py admin.html ../app/admin-pagina.css ad`. Nele so
+     entra o que esta tela tem e as outras nao tem.
+
+     DUAS DECISOES
+
+     O CABECALHO LEVA A PADRONAGEM, igual ao de Minha conta. Decisao do dono
+     em 07/09/2026.
+
+     NADA DE PASTILHA ONDE JA HAVIA UM GESTO. A aba onde a pessoa esta e
+     marcada pelo fio de lima, o mesmo do menu lateral e do indice de Minha
+     conta, so que deitado. O filtro ligado e texto sublinhado de lima, o
+     mesmo gesto do "Ver" da lista de faturas. Pastilha aqui e so o que ja
+     era pastilha no resto do produto: botao, campo e selo.
+-->
+
+<style>
+:root{
+  /* Os tokens vem do `.pn` no site, e o admin mora dentro dele. Estao
+     repetidos aqui para a folha gerada nao depender de ordem de carga. */
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D; --turquesa:#ADECDF;
+  --ok:#1F7A44; --ok-bg:#EAF6EE;
+  --alerta:#C8342A; --alerta-bg:#FCEDEC;
+  --aviso:#8A6100; --aviso-bg:#FBF2DE;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --t:170ms cubic-bezier(.16,1,.3,1);
+}
+:root[data-theme="dark"]{
+  --aviso:#E8C877; --aviso-bg:rgba(138,97,0,.18);
+}
+
+@@CSS_ADMIN@@
+</style>
+
+<style data-demo>
+/* A folha do painel, inteira, copiada na montagem. No site ela chega pelo
+   painel-pagina.css. O gerador ignora este bloco. */
+@@CSS_PAINEL@@
+
+[hidden]{ display:none!important; }
+/* A gaveta acima da barra da demonstracao, que e grudada no topo. */
+.adm-gaveta{ z-index:300; }
+.demo{
+  position:sticky; top:0; z-index:250; display:flex; gap:8px; flex-wrap:wrap;
+  align-items:center; padding:10px 16px; min-height:48px;
+  background:#111111; color:#F2F2EF; font-size:12.5px;
+  font-family:'DM Sans',system-ui,sans-serif;
+}
+.demo b{ font-weight:600; letter-spacing:.06em; text-transform:uppercase; font-size:10px; opacity:.55; }
+.demo button{
+  height:28px; padding:0 12px; border-radius:100px; border:1px solid rgba(255,255,255,.22);
+  background:none; color:inherit; font-family:inherit; font-size:12.5px; cursor:pointer;
+}
+.demo button:hover{ background:rgba(255,255,255,.12); }
+.demo button.on{ background:#C4FBA7; border-color:#C4FBA7; color:#111111; font-weight:600; }
+/* O menu e o cabecalho sao fixos: sem isto a barra da demonstracao passa por
+   cima dos dois. */
+.demo ~ .app-shell .app-side,
+.demo ~ .app-shell .app-header{ top:48px; }
+.demo ~ .app-shell .app-main{ padding-top:calc(var(--header-h) + 48px); }
+</style>
+
+<div class="demo">
+  <b>abrir</b>
+  <button data-abre="geo">Geografia</button>
+  <button data-abre="export">Exportar</button>
+  <button data-abre="filtros">Filtros</button>
+  <button data-abre="vazio">Nada encontrado</button>
+  <b>tema</b>
+  <button data-tema>Escuro</button>
+</div>
+

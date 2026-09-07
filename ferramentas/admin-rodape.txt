@@ -1,0 +1,142 @@
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════ A GAVETA DOS FILTROS ══════════════ -->
+<div class="adm-gaveta" id="gaveta" hidden>
+  <div class="adm-gaveta__folha">
+    <div class="adm-gaveta__cab">
+      <h2>Filtros</h2>
+      <button class="adm-gaveta__x" id="fecha-gaveta" aria-label="Fechar">&times;</button>
+    </div>
+    <div class="adm-gaveta__corpo">
+      <div class="adm-gaveta__g">
+        <label>Período</label>
+        <div class="adm-opcoes">
+          <button class="adm-opcao">Todos</button>
+          <button class="adm-opcao on">12 meses</button>
+          <button class="adm-opcao">Este mês</button>
+          <button class="adm-opcao">Escolher</button>
+        </div>
+      </div>
+      <div class="adm-gaveta__g">
+        <label>Situação</label>
+        <div class="adm-opcoes">
+          <button class="adm-opcao on">Qualquer</button>
+          <button class="adm-opcao">Vencendo</button>
+          <button class="adm-opcao">Cancelado</button>
+        </div>
+      </div>
+      <div class="adm-gaveta__g">
+        <label>Profissão</label>
+        <div class="adm-opcoes">
+          <button class="adm-opcao on">Todas</button>
+          <button class="adm-opcao">Arquitetura</button>
+          <button class="adm-opcao">Interiores</button>
+          <button class="adm-opcao">Paisagismo</button>
+        </div>
+      </div>
+      <div class="adm-gaveta__g">
+        <label>Onde a pessoa está</label>
+        <div class="adm-opcoes">
+          <button class="adm-opcao on">São Paulo</button>
+          <button class="adm-opcao">Rio de Janeiro</button>
+          <button class="adm-opcao">Brasil</button>
+          <button class="adm-opcao">Portugal</button>
+        </div>
+      </div>
+    </div>
+    <div class="adm-gaveta__pe">
+      <button class="adm-btn-linha">Limpar</button>
+      <button class="as-btn-cta" id="ok-gaveta">Ver 5 contas</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* Só a demonstração. No site quem troca de aba é o React, e quem abre a
+     gaveta é o estado do componente. */
+  var d = document;
+
+  function mostrar(qual) {
+    d.querySelectorAll('[data-tela]').forEach(function (t) {
+      t.hidden = t.dataset.tela !== qual;
+    });
+    d.querySelectorAll('.adm-aba').forEach(function (a) {
+      a.classList.toggle('ativa', a.dataset.aba === qual);
+    });
+    /* A Ficha é uma tela inteira, e não uma listagem: a busca e os filtros
+       não valem nela. */
+    var naFicha = qual === 'ficha';
+    d.querySelectorAll('[data-some-na-ficha]').forEach(function (e) { e.hidden = naFicha; });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  d.querySelectorAll('.adm-aba').forEach(function (a) {
+    a.addEventListener('click', function () { mostrar(a.dataset.aba); });
+  });
+
+  d.querySelector('[data-abre="vazio"]').addEventListener('click', function () {
+    d.querySelectorAll('[data-tela]').forEach(function (t) { t.hidden = t.dataset.tela !== 'vazio'; });
+  });
+
+  function alternarGeo() {
+    var b = d.getElementById('bloco-geo');
+    b.hidden = !b.hidden;
+    d.getElementById('bt-geo').classList.toggle('adm-ico--on', !b.hidden);
+  }
+  d.getElementById('bt-geo').addEventListener('click', alternarGeo);
+  d.querySelector('[data-abre="geo"]').addEventListener('click', alternarGeo);
+
+  function alternarExport() {
+    var m = d.getElementById('menu-export');
+    m.hidden = !m.hidden;
+    d.getElementById('bt-export').classList.toggle('adm-ico--on', !m.hidden);
+  }
+  d.getElementById('bt-export').addEventListener('click', alternarExport);
+  d.querySelector('[data-abre="export"]').addEventListener('click', alternarExport);
+
+  function abrirGaveta() {
+    d.getElementById('gaveta').hidden = false;
+    d.getElementById('bt-filtros').classList.add('adm-btn-linha--on');
+  }
+  function fecharGaveta() {
+    d.getElementById('gaveta').hidden = true;
+    d.getElementById('bt-filtros').classList.remove('adm-btn-linha--on');
+  }
+  d.getElementById('bt-filtros').addEventListener('click', abrirGaveta);
+  d.querySelector('[data-abre="filtros"]').addEventListener('click', abrirGaveta);
+  d.getElementById('fecha-gaveta').addEventListener('click', fecharGaveta);
+  d.getElementById('ok-gaveta').addEventListener('click', fecharGaveta);
+  d.getElementById('gaveta').addEventListener('click', function (e) {
+    if (e.target === this) fecharGaveta();
+  });
+
+  d.querySelectorAll('.adm-opcao').forEach(function (o) {
+    o.addEventListener('click', function () {
+      o.parentElement.querySelectorAll('.adm-opcao').forEach(function (x) { x.classList.remove('on'); });
+      o.classList.add('on');
+    });
+  });
+
+  d.querySelectorAll('.adm-filtro').forEach(function (f) {
+    f.addEventListener('click', function () { f.remove(); });
+  });
+
+  d.querySelectorAll('.adm-ico[data-liga]').forEach(function (b) {
+    b.addEventListener('click', function () { b.classList.toggle('adm-ico--on'); });
+  });
+
+  d.querySelectorAll('.adm-pag-n').forEach(function (n) {
+    n.addEventListener('click', function () {
+      d.querySelectorAll('.adm-pag-n').forEach(function (x) { x.classList.remove('ativa'); });
+      n.classList.add('ativa');
+    });
+  });
+
+  d.querySelector('[data-tema]').addEventListener('click', function () {
+    var escuro = d.documentElement.getAttribute('data-theme') === 'dark';
+    d.documentElement.setAttribute('data-theme', escuro ? 'light' : 'dark');
+    this.textContent = escuro ? 'Escuro' : 'Claro';
+  });
+</script>
