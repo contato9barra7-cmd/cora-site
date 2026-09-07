@@ -63,6 +63,27 @@ const num = (n) => (n == null ? '—' : Number(n).toLocaleString('pt-BR'));
 
 // O motivo do bloqueio, em uma frase. É a primeira pergunta do suporte, e
 // deduzir isso de quatro campos era justamente o trabalho manual que sobrava.
+/* O problema da cobranca, em uma frase.
+   O servidor devolve o TIPO, e nao o texto, porque a mesma causa e escrita
+   diferente para quem paga ("este cartao venceu") e para o suporte ("o cartao
+   dela venceu"). Aqui e a versao do suporte. */
+const FRASE_DO_PROBLEMA = {
+  expirado: 'O cartão venceu',
+  sem_saldo: 'A cobrança não passou por limite ou saldo',
+  dados: 'Algum dado do cartão está errado',
+  confirmar: 'O banco pediu uma confirmação que ficou pendente',
+  nao_aceito: 'O banco não aceita esta cobrança',
+  recusado: 'A última cobrança foi recusada',
+};
+
+function fraseDoProblema(p) {
+  if (!p) return null;
+  let f = FRASE_DO_PROBLEMA[p.tipo] || FRASE_DO_PROBLEMA.recusado;
+  if (p.desde) f += ' em ' + data(p.desde);
+  if (p.tentativas > 1) f += ', após ' + p.tentativas + ' tentativas';
+  return f;
+}
+
 function motivoDoAcesso(a) {
   if (!a) return { texto: 'sem plano', cor: '#8E8E88' };
   // Preto, e nao roxo: o roxo saiu da marca em 06/09/2026, e cor que ficou
@@ -328,6 +349,18 @@ export default function FichaConta({ abrirConta }) {
   const a = ficha?.acesso;
   const consumo = consumoDaConta(ficha);
   const motivo = motivoDoAcesso(a);
+  /* O cartao e o problema vem prontos do servidor, da MESMA funcao que monta
+     a tela da propria pessoa. Duplicar a leitura aqui faria as duas darem
+     versoes diferentes do mesmo cartao, e a divergencia so apareceria numa
+     conversa em que uma das duas ja estivesse errada. */
+  const cartao = ficha?.cobranca?.cartao || null;
+  const problemaCartao = fraseDoProblema(ficha?.cobranca?.problema);
+  const faturasConta = ficha?.cobranca?.faturas || [];
+  const aceitesConta = ficha?.aceites || [];
+  /* Versao aceita diferente da que esta no ar quer dizer que a pessoa ainda
+     vai cair na tela de reaceite no proximo acesso. E a resposta de "por que
+     ela diz que apareceu um aviso". */
+  const versaoNoAr = ficha?.versao_legal_atual || null;
 
   // ── A LISTA ──────────────────────────────────────────────────────────────
   if (!ficha) {
@@ -408,76 +441,140 @@ export default function FichaConta({ abrirConta }) {
 
       {erro && <div className="login-erro" style={{ marginBottom: 14 }}>{erro}</div>}
 
-      {/* O cabeçalho responde "esta pessoa consegue usar?" antes de qualquer
-          outra coisa. É a pergunta que o suporte tem em mãos. */}
-      <div style={{ background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 12, padding: '22px 24px', marginBottom: 18 }}>
-        <div style={{ fontSize: 17, fontWeight: 700 }}>{ficha.conta.email}</div>
-        <div style={{ fontSize: 13, color: 'var(--ink3)', marginTop: 4 }}>
-          {ficha.conta.nome || 'sem nome'} · conta #{ficha.conta.id} · desde {data(ficha.conta.criado_em)}
-          {ficha.conta.is_admin && ' · ADMIN'}
-          {!ficha.conta.email_verificado && ' · E-MAIL NÃO VERIFICADO'}
+      {/* ── QUEM É ──
+          A mesma cabeça de Minha conta e do resto do admin: inicial, nome
+          grande, e uma linha de apoio. Antes eram estilos escritos na mão
+          dentro do JSX, e por isso esta tela envelhecia sozinha toda vez que
+          o desenho do produto mudava. */}
+      <div className="conta-card adm-card" style={{ marginTop: 0 }}>
+        <div className="conta-cabeca" style={{ marginBottom: 0 }}>
+          <div className="conta-cabeca__foto">
+            {(ficha.conta.nome || ficha.conta.email || '?').trim().charAt(0).toUpperCase()}
+          </div>
+          <div className="conta-cabeca__txt">
+            <p className="eyebrow">Conta #{ficha.conta.id}</p>
+            <h2 className="conta-cabeca__nome" style={{ fontSize: 24 }}>
+              {ficha.conta.nome || 'sem nome'}
+            </h2>
+            <p className="conta-cabeca__email">
+              {ficha.conta.email} · desde {data(ficha.conta.criado_em)}
+              {ficha.conta.is_admin && ' · admin'}
+              {!ficha.conta.email_verificado && ' · e-mail não verificado'}
+            </p>
+          </div>
         </div>
-        <div style={{ fontSize: 14, fontWeight: 700, color: motivo.cor, marginTop: 14 }}>{motivo.texto}</div>
-        {a && (
-          <div style={{ fontSize: 13, color: 'var(--ink2)', marginTop: 4 }}>
-            {NOME_PLANO[a.plano] || a.plano} · {num(a.creditos_restantes)} créditos disponíveis
-            {a.creditos_recarga > 0 && ` (${num(a.creditos_recarga)} de recarga)`}
-            {a.expira_em && ` · vence ${data(a.expira_em)}`}
-          </div>
-        )}
-
-        {/* ── Consumo ──
-            Fica no cabeçalho, e não numa aba, porque a decisão que ele existe
-            para informar é tomada a partir daqui: quem vai ao Stripe escolher
-            um valor de reembolso precisa deste número ANTES de sair da tela. */}
-        {consumo && (
-          <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--line)' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--ink3)', marginBottom: 10 }}>
-              Já consumido
-            </div>
-
-            <div style={{ display: 'flex', gap: 10, fontSize: 13, lineHeight: 1.7 }}>
-              <span style={{ minWidth: 110, color: 'var(--ink3)' }}>Ciclo atual</span>
-              <span>
-                <b style={{ color: corDoConsumo(consumo.ciclo.pct) }}>
-                  {consumo.ciclo.pct == null ? '—' : consumo.ciclo.pct + '%'}
-                </b>
-                {' · '}{num(consumo.ciclo.usados)} de {num(consumo.ciclo.total)} créditos
-                {consumo.ciclo.equivalente != null && consumo.ciclo.cobranca > 0 && (
-                  <span style={{ color: 'var(--ink3)' }}>
-                    {' ≈ '}{dinheiro(consumo.ciclo.equivalente, consumo.moeda)} de {dinheiro(consumo.ciclo.cobranca, consumo.moeda)}
-                  </span>
-                )}
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', gap: 10, fontSize: 13, lineHeight: 1.7 }}>
-              <span style={{ minWidth: 110, color: 'var(--ink3)' }}>Desde a compra</span>
-              <span>
-                <b style={{ color: corDoConsumo(consumo.desde.pct) }}>
-                  {consumo.desde.pct == null ? '—' : consumo.desde.pct + '%'}
-                </b>
-                {' · '}{num(consumo.desde.creditos)} de {num(consumo.desde.contratado)} créditos
-                {consumo.desde.equivalente != null && consumo.desde.pago > 0 && (
-                  <span style={{ color: 'var(--ink3)' }}>
-                    {' ≈ '}{dinheiro(consumo.desde.equivalente, consumo.moeda)} de {dinheiro(consumo.desde.pago, consumo.moeda)} pagos
-                  </span>
-                )}
-                <span style={{ color: 'var(--ink3)' }}> · desde {data(consumo.desde.quando)}</span>
-              </span>
-            </div>
-
-            {/* O consumo sai do plano; recarga é dinheiro à parte e tem outro
-                destino no reembolso. Dizer isso aqui evita a leitura errada de
-                que o percentual cobriria tudo que a pessoa comprou. */}
-            {a?.creditos_recarga > 0 && (
-              <div style={{ fontSize: 12, color: 'var(--ink3)', marginTop: 8 }}>
-                Só o consumo do plano. A recarga é compra à parte — reembolsá-la revoga o saldo dela, não o plano.
-              </div>
-            )}
-          </div>
-        )}
       </div>
+
+      {/* ── A PRIMEIRA PERGUNTA DO SUPORTE ──
+          "Por que essa pessoa não consegue gerar?" A resposta já vem calculada
+          do servidor, pela mesma porta que o produto usa, mas ficava enterrada
+          em quatro campos. Aqui ela é a primeira linha da ficha, numa frase.
+
+          O selo é sinal, não marca: verde quando pode, vermelho quando não.
+          São as duas únicas cores de sinal do produto. */}
+      <div className={'conta-card adm-card adm-porque adm-porque--'
+        + (!a ? 'ok' : a.pode_gerar ? 'ok' : 'nao')}>
+        <div className="adm-porque__selo" aria-hidden="true">
+          {(!a || a.pode_gerar) ? (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                 strokeLinecap="round" strokeLinejoin="round"><path d="m4 12 5 5L20 6" /></svg>
+          ) : (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                 strokeLinecap="round" strokeLinejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          )}
+        </div>
+        <div>
+          <p className="adm-porque__t">{motivo.texto}</p>
+          {a && (
+            <p className="adm-porque__p">
+              {NOME_PLANO[a.plano] || a.plano}
+              {a.ilimitado ? ', sem limite de créditos'
+                : `, ${num(a.creditos_restantes)} créditos disponíveis`}
+              {a.creditos_recarga > 0 && ` (${num(a.creditos_recarga)} de recarga)`}
+              {a.expira_em && `. Vence em ${data(a.expira_em)}`}
+              {ficha.ja_usou_teste && '. Este e-mail já usou o teste antes'}
+              {problemaCartao && `. ${problemaCartao}`}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* ── O CARTÃO QUE PAGA ──
+          Quando alguém escreve "perdi o acesso", a resposta quase sempre é "o
+          cartão foi recusado no dia tal". O motivo vem do Stripe, pela mesma
+          função que monta a tela da própria pessoa: as duas nunca discordam. */}
+      {cartao && (
+        <div className="conta-card adm-card">
+          <div className="adm-ficha-cab">
+            <h2 className="conta-h2">Cartão que paga</h2>
+            <a className="fat-ver" href={stripeCliente(ficha.conta.email)}
+               target="_blank" rel="noopener noreferrer">Stripe ↗</a>
+          </div>
+          <p className="conta-p" style={{ marginBottom: 0 }}>
+            {(cartao.marca || 'cartão').replace(/^./, (c) => c.toUpperCase())}
+            {cartao.fim && ` terminado em ${cartao.fim}`}
+            {cartao.mes && cartao.ano
+              && `, vence ${String(cartao.mes).padStart(2, '0')}/${String(cartao.ano).slice(-2)}`}
+          </p>
+          {problemaCartao && (
+            <p className="conta-p" style={{ color: 'var(--alerta)', marginBottom: 0 }}>
+              {problemaCartao}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* ── JÁ CONSUMIDO ──
+          Duas leituras, porque são duas perguntas diferentes e a errada
+          custa caro. Quem vai ao Stripe escolher um valor de reembolso
+          precisa deste número ANTES de sair da tela. */}
+      {consumo && (
+      <div className="conta-card adm-card">
+            <h2 className="conta-h2">Já consumido</h2>
+            <div>
+
+              <div style={{ display: 'flex', gap: 10, fontSize: 13, lineHeight: 1.7 }}>
+                <span style={{ minWidth: 110, color: 'var(--ink3)' }}>Ciclo atual</span>
+                <span>
+                  <b style={{ color: corDoConsumo(consumo.ciclo.pct) }}>
+                    {consumo.ciclo.pct == null ? '—' : consumo.ciclo.pct + '%'}
+                  </b>
+                  {' · '}{num(consumo.ciclo.usados)} de {num(consumo.ciclo.total)} créditos
+                  {consumo.ciclo.equivalente != null && consumo.ciclo.cobranca > 0 && (
+                    <span style={{ color: 'var(--ink3)' }}>
+                      {' ≈ '}{dinheiro(consumo.ciclo.equivalente, consumo.moeda)} de {dinheiro(consumo.ciclo.cobranca, consumo.moeda)}
+                    </span>
+                  )}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, fontSize: 13, lineHeight: 1.7 }}>
+                <span style={{ minWidth: 110, color: 'var(--ink3)' }}>Desde a compra</span>
+                <span>
+                  <b style={{ color: corDoConsumo(consumo.desde.pct) }}>
+                    {consumo.desde.pct == null ? '—' : consumo.desde.pct + '%'}
+                  </b>
+                  {' · '}{num(consumo.desde.creditos)} de {num(consumo.desde.contratado)} créditos
+                  {consumo.desde.equivalente != null && consumo.desde.pago > 0 && (
+                    <span style={{ color: 'var(--ink3)' }}>
+                      {' ≈ '}{dinheiro(consumo.desde.equivalente, consumo.moeda)} de {dinheiro(consumo.desde.pago, consumo.moeda)} pagos
+                    </span>
+                  )}
+                  <span style={{ color: 'var(--ink3)' }}> · desde {data(consumo.desde.quando)}</span>
+                </span>
+              </div>
+
+              {/* O consumo sai do plano; recarga é dinheiro à parte e tem outro
+                  destino no reembolso. Dizer isso aqui evita a leitura errada de
+                  que o percentual cobriria tudo que a pessoa comprou. */}
+              {a?.creditos_recarga > 0 && (
+                <div style={{ fontSize: 12, color: 'var(--ink3)', marginTop: 8 }}>
+                  Só o consumo do plano. A recarga é compra à parte — reembolsá-la revoga o saldo dela, não o plano.
+                </div>
+              )}
+            </div>
+      </div>
+      )}
 
       {/* ── AÇÕES ──
           Ficam aqui, coladas na conta, e não numa tabela de outra aba: agir
@@ -649,20 +746,38 @@ export default function FichaConta({ abrirConta }) {
         </div>
       )}
 
-      <div className="seg-track">
-        {[['resumo', 'Resumo'], ['creditos', 'Créditos'], ['equipe', 'Equipe'],
-          ['uso', 'Uso'], ['extrato', 'Extrato'], ['logs', 'Logs'], ['imagens', 'Imagens']].map(([k, r]) => (
-          <button key={k} onClick={() => setAba(k)} className={'seg-item' + (aba === k ? ' ativa' : '')}>
-            {r}
-            {k === 'logs' && <span className="seg-badge">{ficha.eventos.length}</span>}
+      {/* ── O DETALHE, EM ABAS ──
+          Os cartões acima respondem a pergunta que traz alguém até aqui. Estas
+          abas guardam as listas longas, que só interessam depois. Elas usam a
+          mesma barra do resto do admin, e não um segmentador próprio: eram dois
+          desenhos para o mesmo gesto na mesma tela. */}
+      <div className="adm-abas" role="tablist">
+        {[['resumo', 'Resumo', null],
+          ['creditos', 'Créditos', ficha.baldes.length],
+          ['faturas', 'Faturas', faturasConta.length],
+          ['aceites', 'Aceites', aceitesConta.length],
+          ['equipe', 'Equipe', null],
+          ['uso', 'Uso', null],
+          ['extrato', 'Extrato', null],
+          ['logs', 'Eventos', ficha.eventos.length],
+          ['imagens', 'Imagens', null]].map(([k, r, n]) => (
+          <button key={k} onClick={() => setAba(k)}
+                  className={'adm-aba' + (aba === k ? ' ativa' : '')}>
+            {r}{n ? <b>{n}</b> : null}
           </button>
         ))}
       </div>
 
       {aba === 'resumo' && (
-        <div style={{ paddingBottom: 24 }}>
+        <div className="conta-card adm-card">
           <Linha rotulo="Plano">{NOME_PLANO[a?.plano] || a?.plano} · {a?.status}</Linha>
-          <Linha rotulo="Créditos do plano">{num(a?.creditos_total)} total · {num(a?.creditos_usados)} usados</Linha>
+          {/* `-1` e o codigo de ilimitado no servidor, e ele nao pode aparecer
+              como se fosse um saldo negativo. */}
+          <Linha rotulo="Créditos do plano">
+            {a?.ilimitado || a?.creditos_total === -1
+              ? <>sem limite · {num(a?.creditos_usados)} usados</>
+              : <>{num(a?.creditos_total)} total · {num(a?.creditos_usados)} usados</>}
+          </Linha>
           <Linha rotulo="Teste de 7 dias">
             {a?.eh_trial
               ? (a.trial_expirado ? 'terminou' : `${a.trial_dias_restantes} dia(s) restantes`)
@@ -688,11 +803,12 @@ export default function FichaConta({ abrirConta }) {
       )}
 
       {aba === 'creditos' && (
-        <div style={{ paddingBottom: 24 }}>
+        <div className="conta-card adm-card">
           {/* Cada balde com a validade. "Por que meu saldo sumiu?" quase sempre
               se responde aqui: o balde venceu. */}
           {ficha.baldes.length === 0 ? <p style={{ color: 'var(--ink3)' }}>Nenhuma compra de crédito.</p> : (
-            <table className="admin-tabela">
+            <div className="fat-rolo">
+              <table className="fat">
               <thead><tr>
                 <th>Tipo</th><th>Descrição</th><th>Créditos</th><th>Usados</th><th>Valor</th><th>Comprado</th><th>Vence</th>
               </tr></thead>
@@ -710,12 +826,123 @@ export default function FichaConta({ abrirConta }) {
                 ))}
               </tbody>
             </table>
+          </div>
+          )}
+        </div>
+      )}
+
+      {/* ── FATURAS DESTA CONTA ──
+          A mesma lista da aba geral, filtrada por quem está aberto na ficha.
+          Ela existe aqui porque a pergunta "quanto essa pessoa já pagou" chega
+          junto com a pessoa, e não junto com o mês: procurar o nome dela numa
+          lista de todas as faturas era o caminho longo para a mesma resposta. */}
+      {aba === 'faturas' && (
+        <div className="conta-card adm-card">
+          {faturasConta.length === 0 ? (
+            <p style={{ color: 'var(--ink3)' }}>Nenhuma cobrança nesta conta.</p>
+          ) : (
+            <>
+              <div className="fat-rolo">
+                <table className="fat">
+                  <thead><tr>
+                    <th>Quando</th><th>O que</th><th>Número</th>
+                    <th className="adm-num">Valor</th><th>Situação</th><th className="fat__acao" />
+                  </tr></thead>
+                  <tbody>
+                    {faturasConta.map((f) => (
+                      <tr key={f.id}>
+                        <td className="adm-mono">{data(f.data)}</td>
+                        <td>{f.descricao || '—'}</td>
+                        <td className="adm-mono">{f.numero || '—'}</td>
+                        <td className="adm-num">{dinheiro(f.total_centavos, f.moeda)}</td>
+                        <td>
+                          <span className={'fat-selo fat-selo--'
+                            + (f.status === 'paga' ? 'paga' : 'aberta')}>
+                            {f.status === 'paga' ? 'Paga' : 'Em aberto'}
+                          </span>
+                        </td>
+                        <td className="fat__acao">
+                          {f.pdf && (
+                            <a className="fat-ver" href={f.pdf}
+                               target="_blank" rel="noopener noreferrer">PDF ↗</a>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="adm-total">
+                {faturasConta.length} {faturasConta.length === 1 ? 'cobrança' : 'cobranças'},
+                {' '}<b>{dinheiro(
+                  faturasConta.filter((f) => f.status === 'paga')
+                    .reduce((soma, f) => soma + (f.total_centavos || 0), 0),
+                  faturasConta[0].moeda)}</b> pagos.
+              </p>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ── ACEITES DESTA CONTA ──
+          A prova de que esta pessoa aceitou os Termos, e qual versão. Uma linha
+          por documento e por aceite: um reaceite entra como registro novo, sem
+          apagar o anterior, porque a prova é justamente a versão antiga
+          continuar existindo.
+
+          Versão aceita diferente da que está no ar quer dizer que a pessoa vai
+          cair na tela de reaceite no próximo acesso. É a resposta de "por que
+          apareceu um aviso para ela". */}
+      {aba === 'aceites' && (
+        <div className="conta-card adm-card">
+          {aceitesConta.length === 0 ? (
+            <p style={{ color: 'var(--ink3)' }}>
+              Nenhum aceite gravado. Contas criadas antes de 6 de setembro de 2026 não têm
+              esse registro: o aceite acontecia, mas não era guardado.
+            </p>
+          ) : (
+            <div className="fat-rolo">
+              <table className="fat">
+                <thead><tr>
+                  <th>Documento</th><th>Versão</th><th>Quando</th><th>De onde</th><th>Onde</th>
+                </tr></thead>
+                <tbody>
+                  {aceitesConta.map((ac) => (
+                    <tr key={ac.id}>
+                      <td>
+                        {ac.documento === 'termos' ? 'Termos de Uso' : 'Política de Privacidade'}
+                      </td>
+                      <td className="adm-mono">
+                        {ac.versao}
+                        {versaoNoAr && ac.versao !== versaoNoAr && (
+                          <span className="fat-selo fat-selo--aberta"
+                                style={{ marginLeft: 8 }}>desatualizada</span>
+                        )}
+                      </td>
+                      <td className="adm-mono">{data(ac.criado_em, true)}</td>
+                      <td className="adm-sub" style={{ fontSize: '12.5px' }}>
+                        {ac.ip || '—'}
+                        {/* A cidade fica ABAIXO do IP e em letra menor: o IP é o
+                            fato registrado, a cidade é leitura dele. */}
+                        {(ac.cidade || ac.pais) && (
+                          <><br />{[ac.cidade, ac.regiao, ac.pais].filter(Boolean).join(', ')}</>
+                        )}
+                      </td>
+                      <td className="adm-sub" style={{ fontSize: '12.5px' }}>{ac.onde || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {versaoNoAr && (
+            <p className="adm-total">Versão no ar hoje: <b>{versaoNoAr}</b>.</p>
           )}
         </div>
       )}
 
       {aba === 'equipe' && (
-        <div style={{ paddingBottom: 24 }}>
+        <div className="conta-card adm-card">
           {!ficha.equipe_dono && !ficha.equipe_membro && <p style={{ color: 'var(--ink3)' }}>Não participa de equipe.</p>}
           {ficha.equipe_dono && (
             <>
@@ -740,11 +967,12 @@ export default function FichaConta({ abrirConta }) {
       )}
 
       {aba === 'uso' && (
-        <div style={{ paddingBottom: 24 }}>
+        <div className="conta-card adm-card">
           {/* Vem de `transacoes`, não de eventos: gerações são milhares e
               afogariam a linha do tempo. */}
           {ficha.uso.length === 0 ? <p style={{ color: 'var(--ink3)' }}>Nenhuma geração ainda.</p> : (
-            <table className="admin-tabela">
+            <div className="fat-rolo">
+              <table className="fat">
               <thead><tr><th>Ferramenta</th><th>Gerações</th><th>Créditos gastos</th><th>Última</th></tr></thead>
               <tbody>
                 {ficha.uso.map((u) => (
@@ -754,12 +982,13 @@ export default function FichaConta({ abrirConta }) {
                 ))}
               </tbody>
             </table>
+          </div>
           )}
         </div>
       )}
 
       {aba === 'extrato' && (
-        <div style={{ paddingBottom: 24 }}>
+        <div className="conta-card adm-card">
           {/* "Essa geração foi cobrada, falhou, e o crédito voltou?" — cada
               linha responde sozinha: débito↔estorno pareados pela ref, com o
               desfecho do pedido no servidor de geração. */}
@@ -803,7 +1032,8 @@ export default function FichaConta({ abrirConta }) {
               {extrato.transacoes.length === 0 ? (
                 <p style={{ color: 'var(--ink3)' }}>Nenhum lançamento no período.</p>
               ) : (
-                <table className="admin-tabela">
+                <div className="fat-rolo">
+                  <table className="fat">
                   <thead><tr>
                     <th>Quando</th><th>Ferramenta</th><th>Créditos</th><th>Situação</th><th>Saldo depois</th><th>Ref</th>
                   </tr></thead>
@@ -836,6 +1066,7 @@ export default function FichaConta({ abrirConta }) {
                     })}
                   </tbody>
                 </table>
+              </div>
               )}
 
               <p style={{ fontSize: 12, color: 'var(--ink3)', marginTop: 10 }}>
@@ -850,7 +1081,7 @@ export default function FichaConta({ abrirConta }) {
       )}
 
       {aba === 'logs' && (
-        <div style={{ paddingBottom: 24 }}>
+        <div className="conta-card adm-card">
           {ficha.eventos.length === 0 ? (
             <p style={{ color: 'var(--ink3)' }}>
               Nenhum evento registrado. A gravação começou agora — contas antigas
