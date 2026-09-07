@@ -206,32 +206,24 @@
 }
 .app-header--faixa .app-burger span{ background:#111111; }
 /* ── O ANEL SOBRE A FAIXA ──
-   O anel e o trilho dele sumiam. Turquesa num fio de tres, em cima de uma
-   faixa que ja e lima e turquesa, nao tem com o que contrastar, e o trilho
-   cinza claro desaparecia junto.
+   Ele sumia. Turquesa num fio de tres, em cima de uma faixa que ja e lima e
+   turquesa, nao tem com o que contrastar, e o trilho cinza claro desaparecia
+   junto.
 
-   A correcao e a mesma que o rotulo do cabecalho usa: uma placa de vidro por
-   baixo. Ela abre um pedaco claro e estavel na faixa, e sobre ela o anel volta
-   a ter fundo. Ai o fio pode ser preto, que e o que o comentario la de cima
-   diz que ele deveria ser desde o comeco: o anel e informacao, e informacao
-   se le na cor do texto. A marca continua ali, em area, no avatar.
+   A primeira tentativa foi uma placa de vidro por tras, como a do rotulo do
+   cabecalho. Ela resolvia o contraste e criava outro problema: virava uma
+   caixa maior que o proprio avatar, e chamava mais atencao que o dado.
+
+   O conserto e no proprio anel. O trilho vira branco solido, que ja abre o
+   espaco claro de que o fio precisa, e o fio vira preto, que e o que o
+   comentario la de cima diz que ele deveria ser: o anel e informacao, e
+   informacao se le na cor do texto. Nada cresce, e a marca continua no
+   avatar, onde ela e area e nao fio.
 
    Preto e vermelho fixos, e nao var(--ink) e var(--alerta): a faixa e clara
    nos dois temas, e no escuro esses tokens clareiam e sumiriam. */
-.app-header--faixa .app-user-btn::before{
-  content:''; position:absolute; inset:-5px; border-radius:16px;
-  background:var(--vidro);
-  backdrop-filter:blur(14px) saturate(150%);
-  -webkit-backdrop-filter:blur(14px) saturate(150%);
-}
-/* So o avatar precisa de `position`: `z-index` nao vale em elemento estatico,
-   e sem ele ele ficava por baixo da placa de vidro. O anel ja e absoluto, e
-   repetir `relative` nele tirava o SVG do lugar: ele virava item do grid,
-   ocupava a primeira linha e empurrava o avatar para fora do botao. */
-.app-header--faixa .app-anel{ z-index:1; }
-.app-header--faixa .app-avatar{ position:relative; z-index:1; }
-.app-header--faixa .app-anel-bg{ stroke:rgba(17,17,17,.16); }
-.app-header--faixa .app-anel-fill{ stroke:#111111; stroke-width:3.4; }
+.app-header--faixa .app-anel-bg{ stroke:#FFFFFF; stroke-width:3.2; }
+.app-header--faixa .app-anel-fill{ stroke:#111111; }
 .app-header--faixa .app-anel-fill.baixo{ stroke:#C8342A; }
 .app-burger{ display:none; }
 
