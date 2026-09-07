@@ -481,6 +481,10 @@
                 </svg>
               </button>
             </div>
+            <!-- Real, dolar e euro nao se somam. Cada um tem a sua leitura
+                 completa, e o seletor so aparece quando existe mais de uma
+                 moeda com movimento. -->
+            <div class="per__moedas" data-moedas role="group" aria-label="Moeda"></div>
             <div class="per__atalhos">
               <button data-atalho="12m" class="ativo">Últimos 12 meses</button>
               <button data-atalho="ano">O ano todo</button>
@@ -671,24 +675,6 @@
           <p class="adm-total">7 contas já pagaram alguma coisa, <b>R$&nbsp;18.218,00</b> no total.</p>
         </div>
 
-        <div class="conta-card adm-card">
-          <h2 class="conta-h2">O que este resumo não conta</h2>
-          <p class="conta-p">Duas coisas ficam de fora de propósito, e é melhor saber quais:</p>
-          <dl class="adm-dl">
-            <div>
-              <dt>Cobrança em outra moeda</dt>
-              <dd>Entra na contagem, fica fora da soma</dd>
-            </div>
-            <div>
-              <dt>Imposto</dt>
-              <dd>Não é calculado aqui</dd>
-            </div>
-          </dl>
-          <p class="conta-p" style="font-size:13px">Somar moedas diferentes num total só
-            inflaria o número, e um número inflado no topo da tela é pior que número nenhum.
-            O líquido acima já desconta a taxa do Stripe, cobrança por cobrança, do valor que
-            o próprio Stripe informa ter retido. Ele não desconta imposto.</p>
-        </div>
       </div>
 
       <!-- ══════════════ RECARGAS ══════════════ -->

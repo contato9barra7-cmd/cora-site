@@ -852,6 +852,23 @@
 }
 .per__nome:hover{ background:var(--wash2); }
 
+/* O seletor de moeda. Fica colado no ano porque os dois definem o mesmo
+   recorte, e nao junto dos atalhos, que sao so tamanhos de periodo. Simbolo
+   em vez de sigla: R$ e US$ dizem a mesma coisa que BRL e USD, e dizem sem
+   pedir que ninguem decore codigo de tres letras. */
+.per__moedas{ display:flex; gap:4px; margin-right:auto; margin-left:14px;
+  padding:3px; background:var(--wash2); border-radius:var(--pill); }
+.per__moeda{
+  min-width:38px; padding:5px 10px; border:0; background:none;
+  border-radius:var(--pill); font:inherit; font-size:13px; font-weight:500;
+  color:var(--ink3); cursor:pointer; transition:background .14s, color .14s;
+}
+.per__moeda:hover{ color:var(--ink); }
+.per__moeda.ativo{
+  background:var(--paper); color:var(--ink); font-weight:600;
+  box-shadow:0 1px 2px rgba(0,0,0,.06);
+}
+
 .per__atalhos{ display:flex; gap:6px; flex-wrap:wrap; }
 .per__atalhos button{
   padding:6px 13px; border:1px solid var(--line); background:var(--paper);

@@ -205,6 +205,34 @@
   -webkit-backdrop-filter:blur(14px) saturate(150%);
 }
 .app-header--faixa .app-burger span{ background:#111111; }
+/* ── O ANEL SOBRE A FAIXA ──
+   O anel e o trilho dele sumiam. Turquesa num fio de tres, em cima de uma
+   faixa que ja e lima e turquesa, nao tem com o que contrastar, e o trilho
+   cinza claro desaparecia junto.
+
+   A correcao e a mesma que o rotulo do cabecalho usa: uma placa de vidro por
+   baixo. Ela abre um pedaco claro e estavel na faixa, e sobre ela o anel volta
+   a ter fundo. Ai o fio pode ser preto, que e o que o comentario la de cima
+   diz que ele deveria ser desde o comeco: o anel e informacao, e informacao
+   se le na cor do texto. A marca continua ali, em area, no avatar.
+
+   Preto e vermelho fixos, e nao var(--ink) e var(--alerta): a faixa e clara
+   nos dois temas, e no escuro esses tokens clareiam e sumiriam. */
+.app-header--faixa .app-user-btn::before{
+  content:''; position:absolute; inset:-5px; border-radius:16px;
+  background:var(--vidro);
+  backdrop-filter:blur(14px) saturate(150%);
+  -webkit-backdrop-filter:blur(14px) saturate(150%);
+}
+/* So o avatar precisa de `position`: `z-index` nao vale em elemento estatico,
+   e sem ele ele ficava por baixo da placa de vidro. O anel ja e absoluto, e
+   repetir `relative` nele tirava o SVG do lugar: ele virava item do grid,
+   ocupava a primeira linha e empurrava o avatar para fora do botao. */
+.app-header--faixa .app-anel{ z-index:1; }
+.app-header--faixa .app-avatar{ position:relative; z-index:1; }
+.app-header--faixa .app-anel-bg{ stroke:rgba(17,17,17,.16); }
+.app-header--faixa .app-anel-fill{ stroke:#111111; stroke-width:3.4; }
+.app-header--faixa .app-anel-fill.baixo{ stroke:#C8342A; }
 .app-burger{ display:none; }
 
 .app-user-wrap{ position:relative; }
@@ -640,6 +668,45 @@
   font-size:14px; cursor:pointer; text-decoration:underline; text-underline-offset:3px;
 }
 .trial-bloqueio-sair:hover{ color:var(--ink); }
+
+/* ── O MESMO BLOQUEIO, PARA OS DOCUMENTOS ──
+   Quando os Termos ou a Política mudam, ninguém entra sem aceitar de novo.
+   É o mesmo cartão do teste encerrado, e de propósito: a pessoa já conhece
+   essa tela, e o gesto de sair dela é o mesmo.
+
+   O que muda é que aqui o texto NÃO é centrado e o cartão é mais largo: tem
+   duas linhas de documento com link, e centrar uma lista de duas linhas com
+   um link no fim deixa as duas com recuos diferentes.
+
+   Ela não tem X nem "depois". Aceitar é o que libera, e um botão de fechar
+   ao lado disso ensinaria que dá para não aceitar. */
+.trial-bloqueio-card--docs{ width:min(520px,100%); max-width:520px; text-align:left; }
+.blq-docs{ margin:22px 0 0; display:grid; gap:10px; }
+.blq-doc{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:14px 16px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--wash);
+}
+.blq-doc__n{ min-width:0; }
+.blq-doc__n b{ display:block; font-size:14.5px; font-weight:600; letter-spacing:-.012em; }
+.blq-doc__n span{ display:block; margin-top:2px; font-size:12.5px; color:var(--ink3); }
+.blq-doc__ver{
+  flex:none; border:0; background:none; padding:0; cursor:pointer; font-family:inherit;
+  font-size:13.5px; font-weight:600; color:var(--ink);
+  border-bottom:2px solid var(--lima); line-height:1.4;
+  transition:border-color var(--t);
+}
+.blq-doc__ver:hover{ border-bottom-color:var(--ink); }
+/* O selo do que MUDOU. Só aparece no documento que teve versão nova: dizer
+   "atualizado" nos dois quando só um mudou é mentira pequena que custa a
+   confiança na próxima. */
+.blq-doc__novo{
+  flex:none; padding:2px 9px; border-radius:var(--pill);
+  background:var(--lima); color:#111111;
+  font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+}
+.trial-bloqueio-card--docs .btn{ width:100%; margin-top:22px; }
+.blq-pe{ margin:14px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6; }
 
 /* ── a tarja de personificação ── */
 .tarja-personificacao{
