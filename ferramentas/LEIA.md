@@ -137,3 +137,19 @@ node gerar-documentos-legais.js 2026-10-15
 
 Subir texto novo sem trocar a versão é o erro que anula a prova: dois textos
 diferentes com o mesmo carimbo.
+
+## `medir-esteira.js`
+
+Mede se a esteira de renders da home está mesmo andando, e a que velocidade.
+
+```
+node medir-esteira.js https://corarender.com/?chave=...
+```
+
+**Por que ele existe:** o painel do navegador do Claude Code fica escondido, e
+**página escondida não recebe `requestAnimationFrame` nem evento de
+`scroll`**. Qualquer medida de movimento feita ali dá zero, e o zero é do
+painel, não do site. Este script sobe um Chrome com porta de depuração e mede
+por CDP, que é o único jeito de saber se a coisa anda.
+
+Ele também serve de molde para medir qualquer outra animação da página.
