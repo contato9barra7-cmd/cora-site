@@ -146,9 +146,13 @@ function ContaConteudo() {
   const ilimitadoReal = conta.ilimitado === true || conta.creditos_total === -1;
   const mostrarIlimitado = modo === 'real' ? ilimitadoReal : false;
 
+  // "Plano Free" para quem está no teste é o nome do que ela NÃO tem. O que
+  // ela tem é o teste, e é isso que o olho do herói diz.
   const nomePlano = (ehAdminVis && ilimitadoReal) ? 'Admin'
     : ehDono ? `Teams (${NOME_PLANO[conta.equipe_plano] || conta.equipe_plano || 'Pro'})`
     : ehMembroVis ? `${NOME_PLANO[conta.plano] || conta.plano} (${t('conta_equipe_tag').toLowerCase()})`
+    : (conta.eh_trial === true) ? t('pn_teste_gratis')
+    : (conta.plano === 'free') ? t('pn_sem_plano')
     : `${t('plano_label')} ${NOME_PLANO[conta.plano] || conta.plano}`;
 
   const demoCreditos = ehAdmin && modo !== 'real';
@@ -171,6 +175,11 @@ function ContaConteudo() {
     ? Math.max(0, Math.ceil((new Date(dataRenov) - new Date()) / 86400000))
     : null;
 
+  // Quem tem crédito de verdade. `totalCreditos` é string, e "0" é verdadeiro:
+  // sem esta conta, a barra e a linha "de 0 no ciclo" apareciam para quem não
+  // tem crédito nenhum.
+  const temCreditos = mostrarIlimitado || ehDono || (conta.creditos_total > 0);
+
   const vagos = equipe?.equipe
     ? Math.max(0, (equipe.equipe.assentos || 0) - (equipe.membros || []).length)
     : 0;
@@ -186,6 +195,11 @@ function ContaConteudo() {
 
   // Membro de equipe não compra crédito: quem compra é quem paga o plano.
   const podeComprar = !ehMembroVis || ehDono;
+
+  // E recarga exige plano ativo: sem plano, o `POST /stripe/checkout` recusa
+  // com `precisaPlano` e a pessoa é jogada para os preços com um aviso. Um
+  // botão "Comprar créditos" aqui seria um beco com o nome errado na porta.
+  const temPlano = demoCreditos || ehPago || ehDono || ehMembroVis;
 
   // A frase do herói, montada em pedaços. A t() não interpola de propósito
   // (é invariante de segurança do i18n), então quem junta é o JSX.
@@ -331,26 +345,37 @@ function ContaConteudo() {
         <div className="dash-cartao">
           <span className="dash-cartao-rot">{t('pn_creditos')}</span>
           <strong className="dash-cartao-num">{creditos}</strong>
-          {totalCreditos && !mostrarIlimitado && (
+          {totalCreditos && temCreditos && !mostrarIlimitado && (
             <div className="dash-cartao-barra">
               <div className={pctCreditos <= 10 ? 'baixo' : undefined}
                    style={{ width: pctCreditos + '%' }} />
             </div>
           )}
           <div className="dash-cartao-linhas">
-            {totalCreditos && (
-              <span>{t('conta_de')} <b>{totalCreditos}</b> {t('pn_no_ciclo')}</span>
+            {totalCreditos && temCreditos && (
+              <span>
+                {t('conta_de')} <b>{totalCreditos}</b>{' '}
+                {ehTrial ? t('pn_no_teste') : t('pn_no_ciclo')}
+              </span>
             )}
             {dataLonga && (
-              <span>{t('conta_renova_em')} <b>{dataLonga}</b></span>
+              // No teste o crédito não renova, o teste acaba. Dizer "renova em"
+              // ali seria prometer uma coisa que não vai acontecer.
+              <span>
+                {ehTrial ? t('pn_termina_em') : t('conta_renova_em')} <b>{dataLonga}</b>
+              </span>
             )}
           </div>
-          {podeComprar ? (
+          {!podeComprar ? (
+            <p className="dash-cartao-nota">{t('pn_sem_compra')}</p>
+          ) : temPlano ? (
             <button className="dash-cartao-acao" onClick={() => router.push('/assinatura')}>
               {t('comprar_creditos')}
             </button>
           ) : (
-            <p className="dash-cartao-nota">{t('pn_sem_compra')}</p>
+            <button className="dash-cartao-acao" onClick={() => router.push('/precos')}>
+              {t('pn_ver_planos')}
+            </button>
           )}
         </div>
 
@@ -359,6 +384,36 @@ function ContaConteudo() {
           const valorCent = demo ? 4900 : (conta.valor_centavos || 0);
           const assinouEm = demo ? '2025-01-15' : conta.assinou_em;
           const proxCobranca = demo ? new Date(Date.now() + 20 * 86400000).toISOString() : dataRenov;
+
+          // Quem nunca assinou não tem preço, nem data de cobrança, nem
+          // assinatura para ver. O cartão diz o que ela TEM (o teste, ou nada)
+          // e oferece a única coisa que faz sentido ali, que é assinar.
+          if (!temPlano) {
+            return (
+              <div className="dash-cartao">
+                <span className="dash-cartao-rot">{t('nav_assinatura')}</span>
+                <strong className="dash-cartao-num">
+                  {ehTrial ? t('pn_teste_gratis') : t('pn_sem_plano')}
+                </strong>
+                <div className="dash-cartao-linhas">
+                  {ehTrial ? (
+                    <>
+                      <span>{t('trial_dia')} <b>{diaDoTeste}</b> {t('trial_de7')}</span>
+                      {dataLonga && (
+                        <span>{t('pn_termina_em')} <b>{dataLonga}</b></span>
+                      )}
+                    </>
+                  ) : (
+                    <span>{t('pn_teste_terminou')}</span>
+                  )}
+                </div>
+                <button className="dash-cartao-acao" onClick={() => router.push('/precos')}>
+                  {t('assinar')}
+                </button>
+              </div>
+            );
+          }
+
           return (
             <div className="dash-cartao">
               <span className="dash-cartao-rot">{t('nav_assinatura')}</span>

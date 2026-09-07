@@ -1003,17 +1003,19 @@ body{ margin:0; background:#F6F6F4; }
             <div class="dash-cartao-barra"><div id="cred-barra" style="width:72%"></div></div>
             <div class="dash-cartao-linhas">
               <span id="cred-de">de <b>20.000</b> no ciclo</span>
-              <span>Renova em <b>26 de setembro</b></span>
+              <span id="cred-quando">Renova em <b>26 de setembro</b></span>
             </div>
             <!-- Quem tem assento numa equipe não compra crédito: quem paga é
                  quem é dono do plano. O botão sai, e no lugar entra a razão. -->
             <p class="dash-cartao-nota" id="cred-nota" hidden>
               Quem compra crédito para esta equipe é <b>Marilia Fischer</b>, que paga o plano.
             </p>
+            <!-- Recarga exige plano ativo: o servidor recusa quem não tem.
+                 Sem plano, o botão leva para os preços com o nome certo. -->
             <button class="dash-cartao-acao" id="acao-cred">Comprar créditos</button>
           </div>
 
-          <div class="dash-cartao" data-so="sozinho">
+          <div class="dash-cartao" data-so="assina">
             <span class="dash-cartao-rot">Assinatura</span>
             <strong class="dash-cartao-num">R$ 197,00<em>/mês</em></strong>
             <div class="dash-cartao-linhas">
@@ -1021,6 +1023,19 @@ body{ margin:0; background:#F6F6F4; }
               <span>Próxima cobrança <b>26 set</b></span>
             </div>
             <button class="dash-cartao-acao">Ver assinatura</button>
+          </div>
+
+          <!-- Quem nunca assinou não tem preço, nem data de cobrança, nem
+               assinatura para ver. O cartão diz o que ela TEM e oferece a
+               única coisa que faz sentido ali. -->
+          <div class="dash-cartao" data-so="semplano">
+            <span class="dash-cartao-rot">Assinatura</span>
+            <strong class="dash-cartao-num">Teste grátis</strong>
+            <div class="dash-cartao-linhas">
+              <span>Dia <b>3</b> de 7</span>
+              <span>Termina em <b>30 de setembro</b></span>
+            </div>
+            <button class="dash-cartao-acao">Assinar</button>
           </div>
 
           <div class="dash-cartao" data-so="dono">
@@ -1250,17 +1265,17 @@ body{ margin:0; background:#F6F6F4; }
 
   var ESTADOS = {
     pro: {
-      mostra:['sozinho','pagante'], olho:'Plano Pro', plano:'Plano Pro',
+      mostra:['assina','pagante'], olho:'Plano Pro', plano:'Plano Pro',
       oi:'Que bom te ver, Marilia', cred:'14.320', total:'20.000', pct:72,
       sub:'Você tem <b>14.320 créditos</b> para gastar, e eles renovam em 26 de setembro.'
     },
     trial: {
-      mostra:['sozinho','pagante'], olho:'Teste grátis', plano:'Plano Free',
+      mostra:['semplano','pagante'], olho:'Teste grátis', plano:'Plano Free', semPlano:true,
       oi:'Que bom te ver, Marilia', cred:'340', total:'500', pct:68, trial:true, semRenders:true,
       sub:'Você está no dia 3 dos sete de teste, com <b>340 créditos</b> para gastar.'
     },
     dono: {
-      mostra:['dono','pagante'], olho:'Teams · Pro', plano:'Teams (Pro)',
+      mostra:['dono','pagante','assina'], olho:'Teams · Pro', plano:'Teams (Pro)',
       oi:'Que bom te ver, Marilia', cred:'41.220', total:'60.000', pct:58,
       sub:'A equipe tem <b>41.220 créditos</b> no ciclo, e eles renovam em 26 de setembro. Três pessoas estão usando.'
     },
@@ -1270,7 +1285,7 @@ body{ margin:0; background:#F6F6F4; }
       sub:'Você tem <b>9.140 créditos</b> pelo plano do Estúdio Fischer, e eles renovam em 26 de setembro.'
     },
     admin: {
-      mostra:['sozinho','pagante','admin'], olho:'Admin', plano:'Admin',
+      mostra:['assina','pagante','admin'], olho:'Admin', plano:'Admin',
       oi:'Que bom te ver, Marilia', cred:'14.320', total:'20.000', pct:72,
       sub:'Você tem <b>14.320 créditos</b> para gastar, e eles renovam em 26 de setembro.'
     }
@@ -1286,7 +1301,13 @@ body{ margin:0; background:#F6F6F4; }
     document.getElementById('heroi-sub').innerHTML = e.sub;
     document.getElementById('menu-plano').textContent = e.plano;
     document.getElementById('cred-num').textContent = e.cred;
-    document.getElementById('cred-de').innerHTML = 'de <b>' + e.total + '</b> no ciclo';
+    document.getElementById('cred-de').innerHTML =
+      'de <b>' + e.total + '</b> ' + (e.semPlano ? 'no teste' : 'no ciclo');
+    document.getElementById('cred-quando').innerHTML = e.semPlano
+      ? 'Termina em <b>30 de setembro</b>'
+      : 'Renova em <b>26 de setembro</b>';
+    // Sem plano não existe recarga, então o botão troca de nome e de destino.
+    document.getElementById('acao-cred').textContent = e.semPlano ? 'Ver os planos' : 'Comprar créditos';
     document.getElementById('cred-barra').style.width = e.pct + '%';
     // Membro de equipe não compra crédito: o botão sai e a razão entra.
     document.getElementById('acao-cred').hidden = !!e.semCompra;
