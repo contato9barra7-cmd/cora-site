@@ -9,7 +9,10 @@
      2. Nada vaza pras telas internas do app (/app, /conta, /workspace), que
         seguem como estao.
 
-   ARQUIVO GERADO por gerar-css-conta.py. Editar la, nao aqui.
+   ARQUIVO GERADO por gerar-css-conta.py — mas o gerador NAO RODA hoje. Ele
+   importa `painel_comum.py`, que lia o `modelo-painel.html`, e os dois moravam
+   numa pasta temporaria de sessao que ja foi embora. Enquanto nao forem
+   refeitos, este arquivo e a fonte, e quem mexer aqui mexe direto.
    ============================================================================ */
 
 /* Fichas de cor da marca. No :root de proposito: as animacoes resolvem
@@ -24,22 +27,16 @@
   --turq-texto:#196C5B;
   --e-2:8px; --e-3:12px; --e-4:16px; --e-5:24px; --e-6:32px; --e-7:48px;
   /* ── A escala do painel ──
-     O artefato aprovado foi desenhado numa tela de 1280, com o painel em 655.
-     Ali a margem era 32, o selo 60 e o respiro do selo pro texto 24. Em pixel
-     fixo esses numeros so valem naquela largura: num monitor de 1900 o painel
-     vai a 973 e o selo, parado em 50, cai de 9% pra 5% da largura. Ele nao
-     mudou de tamanho, o painel e que cresceu em volta dele.
-     Em vw os mesmos numeros do artefato voltam identicos em 1280 e acompanham
-     o painel a partir dali. O piso segura janela estreita, o teto impede que
-     o pelo vire bola de praia em tela larga. */
+     O artefato aprovado foi desenhado numa tela de 1280, com o painel em 655,
+     e ali a margem era 32. Em pixel fixo esse numero so vale naquela largura:
+     num monitor de 1900 o painel vai a 973 e a margem, parada em 32, cai de 5%
+     pra 3% da largura. Ela nao mudou de tamanho, o painel e que cresceu em
+     volta dela. Em vw o numero do artefato volta identico em 1280 e acompanha
+     o painel a partir dali. O piso segura janela estreita e o teto impede que
+     a margem coma o texto em tela larga.
+     `--selo-painel` e `--respiro-selo` moravam aqui e sairam com o selo,
+     em 07/09/2026. */
   --margem-painel:clamp(32px, 2.5vw, 60px);   /* 32 do artefato = 2,5vw       */
-  --selo-painel:clamp(44px, 3.9vw, 84px);     /* 60 do artefato menos o pouco */
-  /* Borda e respiro sao a MESMA medida, e e isso que poe o selo no centro do
-     vao entre a borda do painel e o comeco do texto. No artefato eram 32 e 24,
-     4px fora do centro; o dono pediu centrado de verdade. A soma (56 em 1280)
-     e a mesma do artefato, entao o texto nao sai do lugar: so o selo desliza
-     ate o meio. 28/1280 = 2,19vw. Mexer num sem o outro descentraliza. */
-  --respiro-selo:clamp(24px, 2.19vw, 52px);
   --r-pill:100px;
   --tr-padrao:180ms; --easing:cubic-bezier(0.16,1,0.3,1);
 }
@@ -216,38 +213,16 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
   }
   @keyframes tc-colunaEntra { from{ transform:translateX(-148%); } }
   @keyframes tc-colunaFirma { from{ filter:blur(16px); opacity:0; } }
-/* ---- selo ----
-     O pelo saiu do meio do painel e foi morar na faixa de vidro. Duas razoes:
-     no centro ele cobria o padrao, que e a imagem da marca, e virava alvo no
-     meio da tela. Na faixa ele fica do tamanho de uma assinatura.
+/* ---- o selo saiu (07/09/2026) ----
+     O icone 3D morava na ponta esquerda da faixa de vidro. Sobre a foto ele
+     disputava o olho com a frase, que e o que a faixa existe pra dizer, e a
+     marca ja aparece duas vezes na mesma tela: o logo no alto do painel e o
+     do cartao, do outro lado.
 
-     A faixa nunca sai de cena, entao o selo segue de pe tambem sobre as
-     fotos, e as duas animacoes que dissolviam o icone na troca de slide
-     deixaram de existir junto com ele.
-
-     Duas camadas, como antes: a de fora (.selo) reserva a largura na faixa, a
-     de dentro (.selo__zoom) respira. Juntas, as duas disputariam o mesmo
-     transform. */
-  /* Sem margem de baixo: o `align-items:center` da faixa poe o selo no centro
-     do bloco INTEIRO de texto, da frase ate a barrinha. Ja houve aqui uma
-     compensacao pra centrar so no par frase mais apoio; o dono pediu o bloco
-     inteiro, e foi ele quem mediu na tela. Nao voltar com a compensacao. */
-  .tc .selo{ flex:0 0 auto; width:var(--selo-painel); }.tc .selo__zoom{ animation:tc-respirar 18s ease-in-out infinite; will-change:transform; }
-  /* Reto, sem giro. Zoom de 7% em 18s, subindo um pouco enquanto cresce. */
-  @keyframes tc-respirar{
-    0%,100%{ transform:translateY(0)     scale(1);    }
-    50%    { transform:translateY(-1.5%) scale(1.07); }
-  }
-/* Vento proprio, e nao o do icone grande: o deslocamento do filtro e em pixel,
-     entao os 4px que faziam o pelo respirar num icone de 280 derretiam a
-     silhueta num de 50. Frequencia mais alta e deslocamento de 1,4px dao o
-     mesmo efeito na escala nova.
-     A sombra tambem fecha: sobre o vidro escuro, um drop-shadow largo vira
-     mancha em vez de relevo. */
-  .tc .selo img{
-    width:100%; height:auto; display:block;
-    filter:url(#vento-selo) drop-shadow(0 4px 10px rgba(0,0,0,.35));
-  }.tc [data-vento="off"] .selo img{ filter:drop-shadow(0 4px 10px rgba(0,0,0,.35)); }
+     O que foi embora junto: a animacao de respiro (`tc-respirar`), o filtro
+     `#vento-selo` do LoginSplit e a largura reservada na linha. As variaveis
+     `--selo-painel` e `--respiro-selo` seguem declaradas la em cima porque
+     `--respiro-selo` ainda mede o recuo do texto no telefone. */
 /* ---- barrinhas de progresso ---- */
   /* Barrinhas curtas embaixo do texto, como no login antigo. Ficam no fluxo do
      bloco, nao soltas no topo, entao andam junto com a frase. */
@@ -300,14 +275,14 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      pinta nada, so cresce. */
   .tc .rodape-painel{
     position:absolute; left:0; right:0; bottom:0; z-index:5;
-    display:flex; align-items:center; gap:var(--respiro-selo);
-    /* 48 nos lados, o mesmo do logo la em cima. O painel tem UMA margem, e
-       tudo que encosta nela obedece: o logo no alto, o selo no pe e a ponta
-       das barrinhas na direita. Com 32 aqui o selo ficava colado na quina e,
-       depois que o logo subiu pra 48, ainda por cima desalinhado dele. */
-    /* Esquerda = respiro do selo, pelo centro do vao. Direita = margem do painel,
-       pra ponta das barrinhas continuar alinhada com o resto. */
-    padding:var(--e-5) var(--margem-painel) var(--e-5) var(--respiro-selo);
+    display:flex; align-items:center;
+    /* A margem do painel dos DOIS lados, agora que a faixa nao tem mais o selo
+       na ponta. O recuo da esquerda era o respiro do selo, uma medida que
+       existia pra centrar o icone no vao entre a quina e o texto: sem icone,
+       ela deixava a frase deslocada em relacao ao logo la em cima.
+       Com a mesma margem nos dois lados, o logo, o inicio da frase e a ponta
+       das barrinhas caem todos na mesma coluna. */
+    padding:var(--e-5) var(--margem-painel);
     background:rgba(12,12,12,.58);
     -webkit-backdrop-filter:blur(26px) saturate(170%);
             backdrop-filter:blur(26px) saturate(170%);
@@ -318,15 +293,23 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
   .tc .rodape-painel .texto{ flex:1; min-width:0; }.tc .texto{
     min-width:0;
     transition:opacity 240ms var(--easing), transform 240ms var(--easing);
-  }.tc .texto[data-trocando="true"]{ opacity:0; transform:translateY(8px); }.tc .frase{
-    font-size:clamp(18px,1.65vw,23px); font-weight:500; letter-spacing:-.02em; line-height:1.2;
+  }.tc .texto[data-trocando="true"]{ opacity:0; transform:translateY(8px); }
+/* A frase cresceu junto com o espaco que o selo deixou: os 60 a 84px que ele
+     ocupava, mais o vao entre ele e o texto, voltaram pra linha. No teto de
+     tela larga sao 26px em vez de 23.
+     Sem `max-width`: a linha ja e limitada pelo painel, que e metade da
+     janela, e qualquer teto em `ch` aqui quebra em duas linhas uma frase que
+     no desenho aprovado cabe numa so. */
+  .tc .frase{
+    font-size:clamp(19px,1.85vw,26px); font-weight:500; letter-spacing:-.02em; line-height:1.2;
     text-wrap:balance;
   }
-/* O apoio anda colado na frase. Os 6px de respiro somavam com a entrelinha
-     das duas caixas e davam 11px de branco no meio de um par que le como uma
-     coisa so. Com 2px de margem e entrelinha de 1,35, o par inteiro mede 46px,
-     que e a altura do selo ao lado. */
-  .tc .apoio{ margin-top:2px; font-size:14px; line-height:1.35; color:rgba(255,255,255,.74); }
+/* O apoio anda colado na frase: os 6px de respiro somavam com a entrelinha das
+     duas caixas e davam 11px de branco no meio de um par que le como uma coisa
+     so. Ele acompanha a frase de longe, um degrau abaixo.
+     `pretty` e o que impede a ultima palavra de cair sozinha na segunda linha
+     quando a frase passa da largura por pouco. */
+  .tc .apoio{ margin-top:3px; font-size:15px; line-height:1.4; color:rgba(255,255,255,.74); text-wrap:pretty; }
 /* ---- toque pra avançar e voltar ---- */
   .tc .toque{ position:absolute; inset:0; z-index:5; display:flex; }.tc .toque button{ height:100%; background:none; border:0; cursor:pointer; }.tc .toque button:first-child{ width:32%; }.tc .toque button:last-child{ width:68%; }
 

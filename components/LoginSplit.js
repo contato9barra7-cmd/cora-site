@@ -278,23 +278,9 @@ export default function LoginSplit({ children, denso = false }) {
   return (
     <main className={'login-split tc' + (denso ? ' tc--denso' : '')}
           style={{ '--aviso': aviso + 'px' }}>
-      {/* Vento: ruído de baixa frequência deslocando o pelo de leve. Uma oitava
-          tira o granulado.
-
-          A frequência e o deslocamento são os do SELO, de 50px, e não os do
-          ícone grande que morava no meio do painel. O filtro desloca em pixel:
-          os 4px de antes, numa figura de 50, não fariam o pelo respirar,
-          fariam a silhueta derreter. */}
-      <svg width="0" height="0" aria-hidden="true" style={{ position: 'absolute' }}>
-        <filter id="vento-selo" x="-12%" y="-12%" width="124%" height="124%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.02 0.045" numOctaves="1" seed="7" result="ruido">
-            <animate attributeName="baseFrequency" dur="22s" repeatCount="indefinite"
-                     values="0.02 0.045; 0.028 0.036; 0.017 0.05; 0.02 0.045" />
-          </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" in2="ruido" scale="1.4"
-                             xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </svg>
+      {/* O filtro de vento saiu junto com o selo, em 07/09/2026. Ele existia
+          para um alvo só, o pelo do ícone na faixa de vidro, e sem esse alvo
+          era uma turbulência SVG animada rodando para ninguém. */}
 
       <div className="painel" ref={painelRef} data-textos={JSON.stringify(textos)}>
         <div className="slide slide--grade" data-ativo="true">
@@ -314,13 +300,9 @@ export default function LoginSplit({ children, denso = false }) {
         </div>
 
         <div className="rodape-painel">
-          {/* O selo vem antes do texto porque a faixa é um flex: a ordem do
-              DOM é a ordem na linha. */}
-          <div className="selo" aria-hidden="true">
-            <div className="selo__zoom">
-              <img src="/img/icone-3d.webp" alt="" width="320" height="303" />
-            </div>
-          </div>
+          {/* Só o texto e as barrinhas. O selo com o ícone 3D saiu em
+              07/09/2026: sobre a foto ele disputava atenção com a frase, que é
+              o que a faixa existe para dizer. */}
           <div className="texto">
             <p className="frase" />
             <p className="apoio" />
