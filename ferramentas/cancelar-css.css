@@ -11,11 +11,33 @@
    fácil é mais barato que segurar à força.
    ══════════════════════════════════════════════════════════════════════ */
 
+/* ── O RESPIRO ENTRE OS BLOCOS ──
+   Quem separa é o CONTAINER da tela, com `gap`, e não a margem de cada cartão.
+   Margem de irmão colapsa, some quando o vizinho é outro tipo de elemento, e
+   obriga a lembrar dela em cada bloco novo. O `gap` vale para todos, inclusive
+   para os que ainda não existem.
+
+   18px e não 14: 14 é o respiro DENTRO de um grupo, como entre as duas colunas
+   de "o que ainda dá para fazer". Entre blocos de assuntos diferentes ele
+   deixava tudo lendo como uma pilha só. */
+[data-tela]{ display:grid; gap:18px; align-content:start; }
+/* E ESTA LINHA NAO E OPCIONAL. `display:grid` num seletor de atributo ganha do
+   `display:none` que o atributo `hidden` traz de fabrica, e sem ela as cinco
+   telas aparecem empilhadas de uma vez. E o efeito colateral classico de dar
+   `display` a um elemento que tambem usa `hidden`. */
+[data-tela][hidden]{ display:none; }
+/* E a margem de cada bloco vai a zero. Sem isto os 14px do `.conta-card` se
+   SOMAM ao gap, e a tela sai com vaos de 32, 46 e 18: um espacamento diferente
+   entre cada par, dependendo do que veio antes. */
+[data-tela] > *{ margin-top:0; margin-bottom:0; }
+
 /* O link de cancelar. Discreto, mas sublinhado e com alvo de clique de 40px:
    discreto é diferente de escondido. */
 .can-link{
   display:inline-block; margin-top:4px; padding:9px 0;
   border:0; background:none; cursor:pointer;
+  /* Vale para <button> e para <a>: os dois aparecem com esta classe, e sem a
+     fonte declarada o <a> herda a do documento e o <button> a do sistema. */
   font:inherit; font-size:14px; color:var(--ink3);
   text-decoration:underline; text-underline-offset:3px;
   transition:color var(--t);
@@ -63,6 +85,7 @@
   margin:0; font-size:14.5px; color:var(--ink2); line-height:1.65;
   text-wrap:pretty;
 }
+.can-txt + .can-txt{ margin-top:10px; }
 .can-txt b{ color:var(--ink); font-weight:600; }
 .can-nota{
   margin:12px 0 0; font-size:13px; color:var(--ink3); line-height:1.6;
@@ -136,8 +159,11 @@
    Cinza, e não vermelha. Vermelho diria que há um problema, e não há: a
    pessoa decidiu e a decisão está sendo cumprida. */
 .can-tarja{
+  /* Sem `margin-bottom`: quem separa é o `gap` da tela. A margem daqui vinha
+     depois no arquivo e ganhava do zero lá de cima, e este vão saía 32 contra
+     18 dos outros. */
   display:flex; align-items:center; justify-content:space-between;
-  gap:14px; flex-wrap:wrap; margin-bottom:14px;
+  gap:14px; flex-wrap:wrap;
   padding:13px 16px; border-radius:14px;
   background:var(--wash2); border:1px solid var(--line);
   font-size:13.5px; color:var(--ink2); line-height:1.5;

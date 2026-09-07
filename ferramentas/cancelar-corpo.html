@@ -98,7 +98,7 @@
                   <div><b>Você perde o acesso a tudo.</b> Não só à geração: as outras
                     ferramentas e o histórico também. Baixe o que quiser guardar antes
                     de 24 de outubro: as gerações ficam por até 60 dias.
-                    <button class="can-link can-link--linha">Baixar as minhas imagens</button>
+                    <a class="can-link can-link--linha" href="/app">Baixar as minhas imagens</a>
                   </div>
                 </li>
                 <li>
@@ -143,8 +143,12 @@
                      stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>
               </div>
               <h2 class="can-tit">Cancelado</h2>
-              <p class="can-txt">Nada mais será cobrado. O seu acesso continua até
-                <b>24 de outubro de 2026</b>,<br>com os créditos que você já tem.</p>
+              <!-- Dois paragrafos, e nao um <br>: sao duas informacoes, a data e o
+                   que continua valendo ate ela. Emendadas por uma quebra de
+                   linha elas leem como uma frase que estourou a largura. -->
+              <p class="can-txt">Nada mais será cobrado.</p>
+              <p class="can-txt">O seu acesso continua até <b>24 de outubro de 2026</b>,
+                com os créditos que você já tem.</p>
               <p class="can-nota">Mandamos um e-mail com a confirmação. Se quiser voltar
                 antes dessa data, é um clique. E baixe o que quiser guardar enquanto o
                 acesso vale.</p>
@@ -223,7 +227,10 @@
             <p class="can-fazer__p">Depois dessa data você perde o acesso ao histórico.
               Ele também não é um arquivo permanente: as gerações ficam disponíveis por
               até 60 dias.</p>
-            <button class="as-btn-cta">Baixar as minhas imagens</button>
+            <!-- Leva para o /app, na lista das geracoes: la ja existe selecao
+                 multipla e download em ZIP, com escolha de PNG ou JPG. Nao ha
+                 tela nova a construir, so apontar para a que existe. -->
+            <a class="as-btn-cta" href="/app">Baixar as minhas imagens</a>
           </div>
         </div>
       </div>
