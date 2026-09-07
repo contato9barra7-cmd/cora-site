@@ -1,0 +1,323 @@
+<title>Aviso de crédito</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     QUATRO DESENHOS PARA O AVISO DE CRÉDITO
+
+     O que está no ar hoje é o cartão turquesa, e ele não tem cara de aviso:
+     turquesa é cor de marca, e marca não avisa nada. Aqui estão quatro
+     jeitos de colocar o vermelho, do mais quieto ao mais alto.
+
+     Cada um aparece nos DOIS estados, porque eles não são a mesma coisa:
+     "acabando" é um aviso, "acabou" é um bloqueio. Um desenho que serve
+     para os dois é um desenho que exagera no primeiro ou economiza no
+     segundo.
+
+     Só um deles fica. Depois de escolhido, ele entra no painel.html, que é
+     o artefato de verdade, e a folha é gerada de lá.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D; --turquesa:#ADECDF;
+  --alerta:#C8342A; --alerta-bg:#FCEDEC;
+  --r:20px; --pill:100px;
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --t:170ms cubic-bezier(.16,1,.3,1);
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.18);
+  --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+}
+*,*::before,*::after{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:15px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.env{ max-width:1220px; margin-inline:auto; padding:clamp(28px,5vw,54px) clamp(18px,4vw,40px) 90px; }
+.olho{ font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--ink3); }
+h1{ margin:12px 0 0; font-size:clamp(28px,4.4vw,44px); font-weight:500; letter-spacing:-.036em; line-height:1.06; }
+.sub{ margin:14px 0 0; font-size:16px; color:var(--ink2); max-width:62ch; }
+
+h2{ margin:0; font-size:19px; font-weight:600; letter-spacing:-.02em; }
+.porque{ margin:6px 0 0; font-size:13.5px; color:var(--ink3); line-height:1.55; }
+
+.hoje{ margin-top:44px; padding-top:26px; border-top:1px solid var(--line); }
+.grade{ margin-top:44px; display:grid; gap:clamp(24px,3vw,34px); grid-template-columns:1fr; }
+@media (min-width:760px){ .grade{ grid-template-columns:1fr 1fr; } }
+@media (min-width:1140px){ .grade{ grid-template-columns:repeat(4,1fr); } }
+.op{ display:flex; flex-direction:column; }
+.pares{ margin-top:18px; display:grid; gap:16px; }
+.rot{ font-size:10.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px; }
+
+/* ── a base, que é a do painel ── */
+.av{
+  position:relative; width:100%; max-width:320px;
+  display:flex; flex-direction:column; align-items:stretch; gap:12px;
+  padding:24px 18px 18px;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--sombra);
+}
+.av__x{
+  position:absolute; top:8px; right:10px; width:24px; height:24px; border:0; background:none;
+  color:var(--ink3); font-size:19px; line-height:1; cursor:pointer; border-radius:50%;
+}
+.av__x:hover{ background:var(--wash2); color:var(--ink); }
+.av__txt strong{ display:block; font-size:14.5px; font-weight:600; letter-spacing:-.012em; }
+.av__txt small{ display:block; margin-top:1px; font-size:12.5px; color:var(--ink3); }
+.av__prog{ margin-top:10px; height:5px; border-radius:99px; background:var(--wash2); overflow:hidden; }
+.av__prog i{ display:block; height:100%; border-radius:99px; background:var(--lima); }
+.av__bt{
+  width:100%; height:40px; padding:0 18px; border:0; border-radius:var(--pill);
+  background:#111111; color:#FFFFFF; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  transition:background-color var(--t);
+}
+.av__bt:hover{ background:#2E2E2E; }
+
+/* o que está no ar hoje: turquesa, sem vermelho nenhum */
+.av--hoje{ background:var(--turquesa); border-color:transparent; color:#111111; }
+.av--hoje .av__txt strong{ color:#111111; }
+.av--hoje .av__txt small{ color:rgba(17,17,17,.66); }
+.av--hoje .av__prog{ background:rgba(17,17,17,.18); }
+.av--hoje .av__prog i{ background:#111111; }
+.av--hoje .av__x{ color:rgba(17,17,17,.55); }
+
+/* ══════════════ 1 · FIO ══════════════
+   Um fio vermelho de 4px na borda de baixo, e mais nada. O cartão continua
+   branco e o número continua sendo o assunto. É o mais quieto dos quatro. */
+.av--fio{ overflow:hidden; padding-bottom:22px; }
+.av--fio::after{ content:""; position:absolute; left:0; right:0; bottom:0; height:4px; background:var(--alerta); }
+.av--fio .av__prog i{ background:var(--alerta); }
+.av--fio .av__olho{
+  font-size:10.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--alerta); margin-bottom:6px; display:block;
+}
+
+/* ══════════════ 2 · SELO ══════════════
+   Uma pastilha vermelha em cima do número. O vermelho aparece em dois
+   lugares pequenos, o selo e a barra, e some do resto. */
+.av--selo .av__selo{
+  display:inline-flex; align-items:center; gap:6px; align-self:flex-start;
+  font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  background:var(--alerta); color:#FFFFFF; padding:4px 11px; border-radius:var(--pill);
+}
+.av--selo .av__prog i{ background:var(--alerta); }
+
+/* ══════════════ 3 · CAMPO ══════════════
+   O cartão inteiro no vermelho claro, com a borda e a tinta em vermelho.
+   É o que mais parece aviso, e o que mais pesa numa tela de trabalho. */
+.av--campo{ background:var(--alerta-bg); border-color:var(--alerta); }
+.av--campo .av__txt strong{ color:var(--alerta); }
+.av--campo .av__txt small{ color:var(--alerta); opacity:.75; }
+.av--campo .av__prog{ background:rgba(200,52,42,.16); }
+.av--campo .av__prog i{ background:var(--alerta); }
+.av--campo .av__x{ color:var(--alerta); opacity:.7; }
+.av--campo .av__bt{ background:var(--alerta); color:#FFFFFF; }
+.av--campo .av__bt:hover{ background:#A82A22; }
+
+/* ══════════════ 4 · TARJA ══════════════
+   Uma tarja vermelha atravessa o alto do cartão levando o rótulo. O corpo
+   fica branco e legível, e o vermelho não encosta no número. */
+.av--tarja{ padding-top:0; overflow:hidden; }
+.av--tarja .av__tarja{
+  margin:0 -18px 4px; padding:8px 18px; background:var(--alerta); color:#FFFFFF;
+  font-size:10.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+}
+.av--tarja .av__x{ color:rgba(255,255,255,.8); }
+.av--tarja .av__x:hover{ background:rgba(255,255,255,.18); color:#FFFFFF; }
+.av--tarja .av__prog i{ background:var(--alerta); }
+
+/* o estado "acabou" é mais grave que o "acabando", nos quatro */
+.av--zero .av__prog i{ width:100% !important; }
+
+.barra{
+  position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:50;
+  display:flex; gap:4px; padding:6px; border-radius:100px;
+  background:rgba(17,17,17,.93); box-shadow:0 12px 30px rgba(0,0,0,.30);
+}
+.barra button{
+  height:32px; padding:0 15px; border:0; border-radius:100px; background:none;
+  color:rgba(255,255,255,.6); font-family:inherit; font-size:12.5px; font-weight:500; cursor:pointer;
+}
+.barra button:hover{ color:#fff; }
+.barra button[data-on="sim"]{ background:#C4FBA7; color:#111; font-weight:600; }
+</style>
+
+<div class="env">
+  <span class="olho">Cora Render &middot; painel</span>
+  <h1>Quatro jeitos de avisar<br>que o crédito está acabando</h1>
+  <p class="sub">O que está no ar é o cartão turquesa, e turquesa é cor de marca: ela não
+    avisa nada. Abaixo, quatro maneiras de colocar o vermelho, do mais quieto ao mais alto.
+    Cada uma aparece nos dois estados, porque <b>acabando</b> é aviso e <b>acabou</b> é bloqueio.</p>
+
+  <div class="hoje">
+    <h2>Hoje</h2>
+    <p class="porque">Sem vermelho em lugar nenhum. Lido rápido, é um cartão de novidade, não de aviso.</p>
+    <div class="pares">
+      <div>
+        <div class="rot">Acabando</div>
+        <div class="av av--hoje">
+          <button class="av__x" aria-label="Fechar">&times;</button>
+          <div>
+            <div class="av__txt"><strong>820 créditos restantes</strong><small>de 20.000</small></div>
+            <div class="av__prog"><i style="width:4%"></i></div>
+          </div>
+          <button class="av__bt">Comprar créditos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grade">
+
+    <div class="op">
+      <h2>1 · Fio</h2>
+      <p class="porque">Um fio vermelho no pé do cartão e um rótulo pequeno. O branco fica,
+        o número segue sendo o assunto. O mais quieto.</p>
+      <div class="pares">
+        <div>
+          <div class="rot">Acabando</div>
+          <div class="av av--fio">
+            <button class="av__x" aria-label="Fechar">&times;</button>
+            <div>
+              <span class="av__olho">Crédito acabando</span>
+              <div class="av__txt"><strong>820 créditos restantes</strong><small>de 20.000</small></div>
+              <div class="av__prog"><i style="width:4%"></i></div>
+            </div>
+            <button class="av__bt">Comprar créditos</button>
+          </div>
+        </div>
+        <div>
+          <div class="rot">Acabou</div>
+          <div class="av av--fio av--zero">
+            <button class="av__x" aria-label="Fechar">&times;</button>
+            <div>
+              <span class="av__olho">Sem crédito</span>
+              <div class="av__txt"><strong>Seus créditos acabaram</strong><small>Recarregue para continuar gerando</small></div>
+              <div class="av__prog"><i></i></div>
+            </div>
+            <button class="av__bt">Recarregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="op">
+      <h2>2 · Selo</h2>
+      <p class="porque">Uma pastilha vermelha em cima do número. O vermelho aparece em dois
+        lugares pequenos e some do resto.</p>
+      <div class="pares">
+        <div>
+          <div class="rot">Acabando</div>
+          <div class="av av--selo">
+            <button class="av__x" aria-label="Fechar">&times;</button>
+            <span class="av__selo">Acabando</span>
+            <div>
+              <div class="av__txt"><strong>820 créditos restantes</strong><small>de 20.000</small></div>
+              <div class="av__prog"><i style="width:4%"></i></div>
+            </div>
+            <button class="av__bt">Comprar créditos</button>
+          </div>
+        </div>
+        <div>
+          <div class="rot">Acabou</div>
+          <div class="av av--selo av--zero">
+            <button class="av__x" aria-label="Fechar">&times;</button>
+            <span class="av__selo">Sem crédito</span>
+            <div>
+              <div class="av__txt"><strong>Seus créditos acabaram</strong><small>Recarregue para continuar gerando</small></div>
+              <div class="av__prog"><i></i></div>
+            </div>
+            <button class="av__bt">Recarregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="op">
+      <h2>3 · Campo</h2>
+      <p class="porque">O cartão inteiro no vermelho claro, com borda e tinta vermelhas.
+        O que mais parece aviso, e o que mais pesa numa tela de trabalho.</p>
+      <div class="pares">
+        <div>
+          <div class="rot">Acabando</div>
+          <div class="av av--campo">
+            <button class="av__x" aria-label="Fechar">&times;</button>
+            <div>
+              <div class="av__txt"><strong>820 créditos restantes</strong><small>de 20.000</small></div>
+              <div class="av__prog"><i style="width:4%"></i></div>
+            </div>
+            <button class="av__bt">Comprar créditos</button>
+          </div>
+        </div>
+        <div>
+          <div class="rot">Acabou</div>
+          <div class="av av--campo av--zero">
+            <button class="av__x" aria-label="Fechar">&times;</button>
+            <div>
+              <div class="av__txt"><strong>Seus créditos acabaram</strong><small>Recarregue para continuar gerando</small></div>
+              <div class="av__prog"><i></i></div>
+            </div>
+            <button class="av__bt">Recarregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="op">
+      <h2>4 · Tarja</h2>
+      <p class="porque">Uma tarja vermelha atravessa o alto levando o rótulo. O corpo fica
+        branco, e o vermelho não encosta no número.</p>
+      <div class="pares">
+        <div>
+          <div class="rot">Acabando</div>
+          <div class="av av--tarja">
+            <div class="av__tarja">Crédito acabando<button class="av__x" aria-label="Fechar">&times;</button></div>
+            <div>
+              <div class="av__txt"><strong>820 créditos restantes</strong><small>de 20.000</small></div>
+              <div class="av__prog"><i style="width:4%"></i></div>
+            </div>
+            <button class="av__bt">Comprar créditos</button>
+          </div>
+        </div>
+        <div>
+          <div class="rot">Acabou</div>
+          <div class="av av--tarja av--zero">
+            <div class="av__tarja">Sem crédito<button class="av__x" aria-label="Fechar">&times;</button></div>
+            <div>
+              <div class="av__txt"><strong>Seus créditos acabaram</strong><small>Recarregue para continuar gerando</small></div>
+              <div class="av__prog"><i></i></div>
+            </div>
+            <button class="av__bt">Recarregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="barra">
+  <button data-tema="light" data-on="sim">Claro</button>
+  <button data-tema="dark">Escuro</button>
+</div>
+
+<script>
+  document.querySelector('.barra').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    document.documentElement.setAttribute('data-theme', b.dataset.tema);
+    [].forEach.call(this.children, function (x) { x.removeAttribute('data-on'); });
+    b.setAttribute('data-on', 'sim');
+  });
+  document.documentElement.setAttribute('data-theme', 'light');
+</script>

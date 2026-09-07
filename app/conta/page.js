@@ -197,6 +197,10 @@ function ContaConteudo() {
   const ehTrial = conta.eh_trial === true;
   const diaDoTeste = Math.min(7, Math.max(1, 8 - (conta.trial_dias_restantes ?? 7)));
 
+  // Quem paga o plano desta equipe, para a nota do cartão de créditos poder
+  // dizer com quem falar em vez de só enunciar a regra.
+  const donoDaEquipe = equipeMembro?.dono_nome || equipeMembro?.dono_email || '';
+
   // Membro de equipe não compra crédito: quem compra é quem paga o plano.
   const podeComprar = !ehMembroVis || ehDono;
 
@@ -384,7 +388,14 @@ function ContaConteudo() {
               com o nome certo. Dois botões diferentes indo para a mesma página
               é uma escolha que não existe. */}
           {!podeComprar ? (
-            <p className="dash-cartao-nota">{t('pn_sem_compra')}</p>
+            // Com o nome de quem paga a frase deixa de ser uma regra e vira um
+            // caminho: a pessoa sabe com quem falar sem sair da tela. Sem o
+            // nome (equipe que ainda não carregou) sobra a versão genérica.
+            <p className="dash-cartao-nota">
+              {donoDaEquipe
+                ? <>{t('pn_sem_compra_a')} <b>{donoDaEquipe}</b>{t('pn_sem_compra_b')}</>
+                : t('pn_sem_compra')}
+            </p>
           ) : temPlano ? (
             <button className="dash-cartao-acao" onClick={() => router.push('/assinatura')}>
               {t('comprar_creditos')}
