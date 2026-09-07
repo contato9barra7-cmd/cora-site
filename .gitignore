@@ -16,8 +16,10 @@ yarn-error.log*
 .vercel
 next-env.d.ts
 
-# a pasta de conferencia do CORA_DIST (ver next.config.mjs)
-.next-conferencia/
+# as pastas de conferencia do CORA_DIST (ver next.config.mjs). O curinga e
+# proposital: ja existe uma com espaco no fim do nome, e sem ele um `git
+# add -A` levaria uma pasta de build inteira pro repositorio.
+.next-conferencia*
 
 # a pasta de rascunho dos geradores: saida intermediaria, nao entra no repo
 ferramentas/scratchpad/
