@@ -616,6 +616,13 @@
 /* Cada documento e uma secao com o proprio cabecalho, porque cada um tem a
    propria versao e a propria data de aceite. Uma data unica no topo da folha
    mentiria no dia em que a pessoa reaceitar so um dos dois. */
+/* Dizer, antes de comecar, que sao dois. Sem esta linha quem abre le o titulo
+   "Termos de Uso" logo no topo do texto e conclui que a folha e so dele, e nao
+   rola ate achar a Privacidade mais abaixo. */
+.cmp__aviso{
+  margin:0 0 14px; font-size:12px; color:var(--ink3); line-height:1.6;
+  text-wrap:pretty;
+}
 .cmp__sec + .cmp__sec{ margin-top:18px; }
 .cmp__sec-cab{ margin-bottom:9px; }
 .cmp__sec-cab h4{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.014em; }

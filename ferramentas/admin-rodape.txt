@@ -155,7 +155,9 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
              Reproduzir o texto e o que separa um comprovante de um recibo. Um
              link pode mudar de conteudo depois; a folha, nao. -->
         <div class="cmp__texto">
-          <span>O texto aceito, na íntegra</span>
+          <span>Os dois documentos, na íntegra</span>
+          <p class="cmp__aviso">Abaixo estão os dois textos por inteiro, cada um na versão
+            que esta conta aceitou. Não é resumo nem link: é o que estava escrito no dia.</p>
 @@DOCUMENTOS@@
         </div>
 
@@ -485,6 +487,16 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
         + 'Privacidade, em <b>' + bt.dataset.privacidade + '</b><br>'
         + 'horário de Brasília (UTC−3)';
       q('[data-cmp-registro]').textContent = bt.dataset.registro;
+      /* E a data DE CADA SECAO, que e a mesma do topo. Ela nao pode ficar
+         escrita no modelo: o modelo tem uma data de exemplo, e a folha sairia
+         com duas datas diferentes para o mesmo aceite, uma no topo e outra no
+         cabecalho do documento. Num papel que pode ir para a Justica, isso e
+         pior que nao ter data nenhuma. */
+      var quando = { termos: bt.dataset.termos, privacidade: bt.dataset.privacidade };
+      m.querySelectorAll('[data-cmp-sec]').forEach(function (sec) {
+        var alvo = sec.querySelector('[data-cmp-sec-data]');
+        if (alvo) alvo.textContent = quando[sec.dataset.cmpSec] || '—';
+      });
     }
     m.hidden = !sim;
     d.body.style.overflow = sim ? 'hidden' : '';

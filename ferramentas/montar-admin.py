@@ -136,14 +136,19 @@ import sys
 sys.path.insert(0, SCR)
 from docs_legais import DOCUMENTOS, TEXTOS as CLAUSULAS_DE, blocos
 
+# A data de aceite de cada secao NAO vem daqui: ela e do aceite da pessoa que
+# se clicou, e quem preenche e o JS. Escrever uma data fixa no cabecalho da
+# secao punha, na mesma folha, duas datas diferentes para o mesmo aceite: a do
+# topo (da pessoa) e a daqui (do modelo). Num papel que pode ir para a Justica,
+# isso e pior que nao ter data nenhuma.
 CMP_DOCS = u''.join(
-    u'<section class="cmp__sec">'
+    u'<section class="cmp__sec" data-cmp-sec="%s">'
     u'<div class="cmp__sec-cab"><h4>%s</h4>'
     u'<p>Versão <b>%s</b>, em vigor desde %s<br>'
-    u'Aceita por esta conta em <b>%s</b></p></div>'
+    u'Aceita por esta conta em <b data-cmp-sec-data>—</b></p></div>'
     u'<div class="cmp__doc">%s</div>'
     u'</section>'
-    % (d['nome'], d['versao'], d['vigor'], d['aceito'],
+    % (d['clausulas'].lower(), d['nome'], d['versao'], d['vigor'],
        blocos(CLAUSULAS_DE[d['clausulas']], 'cmp__cl'))
     for d in DOCUMENTOS)
 

@@ -405,7 +405,12 @@
   background:var(--wash);
 }/* Cada documento e uma secao com o proprio cabecalho, porque cada um tem a
    propria versao e a propria data de aceite. Uma data unica no topo da folha
-   mentiria no dia em que a pessoa reaceitar so um dos dois. */.ad .cmp__sec + .cmp__sec{ margin-top:18px; }.ad .cmp__sec-cab{ margin-bottom:9px; }.ad .cmp__sec-cab h4{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.014em; }.ad .cmp__sec-cab p{ margin:4px 0 0; font-size:11.5px; color:var(--ink3); line-height:1.6; }.ad .cmp__sec-cab b{ color:var(--ink2); font-weight:600; }.ad .cmp__cl + .cmp__cl{ margin-top:12px; }.ad .cmp__cl h4{ margin:0 0 4px; font-size:12.5px; font-weight:600; letter-spacing:-.01em; }.ad .cmp__cl p{ margin:0; font-size:12.5px; color:var(--ink2); line-height:1.7; text-wrap:pretty; }.ad .cmp__cl b{ color:var(--ink); font-weight:600; }/* A localizacao lida do IP, abaixo dele e em letra menor: o IP e o fato
+   mentiria no dia em que a pessoa reaceitar so um dos dois. *//* Dizer, antes de comecar, que sao dois. Sem esta linha quem abre le o titulo
+   "Termos de Uso" logo no topo do texto e conclui que a folha e so dele, e nao
+   rola ate achar a Privacidade mais abaixo. */.ad .cmp__aviso{
+  margin:0 0 14px; font-size:12px; color:var(--ink3); line-height:1.6;
+  text-wrap:pretty;
+}.ad .cmp__sec + .cmp__sec{ margin-top:18px; }.ad .cmp__sec-cab{ margin-bottom:9px; }.ad .cmp__sec-cab h4{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.014em; }.ad .cmp__sec-cab p{ margin:4px 0 0; font-size:11.5px; color:var(--ink3); line-height:1.6; }.ad .cmp__sec-cab b{ color:var(--ink2); font-weight:600; }.ad .cmp__cl + .cmp__cl{ margin-top:12px; }.ad .cmp__cl h4{ margin:0 0 4px; font-size:12.5px; font-weight:600; letter-spacing:-.01em; }.ad .cmp__cl p{ margin:0; font-size:12.5px; color:var(--ink2); line-height:1.7; text-wrap:pretty; }.ad .cmp__cl b{ color:var(--ink); font-weight:600; }/* A localizacao lida do IP, abaixo dele e em letra menor: o IP e o fato
    registrado, a cidade e leitura dele. Num papel que pode ir para a Justica,
    as duas na mesma linha teriam a mesma forca, e nao tem. */.ad .cmp__est{
   margin:6px 0 0!important; font-size:11px!important; color:var(--ink3)!important;
