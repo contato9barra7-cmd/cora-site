@@ -85,7 +85,7 @@
    O preco e que o titulo nao cabe mais numa linha nessa largura. A quebra fica
    em "Como podemos / ajudar?", que e onde ela cai sozinha, e e a mesma forma
    de duas linhas que a coluna ja tinha. */.sp .faq-grade{ display:grid; grid-template-columns:1fr; gap:clamp(24px,3vw,40px);
-  align-items:start; padding-top:clamp(36px,4.4vw,64px); }
+  align-items:start; padding-top:clamp(26px,3vw,40px); }
 @media (min-width:900px){.sp .faq-grade{ grid-template-columns:34fr 66fr; gap:var(--e-8); }.sp .faq-lado{ position:sticky; top:calc(var(--altura-cabecalho) + var(--e-6)); }}.sp .faq-lado h1{ margin-top:var(--e-3); font-size:clamp(30px,3.5vw,42px);
   letter-spacing:-.032em; line-height:1.1; }.sp .faq-lado > p{ margin-top:var(--e-4); font-size:15px; color:var(--ink2); line-height:1.55; }/* ── o voltar ───────────────────────────────────────────────────────────────
    O mesmo controle das paginas de Termos e Privacidade, que ja esta no ar:
@@ -93,8 +93,7 @@
    texto nao se le como controle.
 
    Ele fica ACIMA do olho, no comeco da coluna, que e onde a leitura comeca e
-   onde se procura a saida. */.sp-voltar{ display:flex; width:fit-content; align-items:center; gap:7px;
-  margin-bottom:var(--e-5); padding:8px 16px 8px 13px;
+   onde se procura a saida. */.sp-topo{ padding-top:clamp(28px,3.2vw,44px); }.sp-voltar{ display:flex; width:fit-content; align-items:center; gap:7px; padding:8px 16px 8px 13px;
   border:1px solid var(--line); border-radius:var(--r-pill);
   font-size:13.5px; font-weight:500; color:var(--ink2);
   text-decoration:none; white-space:nowrap; background:none;

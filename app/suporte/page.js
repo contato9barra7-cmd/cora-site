@@ -122,7 +122,10 @@ export default function Suporte() {
   const [recibo, setRecibo] = useState(false);
 
   const [grupo, setGrupo] = useState('tudo');
-  const [aberta, setAberta] = useState(0);
+  // -1 = nenhuma aberta. A pagina em repouso mostra as quinze perguntas e
+  // nenhuma resposta: com uma aberta, ela empurrava as outras catorze pra
+  // baixo por um texto que ninguem pediu.
+  const [aberta, setAberta] = useState(-1);
 
   // Quem já está logado não precisa digitar nome e e-mail de novo.
   useEffect(() => {
@@ -135,11 +138,11 @@ export default function Suporte() {
 
   const lista = PERGUNTAS.filter((p) => grupo === 'tudo' || p.g === grupo);
 
-  // Trocar de grupo abre a primeira do grupo novo. Sem isso a lista trocava e
-  // ficava toda fechada, ou pior, com uma resposta aberta no meio do nada.
+  // Trocar de grupo fecha tudo: uma resposta que ficasse aberta da lista
+  // anterior apareceria solta no meio da lista nova, porque o indice muda.
   function filtrar(id) {
     setGrupo(id);
-    setAberta(0);
+    setAberta(-1);
   }
 
   async function enviar(e) {
@@ -187,10 +190,16 @@ export default function Suporte() {
       <Cabecalho aqui="suporte" />
 
       <main id="conteudo">
+        {/* O voltar sozinho na primeira linha, e tudo o mais abaixo dele.
+            Dentro da coluna ele dividia a linha com a primeira pergunta, do
+            outro lado da grade, e os dois brigavam pelo topo da pagina. */}
+        <div className="env sp-topo">
+          <a href="/" className="sp-voltar" onClick={voltar}>{t('legal_voltar')}</a>
+        </div>
+
         <section className="env" id="faq" style={{ paddingBottom: 'clamp(48px,6vw,88px)' }}>
           <div className="faq-grade">
             <div className="faq-lado">
-              <a href="/" className="sp-voltar" onClick={voltar}>{t('legal_voltar')}</a>
               <span className="olho">{t('sup_eyebrow')}</span>
               <h1>{t('sup_titulo')}</h1>
               <p>{t('sup_lead')}</p>
