@@ -120,6 +120,18 @@
   text-transform:uppercase; color:var(--ink3);
 }
 
+/* Título à esquerda, ação à direita, na mesma linha. É onde as ações de
+   cartão moram no resto do admin, e a regra vive lá, na folha do admin: este
+   artefato não a carrega, então ela é repetida aqui.
+
+   `align-items:center` e não `baseline`: o botão é uma pílula de 44px e o
+   título tem 17px, e alinhar as linhas de base deixa o botão pendurado. */
+.adm-ficha-cab{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; flex-wrap:wrap; margin-bottom:8px;
+}
+.adm-ficha-cab .conta-h2{ margin:0; }
+
 /* ── A TARJA DO PERÍODO QUE AINDA CORRE ──
    Cinza, e não vermelha. Vermelho diria que há um problema, e não há: a
    pessoa decidiu e a decisão está sendo cumprida. */
