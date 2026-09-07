@@ -1005,10 +1005,14 @@ body{ margin:0; background:#F6F6F4; }
               <span id="cred-de">de <b>20.000</b> no ciclo</span>
               <!-- O teste não dá crédito nenhum: o plano free vale zero e as
                    ferramentas de IA ficam trancadas. O número grande é 0 mesmo,
-                   e esta linha diz por quê. É o mesmo texto da página de
-                   preços, para as duas telas não contarem histórias
-                   diferentes. -->
+                   e as duas linhas dizem o quê e o porquê. O segundo texto é o
+                   mesmo da página de preços, para as duas telas não contarem
+                   histórias diferentes sobre o mesmo assunto. -->
+              <span id="cred-nada" hidden>Você não tem créditos</span>
               <span id="cred-porque" hidden>Ferramentas de IA bloqueadas no teste.</span>
+              <!-- A data sai daqui quando não há crédito: ela já está no cartão
+                   do lado, e o mesmo "Termina em" duas vezes na mesma linha de
+                   cartões é ruído, não reforço. -->
               <span id="cred-quando">Renova em <b>26 de setembro</b></span>
             </div>
             <!-- Quem tem assento numa equipe não compra crédito: quem paga é
@@ -1312,10 +1316,9 @@ body{ margin:0; background:#F6F6F4; }
     // entra o motivo.
     document.getElementById('cred-de').hidden = !!e.semPlano;
     document.getElementById('cred-barra-caixa').hidden = !!e.semPlano;
+    document.getElementById('cred-nada').hidden = !e.semPlano;
     document.getElementById('cred-porque').hidden = !e.semPlano;
-    document.getElementById('cred-quando').innerHTML = e.semPlano
-      ? 'Termina em <b>30 de setembro</b>'
-      : 'Renova em <b>26 de setembro</b>';
+    document.getElementById('cred-quando').hidden = !!e.semPlano;
     // Sem plano este cartão não tem ação própria: recarga exige plano ativo, e
     // o único caminho é assinar, que é o que o cartão do lado oferece com o
     // nome certo. Dois botões indo para a mesma página é escolha que não existe.

@@ -363,15 +363,17 @@ function ContaConteudo() {
               </span>
             )}
             {/* O teste não dá crédito: o plano free vale zero, e as ferramentas
-                de IA ficam trancadas. O número grande é 0 mesmo, e a linha
-                abaixo diz por quê. O texto é o mesmo da página de preços, para
-                as duas telas não contarem histórias diferentes. */}
-            {ehTrial && !temCreditos && (
-              <span>{t('pl_free_cs')}</span>
-            )}
-            {dataLonga && (
-              // No teste o crédito não renova, o teste acaba. Dizer "renova em"
-              // ali seria prometer uma coisa que não vai acontecer.
+                de IA ficam trancadas. O número grande é 0 mesmo, e as duas
+                linhas dizem o quê e o porquê. O segundo texto é o MESMO da
+                página de preços, com a mesma chave, para as duas telas não
+                contarem histórias diferentes sobre o mesmo assunto. */}
+            {!temCreditos && <span>{t('pn_sem_creditos')}</span>}
+            {ehTrial && !temCreditos && <span>{t('pl_free_cs')}</span>}
+
+            {/* A data sai daqui quando não há crédito: ela já está no cartão
+                do lado, e o mesmo "Termina em" duas vezes na mesma linha de
+                cartões é ruído, não reforço. */}
+            {dataLonga && temCreditos && (
               <span>
                 {ehTrial ? t('pn_termina_em') : t('conta_renova_em')} <b>{dataLonga}</b>
               </span>
