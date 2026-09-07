@@ -105,7 +105,6 @@
   -webkit-mask:var(--marca) no-repeat left center / contain;
   mask:var(--marca) no-repeat left center / contain;
 }
-.app-logo--gaveta{ display:none; }
 .app-side-fechar{ display:none; }
 
 .app-side-toggle{
@@ -116,6 +115,9 @@
 }
 .app-side-toggle:hover{ background:var(--wash2); color:var(--ink); }
 .app-side-toggle--so{ padding:8px; border-radius:12px; }
+.app-shell.recolhido .app-logo{ display:none; }
+.app-shell.recolhido .app-side-toggle:not(.app-side-toggle--so){ display:none; }
+.app-shell:not(.recolhido) .app-side-toggle--so{ display:none; }
 /* Recolhido, o símbolo da marca ocupa o lugar do logotipo por extenso. Antes
    era a letra C solta, que não é a marca de ninguém. */
 .app-side-c{
@@ -175,11 +177,11 @@
    medido em centos, e o quanto resta é o número direto. */
 .app-anel{ position:absolute; inset:0; pointer-events:none; }
 .app-anel-bg{ fill:none; stroke:var(--line); stroke-width:3; }
-/* O anel é lima: é o crédito, e o crédito é a cor da marca.
-   Três de traço, e não dois e meio: lima sobre branco é clara, e o fio fino
-   sumia. Nesta espessura, encostada no quadrado preto da foto, ela se lê. */
+/* O anel é turquesa. Lima ficou apagada aqui: num fio de três, cercada de
+   branco, ela é clara demais para marcar quanto resta. O turquesa é mais
+   fechado e aguenta a espessura fina. */
 .app-anel-fill{
-  fill:none; stroke:var(--lima); stroke-width:3; stroke-linecap:round;
+  fill:none; stroke:var(--turquesa); stroke-width:3; stroke-linecap:round;
   transition:stroke-dashoffset .45s cubic-bezier(.16,1,.3,1);
 }
 /* Acabando, o anel troca de assunto: deixa de ser marca e vira sinal. */
@@ -405,70 +407,6 @@
 }
 .dash-cartao-acao:hover{ border-bottom-color:var(--ink); }
 
-/* ══════════════════════════════════════════════════════════════════════
-   TRÊS DESENHOS PARA O MESMO CARTÃO
-   Só um deles fica. A barra de baixo desta demonstração troca entre eles.
-   ══════════════════════════════════════════════════════════════════════ */
-
-/* 2 e 3 · VERDE e AZUL — o cartão inteiro na cor da marca, sem esferas.
-   A tinta fica preta em cima das duas: lima e turquesa foram feitas para
-   receber texto escuro, e é o que mantém as duas na mesma altura de leitura.
-   A barra de progresso inverte junto, senão lima sobre lima some. */
-.cartoes--verde .dash-cartao{ background:var(--lima); border-color:transparent; }
-.cartoes--azul  .dash-cartao{ background:var(--turquesa); border-color:transparent; }
-.cartoes--mista .dash-cartao{ background:var(--cor,var(--lima)); border-color:transparent; }
-.cartoes--verde .dash-cartao,
-.cartoes--azul  .dash-cartao,
-.cartoes--mista .dash-cartao{ color:#111111; }
-.cartoes--verde .dash-cartao-rot,
-.cartoes--azul  .dash-cartao-rot,
-.cartoes--mista .dash-cartao-rot{ color:rgba(17,17,17,.58); }
-.cartoes--verde .dash-cartao-num em,
-.cartoes--azul  .dash-cartao-num em,
-.cartoes--mista .dash-cartao-num em{ color:rgba(17,17,17,.58); }
-.cartoes--verde .dash-cartao-linhas span,
-.cartoes--azul  .dash-cartao-linhas span,
-.cartoes--mista .dash-cartao-linhas span{ color:rgba(17,17,17,.64); }
-.cartoes--verde .dash-cartao-linhas b,
-.cartoes--azul  .dash-cartao-linhas b,
-.cartoes--mista .dash-cartao-linhas b{ color:#111111; }
-.cartoes--verde .dash-cartao-barra,
-.cartoes--azul  .dash-cartao-barra,
-.cartoes--mista .dash-cartao-barra{ background:rgba(17,17,17,.16); }
-.cartoes--verde .dash-cartao-barra div,
-.cartoes--azul  .dash-cartao-barra div,
-.cartoes--mista .dash-cartao-barra div{ background:#111111; }
-.cartoes--verde .dash-cartao-acao,
-.cartoes--azul  .dash-cartao-acao,
-.cartoes--mista .dash-cartao-acao{ color:#111111; border-bottom-color:rgba(17,17,17,.38); }
-.cartoes--verde .dash-cartao-acao:hover,
-.cartoes--azul  .dash-cartao-acao:hover,
-.cartoes--mista .dash-cartao-acao:hover{ border-bottom-color:#111111; }
-.cartoes--verde .dash-cartao-nota,
-.cartoes--azul  .dash-cartao-nota,
-.cartoes--mista .dash-cartao-nota{ color:rgba(17,17,17,.64); border-top-color:rgba(17,17,17,.14); }
-
-/* 3 · RÉGUA — sem borda, o cartão sobe do fundo pela sombra. A barra sai do
-   meio e vira uma régua encostada no pé, de ponta a ponta, e a ação vira
-   pílula. O número manda mais, porque tem mais ar em volta dele. */
-.cartoes--regua .dash-cartao{
-  position:relative; overflow:hidden; border-color:transparent; padding-bottom:28px;
-  box-shadow:0 1px 2px rgba(17,17,17,.05), 0 12px 32px rgba(17,17,17,.07);
-}
-.cartoes--regua .dash-cartao-num{ font-size:44px; }
-.cartoes--regua .dash-cartao-barra{ display:none; }
-.cartoes--regua .dash-cartao::after{
-  content:""; position:absolute; left:0; right:0; bottom:0; height:6px;
-  background:linear-gradient(to right,
-    var(--regua,var(--lima)) var(--pct,100%), var(--wash2) var(--pct,100%));
-}
-.cartoes--regua .dash-cartao-acao{
-  border-bottom:0; height:40px; padding:0 18px; border-radius:var(--pill);
-  background:var(--wash2); color:var(--ink);
-  transition:background-color var(--t);
-}
-.cartoes--regua .dash-cartao-acao:hover{ background:var(--lima); }
-
 /* ── a equipe ── */
 .dash-eq{
   margin-top:14px; background:var(--paper); border:1px solid var(--line);
@@ -669,7 +607,7 @@
   }
   .app-burger span{ display:block; height:1.5px; border-radius:2px; background:var(--ink); }
   .app-side-toggle{ display:none; }
-  .app-logo--gaveta{ display:block; }
+  .app-shell.recolhido .app-logo{ display:block; }
   .app-side-fechar{
     display:grid; place-items:center; width:34px; height:34px; border:0; border-radius:50%;
     background:none; color:var(--ink3); font-size:22px; line-height:1; cursor:pointer;
@@ -757,9 +695,6 @@ body{ margin:0; background:#F6F6F4; }
   <!-- ══════════════ MENU LATERAL ══════════════ -->
   <aside class="app-side">
     <div class="app-side-topo">
-      <a href="#" class="app-logo app-logo--gaveta" aria-label="Cora Render"></a>
-      <button class="app-side-fechar" aria-label="Fechar" data-fecha-gaveta>&times;</button>
-
       <a href="#" class="app-logo" id="logo-largo" aria-label="Cora Render"></a>
       <button class="app-side-toggle" id="btn-recolher" title="Recolher menu" aria-label="Recolher menu">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
@@ -771,9 +706,12 @@ body{ margin:0; background:#F6F6F4; }
       <!-- Recolhido, sobra o símbolo da marca e mais nada. Ele é o botão:
            clicar nele abre a lateral de novo. Uma seta ao lado seria um
            segundo alvo para a mesma ação, num espaço de 68px. -->
-      <button class="app-side-toggle app-side-toggle--so" id="btn-expandir" title="Expandir menu" aria-label="Expandir menu" hidden>
+      <button class="app-side-toggle app-side-toggle--so" id="btn-expandir" title="Expandir menu" aria-label="Expandir menu">
         <span class="app-side-c"></span>
       </button>
+
+      <!-- Só na gaveta, onde não existe recolher: o X toma o lugar dele. -->
+      <button class="app-side-fechar" aria-label="Fechar" data-fecha-gaveta>&times;</button>
     </div>
 
     <!-- As duas abas de Promptadores saíram daqui: o produto é externo agora. -->
@@ -1045,7 +983,7 @@ body{ margin:0; background:#F6F6F4; }
         <p class="eyebrow dash-rotulo">Sua conta</p>
 
         <div class="dash-cartoes" id="cartoes">
-          <div class="dash-cartao" id="cartao-cred" style="--pct:72%; --cor:var(--lima)">
+          <div class="dash-cartao" id="cartao-cred">
             <span class="dash-cartao-rot">Créditos</span>
             <strong class="dash-cartao-num" id="cred-num">14.320</strong>
             <div class="dash-cartao-barra"><div id="cred-barra" style="width:72%"></div></div>
@@ -1061,7 +999,7 @@ body{ margin:0; background:#F6F6F4; }
             <button class="dash-cartao-acao" id="acao-cred">Comprar créditos</button>
           </div>
 
-          <div class="dash-cartao" data-so="sozinho" style="--pct:100%; --regua:var(--turquesa); --cor:var(--turquesa)">
+          <div class="dash-cartao" data-so="sozinho">
             <span class="dash-cartao-rot">Assinatura</span>
             <strong class="dash-cartao-num">R$ 197,00<em>/mês</em></strong>
             <div class="dash-cartao-linhas">
@@ -1071,7 +1009,7 @@ body{ margin:0; background:#F6F6F4; }
             <button class="dash-cartao-acao">Ver assinatura</button>
           </div>
 
-          <div class="dash-cartao" data-so="dono" style="--pct:60%; --regua:var(--turquesa); --cor:var(--turquesa)">
+          <div class="dash-cartao" data-so="dono">
             <span class="dash-cartao-rot">Equipe</span>
             <strong class="dash-cartao-num">3<em> de 5 assentos</em></strong>
             <div class="dash-cartao-linhas">
@@ -1081,7 +1019,7 @@ body{ margin:0; background:#F6F6F4; }
             <button class="dash-cartao-acao">Gerenciar equipe</button>
           </div>
 
-          <div class="dash-cartao" data-so="membro" style="--pct:100%; --regua:var(--turquesa); --cor:var(--turquesa)">
+          <div class="dash-cartao" data-so="membro">
             <span class="dash-cartao-rot">Equipe</span>
             <strong class="dash-cartao-num">Estúdio<em> Fischer</em></strong>
             <div class="dash-cartao-linhas">
@@ -1226,14 +1164,6 @@ body{ margin:0; background:#F6F6F4; }
     <button data-estado="admin">Admin</button>
   </div>
   <span class="demo-sep"></span>
-  <div class="demo-grupo" id="g-cartao">
-    <button data-cartao="ficha" data-on="sim">Ficha</button>
-    <button data-cartao="verde">Verde</button>
-    <button data-cartao="azul">Azul</button>
-    <button data-cartao="mista">Duas cores</button>
-    <button data-cartao="regua">Régua</button>
-  </div>
-  <span class="demo-sep"></span>
   <div class="demo-grupo" id="g-extra">
     <button data-extra="menu">Recolher menu</button>
     <button data-extra="credito">Crédito baixo</button>
@@ -1261,9 +1191,6 @@ body{ margin:0; background:#F6F6F4; }
   /* ── recolher e expandir a lateral ── */
   function recolher(sim) {
     shell.classList.toggle('recolhido', sim);
-    document.getElementById('logo-largo').hidden = sim;
-    document.getElementById('btn-recolher').hidden = sim;
-    document.getElementById('btn-expandir').hidden = !sim;
   }
   document.getElementById('btn-recolher').addEventListener('click', function () { recolher(true); });
   document.getElementById('btn-expandir').addEventListener('click', function () { recolher(false); });
@@ -1347,7 +1274,6 @@ body{ margin:0; background:#F6F6F4; }
     document.getElementById('cred-num').textContent = e.cred;
     document.getElementById('cred-de').innerHTML = 'de <b>' + e.total + '</b> no ciclo';
     document.getElementById('cred-barra').style.width = e.pct + '%';
-    document.getElementById('cartao-cred').style.setProperty('--pct', e.pct + '%');
     // Membro de equipe não compra crédito: o botão sai e a razão entra.
     document.getElementById('acao-cred').hidden = !!e.semCompra;
     document.getElementById('cred-nota').hidden = !e.semCompra;
@@ -1368,15 +1294,6 @@ body{ margin:0; background:#F6F6F4; }
     var b = ev.target.closest('button'); if (!b) return;
     aplicarEstado(b.dataset.estado);
     marcar(gEstado, b);
-  });
-
-  var gCartao = document.getElementById('g-cartao');
-  gCartao.addEventListener('click', function (ev) {
-    var b = ev.target.closest('button'); if (!b) return;
-    var caixa = document.getElementById('cartoes');
-    caixa.classList.remove('cartoes--ficha', 'cartoes--verde', 'cartoes--azul', 'cartoes--mista', 'cartoes--regua');
-    caixa.classList.add('cartoes--' + b.dataset.cartao);
-    marcar(gCartao, b);
   });
 
   var gExtra = document.getElementById('g-extra');
