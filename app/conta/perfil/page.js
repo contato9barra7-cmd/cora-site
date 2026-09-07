@@ -160,6 +160,24 @@ export default function Perfil() {
     }
   }
 
+  // O índice lateral acompanha a rolagem, como nas páginas legais e no
+  // suporte. Sem isto a lista fica decorativa: ela marca uma seção e nunca
+  // mais muda, mesmo com a pessoa lendo outra.
+  useEffect(() => {
+    if (carregando) return;
+    const elos = Array.from(document.querySelectorAll('.perfil-idx a'));
+    if (!elos.length) return;
+    const secoes = elos.map((a) => document.getElementById(a.getAttribute('href').slice(1)));
+    function marcar() {
+      let alvo = 0;
+      secoes.forEach((sec, i) => { if (sec && sec.getBoundingClientRect().top <= 140) alvo = i; });
+      elos.forEach((a, i) => a.setAttribute('data-aqui', i === alvo ? 'sim' : 'nao'));
+    }
+    marcar();
+    window.addEventListener('scroll', marcar, { passive: true });
+    return () => window.removeEventListener('scroll', marcar);
+  }, [carregando]);
+
   // aplica o tema imediatamente ao trocar no seletor (preview)
   function trocarTema(v) {
     setTema(v);
@@ -187,9 +205,26 @@ export default function Perfil() {
 
   return (
     <AppShell>
-      <div className="admin-wrap perfil-wrap">
-        <nav className="perfil-idx">
-          <h1>{t('nav_minhaconta')}</h1>
+      <div className="admin-wrap">
+
+        {/* A mesma cabeça do site dos Promptadores: foto quadrada de canto
+            redondo, olho, nome grande em peso 500. O h1 morava dentro do
+            índice, e um título dentro de uma lista de atalhos é um título
+            que ninguém acha. */}
+        <div className="conta-cabeca">
+          <div
+            className="conta-cabeca__foto"
+            style={conta.foto_url ? { backgroundImage: `url(${conta.foto_url})`, color: 'transparent' } : undefined}
+          >{conta.foto_url ? '' : inicial}</div>
+          <div className="conta-cabeca__txt">
+            <p className="eyebrow">{t('nav_minhaconta')}</p>
+            <h1 className="conta-cabeca__nome">{conta.nome || conta.email}</h1>
+            <p className="conta-cabeca__email">{conta.email}</p>
+          </div>
+        </div>
+
+        <div className="perfil-wrap">
+        <nav className="perfil-idx" aria-label={t('nav_minhaconta')}>
           <a href="#sec-perfil">{t('perfil_perfil')}</a>
           <a href="#sec-prefs">{t('perfil_preferencias')}</a>
           <a href="#sec-notif">{t('perfil_notificacoes')}</a>
@@ -286,7 +321,7 @@ export default function Perfil() {
         </section>
 
         <div className="perfil-salvar-barra">
-          <button className="btn btn--verde" style={{ width: 'auto', padding: '11px 28px' }} onClick={salvar} disabled={salvando}>
+          <button className="perfil-salvar" onClick={salvar} disabled={salvando}>
             {salvando ? t('comum_salvando') : t('perfil_salvar_alteracoes')}
           </button>
         </div>
@@ -354,6 +389,7 @@ export default function Perfil() {
             </>
           )}
         </section>
+        </div>
         </div>
       </div>
 

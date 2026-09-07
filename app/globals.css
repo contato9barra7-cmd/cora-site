@@ -51,6 +51,15 @@
   --line: #E4E4DF;
   --line2: #D2D2CB;
 
+  /* As duas cores da marca, desde 06/09/2026. Elas moravam só dentro das
+     folhas escopadas (.tc, .pn), e isso não alcança um componente que sai por
+     portal no fim do documento, como a lista do DropdownCora.
+     O verde e o roxo abaixo são do molde antigo e saem quando o painel
+     inteiro estiver portado. */
+  --lima: #C4FBA7;
+  --lima-esc: #A5F37D;
+  --turquesa: #ADECDF;
+
   --verde: #B3FF9F;
   --verde-esc: #8FE578;
   --roxo: #A4A1F3;
@@ -11932,7 +11941,14 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   padding: 9px 12px; border-radius: 10px; font-size: 13px; color: var(--ink); cursor: pointer;
 }
 .cora-dd-opt:hover { background: var(--accent-bg); color: var(--accent); }
-.cora-dd-opt--sel { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+/* A escolhida vai no turquesa da marca, o mesmo desenho do dropdown do
+   login. Antes era `--accent`, que no tema claro é o roxo: cor que saiu da
+   marca em 06/09/2026 e que sobrava aqui porque a lista sai por um PORTAL no
+   fim do documento, fora do escopo de qualquer folha de página. Por isso a
+   regra tem que morar aqui, no global, e não numa `.tc`/`.pn` da vida.
+   A tinta é #111 fixo, e não `--ink`: o turquesa é claro nos dois temas, e no
+   escuro o `--ink` viraria texto quase branco em cima dele. */
+.cora-dd-opt--sel { background: var(--turquesa); color: #111111; font-weight: 600; }
 /* Lista no portal (fixed em document.body) — acima de painéis/overlays */
 .cora-dd-lista--portal { z-index: 9999; }
 
@@ -11946,7 +11962,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border: 1.5px solid var(--line2); display: flex; align-items: center; justify-content: center;
   color: #fff; transition: background .12s, border-color .12s;
 }
-.cora-dd-opt--sel .cora-dd-check { background: var(--accent); border-color: var(--accent); color: var(--accent-txt); }
+.cora-dd-opt--sel .cora-dd-check { background: #111111; border-color: #111111; color: #FFFFFF; }
 
 /* ── Planta: caixinha "Piso por zona" (espelha o .pl-optbox do plugin) ── */
 .pl-optadd {

@@ -11,19 +11,39 @@
 //    não houver escolha.
 // ═══════════════════════════════════════════════════════════
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useIdioma } from '../lib/i18n';
 
 export default function CookieConsent() {
   const { t } = useIdioma();
   const [mostrar, setMostrar] = useState(false);
+  const barraRef = useRef(null);
 
   useEffect(() => {
     try {
       if (!localStorage.getItem('cora_cookie_consent')) setMostrar(true);
     } catch (e) {}
   }, []);
+
+  // ── A faixa não pode cobrir nada ──
+  // Ela é o desenho dos Promptadores, e lá ela também não cobre: o app desconta
+  // a altura dela da altura útil. Aqui a medida vira `--h-cookies` no <html>, e
+  // quem quiser se afastar lê essa variável. Sem isso ela pousava em cima do
+  // pé da página, que no painel é onde mora o bloco do plugin.
+  //
+  // Medida de verdade, não um número chutado: no telefone o texto quebra e a
+  // faixa fica bem mais alta que no desktop.
+  useEffect(() => {
+    const raiz = document.documentElement;
+    if (!mostrar || !barraRef.current) { raiz.style.removeProperty('--h-cookies'); return; }
+    const el = barraRef.current;
+    const medir = () => raiz.style.setProperty('--h-cookies', `${Math.ceil(el.getBoundingClientRect().height)}px`);
+    medir();
+    const obs = new ResizeObserver(medir);
+    obs.observe(el);
+    return () => { obs.disconnect(); raiz.style.removeProperty('--h-cookies'); };
+  }, [mostrar]);
 
   function decidir(aceitou) {
     try {
@@ -55,7 +75,7 @@ export default function CookieConsent() {
   if (!mostrar) return null;
 
   return (
-    <div className="cookie-bar" role="dialog" aria-label={t('cookieconsent_aria')}>
+    <div className="cookie-bar" ref={barraRef} role="dialog" aria-label={t('cookieconsent_aria')}>
       <div className="cookie-txt">
         {t('cookieconsent_texto')}<br />
         {t('cookieconsent_veja')} <Link href="/privacidade">{t('cookieconsent_link_privacidade')}</Link>.

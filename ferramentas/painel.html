@@ -265,6 +265,11 @@
 .app-main{
   margin-left:var(--side-w); padding-top:var(--header-h); min-height:100vh;
   display:flex; flex-direction:column; transition:margin-left var(--t);
+  /* A faixa de cookies mede a si mesma e escreve a altura em --h-cookies (ver
+     CookieConsent.js). Descontar ela aqui é o que impede a faixa de pousar em
+     cima do pé da página, que é como os Promptadores fazem. Sem a faixa na
+     tela a variável não existe e isto vale zero. */
+  padding-bottom:var(--h-cookies, 0px);
 }
 .app-shell.recolhido .app-main{ margin-left:var(--side-w-min); }
 .app-main-conteudo{ flex:1 0 auto; }
@@ -512,7 +517,7 @@
 
 /* ── o cartão flutuante: teste e crédito baixo ── */
 .trial-card{
-  position:fixed; right:26px; bottom:26px; z-index:55; width:320px;
+  position:fixed; right:26px; bottom:calc(26px + var(--h-cookies, 0px)); z-index:55; width:320px;
   display:flex; align-items:center; gap:14px; padding:16px 18px;
   background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
   box-shadow:var(--sombra);
@@ -602,6 +607,292 @@
 .app-shell.com-tarja .app-main{ padding-top:calc(var(--header-h) + var(--tarja-h,40px)); }
 
 /* ══════════════════════════════════════════════════════════════════════
+   A CABEÇA DAS TELAS DE DENTRO
+   O mesmo desenho do `.conta__cabeca` dos Promptadores: foto quadrada de
+   canto redondo, olho, nome grande em peso 500 e uma linha de apoio.
+   ══════════════════════════════════════════════════════════════════════ */
+.conta-cabeca{ display:flex; align-items:center; gap:16px; margin-bottom:30px; }
+.conta-cabeca__foto{
+  width:56px; height:56px; flex:none; border-radius:16px; display:grid; place-items:center;
+  background:var(--ink); color:var(--paper); font-size:20px; font-weight:600; letter-spacing:.02em;
+  background-size:cover; background-position:center;
+}
+.conta-cabeca__txt{ min-width:0; }
+.conta-cabeca__nome{
+  margin:5px 0 0; font-size:clamp(24px,3vw,30px); font-weight:500;
+  letter-spacing:-.032em; line-height:1.08;
+}
+.conta-cabeca__email{ margin:6px 0 0; font-size:14px; color:var(--ink2); line-height:1.5; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   MINHA CONTA
+   Duas colunas: o índice à esquerda e as seções à direita. O índice é o
+   mesmo gesto das páginas legais e do suporte, fio de 2px e lima de 3px no
+   item onde a pessoa está.
+   ══════════════════════════════════════════════════════════════════════ */
+.perfil-wrap{ display:grid; grid-template-columns:1fr; gap:clamp(24px,3vw,44px); align-items:start; }
+@media (min-width:1000px){ .perfil-wrap{ grid-template-columns:198px minmax(0,1fr); } }
+
+.perfil-idx{ display:none; position:sticky; top:calc(var(--header-h) + 34px); }
+@media (min-width:1000px){ .perfil-idx{ display:grid; gap:1px; } }
+.perfil-idx a{
+  display:block; padding:7px 14px; border-left:2px solid var(--line);
+  font-size:13.5px; line-height:1.45; color:var(--ink2);
+  transition:color var(--t), border-color var(--t);
+}
+.perfil-idx a:hover{ color:var(--ink); border-left-color:var(--ink3); }
+.perfil-idx a[data-aqui="sim"]{
+  color:var(--ink); font-weight:600; border-left-color:var(--lima); border-left-width:3px;
+}
+.perfil-idx a.perfil-idx--perigo{ color:var(--alerta); }
+
+.perfil-col{ display:grid; gap:14px; min-width:0; }
+.perfil-sec{
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r); padding:24px 26px;
+}
+.perfil-h2{
+  margin:0 0 4px; font-size:17px; font-weight:600; letter-spacing:-.016em;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.perfil-sub{ margin:0 0 18px; font-size:13.5px; color:var(--ink3); line-height:1.55; max-width:60ch; }
+
+.perfil-linha{
+  display:grid; grid-template-columns:1fr; gap:8px;
+  padding:16px 0; border-top:1px solid var(--line);
+}
+.perfil-sec > .perfil-linha:first-of-type{ border-top:0; padding-top:6px; }
+@media (min-width:720px){
+  .perfil-linha{ grid-template-columns:150px minmax(0,1fr); gap:20px; align-items:center; }
+}
+.perfil-lbl{ font-size:14px; font-weight:500; color:var(--ink2); }
+.perfil-input{
+  width:100%; height:46px; padding:0 20px; border-radius:var(--pill);
+  border:1px solid var(--line); background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:14.5px;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.perfil-input::placeholder{ color:var(--ink3); }
+.perfil-input:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+.perfil-input:disabled{ background:var(--wash); color:var(--ink3); cursor:not-allowed; }
+
+.perfil-avatar-area{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.perfil-avatar-box{ position:relative; flex:none; }
+.perfil-avatar{
+  width:64px; height:64px; border-radius:18px; display:grid; place-items:center;
+  background:var(--ink); color:var(--paper); font-size:22px; font-weight:600;
+  background-size:cover; background-position:center;
+}
+.perfil-avatar-editar,.perfil-avatar-x{
+  position:absolute; width:26px; height:26px; border-radius:50%; border:2px solid var(--paper);
+  display:grid; place-items:center; cursor:pointer; padding:0;
+}
+.perfil-avatar-editar{ right:-6px; bottom:-6px; background:var(--lima); color:#111111; }
+.perfil-avatar-editar:hover{ background:var(--lima-esc); }
+.perfil-avatar-x{ right:-6px; top:-6px; background:var(--alerta); color:#FFFFFF; font-size:14px; line-height:1; }
+.perfil-foto-dica{ font-size:13px; color:var(--ink3); line-height:1.5; max-width:34ch; }
+
+.perfil-toggle-linha{ align-items:center; }
+.perfil-toggle{
+  width:46px; height:27px; flex:none; border:0; border-radius:var(--pill); cursor:pointer;
+  background:var(--wash2); position:relative; transition:background-color var(--t);
+}
+.perfil-toggle[aria-pressed="true"]{ background:var(--lima); }
+.perfil-toggle-bola{
+  position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%;
+  background:var(--paper); box-shadow:0 1px 3px rgba(17,17,17,.24);
+  transition:transform var(--t);
+}
+.perfil-toggle[aria-pressed="true"] .perfil-toggle-bola{ transform:translateX(19px); }
+
+.perfil-salvar-barra{ display:flex; justify-content:flex-end; gap:10px; }
+.perfil-salvar-barra .btn{ height:48px; padding:0 28px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-family:inherit; font-size:14.5px; font-weight:600;
+  cursor:pointer; transition:background-color var(--t); }
+.perfil-salvar-barra .btn:hover{ background:var(--lima-esc); }
+.perfil-salvar-barra .btn:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+.perfil-salvar{
+  height:48px; padding:0 28px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-family:inherit;
+  font-size:14.5px; font-weight:600; cursor:pointer;
+  transition:background-color var(--t), transform 120ms var(--t);
+}
+.perfil-salvar:hover{ background:var(--lima-esc); }
+.perfil-salvar:active{ transform:scale(.985); }
+.perfil-salvar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+
+.disp-grupo + .disp-grupo{ margin-top:22px; }
+.disp-grupo-tit{
+  font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink3); display:flex; align-items:center; gap:8px;
+}
+.disp-contagem{ color:var(--ink2); letter-spacing:.06em; }
+.disp-lista{ margin-top:10px; border:1px solid var(--line); border-radius:var(--r-peq); overflow:hidden; }
+.disp-item{
+  display:flex; align-items:center; gap:14px; padding:13px 16px; border-top:1px solid var(--line);
+}
+.disp-item:first-child{ border-top:0; }
+.disp-item > div:first-child{ flex:1; min-width:0; }
+.disp-nome{ font-size:14.5px; font-weight:500; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.disp-ativo{
+  font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  background:var(--lima); color:#111111; padding:2px 8px; border-radius:var(--pill);
+}
+.disp-sub{ margin-top:2px; font-size:12.5px; color:var(--ink3); }
+.disp-remover{
+  flex:none; height:32px; padding:0 14px; border-radius:var(--pill);
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2);
+  font-family:inherit; font-size:13px; font-weight:500; cursor:pointer;
+  transition:border-color var(--t), color var(--t);
+}
+.disp-remover:hover{ border-color:var(--alerta); color:var(--alerta); }
+.perfil-vazio{ margin-top:10px; font-size:13.5px; color:var(--ink3); }
+
+.perfil-perigo{ border-color:var(--line2); }
+.perfil-perigo .perfil-h2{ color:var(--alerta); }
+.perfil-btn-deletar{
+  height:44px; padding:0 22px; border-radius:var(--pill);
+  border:1px solid var(--alerta); background:transparent; color:var(--alerta);
+  font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  transition:background-color var(--t), color var(--t);
+}
+.perfil-btn-deletar:hover{ background:var(--alerta); color:#FFFFFF; }
+
+/* O interruptor no site é `.on`, não `aria-pressed`: quem manda é a marcação
+   que já existe, e a folha se ajusta a ela. */
+.perfil-toggle.on{ background:var(--lima); }
+.perfil-toggle.on .perfil-toggle-bola{ transform:translateX(19px); }
+
+.perfil-legal{ margin:16px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6; }
+.perfil-link{ color:var(--ink); border-bottom:1px solid var(--lima); }
+.perfil-link:hover{ border-bottom-color:var(--ink); }
+
+/* o "?" ao lado do título de Segurança */
+.perfil-ajuda{
+  width:20px; height:20px; flex:none; border-radius:50%; border:1px solid var(--line2);
+  background:none; color:var(--ink3); font-family:inherit; font-size:11.5px; font-weight:600;
+  cursor:pointer; display:grid; place-items:center; padding:0;
+  transition:border-color var(--t), color var(--t);
+}
+.perfil-ajuda:hover{ border-color:var(--ink); color:var(--ink); }
+
+/* ── as janelas: recortar a foto, apagar a conta, a ajuda ── */
+.foto-overlay{
+  position:fixed; inset:0; z-index:120; display:grid; place-items:center; padding:24px;
+  background:rgba(17,17,17,.58); backdrop-filter:blur(6px);
+}
+.foto-modal{
+  width:min(360px,100%); max-height:calc(100dvh - 48px); overflow:auto;
+  background:var(--paper); border-radius:var(--r-heroi); box-shadow:var(--sombra);
+  padding:26px 26px 22px;
+}
+.foto-titulo{ font-size:19px; font-weight:600; letter-spacing:-.02em; margin-bottom:8px; }
+.foto-orient{ font-size:13px; color:var(--ink3); line-height:1.55; margin-bottom:16px; }
+.foto-crop{
+  width:260px; height:260px; margin:0 auto; border-radius:20px; overflow:hidden;
+  background:var(--wash2); touch-action:none; cursor:grab; display:block;
+}
+.foto-crop:active{ cursor:grabbing; }
+.foto-zoom-row{ display:flex; align-items:center; gap:12px; margin-top:16px; }
+.foto-zoom-row input[type="range"]{ flex:1; accent-color:var(--ink); }
+.foto-botoes{ display:flex; gap:10px; margin-top:20px; }
+.foto-btn-salvar{
+  flex:1; height:46px; border:0; border-radius:var(--pill); background:var(--lima); color:#111111;
+  font-family:inherit; font-size:14.5px; font-weight:600; cursor:pointer;
+}
+.foto-btn-salvar:hover{ background:var(--lima-esc); }
+.foto-btn-salvar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+.foto-btn-outra{
+  flex:1; height:46px; border:1px solid var(--line2); border-radius:var(--pill);
+  background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:14.5px; font-weight:600; cursor:pointer;
+}
+.foto-btn-outra:hover{ border-color:var(--ink); }
+.foto-cancelar{
+  margin-top:14px; text-align:center; font-size:14px; color:var(--ink3); cursor:pointer;
+  text-decoration:underline; text-underline-offset:3px;
+}
+.foto-cancelar:hover{ color:var(--ink); }
+
+.ajuda-bloco{
+  margin-top:14px; padding:14px 16px; border-radius:var(--r-peq);
+  background:var(--wash); border:1px solid var(--line);
+}
+.ajuda-tit{ font-size:14px; font-weight:600; letter-spacing:-.012em; }
+.ajuda-txt{ margin:6px 0 0; font-size:13.5px; color:var(--ink2); line-height:1.6; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   ASSINATURA
+   ══════════════════════════════════════════════════════════════════════ */
+.as-plano{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; }
+.as-plano-topo{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:24px; flex-wrap:wrap; padding:26px 28px;
+}
+.as-plano-rot{ display:flex; align-items:center; gap:9px; }
+.as-plano-rot span{
+  font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}
+.as-plano-rot em{
+  font-style:normal; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  background:var(--ok-bg); color:var(--ok); padding:3px 9px; border-radius:var(--pill);
+}
+.as-plano-nome{
+  display:block; margin-top:10px; font-size:clamp(30px,4vw,40px); font-weight:500;
+  letter-spacing:-.038em; line-height:1;
+}
+.as-plano-sub{ display:block; margin-top:10px; font-size:14.5px; color:var(--ink2); }
+.as-plano-preco{ text-align:right; }
+.as-plano-preco strong{ display:block; font-size:26px; font-weight:500; letter-spacing:-.03em; }
+.as-plano-preco strong em{
+  font-style:normal; font-size:14px; font-weight:400; color:var(--ink3); letter-spacing:0;
+}
+.as-plano-preco span{ display:block; margin-top:4px; font-size:13px; color:var(--ink3); }
+.as-plano-pe{ padding:16px 28px; border-top:1px solid var(--line); background:var(--wash); }
+.as-btn-cta{
+  display:inline-flex; align-items:center; height:46px; padding:0 26px; border:0;
+  border-radius:var(--pill); background:var(--lima); color:#111111;
+  font-family:inherit; font-size:14.5px; font-weight:600; cursor:pointer;
+  transition:background-color var(--t), transform 120ms var(--t);
+}
+.as-btn-cta:hover{ background:var(--lima-esc); }
+.as-btn-cta:active{ transform:scale(.985); }
+
+.conta-card{
+  margin-top:14px; background:var(--paper); border:1px solid var(--line);
+  border-radius:var(--r); padding:24px 26px;
+}
+.conta-h2{ margin:0; font-size:17px; font-weight:600; letter-spacing:-.016em; }
+.conta-p{ margin:8px 0 0; font-size:14px; color:var(--ink2); line-height:1.6; max-width:62ch; }
+
+.rec-destino{ margin-top:18px; max-width:360px; }
+.rec-destino .perfil-lbl{ display:block; margin-bottom:8px; }
+
+.rec-grade{ margin-top:20px; display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.rec-op{
+  position:relative; text-align:left; cursor:pointer; font-family:inherit;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r-peq);
+  padding:16px 18px; display:grid; gap:2px;
+  transition:border-color var(--t), background-color var(--t);
+}
+.rec-op:hover{ border-color:var(--line2); }
+.rec-op--on{ border-color:var(--ink); background:var(--wash); }
+.rec-op strong{ font-size:22px; font-weight:500; letter-spacing:-.03em; color:var(--ink); }
+.rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
+.rec-preco{ font-size:14px; color:var(--ink2); }
+.rec-tag{
+  position:absolute; top:-9px; right:12px; font-style:normal;
+  font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  background:var(--turquesa); color:#111111; padding:3px 9px; border-radius:var(--pill);
+}
+.rec-btn{
+  margin-top:20px; height:46px; padding:0 26px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-family:inherit; font-size:14.5px; font-weight:600;
+  cursor:pointer; transition:background-color var(--t);
+}
+.rec-btn:hover{ background:var(--lima-esc); }
+.rec-btn:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+
+/* ══════════════════════════════════════════════════════════════════════
    ATÉ 1024px a lateral vira gaveta, e a esteira deita
    ══════════════════════════════════════════════════════════════════════ */
 @media (max-width:1024px){
@@ -645,7 +936,7 @@
     to  { background-position:calc(var(--pad-deitado) * 8) center; }
   }
   .heroi__txt{ padding:30px 26px; }
-  .trial-card{ right:16px; left:16px; bottom:16px; width:auto; }
+  .trial-card{ right:16px; left:16px; bottom:calc(16px + var(--h-cookies, 0px)); width:auto; }
 }
 </style>
 
@@ -731,7 +1022,7 @@ body{ margin:0; background:#F6F6F4; }
     <!-- As duas abas de Promptadores saíram daqui: o produto é externo agora. -->
     <nav class="app-nav">
       <div>
-        <a href="#" class="app-nav-item ativo">
+        <a href="#" class="app-nav-item ativo" data-vai="inicio">
           <span class="app-nav-ic">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -754,7 +1045,7 @@ body{ margin:0; background:#F6F6F4; }
       </div>
       <div>
         <div class="app-nav-div"></div>
-        <a href="#" class="app-nav-item">
+        <a href="#" class="app-nav-item" data-vai="conta">
           <span class="app-nav-ic">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
@@ -775,7 +1066,7 @@ body{ margin:0; background:#F6F6F4; }
         </a>
       </div>
       <div data-so="pagante">
-        <a href="#" class="app-nav-item">
+        <a href="#" class="app-nav-item" data-vai="assinatura">
           <span class="app-nav-ic">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>
@@ -864,7 +1155,7 @@ body{ margin:0; background:#F6F6F4; }
   <!-- ══════════════ A HOME DO PAINEL ══════════════ -->
   <main class="app-main">
     <div class="app-main-conteudo">
-      <div class="admin-wrap">
+      <div class="admin-wrap" data-tela="inicio">
 
         <div class="vercomo" data-so="admin">
           <span class="vercomo-lbl">Ver como</span>
@@ -1152,6 +1443,216 @@ body{ margin:0; background:#F6F6F4; }
         </div>
 
       </div>
+
+      <!-- ══════════════ MINHA CONTA ══════════════
+           A cabeça é a mesma dos Promptadores: foto quadrada de canto
+           redondo, olho, nome grande. O índice à esquerda repete o gesto das
+           páginas legais e do suporte. -->
+      <div class="admin-wrap" data-tela="conta" hidden>
+
+        <div class="conta-cabeca">
+          <div class="conta-cabeca__foto">M</div>
+          <div class="conta-cabeca__txt">
+            <p class="eyebrow">Sua conta</p>
+            <h1 class="conta-cabeca__nome">Marilia Fischer</h1>
+            <p class="conta-cabeca__email">marilia@estudio.com.br</p>
+          </div>
+        </div>
+
+        <div class="perfil-wrap">
+          <nav class="perfil-idx" aria-label="Seções desta página">
+            <a href="#sec-perfil" data-aqui="sim">Perfil</a>
+            <a href="#sec-prefs">Preferências</a>
+            <a href="#sec-notif">Notificações</a>
+            <a href="#sec-seg">Segurança</a>
+            <a href="#sec-perigo" class="perfil-idx--perigo">Apagar a conta</a>
+          </nav>
+
+          <div class="perfil-col">
+
+            <section class="perfil-sec" id="sec-perfil">
+              <h2 class="perfil-h2">Perfil</h2>
+              <p class="perfil-sub">O nome e a foto aparecem no seu histórico e para quem divide a equipe com você.</p>
+
+              <div class="perfil-linha">
+                <label class="perfil-lbl">Foto</label>
+                <div class="perfil-avatar-area">
+                  <div class="perfil-avatar-box">
+                    <div class="perfil-avatar">M</div>
+                    <button class="perfil-avatar-editar" aria-label="Trocar a foto">
+                      <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M4 14.5V16h1.5l8-8L12 6.5l-8 8z" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <p class="perfil-foto-dica">Proporção 1:1, a partir de 400&times;400px. Arraste para enquadrar.</p>
+                </div>
+              </div>
+
+              <div class="perfil-linha">
+                <label class="perfil-lbl">Nome</label>
+                <input class="perfil-input" value="Marilia Fischer">
+              </div>
+
+              <div class="perfil-linha">
+                <label class="perfil-lbl">Nome de usuário</label>
+                <input class="perfil-input" value="marilia" placeholder="como você aparece">
+              </div>
+
+              <div class="perfil-linha">
+                <label class="perfil-lbl">E-mail</label>
+                <input class="perfil-input" value="marilia@estudio.com.br" disabled>
+              </div>
+            </section>
+
+            <section class="perfil-sec" id="sec-prefs">
+              <h2 class="perfil-h2">Preferências</h2>
+              <p class="perfil-sub">Valem em qualquer navegador onde você entrar.</p>
+
+              <div class="perfil-linha">
+                <label class="perfil-lbl">Idioma</label>
+                <!-- No site quem desenha isto é o DropdownCora, que sai por um
+                     portal no fim do documento. O estilo dele mora no
+                     globals.css, no padrão do login, e não nesta folha. -->
+                <div class="demo-dd" style="max-width:260px">Português</div>
+              </div>
+              <div class="perfil-linha">
+                <label class="perfil-lbl">Tema</label>
+                <div class="demo-dd" style="max-width:260px">Sistema</div>
+              </div>
+            </section>
+
+            <section class="perfil-sec" id="sec-notif">
+              <h2 class="perfil-h2">Notificações</h2>
+              <div class="perfil-linha perfil-toggle-linha">
+                <div>
+                  <label class="perfil-lbl">Novidades do Cora</label>
+                  <p class="perfil-sub" style="margin:2px 0 0">Uma por mês, no máximo. Nunca sobre cobrança.</p>
+                </div>
+                <button class="perfil-toggle" aria-pressed="true" aria-label="Receber novidades">
+                  <span class="perfil-toggle-bola"></span>
+                </button>
+              </div>
+            </section>
+
+            <div class="perfil-salvar-barra">
+              <button class="perfil-salvar">Salvar</button>
+            </div>
+
+            <section class="perfil-sec" id="sec-seg">
+              <h2 class="perfil-h2">Segurança</h2>
+              <p class="perfil-sub">Onde a sua conta está aberta agora. Tirar um aparelho daqui desconecta ele na hora.</p>
+
+              <div class="disp-grupo">
+                <div class="disp-grupo-tit">SketchUp <span class="disp-contagem">2/3</span></div>
+                <div class="disp-lista">
+                  <div class="disp-item">
+                    <div>
+                      <div class="disp-nome">Estúdio · Windows <span class="disp-ativo">em uso</span></div>
+                      <div class="disp-sub">Último acesso hoje, 14:02</div>
+                    </div>
+                    <button class="disp-remover">Remover</button>
+                  </div>
+                  <div class="disp-item">
+                    <div>
+                      <div class="disp-nome">Notebook · macOS</div>
+                      <div class="disp-sub">Último acesso 3 de setembro, 09:41</div>
+                    </div>
+                    <button class="disp-remover">Remover</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="disp-grupo">
+                <div class="disp-grupo-tit">Navegador <span class="disp-contagem">1/3</span></div>
+                <div class="disp-lista">
+                  <div class="disp-item">
+                    <div>
+                      <div class="disp-nome">Chrome · Windows <span class="disp-ativo">em uso</span></div>
+                      <div class="disp-sub">Último acesso agora</div>
+                    </div>
+                    <button class="disp-remover">Remover</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="perfil-sec perfil-perigo" id="sec-perigo">
+              <h2 class="perfil-h2">Apagar a conta</h2>
+              <p class="perfil-sub">Some com o seu acesso, com as suas imagens e com o histórico. Não tem como desfazer, e o crédito que sobrar não volta.</p>
+              <button class="perfil-btn-deletar">Apagar a minha conta</button>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ ASSINATURA ══════════════ -->
+      <div class="admin-wrap" data-tela="assinatura" hidden>
+
+        <div class="conta-cabeca">
+          <div class="conta-cabeca__foto">M</div>
+          <div class="conta-cabeca__txt">
+            <p class="eyebrow">Sua conta</p>
+            <h1 class="conta-cabeca__nome">O seu plano</h1>
+            <p class="conta-cabeca__email">Cobrança, recibos e troca de plano acontecem no portal do Stripe.</p>
+          </div>
+        </div>
+
+        <div class="as-plano">
+          <div class="as-plano-topo">
+            <div>
+              <div class="as-plano-rot">
+                <span>Plano atual</span>
+                <em>Ativo</em>
+              </div>
+              <strong class="as-plano-nome">Pro</strong>
+              <span class="as-plano-sub">20.000 créditos por mês · renova em 20 dias</span>
+            </div>
+            <div class="as-plano-preco">
+              <strong>R$ 197,00<em>/mês</em></strong>
+              <span>Cliente desde janeiro de 2026</span>
+            </div>
+          </div>
+          <div class="as-plano-pe">
+            <button class="as-btn-cta">Gerenciar assinatura</button>
+          </div>
+        </div>
+
+        <div class="conta-card">
+          <h2 class="conta-h2">Precisa de mais créditos?</h2>
+          <p class="conta-p">
+            Recargas avulsas valem por 6 meses e são usadas depois que os créditos
+            do plano acabam.
+          </p>
+
+          <div class="rec-grade">
+            <button class="rec-op">
+              <span class="rec-nome">Pequena</span>
+              <strong>2.000</strong>
+              <span class="rec-preco">R$ 30</span>
+            </button>
+            <button class="rec-op">
+              <span class="rec-nome">Média</span>
+              <strong>5.000</strong>
+              <span class="rec-preco">R$ 65</span>
+            </button>
+            <button class="rec-op rec-op--on">
+              <em class="rec-tag">Popular</em>
+              <span class="rec-nome">Grande</span>
+              <strong>12.000</strong>
+              <span class="rec-preco">R$ 140</span>
+            </button>
+            <button class="rec-op">
+              <span class="rec-nome">Enorme</span>
+              <strong>30.000</strong>
+              <span class="rec-preco">R$ 320</span>
+            </button>
+          </div>
+
+          <button class="rec-btn">Comprar</button>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -1193,6 +1694,12 @@ body{ margin:0; background:#F6F6F4; }
   <div class="demo-grupo" id="g-tema">
     <button data-tema="light" data-on="sim">Claro</button>
     <button data-tema="dark">Escuro</button>
+  </div>
+  <span class="demo-sep"></span>
+  <div class="demo-grupo" id="g-tela">
+    <button data-tela="inicio" data-on="sim">Início</button>
+    <button data-tela="conta">Minha conta</button>
+    <button data-tela="assinatura">Assinatura</button>
   </div>
   <span class="demo-sep"></span>
   <div class="demo-grupo" id="g-estado">
@@ -1342,6 +1849,78 @@ body{ margin:0; background:#F6F6F4; }
     document.getElementById('card-trial').hidden = !e.trial;
     if (e.trial) document.getElementById('card-cred').hidden = true;
   }
+
+  /* ── trocar de tela ──
+     No site cada uma é uma rota, e quem troca é o Next. Aqui elas convivem no
+     mesmo arquivo, escondidas, para dar para comparar as três sem sair. */
+  var NOMES = { inicio: 'Início', conta: 'Minha conta', assinatura: 'Assinatura' };
+  function mostrarTela(qual) {
+    [].forEach.call(document.querySelectorAll('[data-tela]'), function (el) {
+      el.hidden = el.dataset.tela !== qual;
+    });
+    document.querySelector('.app-header-aqui').textContent = NOMES[qual];
+    // O índice mede as seções, e elemento escondido mede zero: rodando com a
+    // tela fechada, TODAS passavam no teste e a última ganhava. Refaz a conta
+    // depois que a tela aparece. (No site isto não existe: lá cada tela é uma
+    // rota, e nunca há uma escondida ao lado.)
+    window.dispatchEvent(new Event('scroll'));
+    [].forEach.call(document.querySelectorAll('.app-nav-item'), function (a) {
+      a.classList.toggle('ativo', a.dataset.vai === qual);
+    });
+    window.scrollTo(0, 0);
+  }
+  var gTela = document.getElementById('g-tela');
+  gTela.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button'); if (!b) return;
+    mostrarTela(b.dataset.tela);
+    marcar(gTela, b);
+  });
+  // Clicar no próprio menu também troca, que é como a pessoa vai fazer.
+  [].forEach.call(document.querySelectorAll('.app-nav-item[data-vai]'), function (a) {
+    a.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      mostrarTela(a.dataset.vai);
+      marcar(gTela, gTela.querySelector('[data-tela="' + a.dataset.vai + '"]'));
+      shell.classList.remove('gaveta');
+    });
+  });
+
+  /* ── o índice de Minha conta acompanha a leitura ──
+     Sem observador de rolagem a lista fica decorativa, como ficou nas páginas
+     legais antes de ganhar o mesmo tratamento. */
+  (function () {
+    var elos = [].slice.call(document.querySelectorAll('.perfil-idx a'));
+    if (!elos.length) return;
+    var secoes = elos.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
+    function marcarIdx() {
+      var alvo = 0;
+      for (var i = 0; i < secoes.length; i++) {
+        if (secoes[i] && secoes[i].getBoundingClientRect().top <= 140) alvo = i;
+      }
+      elos.forEach(function (a, i) { a.setAttribute('data-aqui', i === alvo ? 'sim' : 'nao'); });
+    }
+    marcarIdx();
+    window.addEventListener('scroll', marcarIdx, { passive: true });
+    elos.forEach(function (a) {
+      a.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        var alvo = document.getElementById(a.getAttribute('href').slice(1));
+        if (alvo) window.scrollTo({ top: alvo.getBoundingClientRect().top + window.scrollY - 90, behavior: 'smooth' });
+      });
+    });
+  })();
+
+  /* ── as peças que a demonstração deixa clicáveis ── */
+  var toggle = document.querySelector('.perfil-toggle');
+  if (toggle) toggle.addEventListener('click', function () {
+    toggle.setAttribute('aria-pressed', toggle.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+  });
+  [].forEach.call(document.querySelectorAll('.rec-op'), function (op) {
+    op.addEventListener('click', function () {
+      [].forEach.call(document.querySelectorAll('.rec-op'), function (o) { o.classList.remove('rec-op--on'); });
+      op.classList.add('rec-op--on');
+    });
+  });
 
   var gEstado = document.getElementById('g-estado');
   gEstado.addEventListener('click', function (ev) {

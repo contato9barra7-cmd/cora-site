@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import ModalFiscal from '../../components/ModalFiscal';
+import DropdownCora from '../../components/DropdownCora';
 import { lerConta, abrirPortal, lerEquipe, iniciarCheckout } from '../../lib/auth';
 import { recargas } from '../../lib/planos';
 import { itemDaRecarga } from '../../lib/stripe-prices';
@@ -112,16 +113,26 @@ export default function Assinatura() {
   return (
     <AppShell>
       <div className="admin-wrap">
-        <h1 className="conta-ola">{t('assinatura_titulo')}</h1>
+        <div className="conta-cabeca">
+          <div
+            className="conta-cabeca__foto"
+            style={conta.foto_url ? { backgroundImage: `url(${conta.foto_url})`, color: 'transparent' } : undefined}
+          >{conta.foto_url ? '' : (conta.nome || conta.email || '?').charAt(0).toUpperCase()}</div>
+          <div className="conta-cabeca__txt">
+            <p className="eyebrow">{t('pn_sua_conta')}</p>
+            <h1 className="conta-cabeca__nome">{t('assinatura_titulo')}</h1>
+            <p className="conta-cabeca__email">{t('assinatura_recibos_stripe')}</p>
+          </div>
+        </div>
         {erro && <div className="login-erro" style={{ marginBottom: 18 }}>{erro}</div>}
 
         {ehDonoEquipe && equipe ? (
-          <div className="conta-card" style={{ borderColor: 'var(--roxo)' }}>
+          <div className="conta-card">
             <h2 className="conta-h2">{t('assinatura_titulo_equipe')}</h2>
             <p className="conta-p">
               {t('assinatura_equipe_pre')}<strong>{NOME_PLANO[equipe.plano] || equipe.plano}</strong>{t('assinatura_equipe_mid')}{equipe.assentos}{t('assinatura_equipe_pos')}
             </p>
-            <button className="btn btn--ink" style={{ width: 'auto', marginTop: 6, padding: '11px 24px' }} onClick={gerenciar} disabled={abrindo}>
+            <button className="as-btn-cta" style={{ marginTop: 16 }} onClick={gerenciar} disabled={abrindo}>
               {abrindo ? t('assinatura_abrindo') : t('assinatura_gerenciar')}
             </button>
           </div>
@@ -154,7 +165,7 @@ export default function Assinatura() {
                   {conta.assinou_em && (
                     <span>
                       {t('assinatura_cliente_desde')}{' '}
-                      {new Date(conta.assinou_em).toLocaleDateString(localeDeIdioma(idioma), { month: 'short', year: 'numeric' })}
+                      {new Date(conta.assinou_em).toLocaleDateString(localeDeIdioma(idioma), { month: 'long', year: 'numeric' })}
                     </span>
                   )}
                 </div>
@@ -188,18 +199,15 @@ export default function Assinatura() {
             {conta.eh_dono_equipe && (
               membros.length ? (
                 <div className="rec-destino">
-                  <label className="login-label">{t('assinatura_enviar_para')}</label>
-                  <select
-                    className="login-input"
-                    value={assentoSel}
-                    onChange={(e) => setAssentoSel(e.target.value)}
-                  >
-                    {membros.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.email}{m.eh_dono ? t('assinatura_voce') : ''}
-                      </option>
-                    ))}
-                  </select>
+                  <label className="perfil-lbl">{t('assinatura_enviar_para')}</label>
+                  <DropdownCora
+                    valor={assentoSel}
+                    onEscolher={(v) => setAssentoSel(v)}
+                    opcoes={membros.map((m) => ({
+                      v: String(m.id),
+                      n: m.email + (m.eh_dono ? t('assinatura_voce') : ''),
+                    }))}
+                  />
                 </div>
               ) : (
                 <p className="conta-p" style={{ color: 'var(--alerta)' }}>
