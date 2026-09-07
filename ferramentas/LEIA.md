@@ -45,6 +45,32 @@ antigo sem `!important` e sem apagar nada de ninguém.
 Ele imprime `seletores sem escopo: N` no fim. **Se não for zero, alguma regra
 vai vazar para o site inteiro.**
 
+## `painel.html`
+
+O artefato do painel: a moldura (`AppShell`) e a home de `/conta`, na
+identidade nova. Ainda **não foi portado** — está aqui para aprovação.
+
+Ele abre direto do disco, e a barra preta no rodapé troca tema (claro e
+escuro) e estado da conta (Pro, teste, dono de equipe, membro, admin) para
+ver a mesma tela pelos olhos de cada um.
+
+Os nomes de classe são os que já estão em produção sempre que a peça
+sobrevive, para a portagem ser troca de folha e não reescrita de componente.
+
+Quando for portar:
+
+```
+python gerar-css-artefato.py painel.html ../app/painel-pagina.css pn
+```
+
+**Um cuidado que ainda não existe no gerador:** este é o primeiro artefato
+com tema escuro. As regras dele estão escritas como
+`:root[data-theme="dark"]`, e o `prefixar()` hoje transformaria isso em
+`.pn :root[...]`, que não casa com nada, porque o atributo mora no `<html>`.
+Antes de gerar, o `prefixar()` precisa aprender a jogar esse pedaço para
+fora do escopo: `:root[data-theme="dark"] .x` vira
+`[data-theme="dark"] .pn .x`.
+
 ## `montar-home.py`
 
 Escreve `lib/home-motor.js` e `components/HomeCora.js` a partir de

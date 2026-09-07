@@ -314,3 +314,53 @@ def faixa_uri(chao=None, forma=None):
     import urllib.parse
     return "url(\"data:image/svg+xml,%s\")" % urllib.parse.quote(
         faixa_svg(chao, forma), safe="")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  A ESTEIRA (a faixa de pe, da coluna do heroi do painel)
+#
+#  Ela NAO e a faixa ODD_ODO_DO girada. Girada, uma sequencia inteira mede oito
+#  diametros: numa coluna de 136px isso da 1088px de altura, e no heroi cabem
+#  duas formas e meia com um vazio no meio.
+#
+#  A esteira e outra peca do mesmo vocabulario: so a meia-lua, reta em cima e
+#  barriga para baixo, avancando UM RAIO, uma atras da outra sem vao. E a mesma
+#  regra da spec aplicada em fila, e e o desenho que os Promptadores usam na
+#  coluna deles.
+#
+#  Nove formas por ladrilho, entao ele mede 4,5 larguras de altura. Andar
+#  exatamente isso faz a emenda cair em cima de si mesma e nunca aparecer.
+# ─────────────────────────────────────────────────────────────────────────────
+ESTEIRA_FORMAS = 9
+
+
+def esteira_svg(chao=None, forma=None):
+    chao = chao or CORES_FAIXA["chao"]
+    forma = forma or CORES_FAIXA["forma"]
+    partes, y = [], 0.0
+    for _ in range(ESTEIRA_FORMAS):
+        # Sweep 0 e o que faz o arco descer. Com 1 ele subiria, e a esteira
+        # viraria uma fila de cupulas em vez de tigelas.
+        partes.append('<path d="M0,%g A.5.5 0 0 0 1,%g Z"/>' % (y, y))
+        y += 0.5
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="%g" '
+        'viewBox="0 0 1 %g" preserveAspectRatio="none">'
+        '<rect width="1" height="%g" fill="%s"/>'
+        '<g fill="%s">%s</g></svg>'
+    ) % (y, y, y, chao, forma, "".join(partes))
+
+
+def esteira_uri(chao=None, forma=None):
+    """A esteira como data: URI.
+
+    Quem usar isto precisa escrever o `background-size` em CONTA, nunca com
+    `auto`: o SVG vai com preserveAspectRatio="none" e o `auto` nem sempre
+    devolve a proporcao dele. Quando nao devolve, o ladrilho estica ate a
+    altura da caixa e as meias-luas viram lascas achatadas.
+
+        background-size: 100% calc(var(--pad-heroi) * 4.5);
+    """
+    import urllib.parse
+    return "url(\"data:image/svg+xml,%s\")" % urllib.parse.quote(
+        esteira_svg(chao, forma), safe="")

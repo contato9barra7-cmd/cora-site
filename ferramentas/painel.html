@@ -1,0 +1,1091 @@
+<title>Painel do Cora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     PAINEL DO CORA · a moldura (AppShell) e a home do painel (/conta)
+
+     A home segue o modelo da home dos Promptadores: um cartão branco com a
+     esteira da faixa numa coluna, a marca e a pergunta do lado. O bloco preto
+     de hoje saiu. A faixa é a mesma do cabeçalho dos e-mails, na geometria da
+     spec: círculo avança um diâmetro, meia-lua avança um raio, vão avança um
+     diâmetro, sequência ODD_ODO_DO.
+
+     Os nomes de classe são os mesmos que já estão em produção sempre que a
+     peça sobrevive. Assim a portagem é troca de folha na maior parte dela.
+
+     O primeiro <style> é o que o gerador lê:
+         python gerar-css-artefato.py painel.html ../app/painel-pagina.css pn
+     O segundo <style>, com atributo, é só a moldura desta demonstração e não
+     entra no site (a expressão do gerador só casa <style> sem atributo).
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<style>
+:root{
+  /* ── a identidade nova, a mesma das páginas públicas ── */
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D; --turquesa:#ADECDF; --periwinkle:#A3A6FA;
+  --ok:#1F7A44; --ok-bg:#EAF6EE;
+  --alerta:#C8342A; --alerta-bg:#FCEDEC;
+
+  --side-w:240px; --side-w-min:68px; --header-h:60px;
+  --pad-heroi:136px;      /* a coluna da esteira */
+  --pad-deitado:58px;     /* a mesma esteira, virada, no celular */
+  --r:20px; --r-peq:12px; --r-heroi:22px; --pill:100px;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --t:170ms cubic-bezier(.16,1,.3,1);
+
+  --marca:url('data:image/png;base64,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');
+  --simbolo:url('data:image/png;base64,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');
+  --faixa-pe:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%224.5%22%20viewBox%3D%220%200%201%204.5%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%221%22%20height%3D%224.5%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Cpath%20d%3D%22M0%2C0%20A.5.5%200%200%200%201%2C0%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C0.5%20A.5.5%200%200%200%201%2C0.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C1%20A.5.5%200%200%200%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C1.5%20A.5.5%200%200%200%201%2C1.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C2%20A.5.5%200%200%200%201%2C2%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C2.5%20A.5.5%200%200%200%201%2C2.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C3%20A.5.5%200%200%200%201%2C3%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C3.5%20A.5.5%200%200%200%201%2C3.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C4%20A.5.5%200%200%200%201%2C4%20Z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --faixa-deitada:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
+/* O escuro do painel. As páginas públicas não têm tema escuro, o painel tem,
+   com ajuste na conta e no menu do avatar. Tirar seria tirar uma preferência
+   que já existe, então ele fica, com um par coerente dos tokens novos. A
+   faixa não muda de cor no escuro: ela é a marca, e a marca é a mesma. */
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --ok:#7BD3A0; --ok-bg:rgba(31,122,68,.16);
+  --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.16);
+  --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+}
+
+.app-shell{
+  min-height:100vh; background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:15px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.app-shell *,.app-shell *::before,.app-shell *::after{ box-sizing:border-box; }
+.app-shell a{ color:inherit; text-decoration:none; }
+.app-shell button{ font-family:inherit; }
+
+/* O olho: o rótulo pequeno de caixa alta que abre cada bloco. É o mesmo das
+   páginas públicas, e é ele que dá ritmo a uma tela sem títulos grandes. */
+.eyebrow{
+  margin:0; font-size:11px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   O MENU LATERAL
+   O ícone continua nu, sem cápsula. Quem marca onde a pessoa está é um fio
+   de lima de 3px, o mesmo do índice lateral das páginas legais e do suporte.
+   Repetir o gesto é o que faz o site parecer um só.
+   ══════════════════════════════════════════════════════════════════════ */
+.app-side{
+  position:fixed; top:0; left:0; bottom:0; width:var(--side-w); z-index:50;
+  background:var(--paper); border-right:1px solid var(--line);
+  display:flex; flex-direction:column; transition:width var(--t);
+}
+.app-shell.recolhido .app-side{ width:var(--side-w-min); }
+
+.app-side-topo{
+  height:var(--header-h); flex:none; display:flex; align-items:center;
+  justify-content:space-between; gap:8px; padding:0 16px;
+  border-bottom:1px solid var(--line);
+}
+.app-shell.recolhido .app-side-topo{ justify-content:center; padding:0; }
+
+/* A marca é máscara, não imagem: ela toma a cor do texto e atravessa o tema
+   escuro sem precisar de um segundo arquivo. */
+.app-logo{
+  display:block; width:92px; height:22px; flex:none; background:var(--ink);
+  -webkit-mask:var(--marca) no-repeat left center / contain;
+  mask:var(--marca) no-repeat left center / contain;
+}
+.app-logo--gaveta{ display:none; }
+.app-side-fechar{ display:none; }
+
+.app-side-toggle{
+  flex:none; display:flex; align-items:center; gap:6px;
+  background:none; border:0; cursor:pointer; color:var(--ink3);
+  padding:6px; border-radius:9px;
+  transition:color var(--t), background-color var(--t);
+}
+.app-side-toggle:hover{ background:var(--wash2); color:var(--ink); }
+.app-side-toggle--so{ padding:6px 4px; }
+/* Recolhido, o símbolo da marca ocupa o lugar do logotipo por extenso. Antes
+   era a letra C solta, que não é a marca de ninguém. */
+.app-side-c{
+  width:20px; height:20px; display:block; background:var(--ink);
+  -webkit-mask:var(--simbolo) no-repeat center / contain;
+  mask:var(--simbolo) no-repeat center / contain;
+}
+.app-side-seta{ display:flex; }
+
+.app-nav{ padding:14px 10px; display:flex; flex-direction:column; gap:2px; }
+.app-nav-div{ height:1px; background:var(--line); margin:12px 10px; }
+
+.app-nav-item{
+  position:relative; display:flex; align-items:center; gap:12px;
+  height:40px; padding:0 12px; border-radius:var(--r-peq);
+  color:var(--ink2); font-size:14.5px; font-weight:500; letter-spacing:-.005em;
+  white-space:nowrap; transition:background-color var(--t), color var(--t);
+}
+.app-nav-ic{ flex:none; display:flex; color:var(--ink3); transition:color var(--t); }
+.app-nav-lbl{ overflow:hidden; text-overflow:ellipsis; }
+.app-nav-item:hover{ background:var(--wash2); color:var(--ink); }
+.app-nav-item:hover .app-nav-ic{ color:var(--ink); }
+
+.app-nav-item.ativo{ background:var(--wash2); color:var(--ink); font-weight:600; }
+.app-nav-item.ativo .app-nav-ic{ color:var(--ink); }
+.app-nav-item.ativo::before{
+  content:""; position:absolute; left:0; top:50%; transform:translateY(-50%);
+  width:3px; height:18px; border-radius:2px; background:var(--lima);
+}
+.app-shell.recolhido .app-nav-item{ justify-content:center; padding:0 9px; }
+.app-shell.recolhido .app-nav-lbl{ display:none; }
+.app-shell.recolhido .app-nav-div{ margin:10px 8px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O CABEÇALHO
+   ══════════════════════════════════════════════════════════════════════ */
+.app-header{
+  position:fixed; top:0; right:0; left:var(--side-w); height:var(--header-h); z-index:40;
+  background:var(--paper); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; padding:0 26px; transition:left var(--t);
+}
+.app-shell.recolhido .app-header{ left:var(--side-w-min); }
+.app-header-aqui{ font-size:14.5px; font-weight:600; letter-spacing:-.012em; color:var(--ink); }
+.app-header-dir{ margin-left:auto; display:flex; align-items:center; gap:16px; }
+.app-burger{ display:none; }
+
+.app-user-wrap{ position:relative; }
+.app-user-btn{
+  position:relative; width:46px; height:46px; display:grid; place-items:center;
+  background:none; border:0; padding:0; cursor:pointer;
+}
+/* O anel diz quanto resta. Ele é informação, então a cor dele é a do texto e
+   não a da marca: lima num fio de 2,5px sobre branco quase não se vê. A marca
+   entra logo ali dentro, no avatar, onde ela é área e não fio. */
+.app-anel{ position:absolute; inset:0; pointer-events:none; }
+.app-anel-bg{ fill:none; stroke:var(--line); stroke-width:2.5; }
+.app-anel-fill{
+  fill:none; stroke:var(--ink); stroke-width:2.5; stroke-linecap:round;
+  transition:stroke-dashoffset .45s cubic-bezier(.16,1,.3,1);
+}
+.app-anel-fill.baixo{ stroke:var(--alerta); }
+.app-avatar{
+  width:36px; height:36px; border-radius:50%; display:grid; place-items:center;
+  background:var(--lima); color:#111111; font-size:15px; font-weight:600;
+  letter-spacing:-.01em; user-select:none;
+}
+
+.app-user-menu{
+  position:absolute; top:calc(100% + 10px); right:0; width:284px; z-index:60;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--sombra); padding:14px; text-align:left;
+}
+.app-user-nome{
+  font-size:14.5px; font-weight:600; letter-spacing:-.01em; color:var(--ink);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.app-user-plano{
+  margin-top:2px; font-size:11px; font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink3);
+}
+
+.cred-card{
+  margin:14px 0; padding:14px; border-radius:var(--r-peq);
+  background:var(--wash); border:1px solid var(--line);
+}
+.cred-rot{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
+.cred-num{ margin-top:4px; font-size:26px; font-weight:500; letter-spacing:-.03em; line-height:1.1; }
+.cred-barra{ margin-top:10px; height:5px; border-radius:99px; background:var(--wash2); overflow:hidden; }
+.cred-fill{ height:100%; border-radius:99px; background:var(--lima); transition:width .5s cubic-bezier(.16,1,.3,1); }
+.cred-fill--alerta{ background:var(--alerta); }
+.cred-pe{ margin-top:8px; display:flex; justify-content:space-between; gap:10px; font-size:12.5px; color:var(--ink3); }
+.cred-card--ilim .cred-num{ font-size:20px; }
+
+.app-user-link{
+  width:100%; display:flex; align-items:center; gap:9px; padding:9px 10px;
+  border:0; background:none; border-radius:10px; cursor:pointer;
+  font-size:14px; color:var(--ink2); text-align:left;
+  transition:background-color var(--t), color var(--t);
+}
+.app-user-link:hover{ background:var(--wash2); color:var(--ink); }
+.app-user-sair{ margin-top:4px; }
+
+.app-user-pref{
+  display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 10px;
+}
+.app-user-pref label{ font-size:13.5px; color:var(--ink2); }
+.app-user-pref-dd{ width:132px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O CONTEÚDO
+   ══════════════════════════════════════════════════════════════════════ */
+.app-veu{
+  position:fixed; inset:0; z-index:45; background:rgba(17,17,17,.42);
+  opacity:0; pointer-events:none; transition:opacity var(--t);
+}
+.app-main{
+  margin-left:var(--side-w); padding-top:var(--header-h); min-height:100vh;
+  display:flex; flex-direction:column; transition:margin-left var(--t);
+}
+.app-shell.recolhido .app-main{ margin-left:var(--side-w-min); }
+.app-main-conteudo{ flex:1 0 auto; }
+.admin-wrap{ max-width:1080px; margin:0 auto; padding:34px 40px 56px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O HERÓI, no modelo da home dos Promptadores
+   Cartão branco, a esteira da faixa numa coluna, a marca e a pergunta do
+   lado. A esteira anda devagar: o ladrilho tem 8 unidades de altura por 1
+   de largura, então uma volta inteira é a largura da coluna vezes 8. Andar
+   exatamente isso faz a emenda cair em cima de si mesma e nunca aparecer.
+   ══════════════════════════════════════════════════════════════════════ */
+.heroi{
+  display:grid; grid-template-columns:var(--pad-heroi) minmax(0,1fr);
+  border:1px solid var(--line); border-radius:var(--r-heroi); overflow:hidden;
+  background:var(--paper); min-height:330px;
+}
+.heroi__pad{
+  background:var(--faixa-pe) repeat-y center;
+  /* O ladrilho tem 4,5 larguras de altura. Escrito em conta e nao com `auto`
+     porque o SVG vai com preserveAspectRatio="none" e o `auto` nem sempre
+     devolve a proporcao dele: quando nao devolve, o ladrilho estica ate a
+     altura da caixa e as meias-luas viram lascas achatadas. */
+  background-size:100% calc(var(--pad-heroi) * 4.5);
+  animation:esteira 64s linear infinite;
+}
+@keyframes esteira{
+  from{ background-position:center 0; }
+  to  { background-position:center calc(var(--pad-heroi) * 4.5); }
+}
+.heroi__txt{ padding:44px 48px; display:flex; flex-direction:column; justify-content:center; }
+.heroi__marca{
+  width:104px; height:25px; margin-bottom:22px; background:var(--ink);
+  -webkit-mask:var(--marca) no-repeat left center / contain;
+  mask:var(--marca) no-repeat left center / contain;
+}
+.heroi__txt h1{
+  margin:8px 0 0; font-size:clamp(26px,3vw,38px); font-weight:500;
+  letter-spacing:-.032em; line-height:1.1; text-wrap:balance;
+}
+.heroi__sub{ margin:14px 0 0; color:var(--ink2); font-size:15px; max-width:52ch; text-wrap:pretty; }
+.heroi__sub b{ color:var(--ink); font-weight:600; }
+.heroi__acoes{ margin-top:28px; display:flex; gap:10px; flex-wrap:wrap; }
+
+.dash-btn-cta,.dash-btn-sec{
+  height:48px; padding:0 24px; border-radius:var(--pill); border:1px solid transparent;
+  font-size:14.5px; font-weight:600; letter-spacing:-.005em; cursor:pointer;
+  transition:background-color var(--t), color var(--t), border-color var(--t), transform 120ms var(--t);
+}
+.dash-btn-cta{ background:var(--lima); color:#111111; }
+.dash-btn-cta:hover{ background:var(--lima-esc); }
+.dash-btn-sec{ background:var(--paper); color:var(--ink); border-color:var(--line2); }
+.dash-btn-sec:hover{ border-color:var(--ink); }
+.dash-btn-cta:active,.dash-btn-sec:active{ transform:scale(.985); }
+
+/* ── os cartões da conta ──
+   auto-fit e não um número de colunas: quando um cartão não existe (não tem
+   equipe, não tem assinatura), os que sobram ocupam a linha inteira em vez de
+   ficarem espremidos numa coluna magra ao lado de um vazio. */
+.dash-rotulo{ margin:34px 0 14px; }
+.dash-cartoes{ display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(248px,1fr)); }
+.dash-cartao{
+  display:flex; flex-direction:column;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r); padding:22px;
+}
+.dash-cartao-rot{ font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+.dash-cartao-num{
+  display:block; margin-top:8px; font-size:34px; font-weight:500;
+  letter-spacing:-.038em; line-height:1.05;
+}
+.dash-cartao-num em{ font-style:normal; font-size:15px; font-weight:400; color:var(--ink3); letter-spacing:0; }
+.dash-cartao-barra{ margin-top:14px; height:6px; border-radius:99px; background:var(--wash2); overflow:hidden; }
+.dash-cartao-barra div{ height:100%; border-radius:99px; background:var(--lima); transition:width .5s cubic-bezier(.16,1,.3,1); }
+.dash-cartao-barra div.baixo{ background:var(--alerta); }
+.dash-cartao-linhas{ margin-top:14px; display:grid; gap:5px; }
+.dash-cartao-linhas span{ font-size:13.5px; color:var(--ink3); }
+.dash-cartao-linhas b{ color:var(--ink2); font-weight:600; }
+.dash-cartao-acao{
+  margin-top:18px; align-self:flex-start; padding:0; border:0; background:none; cursor:pointer;
+  font-size:14px; font-weight:600; color:var(--ink);
+  border-bottom:2px solid var(--lima); line-height:1.5;
+  transition:border-color var(--t);
+}
+.dash-cartao-acao:hover{ border-bottom-color:var(--ink); }
+
+/* ── a equipe ── */
+.dash-eq{
+  margin-top:14px; background:var(--paper); border:1px solid var(--line);
+  border-radius:var(--r); overflow:hidden;
+}
+.dash-eq-cab{ display:flex; align-items:center; gap:14px; padding:20px 22px; }
+.dash-eq-foto{ width:42px; height:42px; border-radius:12px; background:var(--wash2) center/cover; flex:none; }
+.dash-eq-id{ flex:1; min-width:0; }
+.dash-eq-id strong{ display:block; font-size:15.5px; font-weight:600; letter-spacing:-.012em; }
+.dash-eq-id span{ display:block; margin-top:2px; font-size:13.5px; color:var(--ink3); }
+.dash-eq-btn{
+  flex:none; height:40px; padding:0 20px; border-radius:var(--pill);
+  border:1px solid var(--line2); background:var(--paper); color:var(--ink);
+  font-size:14px; font-weight:600; cursor:pointer;
+  transition:border-color var(--t), background-color var(--t);
+}
+.dash-eq-btn:hover{ border-color:var(--ink); }
+.dash-eq-btn--sair{ color:var(--alerta); border-color:var(--line); }
+.dash-eq-btn--sair:hover{ border-color:var(--alerta); }
+
+.dash-eq-membro{ display:flex; align-items:center; gap:14px; padding:14px 22px; border-top:1px solid var(--line); }
+.dash-eq-av{
+  width:32px; height:32px; border-radius:50%; flex:none; display:grid; place-items:center;
+  background:var(--wash2); color:var(--ink2); font-size:13px; font-weight:600;
+}
+.dash-eq-quem{ flex:1; min-width:0; }
+.dash-eq-quem strong{ font-size:14px; font-weight:500; color:var(--ink2); }
+.dash-eq-quem em{ font-style:normal; color:var(--ink3); }
+.dash-eq-uso{ text-align:right; }
+.dash-eq-uso strong{ display:block; font-size:15px; font-weight:600; letter-spacing:-.015em; }
+.dash-eq-uso span{ font-size:12.5px; color:var(--ink3); }
+
+/* ── o plugin ── */
+.dash-plugin{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; }
+.dash-plugin-cab{ display:flex; align-items:center; gap:14px; padding:22px; }
+.dash-plugin-ico{
+  width:44px; height:44px; flex:none; border-radius:13px; display:grid; place-items:center;
+  background:var(--turquesa); color:#111111;
+}
+.dash-plugin-txt{ flex:1; min-width:0; }
+.dash-plugin-txt strong{ display:block; font-size:15.5px; font-weight:600; letter-spacing:-.012em; }
+.dash-plugin-txt span{ display:block; margin-top:2px; font-size:13.5px; color:var(--ink3); }
+.dash-plugin-btn{
+  flex:none; height:44px; padding:0 22px; border-radius:var(--pill); border:0;
+  background:var(--lima); color:#111111; font-size:14.5px; font-weight:600; cursor:pointer;
+  transition:background-color var(--t), transform 120ms var(--t);
+}
+.dash-plugin-btn:hover{ background:var(--lima-esc); }
+.dash-plugin-btn:active{ transform:scale(.985); }
+.dash-plugin-btn:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+
+.dash-plugin-abre{
+  width:100%; display:flex; align-items:center; gap:9px; padding:14px 22px;
+  border:0; border-top:1px solid var(--line); background:var(--wash);
+  font-size:14px; font-weight:500; color:var(--ink2); cursor:pointer; text-align:left;
+  transition:background-color var(--t), color var(--t);
+}
+.dash-plugin-abre:hover{ background:var(--wash2); color:var(--ink); }
+.dash-plugin-abre svg{ flex:none; transition:transform var(--t); }
+.dash-plugin-abre--on svg{ transform:rotate(180deg); }
+.dash-plugin-abre em{
+  margin-left:auto; font-style:normal; font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink3);
+}
+
+.dash-plugin-passos{ padding:6px 22px 22px; display:grid; gap:0; }
+.dash-passo{ display:flex; gap:14px; padding:12px 0; border-top:1px solid var(--line); }
+.dash-passo:first-child{ border-top:0; }
+.dash-passo > span{
+  width:26px; height:26px; flex:none; border-radius:50%; display:grid; place-items:center;
+  background:var(--wash2); color:var(--ink2); font-size:12.5px; font-weight:600;
+}
+.dash-passo strong{ display:block; font-size:14.5px; font-weight:600; letter-spacing:-.01em; }
+.dash-passo p{ margin:2px 0 0; font-size:13.5px; color:var(--ink3); line-height:1.5; }
+
+/* ── avisos, e o seletor que só o admin vê ── */
+.conta-aviso{
+  margin-bottom:16px; padding:13px 18px; border-radius:var(--r-peq);
+  background:var(--ok-bg); color:var(--ok); font-size:14px; font-weight:500;
+}
+.login-erro{
+  padding:13px 18px; border-radius:var(--r-peq);
+  background:var(--alerta-bg); color:var(--alerta); font-size:14px; font-weight:500;
+}
+.vercomo{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+.vercomo-lbl{ font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+.vercomo-opcoes{ display:flex; gap:4px; padding:4px; border-radius:var(--pill); background:var(--wash2); }
+.vercomo-btn{
+  height:32px; padding:0 15px; border:0; border-radius:var(--pill); background:none;
+  color:var(--ink2); font-size:13.5px; font-weight:500; cursor:pointer;
+  transition:background-color var(--t), color var(--t);
+}
+.vercomo-btn:hover{ color:var(--ink); }
+.vercomo-btn--on{ background:var(--paper); color:var(--ink); font-weight:600; box-shadow:0 1px 3px rgba(17,17,17,.10); }
+
+/* ── o cartão flutuante: teste e crédito baixo ── */
+.trial-card{
+  position:fixed; right:26px; bottom:26px; z-index:55; width:320px;
+  display:flex; align-items:center; gap:14px; padding:16px 18px;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--sombra);
+}
+.trial-card-info{ flex:1; min-width:0; }
+.trial-card-txt strong{ display:block; font-size:14.5px; font-weight:600; letter-spacing:-.012em; }
+.trial-card-txt small{ display:block; margin-top:1px; font-size:12.5px; color:var(--ink3); }
+.trial-card-prog{ margin-top:10px; height:5px; border-radius:99px; background:var(--wash2); overflow:hidden; }
+.trial-card-prog i{ display:block; height:100%; border-radius:99px; background:var(--lima); }
+.cred-bar-baixo{ background:var(--lima); }
+.cred-bar-zero{ background:var(--alerta); }
+.trial-card-btn{
+  flex:none; height:40px; padding:0 18px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-size:14px; font-weight:600; cursor:pointer;
+  transition:background-color var(--t);
+}
+.trial-card-btn:hover{ background:var(--lima-esc); }
+.cred-nudge{ padding-right:30px; }
+.cred-nudge-x{
+  position:absolute; top:8px; right:10px; width:24px; height:24px; border:0; background:none;
+  color:var(--ink3); font-size:19px; line-height:1; cursor:pointer; border-radius:50%;
+}
+.cred-nudge-x:hover{ background:var(--wash2); color:var(--ink); }
+
+/* ── o bloqueio de tela cheia ── */
+.trial-bloqueio{
+  position:fixed; inset:0; z-index:70; display:grid; place-items:center; padding:24px;
+  background:rgba(17,17,17,.58); backdrop-filter:blur(6px);
+}
+.trial-bloqueio-card{
+  width:min(440px,100%); text-align:center; overflow:hidden;
+  background:var(--paper); border-radius:var(--r-heroi); box-shadow:var(--sombra);
+}
+/* A faixa fecha o cartão por cima, como no cabeçalho do e-mail. É a mesma
+   peça, no mesmo lugar: o alto do cartão. */
+.trial-bloqueio-faixa{
+  height:38px; background:var(--faixa-deitada) repeat-x left center;
+  background-size:calc(38px * 8) 100%;
+}
+.trial-bloqueio-miolo{ padding:30px 34px 34px; }
+.trial-bloqueio-eb{ font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+.trial-bloqueio-card h1{ margin:12px 0 0; font-size:28px; font-weight:500; letter-spacing:-.03em; line-height:1.14; }
+.trial-bloqueio-card p{ margin:12px 0 0; font-size:14.5px; color:var(--ink2); line-height:1.6; }
+.trial-bloqueio-card .btn{
+  margin-top:24px; height:50px; padding:0 30px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-size:15px; font-weight:600; cursor:pointer;
+}
+.trial-bloqueio-card .btn:hover{ background:var(--lima-esc); }
+.trial-bloqueio-sair{
+  display:block; margin:14px auto 0; border:0; background:none; color:var(--ink3);
+  font-size:14px; cursor:pointer; text-decoration:underline; text-underline-offset:3px;
+}
+.trial-bloqueio-sair:hover{ color:var(--ink); }
+
+/* ── a tarja de personificação ── */
+.tarja-personificacao{
+  position:fixed; top:0; left:0; right:0; z-index:80;
+  display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;
+  padding:9px 18px; background:var(--periwinkle); color:#111111; font-size:13.5px;
+}
+.tarja-personificacao-nota{ color:rgba(17,17,17,.66); }
+.tarja-personificacao-sair{
+  height:28px; padding:0 14px; border:1px solid rgba(17,17,17,.30); border-radius:var(--pill);
+  background:transparent; color:#111111; font-size:12.5px; font-weight:600; cursor:pointer;
+}
+.tarja-personificacao-sair:hover{ background:rgba(17,17,17,.10); }
+.app-shell.com-tarja .app-side,.app-shell.com-tarja .app-header{ top:var(--tarja-h,40px); }
+.app-shell.com-tarja .app-main{ padding-top:calc(var(--header-h) + var(--tarja-h,40px)); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   ATÉ 1024px a lateral vira gaveta, e a esteira deita
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width:1024px){
+  .app-side{ transform:translateX(-100%); width:var(--side-w); transition:transform var(--t); }
+  .app-shell.gaveta .app-side{ transform:none; box-shadow:var(--sombra); }
+  .app-shell.recolhido .app-side{ width:var(--side-w); }
+  .app-shell.gaveta .app-veu{ opacity:1; pointer-events:auto; }
+  .app-header,.app-shell.recolhido .app-header{ left:0; padding:0 16px; }
+  .app-main,.app-shell.recolhido .app-main{ margin-left:0; }
+  .app-burger{
+    display:flex; flex-direction:column; justify-content:center; gap:4px;
+    width:40px; height:40px; padding:0 9px; border:0; background:none; cursor:pointer;
+  }
+  .app-burger span{ display:block; height:1.5px; border-radius:2px; background:var(--ink); }
+  .app-side-toggle{ display:none; }
+  .app-logo--gaveta{ display:block; }
+  .app-side-fechar{
+    display:grid; place-items:center; width:34px; height:34px; border:0; border-radius:50%;
+    background:none; color:var(--ink3); font-size:22px; line-height:1; cursor:pointer;
+  }
+  .app-side-fechar:hover{ background:var(--wash2); color:var(--ink); }
+  .app-shell.recolhido .app-nav-item{ justify-content:flex-start; padding:0 12px; }
+  .app-shell.recolhido .app-nav-lbl{ display:block; }
+  .admin-wrap{ padding:26px 20px 48px; }
+
+  /* Deitada, a esteira troca de ladrilho e de eixo. Esticar o de pé na
+     horizontal esmagaria os círculos em elipses. */
+  .heroi{ grid-template-columns:1fr; min-height:0; }
+  .heroi__pad{
+    height:var(--pad-deitado);
+    background:var(--faixa-deitada) repeat-x left center;
+    background-size:calc(var(--pad-deitado) * 8) 100%;
+    animation:esteira-deitada 54s linear infinite;
+  }
+  @keyframes esteira-deitada{
+    from{ background-position:0 center; }
+    to  { background-position:calc(var(--pad-deitado) * 8) center; }
+  }
+  .heroi__txt{ padding:30px 26px; }
+  .trial-card{ right:16px; left:16px; bottom:16px; width:auto; }
+}
+</style>
+
+<style data-demo>
+/* Só a moldura desta demonstração. Nada aqui vai para o site: o gerador lê o
+   primeiro <style>, e a expressão dele não casa com uma tag que tem atributo. */
+body{ margin:0; background:#F6F6F4; }
+:root[data-theme="dark"] body{ background:#0F0F11; }
+/* Sem isto o atributo hidden perde para o display do CSS, e a tarja, o
+   bloqueio e os cartões do canto aparecem todos de uma vez. No site quem
+   decide o que existe na tela é o React, não este atributo. */
+[hidden]{ display:none !important; }
+.demo-barra{
+  position:fixed; z-index:200; left:50%; bottom:18px; transform:translateX(-50%);
+  display:flex; align-items:center; gap:4px; padding:6px;
+  background:rgba(17,17,17,.93); border-radius:100px;
+  box-shadow:0 12px 30px rgba(0,0,0,.30);
+  font-family:'DM Sans',system-ui,sans-serif;
+}
+.demo-barra button{
+  height:32px; padding:0 13px; border:0; border-radius:100px; background:none;
+  color:rgba(255,255,255,.60); font-family:inherit; font-size:12.5px; font-weight:500;
+  cursor:pointer; white-space:nowrap; transition:background-color .16s, color .16s;
+}
+.demo-barra button:hover{ color:#fff; }
+.demo-barra button[data-on="sim"]{ background:#C4FBA7; color:#111; font-weight:600; }
+.demo-sep{ width:1px; height:20px; background:rgba(255,255,255,.16); margin:0 5px; }
+/* O lugar do DropdownCora, só para o menu não ficar com um buraco. No site
+   quem desenha isso é o componente, que já está na identidade nova. */
+.demo-dd{
+  height:34px; padding:0 14px; display:flex; align-items:center; justify-content:space-between;
+  border:1px solid var(--line); border-radius:100px; background:var(--paper);
+  font-size:13.5px; color:var(--ink2);
+}
+.demo-dd::after{
+  content:""; width:6px; height:6px; margin-left:8px;
+  border-right:1.5px solid var(--ink3); border-bottom:1.5px solid var(--ink3);
+  transform:rotate(45deg) translate(-2px,-2px);
+}
+@media (max-width:760px){
+  .demo-barra{ left:8px; right:8px; transform:none; flex-wrap:wrap; justify-content:center; border-radius:22px; }
+}
+</style>
+
+<div class="app-shell" id="shell">
+
+  <!-- ── a tarja de personificação (só quando o admin está vendo como cliente) ── -->
+  <div class="tarja-personificacao" id="tarja" hidden>
+    <span>Você está vendo a conta de <b>marilia@estudio.com.br</b> · 24 min</span>
+    <span class="tarja-personificacao-nota">Só leitura</span>
+    <button class="tarja-personificacao-sair">Encerrar</button>
+  </div>
+
+  <!-- ══════════════ MENU LATERAL ══════════════ -->
+  <aside class="app-side">
+    <div class="app-side-topo">
+      <a href="#" class="app-logo app-logo--gaveta" aria-label="Cora Render"></a>
+      <button class="app-side-fechar" aria-label="Fechar" data-fecha-gaveta>&times;</button>
+
+      <a href="#" class="app-logo" id="logo-largo" aria-label="Cora Render"></a>
+      <button class="app-side-toggle" id="btn-recolher" title="Recolher menu" aria-label="Recolher menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+          <rect x="3" y="4" width="18" height="16" rx="2.5"/>
+          <path d="M9 4v16" stroke-linecap="round"/>
+          <path d="M15.5 9.5L13 12l2.5 2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="app-side-toggle app-side-toggle--so" id="btn-expandir" title="Expandir menu" aria-label="Expandir menu" hidden>
+        <span class="app-side-c"></span>
+        <span class="app-side-seta">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+            <rect x="3" y="4" width="18" height="16" rx="2.5"/>
+            <path d="M9 4v16" stroke-linecap="round"/>
+            <path d="M13 9.5l2.5 2.5L13 14.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </button>
+    </div>
+
+    <!-- As duas abas de Promptadores saíram daqui: o produto é externo agora. -->
+    <nav class="app-nav">
+      <div>
+        <a href="#" class="app-nav-item ativo">
+          <span class="app-nav-ic">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            </svg>
+          </span>
+          <span class="app-nav-lbl">Painel</span>
+        </a>
+      </div>
+      <div>
+        <a href="#" class="app-nav-item">
+          <span class="app-nav-ic">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 2.5l8.5 4.8v9.4L12 21.5l-8.5-4.8V7.3z" stroke-linejoin="round"/>
+              <path d="M12 12l8.5-4.7M12 12v9.5M12 12L3.5 7.3" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="app-nav-lbl">Cora Render</span>
+        </a>
+      </div>
+      <div>
+        <div class="app-nav-div"></div>
+        <a href="#" class="app-nav-item">
+          <span class="app-nav-ic">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </span>
+          <span class="app-nav-lbl">Minha conta</span>
+        </a>
+      </div>
+      <div data-so="dono">
+        <a href="#" class="app-nav-item">
+          <span class="app-nav-ic">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-3-3.87"/><path d="M9 21v-2a4 4 0 0 1 3-3.87"/>
+              <circle cx="9" cy="7" r="3"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </span>
+          <span class="app-nav-lbl">Equipe</span>
+        </a>
+      </div>
+      <div data-so="pagante">
+        <a href="#" class="app-nav-item">
+          <span class="app-nav-ic">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>
+            </svg>
+          </span>
+          <span class="app-nav-lbl">Assinatura</span>
+        </a>
+      </div>
+      <div data-so="admin">
+        <a href="#" class="app-nav-item">
+          <span class="app-nav-ic">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/>
+            </svg>
+          </span>
+          <span class="app-nav-lbl">Admin</span>
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ══════════════ CABEÇALHO ══════════════ -->
+  <header class="app-header">
+    <button class="app-burger" id="btn-gaveta" aria-label="Menu"><span></span><span></span><span></span></button>
+
+    <span class="app-header-aqui">Painel</span>
+
+      <div class="app-header-dir">
+      <div class="app-user-wrap">
+        <button class="app-user-btn" id="btn-user" title="Minha conta">
+          <svg class="app-anel" width="46" height="46" viewBox="0 0 46 46">
+            <circle class="app-anel-bg" cx="23" cy="23" r="21"/>
+            <circle class="app-anel-fill" id="anel" cx="23" cy="23" r="21"
+                    stroke-dasharray="131.9" stroke-dashoffset="37" transform="rotate(-90 23 23)"/>
+          </svg>
+          <span class="app-avatar" id="avatar">M</span>
+        </button>
+
+        <div class="app-user-menu" id="menu-user" hidden>
+          <div class="app-user-nome">Marilia Fischer</div>
+          <div class="app-user-plano" id="menu-plano">Plano Pro</div>
+
+          <div class="cred-card">
+            <div class="cred-rot">Créditos restantes</div>
+            <div class="cred-num" id="menu-cred">14.320</div>
+            <div class="cred-barra"><div class="cred-fill" id="menu-barra" style="width:72%"></div></div>
+            <div class="cred-pe">
+              <span>de <span id="menu-total">20.000</span></span>
+              <span>renova em 20 dias</span>
+            </div>
+          </div>
+
+          <a href="#" class="app-user-link">
+            <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6">
+              <circle cx="10" cy="6.5" r="3"/><path d="M3.5 17a6.5 6.5 0 0113 0" stroke-linecap="round"/>
+            </svg>
+            Minha conta
+          </a>
+
+          <div class="app-user-pref">
+            <label>Idioma</label>
+            <div class="app-user-pref-dd"><div class="demo-dd">Português</div></div>
+          </div>
+          <div class="app-user-pref">
+            <label>Tema</label>
+            <div class="app-user-pref-dd"><div class="demo-dd">Sistema</div></div>
+          </div>
+
+          <button class="app-user-link app-user-sair">
+            <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M8 17H4.5A1.5 1.5 0 013 15.5v-11A1.5 1.5 0 014.5 3H8" stroke-linecap="round"/>
+              <path d="M13 13.5L16.5 10 13 6.5M16.5 10H7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Sair
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-veu" data-fecha-gaveta></div>
+
+  <!-- ══════════════ A HOME DO PAINEL ══════════════ -->
+  <main class="app-main">
+    <div class="app-main-conteudo">
+      <div class="admin-wrap">
+
+        <div class="vercomo" data-so="admin">
+          <span class="vercomo-lbl">Ver como</span>
+          <div class="vercomo-opcoes">
+            <button class="vercomo-btn vercomo-btn--on">Eu</button>
+            <button class="vercomo-btn">Cliente</button>
+            <button class="vercomo-btn">Dono de equipe</button>
+            <button class="vercomo-btn">Membro</button>
+          </div>
+        </div>
+
+        <div class="heroi">
+          <div class="heroi__pad" aria-hidden="true"></div>
+          <div class="heroi__txt">
+            <div class="heroi__marca" role="img" aria-label="Cora Render"></div>
+            <p class="eyebrow" id="heroi-olho">Plano Pro</p>
+            <h1 id="heroi-oi">Bom te ver, Marilia</h1>
+            <p class="heroi__sub" id="heroi-sub">
+              Você tem <b>14.320 créditos</b> para gastar, e eles renovam em 26 de setembro.
+              O plugin já está instalado no seu SketchUp.
+            </p>
+            <div class="heroi__acoes">
+              <button class="dash-btn-cta">Abrir o Cora Render</button>
+              <button class="dash-btn-sec">Baixar o plugin</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="eyebrow dash-rotulo">Sua conta</p>
+
+        <div class="dash-cartoes">
+          <div class="dash-cartao">
+            <span class="dash-cartao-rot">Créditos</span>
+            <strong class="dash-cartao-num" id="cred-num">14.320</strong>
+            <div class="dash-cartao-barra"><div id="cred-barra" style="width:72%"></div></div>
+            <div class="dash-cartao-linhas">
+              <span id="cred-de">de <b>20.000</b> no ciclo</span>
+              <span>Renova em <b>26 de setembro</b></span>
+            </div>
+            <button class="dash-cartao-acao">Comprar créditos</button>
+          </div>
+
+          <div class="dash-cartao" data-so="sozinho">
+            <span class="dash-cartao-rot">Assinatura</span>
+            <strong class="dash-cartao-num">R$ 197,00<em>/mês</em></strong>
+            <div class="dash-cartao-linhas">
+              <span>Cliente desde <b>jan 2026</b></span>
+              <span>Próxima cobrança <b>26 set</b></span>
+            </div>
+            <button class="dash-cartao-acao">Ver assinatura</button>
+          </div>
+
+          <div class="dash-cartao" data-so="dono">
+            <span class="dash-cartao-rot">Equipe</span>
+            <strong class="dash-cartao-num">3<em> de 5 assentos</em></strong>
+            <div class="dash-cartao-linhas">
+              <span><b>2 assentos</b> livres</span>
+              <span>Renova em <b>26 de setembro</b></span>
+            </div>
+            <button class="dash-cartao-acao">Gerenciar equipe</button>
+          </div>
+
+          <div class="dash-cartao" data-so="membro">
+            <span class="dash-cartao-rot">Equipe</span>
+            <strong class="dash-cartao-num">Estúdio<em> Fischer</em></strong>
+            <div class="dash-cartao-linhas">
+              <span>Quem paga é <b>Marilia Fischer</b></span>
+              <span>Seus créditos vêm do plano da equipe</span>
+            </div>
+            <button class="dash-cartao-acao">Sair da equipe</button>
+          </div>
+        </div>
+
+        <!-- a lista da equipe, só para quem é dono dela -->
+        <div data-so="dono">
+          <p class="eyebrow dash-rotulo">Quem está usando</p>
+          <div class="dash-eq">
+            <div class="dash-eq-cab">
+              <div class="dash-eq-foto"></div>
+              <div class="dash-eq-id">
+                <strong>Estúdio Fischer</strong>
+                <span>3 de 5 assentos usados · 2 livres</span>
+              </div>
+              <button class="dash-eq-btn">Ver equipe</button>
+            </div>
+            <div class="dash-eq-membro">
+              <span class="dash-eq-av">M</span>
+              <div class="dash-eq-quem"><strong>marilia@estudio.com.br <em>· você</em></strong></div>
+              <div class="dash-eq-uso"><strong>5.680</strong><span>de 20.000 usados</span></div>
+            </div>
+            <div class="dash-eq-membro">
+              <span class="dash-eq-av">R</span>
+              <div class="dash-eq-quem"><strong>rafa@estudio.com.br</strong></div>
+              <div class="dash-eq-uso"><strong>3.240</strong><span>de 20.000 usados</span></div>
+            </div>
+            <div class="dash-eq-membro">
+              <span class="dash-eq-av">T</span>
+              <div class="dash-eq-quem"><strong>tavares@estudio.com.br</strong></div>
+              <div class="dash-eq-uso"><strong>1.100</strong><span>de 20.000 usados</span></div>
+            </div>
+          </div>
+        </div>
+
+        <p class="eyebrow dash-rotulo">O plugin</p>
+
+        <div class="dash-plugin">
+          <div class="dash-plugin-cab">
+            <div class="dash-plugin-ico">
+              <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M9 3v5M15 3v5M6 8h12v5a6 6 0 01-12 0V8zM12 19v2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="dash-plugin-txt">
+              <strong>Plugin para o SketchUp</strong>
+              <span>Renderize direto do seu modelo · SketchUp 2025 ou superior</span>
+            </div>
+            <button class="dash-plugin-btn">Baixar plugin</button>
+          </div>
+
+          <button class="dash-plugin-abre" id="abre-passos">
+            <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span id="abre-passos-txt">Clique para ver como instalar</span>
+            <em id="abre-passos-n">6 passos</em>
+          </button>
+
+          <div class="dash-plugin-passos" id="passos" hidden>
+            <div class="dash-passo"><span>1</span><div>
+              <strong>Baixe o plugin</strong>
+              <p>Clique no botão de baixar acima para pegar o arquivo .rbz do Cora Render.</p>
+            </div></div>
+            <div class="dash-passo"><span>2</span><div>
+              <strong>Abra o Gerenciador de Extensões</strong>
+              <p>No SketchUp, vá em Extensões, Gerenciador de extensões (Extension Manager).</p>
+            </div></div>
+            <div class="dash-passo"><span>3</span><div>
+              <strong>Clique em Instalar extensão</strong>
+              <p>No canto de baixo do gerenciador, clique em Instalar extensão (Install Extension).</p>
+            </div></div>
+            <div class="dash-passo"><span>4</span><div>
+              <strong>Escolha o arquivo .rbz</strong>
+              <p>Selecione o arquivo .rbz que você baixou no passo 1.</p>
+            </div></div>
+            <div class="dash-passo"><span>5</span><div>
+              <strong>Confirme a instalação</strong>
+              <p>Se aparecer um aviso de segurança, clique em Sim para continuar.</p>
+            </div></div>
+            <div class="dash-passo"><span>6</span><div>
+              <strong>Pronto</strong>
+              <p>O Cora Render aparece na barra de ferramentas. Clique no ícone para abrir e fazer login.</p>
+            </div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- o cartão do teste grátis, no canto -->
+  <div class="trial-card" id="card-trial" hidden>
+    <div class="trial-card-info">
+      <span class="trial-card-txt"><strong>Dia 3 de 7</strong> <small>do seu teste grátis</small></span>
+      <div class="trial-card-prog"><i style="width:42%"></i></div>
+    </div>
+    <button class="trial-card-btn">Assinar</button>
+  </div>
+
+  <!-- o mesmo canto, quando o crédito está acabando -->
+  <div class="trial-card cred-nudge" id="card-cred" hidden>
+    <button class="cred-nudge-x" aria-label="Fechar">&times;</button>
+    <div class="trial-card-info">
+      <span class="trial-card-txt"><strong>820 créditos restantes</strong> <small>de 20.000</small></span>
+      <div class="trial-card-prog"><i class="cred-bar-baixo" style="width:4%"></i></div>
+    </div>
+    <button class="trial-card-btn">Comprar créditos</button>
+  </div>
+
+  <!-- o bloqueio, quando o teste acaba -->
+  <div class="trial-bloqueio" id="bloqueio" hidden>
+    <div class="trial-bloqueio-card">
+      <div class="trial-bloqueio-faixa" aria-hidden="true"></div>
+      <div class="trial-bloqueio-miolo">
+        <span class="trial-bloqueio-eb">Teste encerrado</span>
+        <h1>Seus sete dias terminaram</h1>
+        <p>Escolha um plano para continuar renderizando. Suas imagens e seus ajustes continuam onde estão.</p>
+        <button class="btn">Ver os planos</button>
+        <button class="trial-bloqueio-sair">Sair</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="demo-barra">
+  <div class="demo-grupo" id="g-tema">
+    <button data-tema="light" data-on="sim">Claro</button>
+    <button data-tema="dark">Escuro</button>
+  </div>
+  <span class="demo-sep"></span>
+  <div class="demo-grupo" id="g-estado">
+    <button data-estado="pro" data-on="sim">Pro</button>
+    <button data-estado="trial">Teste</button>
+    <button data-estado="dono">Dono de equipe</button>
+    <button data-estado="membro">Membro</button>
+    <button data-estado="admin">Admin</button>
+  </div>
+  <span class="demo-sep"></span>
+  <div class="demo-grupo" id="g-extra">
+    <button data-extra="menu">Recolher menu</button>
+    <button data-extra="credito">Crédito baixo</button>
+    <button data-extra="bloqueio">Bloqueio</button>
+    <button data-extra="tarja">Tarja</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var shell = document.getElementById('shell');
+  var raiz  = document.documentElement;
+
+  /* ── o menu do avatar ── */
+  var btnUser = document.getElementById('btn-user');
+  var menuUser = document.getElementById('menu-user');
+  btnUser.addEventListener('click', function (e) {
+    e.stopPropagation();
+    menuUser.hidden = !menuUser.hidden;
+  });
+  document.addEventListener('click', function (e) {
+    if (!menuUser.hidden && !menuUser.contains(e.target)) menuUser.hidden = true;
+  });
+
+  /* ── recolher e expandir a lateral ── */
+  function recolher(sim) {
+    shell.classList.toggle('recolhido', sim);
+    document.getElementById('logo-largo').hidden = sim;
+    document.getElementById('btn-recolher').hidden = sim;
+    document.getElementById('btn-expandir').hidden = !sim;
+  }
+  document.getElementById('btn-recolher').addEventListener('click', function () { recolher(true); });
+  document.getElementById('btn-expandir').addEventListener('click', function () { recolher(false); });
+
+  /* ── a gaveta, abaixo de 1024px ── */
+  document.getElementById('btn-gaveta').addEventListener('click', function () {
+    shell.classList.add('gaveta');
+  });
+  [].forEach.call(document.querySelectorAll('[data-fecha-gaveta]'), function (el) {
+    el.addEventListener('click', function () { shell.classList.remove('gaveta'); });
+  });
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') shell.classList.remove('gaveta');
+  });
+
+  /* ── os seis passos de instalar ── */
+  var abre = document.getElementById('abre-passos');
+  abre.addEventListener('click', function () {
+    var passos = document.getElementById('passos');
+    var aberto = passos.hidden;
+    passos.hidden = !aberto;
+    abre.classList.toggle('dash-plugin-abre--on', aberto);
+    document.getElementById('abre-passos-txt').textContent = aberto ? 'Como instalar' : 'Clique para ver como instalar';
+    document.getElementById('abre-passos-n').hidden = aberto;
+  });
+
+  /* ══════════════════════════════════════════════════════════════════
+     Daqui para baixo é só a demonstração: trocar tema e estado da conta
+     para ver a mesma tela pelos olhos de quem paga, de quem testa, de
+     quem tem equipe e do admin.
+     ══════════════════════════════════════════════════════════════════ */
+  function marcar(grupo, botao) {
+    [].forEach.call(grupo.children, function (b) { b.removeAttribute('data-on'); });
+    if (botao) botao.setAttribute('data-on', 'sim');
+  }
+
+  var gTema = document.getElementById('g-tema');
+  gTema.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    raiz.setAttribute('data-theme', b.dataset.tema);
+    marcar(gTema, b);
+  });
+
+  var ESTADOS = {
+    pro: {
+      mostra:['sozinho','pagante'], olho:'Plano Pro', plano:'Plano Pro',
+      oi:'Bom te ver, Marilia', cred:'14.320', total:'20.000', pct:72,
+      sub:'Você tem <b>14.320 créditos</b> para gastar, e eles renovam em 26 de setembro. O plugin já está instalado no seu SketchUp.'
+    },
+    trial: {
+      mostra:['sozinho','pagante'], olho:'Teste grátis', plano:'Plano Free',
+      oi:'Bem-vinda ao Cora, Marilia', cred:'340', total:'500', pct:68, trial:true,
+      sub:'Você está no terceiro dia dos sete de teste, com <b>340 créditos</b> para gastar. Comece baixando o plugin.'
+    },
+    dono: {
+      mostra:['dono','pagante'], olho:'Teams · Pro', plano:'Teams (Pro)',
+      oi:'Bom te ver, Marilia', cred:'41.220', total:'60.000', pct:58,
+      sub:'A equipe tem <b>41.220 créditos</b> no ciclo, e eles renovam em 26 de setembro. Três pessoas estão usando.'
+    },
+    membro: {
+      mostra:['membro'], olho:'Pro · pela equipe', plano:'Pro (equipe)',
+      oi:'Bom te ver, Rafa', cred:'9.140', total:'20.000', pct:46,
+      sub:'Você tem <b>9.140 créditos</b> pelo plano do Estúdio Fischer, e eles renovam em 26 de setembro.'
+    },
+    admin: {
+      mostra:['sozinho','pagante','admin'], olho:'Admin', plano:'Admin',
+      oi:'Bom te ver, Marilia', cred:'14.320', total:'20.000', pct:72,
+      sub:'Você tem <b>14.320 créditos</b> para gastar, e eles renovam em 26 de setembro. O plugin já está instalado no seu SketchUp.'
+    }
+  };
+
+  function aplicarEstado(nome) {
+    var e = ESTADOS[nome];
+    [].forEach.call(document.querySelectorAll('[data-so]'), function (el) {
+      el.hidden = e.mostra.indexOf(el.dataset.so) === -1;
+    });
+    document.getElementById('heroi-olho').textContent = e.olho;
+    document.getElementById('heroi-oi').textContent = e.oi;
+    document.getElementById('heroi-sub').innerHTML = e.sub;
+    document.getElementById('menu-plano').textContent = e.plano;
+    document.getElementById('cred-num').textContent = e.cred;
+    document.getElementById('cred-de').innerHTML = 'de <b>' + e.total + '</b> no ciclo';
+    document.getElementById('cred-barra').style.width = e.pct + '%';
+    document.getElementById('menu-cred').textContent = e.cred;
+    document.getElementById('menu-total').textContent = e.total;
+    document.getElementById('menu-barra').style.width = e.pct + '%';
+    document.getElementById('anel').setAttribute('stroke-dashoffset', (131.9 * (1 - e.pct / 100)).toFixed(1));
+    document.getElementById('card-trial').hidden = !e.trial;
+    if (e.trial) document.getElementById('card-cred').hidden = true;
+  }
+
+  var gEstado = document.getElementById('g-estado');
+  gEstado.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button'); if (!b) return;
+    aplicarEstado(b.dataset.estado);
+    marcar(gEstado, b);
+  });
+
+  var gExtra = document.getElementById('g-extra');
+  gExtra.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button'); if (!b) return;
+    var ligado = b.getAttribute('data-on') === 'sim';
+    if (b.dataset.extra === 'menu')     recolher(!ligado);
+    if (b.dataset.extra === 'credito')  document.getElementById('card-cred').hidden = ligado;
+    if (b.dataset.extra === 'bloqueio') document.getElementById('bloqueio').hidden = ligado;
+    if (b.dataset.extra === 'tarja') {
+      document.getElementById('tarja').hidden = ligado;
+      shell.classList.toggle('com-tarja', !ligado);
+    }
+    if (ligado) b.removeAttribute('data-on'); else b.setAttribute('data-on', 'sim');
+  });
+
+  raiz.setAttribute('data-theme', 'light');
+  aplicarEstado('pro');
+})();
+</script>
