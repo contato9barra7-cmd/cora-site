@@ -220,22 +220,31 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
     d.querySelectorAll('[data-tela]').forEach(function (t) { t.hidden = t.dataset.tela !== 'vazio'; });
   });
 
-  /* ── OS DOIS INTERRUPTORES QUE TROCAM COLUNAS ──
-     Dados fiscais acrescenta telefone, CEP e endereço. Cadastro troca as
-     colunas de cobrança pelas do cadastro. É o mesmo do layout antigo. */
-  function ligar(qual, ligado) {
-    raiz.classList.toggle('ad-' + qual, ligado);
-    d.querySelectorAll('[data-liga="' + qual + '"], #bt-' + qual).forEach(function (b) {
-      b.classList.toggle(b.classList.contains('adm-ico') ? 'adm-ico--on' : 'on', ligado);
+  /* ── O QUE A TABELA MOSTRA ──
+     Cobrança e Cadastro se excluem: são dois recortes da mesma linha, e ver
+     os dois ao mesmo tempo daria uma tabela de dezesseis colunas que ninguém
+     lê. Dados fiscais é diferente: ele ACRESCENTA três colunas a qualquer um
+     dos dois, porque a contabilidade precisa delas nos dois recortes. */
+  function pintarColunas() {
+    d.querySelectorAll('.adm-coluna').forEach(function (b) {
+      b.classList.toggle('on', raiz.classList.contains('ad-' + b.dataset.liga)
+        || (b.dataset.liga === 'cobranca' && !raiz.classList.contains('ad-perfil')));
+    });
+    d.querySelectorAll('[data-liga]').forEach(function (b) {
+      if (b.classList.contains('adm-coluna')) return;
+      b.classList.toggle('on', raiz.classList.contains('ad-' + b.dataset.liga));
     });
   }
-  ['fiscais', 'perfil'].forEach(function (qual) {
-    d.querySelectorAll('[data-liga="' + qual + '"], #bt-' + qual).forEach(function (b) {
-      b.addEventListener('click', function () {
-        ligar(qual, !raiz.classList.contains('ad-' + qual));
-      });
+  d.querySelectorAll('[data-liga]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var qual = b.dataset.liga;
+      if (qual === 'cobranca') raiz.classList.remove('ad-perfil');
+      else if (qual === 'perfil') raiz.classList.add('ad-perfil');
+      else raiz.classList.toggle('ad-' + qual);
+      pintarColunas();
     });
   });
+  pintarColunas();
 
   /* ── A GEOGRAFIA ── */
   function alternarGeo() {

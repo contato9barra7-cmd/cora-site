@@ -596,7 +596,7 @@ export default function Assinatura() {
               <div className="doc__quem">
                 <div className="doc__bloco">
                   <span>{t('pn_de')}</span>
-                  <p><b>9BARRA7 Academy</b><br />contato@corarender.com</p>
+                  <p><b>9BARRA7 Academy</b><br />CNPJ 43.879.950/0001-40<br />contato@corarender.com</p>
                 </div>
                 <div className="doc__bloco">
                   <span>{t('pn_para')}</span>

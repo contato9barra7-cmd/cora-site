@@ -88,7 +88,7 @@ CLAUSULAS = [
 
 PRIVACIDADE = [
     (u'1. Quem trata os seus dados',
-     u'A 9BARRA7 Academy, CNPJ 00.000.000/0001-00, é a controladora dos dados pessoais '
+     u'A 9BARRA7 Academy, CNPJ 43.879.950/0001-40, é a controladora dos dados pessoais '
      u'tratados no Cora Render. O contato para assuntos de privacidade é '
      u'contato@corarender.com.'),
     (u'2. O que a gente guarda',
@@ -274,10 +274,26 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
 
 .doc__pe{
   margin-top:auto; padding-top:8mm; border-top:1px solid var(--line);
-  font-size:10.5px; color:var(--ink3); line-height:1.7; text-wrap:pretty;
   break-inside:avoid;
 }
+/* Parágrafos separados, e não emendados por <br>: são dois assuntos, e um
+   <br> entre eles fazia os dois lerem como um bloco só de letra miúda. */
+.doc__pe p{
+  margin:0 0 4mm; font-size:10.5px; color:var(--ink3);
+  line-height:1.7; text-wrap:pretty;
+}
+.doc__pe p:last-child{ margin-bottom:0; }
 .doc__pe b{ color:var(--ink2); font-weight:600; }
+.doc__quem-somos{ padding-top:3mm; border-top:1px solid var(--line); }
+
+/* A identificação CRUA do navegador, do jeito que ela está gravada. A linha
+   legível acima é conveniência; esta é a prova. Um documento que só mostra
+   "Chrome 128" pede que se confie na tradução de quem imprimiu. */
+.doc__ua{
+  margin:2mm 0 0; padding:2mm 3mm; border-radius:4px; background:var(--wash2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:8.5px; color:var(--ink3); line-height:1.5; word-break:break-all;
+}
 
 /* ── O PAPEL ── */
 @page{ size:A4; margin:0; }
@@ -336,9 +352,10 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
         </div>
         <div class="doc__bloco">
           <span>De onde</span>
-          <p>IP <b>177.85.0.0</b><br>
-            Chrome 128 no Windows 11<br>
-            Curitiba, PR, Brasil</p>
+          <p>Endereço de IP <b>177.85.0.0</b><br>
+            Chrome 128 no Windows 11</p>
+          <p class="doc__ua">Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+            (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36</p>
         </div>
       </div>
 
@@ -350,18 +367,19 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
         @@CLAUSULAS@@
       </div>
 
-      <p class="doc__pe">
-        <b>De onde sai cada informação desta folha.</b> No instante em que a pessoa aceita,
-        o sistema grava a conta, o e-mail, qual versão de qual documento, o endereço de IP,
-        o navegador e a data e hora com fuso. O texto de cada versão fica guardado inteiro e
-        <b>não pode ser editado depois</b>: uma alteração entra como versão nova e a
-        anterior continua onde está. É isso que permite reproduzir aqui, hoje, exatamente o
-        que estava escrito no dia do aceite.<br>
-        Quando um documento muda, a pessoa é avisada na tela e precisa aceitar de novo antes
-        de continuar usando. Cada novo aceite gera um registro próprio, e este comprovante
-        passa a mostrar a versão mais recente que ela aceitou.<br>
-        9BARRA7 Academy &middot; CNPJ 00.000.000/0001-00 &middot; contato@corarender.com &middot; corarender.com
-      </p>
+      <div class="doc__pe">
+        <p><b>De onde sai cada informação desta folha.</b> No instante em que a pessoa
+          aceita, o sistema grava a conta, o e-mail, qual versão de qual documento, o
+          endereço de IP público, a identificação do navegador e a data e hora com fuso. O
+          texto de cada versão fica guardado inteiro e <b>não pode ser editado depois</b>:
+          uma alteração entra como versão nova e a anterior continua onde está. É isso que
+          permite reproduzir aqui, hoje, exatamente o que estava escrito no dia do aceite.</p>
+        <p>Quando um documento muda, a pessoa é avisada na tela e precisa aceitar de novo
+          antes de continuar usando. Cada novo aceite gera um registro próprio, e este
+          comprovante passa a mostrar a versão mais recente que ela aceitou.</p>
+        <p class="doc__quem-somos">9BARRA7 Academy &middot; CNPJ 43.879.950/0001-40 &middot;
+          contato@corarender.com &middot; corarender.com</p>
+      </div>
     </div>
   </div>
 </div>

@@ -386,7 +386,54 @@
   padding:6px 14px; border-radius:var(--pill);
   background:var(--ok-bg); border:1px solid transparent;
   font-size:13px; color:var(--ok);
-}.adm-medida b{ font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ok); }
+}.adm-medida b{ font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ok); }/* ══════════════════════════════════════════════════════════════════════
+   A PRIMEIRA LINHA DA FICHA: POR QUE PODE OU NÃO PODE GERAR
+
+   É a primeira pergunta de todo atendimento, e a resposta já é calculada no
+   servidor (`pode_gerar`). Ela só estava enterrada em quatro campos que
+   alguém tinha que juntar de cabeça.
+
+   Verde e vermelho aqui são SINAL, não marca: dizem se está valendo. E o
+   selo tem um DESENHO junto da cor, porque cor sozinha some para quem não
+   distingue bem as duas.
+   ══════════════════════════════════════════════════════════════════════ */.adm-porque{
+  margin-top:0; display:flex; align-items:flex-start; gap:14px;
+  border-left:3px solid var(--line2);
+}.adm-porque__selo{
+  width:34px; height:34px; flex:none; border-radius:11px;
+  display:grid; place-items:center;
+}.adm-porque__selo svg{ width:19px; height:19px; }.adm-porque__t{ margin:0; font-size:16px; font-weight:600; letter-spacing:-.016em; }.adm-porque__p{ margin:5px 0 0; font-size:13.5px; color:var(--ink2); line-height:1.6; max-width:70ch; }.adm-porque--ok{ border-left-color:var(--ok); }.adm-porque--ok .adm-porque__selo{ background:var(--ok-bg); color:var(--ok); }.adm-porque--ok .adm-porque__t{ color:var(--ok); }.adm-porque--nao{ border-left-color:var(--alerta); }.adm-porque--nao .adm-porque__selo{ background:var(--alerta-bg); color:var(--alerta); }.adm-porque--nao .adm-porque__t{ color:var(--alerta); }/* ══════════════════════════════════════════════════════════════════════
+   AS ANOTAÇÕES
+
+   A memória do suporte hoje vive na cabeça de quem atendeu. Cada anotação
+   guarda quem escreveu e quando, senão em três meses ninguém sabe se aquilo
+   ainda vale.
+   ══════════════════════════════════════════════════════════════════════ */.adm-notas{ margin-top:18px; display:grid; gap:12px; }.adm-nota{
+  padding:13px 15px; border-radius:var(--r-peq);
+  background:var(--wash); border:1px solid var(--line);
+}.adm-nota p{ margin:0; font-size:13.5px; color:var(--ink); line-height:1.6; text-wrap:pretty; }.adm-nota span{ display:block; margin-top:7px; font-size:12px; color:var(--ink3); }.adm-nota-nova{ margin-top:14px; display:grid; gap:10px; justify-items:end; }.adm-nota-nova textarea{
+  width:100%; min-height:78px; resize:vertical; padding:12px 15px;
+  border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:14px; line-height:1.6;
+  transition:border-color var(--t), box-shadow var(--t);
+}.adm-nota-nova textarea:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }.adm-acoes-acesso{ margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; }.adm-acoes-acesso .adm-btn-linha:disabled{ opacity:.45; cursor:default; }.adm-acoes-acesso .adm-btn-linha:disabled:hover{ border-color:var(--line2); }/* ══════════════════════════════════════════════════════════════════════
+   O QUE A TABELA MOSTRA
+
+   Os dois interruptores viviam na fila de ícones do topo, ao lado do
+   Geografia e do Exportar. Quatro quadrados iguais em fila dizem que são
+   quatro do mesmo, e não são: estes trocam as COLUNAS, aqueles abrem coisas.
+
+   Aqui eles são texto com o fio de lima, o mesmo gesto de "está ligado" do
+   resto da tela, e ficam junto da tabela que eles mudam.
+   ══════════════════════════════════════════════════════════════════════ */.adm-colunas{
+  display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:14px;
+  font-size:13.5px; color:var(--ink3);
+}.adm-colunas__r{ flex:none; }.adm-coluna{
+  border:0; background:none; padding:0 0 2px; cursor:pointer; font-family:inherit;
+  font-size:13.5px; color:var(--ink2); border-bottom:2px solid transparent;
+  transition:color var(--t), border-color var(--t);
+}.adm-coluna:hover{ color:var(--ink); border-bottom-color:var(--line2); }.adm-coluna.on{ color:var(--ink); font-weight:600; border-bottom-color:var(--lima); }
 
 /* ── a fonte, em tamanho nominal ──
    Ver a nota no gerador: o site serve a DM Sans com size-adjust de 88%, o que

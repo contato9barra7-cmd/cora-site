@@ -654,3 +654,26 @@
 .adm-acoes-acesso{ margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; }
 .adm-acoes-acesso .adm-btn-linha:disabled{ opacity:.45; cursor:default; }
 .adm-acoes-acesso .adm-btn-linha:disabled:hover{ border-color:var(--line2); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O QUE A TABELA MOSTRA
+
+   Os dois interruptores viviam na fila de ícones do topo, ao lado do
+   Geografia e do Exportar. Quatro quadrados iguais em fila dizem que são
+   quatro do mesmo, e não são: estes trocam as COLUNAS, aqueles abrem coisas.
+
+   Aqui eles são texto com o fio de lima, o mesmo gesto de "está ligado" do
+   resto da tela, e ficam junto da tabela que eles mudam.
+   ══════════════════════════════════════════════════════════════════════ */
+.adm-colunas{
+  display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:14px;
+  font-size:13.5px; color:var(--ink3);
+}
+.adm-colunas__r{ flex:none; }
+.adm-coluna{
+  border:0; background:none; padding:0 0 2px; cursor:pointer; font-family:inherit;
+  font-size:13.5px; color:var(--ink2); border-bottom:2px solid transparent;
+  transition:color var(--t), border-color var(--t);
+}
+.adm-coluna:hover{ color:var(--ink); border-bottom-color:var(--line2); }
+.adm-coluna.on{ color:var(--ink); font-weight:600; border-bottom-color:var(--lima); }

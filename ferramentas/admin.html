@@ -712,6 +712,29 @@
 .adm-acoes-acesso .adm-btn-linha:disabled{ opacity:.45; cursor:default; }
 .adm-acoes-acesso .adm-btn-linha:disabled:hover{ border-color:var(--line2); }
 
+/* ══════════════════════════════════════════════════════════════════════
+   O QUE A TABELA MOSTRA
+
+   Os dois interruptores viviam na fila de ícones do topo, ao lado do
+   Geografia e do Exportar. Quatro quadrados iguais em fila dizem que são
+   quatro do mesmo, e não são: estes trocam as COLUNAS, aqueles abrem coisas.
+
+   Aqui eles são texto com o fio de lima, o mesmo gesto de "está ligado" do
+   resto da tela, e ficam junto da tabela que eles mudam.
+   ══════════════════════════════════════════════════════════════════════ */
+.adm-colunas{
+  display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:14px;
+  font-size:13.5px; color:var(--ink3);
+}
+.adm-colunas__r{ flex:none; }
+.adm-coluna{
+  border:0; background:none; padding:0 0 2px; cursor:pointer; font-family:inherit;
+  font-size:13.5px; color:var(--ink2); border-bottom:2px solid transparent;
+  transition:color var(--t), border-color var(--t);
+}
+.adm-coluna:hover{ color:var(--ink); border-bottom-color:var(--line2); }
+.adm-coluna.on{ color:var(--ink); font-weight:600; border-bottom-color:var(--lima); }
+
 </style>
 
 <style data-demo>
@@ -1336,6 +1359,45 @@
   font-size:14px; cursor:pointer; text-decoration:underline; text-underline-offset:3px;
 }
 .trial-bloqueio-sair:hover{ color:var(--ink); }
+
+/* ── O MESMO BLOQUEIO, PARA OS DOCUMENTOS ──
+   Quando os Termos ou a Política mudam, ninguém entra sem aceitar de novo.
+   É o mesmo cartão do teste encerrado, e de propósito: a pessoa já conhece
+   essa tela, e o gesto de sair dela é o mesmo.
+
+   O que muda é que aqui o texto NÃO é centrado e o cartão é mais largo: tem
+   duas linhas de documento com link, e centrar uma lista de duas linhas com
+   um link no fim deixa as duas com recuos diferentes.
+
+   Ela não tem X nem "depois". Aceitar é o que libera, e um botão de fechar
+   ao lado disso ensinaria que dá para não aceitar. */
+.trial-bloqueio-card--docs{ width:min(520px,100%); max-width:520px; text-align:left; }
+.blq-docs{ margin:22px 0 0; display:grid; gap:10px; }
+.blq-doc{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:14px 16px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--wash);
+}
+.blq-doc__n{ min-width:0; }
+.blq-doc__n b{ display:block; font-size:14.5px; font-weight:600; letter-spacing:-.012em; }
+.blq-doc__n span{ display:block; margin-top:2px; font-size:12.5px; color:var(--ink3); }
+.blq-doc__ver{
+  flex:none; border:0; background:none; padding:0; cursor:pointer; font-family:inherit;
+  font-size:13.5px; font-weight:600; color:var(--ink);
+  border-bottom:2px solid var(--lima); line-height:1.4;
+  transition:border-color var(--t);
+}
+.blq-doc__ver:hover{ border-bottom-color:var(--ink); }
+/* O selo do que MUDOU. Só aparece no documento que teve versão nova: dizer
+   "atualizado" nos dois quando só um mudou é mentira pequena que custa a
+   confiança na próxima. */
+.blq-doc__novo{
+  flex:none; padding:2px 9px; border-radius:var(--pill);
+  background:var(--lima); color:#111111;
+  font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+}
+.trial-bloqueio-card--docs .btn{ width:100%; margin-top:22px; }
+.blq-pe{ margin:14px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6; }
 
 /* ── a tarja de personificação ── */
 .tarja-personificacao{
@@ -2187,8 +2249,6 @@
     <div class="admin-wrap" style="max-width:1180px;margin:0 auto">
       <div class="adm-demo">
         <b>ver</b>
-        <button data-liga="fiscais">Dados fiscais</button>
-        <button data-liga="perfil">Cadastro</button>
         <button data-abre="geo">Geografia</button>
         <button data-abre="export">Exportar</button>
         <button data-abre="email">Enviar e-mail</button>
@@ -2209,20 +2269,6 @@
 
         <div class="adm-acoes">
           <button class="as-btn-cta" style="height:44px" id="bt-email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>Enviar e-mail</button>
-
-          <button class="adm-ico" data-liga="fiscais" title="Dados fiscais" aria-label="Dados fiscais">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M5 2.5h7l3 3v12H5z" stroke-linejoin="round"/>
-              <path d="M12 2.5v3h3M7.5 9h5M7.5 12h5M7.5 15h3" stroke-linecap="round"/>
-            </svg>
-          </button>
-
-          <button class="adm-ico" data-liga="perfil" title="Ver o cadastro" aria-label="Ver o cadastro">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M7 4h9M7 10h9M7 16h9" stroke-linecap="round"/>
-              <circle cx="3.5" cy="4" r="1.2"/><circle cx="3.5" cy="10" r="1.2"/><circle cx="3.5" cy="16" r="1.2"/>
-            </svg>
-          </button>
 
           <button class="adm-ico" id="bt-geo" title="Geografia" aria-label="Geografia">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -2263,17 +2309,19 @@
 
       <!-- ══════════════ AS ABAS ══════════════ -->
       <div class="adm-abas" role="tablist">
-        <span class="adm-abas__g">Pessoas</span>
+        <span class="adm-abas__g">Contas</span>
         <button class="adm-aba ativa" data-aba="assinantes">Assinantes <b>2</b></button>
         <button class="adm-aba" data-aba="trial">Trial <b>12</b></button>
         <button class="adm-aba" data-aba="membros">Membros de equipe <b>3</b></button>
         <button class="adm-aba" data-aba="cancelados">Cancelados <b>2</b></button>
-        <button class="adm-aba" data-aba="newsletter">Novidades <b>19</b></button>
         <i class="adm-abas__fio" aria-hidden="true"></i>
-        <span class="adm-abas__g">Movimento</span>
+        <span class="adm-abas__g">Dinheiro</span>
         <button class="adm-aba" data-aba="recargas">Recargas <b>6</b></button>
         <button class="adm-aba" data-aba="faturas">Faturas <b>24</b></button>
+        <i class="adm-abas__fio" aria-hidden="true"></i>
+        <span class="adm-abas__g">Registros</span>
         <button class="adm-aba" data-aba="aceites">Aceites <b>21</b></button>
+        <button class="adm-aba" data-aba="newsletter">Novidades <b>19</b></button>
       </div>
 
       <!-- ══════════════ BUSCA ══════════════ -->
@@ -2293,7 +2341,7 @@
           </button>
           <div class="adm-pop" id="pop-filtros" hidden>
             <div class="adm-pop__cab"><h2>Filtros</h2><button class="adm-limpar">limpar tudo</button></div>
-            <div class="adm-pop__corpo"><div class="dd dd--rotulo" data-dd data-ops="Todos|Este mês|Últimos 12 meses|Um ano específico|Escolher as datas"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Período</span><span class="dd__val">Últimos 12 meses</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Quase vencendo|Cancelado"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Situação</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Arquitetura|Design de interiores|Engenharia|Paisagismo|Estudante|Outra"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Profissão</span><span class="dd__val">Arquitetura</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Instagram|YouTube|Indicação|Busca no Google|Anúncio|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Como conheceu</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Nenhum|V-Ray|Enscape|Lumion|D5 Render|Twinmotion|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Renderizador</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer país|Brasil|Portugal|México|Estados Unidos"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">País</span><span class="dd__val">Brasil</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer estado|São Paulo|Rio de Janeiro|Minas Gerais|Paraná|Pernambuco"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Estado</span><span class="dd__val">São Paulo</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
+            <div class="adm-pop__corpo"><div class="dd dd--rotulo" data-dd data-ops="Todos|Este mês|Últimos 12 meses|Um ano específico|Escolher as datas"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Período</span><span class="dd__val">Últimos 12 meses</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Quase vencendo|Cancelado"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Situação</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Arquitetura|Design de interiores|Engenharia|Paisagismo|Estudante|Outra"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Profissão</span><span class="dd__val">Arquitetura</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Instagram|YouTube|Indicação|Busca no Google|Anúncio|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Como conheceu</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Nenhum|V-Ray|Enscape|Lumion|D5 Render|Twinmotion|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Renderizador</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer país|Brasil|Portugal|México|Estados Unidos"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">País</span><span class="dd__val">Brasil</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer estado|São Paulo|Rio de Janeiro|Minas Gerais|Paraná|Pernambuco"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Estado</span><span class="dd__val">São Paulo</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Tanto faz|Só quem recebe|Só quem desligou"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Novidades</span><span class="dd__val">Tanto faz</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
             <div class="adm-pop__pe"><span class="adm-pop__conta">5 de 19</span><button class="as-btn-cta">Ver 5 contas</button></div>
           </div>
         </div>
@@ -2306,6 +2354,18 @@
           </svg>
           Ficha da conta
         </button>
+      </div>
+
+      <!-- ── O QUE A TABELA MOSTRA ──
+           Estes dois trocam as COLUNAS, e por isso ficam junto da tabela, e
+           não na fila de ícones do topo. Lá eles pareciam iguais ao
+           Geografia e ao Exportar, que abrem coisas. Trocar o que se vê e
+           abrir uma janela não são o mesmo gesto. -->
+      <div class="adm-colunas" data-some-na-ficha>
+        <span class="adm-colunas__r">Mostrar</span>
+        <button class="adm-coluna" data-liga="cobranca">Cobrança</button>
+        <button class="adm-coluna" data-liga="perfil">Cadastro</button>
+        <button class="adm-coluna" data-liga="fiscais">Dados fiscais</button>
       </div>
 
       <div class="adm-filtros-linha" data-some-na-ficha>
@@ -2406,7 +2466,7 @@
                       <span class="adm-tag-nv">não verificado</span>
                     </div>
                   </td>
-                  <td class="adm-mono">00.000.000/0001-00</td>
+                  <td class="adm-mono">43.879.950/0001-40</td>
                   <td class="adm-mono adm-col-fiscal">(41) 90000-0000</td>
                   <td class="adm-mono adm-col-fiscal">80010-010</td>
                   <td class="adm-col-fiscal" style="font-size:13px;max-width:210px">R. XV de Novembro, 200, Curitiba PR</td>
@@ -2650,7 +2710,7 @@
                     <div class="adm-nome">Estúdio Norte</div>
                     <div class="adm-sub"><span class="adm-sub-txt">contato@estudionorte.com.br</span></div>
                   </td>
-                  <td class="adm-mono">00.000.000/0001-00</td>
+                  <td class="adm-mono">43.879.950/0001-40</td>
                   <td>Recarga de 12.000 créditos</td>
                   <td class="adm-num">12.000</td>
                   <td class="adm-sub"><span class="adm-sub-txt">bruno@estudionorte.com.br</span></td>
@@ -3238,22 +3298,31 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
     d.querySelectorAll('[data-tela]').forEach(function (t) { t.hidden = t.dataset.tela !== 'vazio'; });
   });
 
-  /* ── OS DOIS INTERRUPTORES QUE TROCAM COLUNAS ──
-     Dados fiscais acrescenta telefone, CEP e endereço. Cadastro troca as
-     colunas de cobrança pelas do cadastro. É o mesmo do layout antigo. */
-  function ligar(qual, ligado) {
-    raiz.classList.toggle('ad-' + qual, ligado);
-    d.querySelectorAll('[data-liga="' + qual + '"], #bt-' + qual).forEach(function (b) {
-      b.classList.toggle(b.classList.contains('adm-ico') ? 'adm-ico--on' : 'on', ligado);
+  /* ── O QUE A TABELA MOSTRA ──
+     Cobrança e Cadastro se excluem: são dois recortes da mesma linha, e ver
+     os dois ao mesmo tempo daria uma tabela de dezesseis colunas que ninguém
+     lê. Dados fiscais é diferente: ele ACRESCENTA três colunas a qualquer um
+     dos dois, porque a contabilidade precisa delas nos dois recortes. */
+  function pintarColunas() {
+    d.querySelectorAll('.adm-coluna').forEach(function (b) {
+      b.classList.toggle('on', raiz.classList.contains('ad-' + b.dataset.liga)
+        || (b.dataset.liga === 'cobranca' && !raiz.classList.contains('ad-perfil')));
+    });
+    d.querySelectorAll('[data-liga]').forEach(function (b) {
+      if (b.classList.contains('adm-coluna')) return;
+      b.classList.toggle('on', raiz.classList.contains('ad-' + b.dataset.liga));
     });
   }
-  ['fiscais', 'perfil'].forEach(function (qual) {
-    d.querySelectorAll('[data-liga="' + qual + '"], #bt-' + qual).forEach(function (b) {
-      b.addEventListener('click', function () {
-        ligar(qual, !raiz.classList.contains('ad-' + qual));
-      });
+  d.querySelectorAll('[data-liga]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var qual = b.dataset.liga;
+      if (qual === 'cobranca') raiz.classList.remove('ad-perfil');
+      else if (qual === 'perfil') raiz.classList.add('ad-perfil');
+      else raiz.classList.toggle('ad-' + qual);
+      pintarColunas();
     });
   });
+  pintarColunas();
 
   /* ── A GEOGRAFIA ── */
   function alternarGeo() {

@@ -1,7 +1,5 @@
       <div class="adm-demo">
         <b>ver</b>
-        <button data-liga="fiscais">Dados fiscais</button>
-        <button data-liga="perfil">Cadastro</button>
         <button data-abre="geo">Geografia</button>
         <button data-abre="export">Exportar</button>
         <button data-abre="email">Enviar e-mail</button>
@@ -22,20 +20,6 @@
 
         <div class="adm-acoes">
           <button class="as-btn-cta" style="height:44px" id="bt-email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>Enviar e-mail</button>
-
-          <button class="adm-ico" data-liga="fiscais" title="Dados fiscais" aria-label="Dados fiscais">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M5 2.5h7l3 3v12H5z" stroke-linejoin="round"/>
-              <path d="M12 2.5v3h3M7.5 9h5M7.5 12h5M7.5 15h3" stroke-linecap="round"/>
-            </svg>
-          </button>
-
-          <button class="adm-ico" data-liga="perfil" title="Ver o cadastro" aria-label="Ver o cadastro">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M7 4h9M7 10h9M7 16h9" stroke-linecap="round"/>
-              <circle cx="3.5" cy="4" r="1.2"/><circle cx="3.5" cy="10" r="1.2"/><circle cx="3.5" cy="16" r="1.2"/>
-            </svg>
-          </button>
 
           <button class="adm-ico" id="bt-geo" title="Geografia" aria-label="Geografia">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -76,17 +60,19 @@
 
       <!-- ══════════════ AS ABAS ══════════════ -->
       <div class="adm-abas" role="tablist">
-        <span class="adm-abas__g">Pessoas</span>
+        <span class="adm-abas__g">Contas</span>
         <button class="adm-aba ativa" data-aba="assinantes">Assinantes <b>2</b></button>
         <button class="adm-aba" data-aba="trial">Trial <b>12</b></button>
         <button class="adm-aba" data-aba="membros">Membros de equipe <b>3</b></button>
         <button class="adm-aba" data-aba="cancelados">Cancelados <b>2</b></button>
-        <button class="adm-aba" data-aba="newsletter">Novidades <b>19</b></button>
         <i class="adm-abas__fio" aria-hidden="true"></i>
-        <span class="adm-abas__g">Movimento</span>
+        <span class="adm-abas__g">Dinheiro</span>
         <button class="adm-aba" data-aba="recargas">Recargas <b>6</b></button>
         <button class="adm-aba" data-aba="faturas">Faturas <b>24</b></button>
+        <i class="adm-abas__fio" aria-hidden="true"></i>
+        <span class="adm-abas__g">Registros</span>
         <button class="adm-aba" data-aba="aceites">Aceites <b>21</b></button>
+        <button class="adm-aba" data-aba="newsletter">Novidades <b>19</b></button>
       </div>
 
       <!-- ══════════════ BUSCA ══════════════ -->
@@ -115,6 +101,18 @@
           </svg>
           Ficha da conta
         </button>
+      </div>
+
+      <!-- ── O QUE A TABELA MOSTRA ──
+           Estes dois trocam as COLUNAS, e por isso ficam junto da tabela, e
+           não na fila de ícones do topo. Lá eles pareciam iguais ao
+           Geografia e ao Exportar, que abrem coisas. Trocar o que se vê e
+           abrir uma janela não são o mesmo gesto. -->
+      <div class="adm-colunas" data-some-na-ficha>
+        <span class="adm-colunas__r">Mostrar</span>
+        <button class="adm-coluna" data-liga="cobranca">Cobrança</button>
+        <button class="adm-coluna" data-liga="perfil">Cadastro</button>
+        <button class="adm-coluna" data-liga="fiscais">Dados fiscais</button>
       </div>
 
       <div class="adm-filtros-linha" data-some-na-ficha>
@@ -215,7 +213,7 @@
                       <span class="adm-tag-nv">não verificado</span>
                     </div>
                   </td>
-                  <td class="adm-mono">00.000.000/0001-00</td>
+                  <td class="adm-mono">43.879.950/0001-40</td>
                   <td class="adm-mono adm-col-fiscal">(41) 90000-0000</td>
                   <td class="adm-mono adm-col-fiscal">80010-010</td>
                   <td class="adm-col-fiscal" style="font-size:13px;max-width:210px">R. XV de Novembro, 200, Curitiba PR</td>
@@ -459,7 +457,7 @@
                     <div class="adm-nome">Estúdio Norte</div>
                     <div class="adm-sub"><span class="adm-sub-txt">contato@estudionorte.com.br</span></div>
                   </td>
-                  <td class="adm-mono">00.000.000/0001-00</td>
+                  <td class="adm-mono">43.879.950/0001-40</td>
                   <td>Recarga de 12.000 créditos</td>
                   <td class="adm-num">12.000</td>
                   <td class="adm-sub"><span class="adm-sub-txt">bruno@estudionorte.com.br</span></td>

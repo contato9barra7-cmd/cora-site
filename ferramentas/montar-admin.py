@@ -76,6 +76,10 @@ FILTROS = [
     (u'País', u'Brasil', [u'Qualquer país', u'Brasil', u'Portugal', u'México', u'Estados Unidos']),
     (u'Estado', u'São Paulo',
      [u'Qualquer estado', u'São Paulo', u'Rio de Janeiro', u'Minas Gerais', u'Paraná', u'Pernambuco']),
+    # Receber novidades e um interruptor que ATRAVESSA os quatro estados de
+    # conta: um assinante pode ter ligado ou desligado. Como aba ele fingia
+    # ser um quinto tipo de pessoa. Como filtro ele e o que e.
+    (u'Novidades', u'Tanto faz', [u'Tanto faz', u'Só quem recebe', u'Só quem desligou']),
 ]
 
 SETA_DD = (u'<svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" '
