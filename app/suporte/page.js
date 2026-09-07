@@ -16,6 +16,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { lerConta, enviarSuporte } from '../../lib/auth';
 import { useIdioma, tOpt } from '../../lib/i18n';
 import Cabecalho from '../../components/Cabecalho';
@@ -104,6 +105,7 @@ function Assunto({ valor, aoTrocar, rotuloVazio, invalido }) {
 
 export default function Suporte() {
   const { t, idioma } = useIdioma();
+  const router = useRouter();
 
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -169,6 +171,15 @@ export default function Suporte() {
 
   const cls = (campo) => (faltando[campo] ? ' erro' : '');
 
+  // O mesmo voltar das paginas de Termos e Privacidade: desfaz o ultimo
+  // passo quando ha um, e cai na home quando a pessoa chegou por link
+  // direto e nao tem para onde voltar.
+  const voltar = (e) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined' && window.history.length > 1) router.back();
+    else router.push('/');
+  };
+
   return (
     /* `sp` é a classe da página. Todo o CSS aprovado depende dela, e é por ela
        que ele ganha do molde antigo sem precisar apagar nada do globals. */
@@ -179,6 +190,7 @@ export default function Suporte() {
         <section className="env" id="faq" style={{ paddingBottom: 'clamp(48px,6vw,88px)' }}>
           <div className="faq-grade">
             <div className="faq-lado">
+              <a href="/" className="sp-voltar" onClick={voltar}>{t('legal_voltar')}</a>
               <span className="olho">{t('sup_eyebrow')}</span>
               <h1>{t('sup_titulo')}</h1>
               <p>{t('sup_lead')}</p>
