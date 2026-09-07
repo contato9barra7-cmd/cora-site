@@ -12282,9 +12282,30 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
   padding: 40px 44px; max-width: 460px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.28);
 }
 .trial-bloqueio-eb { font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-esc); }
-.trial-bloqueio-card h1 { font-size: 25px; font-weight: 800; margin: 12px 0 8px; color: var(--ink); }
+/* `balance`: sem ele, um titulo de duas linhas deixa a ultima palavra
+   sozinha embaixo, que e o defeito de quebra que mais salta aos olhos numa
+   tela que ocupa o produto inteiro. */
+.trial-bloqueio-card h1 { font-size: 25px; font-weight: 800; margin: 12px 0 8px; color: var(--ink); text-wrap: balance; }
 .trial-bloqueio-card p { color: var(--ink2); font-size: 15px; line-height: 1.6; margin: 0 0 24px; }
 .trial-bloqueio-sair { display: block; margin: 14px auto 0; background: none; border: none; color: var(--ink3); font-size: 14px; cursor: pointer; font-family: inherit; text-decoration: underline; }
+
+/* ── Os dois links da tela de reaceite ──
+   Eles ficam ENTRE o texto e o botão, e não depois dele: quem lê de cima para
+   baixo encontra o convite para ler antes de encontrar o botão de aceitar. Na
+   ordem inversa, o botão vira o fim da leitura e os links viram rodapé. */
+.rea-links {
+  margin: 4px 0 20px; font-size: 14px; color: var(--ink3);
+}
+.rea-links a {
+  color: var(--ink2); text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.rea-links a:hover { color: var(--ink); }
+/* O erro fica acima do botão, onde o olho volta depois de clicar e nada
+   acontecer. */
+.rea-erro {
+  margin: 0 0 14px; font-size: 13.5px; color: var(--alerta); text-wrap: pretty;
+}
 
 /* ── Popup "créditos acabaram" (opção A) ── */
 .cred-overlay {

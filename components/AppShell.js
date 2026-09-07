@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta , EVENTO_CREDITOS } from '../lib/auth';
+import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta, aceitarDocumentosLegais, EVENTO_CREDITOS } from '../lib/auth';
 import RodapeLegal from './RodapeLegal';
 import PopupCreditos from './PopupCreditos';
 import PopupUpgrade from './PopupUpgrade';
@@ -269,6 +269,34 @@ export default function AppShell({ children }) {
   // pode ser — "seu plano expirou, renove" e conselho errado para quem nunca
   // assinou nada: quem paga e a empresa dela.
   const suspensoEquipe = conta?.equipe_suspenso === true;
+
+  /* ── OS DOCUMENTOS MUDARAM ──
+     Quem decide continua sendo o servidor: `precisa_aceitar` vem junto de
+     `pode_gerar`, e a tela so obedece. Ausente NAO bloqueia, pela mesma razao
+     do `pode_gerar`: um servidor antigo ou uma resposta em cache de antes do
+     deploy nao pode trancar ninguem por causa de um campo que ainda nao
+     chegou. */
+  const precisaAceitar = conta?.precisa_aceitar === true;
+  const [aceitando, setAceitando] = useState(false);
+  const [erroAceite, setErroAceite] = useState('');
+
+  async function aceitarDocumentos() {
+    setAceitando(true);
+    setErroAceite('');
+    try {
+      const nova = await aceitarDocumentosLegais();
+      /* Usa a conta que o SERVIDOR devolveu, e nao um `precisa_aceitar: false`
+         escrito aqui: quem diz se destravou e quem tomou a decisao. Se o
+         aceite gravou mas alguma outra coisa ainda barra, a tela seguinte tem
+         que ser a certa, e nao a tela livre. */
+      if (nova) setConta(nova);
+      else await atualizarConta().then((c) => c && setConta(c));
+    } catch (e) {
+      setErroAceite(e.message || 'Nao consegui registrar agora. Tente de novo.');
+    } finally {
+      setAceitando(false);
+    }
+  }
 
   // Card de crédito baixo (mesmo canto do "Dia X de 7"). NÃO fica fixo: aparece
   // no máximo 1x a cada 6h. Só para conta paga (não trial, não ilimitada) com
@@ -617,6 +645,49 @@ export default function AppShell({ children }) {
           <button className="trial-card-btn" onClick={() => router.push('/assinatura')}>
             {restantes <= 0 ? t('recarregar') : t('comprar_creditos')}
           </button>
+        </div>
+      )}
+
+      {/* ── OS DOCUMENTOS MUDARAM ──
+          Tela cheia, e não um aviso que dá para ignorar. A licença de uso das
+          imagens, o prazo da recarga e o foro moram nesse texto: continuar
+          operando sob um acordo que a pessoa nunca leu é o que torna o acordo
+          inexigível depois.
+
+          Ela vem ANTES dos outros bloqueios na ordem do JSX, e por isso ganha
+          deles quando duas coisas valem ao mesmo tempo. É a ordem certa:
+          resolver o aceite é um clique, renovar um plano não, e mandar alguém
+          renovar para só depois descobrir que ainda falta aceitar seria fazer a
+          pessoa pagar antes de saber que continuaria travada.
+
+          Sem botão de fechar de propósito. Sair é a única outra saída, e ela
+          está ali embaixo. */}
+      {precisaAceitar && (
+        <div className="trial-bloqueio">
+          <div className="trial-bloqueio-card">
+            <div className="trial-bloqueio-faixa" aria-hidden="true" />
+            <div className="trial-bloqueio-miolo">
+              <span className="trial-bloqueio-eb">{t('rea_eyebrow')}</span>
+              <h1>{t('rea_h1')}</h1>
+              <p>{t('rea_p')}</p>
+
+              {/* Os links abrem em outra aba: fechar esta tela para ler o texto
+                  e ter que entrar de novo seria transformar uma leitura de dois
+                  minutos num motivo para aceitar sem ler. */}
+              <p className="rea-links">
+                <a href="/termos" target="_blank" rel="noopener noreferrer">{t('rea_termos')}</a>
+                <span aria-hidden="true"> · </span>
+                <a href="/privacidade" target="_blank" rel="noopener noreferrer">{t('rea_privacidade')}</a>
+              </p>
+
+              {erroAceite && <p className="rea-erro">{erroAceite}</p>}
+
+              <button className="btn" disabled={aceitando} onClick={aceitarDocumentos}>
+                {aceitando ? t('rea_gravando') : t('rea_botao')}
+              </button>
+              <button className="trial-bloqueio-sair" onClick={logout}>{t('sair')}</button>
+            </div>
+          </div>
         </div>
       )}
 
