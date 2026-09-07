@@ -174,11 +174,15 @@
    conta do perímetro de um retângulo de canto redondo: o traço passa a ser
    medido em centos, e o quanto resta é o número direto. */
 .app-anel{ position:absolute; inset:0; pointer-events:none; }
-.app-anel-bg{ fill:none; stroke:var(--line); stroke-width:2.5; }
+.app-anel-bg{ fill:none; stroke:var(--line); stroke-width:3; }
+/* O anel é lima: é o crédito, e o crédito é a cor da marca.
+   Três de traço, e não dois e meio: lima sobre branco é clara, e o fio fino
+   sumia. Nesta espessura, encostada no quadrado preto da foto, ela se lê. */
 .app-anel-fill{
-  fill:none; stroke:var(--ink); stroke-width:2.5; stroke-linecap:round;
+  fill:none; stroke:var(--lima); stroke-width:3; stroke-linecap:round;
   transition:stroke-dashoffset .45s cubic-bezier(.16,1,.3,1);
 }
+/* Acabando, o anel troca de assunto: deixa de ser marca e vira sinal. */
 .app-anel-fill.baixo{ stroke:var(--alerta); }
 /* Quadrada de canto redondo, o mesmo desenho do site dos Promptadores. O raio
    é 28% do lado, que é a proporção que eles usam nos três tamanhos.
@@ -1352,7 +1356,9 @@ body{ margin:0; background:#F6F6F4; }
     document.getElementById('menu-cred').textContent = e.cred;
     document.getElementById('menu-total').textContent = e.total;
     document.getElementById('menu-barra').style.width = e.pct + '%';
-    document.getElementById('anel').setAttribute('stroke-dashoffset', (100 - e.pct).toFixed(1));
+    var anel = document.getElementById('anel');
+    anel.setAttribute('stroke-dashoffset', (100 - e.pct).toFixed(1));
+    anel.classList.toggle('baixo', e.pct <= 10);
     document.getElementById('card-trial').hidden = !e.trial;
     if (e.trial) document.getElementById('card-cred').hidden = true;
   }
