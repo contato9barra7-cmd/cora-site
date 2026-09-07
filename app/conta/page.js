@@ -164,7 +164,11 @@ function ContaConteudo() {
     : ehDono ? null
     : demoCreditos ? (20000).toLocaleString(loc)
     : (conta.creditos_total ?? 0).toLocaleString(loc);
-  const dataRenov = ehDono ? conta.equipe_renova_em : conta.expira_em;
+  // No teste a data que importa e a do teste, e o `expira_em` do plano free
+  // pode nem existir.
+  const dataRenov = ehDono ? conta.equipe_renova_em
+    : (conta.eh_trial === true) ? (conta.trial_expira_em || conta.expira_em)
+    : conta.expira_em;
 
   const pctCreditos = (conta.creditos_total > 0 && !mostrarIlimitado)
     ? Math.max(0, Math.min(100,
@@ -210,7 +214,7 @@ function ContaConteudo() {
       return (
         <>
           {t('pn_sub_teste_a')} <b>{diaDoTeste}</b> {t('pn_sub_teste_b')}{' '}
-          <b>{creditos} {t('creditos').toLowerCase()}</b> {t('pn_sub_teste_c')}
+          {t('pn_sub_teste_c')}
         </>
       );
     }
@@ -358,6 +362,13 @@ function ContaConteudo() {
                 {ehTrial ? t('pn_no_teste') : t('pn_no_ciclo')}
               </span>
             )}
+            {/* O teste não dá crédito: o plano free vale zero, e as ferramentas
+                de IA ficam trancadas. O número grande é 0 mesmo, e a linha
+                abaixo diz por quê. O texto é o mesmo da página de preços, para
+                as duas telas não contarem histórias diferentes. */}
+            {ehTrial && !temCreditos && (
+              <span>{t('pl_free_cs')}</span>
+            )}
             {dataLonga && (
               // No teste o crédito não renova, o teste acaba. Dizer "renova em"
               // ali seria prometer uma coisa que não vai acontecer.
@@ -366,17 +377,17 @@ function ContaConteudo() {
               </span>
             )}
           </div>
+          {/* Sem plano este cartão não tem ação própria: recarga exige plano, e
+              o único caminho é assinar, que é o que o cartão do lado oferece
+              com o nome certo. Dois botões diferentes indo para a mesma página
+              é uma escolha que não existe. */}
           {!podeComprar ? (
             <p className="dash-cartao-nota">{t('pn_sem_compra')}</p>
           ) : temPlano ? (
             <button className="dash-cartao-acao" onClick={() => router.push('/assinatura')}>
               {t('comprar_creditos')}
             </button>
-          ) : (
-            <button className="dash-cartao-acao" onClick={() => router.push('/precos')}>
-              {t('pn_ver_planos')}
-            </button>
-          )}
+          ) : null}
         </div>
 
         {(!ehMembroVis || ehDono) && !mostrarIlimitado && (() => {

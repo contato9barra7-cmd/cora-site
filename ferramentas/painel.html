@@ -1000,9 +1000,15 @@ body{ margin:0; background:#F6F6F4; }
           <div class="dash-cartao" id="cartao-cred">
             <span class="dash-cartao-rot">Créditos</span>
             <strong class="dash-cartao-num" id="cred-num">14.320</strong>
-            <div class="dash-cartao-barra"><div id="cred-barra" style="width:72%"></div></div>
+            <div class="dash-cartao-barra" id="cred-barra-caixa"><div id="cred-barra" style="width:72%"></div></div>
             <div class="dash-cartao-linhas">
               <span id="cred-de">de <b>20.000</b> no ciclo</span>
+              <!-- O teste não dá crédito nenhum: o plano free vale zero e as
+                   ferramentas de IA ficam trancadas. O número grande é 0 mesmo,
+                   e esta linha diz por quê. É o mesmo texto da página de
+                   preços, para as duas telas não contarem histórias
+                   diferentes. -->
+              <span id="cred-porque" hidden>Ferramentas de IA bloqueadas no teste.</span>
               <span id="cred-quando">Renova em <b>26 de setembro</b></span>
             </div>
             <!-- Quem tem assento numa equipe não compra crédito: quem paga é
@@ -1270,9 +1276,9 @@ body{ margin:0; background:#F6F6F4; }
       sub:'Você tem <b>14.320 créditos</b> para gastar, e eles renovam em 26 de setembro.'
     },
     trial: {
-      mostra:['semplano','pagante'], olho:'Teste grátis', plano:'Plano Free', semPlano:true,
-      oi:'Que bom te ver, Marilia', cred:'340', total:'500', pct:68, trial:true, semRenders:true,
-      sub:'Você está no dia 3 dos sete de teste, com <b>340 créditos</b> para gastar.'
+      mostra:['semplano','pagante'], olho:'Teste grátis', plano:'Teste grátis', semPlano:true,
+      oi:'Que bom te ver, Marilia', cred:'0', total:'0', pct:0, trial:true, semRenders:true,
+      sub:'Você está no dia <b>3</b> dos sete de teste, para conhecer a interface. As ferramentas de IA entram com a assinatura.'
     },
     dono: {
       mostra:['dono','pagante','assina'], olho:'Teams · Pro', plano:'Teams (Pro)',
@@ -1301,13 +1307,19 @@ body{ margin:0; background:#F6F6F4; }
     document.getElementById('heroi-sub').innerHTML = e.sub;
     document.getElementById('menu-plano').textContent = e.plano;
     document.getElementById('cred-num').textContent = e.cred;
-    document.getElementById('cred-de').innerHTML =
-      'de <b>' + e.total + '</b> ' + (e.semPlano ? 'no teste' : 'no ciclo');
+    document.getElementById('cred-de').innerHTML = 'de <b>' + e.total + '</b> no ciclo';
+    // Sem crédito nenhum a barra e o "de X" não têm o que dizer, e no lugar
+    // entra o motivo.
+    document.getElementById('cred-de').hidden = !!e.semPlano;
+    document.getElementById('cred-barra-caixa').hidden = !!e.semPlano;
+    document.getElementById('cred-porque').hidden = !e.semPlano;
     document.getElementById('cred-quando').innerHTML = e.semPlano
       ? 'Termina em <b>30 de setembro</b>'
       : 'Renova em <b>26 de setembro</b>';
-    // Sem plano não existe recarga, então o botão troca de nome e de destino.
-    document.getElementById('acao-cred').textContent = e.semPlano ? 'Ver os planos' : 'Comprar créditos';
+    // Sem plano este cartão não tem ação própria: recarga exige plano ativo, e
+    // o único caminho é assinar, que é o que o cartão do lado oferece com o
+    // nome certo. Dois botões indo para a mesma página é escolha que não existe.
+    document.getElementById('acao-cred').hidden = !!e.semPlano;
     document.getElementById('cred-barra').style.width = e.pct + '%';
     // Membro de equipe não compra crédito: o botão sai e a razão entra.
     document.getElementById('acao-cred').hidden = !!e.semCompra;
