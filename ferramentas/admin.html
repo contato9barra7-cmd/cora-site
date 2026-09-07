@@ -227,6 +227,15 @@
    aqui são as colunas que só o admin tem.
    ══════════════════════════════════════════════════════════════════════ */
 .adm-card{ margin-top:0; padding:20px 22px 22px; }
+/* A TABELA SANGRA ATÉ A BORDA DO CARTÃO.
+   Os 22px de cada lado eram 44px que a tabela não tinha, e a diferença entre
+   caber e precisar de barra de rolagem. O recuo volta como recuo da PRIMEIRA
+   e da ÚLTIMA célula, então o alinhamento com o título continua. */
+.adm-card > .fat-rolo{ margin-left:-22px; margin-right:-22px; }
+.adm-card > .fat-rolo .fat th:first-child,
+.adm-card > .fat-rolo .fat td:first-child{ padding-left:22px; }
+.adm-card > .fat-rolo .fat th:last-child,
+.adm-card > .fat-rolo .fat td:last-child{ padding-right:22px; }
 .adm-nome{ color:var(--ink); font-weight:600; letter-spacing:-.01em; }
 .adm-sub{ margin-top:2px; font-size:12.5px; color:var(--ink3); }
 .adm-sub-txt{
@@ -461,9 +470,20 @@
    Aqui elas existem e ficam escondidas, para o desenho poder ser julgado
    nos dois estados sem duas tabelas separadas.
    ══════════════════════════════════════════════════════════════════════ */
+/* OS TRÊS RECORTES SE EXCLUEM.
+
+   Antes o Fiscal ACRESCENTAVA ao que estivesse ligado, e Cadastro mais Fiscal
+   davam onze colunas: 1266px de tabela num cartão de 775. A barra de rolagem
+   horizontal é onde o olho se perde, e ela aparecia justamente no recorte
+   mais usado pela contabilidade.
+
+   Um de cada vez, cada um com sete ou oito colunas, cabe. E é mais honesto:
+   são três perguntas diferentes sobre a mesma pessoa, e ninguém faz as três
+   ao mesmo tempo. */
 .adm-col-fiscal,
 .adm-col-perfil{ display:none; }
-.ad-fiscais .adm-col-fiscal{ display:table-cell; }
+.ad-fiscal .adm-col-fiscal{ display:table-cell; }
+.ad-fiscal .adm-col-cobranca{ display:none; }
 .ad-perfil .adm-col-perfil{ display:table-cell; }
 .ad-perfil .adm-col-cobranca{ display:none; }
 
@@ -775,6 +795,112 @@
 /* Com o menu recolhido o submenu some junto com os rótulos: um item de 34px
    sem texto não diz nada, e três deles viram três riscos. */
 .app-shell.recolhido .app-nav-sub{ display:none; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   A TABELA DO ADMIN É MAIS MIÚDA QUE A DO PAINEL
+
+   No painel a `.fat` tem quatro colunas e 14px de fonte. Aqui ela chega a
+   onze, e a 14px isso não cabe em tela nenhuma: sobrava a barra de rolagem
+   horizontal, que é onde o olho se perde.
+
+   13px com recuo menor faz o recorte mais largo (Cadastro mais Dados
+   fiscais) caber num monitor comum. Não é encolher por encolher: é a mesma
+   escala que o resto do painel usa em texto de apoio.
+   ══════════════════════════════════════════════════════════════════════ */
+.fat{ font-size:13px; }
+.fat th{ padding:0 11px 9px; font-size:9.5px; letter-spacing:.12em; }
+.fat td{ padding:11px 11px; }
+.adm-nome{ font-size:13.5px; }
+.adm-sub{ font-size:11.5px; }
+.adm-sub-txt{ max-width:180px; }
+/* O endereço é a coluna que mais estica. Duas linhas curtas ocupam menos
+   largura que uma linha longa, e a tabela inteira agradece. */
+.fat td.adm-endereco{ max-width:120px; white-space:normal; line-height:1.4; }
+/* No recorte fiscal o e-mail encolhe: ali quem procura já sabe o nome, e as
+   três colunas de documento precisam da largura. */
+.ad-fiscal .adm-sub-txt{ max-width:140px; }
+.adm-tag-nv{ font-size:9px; padding:1px 6px; }
+.fat-selo{ font-size:9.5px; padding:2px 8px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O RESUMO DO DINHEIRO
+
+   Quatro perguntas, nesta ordem, porque é a ordem em que elas aparecem na
+   cabeça de quem abre a tela:
+
+     1. quanto entra por mês, e está subindo ou descendo
+     2. de onde vem: plano ou recarga, e qual plano
+     3. quem paga mais
+     4. o que saiu: cancelamento, reembolso, contestação
+
+   O NÚMERO GRANDE É UM SÓ. Quatro números do mesmo tamanho não têm
+   hierarquia: viram quatro coisas para ler, e a tela deixa de responder
+   qualquer uma. O grande é o mensal recorrente, que é a pergunta.
+
+   TUDO EM REAL, E SÓ REAL. Somar dólar com real num total inflaria o
+   número. Cobrança em outra moeda entra na CONTAGEM e fica fora da SOMA, e
+   a tela diz isso onde acontece.
+   ══════════════════════════════════════════════════════════════════════ */
+.din-topo{ display:grid; gap:14px; grid-template-columns:1fr; align-items:start; }
+@media (min-width:900px){ .din-topo{ grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); } }
+
+.din-grande{ padding:26px 28px 28px; }
+.din-grande .eyebrow{ margin:0; }
+.din-num{
+  margin:10px 0 0; font-size:clamp(38px,5.5vw,52px); font-weight:500;
+  letter-spacing:-.04em; line-height:1; font-variant-numeric:tabular-nums;
+}
+.din-num small{ font-size:.42em; font-weight:500; color:var(--ink3); letter-spacing:-.02em; }
+.din-var{
+  display:inline-flex; align-items:center; gap:6px; margin-top:12px;
+  padding:4px 12px; border-radius:var(--pill);
+  font-size:13px; font-weight:600;
+}
+.din-var--sobe{ background:var(--ok-bg); color:var(--ok); }
+.din-var--desce{ background:var(--alerta-bg); color:var(--alerta); }
+.din-var span{ font-weight:500; color:var(--ink3); }
+.din-nota{ margin:14px 0 0; font-size:13px; color:var(--ink3); line-height:1.6; max-width:52ch; }
+
+/* A barra dos meses. Não é gráfico de biblioteca: são doze retângulos, e o
+   que se quer saber deles é a forma, não o valor exato de cada um. O valor
+   exato mora na tabela logo abaixo. */
+.din-meses{ margin-top:22px; display:flex; align-items:flex-end; gap:5px; height:76px; }
+.din-mes{ flex:1; min-width:0; display:flex; flex-direction:column; justify-content:flex-end; gap:5px; }
+.din-mes i{ display:block; border-radius:3px 3px 0 0; background:var(--turquesa); }
+.din-mes.atual i{ background:var(--lima); }
+.din-mes b{
+  font-size:9.5px; font-weight:500; color:var(--ink3); text-align:center;
+  text-transform:uppercase; letter-spacing:.04em;
+}
+
+/* De onde vem o dinheiro. Barra empilhada de duas cores, e a legenda embaixo
+   com o valor: a proporção se lê na barra, o número se lê na linha. */
+.din-fonte{ margin-top:18px; }
+.din-barra{ display:flex; height:12px; border-radius:var(--pill); overflow:hidden; }
+.din-barra i{ display:block; }
+.din-barra i:nth-child(1){ background:var(--turquesa); }
+.din-barra i:nth-child(2){ background:var(--lima); }
+.din-legenda{ margin-top:14px; display:grid; gap:9px; }
+.din-legenda div{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; font-size:13.5px; }
+.din-legenda span{ display:inline-flex; align-items:center; gap:8px; color:var(--ink2); }
+.din-legenda em{
+  width:12px; height:12px; border-radius:4px; flex:none; font-style:normal;
+}
+.din-legenda em.a{ background:var(--turquesa); }
+.din-legenda em.b{ background:var(--lima); }
+.din-legenda b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }
+
+/* Os números menores, em fila. Eles são o contexto do número grande, e por
+   isso ficam num degrau claramente abaixo dele. */
+.din-fila{ margin-top:14px; display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); }
+.din-cel{ padding:20px 22px; }
+.din-cel .eyebrow{ margin:0; }
+.din-cel strong{
+  display:block; margin-top:8px; font-size:24px; font-weight:500;
+  letter-spacing:-.03em; font-variant-numeric:tabular-nums;
+}
+.din-cel p{ margin:6px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.55; }
+.din-cel--saiu strong{ color:var(--alerta); }
 
 </style>
 
@@ -2360,8 +2486,9 @@
         <button class="adm-aba" data-aba="cancelados">Cancelados <b>2</b></button>
       </div>
       <div class="adm-abas" role="tablist" data-fila="dinheiro" hidden>
-        <button class="adm-aba" data-aba="recargas">Recargas <b>6</b></button>
+        <button class="adm-aba" data-aba="resumo">Resumo</button>
         <button class="adm-aba" data-aba="faturas">Faturas <b>24</b></button>
+        <button class="adm-aba" data-aba="recargas">Recargas <b>6</b></button>
       </div>
       <div class="adm-abas" role="tablist" data-fila="registros" hidden>
         <button class="adm-aba" data-aba="aceites">Aceites <b>21</b></button>
@@ -2370,13 +2497,13 @@
 
       <!-- ══════════════ BUSCA ══════════════ -->
       <div class="adm-barra">
-        <div class="adm-busca" data-some-na-ficha>
+        <div class="adm-busca" data-some-na-ficha data-fora-de="resumo">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
             <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
           </svg>
           <input class="perfil-input" placeholder="Buscar por nome, e-mail ou CPF">
         </div>
-        <div class="adm-filtros" id="caixa-filtros" data-some-na-ficha>
+        <div class="adm-filtros" id="caixa-filtros" data-some-na-ficha data-fora-de="resumo">
           <button class="adm-btn-linha" id="bt-filtros">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
               <path d="M3 5h18M6 12h12M10 19h4"/>
@@ -2409,10 +2536,10 @@
         <span class="adm-colunas__r">Mostrar</span>
         <button class="adm-coluna" data-liga="cobranca">Cobrança</button>
         <button class="adm-coluna" data-liga="perfil">Cadastro</button>
-        <button class="adm-coluna" data-liga="fiscais">Dados fiscais</button>
+        <button class="adm-coluna" data-liga="fiscal">Dados fiscais</button>
       </div>
 
-      <div class="adm-filtros-linha" data-some-na-ficha>
+      <div class="adm-filtros-linha" data-some-na-ficha data-fora-de="resumo">
         <span>Filtrando por</span>
         <button class="adm-filtro">Assinou nos últimos 12 meses</button>
         <button class="adm-filtro">São Paulo</button>
@@ -2465,7 +2592,7 @@
               <thead>
                 <tr>
                   <th>Nome e e-mail</th>
-                  <th>Documento</th>
+                  <th class="adm-col-fiscal">Documento</th>
                   <th class="adm-col-fiscal">Telefone</th>
                   <th class="adm-col-fiscal">CEP</th>
                   <th class="adm-col-fiscal">Endereço</th>
@@ -2487,10 +2614,10 @@
                     <div class="adm-nome">Marilia Fischer</div>
                     <div class="adm-sub"><span class="adm-sub-txt">marilia@corarender.com</span></div>
                   </td>
-                  <td class="adm-mono">000.000.000-00</td>
+                  <td class="adm-mono adm-col-fiscal">000.000.000-00</td>
                   <td class="adm-mono adm-col-fiscal">(11) 90000-0000</td>
                   <td class="adm-mono adm-col-fiscal">01310-100</td>
-                  <td class="adm-col-fiscal" style="font-size:13px;max-width:210px">Av. Paulista, 1000, São Paulo SP</td>
+                  <td class="adm-col-fiscal adm-endereco">Av. Paulista, 1000, São Paulo SP</td>
                   <td class="adm-col-cobranca">Pro</td>
                   <td class="adm-num adm-col-cobranca">R$&nbsp;197,00</td>
                   <td class="adm-mono adm-col-cobranca">24/09/2026</td>
@@ -2510,10 +2637,10 @@
                       <span class="adm-tag-nv">não verificado</span>
                     </div>
                   </td>
-                  <td class="adm-mono">12.345.678/0001-95</td>
+                  <td class="adm-mono adm-col-fiscal">12.345.678/0001-95</td>
                   <td class="adm-mono adm-col-fiscal">(41) 90000-0000</td>
                   <td class="adm-mono adm-col-fiscal">80010-010</td>
-                  <td class="adm-col-fiscal" style="font-size:13px;max-width:210px">R. XV de Novembro, 200, Curitiba PR</td>
+                  <td class="adm-col-fiscal adm-endereco">R. XV de Novembro, 200, Curitiba PR</td>
                   <td class="adm-col-cobranca">Studio <span class="fat-selo fat-selo--equipe">5 assentos</span></td>
                   <td class="adm-num adm-col-cobranca">R$&nbsp;497,00</td>
                   <td class="adm-mono adm-col-cobranca">11/09/2026</td>
@@ -2735,6 +2862,205 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ RESUMO DO DINHEIRO ══════════════
+           Quatro perguntas, na ordem em que aparecem na cabeça de quem abre:
+           quanto entra por mês, de onde vem, quem paga mais, e o que saiu.
+           Todos os números saem do que já está gravado: `assinaturas` para o
+           recorrente, `compras` para a recarga, e as faturas do Stripe para o
+           que foi cobrado de fato. -->
+      <div data-tela="resumo" hidden>
+        <div class="din-topo">
+          <div class="conta-card adm-card din-grande" style="margin-top:0">
+            <p class="eyebrow">Recorrente por mês</p>
+            <p class="din-num">R$&nbsp;1.482,00<small>/mês</small></p>
+            <span class="din-var din-var--sobe">
+              <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 11l5-5 5 5"/>
+              </svg>
+              R$&nbsp;297,00 <span>desde agosto</span>
+            </span>
+            <p class="din-nota">É a soma das mensalidades ativas hoje, e não o que entrou no
+              caixa. Recarga não entra aqui: ela é compra avulsa e não se repete sozinha.</p>
+
+            <div class="din-meses" aria-hidden="true">
+              <div class="din-mes"><i style="height:22%"></i><b>out</b></div>
+              <div class="din-mes"><i style="height:28%"></i><b>nov</b></div>
+              <div class="din-mes"><i style="height:34%"></i><b>dez</b></div>
+              <div class="din-mes"><i style="height:41%"></i><b>jan</b></div>
+              <div class="din-mes"><i style="height:47%"></i><b>fev</b></div>
+              <div class="din-mes"><i style="height:52%"></i><b>mar</b></div>
+              <div class="din-mes"><i style="height:58%"></i><b>abr</b></div>
+              <div class="din-mes"><i style="height:61%"></i><b>mai</b></div>
+              <div class="din-mes"><i style="height:70%"></i><b>jun</b></div>
+              <div class="din-mes"><i style="height:76%"></i><b>jul</b></div>
+              <div class="din-mes"><i style="height:80%"></i><b>ago</b></div>
+              <div class="din-mes atual"><i style="height:100%"></i><b>set</b></div>
+            </div>
+          </div>
+
+          <div class="conta-card adm-card" style="margin-top:0">
+            <h2 class="conta-h2">De onde vem</h2>
+            <p class="conta-p">Nos últimos 12 meses.</p>
+            <div class="din-fonte">
+              <div class="din-barra" aria-hidden="true">
+                <i style="width:78%"></i><i style="width:22%"></i>
+              </div>
+              <div class="din-legenda">
+                <div>
+                  <span><em class="a"></em>Assinatura</span>
+                  <b>R$&nbsp;14.208,00</b>
+                </div>
+                <div>
+                  <span><em class="b"></em>Recarga avulsa</span>
+                  <b>R$&nbsp;4.010,00</b>
+                </div>
+              </div>
+            </div>
+
+            <div class="fat-rolo">
+              <table class="fat">
+                <thead><tr><th>Plano</th><th class="adm-num">Contas</th>
+                    <th class="adm-num">Por mês</th><th class="adm-num">Do total</th></tr></thead>
+                <tbody>
+                  <tr><td>Studio</td><td class="adm-num">1</td>
+                      <td class="adm-num">R$&nbsp;497,00</td><td class="adm-num">33,5%</td></tr>
+                  <tr><td>Pro</td><td class="adm-num">4</td>
+                      <td class="adm-num">R$&nbsp;788,00</td><td class="adm-num">53,2%</td></tr>
+                  <tr><td>Starter</td><td class="adm-num">2</td>
+                      <td class="adm-num">R$&nbsp;194,00</td><td class="adm-num">13,1%</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="din-fila">
+          <div class="conta-card adm-card din-cel">
+            <p class="eyebrow">Ticket médio</p>
+            <strong>R$&nbsp;211,71</strong>
+            <p>Por conta pagante, contando recarga. Sem recarga, R$&nbsp;169,14.</p>
+          </div>
+          <div class="conta-card adm-card din-cel">
+            <p class="eyebrow">Já entrou, no total</p>
+            <strong>R$&nbsp;18.218,00</strong>
+            <p>Desde a primeira cobrança, em janeiro de 2026. Só o que foi pago.</p>
+          </div>
+          <div class="conta-card adm-card din-cel">
+            <p class="eyebrow">Quanto dura uma conta</p>
+            <strong>7,4 meses</strong>
+            <p>Média de quem já cancelou. Cada conta rendeu R$&nbsp;1.251 em média.</p>
+          </div>
+          <div class="conta-card adm-card din-cel din-cel--saiu">
+            <p class="eyebrow">Saiu no mês</p>
+            <strong>&minus;R$&nbsp;294,00</strong>
+            <p>Dois cancelamentos. Nenhum reembolso e nenhuma contestação.</p>
+          </div>
+        </div>
+
+        <div class="conta-card adm-card">
+          <div class="adm-ficha-cab">
+            <h2 class="conta-h2">Quanto cada conta já pagou</h2>
+            <button class="fat-ver" data-vai="faturas">Ver as faturas</button>
+          </div>
+          <p class="conta-p">Soma de tudo que a conta pagou, do primeiro mês até hoje: a
+            mensalidade de cada ciclo mais as recargas. Ordenado por quem mais pagou.</p>
+          <div class="fat-rolo">
+            <table class="fat">
+              <thead>
+                <tr><th>Conta</th><th>Plano</th><th>Cliente desde</th>
+                    <th class="adm-num">Meses</th><th class="adm-num">Assinatura</th>
+                    <th class="adm-num">Recarga</th><th class="adm-num">Total pago</th>
+                    <th class="fat__acao"></th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Estúdio Norte</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">contato@estudionorte.com.br</span></div>
+                  </td>
+                  <td>Studio</td>
+                  <td class="adm-mono">03/2026</td>
+                  <td class="adm-num">6</td>
+                  <td class="adm-num">R$&nbsp;2.982,00</td>
+                  <td class="adm-num">R$&nbsp;280,00</td>
+                  <td class="adm-num">R$&nbsp;3.262,00</td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Marilia Fischer</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">marilia@corarender.com</span></div>
+                  </td>
+                  <td>Pro</td>
+                  <td class="adm-mono">01/2026</td>
+                  <td class="adm-num">8</td>
+                  <td class="adm-num">R$&nbsp;1.576,00</td>
+                  <td class="adm-num">R$&nbsp;65,00</td>
+                  <td class="adm-num">R$&nbsp;1.641,00</td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Pedro Salgado</div>
+                    <div class="adm-sub">
+                      <span class="adm-sub-txt">pedro@salgado.studio</span>
+                      <span class="fat-selo fat-selo--aberta">Cancelou</span>
+                    </div>
+                  </td>
+                  <td>Pro</td>
+                  <td class="adm-mono">01/2026</td>
+                  <td class="adm-num">7</td>
+                  <td class="adm-num">R$&nbsp;1.379,00</td>
+                  <td class="adm-num">&mdash;</td>
+                  <td class="adm-num">R$&nbsp;1.379,00</td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Joana Reis</div>
+                    <div class="adm-sub">
+                      <span class="adm-sub-txt">joana@arquitetura.com</span>
+                      <span class="fat-selo fat-selo--aberta">Cancelou</span>
+                    </div>
+                  </td>
+                  <td>Starter</td>
+                  <td class="adm-mono">03/2026</td>
+                  <td class="adm-num">6</td>
+                  <td class="adm-num">R$&nbsp;582,00</td>
+                  <td class="adm-num">R$&nbsp;30,00</td>
+                  <td class="adm-num">R$&nbsp;612,00</td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="adm-total">7 contas já pagaram alguma coisa, <b>R$&nbsp;18.218,00</b> no total.</p>
+        </div>
+
+        <div class="conta-card adm-card">
+          <h2 class="conta-h2">O que este resumo não conta</h2>
+          <p class="conta-p">Três coisas ficam de fora de propósito, e é melhor saber quais:</p>
+          <dl class="adm-dl">
+            <div>
+              <dt>Cobrança em outra moeda</dt>
+              <dd>Entra na contagem, fica fora da soma</dd>
+            </div>
+            <div>
+              <dt>A taxa do Stripe</dt>
+              <dd>Os valores são brutos, antes dela</dd>
+            </div>
+            <div>
+              <dt>Imposto</dt>
+              <dd>Não é calculado aqui</dd>
+            </div>
+          </dl>
+          <p class="conta-p" style="font-size:13px">Somar moedas diferentes num total só
+            inflaria o número, e um número inflado no topo da tela é pior que número nenhum.
+            Para o valor líquido de verdade, o painel do Stripe é a fonte.</p>
         </div>
       </div>
 
@@ -3321,7 +3647,9 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
        vez que a pessoa trocava de aba. */
     d.querySelectorAll('[data-some-na-ficha]').forEach(function (e) {
       var daTela = !e.dataset.soEm || e.dataset.soEm === telaAdm;
-      e.hidden = naFicha || !daTela;
+      /* O Resumo nao e lista: buscar e filtrar nao valem nele. */
+      var foraDaqui = e.dataset.foraDe && e.dataset.foraDe === qual;
+      e.hidden = naFicha || !daTela || !!foraDaqui;
     });
     d.getElementById('bt-ficha').classList.toggle('adm-btn-ficha--on', naFicha);
     /* Na Ficha nenhuma aba fica acesa: ela nao e uma delas. */
@@ -3347,7 +3675,7 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
       olho: 'Admin · Dinheiro',
       titulo: 'O que entrou',
       resumo: '30 cobranças, R$ 6.521,36 pagos até agora.',
-      primeira: 'faturas',
+      primeira: 'resumo',
     },
     registros: {
       olho: 'Admin · Registros',
@@ -3400,26 +3728,20 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
      os dois ao mesmo tempo daria uma tabela de dezesseis colunas que ninguém
      lê. Dados fiscais é diferente: ele ACRESCENTA três colunas a qualquer um
      dos dois, porque a contabilidade precisa delas nos dois recortes. */
-  function pintarColunas() {
+  /* Os três recortes se excluem: são três perguntas diferentes sobre a mesma
+     pessoa, e ninguém faz as três ao mesmo tempo. Somados davam onze colunas
+     e uma barra de rolagem horizontal. */
+  var RECORTES = ['cobranca', 'perfil', 'fiscal'];
+  function verRecorte(qual) {
+    RECORTES.forEach(function (r) { raiz.classList.toggle('ad-' + r, r === qual); });
     d.querySelectorAll('.adm-coluna').forEach(function (b) {
-      b.classList.toggle('on', raiz.classList.contains('ad-' + b.dataset.liga)
-        || (b.dataset.liga === 'cobranca' && !raiz.classList.contains('ad-perfil')));
-    });
-    d.querySelectorAll('[data-liga]').forEach(function (b) {
-      if (b.classList.contains('adm-coluna')) return;
-      b.classList.toggle('on', raiz.classList.contains('ad-' + b.dataset.liga));
+      b.classList.toggle('on', b.dataset.liga === qual);
     });
   }
-  d.querySelectorAll('[data-liga]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var qual = b.dataset.liga;
-      if (qual === 'cobranca') raiz.classList.remove('ad-perfil');
-      else if (qual === 'perfil') raiz.classList.add('ad-perfil');
-      else raiz.classList.toggle('ad-' + qual);
-      pintarColunas();
-    });
+  d.querySelectorAll('.adm-coluna').forEach(function (b) {
+    b.addEventListener('click', function () { verRecorte(b.dataset.liga); });
   });
-  pintarColunas();
+  verRecorte('cobranca');
 
   /* ── A GEOGRAFIA ── */
   function alternarGeo() {

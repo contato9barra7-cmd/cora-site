@@ -199,7 +199,9 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
        vez que a pessoa trocava de aba. */
     d.querySelectorAll('[data-some-na-ficha]').forEach(function (e) {
       var daTela = !e.dataset.soEm || e.dataset.soEm === telaAdm;
-      e.hidden = naFicha || !daTela;
+      /* O Resumo nao e lista: buscar e filtrar nao valem nele. */
+      var foraDaqui = e.dataset.foraDe && e.dataset.foraDe === qual;
+      e.hidden = naFicha || !daTela || !!foraDaqui;
     });
     d.getElementById('bt-ficha').classList.toggle('adm-btn-ficha--on', naFicha);
     /* Na Ficha nenhuma aba fica acesa: ela nao e uma delas. */
@@ -225,7 +227,7 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
       olho: 'Admin · Dinheiro',
       titulo: 'O que entrou',
       resumo: '30 cobranças, R$ 6.521,36 pagos até agora.',
-      primeira: 'faturas',
+      primeira: 'resumo',
     },
     registros: {
       olho: 'Admin · Registros',
@@ -278,26 +280,20 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
      os dois ao mesmo tempo daria uma tabela de dezesseis colunas que ninguém
      lê. Dados fiscais é diferente: ele ACRESCENTA três colunas a qualquer um
      dos dois, porque a contabilidade precisa delas nos dois recortes. */
-  function pintarColunas() {
+  /* Os três recortes se excluem: são três perguntas diferentes sobre a mesma
+     pessoa, e ninguém faz as três ao mesmo tempo. Somados davam onze colunas
+     e uma barra de rolagem horizontal. */
+  var RECORTES = ['cobranca', 'perfil', 'fiscal'];
+  function verRecorte(qual) {
+    RECORTES.forEach(function (r) { raiz.classList.toggle('ad-' + r, r === qual); });
     d.querySelectorAll('.adm-coluna').forEach(function (b) {
-      b.classList.toggle('on', raiz.classList.contains('ad-' + b.dataset.liga)
-        || (b.dataset.liga === 'cobranca' && !raiz.classList.contains('ad-perfil')));
-    });
-    d.querySelectorAll('[data-liga]').forEach(function (b) {
-      if (b.classList.contains('adm-coluna')) return;
-      b.classList.toggle('on', raiz.classList.contains('ad-' + b.dataset.liga));
+      b.classList.toggle('on', b.dataset.liga === qual);
     });
   }
-  d.querySelectorAll('[data-liga]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var qual = b.dataset.liga;
-      if (qual === 'cobranca') raiz.classList.remove('ad-perfil');
-      else if (qual === 'perfil') raiz.classList.add('ad-perfil');
-      else raiz.classList.toggle('ad-' + qual);
-      pintarColunas();
-    });
+  d.querySelectorAll('.adm-coluna').forEach(function (b) {
+    b.addEventListener('click', function () { verRecorte(b.dataset.liga); });
   });
-  pintarColunas();
+  verRecorte('cobranca');
 
   /* ── A GEOGRAFIA ── */
   function alternarGeo() {

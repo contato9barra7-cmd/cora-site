@@ -134,7 +134,10 @@
 
    A tabela é a `.fat` do painel, dentro do mesmo `.conta-card`. O que muda
    aqui são as colunas que só o admin tem.
-   ══════════════════════════════════════════════════════════════════════ */.adm-card{ margin-top:0; padding:20px 22px 22px; }.adm-nome{ color:var(--ink); font-weight:600; letter-spacing:-.01em; }.adm-sub{ margin-top:2px; font-size:12.5px; color:var(--ink3); }.adm-sub-txt{
+   ══════════════════════════════════════════════════════════════════════ */.adm-card{ margin-top:0; padding:20px 22px 22px; }/* A TABELA SANGRA ATÉ A BORDA DO CARTÃO.
+   Os 22px de cada lado eram 44px que a tabela não tinha, e a diferença entre
+   caber e precisar de barra de rolagem. O recuo volta como recuo da PRIMEIRA
+   e da ÚLTIMA célula, então o alinhamento com o título continua. */.adm-card > .fat-rolo{ margin-left:-22px; margin-right:-22px; }.adm-card > .fat-rolo .fat th:first-child, .adm-card > .fat-rolo .fat td:first-child{ padding-left:22px; }.adm-card > .fat-rolo .fat th:last-child, .adm-card > .fat-rolo .fat td:last-child{ padding-right:22px; }.adm-nome{ color:var(--ink); font-weight:600; letter-spacing:-.01em; }.adm-sub{ margin-top:2px; font-size:12.5px; color:var(--ink3); }.adm-sub-txt{
   display:inline-block; max-width:230px; overflow:hidden;
   text-overflow:ellipsis; white-space:nowrap; vertical-align:bottom;
 }.adm-num{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }.adm-mono{ white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--ink2); }.ad .fat-selo--neutro{ background:var(--wash2); color:var(--ink2); }/* O selo de equipe estava com o roxo escrito direto no JSX. */.ad .fat-selo--equipe{ background:var(--turquesa); color:#0B3A31; }.adm-tag-nv{
@@ -271,7 +274,16 @@
    No site quem decide isso é o React, e as colunas nem chegam a existir.
    Aqui elas existem e ficam escondidas, para o desenho poder ser julgado
    nos dois estados sem duas tabelas separadas.
-   ══════════════════════════════════════════════════════════════════════ */.adm-col-fiscal, .adm-col-perfil{ display:none; }.ad-fiscais .adm-col-fiscal{ display:table-cell; }.ad-perfil .adm-col-perfil{ display:table-cell; }.ad-perfil .adm-col-cobranca{ display:none; }/* ══════════════════════════════════════════════════════════════════════
+   ══════════════════════════════════════════════════════════════════════ *//* OS TRÊS RECORTES SE EXCLUEM.
+
+   Antes o Fiscal ACRESCENTAVA ao que estivesse ligado, e Cadastro mais Fiscal
+   davam onze colunas: 1266px de tabela num cartão de 775. A barra de rolagem
+   horizontal é onde o olho se perde, e ela aparecia justamente no recorte
+   mais usado pela contabilidade.
+
+   Um de cada vez, cada um com sete ou oito colunas, cabe. E é mais honesto:
+   são três perguntas diferentes sobre a mesma pessoa, e ninguém faz as três
+   ao mesmo tempo. */.adm-col-fiscal, .adm-col-perfil{ display:none; }.ad-fiscal .adm-col-fiscal{ display:table-cell; }.ad-fiscal .adm-col-cobranca{ display:none; }.ad-perfil .adm-col-perfil{ display:table-cell; }.ad-perfil .adm-col-cobranca{ display:none; }/* ══════════════════════════════════════════════════════════════════════
    A JANELA DE E-MAIL
 
    Duas colunas: à esquerda o que se escreve, à direita como fica. A prévia
@@ -464,7 +476,57 @@
   margin-left:auto; font-weight:500; font-size:12.5px; color:var(--ink3);
   font-variant-numeric:tabular-nums;
 }/* Com o menu recolhido o submenu some junto com os rótulos: um item de 34px
-   sem texto não diz nada, e três deles viram três riscos. */.ad .app-shell.recolhido .app-nav-sub{ display:none; }
+   sem texto não diz nada, e três deles viram três riscos. */.ad .app-shell.recolhido .app-nav-sub{ display:none; }/* ══════════════════════════════════════════════════════════════════════
+   A TABELA DO ADMIN É MAIS MIÚDA QUE A DO PAINEL
+
+   No painel a `.fat` tem quatro colunas e 14px de fonte. Aqui ela chega a
+   onze, e a 14px isso não cabe em tela nenhuma: sobrava a barra de rolagem
+   horizontal, que é onde o olho se perde.
+
+   13px com recuo menor faz o recorte mais largo (Cadastro mais Dados
+   fiscais) caber num monitor comum. Não é encolher por encolher: é a mesma
+   escala que o resto do painel usa em texto de apoio.
+   ══════════════════════════════════════════════════════════════════════ */.ad .fat{ font-size:13px; }.ad .fat th{ padding:0 11px 9px; font-size:9.5px; letter-spacing:.12em; }.ad .fat td{ padding:11px 11px; }.adm-nome{ font-size:13.5px; }.adm-sub{ font-size:11.5px; }.adm-sub-txt{ max-width:180px; }/* O endereço é a coluna que mais estica. Duas linhas curtas ocupam menos
+   largura que uma linha longa, e a tabela inteira agradece. */.ad .fat td.adm-endereco{ max-width:120px; white-space:normal; line-height:1.4; }/* No recorte fiscal o e-mail encolhe: ali quem procura já sabe o nome, e as
+   três colunas de documento precisam da largura. */.ad-fiscal .adm-sub-txt{ max-width:140px; }.adm-tag-nv{ font-size:9px; padding:1px 6px; }.ad .fat-selo{ font-size:9.5px; padding:2px 8px; }/* ══════════════════════════════════════════════════════════════════════
+   O RESUMO DO DINHEIRO
+
+   Quatro perguntas, nesta ordem, porque é a ordem em que elas aparecem na
+   cabeça de quem abre a tela:
+
+     1. quanto entra por mês, e está subindo ou descendo
+     2. de onde vem: plano ou recarga, e qual plano
+     3. quem paga mais
+     4. o que saiu: cancelamento, reembolso, contestação
+
+   O NÚMERO GRANDE É UM SÓ. Quatro números do mesmo tamanho não têm
+   hierarquia: viram quatro coisas para ler, e a tela deixa de responder
+   qualquer uma. O grande é o mensal recorrente, que é a pergunta.
+
+   TUDO EM REAL, E SÓ REAL. Somar dólar com real num total inflaria o
+   número. Cobrança em outra moeda entra na CONTAGEM e fica fora da SOMA, e
+   a tela diz isso onde acontece.
+   ══════════════════════════════════════════════════════════════════════ */.ad .din-topo{ display:grid; gap:14px; grid-template-columns:1fr; align-items:start; }
+@media (min-width:900px){.ad .din-topo{ grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); }}.ad .din-grande{ padding:26px 28px 28px; }.ad .din-grande .eyebrow{ margin:0; }.ad .din-num{
+  margin:10px 0 0; font-size:clamp(38px,5.5vw,52px); font-weight:500;
+  letter-spacing:-.04em; line-height:1; font-variant-numeric:tabular-nums;
+}.ad .din-num small{ font-size:.42em; font-weight:500; color:var(--ink3); letter-spacing:-.02em; }.ad .din-var{
+  display:inline-flex; align-items:center; gap:6px; margin-top:12px;
+  padding:4px 12px; border-radius:var(--pill);
+  font-size:13px; font-weight:600;
+}.ad .din-var--sobe{ background:var(--ok-bg); color:var(--ok); }.ad .din-var--desce{ background:var(--alerta-bg); color:var(--alerta); }.ad .din-var span{ font-weight:500; color:var(--ink3); }.ad .din-nota{ margin:14px 0 0; font-size:13px; color:var(--ink3); line-height:1.6; max-width:52ch; }/* A barra dos meses. Não é gráfico de biblioteca: são doze retângulos, e o
+   que se quer saber deles é a forma, não o valor exato de cada um. O valor
+   exato mora na tabela logo abaixo. */.ad .din-meses{ margin-top:22px; display:flex; align-items:flex-end; gap:5px; height:76px; }.ad .din-mes{ flex:1; min-width:0; display:flex; flex-direction:column; justify-content:flex-end; gap:5px; }.ad .din-mes i{ display:block; border-radius:3px 3px 0 0; background:var(--turquesa); }.ad .din-mes.atual i{ background:var(--lima); }.ad .din-mes b{
+  font-size:9.5px; font-weight:500; color:var(--ink3); text-align:center;
+  text-transform:uppercase; letter-spacing:.04em;
+}/* De onde vem o dinheiro. Barra empilhada de duas cores, e a legenda embaixo
+   com o valor: a proporção se lê na barra, o número se lê na linha. */.ad .din-fonte{ margin-top:18px; }.ad .din-barra{ display:flex; height:12px; border-radius:var(--pill); overflow:hidden; }.ad .din-barra i{ display:block; }.ad .din-barra i:nth-child(1){ background:var(--turquesa); }.ad .din-barra i:nth-child(2){ background:var(--lima); }.ad .din-legenda{ margin-top:14px; display:grid; gap:9px; }.ad .din-legenda div{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; font-size:13.5px; }.ad .din-legenda span{ display:inline-flex; align-items:center; gap:8px; color:var(--ink2); }.ad .din-legenda em{
+  width:12px; height:12px; border-radius:4px; flex:none; font-style:normal;
+}.ad .din-legenda em.a{ background:var(--turquesa); }.ad .din-legenda em.b{ background:var(--lima); }.ad .din-legenda b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }/* Os números menores, em fila. Eles são o contexto do número grande, e por
+   isso ficam num degrau claramente abaixo dele. */.ad .din-fila{ margin-top:14px; display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); }.ad .din-cel{ padding:20px 22px; }.ad .din-cel .eyebrow{ margin:0; }.ad .din-cel strong{
+  display:block; margin-top:8px; font-size:24px; font-weight:500;
+  letter-spacing:-.03em; font-variant-numeric:tabular-nums;
+}.ad .din-cel p{ margin:6px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.55; }.ad .din-cel--saiu strong{ color:var(--alerta); }
 
 /* ── a fonte, em tamanho nominal ──
    Ver a nota no gerador: o site serve a DM Sans com size-adjust de 88%, o que
