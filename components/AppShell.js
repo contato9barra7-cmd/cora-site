@@ -312,7 +312,17 @@ export default function AppShell({ children }) {
     window.location.href = '/login';
   }
 
+  // Onde a pessoa está agora, para o cabeçalho dizer. Sem isso ele é uma
+  // barra vazia de ponta a ponta com o avatar num canto.
+  const aqui = (itens.find((i) => i.href === pathname) || {}).rotulo || '';
+
   return (
+    // `pn` é a classe da página. Todo o desenho aprovado do painel vive em
+    // painel-pagina.css, escopado nela: assim ele ganha do molde antigo por
+    // especificidade, sem `!important`, e nada dele vaza para o resto do site.
+    // A folha é GERADA a partir de ferramentas/painel.html, que é o artefato.
+    // Mexer no desenho é mexer lá e rodar o gerador, nunca editar a folha.
+    <div className="pn">
     <div className={'app-shell' + (recolhido ? ' recolhido' : '') + (gaveta ? ' gaveta' : '')
       + (conta?.personificado ? ' com-tarja' : '')}>
       {/* ── TARJA DE PERSONIFICAÇÃO ──
@@ -335,42 +345,44 @@ export default function AppShell({ children }) {
 
       {/* MENU LATERAL FIXO (gaveta no tablet/celular) */}
       <aside className="app-side">
+        {/* Um logo só, e quem escolhe o que aparece aqui é a classe
+            `recolhido`, no CSS. Escolher por estado no React deixava a gaveta
+            sem logo nenhum para quem tinha recolhido a lateral no desktop: o
+            botão de recolher não existe na gaveta, e o logo tinha ido junto.
+
+            O logo é uma máscara em CSS, então o elemento é vazio de propósito
+            e quem diz o nome é o `aria-label`. Ele leva à landing. Para voltar
+            ao painel, o caminho é o item "Início" do menu. */}
         <div className="app-side-topo">
-          {/* Na gaveta o menu está sempre por extenso: o botão de recolher não
-              faz sentido ali (o CSS o esconde), e o X toma o lugar dele. */}
-          <Link href="/" className="app-logo app-logo--gaveta">Cora Render</Link>
+          <Link href="/" className="app-logo" aria-label="Cora Render" />
+
+          <button
+            className="app-side-toggle"
+            onClick={toggleMenu}
+            title={t('recolher_menu')}
+            aria-label={t('recolher_menu')}
+          >
+            {Icone.recolher}
+          </button>
+
+          {/* Recolhida, a lateral fica com o símbolo da marca e mais nada, e
+              ele é o botão que abre de volta. Uma seta ao lado seria um
+              segundo alvo para a mesma ação, num espaço de 68px. */}
+          <button
+            className="app-side-toggle app-side-toggle--so"
+            onClick={toggleMenu}
+            title={t('expandir_menu')}
+            aria-label={t('expandir_menu')}
+          >
+            <span className="app-side-c" />
+          </button>
+
+          {/* Só na gaveta, onde não existe recolher: o X toma o lugar dele. */}
           <button
             className="app-side-fechar"
             onClick={() => setGaveta(false)}
             aria-label={t('fechar')}
           >×</button>
-
-          {recolhido ? (
-            <button
-              className="app-side-toggle app-side-toggle--so"
-              onClick={toggleMenu}
-              title={t('expandir_menu')}
-              aria-label={t('expandir_menu')}
-            >
-              <span className="app-side-c">C</span>
-              <span className="app-side-seta">{Icone.expandir}</span>
-            </button>
-          ) : (
-            <>
-              {/* O logo leva à landing (corarender.com). Para voltar ao painel,
-                  o caminho é o item "Cora Render" do menu. */}
-              <Link href="/" className="app-logo">Cora Render</Link>
-
-              <button
-                className="app-side-toggle"
-                onClick={toggleMenu}
-                title={t('recolher_menu')}
-                aria-label={t('recolher_menu')}
-              >
-                {Icone.recolher}
-              </button>
-            </>
-          )}
         </div>
         <nav className="app-nav">
           {itens.map(i => (
@@ -408,20 +420,28 @@ export default function AppShell({ children }) {
           <span /><span /><span />
         </button>
 
+        <span className="app-header-aqui">{aqui}</span>
+
         <div className="app-header-dir">
           <div className="app-user-wrap">
             <button className="app-user-btn" onClick={() => setMenuUser(!menuUser)} title={t('nav_minhaconta')}>
               {/* anel de créditos ao redor do avatar (estilo Magnific).
                   Admin/ilimitado mostra o anel SEMPRE CHEIO. */}
+              {/* O anel acompanha a foto e é quadrado de canto redondo.
+                  `pathLength="100"` poupa a conta do perímetro de um retângulo
+                  arredondado: o traço passa a ser medido em centos, e o quanto
+                  resta é o número direto. Acabando, ele deixa de ser marca e
+                  vira sinal. */}
               {conta && (ilimitado || total > 0) && (
                 <svg className="app-anel" width="46" height="46" viewBox="0 0 46 46">
-                  <circle className="app-anel-bg" cx="23" cy="23" r="21" />
-                  <circle
-                    className="app-anel-fill"
-                    cx="23" cy="23" r="21"
-                    strokeDasharray={2 * Math.PI * 21}
-                    strokeDashoffset={ilimitado ? 0 : (2 * Math.PI * 21) * (1 - pctRestante / 100)}
-                    transform="rotate(-90 23 23)"
+                  <rect className="app-anel-bg"
+                        x="2.5" y="2.5" width="41" height="41" rx="13" pathLength="100" />
+                  <rect
+                    className={'app-anel-fill' + (acabando ? ' baixo' : '')}
+                    x="2.5" y="2.5" width="41" height="41" rx="13"
+                    pathLength="100"
+                    strokeDasharray="100"
+                    strokeDashoffset={ilimitado ? 0 : 100 - pctRestante}
                   />
                 </svg>
               )}
@@ -434,6 +454,11 @@ export default function AppShell({ children }) {
             </button>
             {menuUser && (
               <div className="app-user-menu" onMouseLeave={() => setMenuUser(false)}>
+                {/* A faixa fecha o menu por cima, como fecha o cartão do
+                    e-mail. É o único lugar da moldura onde a marca aparece
+                    desenhada, e não só em cor. */}
+                <div className="app-user-faixa" aria-hidden="true" />
+                <div className="app-user-miolo">
                 {/* Irmãos, não aninhados: aninhado, o padding do plano
                     somava ao do nome e ele saía 12px mais à direita. */}
                 <div className="app-user-nome">
@@ -505,6 +530,7 @@ export default function AppShell({ children }) {
                   </svg>
                   {t('sair')}
                 </button>
+                </div>
               </div>
             )}
           </div>
@@ -560,11 +586,14 @@ export default function AppShell({ children }) {
       {ehTrial && trialExpirado && !podeGerar && !ehAlunoPromptador && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
+            <div className="trial-bloqueio-faixa" aria-hidden="true" />
+            <div className="trial-bloqueio-miolo">
             <span className="trial-bloqueio-eb">{t('teste_encerrado')}</span>
             <h1>{t('teste_terminou_h1')}</h1>
             <p>{t('teste_terminou_p')}</p>
-            <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/precos')}>{t('ver_planos_assinar')}</button>
+            <button className="btn" onClick={() => router.push('/precos')}>{t('ver_planos_assinar')}</button>
             <button className="trial-bloqueio-sair" onClick={logout}>{t('sair')}</button>
+            </div>
           </div>
         </div>
       )}
@@ -575,11 +604,14 @@ export default function AppShell({ children }) {
       {ehAlunoPromptador && ehTrial && trialExpirado && !podeGerar && naApp && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
+            <div className="trial-bloqueio-faixa" aria-hidden="true" />
+            <div className="trial-bloqueio-miolo">
             <span className="trial-bloqueio-eb">{t('aluno_sem_assin_eb')}</span>
             <h1>{t('aluno_sem_assin_h1')}</h1>
             <p>{t('aluno_sem_assin_p')}</p>
-            <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/')}>{t('aluno_conhecer')}</button>
+            <button className="btn" onClick={() => router.push('/')}>{t('aluno_conhecer')}</button>
             <button className="trial-bloqueio-sair" onClick={() => router.push('/conta')}>{t('sair')}</button>
+            </div>
           </div>
         </div>
       )}
@@ -589,11 +621,14 @@ export default function AppShell({ children }) {
       {planoExpirado && naApp && !podeGerar && !suspensoEquipe && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
+            <div className="trial-bloqueio-faixa" aria-hidden="true" />
+            <div className="trial-bloqueio-miolo">
             <span className="trial-bloqueio-eb">{t('plano_inativo')}</span>
             <h1>{t('plano_expirou_h1')}</h1>
             <p>{t('plano_expirou_p')}</p>
-            <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/assinatura')}>{t('renovar_assinatura')}</button>
+            <button className="btn" onClick={() => router.push('/assinatura')}>{t('renovar_assinatura')}</button>
             <button className="trial-bloqueio-sair" onClick={() => router.push('/conta')}>{t('sair')}</button>
+            </div>
           </div>
         </div>
       )}
@@ -605,10 +640,13 @@ export default function AppShell({ children }) {
       {suspensoEquipe && naApp && !podeGerar && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
+            <div className="trial-bloqueio-faixa" aria-hidden="true" />
+            <div className="trial-bloqueio-miolo">
             <span className="trial-bloqueio-eb">{t('susp_badge')}</span>
             <p>{t('susp_texto')}</p>
-            <button className="btn btn--verde" style={{ width: 'auto', padding: '13px 30px' }} onClick={() => router.push('/precos')}>{t('susp_botao')}</button>
+            <button className="btn" onClick={() => router.push('/precos')}>{t('susp_botao')}</button>
             <button className="trial-bloqueio-sair" onClick={() => router.push('/conta')}>{t('sair')}</button>
+            </div>
           </div>
         </div>
       )}
@@ -618,6 +656,7 @@ export default function AppShell({ children }) {
 
       {/* Popup "recurso do Pro/Studio" — dispara em 'cora:sem-acesso' */}
       <PopupUpgrade />
+    </div>
     </div>
   );
 }

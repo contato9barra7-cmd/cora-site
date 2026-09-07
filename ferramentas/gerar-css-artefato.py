@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Escreve app/precos-pagina.css a partir do <style> do precos.html aprovado.
+"""Escreve uma folha escopada a partir do bloco de estilo de um artefato.
 
 A mesma tatica que funcionou nas telas de conta: em vez de discutir com as
 doze mil linhas do globals.css, o desenho aprovado entra inteiro, escopado
@@ -30,6 +30,13 @@ if len(sys.argv) != 4:
 ORIGEM, DESTINO, ESCOPO = sys.argv[1], sys.argv[2], "." + sys.argv[3]
 
 bruto = io.open(ORIGEM, encoding="utf-8").read()
+
+# Os comentarios do HTML saem antes da busca. Um artefato que EXPLICA o proprio
+# gerador escreve a palavra <style> dentro de um comentario, e a busca parava
+# ali: o CSS "encontrado" era o texto do comentario, e a folha saia com frases
+# em portugues no lugar das regras, sem erro nenhum aparecer.
+bruto = re.sub(r"<!--.*?-->", "", bruto, flags=re.S)
+
 m = re.search(r"<style>(.*?)</style>", bruto, re.S)
 if not m:
     print("nao achei o <style> do artefato"); sys.exit(1)
@@ -56,6 +63,22 @@ def sem_overflow(corpo):
     return re.sub(r"\s*overflow[a-z-]*\s*:[^;}]+;?", "", corpo)
 
 
+# `:root[data-theme="dark"] .x` NAO pode virar `.pn :root[...] .x`.
+#
+# O atributo do tema mora no `<html>`, que esta ACIMA do escopo da pagina, e
+# nao dentro dele. Escopado por dentro, o seletor nao casa com nada e a pagina
+# fica sem tema escuro, sem erro nenhum aparecer. Entao a qualificacao do
+# elemento raiz sai na frente e o escopo entra depois dela:
+#
+#     :root[data-theme="dark"]         ->  [data-theme="dark"] .pn
+#     :root[data-theme="dark"] .cartao ->  [data-theme="dark"] .pn .cartao
+RAIZ = re.compile(
+    r"^(?::root|html|body)"                          # o elemento do documento
+    r"((?:\[[^\]]*\]|:[a-zA-Z-]+(?:\([^)]*\))?)*)"  # o que qualifica ele
+    r"\s*(.*)$"                                      # e o resto do seletor
+)
+
+
 def prefixar(seletor):
     """`.plano` vira `.pr .plano`. `:root` vira `.pr`. Um seletor de elemento
     solto (`p`, `h2`) tambem ganha o prefixo, senao ele pegaria a pagina toda
@@ -65,16 +88,23 @@ def prefixar(seletor):
         s = s.strip()
         if not s:
             continue
-        if s in (":root", "html", "body"):
-            partes.append(ESCOPO)
+        if s.startswith("@") or s.startswith("from") or s.startswith("to") or re.match(r"^\d+%$", s):
+            partes.append(s)
+            continue
+        if s.startswith(ESCOPO):
+            partes.append(s)
+            continue
+        m = RAIZ.match(s)
+        if m:
+            qualifica, resto = m.group(1).strip(), m.group(2).strip()
+            pedaco = ESCOPO if not qualifica else (qualifica + " " + ESCOPO)
+            if resto:
+                pedaco += " " + resto
+            partes.append(pedaco)
             global veio_do_documento
             veio_do_documento = True
-        elif s.startswith("@") or s.startswith("from") or s.startswith("to") or re.match(r"^\d+%$", s):
-            partes.append(s)
-        elif s.startswith(ESCOPO):
-            partes.append(s)
-        else:
-            partes.append(ESCOPO + " " + s)
+            continue
+        partes.append(ESCOPO + " " + s)
     return ", ".join(partes)
 
 
@@ -212,7 +242,7 @@ FONTE = u"""
 """.replace("@ESC@", ESCOPO)
 
 io.open(DESTINO, "w", encoding="utf-8", newline="\n").write(CABECA + texto.strip() + "\n" + FONTE)
-print("precos-pagina.css: %.1f KB" % (os.path.getsize(DESTINO) / 1024.0))
+print("%s: %.1f KB" % (os.path.basename(DESTINO), os.path.getsize(DESTINO) / 1024.0))
 
 # conferencia: nenhum seletor solto que possa vazar
 solto = [l for l in io.open(DESTINO, encoding="utf-8").read().split("\n")

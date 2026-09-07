@@ -15,10 +15,10 @@
      Os nomes de classe são os mesmos que já estão em produção sempre que a
      peça sobrevive. Assim a portagem é troca de folha na maior parte dela.
 
-     O primeiro <style> é o que o gerador lê:
+     O primeiro bloco de estilo é o que o gerador lê:
          python gerar-css-artefato.py painel.html ../app/painel-pagina.css pn
-     O segundo <style>, com atributo, é só a moldura desta demonstração e não
-     entra no site (a expressão do gerador só casa <style> sem atributo).
+     O segundo, o que leva atributo na tag, é só a moldura desta demonstração
+     e não entra no site.
      ══════════════════════════════════════════════════════════════════════ -->
 
 <style>
@@ -119,13 +119,20 @@
 .app-shell.recolhido .app-side-toggle:not(.app-side-toggle--so){ display:none; }
 .app-shell:not(.recolhido) .app-side-toggle--so{ display:none; }
 /* Recolhido, o símbolo da marca ocupa o lugar do logotipo por extenso. Antes
-   era a letra C solta, que não é a marca de ninguém. */
+   era a letra C solta, que não é a marca de ninguém.
+
+   `position:static` e `opacity:1` desfazem duas regras do molde antigo, onde
+   o C e uma seta ficavam empilhados em absoluto e trocavam de lugar no hover.
+   A seta não existe mais, então sem estas duas linhas o símbolo sairia do
+   lugar e sumiria quando o mouse chegasse. As duas saem do arquivo junto com
+   o molde antigo, quando o painel inteiro estiver portado. */
 .app-side-c{
+  position:static; opacity:1;
   width:26px; height:26px; display:block; background:var(--ink);
   -webkit-mask:var(--simbolo) no-repeat center / contain;
   mask:var(--simbolo) no-repeat center / contain;
 }
-.app-side-seta{ display:flex; }
+.app-side-toggle--so:hover .app-side-c{ opacity:1; }
 
 .app-nav{ padding:14px 10px; display:flex; flex-direction:column; gap:2px; }
 .app-nav-div{ height:1px; background:var(--line); margin:12px 10px; }
@@ -201,6 +208,7 @@
   position:absolute; top:calc(100% + 10px); right:0; width:284px; z-index:60;
   background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
   box-shadow:var(--sombra); overflow:hidden; text-align:left;
+  padding:0;   /* o recuo mora no miolo, para a faixa encostar na borda */
 }
 /* A faixa fecha o menu por cima, como fecha o cartão do e-mail.
    O ladrilho é a altura vezes oito, então engrossar a faixa aumenta as formas
@@ -281,9 +289,9 @@
      devolve a proporcao dele: quando nao devolve, o ladrilho estica ate a
      altura da caixa e as meias-luas viram lascas achatadas. */
   background-size:100% calc(var(--pad-heroi) * 4.5);
-  animation:esteira 64s linear infinite;
+  animation:pn-esteira 64s linear infinite;
 }
-@keyframes esteira{
+@keyframes pn-esteira{
   from{ background-position:center 0; }
   to  { background-position:center calc(var(--pad-heroi) * 4.5); }
 }
@@ -342,10 +350,10 @@
 }
 .dash-esteira__fila{
   display:flex; gap:12px; width:max-content;
-  animation:rolar 130s linear infinite;
+  animation:pn-rolar 130s linear infinite;
 }
 .dash-esteira:hover .dash-esteira__fila{ animation-play-state:paused; }
-@keyframes rolar{
+@keyframes pn-rolar{
   from{ transform:translateX(0); }
   to  { transform:translateX(calc(-50% - 6px)); }
 }
@@ -554,6 +562,8 @@
 .trial-bloqueio-card{
   width:min(440px,100%); text-align:center; overflow:hidden;
   background:var(--paper); border-radius:var(--r-heroi); box-shadow:var(--sombra);
+  padding:0; border:0;   /* mesmo motivo do menu: o recuo mora no miolo */
+  max-width:440px;
 }
 /* A faixa fecha o cartão por cima, como no cabeçalho do e-mail. É a mesma
    peça, no mesmo lugar: o alto do cartão. */
@@ -607,6 +617,10 @@
   }
   .app-burger span{ display:block; height:1.5px; border-radius:2px; background:var(--ink); }
   .app-side-toggle{ display:none; }
+  /* O responsivo.css do molde antigo esconde qualquer `.app-logo` que não
+     seja a da gaveta. Aqui existe um logo só, então essa regra escondia o
+     único que há. Sai junto com o molde antigo. */
+  .app-shell .app-side-topo .app-logo,
   .app-shell.recolhido .app-logo{ display:block; }
   .app-side-fechar{
     display:grid; place-items:center; width:34px; height:34px; border:0; border-radius:50%;
@@ -624,9 +638,9 @@
     height:var(--pad-deitado);
     background:var(--faixa-deitada) repeat-x left center;
     background-size:calc(var(--pad-deitado) * 8) 100%;
-    animation:esteira-deitada 54s linear infinite;
+    animation:pn-esteira-deitada 54s linear infinite;
   }
-  @keyframes esteira-deitada{
+  @keyframes pn-esteira-deitada{
     from{ background-position:0 center; }
     to  { background-position:calc(var(--pad-deitado) * 8) center; }
   }
@@ -724,7 +738,7 @@ body{ margin:0; background:#F6F6F4; }
               <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
             </svg>
           </span>
-          <span class="app-nav-lbl">Painel</span>
+          <span class="app-nav-lbl">Início</span>
         </a>
       </div>
       <div>
@@ -787,7 +801,7 @@ body{ margin:0; background:#F6F6F4; }
   <header class="app-header">
     <button class="app-burger" id="btn-gaveta" aria-label="Menu"><span></span><span></span><span></span></button>
 
-    <span class="app-header-aqui">Painel</span>
+    <span class="app-header-aqui">Início</span>
 
       <div class="app-header-dir">
       <div class="app-user-wrap">

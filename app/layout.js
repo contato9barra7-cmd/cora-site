@@ -7,6 +7,7 @@ import './paginas-legais.css';
 import './precos-pagina.css';
 import './home-pagina.css';
 import './suporte-pagina.css';
+import './painel-pagina.css';
 import RodapeGlobal from '../components/RodapeGlobal';
 import CookieConsent from '../components/CookieConsent';
 import { IdiomaProvider } from '../lib/i18n';

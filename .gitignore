@@ -15,3 +15,6 @@ yarn-error.log*
 
 .vercel
 next-env.d.ts
+
+# a pasta de conferencia do CORA_DIST (ver next.config.mjs)
+.next-conferencia/

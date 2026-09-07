@@ -40,6 +40,17 @@ const CSP_FINAL = process.env.NODE_ENV === 'production'
       .replace("script-src 'self' 'unsafe-inline'", "script-src 'self' 'unsafe-inline' 'unsafe-eval'");
 
 const nextConfig = {
+  // ── Onde o build escreve ──
+  // Duas pessoas (ou duas sessões) trabalhando nesta mesma pasta não podem
+  // buildar em cima do `.next` de quem está com o `next dev` de pé: o
+  // diretório corrompe e o servidor do outro cai no meio do caminho. Com esta
+  // variável dá para conferir a compilação num canto, sem encostar no dele:
+  //
+  //     CORA_DIST=.next-conferencia npx next build
+  //
+  // Sem a variável nada muda, e é isso que o Vercel usa.
+  distDir: process.env.CORA_DIST || '.next',
+
   async headers() {
     return [
       {
