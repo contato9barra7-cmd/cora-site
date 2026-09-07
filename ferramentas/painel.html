@@ -1319,13 +1319,17 @@ body{ margin:0; background:#F6F6F4; }
     document.getElementById('cred-nada').hidden = !e.semPlano;
     document.getElementById('cred-porque').hidden = !e.semPlano;
     document.getElementById('cred-quando').hidden = !!e.semPlano;
-    // Sem plano este cartão não tem ação própria: recarga exige plano ativo, e
-    // o único caminho é assinar, que é o que o cartão do lado oferece com o
-    // nome certo. Dois botões indo para a mesma página é escolha que não existe.
-    document.getElementById('acao-cred').hidden = !!e.semPlano;
     document.getElementById('cred-barra').style.width = e.pct + '%';
-    // Membro de equipe não compra crédito: o botão sai e a razão entra.
-    document.getElementById('acao-cred').hidden = !!e.semCompra;
+
+    // ── Quem NÃO vê "Comprar créditos" ──
+    // Duas razões diferentes, e por isso uma linha só: elas estavam separadas,
+    // uma escrevendo por cima da outra, e a de baixo (a da equipe) reabria o
+    // botão para quem estava no teste. Erro clássico de dois donos para o
+    // mesmo atributo, e ele passou por três revisões sem aparecer.
+    //
+    //   semPlano  → recarga exige plano ativo, o servidor recusa quem não tem
+    //   semCompra → membro de equipe não compra: quem compra é quem paga
+    document.getElementById('acao-cred').hidden = !!(e.semPlano || e.semCompra);
     document.getElementById('cred-nota').hidden = !e.semCompra;
     document.querySelector('[data-bloco="renders"]').hidden = !!e.semRenders;
     document.querySelector('[data-bloco="renders-vazio"]').hidden = !e.semRenders;
