@@ -370,7 +370,32 @@
 }.pn .trial-bloqueio-card .btn:hover{ background:var(--lima-esc); }.pn .trial-bloqueio-sair{
   display:block; margin:14px auto 0; border:0; background:none; color:var(--ink3);
   font-size:14px; cursor:pointer; text-decoration:underline; text-underline-offset:3px;
-}.pn .trial-bloqueio-sair:hover{ color:var(--ink); }/* ── a tarja de personificação ── */.pn .tarja-personificacao{
+}.pn .trial-bloqueio-sair:hover{ color:var(--ink); }/* ── O MESMO BLOQUEIO, PARA OS DOCUMENTOS ──
+   Quando os Termos ou a Política mudam, ninguém entra sem aceitar de novo.
+   É o mesmo cartão do teste encerrado, e de propósito: a pessoa já conhece
+   essa tela, e o gesto de sair dela é o mesmo.
+
+   O que muda é que aqui o texto NÃO é centrado e o cartão é mais largo: tem
+   duas linhas de documento com link, e centrar uma lista de duas linhas com
+   um link no fim deixa as duas com recuos diferentes.
+
+   Ela não tem X nem "depois". Aceitar é o que libera, e um botão de fechar
+   ao lado disso ensinaria que dá para não aceitar. */.pn .trial-bloqueio-card--docs{ width:min(520px,100%); max-width:520px; text-align:left; }.pn .blq-docs{ margin:22px 0 0; display:grid; gap:10px; }.pn .blq-doc{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:14px 16px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--wash);
+}.pn .blq-doc__n{ min-width:0; }.pn .blq-doc__n b{ display:block; font-size:14.5px; font-weight:600; letter-spacing:-.012em; }.pn .blq-doc__n span{ display:block; margin-top:2px; font-size:12.5px; color:var(--ink3); }.pn .blq-doc__ver{
+  flex:none; border:0; background:none; padding:0; cursor:pointer; font-family:inherit;
+  font-size:13.5px; font-weight:600; color:var(--ink);
+  border-bottom:2px solid var(--lima); line-height:1.4;
+  transition:border-color var(--t);
+}.pn .blq-doc__ver:hover{ border-bottom-color:var(--ink); }/* O selo do que MUDOU. Só aparece no documento que teve versão nova: dizer
+   "atualizado" nos dois quando só um mudou é mentira pequena que custa a
+   confiança na próxima. */.pn .blq-doc__novo{
+  flex:none; padding:2px 9px; border-radius:var(--pill);
+  background:var(--lima); color:#111111;
+  font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+}.pn .trial-bloqueio-card--docs .btn{ width:100%; margin-top:22px; }.pn .blq-pe{ margin:14px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6; }/* ── a tarja de personificação ── */.pn .tarja-personificacao{
   position:fixed; top:0; left:0; right:0; z-index:80;
   display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;
   padding:9px 18px; background:var(--turquesa); color:#111111; font-size:13.5px;

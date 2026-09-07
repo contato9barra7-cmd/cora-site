@@ -36,6 +36,28 @@ FAIXA = token('faixa-deitada')
 #  link: o comprovante REPRODUZ o texto, ele nao aponta para ele. Um link pode
 #  mudar de conteudo depois. O papel nao.
 # ═══════════════════════════════════════════════════════════════════════════
+# Uma aceitacao grava DUAS linhas em `aceites`, uma por documento: o
+# `gravarAceite` do cora-auth roda em cima de `DOCS_LEGAIS.documentos`. Por
+# isso o comprovante traz os DOIS textos, cada um com a sua data e a sua
+# versao. Hoje as duas datas coincidem, mas nao precisam: um reaceite pode
+# cobrir so o documento que mudou.
+DOCUMENTOS = [
+    dict(
+        nome=u'Termos de Uso',
+        versao=u'2026-09-07',
+        vigor=u'7 de setembro de 2026',
+        aceito=u'7 de setembro de 2026, 09h14min02s',
+        clausulas='TERMOS',
+    ),
+    dict(
+        nome=u'Política de Privacidade',
+        versao=u'2026-08-14',
+        vigor=u'14 de agosto de 2026',
+        aceito=u'24 de agosto de 2026, 14h02min37s',
+        clausulas='PRIVACIDADE',
+    ),
+]
+
 CLAUSULAS = [
     (u'1. O que é o Cora Render',
      u'O Cora Render é uma ferramenta que usa inteligência artificial para gerar '
@@ -64,8 +86,55 @@ CLAUSULAS = [
      u'destes Termos, com renúncia a qualquer outro, por mais privilegiado que seja.'),
 ]
 
-clausulas = u''.join(
-    u'<div class="doc__cl"><h4>%s</h4><p>%s</p></div>' % (t, p) for t, p in CLAUSULAS)
+PRIVACIDADE = [
+    (u'1. Quem trata os seus dados',
+     u'A 9BARRA7 Academy, CNPJ 00.000.000/0001-00, é a controladora dos dados pessoais '
+     u'tratados no Cora Render. O contato para assuntos de privacidade é '
+     u'contato@corarender.com.'),
+    (u'2. O que a gente guarda',
+     u'Nome, e-mail, documento fiscal e endereço, quando você informa; os dados de '
+     u'cobrança tratados pelo Stripe, sem que o número do cartão passe pelos nossos '
+     u'servidores; as imagens que você gera e os ajustes usados nelas; e registros '
+     u'técnicos de acesso, como endereço de IP, navegador, data e hora.'),
+    (u'3. Para que a gente usa',
+     u'Para executar a geração que você pede, cobrar o plano contratado, dar suporte, '
+     u'cumprir obrigações fiscais e melhorar o produto. <b>As suas imagens não são '
+     u'usadas para treinar modelos.</b>'),
+    (u'4. Por quanto tempo',
+     u'Enquanto a conta estiver ativa e pelo prazo exigido por lei nos dados fiscais e '
+     u'de cobrança. As imagens do seu histórico ficam disponíveis até você excluí-las '
+     u'ou encerrar a conta.'),
+    (u'5. Acesso do suporte à sua conta',
+     u'Para investigar problemas técnicos, membros autorizados da equipe podem acessar '
+     u'temporariamente a plataforma visualizando-a a partir da sua conta, <b>apenas em '
+     u'modo de leitura</b>. Cada acesso dura no máximo 30 minutos, exige autenticação '
+     u'individual e fica registrado com quem acessou, a conta e a data. Você pode pedir '
+     u'a relação desses acessos a qualquer momento.'),
+    (u'6. Os seus direitos',
+     u'Você pode pedir acesso, correção, portabilidade ou eliminação dos seus dados, nos '
+     u'termos da Lei nº 13.709/2018, pelos canais de atendimento.'),
+]
+
+
+def blocos(lista):
+    return u''.join(
+        u'<div class="doc__cl"><h4>%s</h4><p>%s</p></div>' % (t, p) for t, p in lista)
+
+
+TEXTOS = {'TERMOS': blocos(CLAUSULAS), 'PRIVACIDADE': blocos(PRIVACIDADE)}
+
+# Cada documento vira uma secao propria, com a sua versao e a sua data de
+# aceite no cabecalho. As duas datas coincidem hoje, mas o comprovante nao
+# assume isso: um reaceite pode cobrir so o documento que mudou.
+documentos = u''.join(
+    u'<section class="doc__sec">'
+    u'<div class="doc__sec-cab">'
+    u'<h3>%s</h3>'
+    u'<p>Versão <b>%s</b>, em vigor desde %s<br>'
+    u'Aceita por esta conta em <b>%s</b></p>'
+    u'</div>%s</section>'
+    % (d['nome'], d['versao'], d['vigor'], d['aceito'], TEXTOS[d['clausulas']])
+    for d in DOCUMENTOS)
 
 HTML = u"""<title>Comprovante de aceite</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -188,6 +257,16 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
 }
 /* Nenhuma clausula parte no meio entre duas paginas. Uma clausula cortada
    levanta a duvida de sempre: falta alguma coisa aqui? */
+/* Cada documento e uma secao com o proprio cabecalho: versao e data de
+   aceite. O cabecalho nunca se separa da primeira clausula dele. */
+.doc__sec + .doc__sec{ margin-top:9mm; break-before:auto; }
+.doc__sec-cab{
+  margin-bottom:5mm; padding-bottom:3mm; border-bottom:1px solid var(--line);
+  break-after:avoid; page-break-after:avoid; break-inside:avoid;
+}
+.doc__sec-cab h3{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.016em; }
+.doc__sec-cab p{ margin:1.5mm 0 0; font-size:11px; color:var(--ink3); line-height:1.6; }
+.doc__sec-cab b{ color:var(--ink2); font-weight:600; }
 .doc__cl{ break-inside:avoid; page-break-inside:avoid; margin-bottom:5mm; }
 .doc__cl h4{ margin:0 0 1.5mm; font-size:12.5px; font-weight:600; letter-spacing:-.012em; }
 .doc__cl p{ margin:0; font-size:12px; color:var(--ink2); line-height:1.7; text-align:justify; text-wrap:pretty; }
@@ -245,14 +324,15 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
         </div>
         <div class="doc__bloco">
           <span>O que foi aceito</span>
-          <p><b>Termos de Uso</b><br>Versão 2026-08-14<br>
-            em vigor desde 14 de agosto de 2026</p>
+          <p><b>Termos de Uso</b>, versão 2026-09-07<br>
+            <b>Política de Privacidade</b>, versão 2026-08-14<br>
+            os dois na íntegra, mais adiante nesta folha</p>
         </div>
         <div class="doc__bloco">
           <span>Quando</span>
-          <p><b>24 de agosto de 2026, 14h02min37s</b><br>
-            horário de Brasília (UTC&minus;3)<br>
-            no momento do cadastro</p>
+          <p>Termos, em <b>7 de setembro de 2026</b><br>
+            Privacidade, em <b>24 de agosto de 2026</b><br>
+            horário de Brasília (UTC&minus;3)</p>
         </div>
         <div class="doc__bloco">
           <span>De onde</span>
@@ -264,18 +344,22 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
 
       <div class="doc__texto">
         <span>O texto aceito, na íntegra</span>
-        <p class="doc__aviso">O texto abaixo é a reprodução integral da versão
-          <b>2026-08-14</b> dos Termos de Uso, que é a versão registrada neste aceite.
-          Uma alteração posterior entra como versão nova, sem apagar esta.</p>
+        <p class="doc__aviso">Abaixo estão os dois documentos por inteiro, cada um na
+          versão que esta conta aceitou. Não é resumo nem link: é o texto que estava
+          escrito no dia.</p>
         @@CLAUSULAS@@
       </div>
 
       <p class="doc__pe">
-        <b>Como este comprovante é formado.</b> No momento do aceite, o sistema grava o
-        identificador da conta, o e-mail, o identificador da versão do documento, o endereço
-        de IP, o navegador e a data e hora com fuso. A versão do documento é imutável: um
-        texto novo entra como versão nova e a anterior continua guardada, o que permite
-        reproduzir aqui exatamente o que estava escrito naquele dia.<br>
+        <b>De onde sai cada informação desta folha.</b> No instante em que a pessoa aceita,
+        o sistema grava a conta, o e-mail, qual versão de qual documento, o endereço de IP,
+        o navegador e a data e hora com fuso. O texto de cada versão fica guardado inteiro e
+        <b>não pode ser editado depois</b>: uma alteração entra como versão nova e a
+        anterior continua onde está. É isso que permite reproduzir aqui, hoje, exatamente o
+        que estava escrito no dia do aceite.<br>
+        Quando um documento muda, a pessoa é avisada na tela e precisa aceitar de novo antes
+        de continuar usando. Cada novo aceite gera um registro próprio, e este comprovante
+        passa a mostrar a versão mais recente que ela aceitou.<br>
         9BARRA7 Academy &middot; CNPJ 00.000.000/0001-00 &middot; contato@corarender.com &middot; corarender.com
       </p>
     </div>
@@ -285,7 +369,7 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
 
 saida = (HTML.replace('@@MARCA@@', MARCA)
              .replace('@@FAIXA@@', FAIXA)
-             .replace('@@CLAUSULAS@@', clausulas))
+             .replace('@@CLAUSULAS@@', documentos))
 io.open('ferramentas/comprovante-aceite.html', 'w', encoding='utf-8').write(saida)
 print('comprovante-aceite.html: %.1f KB'
       % (os.path.getsize('ferramentas/comprovante-aceite.html') / 1024.0))

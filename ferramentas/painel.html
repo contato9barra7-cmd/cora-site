@@ -641,6 +641,45 @@
 }
 .trial-bloqueio-sair:hover{ color:var(--ink); }
 
+/* ── O MESMO BLOQUEIO, PARA OS DOCUMENTOS ──
+   Quando os Termos ou a Política mudam, ninguém entra sem aceitar de novo.
+   É o mesmo cartão do teste encerrado, e de propósito: a pessoa já conhece
+   essa tela, e o gesto de sair dela é o mesmo.
+
+   O que muda é que aqui o texto NÃO é centrado e o cartão é mais largo: tem
+   duas linhas de documento com link, e centrar uma lista de duas linhas com
+   um link no fim deixa as duas com recuos diferentes.
+
+   Ela não tem X nem "depois". Aceitar é o que libera, e um botão de fechar
+   ao lado disso ensinaria que dá para não aceitar. */
+.trial-bloqueio-card--docs{ width:min(520px,100%); max-width:520px; text-align:left; }
+.blq-docs{ margin:22px 0 0; display:grid; gap:10px; }
+.blq-doc{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:14px 16px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--wash);
+}
+.blq-doc__n{ min-width:0; }
+.blq-doc__n b{ display:block; font-size:14.5px; font-weight:600; letter-spacing:-.012em; }
+.blq-doc__n span{ display:block; margin-top:2px; font-size:12.5px; color:var(--ink3); }
+.blq-doc__ver{
+  flex:none; border:0; background:none; padding:0; cursor:pointer; font-family:inherit;
+  font-size:13.5px; font-weight:600; color:var(--ink);
+  border-bottom:2px solid var(--lima); line-height:1.4;
+  transition:border-color var(--t);
+}
+.blq-doc__ver:hover{ border-bottom-color:var(--ink); }
+/* O selo do que MUDOU. Só aparece no documento que teve versão nova: dizer
+   "atualizado" nos dois quando só um mudou é mentira pequena que custa a
+   confiança na próxima. */
+.blq-doc__novo{
+  flex:none; padding:2px 9px; border-radius:var(--pill);
+  background:var(--lima); color:#111111;
+  font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+}
+.trial-bloqueio-card--docs .btn{ width:100%; margin-top:22px; }
+.blq-pe{ margin:14px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6; }
+
 /* ── a tarja de personificação ── */
 .tarja-personificacao{
   position:fixed; top:0; left:0; right:0; z-index:80;
@@ -2142,6 +2181,44 @@ body{ margin:0; background:#F6F6F4; }
   </div>
 
   <!-- o bloqueio, quando o teste acaba -->
+  <!-- ── OS DOCUMENTOS MUDARAM ──
+       Sem aceitar, o app não abre. A checagem é automática: o servidor
+       compara a versão vigente com a última que a pessoa aceitou, então
+       subir um texto novo já faz esta tela aparecer para quem precisa. -->
+  <div class="trial-bloqueio" id="bloqueio-docs" hidden>
+    <div class="trial-bloqueio-card trial-bloqueio-card--docs">
+      <div class="trial-bloqueio-faixa" aria-hidden="true"></div>
+      <div class="trial-bloqueio-miolo">
+        <span class="trial-bloqueio-eb">Atualizamos os documentos</span>
+        <h1>Precisamos do seu aceite de novo</h1>
+        <p>Mudamos os Termos de Uso em 7 de setembro. Leia o que mudou e aceite para
+          continuar usando o Cora.</p>
+
+        <div class="blq-docs">
+          <div class="blq-doc">
+            <div class="blq-doc__n">
+              <b>Termos de Uso <span class="blq-doc__novo">Novo</span></b>
+              <span>Versão de 7 de setembro de 2026</span>
+            </div>
+            <button class="blq-doc__ver">Ler</button>
+          </div>
+          <div class="blq-doc">
+            <div class="blq-doc__n">
+              <b>Política de Privacidade</b>
+              <span>Sem mudança desde 14 de agosto de 2026</span>
+            </div>
+            <button class="blq-doc__ver">Ler</button>
+          </div>
+        </div>
+
+        <button class="btn">Li e aceito</button>
+        <p class="blq-pe">Guardamos a data, o documento e a versão que você aceitou.
+          Você pode baixar esse comprovante quando quiser, em Minha conta.</p>
+        <button class="trial-bloqueio-sair">Sair</button>
+      </div>
+    </div>
+  </div>
+
   <div class="trial-bloqueio" id="bloqueio" hidden>
     <div class="trial-bloqueio-card">
       <div class="trial-bloqueio-faixa" aria-hidden="true"></div>
@@ -2264,6 +2341,7 @@ body{ margin:0; background:#F6F6F4; }
     <button data-extra="menu">Recolher menu</button>
     <button data-extra="credito">Crédito baixo</button>
     <button data-extra="bloqueio">Bloqueio</button>
+    <button data-abre-docs>Documentos mudaram</button>
     <button data-extra="tarja">Tarja</button>
   </div>
 </div>
@@ -2413,6 +2491,22 @@ body{ margin:0; background:#F6F6F4; }
     bt.setAttribute('aria-checked', ligado ? 'true' : 'false');
     bt.classList.toggle('on', ligado);
   });
+
+  /* A tela de reaceite dos documentos, para dar para ver. No site quem a
+     abre e o servidor: ele compara a versao vigente com a ultima que a
+     pessoa aceitou. */
+  var btDocs = document.querySelector('[data-abre-docs]');
+  if (btDocs) {
+    btDocs.addEventListener('click', function () {
+      document.getElementById('bloqueio-docs').hidden = false;
+    });
+  }
+  document.querySelectorAll('#bloqueio-docs .btn, #bloqueio-docs .trial-bloqueio-sair')
+    .forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.getElementById('bloqueio-docs').hidden = true;
+      });
+    });
 
   /* ── trocar de tela ──
      No site cada uma é uma rota, e quem troca é o Next. Aqui elas convivem no

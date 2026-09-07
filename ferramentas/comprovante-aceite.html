@@ -119,6 +119,16 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
 }
 /* Nenhuma clausula parte no meio entre duas paginas. Uma clausula cortada
    levanta a duvida de sempre: falta alguma coisa aqui? */
+/* Cada documento e uma secao com o proprio cabecalho: versao e data de
+   aceite. O cabecalho nunca se separa da primeira clausula dele. */
+.doc__sec + .doc__sec{ margin-top:9mm; break-before:auto; }
+.doc__sec-cab{
+  margin-bottom:5mm; padding-bottom:3mm; border-bottom:1px solid var(--line);
+  break-after:avoid; page-break-after:avoid; break-inside:avoid;
+}
+.doc__sec-cab h3{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.016em; }
+.doc__sec-cab p{ margin:1.5mm 0 0; font-size:11px; color:var(--ink3); line-height:1.6; }
+.doc__sec-cab b{ color:var(--ink2); font-weight:600; }
 .doc__cl{ break-inside:avoid; page-break-inside:avoid; margin-bottom:5mm; }
 .doc__cl h4{ margin:0 0 1.5mm; font-size:12.5px; font-weight:600; letter-spacing:-.012em; }
 .doc__cl p{ margin:0; font-size:12px; color:var(--ink2); line-height:1.7; text-align:justify; text-wrap:pretty; }
@@ -176,14 +186,15 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
         </div>
         <div class="doc__bloco">
           <span>O que foi aceito</span>
-          <p><b>Termos de Uso</b><br>Versão 2026-08-14<br>
-            em vigor desde 14 de agosto de 2026</p>
+          <p><b>Termos de Uso</b>, versão 2026-09-07<br>
+            <b>Política de Privacidade</b>, versão 2026-08-14<br>
+            os dois na íntegra, mais adiante nesta folha</p>
         </div>
         <div class="doc__bloco">
           <span>Quando</span>
-          <p><b>24 de agosto de 2026, 14h02min37s</b><br>
-            horário de Brasília (UTC&minus;3)<br>
-            no momento do cadastro</p>
+          <p>Termos, em <b>7 de setembro de 2026</b><br>
+            Privacidade, em <b>24 de agosto de 2026</b><br>
+            horário de Brasília (UTC&minus;3)</p>
         </div>
         <div class="doc__bloco">
           <span>De onde</span>
@@ -195,18 +206,22 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
 
       <div class="doc__texto">
         <span>O texto aceito, na íntegra</span>
-        <p class="doc__aviso">O texto abaixo é a reprodução integral da versão
-          <b>2026-08-14</b> dos Termos de Uso, que é a versão registrada neste aceite.
-          Uma alteração posterior entra como versão nova, sem apagar esta.</p>
-        <div class="doc__cl"><h4>1. O que é o Cora Render</h4><p>O Cora Render é uma ferramenta que usa inteligência artificial para gerar imagens, vídeos, upscales e recursos relacionados a partir de modelos 3D e imagens que você fornece. O acesso acontece pela extensão do SketchUp e pela versão web, com a mesma conta.</p></div><div class="doc__cl"><h4>2. Os resultados gerados</h4><p>As imagens são geradas <b>automaticamente por modelos de IA</b> e, por natureza, podem conter erros, imprecisões, artefatos, ou se afastar do projeto original, alterando elementos, cores, proporções, materiais ou detalhes. Isso é uma característica esperada da tecnologia e não é considerado defeito do serviço.</p></div><div class="doc__cl"><h4>3. Créditos, planos e recarga</h4><p>Cada geração consome créditos conforme a tabela vigente, publicada na página de planos. O crédito do plano é renovado a cada ciclo. A recarga avulsa vale 6 meses e só é usada depois que o crédito do plano acaba. Crédito não usado no ciclo não vira dinheiro nem é transferível.</p></div><div class="doc__cl"><h4>4. O que você envia</h4><p>Você declara ter direito sobre os modelos e as imagens que envia. O Cora Render usa esse conteúdo apenas para executar a geração que você pediu, e não o utiliza para treinar modelos.</p></div><div class="doc__cl"><h4>5. Cancelamento</h4><p>A assinatura pode ser cancelada a qualquer momento, e o acesso continua até o fim do período já pago. Não há multa nem fidelidade.</p></div><div class="doc__cl"><h4>6. Foro</h4><p>Fica eleito o foro da comarca de Curitiba, Paraná, para dirimir questões oriundas destes Termos, com renúncia a qualquer outro, por mais privilegiado que seja.</p></div>
+        <p class="doc__aviso">Abaixo estão os dois documentos por inteiro, cada um na
+          versão que esta conta aceitou. Não é resumo nem link: é o texto que estava
+          escrito no dia.</p>
+        <section class="doc__sec"><div class="doc__sec-cab"><h3>Termos de Uso</h3><p>Versão <b>2026-09-07</b>, em vigor desde 7 de setembro de 2026<br>Aceita por esta conta em <b>7 de setembro de 2026, 09h14min02s</b></p></div><div class="doc__cl"><h4>1. O que é o Cora Render</h4><p>O Cora Render é uma ferramenta que usa inteligência artificial para gerar imagens, vídeos, upscales e recursos relacionados a partir de modelos 3D e imagens que você fornece. O acesso acontece pela extensão do SketchUp e pela versão web, com a mesma conta.</p></div><div class="doc__cl"><h4>2. Os resultados gerados</h4><p>As imagens são geradas <b>automaticamente por modelos de IA</b> e, por natureza, podem conter erros, imprecisões, artefatos, ou se afastar do projeto original, alterando elementos, cores, proporções, materiais ou detalhes. Isso é uma característica esperada da tecnologia e não é considerado defeito do serviço.</p></div><div class="doc__cl"><h4>3. Créditos, planos e recarga</h4><p>Cada geração consome créditos conforme a tabela vigente, publicada na página de planos. O crédito do plano é renovado a cada ciclo. A recarga avulsa vale 6 meses e só é usada depois que o crédito do plano acaba. Crédito não usado no ciclo não vira dinheiro nem é transferível.</p></div><div class="doc__cl"><h4>4. O que você envia</h4><p>Você declara ter direito sobre os modelos e as imagens que envia. O Cora Render usa esse conteúdo apenas para executar a geração que você pediu, e não o utiliza para treinar modelos.</p></div><div class="doc__cl"><h4>5. Cancelamento</h4><p>A assinatura pode ser cancelada a qualquer momento, e o acesso continua até o fim do período já pago. Não há multa nem fidelidade.</p></div><div class="doc__cl"><h4>6. Foro</h4><p>Fica eleito o foro da comarca de Curitiba, Paraná, para dirimir questões oriundas destes Termos, com renúncia a qualquer outro, por mais privilegiado que seja.</p></div></section><section class="doc__sec"><div class="doc__sec-cab"><h3>Política de Privacidade</h3><p>Versão <b>2026-08-14</b>, em vigor desde 14 de agosto de 2026<br>Aceita por esta conta em <b>24 de agosto de 2026, 14h02min37s</b></p></div><div class="doc__cl"><h4>1. Quem trata os seus dados</h4><p>A 9BARRA7 Academy, CNPJ 00.000.000/0001-00, é a controladora dos dados pessoais tratados no Cora Render. O contato para assuntos de privacidade é contato@corarender.com.</p></div><div class="doc__cl"><h4>2. O que a gente guarda</h4><p>Nome, e-mail, documento fiscal e endereço, quando você informa; os dados de cobrança tratados pelo Stripe, sem que o número do cartão passe pelos nossos servidores; as imagens que você gera e os ajustes usados nelas; e registros técnicos de acesso, como endereço de IP, navegador, data e hora.</p></div><div class="doc__cl"><h4>3. Para que a gente usa</h4><p>Para executar a geração que você pede, cobrar o plano contratado, dar suporte, cumprir obrigações fiscais e melhorar o produto. <b>As suas imagens não são usadas para treinar modelos.</b></p></div><div class="doc__cl"><h4>4. Por quanto tempo</h4><p>Enquanto a conta estiver ativa e pelo prazo exigido por lei nos dados fiscais e de cobrança. As imagens do seu histórico ficam disponíveis até você excluí-las ou encerrar a conta.</p></div><div class="doc__cl"><h4>5. Acesso do suporte à sua conta</h4><p>Para investigar problemas técnicos, membros autorizados da equipe podem acessar temporariamente a plataforma visualizando-a a partir da sua conta, <b>apenas em modo de leitura</b>. Cada acesso dura no máximo 30 minutos, exige autenticação individual e fica registrado com quem acessou, a conta e a data. Você pode pedir a relação desses acessos a qualquer momento.</p></div><div class="doc__cl"><h4>6. Os seus direitos</h4><p>Você pode pedir acesso, correção, portabilidade ou eliminação dos seus dados, nos termos da Lei nº 13.709/2018, pelos canais de atendimento.</p></div></section>
       </div>
 
       <p class="doc__pe">
-        <b>Como este comprovante é formado.</b> No momento do aceite, o sistema grava o
-        identificador da conta, o e-mail, o identificador da versão do documento, o endereço
-        de IP, o navegador e a data e hora com fuso. A versão do documento é imutável: um
-        texto novo entra como versão nova e a anterior continua guardada, o que permite
-        reproduzir aqui exatamente o que estava escrito naquele dia.<br>
+        <b>De onde sai cada informação desta folha.</b> No instante em que a pessoa aceita,
+        o sistema grava a conta, o e-mail, qual versão de qual documento, o endereço de IP,
+        o navegador e a data e hora com fuso. O texto de cada versão fica guardado inteiro e
+        <b>não pode ser editado depois</b>: uma alteração entra como versão nova e a
+        anterior continua onde está. É isso que permite reproduzir aqui, hoje, exatamente o
+        que estava escrito no dia do aceite.<br>
+        Quando um documento muda, a pessoa é avisada na tela e precisa aceitar de novo antes
+        de continuar usando. Cada novo aceite gera um registro próprio, e este comprovante
+        passa a mostrar a versão mais recente que ela aceitou.<br>
         9BARRA7 Academy &middot; CNPJ 00.000.000/0001-00 &middot; contato@corarender.com &middot; corarender.com
       </p>
     </div>
