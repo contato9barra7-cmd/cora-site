@@ -86,14 +86,27 @@ Ele também traduz os links: no artefato eles apontam para arquivos soltos
 reprova qualquer `href` que sobre como `#` ou terminando em `.html`** — foi
 assim que seis links mortos apareceram de uma vez.
 
+**O que ele NÃO traz, e o que isso já custou:** o recorte é `<main>`, porque
+cabeçalho e rodapé viram componentes. O cabeçalho virou. O rodapé não virou, e
+o site inteiro ficou meses com a tira fina de links legais no lugar do rodapé
+de quatro colunas do artefato. Hoje ele mora em `components/RodapeCora.js`,
+com a marcação copiada do artefato e o estilo que já estava gerado aqui, e
+`RodapeGlobal` o põe em todas as páginas públicas. **Se o rodapé mudar no
+artefato, o componente não descobre sozinho.**
+
 ## `tirar-assets-home.py`
 
 Tira os 9,4 MB de base64 de dentro do `index.html` do William e põe em
 `public/home/`. Roda antes do `montar-home.py`.
 
-## `gerar-css-conta.py`
+## `gerar-css-conta.py` — ⚠ não roda hoje
 
 O mesmo de `gerar-css-artefato.py`, para as telas de conta (`.tc`).
+
+**Ele importa `painel_comum.py`, que lia o `modelo-painel.html`, e os dois
+moravam numa pasta temporária de sessão que já foi embora.** Até alguém
+refazer os dois, quem manda é o `app/telas-de-conta.css`, editado à mão, e o
+cabeçalho do arquivo diz isso. Rodar o script como está só dá `ImportError`.
 
 **A armadilha que ele resolve:** a DM Sans do site tem `size-adjust: 88%`, que
 encolhe todo o texto em 12%. O gerador escreve uma família irmã, `'DM Sans

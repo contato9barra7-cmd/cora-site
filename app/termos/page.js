@@ -37,7 +37,9 @@ export default function Termos() {
         {H('termos_p4')}
       </section>
 
-      <section className="legal-sec">
+      {/* O "Política de reembolso" do rodapé cai aqui: reembolso é uma seção
+          destes Termos, e não um documento à parte. */}
+      <section className="legal-sec" id="reembolso">
         <h2 className="legal-h2">{t('termos_h5')}</h2>
         {H('termos_p5')}
       </section>

@@ -29,6 +29,9 @@ EXT = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp",
        "image/svg+xml": "svg"}
 
 os.makedirs(PUB, exist_ok=True)
+# A pasta de rascunho nao vem no repositorio, entao ela nasce aqui. Sem isto o
+# script fazia todo o trabalho e morria na ultima linha, na hora de escrever.
+os.makedirs(SCR, exist_ok=True)
 html = io.open(ORIGEM, encoding="utf-8").read()
 print("entrada: %.2f MB" % (len(html.encode("utf-8")) / 1048576.0))
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import RodapeCora from './RodapeCora';
 import RodapeLegal from './RodapeLegal';
 
 // As páginas do painel usam o AppShell, que já mostra o RodapeLegal DENTRO do
@@ -9,9 +10,22 @@ import RodapeLegal from './RodapeLegal';
 // (/em-construcao não é do painel, mas também fica sem rodapé: é só o aviso.)
 const PREFIXOS_APP = ['/conta', '/app', '/admin', '/workspace', '/assinatura', '/promptadores', '/em-construcao'];
 
+// As telas de entrar e criar conta seguem com a tira fina que já tinham. Elas
+// ocupam a janela inteira, painel de imagem de um lado e cartão do outro, e o
+// rodapé de quatro colunas ali embaixo viraria uma segunda página inteira
+// depois de um formulário de dois campos.
+const TIRA_FINA = ['/login', '/cadastro', '/esqueci-senha', '/nova-senha', '/verificar', '/convite'];
+
+function combina(pathname, lista) {
+  return lista.some((p) => pathname === p || pathname.startsWith(p + '/'));
+}
+
 export default function RodapeGlobal() {
   const pathname = usePathname() || '';
-  const noPainel = PREFIXOS_APP.some(p => pathname === p || pathname.startsWith(p + '/'));
-  if (noPainel) return null;
-  return <RodapeLegal />;
+  if (combina(pathname, PREFIXOS_APP)) return null;
+  if (combina(pathname, TIRA_FINA)) return <RodapeLegal />;
+  // Nas páginas de conteúdo, o rodapé de quatro colunas do artefato. Ele
+  // esteve fora do ar desde que a home foi portada, e o que aparecia no lugar
+  // era a tira fina, que nasceu para caber ao lado da barra do painel.
+  return <RodapeCora />;
 }

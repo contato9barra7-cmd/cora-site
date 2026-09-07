@@ -18,3 +18,6 @@ next-env.d.ts
 
 # a pasta de conferencia do CORA_DIST (ver next.config.mjs)
 .next-conferencia/
+
+# a pasta de rascunho dos geradores: saida intermediaria, nao entra no repo
+ferramentas/scratchpad/
