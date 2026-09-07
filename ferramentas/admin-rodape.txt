@@ -88,6 +88,93 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
   </div>
 </div>
 
+
+<!-- ══════════════ O COMPROVANTE DE ACEITE ══════════════
+     Ele existe para ter valor de prova. Por isso traz, na mesma folha, as
+     cinco coisas que respondem "quem aceitou o que, quando e de onde":
+
+       quem       nome, e-mail, documento e o numero da conta
+       o que      o documento e a VERSAO, com a data em que a versao entrou
+       quando     data, hora e fuso
+       de onde    o IP e o navegador que estavam na hora
+       o que       o texto INTEIRO da versao aceita, e nao um link para ele
+
+     O texto inteiro na folha e o que separa um comprovante de um recibo: um
+     link pode mudar de conteudo depois, o papel nao.
+
+     Sai em A4, com as mesmas regras da fatura. -->
+<div class="adm-modal" id="modal-aceite" hidden>
+  <div class="adm-modal__folha" style="width:min(820px,100%)">
+    <div class="adm-modal__cab">
+      <h2>Comprovante de aceite</h2>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="as-btn-cta" style="height:40px;padding:0 20px;font-size:13.5px"
+                onclick="window.print()">Salvar em PDF</button>
+        <button class="adm-modal__x" id="fecha-aceite" aria-label="Fechar">&times;</button>
+      </div>
+    </div>
+
+    <div class="cmp">
+      <div class="cmp__faixa" aria-hidden="true"></div>
+      <div class="cmp__miolo">
+        <div class="cmp__marca" role="img" aria-label="Cora Render"></div>
+
+        <h3 class="cmp__tit">Comprovante de aceite</h3>
+        <p class="cmp__num">Registro nº 0000418 &middot; emitido em 7 de setembro de 2026</p>
+
+        <div class="cmp__quem">
+          <div>
+            <span>Quem aceitou</span>
+            <p><b>Marilia Fischer</b><br>marilia@corarender.com<br>
+              CPF 000.000.000-00<br>Conta nº 3617</p>
+          </div>
+          <div>
+            <span>O que foi aceito</span>
+            <p><b>Termos de Uso</b><br>Versão 2026-08-14<br>
+              em vigor desde 14 de agosto de 2026</p>
+          </div>
+          <div>
+            <span>Quando</span>
+            <p><b>24 de agosto de 2026, 14h02</b><br>
+              horário de Brasília (UTC&minus;3)</p>
+          </div>
+          <div>
+            <span>De onde</span>
+            <p>IP 177.85.0.0<br>Chrome 128 no Windows 11<br>
+              aceito no cadastro</p>
+          </div>
+        </div>
+
+        <div class="cmp__texto">
+          <span>O texto aceito, na íntegra</span>
+          <div class="cmp__doc">
+            <h4>Termos de Uso do Cora Render</h4>
+            <p><b>1. O que é o Cora Render.</b> O Cora Render é uma ferramenta que usa
+              inteligência artificial para gerar imagens, vídeos e recursos relacionados a
+              partir de modelos 3D e imagens que você fornece.</p>
+            <p><b>2. Os resultados.</b> As imagens são geradas automaticamente por modelos
+              de IA e, por natureza, podem conter erros, imprecisões e artefatos, ou se
+              afastar do projeto original. Isso é característica esperada da tecnologia e
+              não é considerado defeito do serviço.</p>
+            <p><b>3. Créditos e cobrança.</b> Cada geração consome créditos conforme a
+              tabela vigente. Recargas avulsas valem 6 meses e são usadas depois que os
+              créditos do plano acabam.</p>
+            <p class="cmp__corte">O texto continua na versão completa, que é a que está
+              gravada no registro e sai inteira no PDF.</p>
+          </div>
+        </div>
+
+        <p class="cmp__pe">
+          Este comprovante reproduz o registro guardado no sistema do Cora Render no momento
+          do aceite. O registro guarda o identificador da versão do documento, e a versão em
+          si é imutável: um texto novo entra como versão nova, sem apagar a anterior.<br>
+          9BARRA7 Academy &middot; CNPJ 00.000.000/0001-00 &middot; corarender.com
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   /* Só a demonstração. No site quem troca de aba é o React, e quem abre o
      dropdown e a janela é o estado do componente. */
@@ -203,6 +290,7 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
     fecharDds();
     abrirFiltros(false);
     d.getElementById('modal-email').hidden = true;
+    abrirAceite(false);
   });
 
   /* ── LIMPAR TUDO LIMPA DE VERDADE ── */
@@ -306,6 +394,19 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
       dd.appendChild(lista);
       dd.classList.add('dd--aberto');
     });
+  });
+
+  /* ── O COMPROVANTE DE ACEITE ── */
+  function abrirAceite(sim) {
+    d.getElementById('modal-aceite').hidden = !sim;
+    d.body.style.overflow = sim ? 'hidden' : '';
+  }
+  d.querySelectorAll('[data-comprovante]').forEach(function (b) {
+    b.addEventListener('click', function () { abrirAceite(true); });
+  });
+  d.getElementById('fecha-aceite').addEventListener('click', function () { abrirAceite(false); });
+  d.getElementById('modal-aceite').addEventListener('click', function (e) {
+    if (e.target === this) abrirAceite(false);
   });
 
   /* ── A PAGINAÇÃO E O TEMA ── */

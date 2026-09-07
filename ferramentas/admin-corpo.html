@@ -81,6 +81,7 @@
         <button class="adm-aba" data-aba="trial">Trial <b>12</b></button>
         <button class="adm-aba" data-aba="membros">Membros de equipe <b>3</b></button>
         <button class="adm-aba" data-aba="cancelados">Cancelados <b>2</b></button>
+        <button class="adm-aba" data-aba="newsletter">Novidades <b>19</b></button>
         <i class="adm-abas__fio" aria-hidden="true"></i>
         <span class="adm-abas__g">Movimento</span>
         <button class="adm-aba" data-aba="recargas">Recargas <b>6</b></button>
@@ -233,7 +234,17 @@
             </table>
           </div>
           <div class="adm-pag">
-            <span>Mostrando 2 de 2</span>
+            <div class="adm-pag-qtd">
+              <span>Mostrar</span>
+              <div class="adm-pag-qtd__dd">
+                <div class="dd" data-dd data-ops="50|100|500">
+                  <button class="dd__bt" type="button"><span class="dd__val">50</span>
+                    <svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+                  </button>
+                </div>
+              </div>
+              <span>de 2</span>
+            </div>
             <div class="adm-pag-nums">
               <button class="adm-pag-seta" disabled aria-label="Anterior">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -332,6 +343,63 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ NOVIDADES (NEWSLETTER) ══════════════ -->
+      <div data-tela="newsletter" hidden>
+        <div class="conta-card adm-card">
+          <h2 class="conta-h2">Quem quer receber novidades</h2>
+          <p class="conta-p">Desligar aqui é decisão da pessoa, em Minha conta, e a lista de
+            envio já sai sem quem desligou. Cobrança, segurança e mudança nos Termos continuam
+            indo para todo mundo, porque são sobre a conta e a gente precisa avisar.</p>
+
+          <div class="adm-medidas">
+            <span class="adm-medida"><b>16</b> ligadas</span>
+            <span class="adm-medida adm-medida--off"><b>3</b> desligadas</span>
+          </div>
+
+          <div class="fat-rolo">
+            <table class="fat">
+              <thead>
+                <tr><th>Nome e e-mail</th><th>Onde está</th><th>Novidades</th>
+                    <th>Mudou em</th><th class="fat__acao"></th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Marilia Fischer</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">marilia@corarender.com</span></div>
+                  </td>
+                  <td>Assinante</td>
+                  <td><span class="fat-selo">Ligadas</span></td>
+                  <td class="adm-mono">&mdash;</td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Camila Duarte</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">camila.duarte@gmail.com</span></div>
+                  </td>
+                  <td>Teste</td>
+                  <td><span class="fat-selo fat-selo--neutro">Desligadas</span></td>
+                  <td class="adm-mono">28/08/2026</td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="adm-nome">Pedro Salgado</div>
+                    <div class="adm-sub"><span class="adm-sub-txt">pedro@salgado.studio</span></div>
+                  </td>
+                  <td>Cancelado</td>
+                  <td><span class="fat-selo fat-selo--neutro">Desligadas</span></td>
+                  <td class="adm-mono">15/08/2026</td>
+                  <td class="fat__acao"><button class="fat-ver">Ficha</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="adm-total">16 de 19 aceitam receber.</p>
         </div>
       </div>
 
@@ -484,7 +552,8 @@
           <div class="fat-rolo">
             <table class="fat">
               <thead>
-                <tr><th>Quem</th><th>Documento</th><th>Versão</th><th>Aceito em</th><th class="fat__acao"></th></tr>
+                <tr><th>Quem</th><th>Documento</th><th>Versão</th><th>Aceito em</th>
+                    <th>De onde</th><th class="fat__acao"></th></tr>
               </thead>
               <tbody>
                 <tr>
@@ -495,7 +564,8 @@
                   <td>Termos de Uso</td>
                   <td class="adm-mono">2026-08-14</td>
                   <td class="adm-mono">24/08/2026 &middot; 14h02</td>
-                  <td class="fat__acao"><button class="fat-ver">Ver o texto</button></td>
+                  <td class="adm-sub" style="font-size:12.5px">177.85.0.0<br>Chrome no Windows</td>
+                  <td class="fat__acao"><button class="fat-ver" data-comprovante>Comprovante</button></td>
                 </tr>
                 <tr>
                   <td>
@@ -505,7 +575,8 @@
                   <td>Política de Privacidade</td>
                   <td class="adm-mono">2026-08-14</td>
                   <td class="adm-mono">11/08/2026 &middot; 09h37</td>
-                  <td class="fat__acao"><button class="fat-ver">Ver o texto</button></td>
+                  <td class="adm-sub" style="font-size:12.5px">200.146.0.0<br>Safari no Mac</td>
+                  <td class="fat__acao"><button class="fat-ver" data-comprovante>Comprovante</button></td>
                 </tr>
               </tbody>
             </table>

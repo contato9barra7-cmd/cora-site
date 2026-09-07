@@ -64,14 +64,17 @@ const num = (n) => (n == null ? '—' : Number(n).toLocaleString('pt-BR'));
 // O motivo do bloqueio, em uma frase. É a primeira pergunta do suporte, e
 // deduzir isso de quatro campos era justamente o trabalho manual que sobrava.
 function motivoDoAcesso(a) {
-  if (!a) return { texto: 'sem plano', cor: '#999' };
-  if (a.ilimitado) return { texto: 'Admin — acesso ilimitado', cor: '#7C5CFF' };
-  if (a.pode_gerar) return { texto: 'Pode gerar normalmente', cor: '#2E9E5B' };
-  if (a.equipe_suspenso) return { texto: 'BLOQUEADO — suspenso pela equipe (excedente de assentos)', cor: '#C53030' };
-  if (a.eh_trial && a.trial_expirado) return { texto: 'BLOQUEADO — teste de 7 dias terminou', cor: '#C53030' };
-  if (a.status === 'inativo') return { texto: 'BLOQUEADO — pagamento falhou', cor: '#C53030' };
-  if (a.status === 'expirado') return { texto: 'BLOQUEADO — período pago venceu', cor: '#C53030' };
-  return { texto: `BLOQUEADO — ${a.status || 'sem plano ativo'}`, cor: '#C53030' };
+  if (!a) return { texto: 'sem plano', cor: '#8E8E88' };
+  // Preto, e nao roxo: o roxo saiu da marca em 06/09/2026, e cor que ficou
+  // para tras e a que mais denuncia uma tela que nao foi revisada. Admin nao
+  // e alerta nem confirmacao, entao ele nao pede cor de sinal.
+  if (a.ilimitado) return { texto: 'Admin, acesso ilimitado', cor: '#111111' };
+  if (a.pode_gerar) return { texto: 'Pode gerar normalmente', cor: '#1F7A44' };
+  if (a.equipe_suspenso) return { texto: 'BLOQUEADO — suspenso pela equipe (excedente de assentos)', cor: '#C8342A' };
+  if (a.eh_trial && a.trial_expirado) return { texto: 'BLOQUEADO — teste de 7 dias terminou', cor: '#C8342A' };
+  if (a.status === 'inativo') return { texto: 'BLOQUEADO — pagamento falhou', cor: '#C8342A' };
+  if (a.status === 'expirado') return { texto: 'BLOQUEADO — período pago venceu', cor: '#C8342A' };
+  return { texto: `BLOQUEADO — ${a.status || 'sem plano ativo'}`, cor: '#C8342A' };
 }
 
 // ── Quanto já foi consumido, para decidir reembolso ──
@@ -121,9 +124,9 @@ function consumoDaConta(ficha) {
 // geração já foi paga ao provedor. A cor diz isso antes da leitura do número.
 function corDoConsumo(p) {
   if (p == null) return 'var(--ink2)';
-  if (p >= 70) return '#C53030';
+  if (p >= 70) return '#C8342A';
   if (p >= 40) return '#B7791F';
-  return '#2E9E5B';
+  return '#1F7A44';
 }
 
 // ── Extrato: o rótulo de cada situação, calculada no servidor ──
@@ -131,14 +134,14 @@ function corDoConsumo(p) {
 // âmbar = ainda aberto, vermelho = precisa de gente. O texto de "em voo" ganha
 // a idade na hora de exibir — 10min é geração rodando, 5h é crédito preso.
 const SITUACAO_EXTRATO = {
-  devolvido:            { texto: 'devolvido ✓',            cor: '#2E9E5B' },
+  devolvido:            { texto: 'devolvido ✓',            cor: '#1F7A44' },
   devolvido_parcial:    { texto: 'devolvido parcial',      cor: '#B7791F' },
   entregue:             { texto: 'entregue',               cor: 'var(--ink3)' },
   em_voo:               { texto: 'em voo',                 cor: '#B7791F' },
-  conferir:             { texto: 'CONFERIR',               cor: '#C53030' },
+  conferir:             { texto: 'CONFERIR',               cor: '#C8342A' },
   sem_registro:         { texto: '—',                      cor: 'var(--ink3)' },
-  devolucao:            { texto: 'devolução',              cor: '#2E9E5B' },
-  devolucao_pos_deploy: { texto: 'devolução (pós-deploy)', cor: '#2E9E5B' },
+  devolucao:            { texto: 'devolução',              cor: '#1F7A44' },
+  devolucao_pos_deploy: { texto: 'devolução (pós-deploy)', cor: '#1F7A44' },
 };
 
 function idade(d) {
@@ -371,7 +374,7 @@ export default function FichaConta({ abrirConta }) {
                 <div style={{
                   width: 34, height: 34, borderRadius: '50%', border: '1px solid var(--line2)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'var(--roxo)', flexShrink: 0,
+                  color: 'var(--ink3)', flexShrink: 0,
                 }}>
                   <svg viewBox="0 0 20 20" width="16" height="16" fill="none"
                        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -780,7 +783,7 @@ export default function FichaConta({ abrirConta }) {
                 {num(extrato.resumo.debitado)} debitados · {num(extrato.resumo.estornado)} devolvidos
                 {' · '}líquido {num(extrato.resumo.liquido)} · {extrato.resumo.lancamentos} lançamento(s)
                 {extrato.resumo.suspeitos > 0 && (
-                  <span style={{ color: '#C53030', fontWeight: 700 }}>
+                  <span style={{ color: '#C8342A', fontWeight: 700 }}>
                     {' — '}{extrato.resumo.suspeitos} sem retorno, conferir
                   </span>
                 )}
@@ -813,10 +816,10 @@ export default function FichaConta({ abrirConta }) {
                         <tr key={t.id}>
                           <td>{data(t.criado_em, true)}</td>
                           <td>{t.rota || '—'}</td>
-                          <td style={{ color: t.tipo === 'estorno' ? '#2E9E5B' : undefined }}>
+                          <td style={{ color: t.tipo === 'estorno' ? '#1F7A44' : undefined }}>
                             {t.tipo === 'estorno' ? '+' : '−'}{num(t.quantidade)}
                           </td>
-                          <td style={{ color: emVooVelho ? '#C53030' : s.cor, fontWeight: t.situacao === 'conferir' || emVooVelho ? 700 : 400 }}
+                          <td style={{ color: emVooVelho ? '#C8342A' : s.cor, fontWeight: t.situacao === 'conferir' || emVooVelho ? 700 : 400 }}
                               title={t.situacao === 'devolvido' && t.estorno_em ? `estorno em ${data(t.estorno_em, true)}`
                                    : t.situacao === 'sem_registro' ? 'Sem registro de pedido: cobrança do plugin, ou anterior à tabela de pedidos.'
                                    : undefined}>

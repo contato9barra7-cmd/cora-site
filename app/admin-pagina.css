@@ -151,7 +151,8 @@
   display:flex; align-items:center; justify-content:space-between;
   gap:14px; flex-wrap:wrap; margin-top:18px;
   font-size:13.5px; color:var(--ink3);
-}.adm-pag-nums{ display:flex; align-items:center; gap:14px; }.adm-pag-n{
+}.adm-pag-nums{ display:flex; align-items:center; gap:14px; }/* O quantos-por-pagina e um dropdown estreito. Sem largura ele ocuparia a
+   linha inteira, porque o `.cora-dd` nasce com 100%. */.adm-pag-qtd__dd{ width:86px; }.adm-pag-qtd__dd .cora-dd-btn{ padding:7px 12px; font-size:13.5px; border-radius:12px; }.adm-pag-n{
   border:0; background:none; padding:0 0 3px; cursor:pointer; font-family:inherit;
   font-size:13.5px; color:var(--ink2); font-variant-numeric:tabular-nums;
   border-bottom:3px solid transparent;
@@ -170,6 +171,39 @@
   margin-top:24px; padding-top:16px; border-top:1px solid var(--line);
   display:flex; gap:20px; flex-wrap:wrap; font-size:13px; color:var(--ink3);
 }.adm-geo-legenda span{ display:inline-flex; align-items:center; gap:8px; }.adm-geo-p{ width:14px; height:8px; border-radius:var(--pill); display:inline-block; }.adm-geo-p--n{ background:var(--turquesa); }.adm-geo-p--r{ background:var(--lima); }/* ══════════════════════════════════════════════════════════════════════
+   AS ABAS DE DENTRO DA FICHA
+
+   Elas eram a barra cinza com a pastilha branca por cima, o desenho que
+   sobrou do molde antigo. Duas coisas erradas nisso: a pastilha branca sobre
+   cinza nao e um gesto que exista em nenhum outro canto do produto, e o
+   admin logo acima ja usa o fio de lima para dizer onde a pessoa esta.
+   Dois desenhos para a MESMA coisa na mesma tela.
+
+   Agora sao o mesmo fio, um degrau menor: a Ficha e uma tela dentro de uma
+   tela, e o segundo nivel nao pode competir com o primeiro.
+
+   A regra vale dentro de `.ad`, entao ela nao mexe nas outras telas que
+   ainda usam `.seg-item` (workspace, teams).
+   ══════════════════════════════════════════════════════════════════════ */.ad .seg-track{
+  display:flex; align-items:baseline; gap:clamp(14px,2vw,22px);
+  width:100%; margin:0 0 18px; padding:0;
+  background:none; border-radius:0; border-bottom:1px solid var(--line);
+  overflow-x:auto; scrollbar-width:none;
+}.ad .seg-track::-webkit-scrollbar{ display:none; }.ad .seg-item{
+  position:relative; flex:none; display:inline-flex; align-items:center; gap:7px;
+  padding:0 0 11px; border:0; border-radius:0; background:none;
+  font-family:inherit; font-size:14px; font-weight:500; letter-spacing:-.008em;
+  color:var(--ink2); cursor:pointer; white-space:nowrap;
+  box-shadow:none; transition:color var(--t);
+}.ad .seg-item:hover{ color:var(--ink); }.ad .seg-item::after{
+  content:""; position:absolute; left:0; right:0; bottom:-1px; height:3px;
+  border-radius:2px 2px 0 0; background:transparent; transition:background-color var(--t);
+}.ad .seg-item:hover::after{ background:var(--line2); }.ad .seg-item.ativa{
+  background:none; color:var(--ink); font-weight:600; box-shadow:none;
+}.ad .seg-item.ativa::after{ background:var(--lima); }.ad .seg-badge{
+  padding:0; border-radius:0; background:none; color:var(--ink3);
+  font-size:13px; font-weight:500; font-variant-numeric:tabular-nums;
+}.ad .seg-item.ativa .seg-badge{ background:none; color:var(--ink3); }/* ══════════════════════════════════════════════════════════════════════
    OS ACEITES E A FICHA
    ══════════════════════════════════════════════════════════════════════ */.adm-ficha-grade{ display:grid; gap:14px; }
 @media (min-width:820px){.adm-ficha-grade{ grid-template-columns:1fr 1fr; }}.adm-dl{ margin:16px 0 0; display:grid; gap:0; }.adm-dl div{
@@ -316,7 +350,43 @@
    geral do outro. As duas coisas existem, e o atalho é o que impede a Ficha
    de virar um beco. */.adm-ficha-cab{
   display:flex; align-items:baseline; justify-content:space-between; gap:14px;
-}
+}/* ══════════════════════════════════════════════════════════════════════
+   O COMPROVANTE DE ACEITE
+
+   Ele é para ter valor de prova, e por isso é uma FOLHA e não um cartão: sai
+   em A4 com as mesmas regras da fatura, e traz o texto inteiro da versão
+   aceita, não um link para ele. Um link pode mudar de conteúdo depois. O
+   papel não.
+   ══════════════════════════════════════════════════════════════════════ */.ad .cmp{ background:var(--paper); }.ad .cmp__faixa{
+  height:15mm; background:var(--faixa-deitada) repeat-x left center;
+  background-size:calc(15mm * 8) 100%;
+}.ad .cmp__miolo{ padding:clamp(20px,4vw,34px); }.ad .cmp__marca{
+  width:34mm; height:8mm; background:var(--ink);
+  -webkit-mask:var(--marca) no-repeat left center / contain;
+  mask:var(--marca) no-repeat left center / contain;
+}.ad .cmp__tit{
+  margin:26px 0 0; font-size:24px; font-weight:500; color:var(--ink);
+  letter-spacing:-.03em; line-height:1.15;
+}.ad .cmp__num{ margin:5px 0 0; font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }.ad .cmp__quem{ margin-top:26px; display:grid; gap:18px; grid-template-columns:1fr; }
+@media (min-width:620px){.ad .cmp__quem{ grid-template-columns:1fr 1fr; }}.ad .cmp__quem span{
+  display:block; margin-bottom:6px; font-size:10px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}.ad .cmp__quem p{ margin:0; font-size:13px; color:var(--ink2); line-height:1.65; }.ad .cmp__quem b{ color:var(--ink); font-weight:600; }.ad .cmp__texto{ margin-top:28px; }.ad .cmp__texto > span{
+  display:block; margin-bottom:10px; font-size:10px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}.ad .cmp__doc{
+  padding:20px 22px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--wash);
+}.ad .cmp__doc h4{ margin:0 0 12px; font-size:15px; font-weight:600; letter-spacing:-.014em; }.ad .cmp__doc p{ margin:0 0 10px; font-size:13px; color:var(--ink2); line-height:1.7; text-wrap:pretty; }.ad .cmp__doc b{ color:var(--ink); font-weight:600; }.ad .cmp__corte{ color:var(--ink3)!important; font-style:italic; }.ad .cmp__pe{
+  margin:26px 0 0; padding-top:16px; border-top:1px solid var(--line);
+  font-size:11.5px; color:var(--ink3); line-height:1.7; text-wrap:pretty;
+}/* A medida do CONTADOR de novidades desligadas. Cinza, e não vermelho:
+   desligar não é erro, é escolha de quem recebe. */.adm-medida--off{ background:var(--wash2); border-color:transparent; color:var(--ink2); }.adm-medida--off b{ color:var(--ink); }.adm-medidas{ margin:18px 0 0; display:flex; gap:8px; flex-wrap:wrap; }.adm-medida{
+  display:inline-flex; align-items:baseline; gap:6px;
+  padding:6px 14px; border-radius:var(--pill);
+  background:var(--ok-bg); border:1px solid transparent;
+  font-size:13px; color:var(--ok);
+}.adm-medida b{ font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ok); }
 
 /* ── a fonte, em tamanho nominal ──
    Ver a nota no gerador: o site serve a DM Sans com size-adjust de 88%, o que

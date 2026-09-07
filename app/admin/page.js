@@ -1309,14 +1309,21 @@ export default function Admin() {
           <div className="adm-pag">
             <div className="adm-pag-qtd">
               <span>{t('adm_mostrar')}</span>
-              <select
-                value={porPag}
-                onChange={(e) => { setPorPag(+e.target.value); setPag(1); }}
-              >
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-                <option value={500}>500</option>
-              </select>
+              {/* Era um `<select>` nativo. A lista dele é desenhada pelo
+                  sistema, com canto reto e seleção azul: no meio de uma tela
+                  que é toda do Cora, ele denunciava o único pedaço que não
+                  passou pelo desenho. O DropdownCora é o mesmo do resto. */}
+              <div className="adm-pag-qtd__dd">
+                <DropdownCora
+                  valor={String(porPag)}
+                  onEscolher={(v) => { setPorPag(+v); setPag(1); }}
+                  opcoes={[
+                    { v: '50', n: '50' },
+                    { v: '100', n: '100' },
+                    { v: '500', n: '500' },
+                  ]}
+                />
+              </div>
               <span>{t('ws_de')} {filtrados.length}</span>
             </div>
 
