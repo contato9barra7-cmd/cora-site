@@ -72,28 +72,18 @@ export default function EmConstrucao() {
     100%      { rotate:calc(var(--giro) + 360deg); }
     }
 
-        /* ---- ícone e recado, empilhados e centrados como um bloco só ----
-           Soltos eles se cruzavam: a ficha cobria o pé do ícone. */
+        /* ---- a ficha, no centro da tela ----
+           O ícone 3D morava aqui em cima e saiu em 07/09/2026. Com ele, o
+           bloco era uma pilha de dois e o respiro de baixo era menor que o de
+           cima, para o par inteiro cair no meio. Sozinha, a ficha só precisa
+           de respiro igual dos dois lados, e aí o place-items centra ela de
+           verdade. (Sem crase nos nomes: esta folha inteira mora dentro de um
+           template literal, e uma crase aqui fecha a string.)
+           A assinatura do 9barra7 é absoluta no canto e não entra nesta conta. */
         .emc-pilha {
           position: absolute; inset: 0; z-index: 5;
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          gap: clamp(12px, 2.4vh, 26px);
-          padding: clamp(64px, 10vh, 96px) 16px 24px;
-        }
-        .emc-icone {
-          flex: 0 0 auto;
-          width: clamp(84px, 13vh, 132px); max-width: 34%;
-          animation: emc-respirar 18s ease-in-out infinite;
-        }
-        .emc-icone img {
-          width: 100%; height: auto; display: block;
-          filter: url(#emc-vento) drop-shadow(0 12px 28px rgba(0, 0, 0, .18));
-        }
-        /* Zoom de 7% em 18s: se nota de canto de olho sem virar atração. */
-        @keyframes emc-respirar {
-          0%, 100% { transform: translateY(0) scale(1); }
-          50%      { transform: translateY(-1.5%) scale(1.07); }
+          display: grid; place-items: center;
+          padding: clamp(72px, 12vh, 104px) 16px;
         }
 
         /* ---- a ficha ---- */
@@ -168,8 +158,7 @@ export default function EmConstrucao() {
           .coluna-pad:nth-child(n+3) { display: none; }
         }
         @media (max-height: 600px) {
-          .emc-pilha { gap: 10px; padding-top: 56px; }
-          .emc-icone { width: clamp(64px, 10vh, 92px); }
+          .emc-pilha { padding-block: 56px; }
           .emc-recado { padding: 20px; }
           .emc-titulo { font-size: 23px; }
           .emc-texto { font-size: 14.5px; }
@@ -177,18 +166,9 @@ export default function EmConstrucao() {
         }
       `}</style>
 
-      {/* Vento: ruído de baixa frequência deslocando o pelo de leve. Uma oitava
-          tira o granulado, e 4px bastam pra respirar sem a silhueta derreter. */}
-      <svg width="0" height="0" aria-hidden="true" style={{ position: 'absolute' }}>
-        <filter id="emc-vento" x="-12%" y="-12%" width="124%" height="124%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.007 0.016" numOctaves="1" seed="7" result="ruido">
-            <animate attributeName="baseFrequency" dur="22s" repeatCount="indefinite"
-                     values="0.007 0.016; 0.010 0.013; 0.006 0.018; 0.007 0.016" />
-          </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" in2="ruido" scale="4"
-                             xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </svg>
+      {/* O filtro `emc-vento` saiu junto com o ícone, em 07/09/2026: era uma
+          turbulência SVG animada para um alvo só, e sem o alvo ela ficaria
+          rodando para ninguém. */}
 
       <div className="campo-pad" aria-hidden="true">
         {GRADE.map((coluna, ci) => (
@@ -213,10 +193,6 @@ export default function EmConstrucao() {
       </div>
 
       <div className="emc-pilha">
-        <div className="emc-icone" aria-hidden="true">
-          <img src="/img/icone-3d.webp" alt="" width="320" height="303" />
-        </div>
-
         <div className="emc-recado">
           <div className="emc-marca">
             <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
