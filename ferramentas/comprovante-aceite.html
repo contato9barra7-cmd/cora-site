@@ -147,6 +147,9 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
 .doc__pe p:last-child{ margin-bottom:0; }
 .doc__pe b{ color:var(--ink2); font-weight:600; }
 .doc__quem-somos{ padding-top:3mm; border-top:1px solid var(--line); }
+/* A licenca da base de IP e CC BY, e CC BY pede credito visivel. Ele vive no
+   rodape junto do resto da identificacao, nao perdido no meio do texto. */
+.doc__credito{ font-size:9px; }
 
 /* A identificação CRUA do navegador, do jeito que ela está gravada. A linha
    legível acima é conveniência; esta é a prova. Um documento que só mostra
@@ -156,6 +159,16 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
   font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
   font-size:8.5px; color:var(--ink3); line-height:1.5; word-break:break-all;
 }
+
+/* A localizacao lida do IP. Ela fica visivelmente ABAIXO do IP e em letra
+   menor de proposito: o IP e o fato registrado, a cidade e leitura dele. Num
+   documento que pode ir para a Justica, misturar as duas coisas na mesma linha
+   seria apresentar uma inferencia com a mesma forca de um registro. */
+.doc__est{
+  margin:2mm 0 0; font-size:9.5px; color:var(--ink3); line-height:1.6;
+  text-wrap:pretty;
+}
+.doc__est b{ color:var(--ink2); font-weight:600; }
 
 /* ── O PAPEL ── */
 @page{ size:A4; margin:0; }
@@ -218,6 +231,10 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
             Chrome 128 no Windows 11</p>
           <p class="doc__ua">Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
             (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36</p>
+          <p class="doc__est">Pelo IP, a conexão saiu de <b>Curitiba, Paraná, Brasil</b>.
+            Isso é leitura de uma base pública de faixas de IP, e não o endereço da
+            pessoa: em celular e em VPN costuma apontar outra cidade. O que está
+            registrado é o IP.</p>
         </div>
       </div>
 
@@ -240,7 +257,9 @@ h1{ margin:10px 0 0; font-size:clamp(24px,3.4vw,32px); font-weight:500; letter-s
           antes de continuar usando. Cada novo aceite gera um registro próprio, e este
           comprovante passa a mostrar a versão mais recente que ela aceitou.</p>
         <p class="doc__quem-somos">9BARRA7 Academy &middot; CNPJ 43.879.950/0001-40 &middot;
-          contato@corarender.com &middot; corarender.com</p>
+          contato@corarender.com &middot; corarender.com<br>
+          <span class="doc__credito">Localização por IP: DB-IP (db-ip.com), sob licença
+            CC BY 4.0</span></p>
       </div>
     </div>
   </div>
