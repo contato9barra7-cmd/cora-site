@@ -1260,34 +1260,57 @@ body{ margin:0; background:#F6F6F4; }
    globals.css e não numa folha de página. Aqui é só para o desenho poder ser
    julgado junto do resto. */
 .dd{ position:relative; width:100%; }
+/* CANTO DE 14, E NÃO PÍLULA. Pílula aqui é a forma de BOTÃO, e uma pílula
+   larga cheia de texto lê como botão gigante em vez de campo. O canto médio é
+   o dos cartões, e é ele que faz o controle parecer um campo. */
 .dd__bt{
-  width:100%; height:46px; padding:0 18px; display:flex; align-items:center;
+  width:100%; padding:11px 16px; display:flex; align-items:center;
   justify-content:space-between; gap:10px; cursor:pointer; text-align:left;
-  font-family:inherit; font-size:14.5px; color:var(--ink);
-  background:var(--paper); border:1px solid var(--line); border-radius:var(--pill);
+  font-family:inherit; font-size:14px; color:var(--ink); line-height:1.35;
+  background:var(--paper); border:1px solid var(--line); border-radius:14px;
   transition:border-color var(--t), box-shadow var(--t);
 }
-.dd__bt:hover{ border-color:var(--line2); }
+.dd__bt:hover{ border-color:var(--ink3); }
+.dd__bt:hover .dd__seta{ color:var(--ink); }
 .dd--aberto .dd__bt{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
-.dd__seta{
-  width:7px; height:7px; flex:none; margin-top:-3px;
-  border-right:1.6px solid var(--ink3); border-bottom:1.6px solid var(--ink3);
-  transform:rotate(45deg); transition:transform var(--t);
+/* O RÓTULO DENTRO DO CONTROLE. Numa fila de sete filtros é isto que impede a
+   pessoa de esquecer o que cada caixa é depois de escolher. */
+.dd__mio{ min-width:0; display:flex; flex-direction:column; gap:2px; }
+.dd__rot{
+  font-size:10px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3); line-height:1.2;
 }
-.dd--aberto .dd__seta{ transform:rotate(-135deg); margin-top:3px; }
+.dd__val{
+  font-size:14.5px; font-weight:500; color:var(--ink); letter-spacing:-.008em;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.dd--rotulo .dd__bt{ padding:9px 16px 10px; }
+.dd__seta{
+  width:15px; height:15px; flex:none; color:var(--ink3);
+  transition:transform var(--t), color var(--t);
+}
+.dd--aberto .dd__seta{ transform:rotate(180deg); color:var(--ink); }
 .dd__lista{
   position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:90;
   padding:6px; background:var(--paper);
-  border:1px solid var(--line); border-radius:20px;
-  box-shadow:0 14px 38px rgba(17,17,17,.13);
+  border:1px solid var(--line); border-radius:16px;
+  max-height:288px; overflow-y:auto; overscroll-behavior:contain;
+  box-shadow:var(--sombra);
 }
 .dd__op{
-  width:100%; padding:11px 16px; border:0; border-radius:var(--pill); cursor:pointer;
-  background:none; text-align:left; font-family:inherit; font-size:14.5px; color:var(--ink);
+  width:100%; padding:10px 12px; border:0; border-radius:10px; cursor:pointer;
+  background:none; text-align:left; font-family:inherit; font-size:14px; color:var(--ink2);
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  transition:background-color var(--t), color var(--t);
 }
-.dd__op:hover{ background:var(--wash); }
-/* A escolhida vai no turquesa, nunca no roxo: ele saiu da marca. */
+.dd__op:hover{ background:var(--wash); color:var(--ink); }
+/* A escolhida vai no turquesa, nunca no roxo: ele saiu da marca. O tique diz
+   o mesmo que a cor, porque cor sozinha some para quem não distingue bem as
+   duas. */
 .dd__op--sel{ background:var(--turquesa); color:#111111; font-weight:600; }
+.dd__op--sel:hover{ background:var(--turquesa); color:#111111; }
+.dd__tique{ flex:none; width:15px; height:15px; opacity:0; }
+.dd__op--sel .dd__tique{ opacity:1; }
 
 .demo-dd{
   height:34px; padding:0 14px; display:flex; align-items:center; justify-content:space-between;
@@ -1448,7 +1471,7 @@ body{ margin:0; background:#F6F6F4; }
             <label>Idioma</label>
             <div class="app-user-pref-dd">
               <div class="dd" data-dd>
-                <button class="dd__bt" type="button">Português<span class="dd__seta"></span></button>
+                <button class="dd__bt" type="button">Português<svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
                 <div class="dd__lista" hidden>
                   <button class="dd__op dd__op--sel" type="button">Português</button>
                   <button class="dd__op" type="button">English</button>
@@ -1461,7 +1484,7 @@ body{ margin:0; background:#F6F6F4; }
             <label>Tema</label>
             <div class="app-user-pref-dd">
               <div class="dd" data-dd>
-                <button class="dd__bt" type="button">Sistema<span class="dd__seta"></span></button>
+                <button class="dd__bt" type="button">Sistema<svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
                 <div class="dd__lista" hidden>
                   <button class="dd__op" type="button">Claro</button>
                   <button class="dd__op" type="button">Escuro</button>
@@ -1851,7 +1874,7 @@ body{ margin:0; background:#F6F6F4; }
               <div class="perfil-linha">
                 <label class="perfil-lbl">Idioma</label>
                 <div class="dd" data-dd>
-                  <button class="dd__bt" type="button">Português<span class="dd__seta"></span></button>
+                  <button class="dd__bt" type="button">Português<svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
                   <div class="dd__lista" hidden>
                     <button class="dd__op dd__op--sel" type="button">Português</button>
                     <button class="dd__op" type="button">English</button>
@@ -1862,7 +1885,7 @@ body{ margin:0; background:#F6F6F4; }
               <div class="perfil-linha">
                 <label class="perfil-lbl">Tema</label>
                 <div class="dd" data-dd>
-                  <button class="dd__bt" type="button">Sistema<span class="dd__seta"></span></button>
+                  <button class="dd__bt" type="button">Sistema<svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
                   <div class="dd__lista" hidden>
                     <button class="dd__op" type="button">Claro</button>
                     <button class="dd__op" type="button">Escuro</button>

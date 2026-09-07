@@ -10,6 +10,19 @@ import os
 import re
 
 # as pecas moram ao lado deste arquivo, em ferramentas/
+def pedaco_dd(painel):
+    """O dropdown de demonstracao do painel.
+
+    Ele mora no `<style data-demo>`, e nao no `<style>` de producao, porque no
+    site o dropdown e componente e a lista dele sai por um PORTAL: o estilo de
+    verdade esta no globals.css. Os montadores liam so o bloco de producao, e
+    por isso os campos apareciam sem estilo nenhum.
+    """
+    i = painel.index('.dd{ position:relative')
+    j = painel.index('.demo-dd{', i)
+    return chr(10) + chr(10) + painel[i:j].rstrip()
+
+
 SCR = os.path.dirname(os.path.abspath(__file__))
 css_admin = io.open(os.path.join(SCR, 'admin-css.css'), encoding='utf-8').read()
 corpo = io.open(os.path.join(SCR, 'admin-corpo.html'), encoding='utf-8').read()
@@ -18,7 +31,7 @@ painel = io.open('ferramentas/painel.html', encoding='utf-8').read()
 
 m = re.search(r"<style>(.*?)</style>", painel, re.S)
 assert m, 'nao achei o <style> do painel'
-css_painel = m.group(1)
+css_painel = m.group(1) + pedaco_dd(painel)
 
 i = painel.index('<div class="app-shell"')
 j = painel.index('<main class="app-main">')

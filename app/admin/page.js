@@ -928,8 +928,8 @@ export default function Admin() {
             <div className="adm-gaveta__corpo">
 
               <div className="adm-gaveta__g">
-                <label>{t('adm_periodo')}</label>
                 <DropdownCora
+                  rotulo={t('adm_periodo')}
                   valor={filtroData}
                   onEscolher={(v) => setFiltroData(v)}
                   opcoes={[
@@ -957,8 +957,8 @@ export default function Admin() {
 
               {aba === 'pagantes' && (
                 <div className="adm-gaveta__g">
-                  <label>{t('adm_status')}</label>
                   <DropdownCora
+                    rotulo={t('adm_status')}
                     valor={filtroStatus}
                     onEscolher={(v) => setFiltroStatus(v)}
                     opcoes={[
@@ -970,8 +970,8 @@ export default function Admin() {
               )}
 
               <div className="adm-gaveta__g">
-                <label>{t('adm_profissao')}</label>
                 <DropdownCora
+                  rotulo={t('adm_profissao')}
                   valor={filtroProfissao}
                   onEscolher={(v) => setFiltroProfissao(v)}
                   opcoes={[
@@ -988,8 +988,8 @@ export default function Admin() {
               </div>
 
               <div className="adm-gaveta__g">
-                <label>{t('adm_como_conheceu')}</label>
                 <DropdownCora
+                  rotulo={t('adm_como_conheceu')}
                   valor={filtroOrigem}
                   onEscolher={(v) => setFiltroOrigem(v)}
                   opcoes={[
@@ -1006,8 +1006,8 @@ export default function Admin() {
               </div>
 
               <div className="adm-gaveta__g">
-                <label>{t('adm_renderizador')}</label>
                 <DropdownCora
+                  rotulo={t('adm_renderizador')}
                   valor={filtroRender}
                   onEscolher={(v) => setFiltroRender(v)}
                   opcoes={[
@@ -1024,9 +1024,8 @@ export default function Admin() {
               </div>
 
               <div className="adm-gaveta__g">
-                <label>{t('adm_localizacao')}</label>
-
                 <DropdownCora
+                  rotulo={t('adm_pais')}
                   valor={filtroPais}
                   onEscolher={(v) => setFiltroPais(v)}
                   opcoes={[
@@ -1035,8 +1034,9 @@ export default function Admin() {
                   ]}
                 />
 
-                <div style={{ marginTop: 8 }}>
+                <div style={{ marginTop: 10 }}>
                   <DropdownCora
+                    rotulo={t('adm_estado')}
                     valor={filtroEstado}
                     onEscolher={(v) => setFiltroEstado(v)}
                     opcoes={[
