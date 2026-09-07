@@ -435,12 +435,15 @@ function ContaConteudo() {
                   ? <>R$ {(valorCent / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<em>{t('conta_mes')}</em></>
                   : '—'}
               </strong>
+              {/* Mês por extenso, como no cartão do lado. Abreviado, o
+                  português devolve "jan. de 2026" e "26 de set.", com ponto no
+                  meio da frase e uma palavra cortada. */}
               <div className="dash-cartao-linhas">
                 {assinouEm && (
-                  <span>{t('conta_cliente_desde')} <b>{new Date(assinouEm).toLocaleDateString(loc, { month: 'short', year: 'numeric' })}</b></span>
+                  <span>{t('conta_cliente_desde')} <b>{new Date(assinouEm).toLocaleDateString(loc, { month: 'long', year: 'numeric' })}</b></span>
                 )}
                 {proxCobranca && (
-                  <span>{t('conta_prox_cobranca')} <b>{new Date(proxCobranca).toLocaleDateString(loc, { day: 'numeric', month: 'short' })}</b></span>
+                  <span>{t('conta_prox_cobranca')} <b>{new Date(proxCobranca).toLocaleDateString(loc, { day: 'numeric', month: 'long' })}</b></span>
                 )}
               </div>
               <button className="dash-cartao-acao" onClick={() => router.push('/assinatura')}>
