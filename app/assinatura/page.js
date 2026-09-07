@@ -50,10 +50,15 @@ export default function Assinatura() {
     }
   }, [router]);
 
-  async function comprarRecarga() {
+  // Cada cartão compra a si mesmo. Antes existia um `recargaSel` e um botão
+  // solto embaixo: dois gestos para uma decisão que já estava tomada quando a
+  // pessoa olhou o preço. O id agora vem do cartão que foi clicado.
+  async function comprarRecarga(qual) {
+    const id = qual || recargaSel;
+    setRecargaSel(id);
     setErro(''); setComprando(true);
     try {
-      const priceId = itemDaRecarga(recargaSel);
+      const priceId = itemDaRecarga(id);
       // se for dono, direciona ao assento escolhido; senão, recarga na própria conta
       const assento = conta.eh_dono_equipe ? assentoSel : null;
       await iniciarCheckout(priceId, null, assento);
@@ -216,30 +221,28 @@ export default function Assinatura() {
               )
             )}
 
+            {/* Um botão por cartão, como os planos na página de preços. O
+                cartão não é mais um <button>, porque agora ele tem um dentro,
+                e botão dentro de botão não é HTML válido. */}
             <div className="rec-grade">
               {recargas.map((r) => (
-                <button
-                  key={r.id}
-                  className={'rec-op' + (recargaSel === r.id ? ' rec-op--on' : '')}
-                  onClick={() => setRecargaSel(r.id)}
-                >
+                <div key={r.id} className={'rec-op' + (r.popular ? ' rec-op--pop' : '')}>
                   {r.popular && <em className="rec-tag">{t('assinatura_popular')}</em>}
                   <span className="rec-nome">{t(r.nomeKey)}</span>
                   <strong>{r.creditos.toLocaleString(localeDeIdioma(idioma))}</strong>
                   <span className="rec-preco">R$ {r.preco}</span>
-                </button>
+                  <button
+                    className="rec-comprar"
+                    onClick={() => comprarRecarga(r.id)}
+                    disabled={comprando || (conta.eh_dono_equipe && !membros.length)}
+                  >
+                    {comprando && recargaSel === r.id
+                      ? t('assinatura_abrindo_pagamento')
+                      : t('assinatura_comprar')}
+                  </button>
+                </div>
               ))}
             </div>
-
-            {/* Botão compacto, alinhado à esquerda (mesmo padrão do "Gerenciar
-                assinatura"). Quantidade e preço já aparecem no card selecionado. */}
-            <button
-              className="rec-btn"
-              onClick={comprarRecarga}
-              disabled={comprando || (conta.eh_dono_equipe && !membros.length)}
-            >
-              {comprando ? t('assinatura_abrindo_pagamento') : t('assinatura_comprar')}
-            </button>
           </div>
         )}
       </div>

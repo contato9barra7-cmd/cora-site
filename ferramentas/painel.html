@@ -731,7 +731,7 @@
   display:flex; align-items:flex-start; justify-content:space-between; gap:28px;
 }
 .perfil-toggle-linha > div{ flex:1; min-width:0; }
-.perfil-toggle-linha .perfil-sub--item{ max-width:none; }
+.perfil-toggle-linha .perfil-sub--item{ max-width:62ch; text-wrap:balance; }
 .perfil-toggle{
   width:46px; height:27px; flex:none; border:0; border-radius:var(--pill); cursor:pointer;
   background:var(--wash2); position:relative; transition:background-color var(--t);
@@ -804,7 +804,8 @@
 
 .perfil-legal{
   margin:18px 0 0; padding-top:16px; border-top:1px solid var(--line);
-  font-size:12.5px; color:var(--ink3); line-height:1.6; text-wrap:pretty;
+  font-size:12.5px; color:var(--ink3); line-height:1.6;
+  max-width:72ch; text-wrap:pretty;
 }
 .perfil-link{ color:var(--ink); border-bottom:1px solid var(--lima); }
 .perfil-link:hover{ border-bottom-color:var(--ink); }
@@ -922,9 +923,9 @@
   grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
 }
 .rec-op{
-  position:relative; text-align:center; cursor:pointer; font-family:inherit;
+  position:relative; text-align:center; font-family:inherit;
   background:var(--paper); border:1px solid var(--line); border-radius:var(--r-peq);
-  padding:26px 20px; display:grid; gap:4px; align-content:start;
+  padding:26px 20px; display:flex; flex-direction:column; gap:4px;
   transition:border-color var(--t), transform var(--t), box-shadow var(--t);
 }
 .rec-op:hover{
@@ -932,8 +933,22 @@
   box-shadow:0 12px 28px rgba(17,17,17,.07);
 }
 /* Contorno de 2px, e por isso o recuo perde 1px de cada lado: sem isso o
-   cartão escolhido cresce dois pixels e a linha inteira treme. */
-.rec-op--on{ border:2px solid var(--ink); padding:25px 19px; }
+   cartão em destaque fica dois pixels maior que os vizinhos. */
+.rec-op--pop{ border:2px solid var(--ink); padding:25px 19px; }
+/* Cada cartão tem o próprio botão, como os planos na página de preços. Um
+   botão só embaixo obrigava a escolher primeiro e comprar depois, dois
+   gestos para uma decisão que já estava tomada quando a pessoa olhou o
+   preço. O do destaque vem cheio, os outros ficam quietos. */
+.rec-comprar{
+  margin-top:18px; width:100%; height:42px; border:0; border-radius:var(--pill);
+  background:var(--wash2); color:var(--ink);
+  font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  transition:background-color var(--t);
+}
+.rec-comprar:hover{ background:var(--lima); }
+.rec-op--pop .rec-comprar{ background:var(--lima); }
+.rec-op--pop .rec-comprar:hover{ background:var(--lima-esc); }
+.rec-comprar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
 .rec-op strong{ font-size:26px; font-weight:500; letter-spacing:-.032em; color:var(--ink); }
 .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
 .rec-preco{ margin-top:2px; font-size:15px; color:var(--ink2); }
@@ -943,13 +958,6 @@
   font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
   background:var(--ink); color:var(--paper); padding:5px 14px; border-radius:var(--pill);
 }
-.rec-btn{
-  margin-top:20px; height:46px; padding:0 26px; border:0; border-radius:var(--pill);
-  background:var(--lima); color:#111111; font-family:inherit; font-size:14.5px; font-weight:600;
-  cursor:pointer; transition:background-color var(--t);
-}
-.rec-btn:hover{ background:var(--lima-esc); }
-.rec-btn:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
 
 /* ══════════════════════════════════════════════════════════════════════
    ATÉ 1024px a lateral vira gaveta, e a esteira deita
@@ -1654,7 +1662,7 @@ body{ margin:0; background:#F6F6F4; }
               <div class="perfil-linha perfil-toggle-linha">
                 <div>
                   <label class="perfil-lbl">Novidades do Cora</label>
-                  <p class="perfil-sub perfil-sub--item">Ferramenta nova, mudança no jeito de usar, e o que entrou em cada plano. É pouca coisa por mês, e nunca é anúncio de terceiro.</p>
+                  <p class="perfil-sub perfil-sub--item">Ferramenta nova, mudança no jeito de usar e o que entrou em cada plano. Pouca coisa por mês, e nunca anúncio de terceiro.</p>
                 </div>
                 <button class="perfil-toggle on" aria-pressed="true" aria-label="Receber novidades">
                   <span class="perfil-toggle-bola"></span>
@@ -1761,30 +1769,32 @@ body{ margin:0; background:#F6F6F4; }
           </p>
 
           <div class="rec-grade">
-            <button class="rec-op">
+            <div class="rec-op">
               <span class="rec-nome">Pequena</span>
               <strong>2.000</strong>
               <span class="rec-preco">R$ 30</span>
-            </button>
-            <button class="rec-op">
+              <button class="rec-comprar">Comprar</button>
+            </div>
+            <div class="rec-op">
               <span class="rec-nome">Média</span>
               <strong>5.000</strong>
               <span class="rec-preco">R$ 65</span>
-            </button>
-            <button class="rec-op rec-op--on">
+              <button class="rec-comprar">Comprar</button>
+            </div>
+            <div class="rec-op rec-op--pop">
               <em class="rec-tag">Popular</em>
               <span class="rec-nome">Grande</span>
               <strong>12.000</strong>
               <span class="rec-preco">R$ 140</span>
-            </button>
-            <button class="rec-op">
+              <button class="rec-comprar">Comprar</button>
+            </div>
+            <div class="rec-op">
               <span class="rec-nome">Enorme</span>
               <strong>30.000</strong>
               <span class="rec-preco">R$ 320</span>
-            </button>
+              <button class="rec-comprar">Comprar</button>
+            </div>
           </div>
-
-          <button class="rec-btn">Comprar</button>
         </div>
       </div>
     </div>
@@ -2137,12 +2147,6 @@ body{ margin:0; background:#F6F6F4; }
   var toggle = document.querySelector('.perfil-toggle');
   if (toggle) toggle.addEventListener('click', function () {
     toggle.setAttribute('aria-pressed', toggle.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
-  });
-  [].forEach.call(document.querySelectorAll('.rec-op'), function (op) {
-    op.addEventListener('click', function () {
-      [].forEach.call(document.querySelectorAll('.rec-op'), function (o) { o.classList.remove('rec-op--on'); });
-      op.classList.add('rec-op--on');
-    });
   });
 
   var gEstado = document.getElementById('g-estado');
