@@ -180,6 +180,7 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
      dropdown e a janela é o estado do componente. */
   var d = document;
   var raiz = d.querySelector('.admin-wrap');
+  var telaAdm = 'contas';   // qual das tres telas do admin esta aberta
 
   function mostrar(qual) {
     d.querySelectorAll('[data-tela]').forEach(function (t) {
@@ -188,10 +189,18 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
     d.querySelectorAll('.adm-aba').forEach(function (a) {
       a.classList.toggle('ativa', a.dataset.aba === qual);
     });
+    /* Na Ficha e no estado vazio nenhuma fila fica acesa. */
+    if (qual === 'ficha') d.querySelectorAll('[data-fila]').forEach(function (f) { f.hidden = true; });
     /* A Ficha é uma tela inteira, e não uma listagem: a busca e os filtros
        não valem nela. */
     var naFicha = qual === 'ficha';
-    d.querySelectorAll('[data-some-na-ficha]').forEach(function (e) { e.hidden = naFicha; });
+    /* Quem tem `data-so-em` obedece PRIMEIRO a tela, e nao a Ficha: senao o
+       controle de colunas voltava a aparecer em Dinheiro e em Registros toda
+       vez que a pessoa trocava de aba. */
+    d.querySelectorAll('[data-some-na-ficha]').forEach(function (e) {
+      var daTela = !e.dataset.soEm || e.dataset.soEm === telaAdm;
+      e.hidden = naFicha || !daTela;
+    });
     d.getElementById('bt-ficha').classList.toggle('adm-btn-ficha--on', naFicha);
     /* Na Ficha nenhuma aba fica acesa: ela nao e uma delas. */
     if (naFicha) d.querySelectorAll('.adm-aba').forEach(function (a) { a.classList.remove('ativa'); });
@@ -199,6 +208,50 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
   }
   d.querySelectorAll('.adm-aba').forEach(function (a) {
     a.addEventListener('click', function () { mostrar(a.dataset.aba); });
+  });
+
+  /* ── AS TRÊS TELAS DO ADMIN ──
+     Elas moram no menu lateral. Cada uma carrega SÓ os seus controles: o
+     controle de colunas só existe em Contas, porque só lá a tabela tem dois
+     recortes. Era isso que a barra única de oito abas não conseguia dizer. */
+  var TELAS_ADM = {
+    contas: {
+      olho: 'Admin · Contas',
+      titulo: 'Quem está no Cora',
+      resumo: '19 contas, 2 com plano pago e 12 no teste.',
+      primeira: 'assinantes',
+    },
+    dinheiro: {
+      olho: 'Admin · Dinheiro',
+      titulo: 'O que entrou',
+      resumo: '30 cobranças, R$ 6.521,36 pagos até agora.',
+      primeira: 'faturas',
+    },
+    registros: {
+      olho: 'Admin · Registros',
+      titulo: 'O que ficou gravado',
+      resumo: '21 aceites guardados, e 16 de 19 contas aceitam receber novidades.',
+      primeira: 'aceites',
+    },
+  };
+
+  function irPara(qual) {
+    var t = TELAS_ADM[qual];
+    if (!t) return;
+    telaAdm = qual;
+    d.querySelector('[data-olho]').textContent = t.olho;
+    d.querySelector('[data-titulo]').textContent = t.titulo;
+    d.querySelector('[data-resumo]').textContent = t.resumo;
+    d.querySelectorAll('[data-fila]').forEach(function (f) {
+      f.hidden = f.dataset.fila !== qual;
+    });
+    d.querySelectorAll('[data-tela-adm]').forEach(function (a) {
+      a.classList.toggle('ativo', a.dataset.telaAdm === qual);
+    });
+    mostrar(t.primeira);
+  }
+  d.querySelectorAll('[data-tela-adm]').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); irPara(a.dataset.telaAdm); });
   });
 
   /* A Ficha nao e aba: quem abre e o botao ao lado da busca, ou o botao

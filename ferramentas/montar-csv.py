@@ -43,7 +43,7 @@ ARQUIVOS = [
             ['Marilia Fischer', 'marilia@corarender.com', '000.000.000-00',
              '(11) 90000-0000', '01310-100', 'Av. Paulista, 1000', 'São Paulo', 'SP',
              'BR', 'pro', '', '24/01/2026', '24/09/2026', '7', '197,00'],
-            ['Estúdio Norte', 'contato@estudionorte.com.br', '43.879.950/0001-40',
+            ['Estúdio Norte', 'contato@estudionorte.com.br', '12.345.678/0001-95',
              '(41) 90000-0000', '80010-010', 'R. XV de Novembro, 200', 'Curitiba', 'PR',
              'BR', 'studio', '5', '11/03/2026', '11/09/2026', '6', '497,00'],
             ['Joana Reis', 'joana@arquitetura.com', '000.000.000-00',
@@ -61,7 +61,7 @@ ARQUIVOS = [
               'Compra', 'Créditos', 'Destino', 'Valor (R$)'],
         linhas=[
             ['29/08/2026', 'Estúdio Norte', 'contato@estudionorte.com.br',
-             '43.879.950/0001-40', '(41) 90000-0000', '80010-010',
+             '12.345.678/0001-95', '(41) 90000-0000', '80010-010',
              'R. XV de Novembro, 200', 'Recarga 12.000 créditos', '12000',
              'bruno@estudionorte.com.br', '140,00'],
             ['19/08/2026', 'Marilia Fischer', 'marilia@corarender.com',

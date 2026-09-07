@@ -735,6 +735,47 @@
 .adm-coluna:hover{ color:var(--ink); border-bottom-color:var(--line2); }
 .adm-coluna.on{ color:var(--ink); font-weight:600; border-bottom-color:var(--lima); }
 
+/* ══════════════════════════════════════════════════════════════════════
+   O ADMIN VIROU TRÊS TELAS, E NÃO UMA COM OITO ABAS
+
+   Oito abas, mais os filtros, mais o controle de colunas, mais dois ícones
+   davam uma única barra com quatro controles diferentes empilhados. Cada um
+   deles fazia sentido sozinho, e juntos viravam ruído.
+
+   Agora Admin abre no menu lateral, com três telas dentro:
+
+     CONTAS     quem é quem: assinantes, teste, membros de equipe, cancelados
+     DINHEIRO   o que entrou: recargas e faturas
+     REGISTROS  o que ficou gravado: aceites e novidades
+
+   Cada tela carrega SÓ os seus controles. O controle de colunas só existe
+   em Contas, porque só lá a tabela tem dois recortes. Os filtros de perfil
+   só valem em Contas. Isso é o que a barra única não conseguia dizer.
+
+   O submenu usa o mesmo fio de lima do item principal, mais fino e recuado:
+   é o segundo nível do mesmo gesto, e não um gesto novo.
+   ══════════════════════════════════════════════════════════════════════ */
+.app-nav-sub{ display:grid; gap:1px; margin:2px 0 6px; }
+.app-nav-sub a{
+  position:relative; display:flex; align-items:center; gap:9px;
+  height:34px; padding:0 12px 0 40px; border-radius:var(--r-peq);
+  color:var(--ink3); font-size:13.5px; letter-spacing:-.004em;
+  white-space:nowrap; transition:background-color var(--t), color var(--t);
+}
+.app-nav-sub a:hover{ background:var(--wash2); color:var(--ink); }
+.app-nav-sub a.ativo{ color:var(--ink); font-weight:600; }
+.app-nav-sub a.ativo::before{
+  content:""; position:absolute; left:22px; top:50%; transform:translateY(-50%);
+  width:2px; height:14px; border-radius:2px; background:var(--lima);
+}
+.app-nav-sub b{
+  margin-left:auto; font-weight:500; font-size:12.5px; color:var(--ink3);
+  font-variant-numeric:tabular-nums;
+}
+/* Com o menu recolhido o submenu some junto com os rótulos: um item de 34px
+   sem texto não diz nada, e três deles viram três riscos. */
+.app-shell.recolhido .app-nav-sub{ display:none; }
+
 </style>
 
 <style data-demo>
@@ -2157,6 +2198,7 @@
           </span>
           <span class="app-nav-lbl">Admin</span>
         </a>
+        <div class="app-nav-sub"><a href="#" class="ativo" data-tela-adm="contas">Contas <b>19</b></a><a href="#" data-tela-adm="dinheiro">Dinheiro <b>30</b></a><a href="#" data-tela-adm="registros">Registros <b>40</b></a></div>
       </div>
     </nav>
   </aside>
@@ -2248,7 +2290,7 @@
     <div class="app-main-conteudo">
     <div class="admin-wrap" style="max-width:1180px;margin:0 auto">
       <div class="adm-demo">
-        <b>ver</b>
+        <b>abrir</b>
         <button data-abre="geo">Geografia</button>
         <button data-abre="export">Exportar</button>
         <button data-abre="email">Enviar e-mail</button>
@@ -2261,9 +2303,9 @@
       <div class="adm-cabeca">
         <div class="conta-cabeca">
           <div class="conta-cabeca__txt">
-            <p class="eyebrow">Administração</p>
-            <h1 class="conta-cabeca__nome">Quem está no Cora</h1>
-            <p class="conta-cabeca__email" id="adm-resumo">19 contas, 2 com plano pago e 12 no teste.</p>
+            <p class="eyebrow" data-olho>Admin &middot; Contas</p>
+            <h1 class="conta-cabeca__nome" data-titulo>Quem está no Cora</h1>
+            <p class="conta-cabeca__email" data-resumo>19 contas, 2 com plano pago e 12 no teste.</p>
           </div>
         </div>
 
@@ -2308,18 +2350,20 @@
       </div>
 
       <!-- ══════════════ AS ABAS ══════════════ -->
-      <div class="adm-abas" role="tablist">
-        <span class="adm-abas__g">Contas</span>
+      <!-- Cada tela tem a sua fila, e ela só mostra o que existe dentro dela.
+           Antes eram oito abas de três naturezas na mesma linha, e a pessoa
+           tinha que ler os rótulos de grupo para saber onde estava. -->
+      <div class="adm-abas" role="tablist" data-fila="contas">
         <button class="adm-aba ativa" data-aba="assinantes">Assinantes <b>2</b></button>
         <button class="adm-aba" data-aba="trial">Trial <b>12</b></button>
         <button class="adm-aba" data-aba="membros">Membros de equipe <b>3</b></button>
         <button class="adm-aba" data-aba="cancelados">Cancelados <b>2</b></button>
-        <i class="adm-abas__fio" aria-hidden="true"></i>
-        <span class="adm-abas__g">Dinheiro</span>
+      </div>
+      <div class="adm-abas" role="tablist" data-fila="dinheiro" hidden>
         <button class="adm-aba" data-aba="recargas">Recargas <b>6</b></button>
         <button class="adm-aba" data-aba="faturas">Faturas <b>24</b></button>
-        <i class="adm-abas__fio" aria-hidden="true"></i>
-        <span class="adm-abas__g">Registros</span>
+      </div>
+      <div class="adm-abas" role="tablist" data-fila="registros" hidden>
         <button class="adm-aba" data-aba="aceites">Aceites <b>21</b></button>
         <button class="adm-aba" data-aba="newsletter">Novidades <b>19</b></button>
       </div>
@@ -2361,7 +2405,7 @@
            não na fila de ícones do topo. Lá eles pareciam iguais ao
            Geografia e ao Exportar, que abrem coisas. Trocar o que se vê e
            abrir uma janela não são o mesmo gesto. -->
-      <div class="adm-colunas" data-some-na-ficha>
+      <div class="adm-colunas" data-so-em="contas" data-some-na-ficha>
         <span class="adm-colunas__r">Mostrar</span>
         <button class="adm-coluna" data-liga="cobranca">Cobrança</button>
         <button class="adm-coluna" data-liga="perfil">Cadastro</button>
@@ -2466,7 +2510,7 @@
                       <span class="adm-tag-nv">não verificado</span>
                     </div>
                   </td>
-                  <td class="adm-mono">43.879.950/0001-40</td>
+                  <td class="adm-mono">12.345.678/0001-95</td>
                   <td class="adm-mono adm-col-fiscal">(41) 90000-0000</td>
                   <td class="adm-mono adm-col-fiscal">80010-010</td>
                   <td class="adm-col-fiscal" style="font-size:13px;max-width:210px">R. XV de Novembro, 200, Curitiba PR</td>
@@ -2710,7 +2754,7 @@
                     <div class="adm-nome">Estúdio Norte</div>
                     <div class="adm-sub"><span class="adm-sub-txt">contato@estudionorte.com.br</span></div>
                   </td>
-                  <td class="adm-mono">43.879.950/0001-40</td>
+                  <td class="adm-mono">12.345.678/0001-95</td>
                   <td>Recarga de 12.000 créditos</td>
                   <td class="adm-num">12.000</td>
                   <td class="adm-sub"><span class="adm-sub-txt">bruno@estudionorte.com.br</span></td>
@@ -3258,6 +3302,7 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
      dropdown e a janela é o estado do componente. */
   var d = document;
   var raiz = d.querySelector('.admin-wrap');
+  var telaAdm = 'contas';   // qual das tres telas do admin esta aberta
 
   function mostrar(qual) {
     d.querySelectorAll('[data-tela]').forEach(function (t) {
@@ -3266,10 +3311,18 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
     d.querySelectorAll('.adm-aba').forEach(function (a) {
       a.classList.toggle('ativa', a.dataset.aba === qual);
     });
+    /* Na Ficha e no estado vazio nenhuma fila fica acesa. */
+    if (qual === 'ficha') d.querySelectorAll('[data-fila]').forEach(function (f) { f.hidden = true; });
     /* A Ficha é uma tela inteira, e não uma listagem: a busca e os filtros
        não valem nela. */
     var naFicha = qual === 'ficha';
-    d.querySelectorAll('[data-some-na-ficha]').forEach(function (e) { e.hidden = naFicha; });
+    /* Quem tem `data-so-em` obedece PRIMEIRO a tela, e nao a Ficha: senao o
+       controle de colunas voltava a aparecer em Dinheiro e em Registros toda
+       vez que a pessoa trocava de aba. */
+    d.querySelectorAll('[data-some-na-ficha]').forEach(function (e) {
+      var daTela = !e.dataset.soEm || e.dataset.soEm === telaAdm;
+      e.hidden = naFicha || !daTela;
+    });
     d.getElementById('bt-ficha').classList.toggle('adm-btn-ficha--on', naFicha);
     /* Na Ficha nenhuma aba fica acesa: ela nao e uma delas. */
     if (naFicha) d.querySelectorAll('.adm-aba').forEach(function (a) { a.classList.remove('ativa'); });
@@ -3277,6 +3330,50 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
   }
   d.querySelectorAll('.adm-aba').forEach(function (a) {
     a.addEventListener('click', function () { mostrar(a.dataset.aba); });
+  });
+
+  /* ── AS TRÊS TELAS DO ADMIN ──
+     Elas moram no menu lateral. Cada uma carrega SÓ os seus controles: o
+     controle de colunas só existe em Contas, porque só lá a tabela tem dois
+     recortes. Era isso que a barra única de oito abas não conseguia dizer. */
+  var TELAS_ADM = {
+    contas: {
+      olho: 'Admin · Contas',
+      titulo: 'Quem está no Cora',
+      resumo: '19 contas, 2 com plano pago e 12 no teste.',
+      primeira: 'assinantes',
+    },
+    dinheiro: {
+      olho: 'Admin · Dinheiro',
+      titulo: 'O que entrou',
+      resumo: '30 cobranças, R$ 6.521,36 pagos até agora.',
+      primeira: 'faturas',
+    },
+    registros: {
+      olho: 'Admin · Registros',
+      titulo: 'O que ficou gravado',
+      resumo: '21 aceites guardados, e 16 de 19 contas aceitam receber novidades.',
+      primeira: 'aceites',
+    },
+  };
+
+  function irPara(qual) {
+    var t = TELAS_ADM[qual];
+    if (!t) return;
+    telaAdm = qual;
+    d.querySelector('[data-olho]').textContent = t.olho;
+    d.querySelector('[data-titulo]').textContent = t.titulo;
+    d.querySelector('[data-resumo]').textContent = t.resumo;
+    d.querySelectorAll('[data-fila]').forEach(function (f) {
+      f.hidden = f.dataset.fila !== qual;
+    });
+    d.querySelectorAll('[data-tela-adm]').forEach(function (a) {
+      a.classList.toggle('ativo', a.dataset.telaAdm === qual);
+    });
+    mostrar(t.primeira);
+  }
+  d.querySelectorAll('[data-tela-adm]').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); irPara(a.dataset.telaAdm); });
   });
 
   /* A Ficha nao e aba: quem abre e o botao ao lado da busca, ou o botao

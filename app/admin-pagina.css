@@ -433,7 +433,38 @@
   border:0; background:none; padding:0 0 2px; cursor:pointer; font-family:inherit;
   font-size:13.5px; color:var(--ink2); border-bottom:2px solid transparent;
   transition:color var(--t), border-color var(--t);
-}.adm-coluna:hover{ color:var(--ink); border-bottom-color:var(--line2); }.adm-coluna.on{ color:var(--ink); font-weight:600; border-bottom-color:var(--lima); }
+}.adm-coluna:hover{ color:var(--ink); border-bottom-color:var(--line2); }.adm-coluna.on{ color:var(--ink); font-weight:600; border-bottom-color:var(--lima); }/* ══════════════════════════════════════════════════════════════════════
+   O ADMIN VIROU TRÊS TELAS, E NÃO UMA COM OITO ABAS
+
+   Oito abas, mais os filtros, mais o controle de colunas, mais dois ícones
+   davam uma única barra com quatro controles diferentes empilhados. Cada um
+   deles fazia sentido sozinho, e juntos viravam ruído.
+
+   Agora Admin abre no menu lateral, com três telas dentro:
+
+     CONTAS     quem é quem: assinantes, teste, membros de equipe, cancelados
+     DINHEIRO   o que entrou: recargas e faturas
+     REGISTROS  o que ficou gravado: aceites e novidades
+
+   Cada tela carrega SÓ os seus controles. O controle de colunas só existe
+   em Contas, porque só lá a tabela tem dois recortes. Os filtros de perfil
+   só valem em Contas. Isso é o que a barra única não conseguia dizer.
+
+   O submenu usa o mesmo fio de lima do item principal, mais fino e recuado:
+   é o segundo nível do mesmo gesto, e não um gesto novo.
+   ══════════════════════════════════════════════════════════════════════ */.ad .app-nav-sub{ display:grid; gap:1px; margin:2px 0 6px; }.ad .app-nav-sub a{
+  position:relative; display:flex; align-items:center; gap:9px;
+  height:34px; padding:0 12px 0 40px; border-radius:var(--r-peq);
+  color:var(--ink3); font-size:13.5px; letter-spacing:-.004em;
+  white-space:nowrap; transition:background-color var(--t), color var(--t);
+}.ad .app-nav-sub a:hover{ background:var(--wash2); color:var(--ink); }.ad .app-nav-sub a.ativo{ color:var(--ink); font-weight:600; }.ad .app-nav-sub a.ativo::before{
+  content:""; position:absolute; left:22px; top:50%; transform:translateY(-50%);
+  width:2px; height:14px; border-radius:2px; background:var(--lima);
+}.ad .app-nav-sub b{
+  margin-left:auto; font-weight:500; font-size:12.5px; color:var(--ink3);
+  font-variant-numeric:tabular-nums;
+}/* Com o menu recolhido o submenu some junto com os rótulos: um item de 34px
+   sem texto não diz nada, e três deles viram três riscos. */.ad .app-shell.recolhido .app-nav-sub{ display:none; }
 
 /* ── a fonte, em tamanho nominal ──
    Ver a nota no gerador: o site serve a DM Sans com size-adjust de 88%, o que

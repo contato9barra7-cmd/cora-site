@@ -1,5 +1,5 @@
       <div class="adm-demo">
-        <b>ver</b>
+        <b>abrir</b>
         <button data-abre="geo">Geografia</button>
         <button data-abre="export">Exportar</button>
         <button data-abre="email">Enviar e-mail</button>
@@ -12,9 +12,9 @@
       <div class="adm-cabeca">
         <div class="conta-cabeca">
           <div class="conta-cabeca__txt">
-            <p class="eyebrow">Administração</p>
-            <h1 class="conta-cabeca__nome">Quem está no Cora</h1>
-            <p class="conta-cabeca__email" id="adm-resumo">19 contas, 2 com plano pago e 12 no teste.</p>
+            <p class="eyebrow" data-olho>Admin &middot; Contas</p>
+            <h1 class="conta-cabeca__nome" data-titulo>Quem está no Cora</h1>
+            <p class="conta-cabeca__email" data-resumo>19 contas, 2 com plano pago e 12 no teste.</p>
           </div>
         </div>
 
@@ -59,18 +59,20 @@
       </div>
 
       <!-- ══════════════ AS ABAS ══════════════ -->
-      <div class="adm-abas" role="tablist">
-        <span class="adm-abas__g">Contas</span>
+      <!-- Cada tela tem a sua fila, e ela só mostra o que existe dentro dela.
+           Antes eram oito abas de três naturezas na mesma linha, e a pessoa
+           tinha que ler os rótulos de grupo para saber onde estava. -->
+      <div class="adm-abas" role="tablist" data-fila="contas">
         <button class="adm-aba ativa" data-aba="assinantes">Assinantes <b>2</b></button>
         <button class="adm-aba" data-aba="trial">Trial <b>12</b></button>
         <button class="adm-aba" data-aba="membros">Membros de equipe <b>3</b></button>
         <button class="adm-aba" data-aba="cancelados">Cancelados <b>2</b></button>
-        <i class="adm-abas__fio" aria-hidden="true"></i>
-        <span class="adm-abas__g">Dinheiro</span>
+      </div>
+      <div class="adm-abas" role="tablist" data-fila="dinheiro" hidden>
         <button class="adm-aba" data-aba="recargas">Recargas <b>6</b></button>
         <button class="adm-aba" data-aba="faturas">Faturas <b>24</b></button>
-        <i class="adm-abas__fio" aria-hidden="true"></i>
-        <span class="adm-abas__g">Registros</span>
+      </div>
+      <div class="adm-abas" role="tablist" data-fila="registros" hidden>
         <button class="adm-aba" data-aba="aceites">Aceites <b>21</b></button>
         <button class="adm-aba" data-aba="newsletter">Novidades <b>19</b></button>
       </div>
@@ -108,7 +110,7 @@
            não na fila de ícones do topo. Lá eles pareciam iguais ao
            Geografia e ao Exportar, que abrem coisas. Trocar o que se vê e
            abrir uma janela não são o mesmo gesto. -->
-      <div class="adm-colunas" data-some-na-ficha>
+      <div class="adm-colunas" data-so-em="contas" data-some-na-ficha>
         <span class="adm-colunas__r">Mostrar</span>
         <button class="adm-coluna" data-liga="cobranca">Cobrança</button>
         <button class="adm-coluna" data-liga="perfil">Cadastro</button>
@@ -213,7 +215,7 @@
                       <span class="adm-tag-nv">não verificado</span>
                     </div>
                   </td>
-                  <td class="adm-mono">43.879.950/0001-40</td>
+                  <td class="adm-mono">12.345.678/0001-95</td>
                   <td class="adm-mono adm-col-fiscal">(41) 90000-0000</td>
                   <td class="adm-mono adm-col-fiscal">80010-010</td>
                   <td class="adm-col-fiscal" style="font-size:13px;max-width:210px">R. XV de Novembro, 200, Curitiba PR</td>
@@ -457,7 +459,7 @@
                     <div class="adm-nome">Estúdio Norte</div>
                     <div class="adm-sub"><span class="adm-sub-txt">contato@estudionorte.com.br</span></div>
                   </td>
-                  <td class="adm-mono">43.879.950/0001-40</td>
+                  <td class="adm-mono">12.345.678/0001-95</td>
                   <td>Recarga de 12.000 créditos</td>
                   <td class="adm-num">12.000</td>
                   <td class="adm-sub"><span class="adm-sub-txt">bruno@estudionorte.com.br</span></td>
