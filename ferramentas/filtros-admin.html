@@ -1,43 +1,36 @@
-<title>Filtros do admin</title>
+<title>Dropdown de filtros</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
 
 <!--
-     QUATRO JEITOS DE FILTRAR NO ADMIN
+     QUATRO DESENHOS DO DROPDOWN DE FILTROS DO ADMIN
 
-     Sao sete grupos de filtro: periodo, situacao, profissao, como conheceu,
-     renderizador, pais e estado. A gaveta de agora empilha os sete numa
-     coluna estreita e sobra buraco entre eles.
-
-     O ERRO QUE ESTA PAGINA CORRIGE, e que vale para as quatro: a gaveta
-     usava `display:grid` com `flex:1`, e o grid ESTICA as linhas para
-     preencher a altura. Sete grupos curtos viravam sete grupos separados por
-     um palmo de nada. `align-content:start` e o conserto.
+     O botao Filtros abre um dropdown. Sao quatro jeitos de desenhar esse
+     dropdown, ancorado no mesmo botao, com os mesmos sete filtros dentro.
+     Os quatro abrem de verdade.
 
      Este arquivo e MONTADO por `ferramentas/montar-filtros.py`, que copia a
-     casca do painel.html e a folha do admin. Editar o HTML direto e trabalho
-     perdido.
+     casca do painel.html e monta as quatro a partir de UMA lista de filtros.
+     Editar o HTML direto e trabalho perdido.
 -->
 
 <style>
 /* ══════════════════════════════════════════════════════════════════════
-   AS QUATRO OPÇÕES DE FILTRO
+   QUATRO DESENHOS DO DROPDOWN DE FILTROS
 
-   Só o que cada opção precisa. O cartão, o dropdown, o botão e o campo são
-   os mesmos do painel, copiados junto na montagem.
+   O botão Filtros abre um dropdown. São quatro jeitos de desenhar esse
+   dropdown, ancorado no mesmo botão, com os mesmos sete filtros dentro:
+   período, situação, profissão, como conheceu, renderizador, país e estado.
 
-   O ERRO QUE ESTA PÁGINA CORRIGE, e que vale para as quatro: a gaveta usava
-   `display:grid` com `flex:1`, e o grid ESTICA as linhas para preencher a
-   altura. Sete grupos curtos viravam sete grupos separados por um palmo de
-   nada. `align-content:start` é o conserto: as linhas param de esticar e
-   encostam no topo.
+   O que os quatro têm em comum, porque é a identidade e não a opção: canto
+   de 18, fio de 1px, sombra funda, e o turquesa com tique na escolha feita.
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ── a moldura da escolha ── */
-.esc{ margin-bottom:26px; }
+.esc{ margin-bottom:22px; }
 .esc h1{ margin:6px 0 0; font-size:clamp(24px,3vw,30px); font-weight:500; letter-spacing:-.032em; line-height:1.1; }
-.esc__p{ margin:12px 0 0; font-size:15px; color:var(--ink2); line-height:1.6; max-width:66ch; text-wrap:pretty; }
+.esc__p{ margin:12px 0 0; font-size:15px; color:var(--ink2); line-height:1.6; max-width:64ch; text-wrap:pretty; }
 .esc__btns{ margin-top:20px; display:flex; gap:8px; flex-wrap:wrap; }
 .esc__bt{
   height:40px; padding:0 18px; border-radius:var(--pill);
@@ -49,74 +42,106 @@
 .esc__bt.on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
 
 .esc__nota{
-  margin-bottom:18px; padding:22px 24px;
+  margin-bottom:16px; padding:20px 22px;
   background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
 }
-.esc__nota h2{ margin:0; font-size:19px; font-weight:600; letter-spacing:-.02em; }
-.esc__nota p{ margin:10px 0 0; font-size:14px; color:var(--ink2); line-height:1.6; max-width:70ch; text-wrap:pretty; }
-.esc__pro b{ color:var(--ink); font-weight:600; }
-.esc__nota .as-btn-cta{ margin-top:16px; }
+.esc__nota h2{ margin:0; font-size:18px; font-weight:600; letter-spacing:-.02em; }
+.esc__nota p{ margin:9px 0 0; font-size:14px; color:var(--ink2); line-height:1.6; max-width:70ch; text-wrap:pretty; }
+.esc__nota b{ color:var(--ink); font-weight:600; }
+.esc__dica{ margin-top:14px; font-size:13.5px; color:var(--ink3); }
 
-/* ══════════════ 2 · PAINEL QUE DESCE ══════════════ */
-.f2{
-  margin-bottom:14px; padding:22px 24px 20px;
-  background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+/* ══════════════════════════════════════════════════════════════════════
+   O QUE É IGUAL NOS QUATRO
+   ══════════════════════════════════════════════════════════════════════ */
+.fx{ position:relative; display:inline-block; }
+.fx__pop{
+  position:absolute; top:calc(100% + 8px); right:0; z-index:80;
+  background:var(--paper); border:1px solid var(--line); border-radius:18px;
+  box-shadow:var(--sombra);
+  animation:fx-entra .15s cubic-bezier(.16,1,.3,1);
 }
-.f2__cab{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; }
-.f2__cab h3{ margin:0; font-size:17px; font-weight:600; letter-spacing:-.016em; }
-.f2__grade{
-  margin-top:20px; display:grid; gap:16px 20px;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-}
-.f2__g > label,
-.f3__g > label{
-  display:block; margin-bottom:7px;
-  font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
-}
-.f2__pe{
-  margin-top:22px; padding-top:18px; border-top:1px solid var(--line);
-  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
-}
-.f2__conta{ font-size:14px; color:var(--ink2); font-variant-numeric:tabular-nums; }
+@keyframes fx-entra{ from{ opacity:0; transform:translateY(-5px); } }
+@media (prefers-reduced-motion:reduce){ .fx__pop{ animation:none; } }
 
-/* ══════════════ 3 · COLUNA FIXA ══════════════ */
-.f3{ display:grid; grid-template-columns:1fr; gap:clamp(20px,3vw,32px); align-items:start; }
-@media (min-width:1000px){ .f3{ grid-template-columns:236px minmax(0,1fr); } }
-.f3__lado{
-  display:grid; gap:16px; align-content:start;
-  position:sticky; top:calc(var(--header-h) + 28px);
+.fx__cab{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:15px 18px 13px; border-bottom:1px solid var(--line);
 }
-.f3__g{ min-width:0; }
+.fx__cab h3{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.014em; }
+.fx__pe{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:13px 18px; border-top:1px solid var(--line);
+}
+.fx__conta{ font-size:13px; color:var(--ink3); font-variant-numeric:tabular-nums; }
+.fx__pe .as-btn-cta{ height:38px; padding:0 18px; font-size:13.5px; }
 
-/* ══════════════ 4 · UM MENU POR FILTRO ══════════════ */
-.f4{ position:relative; display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
-.f4__bt{
-  display:inline-flex; align-items:center; gap:7px;
-  padding:0 0 6px; border:0; background:none; cursor:pointer; font-family:inherit;
-  font-size:14px; color:var(--ink2); white-space:nowrap;
-  border-bottom:3px solid transparent;
-  transition:color var(--t), border-color var(--t);
+/* ══════════════ 1 · MENU QUE ENTRA ══════════════
+   Uma coluna estreita. Cada linha é um filtro, com o valor à direita. Clicar
+   troca o miolo pelas opções daquele filtro, com um voltar em cima. */
+.fx1{ width:290px; }
+.fx1__lista{ padding:6px; }
+.fx__linha{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  width:100%; padding:10px 12px; border:0; border-radius:10px; background:none;
+  cursor:pointer; font-family:inherit; font-size:14px; color:var(--ink2);
+  text-align:left; transition:background-color var(--t), color var(--t);
 }
-.f4__bt:hover{ color:var(--ink); border-bottom-color:var(--line2); }
-/* Ligado, o fio de lima. É o mesmo gesto do menu lateral e da aba. */
-.f4__bt.on{ color:var(--ink); border-bottom-color:var(--lima); }
-.f4__bt b{ font-weight:600; }
-.f4__seta{
-  width:0; height:0; border-left:4px solid transparent; border-right:4px solid transparent;
-  border-top:5px solid currentColor; opacity:.55;
+.fx__linha:hover{ background:var(--wash); color:var(--ink); }
+.fx__linha b{ color:var(--ink); font-weight:600; }
+.fx__linha i{
+  flex:none; width:6px; height:6px; border-right:1.6px solid var(--ink3);
+  border-top:1.6px solid var(--ink3); transform:rotate(45deg); font-style:normal;
 }
-.f4__menu{
-  position:absolute; top:calc(100% + 6px); left:0; z-index:60;
-  min-width:220px; padding:7px; border-radius:16px;
-  background:var(--paper); border:1px solid var(--line); box-shadow:var(--sombra);
+.fx__linha--limpo b{ color:var(--ink3); font-weight:400; }
+.fx__voltar{
+  display:inline-flex; align-items:center; gap:7px; border:0; background:none;
+  padding:0; cursor:pointer; font-family:inherit; font-size:15px;
+  font-weight:600; color:var(--ink); letter-spacing:-.014em;
 }
-.f4__op{
-  display:block; width:100%; text-align:left; padding:9px 12px;
-  border:0; border-radius:10px; background:none; cursor:pointer; font-family:inherit;
-  font-size:14px; color:var(--ink2); transition:background-color var(--t), color var(--t);
+.fx__voltar i{
+  width:6px; height:6px; border-left:1.6px solid var(--ink2);
+  border-bottom:1.6px solid var(--ink2); transform:rotate(45deg); font-style:normal;
 }
-.f4__op:hover{ background:var(--wash); color:var(--ink); }
-.f4__op.on{ background:var(--turquesa); color:#111111; font-weight:600; }
+
+/* A opção, igual à do dropdown do Cora. */
+.fx__op{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  width:100%; padding:10px 12px; border:0; border-radius:10px; background:none;
+  cursor:pointer; font-family:inherit; font-size:14px; color:var(--ink2);
+  text-align:left; transition:background-color var(--t), color var(--t);
+}
+.fx__op:hover{ background:var(--wash); color:var(--ink); }
+.fx__op--sel{ background:var(--turquesa); color:#111111; font-weight:600; }
+.fx__op--sel:hover{ background:var(--turquesa); color:#111111; }
+.fx__tique{ flex:none; width:15px; height:15px; opacity:0; }
+.fx__op--sel .fx__tique{ opacity:1; }
+
+/* ══════════════ 2 · CAMPOS EMPILHADOS ══════════════
+   O dropdown fica largo e traz os sete campos, um embaixo do outro, com o
+   mesmo controle do resto do site. */
+.fx2{ width:370px; }
+.fx2__corpo{ padding:16px 18px; display:grid; gap:12px; max-height:60vh; overflow-y:auto; overscroll-behavior:contain; }
+
+/* ══════════════ 3 · DUAS COLUNAS ══════════════
+   O mesmo da 2, em duas colunas: os sete cabem sem rolar. */
+.fx3{ width:min(620px,calc(100vw - 40px)); }
+.fx3__corpo{ padding:16px 18px; display:grid; gap:12px 14px; grid-template-columns:1fr 1fr; }
+.fx3__corpo > *:last-child{ grid-column:1 / -1; }
+
+/* ══════════════ 4 · TUDO ABERTO ══════════════
+   Sem campo e sem entrar em lugar nenhum: cada filtro é uma seção e as
+   opções ficam à vista. Rola por dentro. */
+.fx4{ width:330px; }
+.fx4__corpo{ padding:6px; max-height:min(460px,60vh); overflow-y:auto; overscroll-behavior:contain; }
+.fx4__sec + .fx4__sec{ margin-top:4px; border-top:1px solid var(--line); padding-top:6px; }
+.fx4__rot{
+  padding:9px 12px 5px; font-size:10px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}
+
+/* ── a barra de cima, para o dropdown ter de onde abrir ── */
+.fx-barra{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+.fx-barra .adm-busca{ flex:1; min-width:220px; }
 
 </style>
 
@@ -1681,9 +1706,6 @@
 
 
 [hidden]{ display:none!important; }
-/* O conserto da gaveta de agora, para dar para comparar com as outras tres. */
-.adm-gaveta__corpo{ align-content:start; }
-.adm-gaveta__g .dd{ margin-top:0; }
 </style>
 
 <div class="app-shell" id="shell">
@@ -1866,231 +1888,31 @@
     <div class="app-main-conteudo">
     <div class="admin-wrap" style="max-width:1180px;margin:0 auto">
     <div class="esc">
-      <p class="eyebrow">Admin &middot; os filtros</p>
-      <h1>Quatro jeitos de filtrar</h1>
-      <p class="esc__p">São sete grupos: período, situação, profissão, como conheceu,
-        renderizador que usava, país e estado. A gaveta de agora empilha os sete numa
-        coluna estreita e sobra buraco entre eles. Estas quatro resolvem isso de
-        maneiras diferentes. Escolha uma e eu levo para a tela.</p>
+      <p class="eyebrow">Admin &middot; o dropdown de filtros</p>
+      <h1>Quatro jeitos de abrir os filtros</h1>
+      <p class="esc__p">O botão Filtros abre um dropdown. São os mesmos sete filtros nos
+        quatro (período, situação, profissão, como conheceu, renderizador, país e estado),
+        mudando só o desenho de dentro. Os quatro abrem de verdade: clique em Filtros.</p>
       <div class="esc__btns">
-        <button class="esc__bt on" data-op="1">1 &middot; Gaveta arrumada</button>
-        <button class="esc__bt" data-op="2">2 &middot; Painel que desce</button>
-        <button class="esc__bt" data-op="3">3 &middot; Coluna fixa</button>
-        <button class="esc__bt" data-op="4">4 &middot; Um menu por filtro</button>
+        <button class="esc__bt on" data-op="1">1 &middot; Menu que entra</button>
+        <button class="esc__bt" data-op="2">2 &middot; Campos empilhados</button>
+        <button class="esc__bt" data-op="3">3 &middot; Duas colunas</button>
+        <button class="esc__bt" data-op="4">4 &middot; Tudo aberto</button>
       </div>
     </div>
-
-    <!-- ══════════════ 1 · GAVETA ARRUMADA ══════════════ -->
-    <section data-op="1">
-      <div class="esc__nota">
-        <h2>Gaveta arrumada</h2>
-        <p>A gaveta de agora, com o erro corrigido: os grupos param de esticar e
-          encostam no topo, os campos viram o dropdown padrão do Cora e cabem dois
-          por linha. Some quando você termina, então a tela de trabalho fica limpa.</p>
-        <p class="esc__pro"><b>A favor</b> não rouba espaço da tabela, e são sete
-          grupos que raramente se mexe todo dia.
-          <b>Contra</b> tapa a tabela enquanto está aberta, e você não vê o resultado
-          mudar enquanto escolhe.</p>
-        <button class="as-btn-cta" data-abre="1">Abrir a gaveta</button>
-      </div>
-    </section>
-
-    <!-- ══════════════ 2 · PAINEL QUE DESCE ══════════════ -->
-    <section data-op="2" hidden>
-      <div class="esc__nota">
-        <h2>Painel que desce</h2>
-        <p>Clica em Filtros e o painel empurra a tabela para baixo, na largura toda.
-          Sete grupos cabem em três colunas sem apertar nenhum, e a tabela continua
-          visível logo abaixo.</p>
-        <p class="esc__pro"><b>A favor</b> você vê a contagem mudar enquanto escolhe.
-          <b>Contra</b> empurra a tabela para fora da tela enquanto está aberto.</p>
-      </div>
-
-      <div class="f2">
-        <div class="f2__cab">
-          <h3>Filtros</h3>
-          <button class="adm-limpar">limpar tudo</button>
-        </div>
-        <div class="f2__grade">
-          <div class="f2__g"><div class="dd dd--rotulo" data-dd data-ops="Todos|Este mês|Últimos 12 meses|Um ano específico|Escolher as datas"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Período</span><span class="dd__val">Últimos 12 meses</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <div class="f2__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Quase vencendo|Cancelado"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Situação</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <div class="f2__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Arquitetura|Design de interiores|Engenharia|Paisagismo|Estudante|Outra"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Profissão</span><span class="dd__val">Arquitetura</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <div class="f2__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Instagram|YouTube|Indicação|Busca no Google|Anúncio|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Como conheceu</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <div class="f2__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Nenhum|V-Ray|Enscape|Lumion|D5 Render|Twinmotion|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Renderizador que usava</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <div class="f2__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer país|Brasil|Portugal|México|Estados Unidos"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">País</span><span class="dd__val">Brasil</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <div class="f2__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer estado|São Paulo|Rio de Janeiro|Minas Gerais|Paraná|Pernambuco"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Estado</span><span class="dd__val">São Paulo</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-        </div>
-        <div class="f2__pe">
-          <span class="f2__conta">5 contas com esses filtros</span>
-          <button class="as-btn-cta">Fechar</button>
-        </div>
-      </div>
-
-      <div class="conta-card adm-card">
-        <p class="adm-vazio">A tabela continua aqui embaixo, e a contagem muda enquanto você escolhe.</p>
-      </div>
-    </section>
-
-    <!-- ══════════════ 3 · COLUNA FIXA ══════════════ -->
-    <section data-op="3" hidden>
-      <div class="esc__nota">
-        <h2>Coluna fixa</h2>
-        <p>Os filtros moram numa coluna à esquerda, sempre visível, do mesmo jeito
-          que o índice de Minha conta. Nada abre nem fecha.</p>
-        <p class="esc__pro"><b>A favor</b> quem filtra o dia inteiro nunca mais abre
-          nada, e o que está ligado fica escrito na tela.
-          <b>Contra</b> come 240px da tabela, que já tem oito colunas. No telefone ela
-          vira uma gaveta de novo.</p>
-      </div>
-
-      <div class="f3">
-        <aside class="f3__lado">
-          <div class="f3__g"><div class="dd dd--rotulo" data-dd data-ops="Todos|Este mês|Últimos 12 meses|Um ano específico|Escolher as datas"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Período</span><span class="dd__val">12 meses</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <div class="f3__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Quase vencendo|Cancelado"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Situação</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <div class="f3__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Arquitetura|Design de interiores|Engenharia|Paisagismo|Estudante|Outra"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Profissão</span><span class="dd__val">Arquitetura</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <div class="f3__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Instagram|YouTube|Indicação|Busca no Google|Anúncio|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Como conheceu</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <div class="f3__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Nenhum|V-Ray|Enscape|Lumion|D5 Render|Twinmotion|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Renderizador</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <div class="f3__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer país|Brasil|Portugal|México|Estados Unidos"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">País</span><span class="dd__val">Brasil</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <div class="f3__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer estado|São Paulo|Rio de Janeiro|Minas Gerais|Paraná|Pernambuco"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Estado</span><span class="dd__val">São Paulo</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-          <button class="adm-limpar" style="margin-top:6px">limpar tudo</button>
-        </aside>
-        <div class="conta-card adm-card" style="margin-top:0">
-          <p class="adm-vazio">A tabela ocupa o resto, e fica 240px mais estreita.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════════════ 4 · UM MENU POR FILTRO ══════════════ -->
-    <section data-op="4" hidden>
-      <div class="esc__nota">
-        <h2>Um menu por filtro</h2>
-        <p>Sem gaveta e sem painel. Cada filtro é um botão na linha de cima, e cada
-          um abre só o seu menuzinho. O que está ligado fica com o fio de lima e
-          mostra o valor escolhido no próprio botão.</p>
-        <p class="esc__pro"><b>A favor</b> a tabela nunca sai da tela, e o que está
-          ligado se lê sem abrir nada.
-          <b>Contra</b> sete botões numa linha só é muita coisa, e no telefone eles
-          rolam de lado.</p>
-      </div>
-
-      <div class="f4">
-        <button class="f4__bt on" data-menu="periodo">Período <b>12 meses</b><span class="f4__seta"></span></button>
-        <button class="f4__bt" data-menu="situacao">Situação<span class="f4__seta"></span></button>
-        <button class="f4__bt on" data-menu="profissao">Profissão <b>Arquitetura</b><span class="f4__seta"></span></button>
-        <button class="f4__bt" data-menu="conheceu">Como conheceu<span class="f4__seta"></span></button>
-        <button class="f4__bt" data-menu="render">Renderizador<span class="f4__seta"></span></button>
-        <button class="f4__bt on" data-menu="local">Onde está <b>São Paulo</b><span class="f4__seta"></span></button>
-        <button class="adm-limpar" style="margin-left:4px">limpar tudo</button>
-
-        <div class="f4__menu" data-de="periodo" hidden>
-          <button class="f4__op">Todos</button>
-          <button class="f4__op on">Últimos 12 meses</button>
-          <button class="f4__op">Este mês</button>
-          <button class="f4__op">Um ano específico</button>
-          <button class="f4__op">Escolher as datas</button>
-        </div>
-        <div class="f4__menu" data-de="profissao" hidden>
-          <button class="f4__op">Qualquer</button>
-          <button class="f4__op on">Arquitetura</button>
-          <button class="f4__op">Design de interiores</button>
-          <button class="f4__op">Engenharia</button>
-          <button class="f4__op">Paisagismo</button>
-          <button class="f4__op">Estudante</button>
-          <button class="f4__op">Outra</button>
-        </div>
-      </div>
-
-      <div class="conta-card adm-card">
-        <p class="adm-vazio">A tabela nunca sai da tela.</p>
-      </div>
-    </section>
-
+<section data-op="1"><div class="esc__nota"><h2>Menu que entra</h2><p>Uma coluna estreita, uma linha por filtro, com o valor escolhido à direita. Clicar numa linha troca o miolo pelas opções daquele filtro, com um voltar em cima.</p><p><b>A favor</b> é o mais estreito dos quatro, e cabe qualquer número de filtros sem crescer. Cada lista de opções aparece inteira, sem rolagem. <b>Contra</b> mudar três filtros exige entrar e voltar três vezes.</p><p class="esc__dica">Clique em <b>Filtros</b> aqui embaixo para abrir.</p></div><div class="fx-barra"><div class="adm-busca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="perfil-input" placeholder="Buscar por nome, e-mail ou CPF"></div><div class="fx"><button class="adm-btn-linha" data-abre="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M3 5h18M6 12h12M10 19h4"/></svg>Filtros <span class="adm-btn-n">3</span></button><div class="fx__pop fx1" data-pop="1" hidden><div class="fx__cab" data-cab1><h3>Filtros</h3></div><div class="fx1__lista" data-tela1="raiz"><button class="fx__linha" type="button" data-entra="0">Período <b>Últimos 12 meses</b><i></i></button><button class="fx__linha fx__linha--limpo" type="button" data-entra="1">Situação <b>Qualquer</b><i></i></button><button class="fx__linha" type="button" data-entra="2">Profissão <b>Arquitetura</b><i></i></button><button class="fx__linha fx__linha--limpo" type="button" data-entra="3">Como conheceu <b>Qualquer</b><i></i></button><button class="fx__linha fx__linha--limpo" type="button" data-entra="4">Renderizador <b>Qualquer</b><i></i></button><button class="fx__linha" type="button" data-entra="5">País <b>Brasil</b><i></i></button><button class="fx__linha" type="button" data-entra="6">Estado <b>São Paulo</b><i></i></button></div><div class="fx1__lista" data-tela1="0" hidden><button class="fx__op" type="button"><span>Todos</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Este mês</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op fx__op--sel" type="button"><span>Últimos 12 meses</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Um ano específico</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Escolher as datas</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx1__lista" data-tela1="1" hidden><button class="fx__op fx__op--sel" type="button"><span>Qualquer</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Quase vencendo</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Cancelado</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx1__lista" data-tela1="2" hidden><button class="fx__op" type="button"><span>Qualquer</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op fx__op--sel" type="button"><span>Arquitetura</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Design de interiores</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Engenharia</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Paisagismo</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Estudante</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Outra</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx1__lista" data-tela1="3" hidden><button class="fx__op fx__op--sel" type="button"><span>Qualquer</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Instagram</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>YouTube</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Indicação</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Busca no Google</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Anúncio</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Outro</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx1__lista" data-tela1="4" hidden><button class="fx__op fx__op--sel" type="button"><span>Qualquer</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Nenhum</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>V-Ray</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Enscape</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Lumion</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>D5 Render</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Twinmotion</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Outro</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx1__lista" data-tela1="5" hidden><button class="fx__op" type="button"><span>Qualquer país</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op fx__op--sel" type="button"><span>Brasil</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Portugal</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>México</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Estados Unidos</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx1__lista" data-tela1="6" hidden><button class="fx__op" type="button"><span>Qualquer estado</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op fx__op--sel" type="button"><span>São Paulo</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Rio de Janeiro</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Minas Gerais</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Paraná</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Pernambuco</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx__pe"><span class="fx__conta">5 de 19</span><button class="as-btn-cta">Ver 5 contas</button></div></div></div></div><div class="conta-card adm-card"><p class="adm-vazio">A tabela fica aqui, e o dropdown abre por cima dela.</p></div></section><section data-op="2" hidden><div class="esc__nota"><h2>Campos empilhados</h2><p>O dropdown fica largo e traz os sete campos, um embaixo do outro, com o mesmo controle do resto do site.</p><p><b>A favor</b> tudo à mão, e o controle é o mesmo do perfil e do login. <b>Contra</b> sete campos numa coluna precisam rolar, e cada um ainda abre a sua própria lista por cima.</p><p class="esc__dica">Clique em <b>Filtros</b> aqui embaixo para abrir.</p></div><div class="fx-barra"><div class="adm-busca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="perfil-input" placeholder="Buscar por nome, e-mail ou CPF"></div><div class="fx"><button class="adm-btn-linha" data-abre="2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M3 5h18M6 12h12M10 19h4"/></svg>Filtros <span class="adm-btn-n">3</span></button><div class="fx__pop fx2" data-pop="2" hidden><div class="fx__cab"><h3>Filtros</h3><button class="adm-limpar">limpar tudo</button></div><div class="fx2__corpo"><div class="dd dd--rotulo" data-dd data-ops="Todos|Este mês|Últimos 12 meses|Um ano específico|Escolher as datas"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Período</span><span class="dd__val">Últimos 12 meses</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Quase vencendo|Cancelado"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Situação</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Arquitetura|Design de interiores|Engenharia|Paisagismo|Estudante|Outra"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Profissão</span><span class="dd__val">Arquitetura</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Instagram|YouTube|Indicação|Busca no Google|Anúncio|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Como conheceu</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Nenhum|V-Ray|Enscape|Lumion|D5 Render|Twinmotion|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Renderizador</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer país|Brasil|Portugal|México|Estados Unidos"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">País</span><span class="dd__val">Brasil</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer estado|São Paulo|Rio de Janeiro|Minas Gerais|Paraná|Pernambuco"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Estado</span><span class="dd__val">São Paulo</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div><div class="fx__pe"><span class="fx__conta">5 de 19</span><button class="as-btn-cta">Ver 5 contas</button></div></div></div></div><div class="conta-card adm-card"><p class="adm-vazio">A tabela fica aqui, e o dropdown abre por cima dela.</p></div></section><section data-op="3" hidden><div class="esc__nota"><h2>Duas colunas</h2><p>O mesmo da anterior, em duas colunas. Os sete cabem sem rolar nenhuma vez.</p><p><b>A favor</b> vê os sete de uma vez, e o pé com a contagem fica sempre visível. <b>Contra</b> 620px de dropdown é quase um painel, e no telefone ele volta a ser uma coluna só.</p><p class="esc__dica">Clique em <b>Filtros</b> aqui embaixo para abrir.</p></div><div class="fx-barra"><div class="adm-busca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="perfil-input" placeholder="Buscar por nome, e-mail ou CPF"></div><div class="fx"><button class="adm-btn-linha" data-abre="3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M3 5h18M6 12h12M10 19h4"/></svg>Filtros <span class="adm-btn-n">3</span></button><div class="fx__pop fx3" data-pop="3" hidden><div class="fx__cab"><h3>Filtros</h3><button class="adm-limpar">limpar tudo</button></div><div class="fx3__corpo"><div class="dd dd--rotulo" data-dd data-ops="Todos|Este mês|Últimos 12 meses|Um ano específico|Escolher as datas"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Período</span><span class="dd__val">Últimos 12 meses</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Quase vencendo|Cancelado"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Situação</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Arquitetura|Design de interiores|Engenharia|Paisagismo|Estudante|Outra"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Profissão</span><span class="dd__val">Arquitetura</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Instagram|YouTube|Indicação|Busca no Google|Anúncio|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Como conheceu</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Nenhum|V-Ray|Enscape|Lumion|D5 Render|Twinmotion|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Renderizador</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer país|Brasil|Portugal|México|Estados Unidos"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">País</span><span class="dd__val">Brasil</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="dd dd--rotulo" data-dd data-ops="Qualquer estado|São Paulo|Rio de Janeiro|Minas Gerais|Paraná|Pernambuco"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Estado</span><span class="dd__val">São Paulo</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div><div class="fx__pe"><span class="fx__conta">5 de 19</span><button class="as-btn-cta">Ver 5 contas</button></div></div></div></div><div class="conta-card adm-card"><p class="adm-vazio">A tabela fica aqui, e o dropdown abre por cima dela.</p></div></section><section data-op="4" hidden><div class="esc__nota"><h2>Tudo aberto</h2><p>Sem campo e sem entrar em lugar nenhum: cada filtro é uma seção com as opções à vista, uma embaixo da outra. Rola por dentro.</p><p><b>A favor</b> é o menor número de cliques possível, um por filtro, e o que está escolhido se lê de relance. <b>Contra</b> é o mais comprido dos quatro, e listas grandes deixam a rolagem longa.</p><p class="esc__dica">Clique em <b>Filtros</b> aqui embaixo para abrir.</p></div><div class="fx-barra"><div class="adm-busca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="perfil-input" placeholder="Buscar por nome, e-mail ou CPF"></div><div class="fx"><button class="adm-btn-linha" data-abre="4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M3 5h18M6 12h12M10 19h4"/></svg>Filtros <span class="adm-btn-n">3</span></button><div class="fx__pop fx4" data-pop="4" hidden><div class="fx__cab"><h3>Filtros</h3><button class="adm-limpar">limpar tudo</button></div><div class="fx4__corpo"><div class="fx4__sec"><div class="fx4__rot">Período</div><button class="fx__op" type="button"><span>Todos</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Este mês</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op fx__op--sel" type="button"><span>Últimos 12 meses</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Um ano específico</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Escolher as datas</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx4__sec"><div class="fx4__rot">Situação</div><button class="fx__op fx__op--sel" type="button"><span>Qualquer</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Quase vencendo</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Cancelado</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx4__sec"><div class="fx4__rot">Profissão</div><button class="fx__op" type="button"><span>Qualquer</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op fx__op--sel" type="button"><span>Arquitetura</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Design de interiores</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Engenharia</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Paisagismo</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Estudante</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Outra</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx4__sec"><div class="fx4__rot">Como conheceu</div><button class="fx__op fx__op--sel" type="button"><span>Qualquer</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Instagram</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>YouTube</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Indicação</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Busca no Google</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Anúncio</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Outro</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx4__sec"><div class="fx4__rot">Renderizador</div><button class="fx__op fx__op--sel" type="button"><span>Qualquer</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Nenhum</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>V-Ray</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Enscape</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Lumion</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>D5 Render</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Twinmotion</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Outro</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx4__sec"><div class="fx4__rot">País</div><button class="fx__op" type="button"><span>Qualquer país</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op fx__op--sel" type="button"><span>Brasil</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Portugal</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>México</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Estados Unidos</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div><div class="fx4__sec"><div class="fx4__rot">Estado</div><button class="fx__op" type="button"><span>Qualquer estado</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op fx__op--sel" type="button"><span>São Paulo</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Rio de Janeiro</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Minas Gerais</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Paraná</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button><button class="fx__op" type="button"><span>Pernambuco</span><svg class="fx__tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.5 3.5L13 5"/></svg></button></div></div><div class="fx__pe"><span class="fx__conta">5 de 19</span><button class="as-btn-cta">Ver 5 contas</button></div></div></div></div><div class="conta-card adm-card"><p class="adm-vazio">A tabela fica aqui, e o dropdown abre por cima dela.</p></div></section>
     </div>
 
     </div>
   </main>
 </div>
 
-<!-- ══════════════ 1 · A GAVETA ARRUMADA ══════════════ -->
-<div class="adm-gaveta" id="gaveta" hidden style="z-index:300">
-  <div class="adm-gaveta__folha">
-    <div class="adm-gaveta__cab">
-      <h2>Filtros</h2>
-      <button class="adm-gaveta__x" id="fecha-gaveta" aria-label="Fechar">&times;</button>
-    </div>
-    <div class="adm-gaveta__corpo" style="grid-template-columns:1fr 1fr; gap:16px 16px">
-      <div class="adm-gaveta__g"><div class="dd dd--rotulo" data-dd data-ops="Todos|Este mês|Últimos 12 meses|Um ano específico|Escolher as datas"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Período</span><span class="dd__val">12 meses</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-      <div class="adm-gaveta__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Quase vencendo|Cancelado"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Situação</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-      <div class="adm-gaveta__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Arquitetura|Design de interiores|Engenharia|Paisagismo|Estudante|Outra"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Profissão</span><span class="dd__val">Arquitetura</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-      <div class="adm-gaveta__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Instagram|YouTube|Indicação|Busca no Google|Anúncio|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Como conheceu</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-      <div class="adm-gaveta__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer|Nenhum|V-Ray|Enscape|Lumion|D5 Render|Twinmotion|Outro"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Renderizador</span><span class="dd__val">Qualquer</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-      <div class="adm-gaveta__g"><div class="dd dd--rotulo" data-dd data-ops="Qualquer país|Brasil|Portugal|México|Estados Unidos"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">País</span><span class="dd__val">Brasil</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-      <div class="adm-gaveta__g" style="grid-column:1 / -1"><div class="dd dd--rotulo" data-dd data-ops="Qualquer estado|São Paulo|Rio de Janeiro|Minas Gerais|Paraná|Pernambuco"><button class="dd__bt" type="button"><span class="dd__mio"><span class="dd__rot">Estado</span><span class="dd__val">São Paulo</span></span><svg class="dd__seta" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
-    </div>
-    <div class="adm-gaveta__pe">
-      <button class="adm-btn-linha">Limpar</button>
-      <button class="as-btn-cta" id="ok-gaveta">Ver 5 contas</button>
-    </div>
-  </div>
-</div>
-
 <script>
+  /* So a demonstracao. No site quem abre o dropdown e o estado do componente. */
   var d = document;
+  var NOMES = {"0":"Período","1":"Situação","2":"Profissão","3":"Como conheceu","4":"Renderizador","5":"País","6":"Estado"};
 
-  d.querySelectorAll('.esc__bt').forEach(function (b) {
-    b.addEventListener('click', function () {
-      d.querySelectorAll('.esc__bt').forEach(function (o) { o.classList.toggle('on', o === b); });
-      d.querySelectorAll('section[data-op]').forEach(function (s) {
-        s.hidden = s.dataset.op !== b.dataset.op;
-      });
-      d.getElementById('gaveta').hidden = true;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
-
-  d.querySelector('[data-abre="1"]').addEventListener('click', function () {
-    d.getElementById('gaveta').hidden = false;
-  });
-  d.getElementById('fecha-gaveta').addEventListener('click', function () {
-    d.getElementById('gaveta').hidden = true;
-  });
-  d.getElementById('ok-gaveta').addEventListener('click', function () {
-    d.getElementById('gaveta').hidden = true;
-  });
-  d.getElementById('gaveta').addEventListener('click', function (e) {
-    if (e.target === this) this.hidden = true;
-  });
-
-  /* Opcao 4: cada botao abre so o seu menu. */
-  d.querySelectorAll('.f4__bt').forEach(function (b) {
-    b.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var alvo = d.querySelector('.f4__menu[data-de="' + b.dataset.menu + '"]');
-      var jaAberto = alvo && !alvo.hidden;
-      d.querySelectorAll('.f4__menu').forEach(function (m) { m.hidden = true; });
-      if (alvo && !jaAberto) {
-        alvo.hidden = false;
-        alvo.style.left = (b.offsetLeft) + 'px';
-      }
-    });
-  });
-  d.addEventListener('click', function () {
-    d.querySelectorAll('.f4__menu').forEach(function (m) { m.hidden = true; });
-  });
-  d.querySelectorAll('.f4__op').forEach(function (o) {
-    o.addEventListener('click', function (e) {
-      e.stopPropagation();
-      o.parentElement.querySelectorAll('.f4__op').forEach(function (x) { x.classList.remove('on'); });
-      o.classList.add('on');
-      o.parentElement.hidden = true;
-    });
-  });
-
-  /* OS DROPDOWNS ABREM DE VERDADE.
-     No site quem faz isto e o componente DropdownCora, que joga a lista num
-     PORTAL no fim do documento. Aqui a lista nasce ao lado do botao, so para
-     o desenho poder ser julgado. */
-  function fecharTodos() {
+  function fecharDds() {
     d.querySelectorAll('.dd--aberto').forEach(function (x) {
       x.classList.remove('dd--aberto');
       var l = x.querySelector('.dd__lista');
@@ -2098,6 +1920,91 @@
     });
   }
 
+  function fecharPops() {
+    d.querySelectorAll('.fx__pop').forEach(function (p) { p.hidden = true; });
+    d.querySelectorAll('[data-abre]').forEach(function (b) { b.classList.remove('adm-btn-linha--on'); });
+    fecharDds();
+  }
+
+  d.querySelectorAll('.esc__bt').forEach(function (b) {
+    b.addEventListener('click', function () {
+      d.querySelectorAll('.esc__bt').forEach(function (o) { o.classList.toggle('on', o === b); });
+      d.querySelectorAll('section[data-op]').forEach(function (s) {
+        s.hidden = s.dataset.op !== b.dataset.op;
+      });
+      fecharPops();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  d.querySelectorAll('[data-abre]').forEach(function (bt) {
+    bt.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var pop = d.querySelector('.fx__pop[data-pop="' + bt.dataset.abre + '"]');
+      var jaAberto = pop && !pop.hidden;
+      fecharPops();
+      if (pop && !jaAberto) {
+        pop.hidden = false;
+        bt.classList.add('adm-btn-linha--on');
+      }
+    });
+  });
+  d.querySelectorAll('.fx__pop').forEach(function (p) {
+    p.addEventListener('click', function (e) { e.stopPropagation(); });
+  });
+  d.addEventListener('click', fecharPops);
+  d.addEventListener('keydown', function (e) { if (e.key === 'Escape') fecharPops(); });
+
+  /* Opcao 1: entrar e voltar dentro do proprio dropdown. */
+  function verTela1(qual) {
+    var pop = d.querySelector('.fx__pop[data-pop="1"]');
+    pop.querySelector('[data-tela1="raiz"]').hidden = qual !== 'raiz';
+    pop.querySelectorAll('[data-tela1]').forEach(function (t) {
+      if (t.dataset.tela1 === 'raiz') return;
+      t.hidden = t.dataset.tela1 !== String(qual);
+    });
+    var cab = pop.querySelector('[data-cab1]');
+    if (qual === 'raiz') {
+      cab.innerHTML = '<h3>Filtros</h3>';
+      return;
+    }
+    cab.innerHTML = '<button class="fx__voltar" type="button" data-volta><i></i>'
+      + NOMES[qual] + '</button>';
+    cab.querySelector('[data-volta]').addEventListener('click', function (e) {
+      e.stopPropagation();
+      verTela1('raiz');
+    });
+  }
+  d.querySelectorAll('[data-entra]').forEach(function (l) {
+    l.addEventListener('click', function (e) { e.stopPropagation(); verTela1(l.dataset.entra); });
+  });
+
+  /* Escolher marca a opcao e desmarca as irmas. */
+  d.querySelectorAll('.fx__op').forEach(function (o) {
+    o.addEventListener('click', function (e) {
+      e.stopPropagation();
+      o.parentElement.querySelectorAll('.fx__op').forEach(function (x) {
+        x.classList.remove('fx__op--sel');
+      });
+      o.classList.add('fx__op--sel');
+      var pop = o.closest('.fx__pop');
+      if (pop && pop.dataset.pop === '1') {
+        var tela = o.closest('[data-tela1]');
+        if (tela) {
+          var linha = d.querySelector('[data-entra="' + tela.dataset.tela1 + '"]');
+          if (linha) {
+            var nome = o.querySelector('span').textContent;
+            linha.querySelector('b').textContent = nome;
+            linha.classList.toggle('fx__linha--limpo',
+              ['Qualquer', 'Qualquer país', 'Qualquer estado', 'Todos'].indexOf(nome) >= 0);
+          }
+        }
+        verTela1('raiz');
+      }
+    });
+  });
+
+  /* Os campos das opcoes 2 e 3 abrem a lista deles. */
   d.querySelectorAll('[data-ops]').forEach(function (dd) {
     var bt = dd.querySelector('.dd__bt');
     var val = dd.querySelector('.dd__val');
@@ -2106,9 +2013,8 @@
       e.preventDefault();
       e.stopPropagation();
       var jaAberto = dd.classList.contains('dd--aberto');
-      fecharTodos();
+      fecharDds();
       if (jaAberto) return;
-
       var lista = d.createElement('div');
       lista.className = 'dd__lista';
       dd.dataset.ops.split('|').forEach(function (nome) {
@@ -2123,7 +2029,7 @@
         op.addEventListener('click', function (ev) {
           ev.stopPropagation();
           val.textContent = nome;
-          fecharTodos();
+          fecharDds();
         });
         lista.appendChild(op);
       });
@@ -2132,6 +2038,20 @@
     });
   });
 
-  d.addEventListener('click', fecharTodos);
-  d.addEventListener('keydown', function (e) { if (e.key === 'Escape') fecharTodos(); });
+  /* Limpar limpa de verdade: tudo volta para a primeira opcao de cada grupo. */
+  d.querySelectorAll('.adm-limpar').forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var pop = b.closest('.fx__pop');
+      if (!pop) return;
+      pop.querySelectorAll('.fx4__sec, [data-tela1]').forEach(function (sec) {
+        sec.querySelectorAll('.fx__op').forEach(function (o, i) {
+          o.classList.toggle('fx__op--sel', i === 0);
+        });
+      });
+      pop.querySelectorAll('[data-ops]').forEach(function (dd) {
+        dd.querySelector('.dd__val').textContent = dd.dataset.ops.split('|')[0];
+      });
+    });
+  });
 </script>
