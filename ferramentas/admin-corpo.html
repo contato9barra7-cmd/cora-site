@@ -235,8 +235,11 @@
             </table>
           </div>
           <div class="adm-pag">
-            <div class="adm-pag-qtd">
-              <span>Mostrar</span>
+            <!-- So o dropdown. "Mostrar 50 por pagina" eram tres pedacos para
+                 dizer o que o proprio numero ja diz, e ao lado da fila de
+                 paginas o contexto e obvio. O rotulo continua existindo para
+                 quem usa leitor de tela e para o balao do mouse. -->
+            <div class="adm-pag-qtd" title="Quantas linhas por página">
               <div class="adm-pag-qtd__dd">
                 <div class="dd" data-dd data-ops="50|100|500">
                   <button class="dd__bt" type="button"><span class="dd__val">50</span>
@@ -244,9 +247,6 @@
                   </button>
                 </div>
               </div>
-              <!-- "de 2" saiu: quantos existem no total ja e a ultima linha da
-                   tabela, e o mesmo numero em dois lugares e um para dar errado. -->
-              <span>por página</span>
             </div>
             <div class="adm-pag-nums">
               <button class="adm-pag-seta" disabled aria-label="Anterior">

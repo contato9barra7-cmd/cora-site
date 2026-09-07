@@ -1384,8 +1384,11 @@ export default function Admin() {
 
         {filtrados.length > 0 && (
           <div className="adm-pag">
-            <div className="adm-pag-qtd">
-              <span>{t('adm_mostrar')}</span>
+            {/* So o dropdown. "Mostrar 50 de 19" eram tres pedacos para dizer o
+                que o proprio numero ja diz, e ao lado da fila de paginas o
+                contexto e obvio. O total continua na ultima linha da tabela. O
+                rotulo vira o balao do mouse, para quem passar em duvida. */}
+            <div className="adm-pag-qtd" title={t('adm_mostrar')}>
               {/* Era um `<select>` nativo. A lista dele é desenhada pelo
                   sistema, com canto reto e seleção azul: no meio de uma tela
                   que é toda do Cora, ele denunciava o único pedaço que não
@@ -1401,7 +1404,6 @@ export default function Admin() {
                   ]}
                 />
               </div>
-              <span>{t('ws_de')} {filtrados.length}</span>
             </div>
 
             {nPags > 1 && (

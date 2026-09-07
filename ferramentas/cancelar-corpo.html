@@ -1,0 +1,225 @@
+      <div class="adm-cabeca">
+        <div class="conta-cabeca">
+          <div class="conta-cabeca__txt">
+            <p class="eyebrow">Assinatura</p>
+            <h1 class="conta-cabeca__nome" data-titulo>Cancelar</h1>
+            <p class="conta-cabeca__email" data-resumo>As cinco telas do caminho, na ordem
+              em que a pessoa passa por elas.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ AS CINCO TELAS ══════════════
+           O caminho inteiro do cancelamento, do botão até o bloqueio. Cada
+           passo é uma tela de verdade, e não uma variação da mesma: quem
+           cancela e quem esquece de pagar chegam ao mesmo lugar por motivos
+           opostos, e a tela que os recebe não pode ser a mesma. -->
+      <div class="adm-abas" role="tablist">
+        <button class="adm-aba ativa" data-aba="assinatura">1. A assinatura</button>
+        <button class="adm-aba" data-aba="certeza">2. Tem certeza</button>
+        <button class="adm-aba" data-aba="pronto">3. Cancelou</button>
+        <button class="adm-aba" data-aba="contando">4. Contando os dias</button>
+        <button class="adm-aba" data-aba="acabou">5. Acabou</button>
+      </div>
+
+      <!-- ══════════════ 1. A ASSINATURA ══════════════
+           O botão de cancelar NÃO é um botão de destaque, e nem fica escondido
+           num menu. Escondê-lo é o padrão escuro clássico das assinaturas, e
+           quem não acha vai pedir estorno no banco, que custa muito mais caro
+           que um cancelamento. Ele fica visível, discreto, embaixo. -->
+      <div data-tela="assinatura">
+        <div class="conta-card as-plano">
+          <div class="as-plano-topo">
+            <div>
+              <p class="as-plano-rot">Plano atual</p>
+              <p class="as-plano-nome">Pro</p>
+              <p class="as-plano-sub">Renova em 24 de outubro de 2026</p>
+            </div>
+            <div class="as-plano-preco">
+              <strong>R$&nbsp;197,00<em>/mês</em></strong>
+              <span>cliente desde janeiro de 2026</span>
+            </div>
+          </div>
+          <div class="as-plano-pe">
+            <button class="as-btn-cta">Gerenciar assinatura</button>
+          </div>
+        </div>
+
+        <div class="conta-card">
+          <h2 class="conta-h2">Não quer mais</h2>
+          <p class="conta-p">O acesso continua até o fim do período que você já pagou, e
+            depois disso a conta para de gerar. Não há multa nem fidelidade.</p>
+          <button class="can-link" data-abre="certeza">Cancelar a assinatura</button>
+        </div>
+      </div>
+
+      <!-- ══════════════ 2. TEM CERTEZA ══════════════
+           A pergunta não é "tem certeza?" e pronto. Ela diz TRÊS coisas que
+           mudam a resposta: até quando o acesso vale, o que acontece com o
+           crédito que sobrou, e que dá para voltar atrás. Sem isso a pessoa
+           decide no escuro e escreve para o suporte no dia seguinte.
+
+           O botão que confirma é o discreto, e o que fica não é o de destaque:
+           quem chegou aqui já sabe o que quer, e transformar "ficar" no botão
+           grande é empurrar a pessoa. -->
+      <div data-tela="certeza" hidden>
+        <div class="can-fundo">
+          <div class="can-caixa">
+            <div class="can-faixa" aria-hidden="true"></div>
+            <div class="can-miolo">
+              <p class="eyebrow">Cancelar a assinatura</p>
+              <h2 class="can-tit">Você já pagou até 24 de outubro</h2>
+              <p class="can-txt">O acesso continua igual até lá. Depois dessa data a conta
+                para de gerar, e o que sobrou de crédito do plano vai junto.</p>
+
+              <ul class="can-lista">
+                <li>
+                  <span class="can-ok" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                         stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>
+                  </span>
+                  <div><b>Nada é cobrado de novo.</b> A próxima cobrança, de 24 de outubro,
+                    não acontece.</div>
+                </li>
+                <li>
+                  <span class="can-ok" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                         stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>
+                  </span>
+                  <div><b>As suas imagens ficam.</b> Elas continuam na sua conta, e você
+                    entra para baixar quando quiser.</div>
+                </li>
+                <li>
+                  <span class="can-nao" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                         stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                  </span>
+                  <!-- A recarga é o ponto que mais dói e o mais fácil de esquecer:
+                       ela foi paga à parte, e some junto. Dizer isso aqui é o que
+                       separa uma decisão informada de um pedido de estorno. -->
+                  <div><b>A recarga não volta.</b> Você tem 4.200 créditos de recarga, e
+                    eles valem só enquanto a conta gera.</div>
+                </li>
+              </ul>
+
+              <p class="can-volta">Mudou de ideia até 24 de outubro? É só reativar aqui
+                mesmo, sem pagar nada a mais.</p>
+
+              <div class="can-botoes">
+                <button class="as-btn-cta" data-abre="assinatura">Continuar assinando</button>
+                <button class="can-link can-link--forte" data-abre="pronto">
+                  Cancelar mesmo assim
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ 3. CANCELOU ══════════════
+           A confirmação existe para responder a pergunta que vem logo depois de
+           clicar: "e agora?". Ela diz a data em que o acesso acaba, e não um
+           "pronto!" sozinho. E a saída daqui é usar o que ainda está pago, e não
+           fechar a janela. -->
+      <div data-tela="pronto" hidden>
+        <div class="can-fundo">
+          <div class="can-caixa">
+            <div class="can-faixa" aria-hidden="true"></div>
+            <div class="can-miolo can-miolo--meio">
+              <div class="can-selo" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>
+              </div>
+              <h2 class="can-tit">Cancelado</h2>
+              <p class="can-txt">Nada mais será cobrado. O seu acesso continua até
+                <b>24 de outubro de 2026</b>, com os créditos que você já tem.</p>
+              <p class="can-nota">Mandamos um e-mail com a confirmação. Se quiser voltar
+                antes dessa data, é um clique.</p>
+              <div class="can-botoes can-botoes--meio">
+                <button class="as-btn-cta" data-abre="contando">Voltar ao Cora</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ 4. CONTANDO OS DIAS ══════════════
+           O período pago continua, e a página precisa dizer isso sem parecer
+           que nada aconteceu. A tarja é informação, não alarme: cinza, e não
+           vermelha. Vermelho aqui seria dizer que há um problema, e não há: a
+           pessoa decidiu, e a decisão está sendo cumprida. -->
+      <div data-tela="contando" hidden>
+        <div class="can-tarja">
+          <div>
+            <b>A assinatura está cancelada.</b> O acesso vai até 24 de outubro de 2026,
+            faltam 17 dias.
+          </div>
+          <button class="can-reativar">Reativar</button>
+        </div>
+
+        <div class="conta-card as-plano">
+          <div class="as-plano-topo">
+            <div>
+              <p class="as-plano-rot">Plano atual</p>
+              <p class="as-plano-nome">Pro <span class="can-selo-mini">até 24/10</span></p>
+              <p class="as-plano-sub">Não renova. Depois dessa data a conta para de gerar.</p>
+            </div>
+            <div class="as-plano-preco">
+              <strong>R$&nbsp;197,00<em>/mês</em></strong>
+              <span>última cobrança em 24 de setembro</span>
+            </div>
+          </div>
+          <div class="as-plano-pe">
+            <button class="as-btn-cta">Reativar a assinatura</button>
+          </div>
+        </div>
+
+        <div class="conta-card">
+          <h2 class="conta-h2">O que ainda dá para fazer</h2>
+          <p class="conta-p">Até 24 de outubro nada muda: você gera, baixa e usa os
+            15.800 créditos que sobraram, mais os 4.200 de recarga. Depois dessa data as
+            imagens continuam na conta, e a geração para.</p>
+        </div>
+      </div>
+
+      <!-- ══════════════ 5. ACABOU ══════════════
+           A mesma moldura do fim do teste, e um texto diferente. Quem cancelou
+           SABE que cancelou: dizer "seu plano venceu" para essa pessoa soa como
+           erro do sistema, e "renove agora" soa como cobrança de quem já
+           decidiu não pagar. O convite é para voltar, sem pressa e sem susto. -->
+      <div data-tela="acabou" hidden>
+        <div class="can-bloqueio">
+          <div class="can-bloqueio-card">
+            <div class="can-faixa" aria-hidden="true"></div>
+            <div class="can-miolo can-miolo--meio">
+              <span class="can-eb">Assinatura encerrada</span>
+              <h2 class="can-tit">O período que você pagou terminou</h2>
+              <p class="can-txt">A conta continua sua, e as suas imagens também. Para gerar
+                de novo, é só assinar quando quiser.</p>
+              <div class="can-botoes can-botoes--meio">
+                <button class="as-btn-cta">Ver os planos</button>
+              </div>
+              <button class="can-link">Sair</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="conta-card">
+          <h2 class="conta-h2">Por que esta tela não é a de plano vencido</h2>
+          <p class="conta-p">São duas situações que terminam no mesmo lugar por motivos
+            opostos. Quem esqueceu de pagar precisa saber que o cartão falhou e como
+            resolver. Quem cancelou já sabe o que fez, e receber "seu plano venceu,
+            renove" soa como erro do sistema ou como cobrança de quem já decidiu não
+            pagar.</p>
+          <dl class="adm-dl">
+            <div>
+              <dt>Cartão recusado</dt>
+              <dd>Diz o que falhou e leva a atualizar o cartão</dd>
+            </div>
+            <div>
+              <dt>Cancelou</dt>
+              <dd>Diz que acabou o período pago e convida a voltar</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
