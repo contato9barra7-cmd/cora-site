@@ -531,6 +531,79 @@
   font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
   background:var(--ink); color:var(--paper); padding:5px 14px; border-radius:var(--pill);
 }/* ══════════════════════════════════════════════════════════════════════
+   COBRANÇA: o cartão que paga, e as faturas
+   ══════════════════════════════════════════════════════════════════════ *//* ── a forma de pagamento ── */.pn .pag-linha{
+  display:flex; align-items:center; gap:14px; margin-top:18px;
+  padding:16px 18px; border:1px solid var(--line); border-radius:var(--r-peq);
+}.pn .pag-bandeira{
+  width:42px; height:28px; flex:none; border-radius:6px; display:grid; place-items:center;
+  background:var(--wash2); color:var(--ink2); font-size:9.5px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase;
+}.pn .pag-txt{ flex:1; min-width:0; }.pn .pag-txt strong{ display:block; font-size:14.5px; font-weight:500; letter-spacing:-.01em; }.pn .pag-txt span{ display:block; margin-top:2px; font-size:12.5px; color:var(--ink3); }.pn .pag-btn{
+  flex:none; height:38px; padding:0 18px; border-radius:var(--pill);
+  border:1px solid var(--line2); background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color var(--t);
+}.pn .pag-btn:hover{ border-color:var(--ink); }.pn .pag-vazio{
+  margin-top:18px; padding:18px; border:1px dashed var(--line2); border-radius:var(--r-peq);
+  font-size:13.5px; color:var(--ink3); line-height:1.55;
+}/* ── a lista de faturas ──
+   Tabela de verdade, e não uma pilha de divs: são quatro colunas que a pessoa
+   compara de cima para baixo, e alinhar valor com valor é o que faz a coluna
+   de dinheiro poder ser lida de relance. */.pn .fat-rolo{ margin-top:16px; overflow-x:auto; }.pn .fat{ width:100%; border-collapse:collapse; font-size:14px; }.pn .fat th{
+  text-align:left; padding:0 14px 10px; white-space:nowrap;
+  font-size:10.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}.pn .fat td{ padding:13px 14px; border-top:1px solid var(--line); vertical-align:middle; }.pn .fat tr:hover td{ background:var(--wash); }.pn .fat__data{ color:var(--ink2); white-space:nowrap; }.pn .fat__desc{ color:var(--ink); }/* Dinheiro alinhado à direita e com dígito de largura fixa: assim as casas
+   decimais caem umas sobre as outras e a coluna vira uma pilha, não um zigue. */.pn .fat__total{ text-align:right; white-space:nowrap; font-weight:600; font-variant-numeric:tabular-nums; }.pn .fat__acao{ text-align:right; white-space:nowrap; }.pn .fat-selo{
+  display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; padding:3px 10px; border-radius:var(--pill);
+  background:var(--ok-bg); color:var(--ok);
+}.pn .fat-selo--aberta{ background:var(--alerta-bg); color:var(--alerta); }.pn .fat-ver{
+  border:0; background:none; padding:0; cursor:pointer; font-family:inherit;
+  font-size:13.5px; font-weight:600; color:var(--ink);
+  border-bottom:2px solid var(--lima); line-height:1.4;
+  transition:border-color var(--t);
+}.pn .fat-ver:hover{ border-bottom-color:var(--ink); }.pn .fat-vazio{ margin-top:16px; font-size:13.5px; color:var(--ink3); }/* ══════════════════════════════════════════════════════════════════════
+   A FATURA ABERTA
+   A mesma casca do e-mail: faixa no alto, marca, cartão de 520. Quem recebe
+   um recibo por e-mail e depois abre este aqui tem que reconhecer os dois
+   como a mesma empresa.
+   ══════════════════════════════════════════════════════════════════════ */.pn .doc-fundo{
+  position:fixed; inset:0; z-index:130; overflow:auto; padding:clamp(16px,4vw,44px);
+  background:rgba(17,17,17,.58); backdrop-filter:blur(6px);
+}.pn .doc{
+  width:min(560px,100%); margin:0 auto; overflow:hidden;
+  background:var(--paper); border-radius:var(--r-heroi); box-shadow:var(--sombra);
+}.pn .doc__faixa{
+  height:44px; background:var(--faixa-deitada) repeat-x left center;
+  background-size:calc(44px * 8) 100%;
+}.pn .doc__miolo{ padding:28px clamp(22px,4vw,34px) 30px; }.pn .doc__marca{
+  width:104px; height:25px; background:var(--ink);
+  -webkit-mask:var(--marca) no-repeat left center / contain;
+  mask:var(--marca) no-repeat left center / contain;
+}.pn .doc__topo{ display:flex; align-items:flex-start; justify-content:space-between; gap:20px; margin-top:22px; }.pn .doc__tit{ font-size:22px; font-weight:500; letter-spacing:-.028em; line-height:1.15; }.pn .doc__num{ margin-top:4px; font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }.pn .doc__quem{ margin-top:22px; display:grid; gap:16px; grid-template-columns:1fr; }
+@media (min-width:520px){.pn .doc__quem{ grid-template-columns:1fr 1fr; }}.pn .doc__bloco span{
+  display:block; font-size:10.5px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3); margin-bottom:6px;
+}.pn .doc__bloco p{ margin:0; font-size:13.5px; color:var(--ink2); line-height:1.55; }.pn .doc__bloco b{ color:var(--ink); font-weight:600; }.pn .doc__itens{ width:100%; border-collapse:collapse; margin-top:26px; font-size:13.5px; }.pn .doc__itens th{
+  text-align:left; padding:0 0 8px; border-bottom:1px solid var(--line);
+  font-size:10.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}.pn .doc__itens th:last-child, .pn .doc__itens td:last-child{ text-align:right; }.pn .doc__itens td{ padding:12px 0; border-bottom:1px solid var(--line); color:var(--ink2); }.pn .doc__itens td:last-child{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }.pn .doc__total{
+  display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+  margin-top:18px; padding-top:16px; border-top:2px solid var(--ink);
+}.pn .doc__total span{ font-size:12.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }.pn .doc__total strong{ font-size:26px; font-weight:500; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }.pn .doc__pe{
+  margin-top:24px; padding-top:18px; border-top:1px solid var(--line);
+  font-size:12px; color:var(--ink3); line-height:1.6; text-wrap:pretty;
+}.pn .doc__acoes{ margin-top:24px; display:flex; gap:10px; flex-wrap:wrap; }.pn .doc__bt{
+  height:44px; padding:0 22px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111;
+  font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  display:inline-flex; align-items:center;
+}.pn .doc__bt:hover{ background:var(--lima-esc); }.pn .doc__bt--linha{ background:var(--paper); border:1px solid var(--line2); color:var(--ink); }.pn .doc__bt--linha:hover{ background:var(--wash); border-color:var(--ink); }/* Impresso, some tudo que é da tela e sobra o documento. Uma fatura existe
+   para ser guardada, e guardar aqui quer dizer imprimir ou salvar em PDF. */
+
+
+@media print{.pn .doc-fundo{ position:static; padding:0; background:none; backdrop-filter:none; }.pn .doc{ width:100%; box-shadow:none; border-radius:0; }.pn .doc__acoes{ display:none; }}/* ══════════════════════════════════════════════════════════════════════
    ATÉ 1024px a lateral vira gaveta, e a esteira deita
    ══════════════════════════════════════════════════════════════════════ */
 
