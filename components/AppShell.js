@@ -8,6 +8,7 @@ import RodapeLegal from './RodapeLegal';
 import PopupCreditos from './PopupCreditos';
 import PopupUpgrade from './PopupUpgrade';
 import DropdownCora from './DropdownCora';
+import { TELAS_ADMIN, usarTelaAdmin } from '../lib/telaAdmin';
 import { useIdioma, IDIOMAS, localeDeIdioma } from '../lib/i18n';
 
 // Ícones simples em SVG (sem dependência externa)
@@ -79,6 +80,10 @@ const Icone = {
 
 export default function AppShell({ children }) {
   const pathname = usePathname();
+  // Qual das tres telas do admin esta aberta. Fora do /admin isto nao e
+  // usado, mas o hook precisa rodar sempre: chamar hook dentro de `if` e o
+  // jeito mais rapido de quebrar a ordem deles entre um render e outro.
+  const telaAdm = usarTelaAdmin();
   const router = useRouter();
   const { t, idioma, trocarIdioma } = useIdioma();
   const [conta, setConta] = useState(null);
@@ -408,6 +413,25 @@ export default function AppShell({ children }) {
                     largura de sobra), a gaveta abria só com ícones. */}
                 <span className="app-nav-lbl">{i.rotulo}</span>
               </Link>
+
+              {/* ── AS TRES TELAS DO ADMIN ──
+                  Elas moram aqui, embaixo do item, e nao numa fila de abas em
+                  cima da tabela: cada tela carrega so os seus controles, e era
+                  isso que a barra unica de oito abas nao conseguia dizer.
+
+                  So aparecem quando ja se esta no admin. Um submenu visivel de
+                  qualquer lugar do produto seria tres linhas a mais no menu
+                  para todo mundo o tempo todo. */}
+              {i.href === '/admin' && pathname === '/admin' && (
+                <div className="app-nav-sub">
+                  {TELAS_ADMIN.map(nome => (
+                    <a key={nome} href={'#' + nome}
+                       className={telaAdm === nome ? 'ativo' : undefined}>
+                      {nome.charAt(0).toUpperCase() + nome.slice(1)}
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </nav>

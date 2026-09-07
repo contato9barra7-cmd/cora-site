@@ -10,6 +10,8 @@ import FichaConta from '../../components/FichaConta';
 import { useIdioma } from '../../lib/i18n';
 import { lerConta, adminListarAssinantes, adminDadosFiscais, adminCompras, adminFaturas, adminSincronizarStripe } from '../../lib/auth';
 import PainelAceites from '../../components/PainelAceites';
+import AdminDinheiro from '../../components/AdminDinheiro';
+import { usarTelaAdmin, irParaTelaAdmin } from '../../lib/telaAdmin';
 
 
 function fmtData(d) {
@@ -73,7 +75,37 @@ export default function Admin() {
   const [busca, setBusca] = useState('');
   // Qual conta a Ficha deve abrir quando se clica numa linha da tabela.
   const [fichaAbrir, setFichaAbrir] = useState(null);
-  const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'trial' | 'convidados' | 'cancelados' | 'compras' | 'faturas' | 'aceites' | 'ficha'
+  /* Qual das tres telas do admin esta aberta. Ela vem do hash, e nao de
+     estado local, porque quem desenha o submenu e o menu lateral, que vive
+     no AppShell e nao enxerga o estado desta pagina. */
+  const telaAdm = usarTelaAdmin();
+  const [aba, setAba] = useState('resumo'); // 'pagantes' | 'trial' | 'convidados' | 'cancelados' | 'compras' | 'faturas' | 'aceites' | 'ficha'
+
+  /* ── AS TRES TELAS DO ADMIN ──
+     Cada uma tem as suas abas, e so as suas. O seletor de colunas so existe
+     em Contas, porque so la a tabela tem recortes; o seletor de periodo so
+     em Dinheiro. Era isso que a fila unica de oito abas nao conseguia dizer:
+     ela punha "Assinantes", "Faturas" e "Aceites" lado a lado como se fossem
+     a mesma natureza de pergunta. */
+  const TELAS = {
+    dinheiro: { olho: 'Admin · Dinheiro', titulo: 'O que entrou',
+                abas: ['resumo', 'faturas', 'compras'], primeira: 'resumo' },
+    contas:   { olho: 'Admin · Contas', titulo: 'Quem está no Cora',
+                abas: ['pagantes', 'trial', 'convidados', 'cancelados', 'ficha'],
+                primeira: 'pagantes' },
+    registros:{ olho: 'Admin · Registros', titulo: 'O que ficou gravado',
+                abas: ['aceites'], primeira: 'aceites' },
+  };
+
+  /* Trocou de tela, a aba vai para a primeira dela. Sem isto, sair de Contas
+     em "cancelados" e entrar em Dinheiro deixava as duas filas sem nenhuma
+     aba acesa, e a tela ficava em branco. */
+  useEffect(() => {
+    const t = TELAS[telaAdm];
+    if (t && !t.abas.includes(aba)) setAba(t.primeira);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [telaAdm]);
+
   const [filtroData, setFiltroData] = useState('todos'); // todos | mes | 12meses | ano | periodo
   const [anoFiltro, setAnoFiltro] = useState(String(new Date().getFullYear()));
   const [dataDe, setDataDe] = useState('');
@@ -584,10 +616,17 @@ export default function Admin() {
       <div className="adm-cabeca">
         <div className="conta-cabeca">
           <div className="conta-cabeca__txt">
-            <p className="eyebrow">{t('adm_eyebrow')}</p>
-            <h1 className="conta-cabeca__nome">{t('adm_titulo')}</h1>
+            {/* O cabecalho fala da TELA aberta, e nao do admin em geral: quem
+                esta em Dinheiro nao precisa saber quantas contas existem, e
+                quem esta em Contas nao precisa saber quantas cobrancas houve. */}
+            <p className="eyebrow">{(TELAS[telaAdm] || TELAS.dinheiro).olho}</p>
+            <h1 className="conta-cabeca__nome">{(TELAS[telaAdm] || TELAS.dinheiro).titulo}</h1>
             <p className="conta-cabeca__email">
-              {totalContas} {t('adm_contas')}, {pagos} {t('adm_medida_pago')} {t('adm_e')} {totalTrial} {t('adm_medida_teste')}.
+              {telaAdm === 'contas'
+                ? <>{totalContas} {t('adm_contas')}, {pagos} {t('adm_medida_pago')} {t('adm_e')} {totalTrial} {t('adm_medida_teste')}.</>
+                : telaAdm === 'registros'
+                  ? 'A prova de quem aceitou o que, e quando.'
+                  : 'Assinatura e recarga, com a taxa que o Stripe reteve.'}
             </p>
           </div>
         </div>
@@ -596,6 +635,11 @@ export default function Admin() {
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg>
             {t('promp_enviar_email')}
           </button>
+          {/* Estes quatro sao da LISTAGEM de contas: dados fiscais, troca de
+              colunas, origem geografica e exportacao. Em Dinheiro e em
+              Registros eles nao tem sobre o que agir, e um icone que nao faz
+              nada e pior que icone nenhum: ele promete. */}
+          {telaAdm === 'contas' && (<>
           <button
             className={'adm-ico' + (dadosFiscais ? ' adm-ico--on' : '')}
             onClick={mostrarFiscais}
@@ -706,6 +750,7 @@ export default function Admin() {
               </div>
             )}
           </div>
+          </>)}
         </div>
       </div>
 
@@ -818,42 +863,66 @@ export default function Admin() {
         </div>
       )}
 
-      <div className="adm-abas" role="tablist">
-        <button className={'adm-aba' + (aba === 'pagantes' ? ' ativa' : '')} onClick={() => setAba('pagantes')}>
-          {t('adm_aba_assinantes')} <b>{pagos}</b>
-        </button>
-        <button className={'adm-aba' + (aba === 'trial' ? ' ativa' : '')} onClick={() => setAba('trial')}>
-          {t('adm_aba_trial')} <b>{totalTrial}</b>
-        </button>
-        <button className={'adm-aba' + (aba === 'convidados' ? ' ativa' : '')} onClick={() => setAba('convidados')}>
-          {t('adm_aba_membros')} <b>{totalConvidados}</b>
-        </button>
-        <button className={'adm-aba' + (aba === 'cancelados' ? ' ativa' : '')} onClick={() => setAba('cancelados')}>
-          {t('adm_aba_cancelados')} <b>{totalCancelados}</b>
-        </button>
-        <button className={'adm-aba' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
-          {t('adm_aba_recargas')} <b>{compras.length}</b>
-        </button>
-        {/* Recargas é a nossa tabela. Faturas é ela MAIS o que só existe no
-            Stripe, que é o que faltava para o dono conferir um mês inteiro
-            sem abrir dois painéis. */}
-        <button className={'adm-aba' + (aba === 'faturas' ? ' ativa' : '')} onClick={() => setAba('faturas')}>
-          {t('adm_aba_faturas')}
-          {faturas !== null && <b>{faturas.length}</b>}
-        </button>
-        {/* A prova do aceite dos Termos. Fica aqui, e nao numa pagina propria,
-            porque a pergunta que leva ate ela ("essa pessoa aceitou?") nasce
-            do mesmo lugar que as outras abas: uma duvida sobre um cliente. */}
-        <button className={'adm-aba' + (aba === 'aceites' ? ' ativa' : '')} onClick={() => setAba('aceites')}>
-          {t('adm_aba_aceites')}
-        </button>
-        {/* Ficha da conta: busca uma pessoa e mostra tudo dela numa tela.
-            As outras abas sao listagens; esta e o inverso — um cliente por vez,
-            que e como uma pergunta de suporte chega. */}
-        <button className={'adm-aba' + (aba === 'ficha' ? ' ativa' : '')} onClick={() => setAba('ficha')}>
-          {t('adm_aba_ficha')}
-        </button>
-      </div>
+      {/* ── AS ABAS, UMA FILA POR TELA ──
+          Antes eram oito na mesma linha, de tres naturezas diferentes, e a
+          pessoa tinha que ler os rotulos para saber onde estava. Agora cada
+          tela mostra so o que existe dentro dela. */}
+      {telaAdm === 'dinheiro' && (
+        <div className="adm-abas" role="tablist" data-fila="dinheiro">
+          <button className={'adm-aba' + (aba === 'resumo' ? ' ativa' : '')}
+                  onClick={() => setAba('resumo')}>{t('adm_aba_resumo')}</button>
+          {/* Recargas e a nossa tabela. Faturas e ela MAIS o que so existe no
+              Stripe, que e o que faltava para conferir um mes inteiro sem
+              abrir dois paineis. */}
+          <button className={'adm-aba' + (aba === 'faturas' ? ' ativa' : '')}
+                  onClick={() => setAba('faturas')}>
+            {t('adm_aba_faturas')}{faturas !== null && <b>{faturas.length}</b>}
+          </button>
+          <button className={'adm-aba' + (aba === 'compras' ? ' ativa' : '')}
+                  onClick={() => setAba('compras')}>
+            {t('adm_aba_recargas')} <b>{compras.length}</b>
+          </button>
+        </div>
+      )}
+
+      {telaAdm === 'contas' && (
+        <div className="adm-abas" role="tablist" data-fila="contas">
+          <button className={'adm-aba' + (aba === 'pagantes' ? ' ativa' : '')}
+                  onClick={() => setAba('pagantes')}>
+            {t('adm_aba_assinantes')} <b>{pagos}</b>
+          </button>
+          <button className={'adm-aba' + (aba === 'trial' ? ' ativa' : '')}
+                  onClick={() => setAba('trial')}>
+            {t('adm_aba_trial')} <b>{totalTrial}</b>
+          </button>
+          <button className={'adm-aba' + (aba === 'convidados' ? ' ativa' : '')}
+                  onClick={() => setAba('convidados')}>
+            {t('adm_aba_membros')} <b>{totalConvidados}</b>
+          </button>
+          <button className={'adm-aba' + (aba === 'cancelados' ? ' ativa' : '')}
+                  onClick={() => setAba('cancelados')}>
+            {t('adm_aba_cancelados')} <b>{totalCancelados}</b>
+          </button>
+          {/* A Ficha e o inverso das outras: uma conta por vez, que e como uma
+              duvida de suporte chega. So existe aqui porque so daqui se chega
+              a uma pessoa. */}
+          <button className={'adm-aba' + (aba === 'ficha' ? ' ativa' : '')}
+                  onClick={() => setAba('ficha')}>{t('adm_aba_ficha')}</button>
+        </div>
+      )}
+
+      {telaAdm === 'registros' && (
+        <div className="adm-abas" role="tablist" data-fila="registros">
+          <button className={'adm-aba' + (aba === 'aceites' ? ' ativa' : '')}
+                  onClick={() => setAba('aceites')}>{t('adm_aba_aceites')}</button>
+        </div>
+      )}
+
+      {/* A dashboard. Ela le o Stripe ao vivo, entao nao depende de nada que
+          esta pagina ja tenha carregado. */}
+      {aba === 'resumo' && (
+        <div style={{ marginTop: 18 }}><AdminDinheiro /></div>
+      )}
 
       {aba === 'ficha' && (
         <div style={{ marginTop: 18 }}><FichaConta abrirConta={fichaAbrir} /></div>
@@ -867,7 +936,15 @@ export default function Admin() {
           escondida por estilo em vez de condicional, para nao mexer no
           aninhamento do JSX que segue abaixo. Os blocos de conteudo ja sao
           condicionais por aba, entao nada mais precisa ser escondido. */}
-      <div className="adm-barra" style={aba === 'ficha' ? { display: 'none' } : undefined}>
+      {/* A barra de filtro e busca e das LISTAGENS. Nao vale na Ficha, que e
+          uma conta so, nem no Resumo, que nao e lista: buscar um nome dentro
+          de um total em dinheiro nao quer dizer nada.
+
+          Escondida por estilo em vez de condicional para nao mexer no
+          aninhamento do JSX que segue abaixo. */}
+      <div className="adm-barra"
+           style={aba === 'ficha' || aba === 'resumo' || aba === 'aceites'
+             ? { display: 'none' } : undefined}>
         <div className="adm-busca">
           <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
                stroke="currentColor" strokeWidth="1.6">
@@ -1081,7 +1158,7 @@ export default function Admin() {
       {/* A ficha e uma tela inteira, nao uma listagem: nao entra neste ternario.
           Sem o `null` explicito ela caia no ELSE e a tabela geral de contas
           aparecia solta embaixo da ficha aberta. */}
-      {aba === 'ficha' ? null : aba === 'faturas' ? (
+      {aba === 'ficha' || aba === 'resumo' || aba === 'aceites' ? null : aba === 'faturas' ? (
         <div className="conta-card adm-card">
           {/* O aviso aparece quando o Stripe não respondeu. Sem ele a tela
               mostraria só as recargas e daria a entender que não houve fatura
