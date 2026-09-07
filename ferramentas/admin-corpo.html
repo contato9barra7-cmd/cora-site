@@ -12,9 +12,9 @@
       <div class="adm-cabeca">
         <div class="conta-cabeca">
           <div class="conta-cabeca__txt">
-            <p class="eyebrow" data-olho>Admin &middot; Contas</p>
-            <h1 class="conta-cabeca__nome" data-titulo>Quem está no Cora</h1>
-            <p class="conta-cabeca__email" data-resumo>19 contas, 2 com plano pago e 12 no teste.</p>
+            <p class="eyebrow" data-olho>Admin &middot; Dinheiro</p>
+            <h1 class="conta-cabeca__nome" data-titulo>O que entrou</h1>
+            <p class="conta-cabeca__email" data-resumo>30 cobranças, R$ 18.218,00 pagos até agora.</p>
           </div>
         </div>
 
@@ -62,14 +62,14 @@
       <!-- Cada tela tem a sua fila, e ela só mostra o que existe dentro dela.
            Antes eram oito abas de três naturezas na mesma linha, e a pessoa
            tinha que ler os rótulos de grupo para saber onde estava. -->
-      <div class="adm-abas" role="tablist" data-fila="contas">
-        <button class="adm-aba ativa" data-aba="assinantes">Assinantes <b>2</b></button>
+      <div class="adm-abas" role="tablist" data-fila="contas" hidden>
+        <button class="adm-aba" data-aba="assinantes">Assinantes <b>2</b></button>
         <button class="adm-aba" data-aba="trial">Trial <b>12</b></button>
         <button class="adm-aba" data-aba="membros">Membros de equipe <b>3</b></button>
         <button class="adm-aba" data-aba="cancelados">Cancelados <b>2</b></button>
       </div>
-      <div class="adm-abas" role="tablist" data-fila="dinheiro" hidden>
-        <button class="adm-aba" data-aba="resumo">Resumo</button>
+      <div class="adm-abas" role="tablist" data-fila="dinheiro">
+        <button class="adm-aba ativa" data-aba="resumo">Resumo</button>
         <button class="adm-aba" data-aba="faturas">Faturas <b>24</b></button>
         <button class="adm-aba" data-aba="recargas">Recargas <b>6</b></button>
       </div>
@@ -164,7 +164,7 @@
       </div>
 
       <!-- ══════════════ ASSINANTES ══════════════ -->
-      <div data-tela="assinantes">
+      <div data-tela="assinantes" hidden>
         <div class="conta-card adm-card">
           <div class="fat-rolo" style="margin-top:0">
             <table class="fat">
@@ -444,58 +444,108 @@
         </div>
       </div>
 
-      <!-- ══════════════ RESUMO DO DINHEIRO ══════════════
-           Quatro perguntas, na ordem em que aparecem na cabeça de quem abre:
-           quanto entra por mês, de onde vem, quem paga mais, e o que saiu.
-           Todos os números saem do que já está gravado: `assinaturas` para o
+      <!-- ══════════════ A DASHBOARD ══════════════
+           Esta é a primeira tela do admin, e a pergunta que ela responde é
+           "quanto entrou". Tudo aqui obedece a UM período, escolhido na barra
+           de cima: trocar o mês troca os cinco blocos ao mesmo tempo. Dois
+           controles de período na mesma tela seriam duas respostas para a
+           mesma pergunta.
+
+           Os números saem do que já está gravado: `assinaturas` para o
            recorrente, `compras` para a recarga, e as faturas do Stripe para o
-           que foi cobrado de fato. -->
-      <div data-tela="resumo" hidden>
+           que foi cobrado de fato. A taxa vem de `balance_transaction.fee`,
+           que é o valor REAL que o Stripe reteve em cada cobrança, e não uma
+           porcentagem de tabela: cartão internacional, parcelamento e câmbio
+           cobram diferente, e uma constante no código erraria em todos eles. -->
+      <div data-tela="resumo">
+
+        <!-- ── A BARRA DE PERÍODO ──
+             O gráfico e o seletor são a MESMA coisa. Separar os dois daria
+             dois lugares dizendo qual mês está em foco, e eles discordariam na
+             primeira vez que alguém clicasse só num. Aqui a barra mais alta é
+             o mês com mais dinheiro, e clicar nela é escolher aquele mês. -->
+        <div class="conta-card adm-card per" style="margin-top:0">
+          <div class="per__cab">
+            <div class="per__ano">
+              <button class="per__seta" data-ano-passo="-1" aria-label="Ano anterior">
+                <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor"
+                     stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 3L5 8l5 5"/>
+                </svg>
+              </button>
+              <button class="per__nome" data-ano-todo>2026</button>
+              <button class="per__seta" data-ano-passo="1" aria-label="Próximo ano">
+                <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor"
+                     stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 3l5 5-5 5"/>
+                </svg>
+              </button>
+            </div>
+            <div class="per__atalhos">
+              <button data-atalho="12m" class="ativo">Últimos 12 meses</button>
+              <button data-atalho="ano">O ano todo</button>
+              <button data-atalho="tudo">Desde o começo</button>
+            </div>
+          </div>
+
+          <div class="per__meses" data-meses></div>
+          <p class="per__vazio" data-per-vazio hidden>Nenhuma cobrança neste ano. A primeira
+            foi em janeiro de 2026.</p>
+        </div>
+
         <div class="din-topo">
-          <div class="conta-card adm-card din-grande" style="margin-top:0">
-            <p class="eyebrow">Recorrente por mês</p>
-            <p class="din-num">R$&nbsp;1.482,00<small>/mês</small></p>
-            <span class="din-var din-var--sobe">
+          <div class="conta-card adm-card din-grande">
+            <!-- ── BRUTO OU LÍQUIDO ──
+                 Duas leituras do mesmo dinheiro, e por isso ficam no mesmo
+                 lugar em vez de virarem dois cartões: ninguém precisa dos dois
+                 números ao mesmo tempo, precisa saber qual está olhando. -->
+            <div class="din-abas" role="tablist">
+              <button class="ativa" data-valor="bruto" role="tab" aria-selected="true">Bruto</button>
+              <button data-valor="liquido" role="tab" aria-selected="false">Líquido</button>
+            </div>
+
+            <p class="eyebrow" data-din-rotulo>Entrou nos últimos 12 meses</p>
+            <p class="din-num" data-din-num>R$&nbsp;18.218,00</p>
+            <span class="din-var din-var--sobe" data-din-var>
               <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor"
                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 11l5-5 5 5"/>
               </svg>
-              R$&nbsp;297,00 <span>desde agosto</span>
+              <b data-din-var-valor>R$&nbsp;2.614,00</b> <span data-din-var-txt>entrou em setembro</span>
             </span>
-            <p class="din-nota">É a soma das mensalidades ativas hoje, e não o que entrou no
-              caixa. Recarga não entra aqui: ela é compra avulsa e não se repete sozinha.</p>
 
-            <div class="din-meses" aria-hidden="true">
-              <div class="din-mes"><i style="height:22%"></i><b>out</b></div>
-              <div class="din-mes"><i style="height:28%"></i><b>nov</b></div>
-              <div class="din-mes"><i style="height:34%"></i><b>dez</b></div>
-              <div class="din-mes"><i style="height:41%"></i><b>jan</b></div>
-              <div class="din-mes"><i style="height:47%"></i><b>fev</b></div>
-              <div class="din-mes"><i style="height:52%"></i><b>mar</b></div>
-              <div class="din-mes"><i style="height:58%"></i><b>abr</b></div>
-              <div class="din-mes"><i style="height:61%"></i><b>mai</b></div>
-              <div class="din-mes"><i style="height:70%"></i><b>jun</b></div>
-              <div class="din-mes"><i style="height:76%"></i><b>jul</b></div>
-              <div class="din-mes"><i style="height:80%"></i><b>ago</b></div>
-              <div class="din-mes atual"><i style="height:100%"></i><b>set</b></div>
+            <div class="din-taxa" data-din-taxa hidden>
+              <div class="din-taxa__linha">
+                <span>Cobrado</span><b data-taxa-bruto>R$&nbsp;18.218,00</b>
+              </div>
+              <div class="din-taxa__linha din-taxa__linha--tira">
+                <span>Taxa do Stripe <em data-taxa-pct>4,17%</em></span>
+                <b data-taxa-valor>&minus;&nbsp;R$&nbsp;760,37</b>
+              </div>
+              <div class="din-taxa__linha din-taxa__linha--fim">
+                <span>Ficou com você</span><b data-taxa-liquido>R$&nbsp;17.457,63</b>
+              </div>
             </div>
+
+            <p class="din-nota" data-din-nota>Tudo que foi pago no período, assinatura mais
+              recarga. É dinheiro que entrou de verdade, e não cobrança em aberto.</p>
           </div>
 
-          <div class="conta-card adm-card" style="margin-top:0">
+          <div class="conta-card adm-card">
             <h2 class="conta-h2">De onde vem</h2>
-            <p class="conta-p">Nos últimos 12 meses.</p>
+            <p class="conta-p" data-fonte-quando>Nos últimos 12 meses.</p>
             <div class="din-fonte">
               <div class="din-barra" aria-hidden="true">
-                <i style="width:78%"></i><i style="width:22%"></i>
+                <i data-fonte-barra-a style="width:78%"></i><i data-fonte-barra-b style="width:22%"></i>
               </div>
               <div class="din-legenda">
                 <div>
                   <span><em class="a"></em>Assinatura</span>
-                  <b>R$&nbsp;14.208,00</b>
+                  <b data-fonte-assinatura>R$&nbsp;14.208,00</b>
                 </div>
                 <div>
                   <span><em class="b"></em>Recarga avulsa</span>
-                  <b>R$&nbsp;4.010,00</b>
+                  <b data-fonte-recarga>R$&nbsp;4.010,00</b>
                 </div>
               </div>
             </div>
@@ -519,14 +569,15 @@
 
         <div class="din-fila">
           <div class="conta-card adm-card din-cel">
+            <p class="eyebrow">Recorrente por mês</p>
+            <strong>R$&nbsp;1.482,00</strong>
+            <p>A soma das mensalidades ativas hoje. Recarga não entra: ela é avulsa e não
+              se repete sozinha.</p>
+          </div>
+          <div class="conta-card adm-card din-cel">
             <p class="eyebrow">Ticket médio</p>
             <strong>R$&nbsp;211,71</strong>
             <p>Por conta pagante, contando recarga. Sem recarga, R$&nbsp;169,14.</p>
-          </div>
-          <div class="conta-card adm-card din-cel">
-            <p class="eyebrow">Já entrou, no total</p>
-            <strong>R$&nbsp;18.218,00</strong>
-            <p>Desde a primeira cobrança, em janeiro de 2026. Só o que foi pago.</p>
           </div>
           <div class="conta-card adm-card din-cel">
             <p class="eyebrow">Quanto dura uma conta</p>
@@ -622,15 +673,11 @@
 
         <div class="conta-card adm-card">
           <h2 class="conta-h2">O que este resumo não conta</h2>
-          <p class="conta-p">Três coisas ficam de fora de propósito, e é melhor saber quais:</p>
+          <p class="conta-p">Duas coisas ficam de fora de propósito, e é melhor saber quais:</p>
           <dl class="adm-dl">
             <div>
               <dt>Cobrança em outra moeda</dt>
               <dd>Entra na contagem, fica fora da soma</dd>
-            </div>
-            <div>
-              <dt>A taxa do Stripe</dt>
-              <dd>Os valores são brutos, antes dela</dd>
             </div>
             <div>
               <dt>Imposto</dt>
@@ -639,7 +686,8 @@
           </dl>
           <p class="conta-p" style="font-size:13px">Somar moedas diferentes num total só
             inflaria o número, e um número inflado no topo da tela é pior que número nenhum.
-            Para o valor líquido de verdade, o painel do Stripe é a fonte.</p>
+            O líquido acima já desconta a taxa do Stripe, cobrança por cobrança, do valor que
+            o próprio Stripe informa ter retido. Ele não desconta imposto.</p>
         </div>
       </div>
 

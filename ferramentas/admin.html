@@ -841,10 +841,17 @@
    número. Cobrança em outra moeda entra na CONTAGEM e fica fora da SOMA, e
    a tela diz isso onde acontece.
    ══════════════════════════════════════════════════════════════════════ */
-.din-topo{ display:grid; gap:14px; grid-template-columns:1fr; align-items:start; }
+/* `stretch`, e nao `start`: as duas caixas do topo sao um par, e um par que
+   termina em alturas diferentes le como duas coisas soltas. O cartao grande
+   empurra a nota para o rodape dele com o `margin-top:auto` la embaixo. */
+.din-topo{ display:grid; gap:14px; grid-template-columns:1fr; align-items:stretch; }
 @media (min-width:900px){ .din-topo{ grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); } }
 
-.din-grande{ padding:26px 28px 28px; }
+/* `flex-start`: em coluna, o padrao estica cada filho na largura toda, e a
+   pilula da variacao e o par Bruto/Liquido viravam duas reguas de ponta a
+   ponta do cartao. */
+.din-grande{ padding:24px 28px 26px; display:flex; flex-direction:column; align-items:flex-start; }
+.din-grande .din-nota, .din-grande .din-taxa{ width:100%; }
 .din-grande .eyebrow{ margin:0; }
 .din-num{
   margin:10px 0 0; font-size:clamp(38px,5.5vw,52px); font-weight:500;
@@ -859,19 +866,143 @@
 .din-var--sobe{ background:var(--ok-bg); color:var(--ok); }
 .din-var--desce{ background:var(--alerta-bg); color:var(--alerta); }
 .din-var span{ font-weight:500; color:var(--ink3); }
-.din-nota{ margin:14px 0 0; font-size:13px; color:var(--ink3); line-height:1.6; max-width:52ch; }
+.din-nota{ margin:18px 0 0; font-size:13px; color:var(--ink3); line-height:1.6; max-width:52ch; }
+/* A nota desce para o fim do cartao: e o que faz o rodape dela encontrar o
+   rodape da tabela do cartao vizinho, em vez de sobrar um vao embaixo. */
+.din-grande .din-nota{ margin-top:auto; padding-top:18px; }
 
-/* A barra dos meses. Não é gráfico de biblioteca: são doze retângulos, e o
-   que se quer saber deles é a forma, não o valor exato de cada um. O valor
-   exato mora na tabela logo abaixo. */
-.din-meses{ margin-top:22px; display:flex; align-items:flex-end; gap:5px; height:76px; }
-.din-mes{ flex:1; min-width:0; display:flex; flex-direction:column; justify-content:flex-end; gap:5px; }
-.din-mes i{ display:block; border-radius:3px 3px 0 0; background:var(--turquesa); }
-.din-mes.atual i{ background:var(--lima); }
-.din-mes b{
-  font-size:9.5px; font-weight:500; color:var(--ink3); text-align:center;
-  text-transform:uppercase; letter-spacing:.04em;
+/* ══════════════════════════════════════════════════════════════════════
+   A BARRA DE PERÍODO
+
+   O gráfico e o seletor são a MESMA peça. Nasceram separados, e o gráfico
+   ficava dentro do cartão do número grande: além de dizer duas vezes qual
+   mês estava em foco, ele deixava um palmo de vazio entre a nota e as
+   barras, e o cartão do lado terminava numa altura diferente.
+
+   Cada mês é um botão, e a barra dele é a altura do que entrou. Quem está
+   escolhido ganha o trilho lima, que é o gesto de "você está aqui" no resto
+   do produto inteiro.
+   ══════════════════════════════════════════════════════════════════════ */
+.per{ padding:18px 22px 16px; }
+.per__cab{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:14px; flex-wrap:wrap;
 }
+
+.per__ano{ display:flex; align-items:center; gap:2px; }
+.per__seta{
+  width:30px; height:30px; display:grid; place-items:center;
+  border:0; background:none; border-radius:9px; cursor:pointer;
+  color:var(--ink3); transition:background .14s, color .14s;
+}
+.per__seta:hover{ background:var(--wash2); color:var(--ink); }
+/* Ano sem nenhuma cobrança ainda continua clicável de propósito: a tela diz
+   que está vazio, e isso é uma resposta. O que não pode é ir para um ano que
+   nem existe no sistema. */
+.per__seta[disabled]{ opacity:.28; cursor:default; }
+.per__seta[disabled]:hover{ background:none; color:var(--ink3); }
+.per__nome{
+  padding:5px 12px; border:0; background:none; border-radius:9px;
+  font:inherit; font-size:17px; font-weight:600; letter-spacing:-.02em;
+  color:var(--ink); cursor:pointer; font-variant-numeric:tabular-nums;
+  transition:background .14s;
+}
+.per__nome:hover{ background:var(--wash2); }
+
+.per__atalhos{ display:flex; gap:6px; flex-wrap:wrap; }
+.per__atalhos button{
+  padding:6px 13px; border:1px solid var(--line); background:var(--paper);
+  border-radius:var(--pill); font:inherit; font-size:12.5px; font-weight:500;
+  color:var(--ink2); cursor:pointer; transition:border-color .14s, color .14s;
+}
+.per__atalhos button:hover{ border-color:var(--ink3); color:var(--ink); }
+.per__atalhos button.ativo{
+  border-color:var(--ink); background:var(--ink); color:var(--paper);
+}
+
+/* Doze colunas de largura igual. `1fr` puro deixaria a coluna crescer com o
+   rótulo, e "set" e "dez" não têm a mesma largura. */
+.per__meses{
+  margin-top:16px; display:grid; grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:5px; align-items:end;
+}
+/* Grid de duas linhas, e nao flex: a primeira linha tem altura FIXA, e e
+   contra ela que a porcentagem da barra resolve. Em coluna flex a barra
+   media contra o botao inteiro, rotulo incluido, e a barra de 100% saia
+   cortada em cima. */
+.per__mes{
+  display:grid; grid-template-rows:96px auto; gap:6px;
+  padding:0; border:0; background:none; cursor:pointer;
+  border-radius:8px 8px 0 0; transition:background .14s;
+}
+.per__mes:hover{ background:var(--wash2); }
+/* A barra. A altura vem por variável, escrita no HTML, porque ela é DADO e
+   não estilo: cada mês tem a sua. Um mês sem cobrança fica com um traço de
+   2px em vez de sumir, senão a coluna vazia lê como buraco no gráfico. */
+.per__mes i{
+  display:block; align-self:end; min-height:2px; border-radius:4px 4px 0 0;
+  background:var(--turquesa); height:var(--h,2px);
+  transition:background .14s, height .2s;
+}
+.per__mes:hover i{ background:var(--turquesa-esc); }
+.per__mes b{
+  font-size:10px; font-weight:500; color:var(--ink3);
+  text-transform:uppercase; letter-spacing:.05em;
+  padding-bottom:7px; position:relative;
+}
+/* O trilho lima embaixo do rótulo é o mesmo gesto do menu lateral e das
+   abas: em toda a interface ele quer dizer "é aqui que você está". */
+.per__mes b::after{
+  content:''; position:absolute; left:50%; bottom:0; translate:-50% 0;
+  width:18px; height:3px; border-radius:2px; background:none;
+  transition:background .14s;
+}
+.per__mes.ativo i{ background:var(--lima); }
+.per__mes.ativo b{ color:var(--ink); font-weight:600; }
+.per__mes.ativo b::after{ background:var(--lima); }
+/* Mês que ainda não chegou. Ele fica na régua para o ano não mudar de
+   largura em janeiro, mas não aceita clique. */
+.per__mes[disabled]{ cursor:default; opacity:.4; }
+.per__mes[disabled]:hover{ background:none; }
+
+.per__vazio{
+  margin:14px 0 2px; font-size:13px; color:var(--ink3); text-align:center;
+}
+
+/* ── BRUTO OU LÍQUIDO ──
+   Duas leituras do mesmo dinheiro. Como abas e não como dois cartões:
+   ninguém precisa dos dois números ao mesmo tempo, precisa saber qual está
+   olhando. */
+.din-abas{
+  display:inline-flex; gap:2px; margin-bottom:16px; padding:3px;
+  background:var(--wash2); border-radius:var(--pill);
+}
+.din-abas button{
+  padding:6px 16px; border:0; background:none; border-radius:var(--pill);
+  font:inherit; font-size:13px; font-weight:500; color:var(--ink3);
+  cursor:pointer; transition:background .14s, color .14s;
+}
+.din-abas button:hover{ color:var(--ink); }
+.din-abas button.ativa{
+  background:var(--paper); color:var(--ink); font-weight:600;
+  box-shadow:0 1px 2px rgba(0,0,0,.06);
+}
+
+/* A conta da taxa, aberta. Um líquido que aparece já pronto obriga a
+   confiar; mostrando as três linhas, dá para conferir. */
+.din-taxa{ margin-top:18px; display:grid; gap:0; max-width:360px; }
+.din-taxa__linha{
+  display:flex; align-items:baseline; justify-content:space-between; gap:14px;
+  padding:9px 0; font-size:13.5px; color:var(--ink2);
+  border-bottom:1px solid var(--line);
+}
+.din-taxa__linha b{ font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
+.din-taxa__linha em{
+  font-style:normal; color:var(--ink3); font-size:12.5px; margin-left:4px;
+}
+.din-taxa__linha--tira b{ color:var(--alerta); }
+.din-taxa__linha--fim{ border-bottom:0; padding-bottom:0; }
+.din-taxa__linha--fim b{ font-size:16px; }
 
 /* De onde vem o dinheiro. Barra empilhada de duas cores, e a legenda embaixo
    com o valor: a proporção se lê na barra, o número se lê na linha. */
@@ -2324,7 +2455,7 @@
           </span>
           <span class="app-nav-lbl">Admin</span>
         </a>
-        <div class="app-nav-sub"><a href="#" class="ativo" data-tela-adm="contas">Contas <b>19</b></a><a href="#" data-tela-adm="dinheiro">Dinheiro <b>30</b></a><a href="#" data-tela-adm="registros">Registros <b>40</b></a></div>
+        <div class="app-nav-sub"><a href="#" class="ativo" data-tela-adm="dinheiro">Dinheiro <b>30</b></a><a href="#" data-tela-adm="contas">Contas <b>19</b></a><a href="#" data-tela-adm="registros">Registros <b>40</b></a></div>
       </div>
     </nav>
   </aside>
@@ -2429,9 +2560,9 @@
       <div class="adm-cabeca">
         <div class="conta-cabeca">
           <div class="conta-cabeca__txt">
-            <p class="eyebrow" data-olho>Admin &middot; Contas</p>
-            <h1 class="conta-cabeca__nome" data-titulo>Quem está no Cora</h1>
-            <p class="conta-cabeca__email" data-resumo>19 contas, 2 com plano pago e 12 no teste.</p>
+            <p class="eyebrow" data-olho>Admin &middot; Dinheiro</p>
+            <h1 class="conta-cabeca__nome" data-titulo>O que entrou</h1>
+            <p class="conta-cabeca__email" data-resumo>30 cobranças, R$ 18.218,00 pagos até agora.</p>
           </div>
         </div>
 
@@ -2479,14 +2610,14 @@
       <!-- Cada tela tem a sua fila, e ela só mostra o que existe dentro dela.
            Antes eram oito abas de três naturezas na mesma linha, e a pessoa
            tinha que ler os rótulos de grupo para saber onde estava. -->
-      <div class="adm-abas" role="tablist" data-fila="contas">
-        <button class="adm-aba ativa" data-aba="assinantes">Assinantes <b>2</b></button>
+      <div class="adm-abas" role="tablist" data-fila="contas" hidden>
+        <button class="adm-aba" data-aba="assinantes">Assinantes <b>2</b></button>
         <button class="adm-aba" data-aba="trial">Trial <b>12</b></button>
         <button class="adm-aba" data-aba="membros">Membros de equipe <b>3</b></button>
         <button class="adm-aba" data-aba="cancelados">Cancelados <b>2</b></button>
       </div>
-      <div class="adm-abas" role="tablist" data-fila="dinheiro" hidden>
-        <button class="adm-aba" data-aba="resumo">Resumo</button>
+      <div class="adm-abas" role="tablist" data-fila="dinheiro">
+        <button class="adm-aba ativa" data-aba="resumo">Resumo</button>
         <button class="adm-aba" data-aba="faturas">Faturas <b>24</b></button>
         <button class="adm-aba" data-aba="recargas">Recargas <b>6</b></button>
       </div>
@@ -2585,7 +2716,7 @@
       </div>
 
       <!-- ══════════════ ASSINANTES ══════════════ -->
-      <div data-tela="assinantes">
+      <div data-tela="assinantes" hidden>
         <div class="conta-card adm-card">
           <div class="fat-rolo" style="margin-top:0">
             <table class="fat">
@@ -2865,58 +2996,108 @@
         </div>
       </div>
 
-      <!-- ══════════════ RESUMO DO DINHEIRO ══════════════
-           Quatro perguntas, na ordem em que aparecem na cabeça de quem abre:
-           quanto entra por mês, de onde vem, quem paga mais, e o que saiu.
-           Todos os números saem do que já está gravado: `assinaturas` para o
+      <!-- ══════════════ A DASHBOARD ══════════════
+           Esta é a primeira tela do admin, e a pergunta que ela responde é
+           "quanto entrou". Tudo aqui obedece a UM período, escolhido na barra
+           de cima: trocar o mês troca os cinco blocos ao mesmo tempo. Dois
+           controles de período na mesma tela seriam duas respostas para a
+           mesma pergunta.
+
+           Os números saem do que já está gravado: `assinaturas` para o
            recorrente, `compras` para a recarga, e as faturas do Stripe para o
-           que foi cobrado de fato. -->
-      <div data-tela="resumo" hidden>
+           que foi cobrado de fato. A taxa vem de `balance_transaction.fee`,
+           que é o valor REAL que o Stripe reteve em cada cobrança, e não uma
+           porcentagem de tabela: cartão internacional, parcelamento e câmbio
+           cobram diferente, e uma constante no código erraria em todos eles. -->
+      <div data-tela="resumo">
+
+        <!-- ── A BARRA DE PERÍODO ──
+             O gráfico e o seletor são a MESMA coisa. Separar os dois daria
+             dois lugares dizendo qual mês está em foco, e eles discordariam na
+             primeira vez que alguém clicasse só num. Aqui a barra mais alta é
+             o mês com mais dinheiro, e clicar nela é escolher aquele mês. -->
+        <div class="conta-card adm-card per" style="margin-top:0">
+          <div class="per__cab">
+            <div class="per__ano">
+              <button class="per__seta" data-ano-passo="-1" aria-label="Ano anterior">
+                <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor"
+                     stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 3L5 8l5 5"/>
+                </svg>
+              </button>
+              <button class="per__nome" data-ano-todo>2026</button>
+              <button class="per__seta" data-ano-passo="1" aria-label="Próximo ano">
+                <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor"
+                     stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 3l5 5-5 5"/>
+                </svg>
+              </button>
+            </div>
+            <div class="per__atalhos">
+              <button data-atalho="12m" class="ativo">Últimos 12 meses</button>
+              <button data-atalho="ano">O ano todo</button>
+              <button data-atalho="tudo">Desde o começo</button>
+            </div>
+          </div>
+
+          <div class="per__meses" data-meses></div>
+          <p class="per__vazio" data-per-vazio hidden>Nenhuma cobrança neste ano. A primeira
+            foi em janeiro de 2026.</p>
+        </div>
+
         <div class="din-topo">
-          <div class="conta-card adm-card din-grande" style="margin-top:0">
-            <p class="eyebrow">Recorrente por mês</p>
-            <p class="din-num">R$&nbsp;1.482,00<small>/mês</small></p>
-            <span class="din-var din-var--sobe">
+          <div class="conta-card adm-card din-grande">
+            <!-- ── BRUTO OU LÍQUIDO ──
+                 Duas leituras do mesmo dinheiro, e por isso ficam no mesmo
+                 lugar em vez de virarem dois cartões: ninguém precisa dos dois
+                 números ao mesmo tempo, precisa saber qual está olhando. -->
+            <div class="din-abas" role="tablist">
+              <button class="ativa" data-valor="bruto" role="tab" aria-selected="true">Bruto</button>
+              <button data-valor="liquido" role="tab" aria-selected="false">Líquido</button>
+            </div>
+
+            <p class="eyebrow" data-din-rotulo>Entrou nos últimos 12 meses</p>
+            <p class="din-num" data-din-num>R$&nbsp;18.218,00</p>
+            <span class="din-var din-var--sobe" data-din-var>
               <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor"
                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 11l5-5 5 5"/>
               </svg>
-              R$&nbsp;297,00 <span>desde agosto</span>
+              <b data-din-var-valor>R$&nbsp;2.614,00</b> <span data-din-var-txt>entrou em setembro</span>
             </span>
-            <p class="din-nota">É a soma das mensalidades ativas hoje, e não o que entrou no
-              caixa. Recarga não entra aqui: ela é compra avulsa e não se repete sozinha.</p>
 
-            <div class="din-meses" aria-hidden="true">
-              <div class="din-mes"><i style="height:22%"></i><b>out</b></div>
-              <div class="din-mes"><i style="height:28%"></i><b>nov</b></div>
-              <div class="din-mes"><i style="height:34%"></i><b>dez</b></div>
-              <div class="din-mes"><i style="height:41%"></i><b>jan</b></div>
-              <div class="din-mes"><i style="height:47%"></i><b>fev</b></div>
-              <div class="din-mes"><i style="height:52%"></i><b>mar</b></div>
-              <div class="din-mes"><i style="height:58%"></i><b>abr</b></div>
-              <div class="din-mes"><i style="height:61%"></i><b>mai</b></div>
-              <div class="din-mes"><i style="height:70%"></i><b>jun</b></div>
-              <div class="din-mes"><i style="height:76%"></i><b>jul</b></div>
-              <div class="din-mes"><i style="height:80%"></i><b>ago</b></div>
-              <div class="din-mes atual"><i style="height:100%"></i><b>set</b></div>
+            <div class="din-taxa" data-din-taxa hidden>
+              <div class="din-taxa__linha">
+                <span>Cobrado</span><b data-taxa-bruto>R$&nbsp;18.218,00</b>
+              </div>
+              <div class="din-taxa__linha din-taxa__linha--tira">
+                <span>Taxa do Stripe <em data-taxa-pct>4,17%</em></span>
+                <b data-taxa-valor>&minus;&nbsp;R$&nbsp;760,37</b>
+              </div>
+              <div class="din-taxa__linha din-taxa__linha--fim">
+                <span>Ficou com você</span><b data-taxa-liquido>R$&nbsp;17.457,63</b>
+              </div>
             </div>
+
+            <p class="din-nota" data-din-nota>Tudo que foi pago no período, assinatura mais
+              recarga. É dinheiro que entrou de verdade, e não cobrança em aberto.</p>
           </div>
 
-          <div class="conta-card adm-card" style="margin-top:0">
+          <div class="conta-card adm-card">
             <h2 class="conta-h2">De onde vem</h2>
-            <p class="conta-p">Nos últimos 12 meses.</p>
+            <p class="conta-p" data-fonte-quando>Nos últimos 12 meses.</p>
             <div class="din-fonte">
               <div class="din-barra" aria-hidden="true">
-                <i style="width:78%"></i><i style="width:22%"></i>
+                <i data-fonte-barra-a style="width:78%"></i><i data-fonte-barra-b style="width:22%"></i>
               </div>
               <div class="din-legenda">
                 <div>
                   <span><em class="a"></em>Assinatura</span>
-                  <b>R$&nbsp;14.208,00</b>
+                  <b data-fonte-assinatura>R$&nbsp;14.208,00</b>
                 </div>
                 <div>
                   <span><em class="b"></em>Recarga avulsa</span>
-                  <b>R$&nbsp;4.010,00</b>
+                  <b data-fonte-recarga>R$&nbsp;4.010,00</b>
                 </div>
               </div>
             </div>
@@ -2940,14 +3121,15 @@
 
         <div class="din-fila">
           <div class="conta-card adm-card din-cel">
+            <p class="eyebrow">Recorrente por mês</p>
+            <strong>R$&nbsp;1.482,00</strong>
+            <p>A soma das mensalidades ativas hoje. Recarga não entra: ela é avulsa e não
+              se repete sozinha.</p>
+          </div>
+          <div class="conta-card adm-card din-cel">
             <p class="eyebrow">Ticket médio</p>
             <strong>R$&nbsp;211,71</strong>
             <p>Por conta pagante, contando recarga. Sem recarga, R$&nbsp;169,14.</p>
-          </div>
-          <div class="conta-card adm-card din-cel">
-            <p class="eyebrow">Já entrou, no total</p>
-            <strong>R$&nbsp;18.218,00</strong>
-            <p>Desde a primeira cobrança, em janeiro de 2026. Só o que foi pago.</p>
           </div>
           <div class="conta-card adm-card din-cel">
             <p class="eyebrow">Quanto dura uma conta</p>
@@ -3043,15 +3225,11 @@
 
         <div class="conta-card adm-card">
           <h2 class="conta-h2">O que este resumo não conta</h2>
-          <p class="conta-p">Três coisas ficam de fora de propósito, e é melhor saber quais:</p>
+          <p class="conta-p">Duas coisas ficam de fora de propósito, e é melhor saber quais:</p>
           <dl class="adm-dl">
             <div>
               <dt>Cobrança em outra moeda</dt>
               <dd>Entra na contagem, fica fora da soma</dd>
-            </div>
-            <div>
-              <dt>A taxa do Stripe</dt>
-              <dd>Os valores são brutos, antes dela</dd>
             </div>
             <div>
               <dt>Imposto</dt>
@@ -3060,7 +3238,8 @@
           </dl>
           <p class="conta-p" style="font-size:13px">Somar moedas diferentes num total só
             inflaria o número, e um número inflado no topo da tela é pior que número nenhum.
-            Para o valor líquido de verdade, o painel do Stripe é a fonte.</p>
+            O líquido acima já desconta a taxa do Stripe, cobrança por cobrança, do valor que
+            o próprio Stripe informa ter retido. Ele não desconta imposto.</p>
         </div>
       </div>
 
@@ -3628,7 +3807,9 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
      dropdown e a janela é o estado do componente. */
   var d = document;
   var raiz = d.querySelector('.admin-wrap');
-  var telaAdm = 'contas';   // qual das tres telas do admin esta aberta
+  /* Dinheiro e a primeira: quem abre o admin quer saber quanto entrou, e
+     nao quem esta cadastrado. A lista de contas continua a um clique. */
+  var telaAdm = 'dinheiro';   // qual das tres telas do admin esta aberta
 
   function mostrar(qual) {
     d.querySelectorAll('[data-tela]').forEach(function (t) {
@@ -3674,7 +3855,7 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
     dinheiro: {
       olho: 'Admin · Dinheiro',
       titulo: 'O que entrou',
-      resumo: '30 cobranças, R$ 6.521,36 pagos até agora.',
+      resumo: '30 cobranças, R$ 18.218,00 pagos até agora.',
       primeira: 'resumo',
     },
     registros: {
@@ -3914,6 +4095,235 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
   d.getElementById('modal-aceite').addEventListener('click', function (e) {
     if (e.target === this) abrirAceite(false);
   });
+
+  /* ═══════════════════════════════════════════════════════════════════
+     A DASHBOARD DO DINHEIRO
+
+     Um período manda em tudo. A barra de cima escolhe o ano, o mês ou um
+     dos atalhos, e os cinco blocos abaixo se refazem juntos. Isso evita o
+     erro clássico da tela de faturamento: o número grande falando de um
+     período e o gráfico ao lado falando de outro.
+
+     Aqui os valores estão escritos à mão para a demonstração. No sistema
+     eles vêm de uma consulta só, agrupada por mês, com três colunas:
+     assinatura, recarga e taxa.
+
+     A TAXA é `balance_transaction.fee` do Stripe, ou seja, o que ele
+     REALMENTE reteve em cada cobrança. Não é 3,99% aplicado no total:
+     cartão internacional, parcelamento e conversão de moeda cobram
+     diferente, e uma porcentagem fixa no código erraria em todos esses
+     casos, para mais ou para menos, sem ninguém perceber.
+     ═══════════════════════════════════════════════════════════════════ */
+  var MES_NOME = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
+                  'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  var MES_LONGO = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                   'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+  /* [assinatura, recarga, taxa] por mês. `null` é mês sem cobrança nenhuma,
+     que é diferente de mês com zero: um ainda não aconteceu, o outro
+     aconteceu e não entrou nada. */
+  var CAIXA = {
+    2025: [null, null, null, null, null, null, null, null, null, null, null, null],
+    2026: [
+      [742, 100, 36.08], [1004, 100, 46.45], [1186, 300, 62.10], [1502, 300, 75.00],
+      [1904, 610, 104.73], [1838, 400, 93.31], [2102, 800, 120.79], [2016, 700, 113.07],
+      [1914, 700, 108.84], null, null, null,
+    ],
+  };
+  var PRIMEIRO_ANO = 2025;   // o ano mais antigo que existe no sistema
+  var ULTIMO_ANO = 2026;
+  var HOJE_ANO = 2026, HOJE_MES = 8;   // setembro, contando de zero
+
+  var anoAberto = 2026;
+  var mesAberto = null;       // null quer dizer "o período inteiro"
+  var atalho = '12m';
+  var verLiquido = false;
+
+  function real(n) {
+    return 'R$ ' + n.toLocaleString('pt-BR',
+      { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  /* Soma o que está no período escolhido e devolve as três parcelas. */
+  function somaDoPeriodo() {
+    var anos = atalho === 'tudo'
+      ? Object.keys(CAIXA)
+      : [String(anoAberto)];
+    var a = 0, r = 0, t = 0, meses = 0;
+    anos.forEach(function (ano) {
+      (CAIXA[ano] || []).forEach(function (m, i) {
+        if (!m) return;
+        if (mesAberto !== null && (i !== mesAberto || +ano !== anoAberto)) return;
+        a += m[0]; r += m[1]; t += m[2]; meses++;
+      });
+    });
+    return { assinatura: a, recarga: r, taxa: t, bruto: a + r, meses: meses };
+  }
+
+  /* Como o período se chama por extenso. É o texto que aparece em três
+     lugares diferentes, e ele tem que ser o mesmo nos três. */
+  function nomeDoPeriodo() {
+    if (mesAberto !== null) return MES_LONGO[mesAberto] + ' de ' + anoAberto;
+    if (atalho === 'tudo') return 'desde o começo';
+    if (atalho === 'ano') return anoAberto;
+    return 'nos últimos 12 meses';
+  }
+
+  function desenharMeses() {
+    var caixa = d.querySelector('[data-meses]');
+    if (!caixa) return;
+    var ano = CAIXA[anoAberto] || [];
+    var maior = 0;
+    ano.forEach(function (m) { if (m) maior = Math.max(maior, m[0] + m[1]); });
+
+    caixa.innerHTML = '';
+    MES_NOME.forEach(function (nome, i) {
+      var m = ano[i];
+      var b = d.createElement('button');
+      b.className = 'per__mes' + (mesAberto === i ? ' ativo' : '');
+      b.type = 'button';
+      /* Mês sem cobrança não aceita clique: abrir um mês vazio só troca a
+         tela toda por zeros, e isso não é uma resposta que alguém pediu. */
+      if (!m) b.disabled = true;
+      var alt = m && maior ? Math.round(((m[0] + m[1]) / maior) * 100) : 0;
+      b.innerHTML = '<i style="--h:' + (alt ? alt + '%' : '2px') + '"></i><b>' + nome + '</b>';
+      if (m) {
+        b.title = MES_LONGO[i] + ': ' + real(m[0] + m[1]);
+        b.addEventListener('click', function () {
+          /* Clicar de novo no mês aberto volta para o ano: é o mesmo
+             gesto de ida e volta, sem precisar procurar um "limpar". */
+          mesAberto = (mesAberto === i) ? null : i;
+          if (mesAberto !== null) atalho = 'ano';
+          pintar();
+        });
+      }
+      caixa.appendChild(b);
+    });
+
+    var vazio = d.querySelector('[data-per-vazio]');
+    if (vazio) vazio.hidden = !!maior;
+  }
+
+  function pintar() {
+    desenharMeses();
+
+    d.querySelector('[data-ano-todo]').textContent = anoAberto;
+    d.querySelector('[data-ano-passo="-1"]').disabled = anoAberto <= PRIMEIRO_ANO;
+    d.querySelector('[data-ano-passo="1"]').disabled = anoAberto >= ULTIMO_ANO;
+    d.querySelectorAll('[data-atalho]').forEach(function (b) {
+      b.classList.toggle('ativo', mesAberto === null && b.dataset.atalho === atalho);
+    });
+
+    var s = somaDoPeriodo();
+    var quando = nomeDoPeriodo();
+
+    d.querySelector('[data-din-rotulo]').textContent =
+      mesAberto !== null || atalho === 'ano' ? 'Entrou em ' + quando
+        : atalho === 'tudo' ? 'Entrou desde o começo' : 'Entrou nos últimos 12 meses';
+    d.querySelector('[data-din-num]').innerHTML =
+      real(verLiquido ? s.bruto - s.taxa : s.bruto);
+
+    /* A comparação só faz sentido com um mês aberto: comparar "o ano todo"
+       com o quê? Sem mês, a linha vira a média mensal do período, que é a
+       leitura que serve para os dois. */
+    var caixaVar = d.querySelector('[data-din-var]');
+    if (mesAberto !== null) {
+      var ant = mesAberto > 0 ? (CAIXA[anoAberto] || [])[mesAberto - 1] : null;
+      if (ant) {
+        var agora = verLiquido ? s.bruto - s.taxa : s.bruto;
+        var antes = verLiquido ? ant[0] + ant[1] - ant[2] : ant[0] + ant[1];
+        var difer = agora - antes;
+        caixaVar.hidden = false;
+        caixaVar.classList.toggle('din-var--sobe', difer >= 0);
+        caixaVar.classList.toggle('din-var--desce', difer < 0);
+        caixaVar.querySelector('svg path').setAttribute('d', difer >= 0 ? 'M3 11l5-5 5 5' : 'M3 5l5 5 5-5');
+        caixaVar.querySelector('[data-din-var-valor]').innerHTML =
+          (difer >= 0 ? '' : '− ') + real(Math.abs(difer));
+        caixaVar.querySelector('[data-din-var-txt]').textContent =
+          'em relação a ' + MES_LONGO[mesAberto - 1];
+      } else {
+        caixaVar.hidden = true;
+      }
+    } else {
+      caixaVar.hidden = false;
+      caixaVar.classList.add('din-var--sobe');
+      caixaVar.classList.remove('din-var--desce');
+      caixaVar.querySelector('svg path').setAttribute('d', 'M3 11l5-5 5 5');
+      /* A media segue a aba: numero liquido em cima e media bruta embaixo
+         seriam dois valores diferentes do mesmo periodo, lado a lado. */
+      var total = verLiquido ? s.bruto - s.taxa : s.bruto;
+      caixaVar.querySelector('[data-din-var-valor]').innerHTML =
+        real(s.meses ? total / s.meses : 0);
+      caixaVar.querySelector('[data-din-var-txt]').textContent = 'por mês, na média';
+    }
+
+    var taxa = d.querySelector('[data-din-taxa]');
+    taxa.hidden = !verLiquido;
+    if (verLiquido) {
+      d.querySelector('[data-taxa-bruto]').innerHTML = real(s.bruto);
+      d.querySelector('[data-taxa-valor]').innerHTML = '− ' + real(s.taxa);
+      d.querySelector('[data-taxa-liquido]').innerHTML = real(s.bruto - s.taxa);
+      d.querySelector('[data-taxa-pct]').textContent =
+        s.bruto ? (s.taxa / s.bruto * 100).toFixed(2).replace('.', ',') + '%' : '';
+    }
+
+    d.querySelector('[data-din-nota]').textContent = verLiquido
+      ? 'O que o Stripe reteve em cada cobrança, somado. A taxa muda por cobrança: cartão de fora do Brasil e parcelamento custam mais que o cartão nacional à vista.'
+      : 'Tudo que foi pago no período, assinatura mais recarga. É dinheiro que entrou de verdade, e não cobrança em aberto.';
+
+    /* De onde vem, no mesmo período. */
+    var pa = s.bruto ? (s.assinatura / s.bruto * 100) : 0;
+    d.querySelector('[data-fonte-barra-a]').style.width = pa + '%';
+    d.querySelector('[data-fonte-barra-b]').style.width = (100 - pa) + '%';
+    d.querySelector('[data-fonte-assinatura]').innerHTML = real(s.assinatura);
+    d.querySelector('[data-fonte-recarga]').innerHTML = real(s.recarga);
+    d.querySelector('[data-fonte-quando]').textContent =
+      mesAberto !== null ? 'Em ' + quando + '.'
+        : atalho === 'ano' ? 'Em ' + quando + '.'
+        : atalho === 'tudo' ? 'Desde a primeira cobrança.'
+        : 'Nos últimos 12 meses.';
+  }
+
+  d.querySelectorAll('[data-ano-passo]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      anoAberto += +b.dataset.anoPasso;
+      mesAberto = null;
+      if (atalho === 'tudo') atalho = 'ano';
+      pintar();
+    });
+  });
+  d.querySelector('[data-ano-todo]').addEventListener('click', function () {
+    mesAberto = null; atalho = 'ano'; pintar();
+  });
+  d.querySelectorAll('[data-atalho]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      atalho = b.dataset.atalho;
+      mesAberto = null;
+      /* Qualquer atalho traz a regua de volta para o ano corrente. Sem isto,
+         quem estivesse olhando 2025 e clicasse em "desde o comeco" via o
+         total de tudo em cima de um grafico vazio, e os dois discordavam. */
+      anoAberto = HOJE_ANO;
+      pintar();
+    });
+  });
+  d.querySelectorAll('.din-abas button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      verLiquido = b.dataset.valor === 'liquido';
+      d.querySelectorAll('.din-abas button').forEach(function (o) {
+        var on = o === b;
+        o.classList.toggle('ativa', on);
+        o.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      pintar();
+    });
+  });
+  pintar();
+
+  /* A tela nasce em Dinheiro pelo HTML, para não piscar em Contas antes de
+     trocar. Esta chamada acerta o que só o JS sabe: quais controles somem em
+     cada tela. Busca, filtros e o seletor de colunas não valem no Resumo,
+     que não é lista. */
+  irPara('dinheiro');
 
   /* ── A PAGINAÇÃO E O TEMA ── */
   d.querySelectorAll('.adm-pag-n').forEach(function (n) {

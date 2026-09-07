@@ -180,7 +180,9 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
      dropdown e a janela é o estado do componente. */
   var d = document;
   var raiz = d.querySelector('.admin-wrap');
-  var telaAdm = 'contas';   // qual das tres telas do admin esta aberta
+  /* Dinheiro e a primeira: quem abre o admin quer saber quanto entrou, e
+     nao quem esta cadastrado. A lista de contas continua a um clique. */
+  var telaAdm = 'dinheiro';   // qual das tres telas do admin esta aberta
 
   function mostrar(qual) {
     d.querySelectorAll('[data-tela]').forEach(function (t) {
@@ -226,7 +228,7 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
     dinheiro: {
       olho: 'Admin · Dinheiro',
       titulo: 'O que entrou',
-      resumo: '30 cobranças, R$ 6.521,36 pagos até agora.',
+      resumo: '30 cobranças, R$ 18.218,00 pagos até agora.',
       primeira: 'resumo',
     },
     registros: {
@@ -466,6 +468,235 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
   d.getElementById('modal-aceite').addEventListener('click', function (e) {
     if (e.target === this) abrirAceite(false);
   });
+
+  /* ═══════════════════════════════════════════════════════════════════
+     A DASHBOARD DO DINHEIRO
+
+     Um período manda em tudo. A barra de cima escolhe o ano, o mês ou um
+     dos atalhos, e os cinco blocos abaixo se refazem juntos. Isso evita o
+     erro clássico da tela de faturamento: o número grande falando de um
+     período e o gráfico ao lado falando de outro.
+
+     Aqui os valores estão escritos à mão para a demonstração. No sistema
+     eles vêm de uma consulta só, agrupada por mês, com três colunas:
+     assinatura, recarga e taxa.
+
+     A TAXA é `balance_transaction.fee` do Stripe, ou seja, o que ele
+     REALMENTE reteve em cada cobrança. Não é 3,99% aplicado no total:
+     cartão internacional, parcelamento e conversão de moeda cobram
+     diferente, e uma porcentagem fixa no código erraria em todos esses
+     casos, para mais ou para menos, sem ninguém perceber.
+     ═══════════════════════════════════════════════════════════════════ */
+  var MES_NOME = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
+                  'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  var MES_LONGO = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                   'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+  /* [assinatura, recarga, taxa] por mês. `null` é mês sem cobrança nenhuma,
+     que é diferente de mês com zero: um ainda não aconteceu, o outro
+     aconteceu e não entrou nada. */
+  var CAIXA = {
+    2025: [null, null, null, null, null, null, null, null, null, null, null, null],
+    2026: [
+      [742, 100, 36.08], [1004, 100, 46.45], [1186, 300, 62.10], [1502, 300, 75.00],
+      [1904, 610, 104.73], [1838, 400, 93.31], [2102, 800, 120.79], [2016, 700, 113.07],
+      [1914, 700, 108.84], null, null, null,
+    ],
+  };
+  var PRIMEIRO_ANO = 2025;   // o ano mais antigo que existe no sistema
+  var ULTIMO_ANO = 2026;
+  var HOJE_ANO = 2026, HOJE_MES = 8;   // setembro, contando de zero
+
+  var anoAberto = 2026;
+  var mesAberto = null;       // null quer dizer "o período inteiro"
+  var atalho = '12m';
+  var verLiquido = false;
+
+  function real(n) {
+    return 'R$ ' + n.toLocaleString('pt-BR',
+      { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  /* Soma o que está no período escolhido e devolve as três parcelas. */
+  function somaDoPeriodo() {
+    var anos = atalho === 'tudo'
+      ? Object.keys(CAIXA)
+      : [String(anoAberto)];
+    var a = 0, r = 0, t = 0, meses = 0;
+    anos.forEach(function (ano) {
+      (CAIXA[ano] || []).forEach(function (m, i) {
+        if (!m) return;
+        if (mesAberto !== null && (i !== mesAberto || +ano !== anoAberto)) return;
+        a += m[0]; r += m[1]; t += m[2]; meses++;
+      });
+    });
+    return { assinatura: a, recarga: r, taxa: t, bruto: a + r, meses: meses };
+  }
+
+  /* Como o período se chama por extenso. É o texto que aparece em três
+     lugares diferentes, e ele tem que ser o mesmo nos três. */
+  function nomeDoPeriodo() {
+    if (mesAberto !== null) return MES_LONGO[mesAberto] + ' de ' + anoAberto;
+    if (atalho === 'tudo') return 'desde o começo';
+    if (atalho === 'ano') return anoAberto;
+    return 'nos últimos 12 meses';
+  }
+
+  function desenharMeses() {
+    var caixa = d.querySelector('[data-meses]');
+    if (!caixa) return;
+    var ano = CAIXA[anoAberto] || [];
+    var maior = 0;
+    ano.forEach(function (m) { if (m) maior = Math.max(maior, m[0] + m[1]); });
+
+    caixa.innerHTML = '';
+    MES_NOME.forEach(function (nome, i) {
+      var m = ano[i];
+      var b = d.createElement('button');
+      b.className = 'per__mes' + (mesAberto === i ? ' ativo' : '');
+      b.type = 'button';
+      /* Mês sem cobrança não aceita clique: abrir um mês vazio só troca a
+         tela toda por zeros, e isso não é uma resposta que alguém pediu. */
+      if (!m) b.disabled = true;
+      var alt = m && maior ? Math.round(((m[0] + m[1]) / maior) * 100) : 0;
+      b.innerHTML = '<i style="--h:' + (alt ? alt + '%' : '2px') + '"></i><b>' + nome + '</b>';
+      if (m) {
+        b.title = MES_LONGO[i] + ': ' + real(m[0] + m[1]);
+        b.addEventListener('click', function () {
+          /* Clicar de novo no mês aberto volta para o ano: é o mesmo
+             gesto de ida e volta, sem precisar procurar um "limpar". */
+          mesAberto = (mesAberto === i) ? null : i;
+          if (mesAberto !== null) atalho = 'ano';
+          pintar();
+        });
+      }
+      caixa.appendChild(b);
+    });
+
+    var vazio = d.querySelector('[data-per-vazio]');
+    if (vazio) vazio.hidden = !!maior;
+  }
+
+  function pintar() {
+    desenharMeses();
+
+    d.querySelector('[data-ano-todo]').textContent = anoAberto;
+    d.querySelector('[data-ano-passo="-1"]').disabled = anoAberto <= PRIMEIRO_ANO;
+    d.querySelector('[data-ano-passo="1"]').disabled = anoAberto >= ULTIMO_ANO;
+    d.querySelectorAll('[data-atalho]').forEach(function (b) {
+      b.classList.toggle('ativo', mesAberto === null && b.dataset.atalho === atalho);
+    });
+
+    var s = somaDoPeriodo();
+    var quando = nomeDoPeriodo();
+
+    d.querySelector('[data-din-rotulo]').textContent =
+      mesAberto !== null || atalho === 'ano' ? 'Entrou em ' + quando
+        : atalho === 'tudo' ? 'Entrou desde o começo' : 'Entrou nos últimos 12 meses';
+    d.querySelector('[data-din-num]').innerHTML =
+      real(verLiquido ? s.bruto - s.taxa : s.bruto);
+
+    /* A comparação só faz sentido com um mês aberto: comparar "o ano todo"
+       com o quê? Sem mês, a linha vira a média mensal do período, que é a
+       leitura que serve para os dois. */
+    var caixaVar = d.querySelector('[data-din-var]');
+    if (mesAberto !== null) {
+      var ant = mesAberto > 0 ? (CAIXA[anoAberto] || [])[mesAberto - 1] : null;
+      if (ant) {
+        var agora = verLiquido ? s.bruto - s.taxa : s.bruto;
+        var antes = verLiquido ? ant[0] + ant[1] - ant[2] : ant[0] + ant[1];
+        var difer = agora - antes;
+        caixaVar.hidden = false;
+        caixaVar.classList.toggle('din-var--sobe', difer >= 0);
+        caixaVar.classList.toggle('din-var--desce', difer < 0);
+        caixaVar.querySelector('svg path').setAttribute('d', difer >= 0 ? 'M3 11l5-5 5 5' : 'M3 5l5 5 5-5');
+        caixaVar.querySelector('[data-din-var-valor]').innerHTML =
+          (difer >= 0 ? '' : '− ') + real(Math.abs(difer));
+        caixaVar.querySelector('[data-din-var-txt]').textContent =
+          'em relação a ' + MES_LONGO[mesAberto - 1];
+      } else {
+        caixaVar.hidden = true;
+      }
+    } else {
+      caixaVar.hidden = false;
+      caixaVar.classList.add('din-var--sobe');
+      caixaVar.classList.remove('din-var--desce');
+      caixaVar.querySelector('svg path').setAttribute('d', 'M3 11l5-5 5 5');
+      /* A media segue a aba: numero liquido em cima e media bruta embaixo
+         seriam dois valores diferentes do mesmo periodo, lado a lado. */
+      var total = verLiquido ? s.bruto - s.taxa : s.bruto;
+      caixaVar.querySelector('[data-din-var-valor]').innerHTML =
+        real(s.meses ? total / s.meses : 0);
+      caixaVar.querySelector('[data-din-var-txt]').textContent = 'por mês, na média';
+    }
+
+    var taxa = d.querySelector('[data-din-taxa]');
+    taxa.hidden = !verLiquido;
+    if (verLiquido) {
+      d.querySelector('[data-taxa-bruto]').innerHTML = real(s.bruto);
+      d.querySelector('[data-taxa-valor]').innerHTML = '− ' + real(s.taxa);
+      d.querySelector('[data-taxa-liquido]').innerHTML = real(s.bruto - s.taxa);
+      d.querySelector('[data-taxa-pct]').textContent =
+        s.bruto ? (s.taxa / s.bruto * 100).toFixed(2).replace('.', ',') + '%' : '';
+    }
+
+    d.querySelector('[data-din-nota]').textContent = verLiquido
+      ? 'O que o Stripe reteve em cada cobrança, somado. A taxa muda por cobrança: cartão de fora do Brasil e parcelamento custam mais que o cartão nacional à vista.'
+      : 'Tudo que foi pago no período, assinatura mais recarga. É dinheiro que entrou de verdade, e não cobrança em aberto.';
+
+    /* De onde vem, no mesmo período. */
+    var pa = s.bruto ? (s.assinatura / s.bruto * 100) : 0;
+    d.querySelector('[data-fonte-barra-a]').style.width = pa + '%';
+    d.querySelector('[data-fonte-barra-b]').style.width = (100 - pa) + '%';
+    d.querySelector('[data-fonte-assinatura]').innerHTML = real(s.assinatura);
+    d.querySelector('[data-fonte-recarga]').innerHTML = real(s.recarga);
+    d.querySelector('[data-fonte-quando]').textContent =
+      mesAberto !== null ? 'Em ' + quando + '.'
+        : atalho === 'ano' ? 'Em ' + quando + '.'
+        : atalho === 'tudo' ? 'Desde a primeira cobrança.'
+        : 'Nos últimos 12 meses.';
+  }
+
+  d.querySelectorAll('[data-ano-passo]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      anoAberto += +b.dataset.anoPasso;
+      mesAberto = null;
+      if (atalho === 'tudo') atalho = 'ano';
+      pintar();
+    });
+  });
+  d.querySelector('[data-ano-todo]').addEventListener('click', function () {
+    mesAberto = null; atalho = 'ano'; pintar();
+  });
+  d.querySelectorAll('[data-atalho]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      atalho = b.dataset.atalho;
+      mesAberto = null;
+      /* Qualquer atalho traz a regua de volta para o ano corrente. Sem isto,
+         quem estivesse olhando 2025 e clicasse em "desde o comeco" via o
+         total de tudo em cima de um grafico vazio, e os dois discordavam. */
+      anoAberto = HOJE_ANO;
+      pintar();
+    });
+  });
+  d.querySelectorAll('.din-abas button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      verLiquido = b.dataset.valor === 'liquido';
+      d.querySelectorAll('.din-abas button').forEach(function (o) {
+        var on = o === b;
+        o.classList.toggle('ativa', on);
+        o.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      pintar();
+    });
+  });
+  pintar();
+
+  /* A tela nasce em Dinheiro pelo HTML, para não piscar em Contas antes de
+     trocar. Esta chamada acerta o que só o JS sabe: quais controles somem em
+     cada tela. Busca, filtros e o seletor de colunas não valem no Resumo,
+     que não é lista. */
+  irPara('dinheiro');
 
   /* ── A PAGINAÇÃO E O TEMA ── */
   d.querySelectorAll('.adm-pag-n').forEach(function (n) {

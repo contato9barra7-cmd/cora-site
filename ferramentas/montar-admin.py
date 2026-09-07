@@ -59,10 +59,13 @@ casca = casca.replace('<span class="app-header-aqui">Início</span>',
 # Admin abre em tres telas. Elas moram no menu lateral, e nao numa fila de
 # oito abas em cima da tabela: cada tela carrega so os seus controles, e e
 # isso que a barra unica nao conseguia dizer.
+#
+# Dinheiro vem primeiro e nasce aberta: ela e a dashboard. Quem entra no admin
+# quer saber quanto entrou, e nao quem esta cadastrado.
 SUBMENU = (
     chr(10) + '        <div class="app-nav-sub">'
-    + '<a href="#" class="ativo" data-tela-adm="contas">Contas <b>19</b></a>'
-    + '<a href="#" data-tela-adm="dinheiro">Dinheiro <b>30</b></a>'
+    + '<a href="#" class="ativo" data-tela-adm="dinheiro">Dinheiro <b>30</b></a>'
+    + '<a href="#" data-tela-adm="contas">Contas <b>19</b></a>'
     + '<a href="#" data-tela-adm="registros">Registros <b>40</b></a>'
     + '</div>')
 casca = casca.replace('<span class="app-nav-lbl">Admin</span>' + chr(10) + '        </a>',

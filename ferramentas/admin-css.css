@@ -784,10 +784,17 @@
    número. Cobrança em outra moeda entra na CONTAGEM e fica fora da SOMA, e
    a tela diz isso onde acontece.
    ══════════════════════════════════════════════════════════════════════ */
-.din-topo{ display:grid; gap:14px; grid-template-columns:1fr; align-items:start; }
+/* `stretch`, e nao `start`: as duas caixas do topo sao um par, e um par que
+   termina em alturas diferentes le como duas coisas soltas. O cartao grande
+   empurra a nota para o rodape dele com o `margin-top:auto` la embaixo. */
+.din-topo{ display:grid; gap:14px; grid-template-columns:1fr; align-items:stretch; }
 @media (min-width:900px){ .din-topo{ grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); } }
 
-.din-grande{ padding:26px 28px 28px; }
+/* `flex-start`: em coluna, o padrao estica cada filho na largura toda, e a
+   pilula da variacao e o par Bruto/Liquido viravam duas reguas de ponta a
+   ponta do cartao. */
+.din-grande{ padding:24px 28px 26px; display:flex; flex-direction:column; align-items:flex-start; }
+.din-grande .din-nota, .din-grande .din-taxa{ width:100%; }
 .din-grande .eyebrow{ margin:0; }
 .din-num{
   margin:10px 0 0; font-size:clamp(38px,5.5vw,52px); font-weight:500;
@@ -802,19 +809,143 @@
 .din-var--sobe{ background:var(--ok-bg); color:var(--ok); }
 .din-var--desce{ background:var(--alerta-bg); color:var(--alerta); }
 .din-var span{ font-weight:500; color:var(--ink3); }
-.din-nota{ margin:14px 0 0; font-size:13px; color:var(--ink3); line-height:1.6; max-width:52ch; }
+.din-nota{ margin:18px 0 0; font-size:13px; color:var(--ink3); line-height:1.6; max-width:52ch; }
+/* A nota desce para o fim do cartao: e o que faz o rodape dela encontrar o
+   rodape da tabela do cartao vizinho, em vez de sobrar um vao embaixo. */
+.din-grande .din-nota{ margin-top:auto; padding-top:18px; }
 
-/* A barra dos meses. Não é gráfico de biblioteca: são doze retângulos, e o
-   que se quer saber deles é a forma, não o valor exato de cada um. O valor
-   exato mora na tabela logo abaixo. */
-.din-meses{ margin-top:22px; display:flex; align-items:flex-end; gap:5px; height:76px; }
-.din-mes{ flex:1; min-width:0; display:flex; flex-direction:column; justify-content:flex-end; gap:5px; }
-.din-mes i{ display:block; border-radius:3px 3px 0 0; background:var(--turquesa); }
-.din-mes.atual i{ background:var(--lima); }
-.din-mes b{
-  font-size:9.5px; font-weight:500; color:var(--ink3); text-align:center;
-  text-transform:uppercase; letter-spacing:.04em;
+/* ══════════════════════════════════════════════════════════════════════
+   A BARRA DE PERÍODO
+
+   O gráfico e o seletor são a MESMA peça. Nasceram separados, e o gráfico
+   ficava dentro do cartão do número grande: além de dizer duas vezes qual
+   mês estava em foco, ele deixava um palmo de vazio entre a nota e as
+   barras, e o cartão do lado terminava numa altura diferente.
+
+   Cada mês é um botão, e a barra dele é a altura do que entrou. Quem está
+   escolhido ganha o trilho lima, que é o gesto de "você está aqui" no resto
+   do produto inteiro.
+   ══════════════════════════════════════════════════════════════════════ */
+.per{ padding:18px 22px 16px; }
+.per__cab{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:14px; flex-wrap:wrap;
 }
+
+.per__ano{ display:flex; align-items:center; gap:2px; }
+.per__seta{
+  width:30px; height:30px; display:grid; place-items:center;
+  border:0; background:none; border-radius:9px; cursor:pointer;
+  color:var(--ink3); transition:background .14s, color .14s;
+}
+.per__seta:hover{ background:var(--wash2); color:var(--ink); }
+/* Ano sem nenhuma cobrança ainda continua clicável de propósito: a tela diz
+   que está vazio, e isso é uma resposta. O que não pode é ir para um ano que
+   nem existe no sistema. */
+.per__seta[disabled]{ opacity:.28; cursor:default; }
+.per__seta[disabled]:hover{ background:none; color:var(--ink3); }
+.per__nome{
+  padding:5px 12px; border:0; background:none; border-radius:9px;
+  font:inherit; font-size:17px; font-weight:600; letter-spacing:-.02em;
+  color:var(--ink); cursor:pointer; font-variant-numeric:tabular-nums;
+  transition:background .14s;
+}
+.per__nome:hover{ background:var(--wash2); }
+
+.per__atalhos{ display:flex; gap:6px; flex-wrap:wrap; }
+.per__atalhos button{
+  padding:6px 13px; border:1px solid var(--line); background:var(--paper);
+  border-radius:var(--pill); font:inherit; font-size:12.5px; font-weight:500;
+  color:var(--ink2); cursor:pointer; transition:border-color .14s, color .14s;
+}
+.per__atalhos button:hover{ border-color:var(--ink3); color:var(--ink); }
+.per__atalhos button.ativo{
+  border-color:var(--ink); background:var(--ink); color:var(--paper);
+}
+
+/* Doze colunas de largura igual. `1fr` puro deixaria a coluna crescer com o
+   rótulo, e "set" e "dez" não têm a mesma largura. */
+.per__meses{
+  margin-top:16px; display:grid; grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:5px; align-items:end;
+}
+/* Grid de duas linhas, e nao flex: a primeira linha tem altura FIXA, e e
+   contra ela que a porcentagem da barra resolve. Em coluna flex a barra
+   media contra o botao inteiro, rotulo incluido, e a barra de 100% saia
+   cortada em cima. */
+.per__mes{
+  display:grid; grid-template-rows:96px auto; gap:6px;
+  padding:0; border:0; background:none; cursor:pointer;
+  border-radius:8px 8px 0 0; transition:background .14s;
+}
+.per__mes:hover{ background:var(--wash2); }
+/* A barra. A altura vem por variável, escrita no HTML, porque ela é DADO e
+   não estilo: cada mês tem a sua. Um mês sem cobrança fica com um traço de
+   2px em vez de sumir, senão a coluna vazia lê como buraco no gráfico. */
+.per__mes i{
+  display:block; align-self:end; min-height:2px; border-radius:4px 4px 0 0;
+  background:var(--turquesa); height:var(--h,2px);
+  transition:background .14s, height .2s;
+}
+.per__mes:hover i{ background:var(--turquesa-esc); }
+.per__mes b{
+  font-size:10px; font-weight:500; color:var(--ink3);
+  text-transform:uppercase; letter-spacing:.05em;
+  padding-bottom:7px; position:relative;
+}
+/* O trilho lima embaixo do rótulo é o mesmo gesto do menu lateral e das
+   abas: em toda a interface ele quer dizer "é aqui que você está". */
+.per__mes b::after{
+  content:''; position:absolute; left:50%; bottom:0; translate:-50% 0;
+  width:18px; height:3px; border-radius:2px; background:none;
+  transition:background .14s;
+}
+.per__mes.ativo i{ background:var(--lima); }
+.per__mes.ativo b{ color:var(--ink); font-weight:600; }
+.per__mes.ativo b::after{ background:var(--lima); }
+/* Mês que ainda não chegou. Ele fica na régua para o ano não mudar de
+   largura em janeiro, mas não aceita clique. */
+.per__mes[disabled]{ cursor:default; opacity:.4; }
+.per__mes[disabled]:hover{ background:none; }
+
+.per__vazio{
+  margin:14px 0 2px; font-size:13px; color:var(--ink3); text-align:center;
+}
+
+/* ── BRUTO OU LÍQUIDO ──
+   Duas leituras do mesmo dinheiro. Como abas e não como dois cartões:
+   ninguém precisa dos dois números ao mesmo tempo, precisa saber qual está
+   olhando. */
+.din-abas{
+  display:inline-flex; gap:2px; margin-bottom:16px; padding:3px;
+  background:var(--wash2); border-radius:var(--pill);
+}
+.din-abas button{
+  padding:6px 16px; border:0; background:none; border-radius:var(--pill);
+  font:inherit; font-size:13px; font-weight:500; color:var(--ink3);
+  cursor:pointer; transition:background .14s, color .14s;
+}
+.din-abas button:hover{ color:var(--ink); }
+.din-abas button.ativa{
+  background:var(--paper); color:var(--ink); font-weight:600;
+  box-shadow:0 1px 2px rgba(0,0,0,.06);
+}
+
+/* A conta da taxa, aberta. Um líquido que aparece já pronto obriga a
+   confiar; mostrando as três linhas, dá para conferir. */
+.din-taxa{ margin-top:18px; display:grid; gap:0; max-width:360px; }
+.din-taxa__linha{
+  display:flex; align-items:baseline; justify-content:space-between; gap:14px;
+  padding:9px 0; font-size:13.5px; color:var(--ink2);
+  border-bottom:1px solid var(--line);
+}
+.din-taxa__linha b{ font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
+.din-taxa__linha em{
+  font-style:normal; color:var(--ink3); font-size:12.5px; margin-left:4px;
+}
+.din-taxa__linha--tira b{ color:var(--alerta); }
+.din-taxa__linha--fim{ border-bottom:0; padding-bottom:0; }
+.din-taxa__linha--fim b{ font-size:16px; }
 
 /* De onde vem o dinheiro. Barra empilhada de duas cores, e a legenda embaixo
    com o valor: a proporção se lê na barra, o número se lê na linha. */
