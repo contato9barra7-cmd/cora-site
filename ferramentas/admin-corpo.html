@@ -718,6 +718,27 @@
           <p class="adm-total">7 contas já pagaram alguma coisa, <b>R$&nbsp;18.218,00</b> no total.</p>
         </div>
 
+        <!-- ══ LEVAR PARA A CONTABILIDADE ══
+             Excel primeiro, porque e o que se usa: coluna na largura certa e
+             valor como NUMERO, entao a coluna soma sem ninguem reformatar nada.
+             No CSV todo valor nasce como texto, e o Excel nao soma texto.
+
+             O CSV fica ao lado porque ele e o outro caso: sistema de
+             contabilidade e ERP importam CSV, e nao planilha. Planilha para
+             pessoa ler, CSV para maquina importar. -->
+        <div class="conta-card adm-card">
+          <div class="adm-ficha-cab">
+            <h2 class="conta-h2">Levar para a contabilidade</h2>
+            <div style="display:flex;gap:8px">
+              <button class="fat-ver">Baixar em Excel</button>
+              <button class="fat-ver">CSV</button>
+            </div>
+          </div>
+          <p class="conta-p">Uma linha por mês e moeda, com bruto, taxa, líquido,
+            reembolso e quantas cobranças. No Excel os valores vão como número, e
+            não como texto: a coluna soma sem ninguém reformatar nada.</p>
+        </div>
+
       </div>
 
       <!-- ══════════════ RECARGAS ══════════════ -->
