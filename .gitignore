@@ -23,3 +23,7 @@ next-env.d.ts
 
 # a pasta de rascunho dos geradores: saida intermediaria, nao entra no repo
 ferramentas/scratchpad/
+
+# o cache do Python dos geradores
+__pycache__/
+*.pyc

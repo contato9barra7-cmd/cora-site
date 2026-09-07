@@ -1,0 +1,533 @@
+<title>Suporte com Respostas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+:root{
+  --ink:#111111; --ink2:#5b5b57; --ink3:#8e8e88;
+  --paper:#ffffff; --wash:#f6f6f4; --wash2:#efefeb; --preto:#000000;
+  --line:#e4e4df; --line2:#d2d2cb;
+  --lima:#c4fba7; --lima-esc:#a5f37d;
+  --turquesa:#adecdf; --periwinkle:#a3a6fa;
+  --sobre-escuro:rgba(255,255,255,.72); --linha-escura:rgba(255,255,255,.14);
+  --fonte:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --rc:20px; --r-pill:100px; --r-md:12px; --r-sm:8px;
+  --largura-max:1200px; --gutter:clamp(16px,3.5vw,32px);
+  --altura-cabecalho:60px; --secao-y:clamp(56px,6vw,88px);
+  --e-1:4px; --e-2:8px; --e-3:12px; --e-4:16px; --e-5:24px;
+  --e-6:32px; --e-7:48px; --e-8:64px; --e-9:80px;
+  --tr-padrao:.2s; --tr-rapida:.12s; --tr-press:.1s; --tr-acordeao:.24s;
+  --easing:cubic-bezier(.16,1,.3,1);
+}
+@media (min-width:1024px){ :root{ --gutter:32px; --altura-cabecalho:72px; } }
+
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+body{
+  background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:16px; line-height:1.55;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  min-height:100vh; display:flex; flex-direction:column;
+}
+h1,h2,h3,h4{ font-weight:500; text-wrap:balance; }
+h1{ font-size:clamp(30px,4.2vw,52px); letter-spacing:-.035em; line-height:1.12; }
+h2{ font-size:clamp(24px,3vw,36px); letter-spacing:-.03em; line-height:1.15; }
+h3{ font-size:clamp(18px,2vw,22px); letter-spacing:-.02em; line-height:1.25; }
+p{ text-wrap:pretty; }
+a{ color:inherit; }
+.env{ width:100%; max-width:var(--largura-max); margin-inline:auto; padding-inline:var(--gutter); }
+.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+[id]{ scroll-margin-top:calc(var(--altura-cabecalho) + var(--e-4)); }
+:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+
+/* botoes oficiais */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:var(--e-2);
+  width:fit-content; min-width:160px; min-height:48px;
+  padding:var(--e-3) var(--e-5); white-space:nowrap;
+  border-radius:var(--r-pill); border:1px solid transparent;
+  font-family:inherit; font-weight:600; font-size:15px; letter-spacing:-.005em;
+  line-height:1.2; text-align:center; text-decoration:none; cursor:pointer;
+  transition:transform var(--tr-press) var(--easing),
+             background-color var(--tr-padrao) var(--easing),
+             border-color var(--tr-padrao) var(--easing),
+             color var(--tr-padrao) var(--easing);
+}
+.btn:active{ transform:scale(.97); }
+.btn--largo{ width:100%; }
+.btn--lima{ background:var(--lima); color:var(--ink); }
+.btn--escuro{ background:var(--ink); color:var(--paper); }
+.btn--linha{ border-color:var(--ink3); color:var(--ink); background:transparent; }
+.btn--claro{ background:var(--paper); color:var(--ink); border-color:var(--line); }
+.btn[disabled]{ background:var(--wash2); color:var(--ink3); cursor:not-allowed; }
+.btn[disabled]:active{ transform:none; }
+@media (hover:hover) and (pointer:fine){
+  .btn--lima:hover{ background:var(--lima-esc); }
+  .btn--escuro:hover{ background:#242424; }
+  .btn--linha:hover{ background:var(--wash2); border-color:var(--ink); }
+  .btn--claro:hover{ background:var(--wash2); }
+  .btn[disabled]:hover{ background:var(--wash2); }
+}
+
+/* cabecalho */
+.cabecalho{ position:sticky; top:0; z-index:50; background:var(--wash);
+  border-bottom:1px solid var(--line); }
+.cabecalho__interno{ position:relative; display:flex; align-items:center;
+  gap:var(--e-5); min-height:var(--altura-cabecalho); }
+.cabecalho__marca{ margin-right:auto; display:inline-flex; align-items:center; min-height:44px; }
+.cabecalho__marca img{ width:auto; height:20px; }
+@media (min-width:1024px){ .cabecalho__marca img{ height:24px; } }
+.cabecalho__nav{ display:none; gap:var(--e-5); font-size:15px; letter-spacing:-.005em; }
+.cabecalho__nav a{ display:inline-flex; align-items:center; min-height:44px;
+  padding-inline:var(--e-2); border-radius:var(--r-sm); color:var(--ink2);
+  text-decoration:none; transition:color var(--tr-rapida) var(--easing); }
+.cabecalho__acoes{ display:none; gap:var(--e-2); }
+.cabecalho__acoes .btn{ min-width:0; min-height:40px; padding:var(--e-2) var(--e-4); font-size:14px; }
+.burger{ display:flex; align-items:center; justify-content:center; width:44px; height:44px;
+  margin-left:auto; border-radius:var(--r-sm); border:none; background:transparent;
+  color:var(--ink); cursor:pointer; transition:background-color var(--tr-padrao) var(--easing); }
+@media (hover:hover) and (pointer:fine){
+  .cabecalho__nav a:hover{ color:var(--ink); }
+  .burger:hover{ background:var(--wash2); }
+}
+@media (min-width:900px){
+  .cabecalho__nav{ display:flex; }
+  .cabecalho__acoes{ display:flex; margin-left:auto; }
+  .burger{ display:none; }
+}
+.menu{ display:grid; gap:var(--e-2); padding:var(--e-4) var(--gutter) var(--e-6);
+  border-top:1px solid var(--line); background:var(--paper); }
+.menu a{ display:flex; align-items:center; min-height:44px; padding:var(--e-3) 0;
+  font-size:17px; letter-spacing:-.015em; color:var(--ink); text-decoration:none; }
+.menu__acoes{ display:grid; gap:var(--e-2); margin-top:var(--e-4); }
+.menu[hidden]{ display:none; }
+@media (min-width:900px){ .menu{ display:none; } }
+
+/* conteudo */
+main{ flex:1; }
+.secao{ padding-block:var(--secao-y); }
+.olho{ display:inline-block; font-size:11.5px; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3); }
+
+/* campos */
+.campo{ display:grid; gap:var(--e-2); }
+.campo > label{ font-size:13px; font-weight:500; color:var(--ink2); }
+.campo input,.campo select,.campo textarea{
+  width:100%; font-family:inherit; font-size:15px; color:var(--ink);
+  background:var(--paper); border:1px solid var(--line);
+  transition:border-color var(--tr-padrao) var(--easing),
+             box-shadow var(--tr-padrao) var(--easing);
+}
+.campo input,.campo select{ height:50px; padding:0 var(--e-5); border-radius:var(--r-pill); }
+.campo textarea{ min-height:150px; padding:var(--e-4) var(--e-5); border-radius:var(--rc);
+  resize:vertical; line-height:1.55; }
+.campo input::placeholder,.campo textarea::placeholder{ color:var(--ink3); }
+.campo input:focus,.campo select:focus,.campo textarea:focus{
+  outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+.campo select{
+  appearance:none; cursor:pointer; padding-right:48px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238e8e88' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat:no-repeat; background-position:right 20px center;
+}
+.dupla{ display:grid; gap:var(--e-4); }
+@media (min-width:640px){ .dupla{ grid-template-columns:1fr 1fr; } }
+.ajuda{ font-size:13px; color:var(--ink3); line-height:1.5; }
+
+/* rodape fino, o mesmo que o site ja usa hoje */
+.rodape-legal{ padding:22px var(--gutter) 26px; text-align:center;
+  font-size:12.5px; color:var(--ink3); border-top:1px solid var(--line);
+  background:var(--wash); }
+.rodape-legal a{ color:inherit; text-decoration:none; opacity:.9; }
+.rodape-legal a:hover{ opacity:1; text-decoration:underline; }
+.rodape-legal .sep{ margin:0 8px; opacity:.5; }
+
+
+/* ── o topo mora DENTRO da coluna ───────────────────────────────────────────
+   Antes o titulo e o subtitulo eram uma faixa de largura inteira em cima da
+   grade. Com isso a linha do titulo passava por cima da coluna das perguntas,
+   e o bloco de cima nao batia com o de baixo: dois blocos de texto na mesma
+   borda esquerda, com larguras diferentes, leem como desalinho.
+   Aqui os dois viraram um so, dentro da coluna da esquerda.
+
+   O preco e que o titulo nao cabe mais numa linha nessa largura. A quebra fica
+   em "Como podemos / ajudar?", que e onde ela cai sozinha, e e a mesma forma
+   de duas linhas que a coluna ja tinha. */
+.faq-grade{ display:grid; grid-template-columns:1fr; gap:clamp(24px,3vw,40px);
+  align-items:start; padding-top:clamp(26px,3vw,40px); }
+@media (min-width:900px){
+  .faq-grade{ grid-template-columns:34fr 66fr; gap:var(--e-8); }
+  .faq-lado{ position:sticky; top:calc(var(--altura-cabecalho) + var(--e-6)); }
+}
+.faq-lado h1{ margin-top:var(--e-3); font-size:clamp(30px,3.5vw,42px);
+  letter-spacing:-.032em; line-height:1.1; }
+.faq-lado > p{ margin-top:var(--e-4); font-size:15px; color:var(--ink2); line-height:1.55; }
+
+/* ── o voltar ───────────────────────────────────────────────────────────────
+   O mesmo controle das paginas de Termos e Privacidade, que ja esta no ar:
+   pilula com contorno, e nao texto solto, porque texto solto no meio de outro
+   texto nao se le como controle.
+
+   Ele fica ACIMA do olho, no comeco da coluna, que e onde a leitura comeca e
+   onde se procura a saida. */
+.sp-topo{ padding-top:clamp(28px,3.2vw,44px); }
+.sp-voltar{ display:flex; width:fit-content; align-items:center; gap:7px; padding:8px 16px 8px 13px;
+  border:1px solid var(--line); border-radius:var(--r-pill);
+  font-size:13.5px; font-weight:500; color:var(--ink2);
+  text-decoration:none; white-space:nowrap; background:none;
+  font-family:inherit; cursor:pointer;
+  transition:border-color var(--tr-rapida) var(--easing),
+             color var(--tr-rapida) var(--easing); }
+@media (hover:hover) and (pointer:fine){
+  .sp-voltar:hover{ border-color:var(--ink); color:var(--ink); }
+}
+
+/* ── o indice ───────────────────────────────────────────────────────────────
+   O mesmo controle das paginas de Termos e Privacidade, que ja estao no ar:
+   fio de 2px na esquerda, e o item ativo com o lima da marca em 3px. A
+   contagem do lado diz o tamanho de cada grupo sem precisar abrir. */
+.indice{ margin-top:var(--e-6); display:grid; gap:2px; }
+.indice button{ display:flex; align-items:center; justify-content:space-between;
+  gap:var(--e-3); width:100%; padding:8px 14px; border:0;
+  border-left:2px solid var(--line); background:none; color:var(--ink2);
+  font-family:inherit; font-size:13.5px; line-height:1.45; text-align:left;
+  cursor:pointer;
+  transition:color var(--tr-rapida) var(--easing),
+             border-color var(--tr-rapida) var(--easing); }
+.indice button[aria-pressed="true"]{ color:var(--ink); font-weight:500;
+  border-left-color:var(--lima); border-left-width:3px; }
+.indice .qt{ font-size:12px; color:var(--ink3); font-variant-numeric:tabular-nums; }
+@media (hover:hover) and (pointer:fine){
+  .indice button:hover{ color:var(--ink); border-left-color:var(--ink3); }
+  .indice button[aria-pressed="true"]:hover{ border-left-color:var(--lima); }
+}
+
+.faq-item{ border-bottom:1px solid var(--line); }
+.faq-item[hidden]{ display:none; }
+.faq-gat{ width:100%; display:flex; justify-content:space-between; align-items:center;
+  gap:var(--e-4); padding:19px 0; text-align:left; border:none; background:none;
+  cursor:pointer; font-family:inherit; font-weight:500;
+  font-size:clamp(15.5px,1.2vw,17px); letter-spacing:-.015em; line-height:1.35;
+  color:var(--ink); }
+@media (min-width:768px){ .faq-gat{ padding:22px 0; } }
+.faq-ic{ flex:none; color:var(--ink3); display:inline-flex;
+  transition:transform var(--tr-padrao) var(--easing), color var(--tr-padrao) var(--easing); }
+.faq-gat[aria-expanded="true"] .faq-ic{ transform:rotate(45deg); color:var(--ink); }
+@media (hover:hover) and (pointer:fine){ .faq-gat:hover .faq-ic{ color:var(--ink); } }
+.faq-resp{ display:grid; grid-template-rows:0fr;
+  transition:grid-template-rows var(--tr-acordeao) var(--easing); }
+.faq-gat[aria-expanded="true"] + .faq-resp{ grid-template-rows:1fr; }
+.faq-resp > div{ overflow:hidden; }
+.faq-txt{ padding-bottom:22px; font-size:15px; line-height:1.62; color:var(--ink2);
+  max-width:60ch; }
+
+/* ── a virada ───────────────────────────────────────────────────────────────
+   A faixa dos Promptadores fecha as perguntas e abre o formulario, do mesmo
+   jeito que ela abre o cartao do e-mail. Geometria descrita em
+   cerebro/specs/emails.md e desenhada em base_suporte.py.
+
+   A ALTURA e a mesma da faixa do PromptHub, medida em 07/09/2026 na porta do
+   `escolher` (`.porta__faixa` no cora-promptadores): `clamp(140px,23vh,220px)`,
+   que da 207px numa janela de 900 de altura. Antes eram 8vw com teto de 112,
+   ou seja, metade. E `vh` e nao `vw` porque foi assim que ela nasceu la, e o
+   pedido foi a MESMA altura: com outra unidade as duas so coincidiriam numa
+   largura de tela. */
+.faixa{ height:clamp(140px,23vh,220px); background-color:#C4FBA7;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); background-repeat:repeat-x;
+  background-position:left center; background-size:auto 100%; }
+.sup-virada{ background:var(--paper); border-bottom:1px solid var(--line); }
+.sup-form{ max-width:640px; margin-inline:auto; }
+.sup-form__cab{ text-align:center; }
+.sup-form__cab h2{ margin-top:var(--e-3); font-size:clamp(22px,2.6vw,30px); }
+.sup-form__cab p{ margin-top:var(--e-3); font-size:15px; color:var(--ink2); }
+.sup-form form{ margin-top:var(--e-7); display:grid; gap:var(--e-5); }
+/* `background-color`, e nao o atalho `background`: o atalho apagaria a seta
+   do campo, que e um background-image. */
+.sup-form .campo input,.sup-form .campo textarea,.sup-form .gat{ background-color:var(--wash); }
+.sup-form .campo input:focus,.sup-form .campo textarea:focus,.sup-form .gat.aberto{
+  background-color:var(--paper); }
+
+/* ── dropdown da marca ──────────────────────────────────────────────────────
+   O <select> do sistema pinta a lista com o azul do Windows, que nao e nossa
+   cor e nao respeita nem a fonte nem o raio dos outros campos. Este e o mesmo
+   desenho do CoraSelect que o painel ja usa, vestido com a paleta nova. */
+.sel{ position:relative; }
+.gat{ display:flex; align-items:center; gap:var(--e-2); width:100%; height:50px;
+  padding:0 var(--e-5); border:1px solid var(--line); border-radius:var(--r-pill);
+  background:var(--paper); color:var(--ink); font-family:inherit; font-size:15px;
+  text-align:left; cursor:pointer;
+  transition:border-color var(--tr-padrao) var(--easing),
+             box-shadow var(--tr-padrao) var(--easing),
+             background-color var(--tr-padrao) var(--easing); }
+.gat.vazio{ color:var(--ink3); }
+.gat.aberto{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+@media (hover:hover) and (pointer:fine){ .gat:hover{ border-color:var(--ink3); } }
+.gat__rot{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.gat__seta{ flex:none; color:var(--ink3);
+  transition:transform var(--tr-padrao) var(--easing); }
+.gat.aberto .gat__seta{ transform:rotate(180deg); color:var(--ink); }
+.pop{ position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:60;
+  padding:6px; background:var(--paper); border:1px solid var(--line2);
+  border-radius:var(--rc); box-shadow:0 14px 38px rgba(17,17,17,.13);
+  max-height:288px; overflow-y:auto; }
+.pop[hidden]{ display:none; }
+.op{ display:flex; align-items:center; gap:var(--e-3); width:100%;
+  padding:10px 14px; border:0; border-radius:var(--r-md); background:none;
+  color:var(--ink2); font-family:inherit; font-size:14.5px; text-align:left;
+  cursor:pointer; transition:background-color var(--tr-rapida) var(--easing),
+                             color var(--tr-rapida) var(--easing); }
+.op__mira{ flex:none; width:7px; height:7px; border-radius:50%;
+  background:transparent; transition:background-color var(--tr-rapida) var(--easing); }
+.op[aria-selected="true"]{ background:var(--lima); color:var(--ink); font-weight:500; }
+.op[aria-selected="true"] .op__mira{ background:var(--ink); }
+@media (hover:hover) and (pointer:fine){
+  .op:hover{ background:var(--wash2); color:var(--ink); }
+  .op[aria-selected="true"]:hover{ background:var(--lima-esc); }
+}
+
+/* ── campo que faltou ───────────────────────────────────────────────────────
+   O aviso e a borda vermelha andam juntos: so a frase em cima obriga a
+   procurar qual campo, e so a borda nao diz o que aconteceu. */
+.sup-erro{ margin-bottom:var(--e-2); padding:12px 18px; border-radius:var(--r-md);
+  background:#FCEDEC; border:1px solid #E9BFBB; color:#8E2620;
+  font-size:14px; line-height:1.5; }
+.campo input.erro,.campo textarea.erro,.gat.erro{ border-color:#C8342A; }
+.campo input.erro:focus,.campo textarea.erro:focus{
+  border-color:#C8342A; box-shadow:0 0 0 3px rgba(200,52,42,.12); }
+
+/* ── depois de enviar ───────────────────────────────────────────────────────
+   Ocupa o lugar do formulario, e nao aparece embaixo dele. Deixar o
+   formulario vazio na tela depois do envio convida a mandar de novo, e ai
+   chegam duas mensagens iguais no suporte.
+
+   O circulo lima e o mesmo sinal de conclusao das telas de conta. */
+.sup-ok{ text-align:center; display:grid; justify-items:center; gap:var(--e-4); }
+.sup-ok__marca{ width:58px; height:58px; border-radius:50%; background:var(--lima);
+  display:grid; place-items:center; color:var(--ink); }
+.sup-ok h2{ font-size:clamp(22px,2.6vw,30px); }
+.sup-ok p{ font-size:15px; color:var(--ink2); max-width:44ch; }
+.sup-ok strong{ color:var(--ink); font-weight:600; }
+.sup-ok .miudo{ font-size:13.5px; color:var(--ink3); }
+.sup-ok .btn{ margin-top:var(--e-3); }
+[hidden]{ display:none !important; }
+
+.sup-pe{ margin-top:var(--e-5); text-align:center; font-size:14px; color:var(--ink2); }
+.sup-pe a{ color:var(--ink); text-decoration:underline; text-underline-offset:3px;
+  text-decoration-thickness:1px; text-decoration-color:var(--line2); }
+.sup-pe a:hover{ text-decoration-color:var(--ink); }
+</style>
+
+<header class="cabecalho">
+  <div class="env cabecalho__interno">
+    <a class="cabecalho__marca" href="#" aria-label="Cora Render">
+      <img src="data:image/png;base64,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" alt="Cora Render" width="1000" height="241">
+    </a>
+    <nav class="cabecalho__nav" aria-label="Principal">
+      <a href="#">Como funciona</a>
+      <a href="#">Ferramentas</a>
+      <a href="#">Planos</a>
+      <a href="#faq">Perguntas frequentes</a>
+    </nav>
+    <div class="cabecalho__acoes">
+      <a class="btn btn--claro" href="#">Entrar</a>
+      <a class="btn btn--escuro" href="#">Criar conta</a>
+    </div>
+    <button class="burger" type="button" id="burger" aria-expanded="false" aria-controls="menu">
+      <span class="sr-only">Abrir menu</span>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+  <div class="menu" id="menu" hidden>
+    <a href="#">Como funciona</a>
+    <a href="#">Ferramentas</a>
+    <a href="#">Planos</a>
+    <a href="#faq">Perguntas frequentes</a>
+    <div class="menu__acoes">
+      <a class="btn btn--lima btn--largo" href="#">Criar conta</a>
+      <a class="btn btn--linha btn--largo" href="#">Entrar</a>
+    </div>
+  </div>
+</header>
+
+<main id="conteudo">
+  <div class="env sp-topo">
+    <a class="sp-voltar" href="/">&larr; Voltar</a>
+  </div>
+
+  <section class="env" id="faq" style="padding-bottom:clamp(48px,6vw,88px)">
+    <div class="faq-grade">
+      <div class="faq-lado">
+        <span class="olho">Suporte</span>
+        <h1>Como podemos ajudar?</h1>
+        <p>Comece por aqui. Se a sua d&uacute;vida n&atilde;o estiver na lista,
+           o formul&aacute;rio fica logo&nbsp;abaixo.</p>
+        <div class="indice" role="group" aria-label="Filtrar por assunto"><button type="button" aria-pressed="true" data-f="tudo"><span>Todos os assuntos</span><span class="qt">15</span></button><button type="button" aria-pressed="false" data-f="conta"><span>Conta e acesso</span><span class="qt">4</span></button><button type="button" aria-pressed="false" data-f="cobranca"><span>Cobrança e créditos</span><span class="qt">6</span></button><button type="button" aria-pressed="false" data-f="plugin"><span>Plugin e compatibilidade</span><span class="qt">3</span></button><button type="button" aria-pressed="false" data-f="dados"><span>Direitos e dados</span><span class="qt">2</span></button></div>
+      </div>
+      <div class="faq-lista" id="faq-lista"><div class="faq-item" data-g="conta"><button class="faq-gat" type="button" aria-expanded="false"><span>Não consigo entrar na minha conta.</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">Use o link <strong>Esqueci minha senha</strong> na tela de entrada. O e-mail de redefinição chega em poucos minutos, e vale conferir a caixa de spam. Se ele nunca chega, pode ser que a conta esteja em outro endereço. Escreva pra gente que a gente localiza.</div></div></div></div><div class="faq-item" data-g="conta"><button class="faq-gat" type="button" aria-expanded="false"><span>Não recebi o e-mail de confirmação.</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">Confira o spam e a lixeira primeiro. E-mail corporativo costuma segurar mensagem automática. Se não estiver lá, peça o reenvio na tela de verificação. Se ainda assim não chegar, escreva pra gente com o endereço que você usou no cadastro.</div></div></div></div><div class="faq-item" data-g="conta"><button class="faq-gat" type="button" aria-expanded="false"><span>Como eu troco o e-mail da conta?</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">O e-mail é a chave do seu acesso, então ele não muda pelo painel. Escreva pra gente a partir do endereço antigo dizendo qual é o novo, e a gente faz a troca sem mexer no plano, nos créditos nem no histórico.</div></div></div></div><div class="faq-item" data-g="conta"><button class="faq-gat" type="button" aria-expanded="false"><span>Apareceu que a minha conta está em uso em outro computador.</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">O plugin roda em até 2 computadores, com uso em um por vez, e a versão web aceita até 3 dispositivos. Se você trocou de máquina, remova o dispositivo antigo no painel da sua conta e entre de novo.</div></div></div></div><div class="faq-item" data-g="cobranca"><button class="faq-gat" type="button" aria-expanded="false"><span>Posso cancelar quando quiser?</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">Pode, sem fidelidade, com um clique nas configurações da sua conta. O cancelamento encerra a <strong>renovação seguinte</strong>: o plano continua valendo até o fim do período que você já pagou, com os créditos daquele ciclo disponíveis, e depois disso não cobra de novo. Nada é cortado no meio do caminho.</div></div></div></div><div class="faq-item" data-g="cobranca"><button class="faq-gat" type="button" aria-expanded="false"><span>Dá para pedir reembolso?</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">Dá, dentro de <strong>7 dias</strong> da contratação, que é o direito de arrependimento do art. 49 do Código de Defesa do Consumidor. O valor devolvido desconta os créditos que você já usou, porque o processamento deles já aconteceu. Peça nas configurações da conta ou por aqui, que a gente faz a conta e devolve.</div></div></div></div><div class="faq-item" data-g="cobranca"><button class="faq-gat" type="button" aria-expanded="false"><span>A cobrança não passou. E agora?</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">A cobrança é tentada de novo automaticamente nos dias seguintes. Para resolver na hora, abra o portal de assinatura no painel da sua conta e atualize o cartão. A gente não guarda o número do seu cartão em momento nenhum.</div></div></div></div><div class="faq-item" data-g="cobranca"><button class="faq-gat" type="button" aria-expanded="false"><span>Onde eu vejo as minhas faturas e recibos?</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">No portal de assinatura, dentro do painel da sua conta. Lá ficam o histórico de cobranças, os recibos e a troca de cartão.</div></div></div></div><div class="faq-item" data-g="cobranca"><button class="faq-gat" type="button" aria-expanded="false"><span>A geração falhou. Perdi o crédito?</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">Não. Quando a geração falha, o crédito volta pro seu saldo automaticamente. Se você viu o saldo cair sem receber a imagem, manda o horário aproximado e o que estava gerando que a gente confere no registro.</div></div></div></div><div class="faq-item" data-g="cobranca"><button class="faq-gat" type="button" aria-expanded="false"><span>O meu saldo não bate com o que eu esperava.</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">A cota do plano volta cheia na data da sua assinatura e não acumula de um mês pro outro. As recargas avulsas valem por 6 meses e só entram depois que os créditos do plano acabam. Cada operação tem um custo próprio, que muda conforme a resolução.</div></div></div></div><div class="faq-item" data-g="plugin"><button class="faq-gat" type="button" aria-expanded="false"><span>Instalei e o Cora não aparece no SketchUp.</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">Abra o Gerenciador de Extensões, no menu Janela do SketchUp, e veja se o Cora Render está na lista e habilitado. Se estiver desligado, ligue e reinicie o SketchUp. Se nem aparecer na lista, instale o arquivo .rbz de novo pelo botão de instalar extensão.</div></div></div></div><div class="faq-item" data-g="plugin"><button class="faq-gat" type="button" aria-expanded="false"><span>Em qual versão do SketchUp o plugin funciona?</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">No SketchUp 2018 e nas versões mais novas, tanto no Windows quanto no macOS. A versão web roda no navegador e não depende do SketchUp: ela parte de qualquer imagem exportada de Revit, Archicad, 3ds Max ou Promob.</div></div></div></div><div class="faq-item" data-g="plugin"><button class="faq-gat" type="button" aria-expanded="false"><span>Preciso de um computador potente?</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">Para gerar, não. A parte de IA roda na nuvem, e é de lá que sai a imagem. As ferramentas de modelagem do plugin rodam na sua máquina, mas são leves, do tipo que o SketchUp já aguenta sem esforço.</div></div></div></div><div class="faq-item" data-g="dados"><button class="faq-gat" type="button" aria-expanded="false"><span>As imagens são minhas? Posso usar comercialmente?</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">São suas, e pode: projeto comercial, aprovação de cliente e portfólio. A ressalva é o conteúdo original de terceiros que você tenha colocado na cena, que continua sendo de quem é. Como o resultado vem de IA, a gente não garante que ele seja único.</div></div></div></div><div class="faq-item" data-g="dados"><button class="faq-gat" type="button" aria-expanded="false"><span>A equipe de suporte consegue ver a minha conta?</span><span class="faq-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></button><div class="faq-resp"><div><div class="faq-txt">Para investigar um problema, uma pessoa autorizada da equipe pode abrir a sua conta em <strong>modo de leitura</strong>, por no máximo 30 minutos. Nesse acesso não dá para alterar dados, comprar nem gerar imagem. Todo acesso fica registrado com quem entrou e quando, e você pode pedir essa lista a qualquer momento.</div></div></div></div></div>
+    </div>
+  </section>
+
+  <div class="faixa" aria-hidden="true"></div>
+
+  <section class="secao sup-virada">
+    <div class="env sup-form">
+      <div class="sup-form__cab">
+        <span class="olho">N&atilde;o achou aqui?</span>
+        <h2>Ent&atilde;o escreve pra gente</h2>
+        <p>A gente responde no seu e-mail em at&eacute; 3 dias &uacute;teis.</p>
+      </div>
+
+      <form onsubmit="return false">
+        <div class="dupla">
+          <div class="campo">
+            <label for="c-nome">Nome</label>
+            <input id="c-nome" value="Marilia Fischer">
+          </div>
+          <div class="campo">
+            <label for="c-email">Seu e-mail</label>
+            <input id="c-email" type="email" value="marilia@9barra7.com">
+          </div>
+        </div>
+
+        <div class="campo">
+          <label id="rot-assunto">Assunto</label>
+          <div class="sel">
+            <button class="gat vazio" type="button" id="gat" aria-haspopup="listbox"
+                    aria-expanded="false" aria-labelledby="rot-assunto gat-rot">
+              <span class="gat__rot" id="gat-rot">Selecione uma categoria&hellip;</span>
+              <svg class="gat__seta" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                   stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="pop" id="pop" role="listbox" aria-labelledby="rot-assunto" hidden><button class="op" type="button" role="option" aria-selected="false" data-v="Cobrança e assinatura"><span class="op__mira" aria-hidden="true"></span><span>Cobrança e assinatura</span></button><button class="op" type="button" role="option" aria-selected="false" data-v="Créditos"><span class="op__mira" aria-hidden="true"></span><span>Créditos</span></button><button class="op" type="button" role="option" aria-selected="false" data-v="Plugin do SketchUp"><span class="op__mira" aria-hidden="true"></span><span>Plugin do SketchUp</span></button><button class="op" type="button" role="option" aria-selected="false" data-v="Problema técnico (bug)"><span class="op__mira" aria-hidden="true"></span><span>Problema técnico (bug)</span></button><button class="op" type="button" role="option" aria-selected="false" data-v="Resultado da IA / render"><span class="op__mira" aria-hidden="true"></span><span>Resultado da IA / render</span></button><button class="op" type="button" role="option" aria-selected="false" data-v="Conta e acesso"><span class="op__mira" aria-hidden="true"></span><span>Conta e acesso</span></button><button class="op" type="button" role="option" aria-selected="false" data-v="Dúvida de uso"><span class="op__mira" aria-hidden="true"></span><span>Dúvida de uso</span></button><button class="op" type="button" role="option" aria-selected="false" data-v="Sugestão / feedback"><span class="op__mira" aria-hidden="true"></span><span>Sugestão / feedback</span></button><button class="op" type="button" role="option" aria-selected="false" data-v="Privacidade e meus dados"><span class="op__mira" aria-hidden="true"></span><span>Privacidade e meus dados</span></button><button class="op" type="button" role="option" aria-selected="false" data-v="Outro"><span class="op__mira" aria-hidden="true"></span><span>Outro</span></button></div>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="c-msg">Mensagem</label>
+          <textarea id="c-msg" placeholder="Conte o que aconteceu&hellip;"></textarea>
+        </div>
+
+        <button class="btn btn--lima btn--largo" type="submit">Enviar mensagem</button>
+      </form>
+
+      <p class="sup-pe" id="pe">Prefere escrever direto?
+        <a href="mailto:cora@corarender.com">cora@corarender.com</a></p>
+
+      <div class="sup-ok" id="ok" hidden>
+        <span class="sup-ok__marca" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+        </span>
+        <h2>Mensagem enviada</h2>
+        <p>A gente recebeu o seu contato e responde no
+           <strong>marilia@9barra7.com</strong> em at&eacute; 3 dias &uacute;teis.</p>
+        <p class="miudo">Uma confirma&ccedil;&atilde;o acabou de sair para esse mesmo
+           endere&ccedil;o, com a c&oacute;pia do que voc&ecirc; escreveu.</p>
+        <a class="btn btn--linha" href="#conteudo">Ver as perguntas frequentes</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="rodape-legal">
+  <span>&copy; 2026 Cora Render &middot; 9BARRA7 Academy</span>
+  <span class="sep">&middot;</span><a href="#">Suporte</a>
+  <span class="sep">&middot;</span><a href="#">Termos de Uso</a>
+  <span class="sep">&middot;</span><a href="#">Pol&iacute;tica de Privacidade</a>
+</footer>
+<script>
+  (function(){
+    var b = document.getElementById('burger'), m = document.getElementById('menu');
+    if (!b || !m) return;
+    b.addEventListener('click', function(){
+      var aberto = b.getAttribute('aria-expanded') === 'true';
+      b.setAttribute('aria-expanded', String(!aberto));
+      m.hidden = aberto;
+    });
+  })();
+</script><script>
+  /* acordeao: um aberto por vez */
+  (function(){
+    var gatilhos = document.querySelectorAll('.faq-gat');
+    gatilhos.forEach(function(g){
+      g.addEventListener('click', function(){
+        var aberto = g.getAttribute('aria-expanded') === 'true';
+        gatilhos.forEach(function(o){ o.setAttribute('aria-expanded','false'); });
+        g.setAttribute('aria-expanded', String(!aberto));
+      });
+    });
+  })();
+
+  /* indice: filtra a lista e devolve a borda de cima pro primeiro visivel */
+  (function(){
+    var botoes = document.querySelectorAll('.indice button');
+    var itens = document.querySelectorAll('.faq-item');
+    botoes.forEach(function(b){
+      b.addEventListener('click', function(){
+        botoes.forEach(function(o){ o.setAttribute('aria-pressed','false'); });
+        b.setAttribute('aria-pressed','true');
+        var alvo = b.dataset.f;
+        itens.forEach(function(it){
+          it.hidden = !(alvo === 'tudo' || it.dataset.g === alvo);
+          // Trocar de grupo fecha tudo: uma resposta que ficasse aberta da
+          // lista anterior apareceria solta no meio da lista nova.
+          it.querySelector('.faq-gat').setAttribute('aria-expanded','false');
+        });
+      });
+    });
+  })();
+
+  /* dropdown da marca */
+  (function(){
+    var gat = document.getElementById('gat');
+    var pop = document.getElementById('pop');
+    var rot = document.getElementById('gat-rot');
+    if (!gat || !pop) return;
+
+    function fechar(){
+      pop.hidden = true;
+      gat.setAttribute('aria-expanded','false');
+      gat.classList.remove('aberto');
+    }
+    gat.addEventListener('click', function(e){
+      e.stopPropagation();
+      var abrindo = pop.hidden;
+      pop.hidden = !abrindo;
+      gat.setAttribute('aria-expanded', String(abrindo));
+      gat.classList.toggle('aberto', abrindo);
+    });
+    pop.querySelectorAll('.op').forEach(function(op){
+      op.addEventListener('click', function(){
+        pop.querySelectorAll('.op').forEach(function(o){ o.setAttribute('aria-selected','false'); });
+        op.setAttribute('aria-selected','true');
+        rot.textContent = op.dataset.v;
+        gat.classList.remove('vazio');
+        fechar();
+      });
+    });
+    document.addEventListener('click', function(e){
+      if (!pop.hidden && !pop.contains(e.target)) fechar();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && !pop.hidden) { fechar(); gat.focus(); }
+    });
+  })();
+
+  /* o envio, so pra mostrar como fica. No site quem faz isso e o React. */
+  (function(){
+    var form = document.querySelector('.sup-form form');
+    var cab = document.querySelector('.sup-form__cab');
+    var pe = document.getElementById('pe');
+    var ok = document.getElementById('ok');
+    if (!form || !ok) return;
+    form.addEventListener('submit', function(){
+      form.hidden = true;
+      cab.hidden = true;
+      pe.hidden = true;
+      ok.hidden = false;
+    });
+  })();
+</script>

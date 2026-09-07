@@ -123,7 +123,14 @@
   max-width:60ch; }/* ── a virada ───────────────────────────────────────────────────────────────
    A faixa dos Promptadores fecha as perguntas e abre o formulario, do mesmo
    jeito que ela abre o cartao do e-mail. Geometria descrita em
-   cerebro/specs/emails.md e desenhada em base_suporte.py. */.sp .faixa{ height:clamp(64px,8vw,112px); background-color:#C4FBA7;
+   cerebro/specs/emails.md e desenhada em base_suporte.py.
+
+   A ALTURA e a mesma da faixa do PromptHub, medida em 07/09/2026 na porta do
+   `escolher` (`.porta__faixa` no cora-promptadores): `clamp(140px,23vh,220px)`,
+   que da 207px numa janela de 900 de altura. Antes eram 8vw com teto de 112,
+   ou seja, metade. E `vh` e nao `vw` porque foi assim que ela nasceu la, e o
+   pedido foi a MESMA altura: com outra unidade as duas so coincidiriam numa
+   largura de tela. */.sp .faixa{ height:clamp(140px,23vh,220px); background-color:#C4FBA7;
   background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); background-repeat:repeat-x;
   background-position:left center; background-size:auto 100%; }.sp .sup-virada{ background:var(--paper); border-bottom:1px solid var(--line); }.sp .sup-form{ max-width:640px; margin-inline:auto; }.sp .sup-form__cab{ text-align:center; }.sp .sup-form__cab h2{ margin-top:var(--e-3); font-size:clamp(22px,2.6vw,30px); }.sp .sup-form__cab p{ margin-top:var(--e-3); font-size:15px; color:var(--ink2); }.sp .sup-form form{ margin-top:var(--e-7); display:grid; gap:var(--e-5); }/* `background-color`, e nao o atalho `background`: o atalho apagaria a seta
    do campo, que e um background-image. */.sp .sup-form .campo input, .sp .sup-form .campo textarea, .sp .sup-form .gat{ background-color:var(--wash); }.sp .sup-form .campo input:focus, .sp .sup-form .campo textarea:focus, .sp .sup-form .gat.aberto{

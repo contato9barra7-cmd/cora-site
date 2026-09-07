@@ -103,8 +103,15 @@ CSS = u"""
 /* ── a virada ───────────────────────────────────────────────────────────────
    A faixa dos Promptadores fecha as perguntas e abre o formulario, do mesmo
    jeito que ela abre o cartao do e-mail. Geometria descrita em
-   cerebro/specs/emails.md e desenhada em base_suporte.py. */
-.faixa{ height:clamp(64px,8vw,112px); background-color:@CHAO@;
+   cerebro/specs/emails.md e desenhada em base_suporte.py.
+
+   A ALTURA e a mesma da faixa do PromptHub, medida em 07/09/2026 na porta do
+   `escolher` (`.porta__faixa` no cora-promptadores): `clamp(140px,23vh,220px)`,
+   que da 207px numa janela de 900 de altura. Antes eram 8vw com teto de 112,
+   ou seja, metade. E `vh` e nao `vw` porque foi assim que ela nasceu la, e o
+   pedido foi a MESMA altura: com outra unidade as duas so coincidiriam numa
+   largura de tela. */
+.faixa{ height:clamp(140px,23vh,220px); background-color:@CHAO@;
   background-image:@FAIXA@; background-repeat:repeat-x;
   background-position:left center; background-size:auto 100%; }
 .sup-virada{ background:var(--paper); border-bottom:1px solid var(--line); }

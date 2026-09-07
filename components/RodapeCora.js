@@ -32,8 +32,6 @@ const MARCAS = [
   'Promob', 'Kling', 'Windows', 'macOS',
 ];
 
-const EMAIL = 'cora@corarender.com';
-const WHATSAPP = 'https://wa.me/5551980889004';
 const INSTAGRAM = 'https://www.instagram.com/9barra7';
 
 export default function RodapeCora() {
@@ -109,11 +107,16 @@ export default function RodapeCora() {
               ]}
             />
 
+            {/* O artefato tinha E-mail e WhatsApp aqui. O WhatsApp saiu porque
+                o suporte do Cora é por e-mail, e o número que existe é o da
+                9barra7, que atende os Promptadores. E o e-mail direto virou a
+                página de suporte: lá a pessoa acha a resposta nas perguntas
+                antes de escrever, e se escrever mesmo assim, escreve num
+                formulário que já chega com assunto e recibo. */}
             <Coluna
               titulo={t('rod_contato')}
               itens={[
-                { rotulo: t('rod_email'), href: 'mailto:' + EMAIL, fora: true },
-                { rotulo: 'WhatsApp', href: WHATSAPP, fora: true },
+                { rotulo: t('rodapelegal_suporte'), href: '/suporte' },
                 { rotulo: 'Instagram', href: INSTAGRAM, fora: true },
               ]}
             />
