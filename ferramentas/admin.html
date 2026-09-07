@@ -1745,9 +1745,15 @@
 }
 /* A faixa fecha o cartão por cima, como no cabeçalho do e-mail. É a mesma
    peça, no mesmo lugar: o alto do cartão. */
+/* A ALTURA DA FAIXA E A MESMA DOS E-MAILS: 73 de altura para 520 de largura.
+   Ela e a primeira coisa que a pessoa ve, no e-mail e na tela, e duas alturas
+   diferentes fazem as duas parecerem de produtos parecidos em vez do mesmo.
+
+   `aspect-ratio` em vez de altura fixa: assim a proporcao se mantem em
+   qualquer largura de cartao, que e o que "mesmo padrao" quer dizer. */
 .trial-bloqueio-faixa{
-  height:38px; background:var(--faixa-deitada) repeat-x left center;
-  background-size:calc(38px * 8) 100%;
+  aspect-ratio:520 / 73; background:var(--faixa-deitada) repeat-x left center;
+  background-size:auto 100%;
 }
 .trial-bloqueio-miolo{ padding:30px 34px 34px; }
 .trial-bloqueio-eb{ font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
@@ -1823,15 +1829,34 @@
    O mesmo desenho do `.conta__cabeca` dos Promptadores: foto quadrada de
    canto redondo, olho, nome grande em peso 500 e uma linha de apoio.
    ══════════════════════════════════════════════════════════════════════ */
-.conta-cabeca{ display:flex; align-items:center; gap:16px; margin-bottom:30px; }
+/* ── O CABECALHO DE UMA PESSOA ──
+   Tres pecas em duas linhas: o rotulo da secao em cima, ocupando a largura, e
+   embaixo a foto ao lado do nome com a linha de apoio.
+
+   Era um flex centrado, e o centro de um bloco de tres alturas diferentes cai
+   sempre no lugar errado: a foto ficava na altura do nome em uma pagina e na
+   altura do rotulo em outra, conforme o tamanho do texto.
+
+   `display:contents` no `__txt` faz o grid do pai enxergar os tres filhos
+   diretamente, e por isso o rotulo pode subir sem mexer no HTML de nenhuma das
+   quatro telas que usam este bloco. A foto ocupa as duas linhas de baixo, e e
+   isso que a alinha com o conjunto nome mais apoio, e nao com um deles. */
+.conta-cabeca{
+  display:grid; grid-template-columns:auto minmax(0,1fr);
+  column-gap:16px; align-items:start; margin-bottom:30px;
+}
+.conta-cabeca__txt{ display:contents; }
+.conta-cabeca > .conta-cabeca__txt > .eyebrow{ grid-column:1 / -1; margin-bottom:10px; }
+.conta-cabeca__foto{ grid-row:2 / 4; }
 .conta-cabeca__foto{
   width:56px; height:56px; flex:none; border-radius:16px; display:grid; place-items:center;
   background:var(--ink); color:var(--paper); font-size:20px; font-weight:600; letter-spacing:.02em;
   background-size:cover; background-position:center;
 }
-.conta-cabeca__txt{ min-width:0; }
 .conta-cabeca__nome{
-  margin:5px 0 0; font-size:clamp(24px,3vw,30px); font-weight:500;
+  /* Sem a margem de cima: quem alinha a foto com o nome e a linha do grid, e
+     uma margem aqui empurrava so o texto e desalinhava os dois de novo. */
+  margin:0; font-size:clamp(24px,3vw,30px); font-weight:500;
   letter-spacing:-.032em; line-height:1.08;
 }
 .conta-cabeca__email{ margin:6px 0 0; font-size:14px; color:var(--ink2); line-height:1.5; }

@@ -462,12 +462,28 @@
    A CABEÇA DAS TELAS DE DENTRO
    O mesmo desenho do `.conta__cabeca` dos Promptadores: foto quadrada de
    canto redondo, olho, nome grande em peso 500 e uma linha de apoio.
-   ══════════════════════════════════════════════════════════════════════ */.pn .conta-cabeca{ display:flex; align-items:center; gap:16px; margin-bottom:30px; }.pn .conta-cabeca__foto{
+   ══════════════════════════════════════════════════════════════════════ *//* ── O CABECALHO DE UMA PESSOA ──
+   Tres pecas em duas linhas: o rotulo da secao em cima, ocupando a largura, e
+   embaixo a foto ao lado do nome com a linha de apoio.
+
+   Era um flex centrado, e o centro de um bloco de tres alturas diferentes cai
+   sempre no lugar errado: a foto ficava na altura do nome em uma pagina e na
+   altura do rotulo em outra, conforme o tamanho do texto.
+
+   `display:contents` no `__txt` faz o grid do pai enxergar os tres filhos
+   diretamente, e por isso o rotulo pode subir sem mexer no HTML de nenhuma das
+   quatro telas que usam este bloco. A foto ocupa as duas linhas de baixo, e e
+   isso que a alinha com o conjunto nome mais apoio, e nao com um deles. */.pn .conta-cabeca{
+  display:grid; grid-template-columns:auto minmax(0,1fr);
+  column-gap:16px; align-items:start; margin-bottom:30px;
+}.pn .conta-cabeca__txt{ display:contents; }.pn .conta-cabeca > .conta-cabeca__txt > .eyebrow{ grid-column:1 / -1; margin-bottom:10px; }.pn .conta-cabeca__foto{ grid-row:2 / 4; }.pn .conta-cabeca__foto{
   width:56px; height:56px; flex:none; border-radius:16px; display:grid; place-items:center;
   background:var(--ink); color:var(--paper); font-size:20px; font-weight:600; letter-spacing:.02em;
   background-size:cover; background-position:center;
-}.pn .conta-cabeca__txt{ min-width:0; }.pn .conta-cabeca__nome{
-  margin:5px 0 0; font-size:clamp(24px,3vw,30px); font-weight:500;
+}.pn .conta-cabeca__nome{/* Sem a margem de cima: quem alinha a foto com o nome e a linha do grid, e
+     uma margem aqui empurrava so o texto e desalinhava os dois de novo. */
+  
+  margin:0; font-size:clamp(24px,3vw,30px); font-weight:500;
   letter-spacing:-.032em; line-height:1.08;
 }.pn .conta-cabeca__email{ margin:6px 0 0; font-size:14px; color:var(--ink2); line-height:1.5; }/* ══════════════════════════════════════════════════════════════════════
    MINHA CONTA

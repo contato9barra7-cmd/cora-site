@@ -196,6 +196,11 @@
 .can-fazer{
   display:grid; gap:14px; grid-template-columns:1fr;
   align-items:stretch;
+  /* O espaco ACIMA e o mesmo que separa as duas colunas entre si. As duas mais
+     o que vem antes delas sao um grupo, e um vao maior em cima cortaria o
+     grupo no meio. `margin-top` negativo porque o gap da tela e 18: 18 menos 4
+     da os 14 do gap interno. */
+  margin-top:-4px;
 }
 @media (min-width:760px){
   .can-fazer{ grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); }
