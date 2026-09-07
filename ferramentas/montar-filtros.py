@@ -2,12 +2,14 @@
 """Monta ferramentas/filtros-admin.html: quatro desenhos do dropdown de filtros.
 
 O botao Filtros do admin abre um dropdown. Sao quatro jeitos de desenhar esse
-dropdown, com os mesmos sete filtros dentro. A casca (menu lateral, cabecalho,
-folha do painel e a do admin) e COPIADA de painel.html e de admin-css.css: o
-dropdown precisa ser visto dentro da tela de verdade, e nao numa pagina branca.
+dropdown, com os mesmos sete filtros dentro.
 
-As quatro opcoes sao montadas a partir de UMA lista de filtros, logo abaixo. E
-isso que garante que as quatro tenham exatamente o mesmo conteudo dentro.
+OS QUATRO FICAM ABERTOS NA TELA, lado a lado. A primeira versao escondia cada
+um atras de um clique no botao Filtros, e comparar quatro coisas que so
+aparecem uma de cada vez nao e comparar.
+
+As quatro sao montadas a partir de UMA lista de filtros, logo abaixo. E isso
+que garante que as quatro tenham exatamente o mesmo conteudo dentro.
 
 Rodar de dentro de cora-site:  python ferramentas/montar-filtros.py
 """
@@ -30,26 +32,14 @@ def pedaco_dd(painel):
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 css_opcoes = io.open(os.path.join(AQUI, 'filtros-css.css'), encoding='utf-8').read()
-css_admin = io.open(os.path.join(AQUI, 'admin-css.css'), encoding='utf-8').read()
 
 painel = io.open('ferramentas/painel.html', encoding='utf-8').read()
 m = re.search(r"<style>(.*?)</style>", painel, re.S)
 assert m, 'nao achei o <style> do painel'
+# So os tokens e os componentes compartilhados. A casca (menu, cabecalho) nao
+# entra: esta pagina e uma folha de comparacao, e o menu so roubaria 240px de
+# largura de quatro dropdowns que precisam caber lado a lado.
 css_painel = m.group(1) + pedaco_dd(painel)
-
-i = painel.index('<div class="app-shell"')
-j = painel.index('<main class="app-main">')
-casca = painel[i:j]
-casca = re.sub(r'\s*<!-- .. a tarja.*?</div>\n', '\n', casca, flags=re.S, count=1)
-casca = casca.replace('class="app-nav-item ativo" data-vai="inicio"',
-                      'class="app-nav-item" data-vai="inicio"')
-casca = re.sub(
-    r'(<a[^>]*class="app-nav-item)(")((?:(?!</a>).)*?<span class="app-nav-lbl">Admin</span>)',
-    r'\1 ativo\2\3', casca, flags=re.S)
-casca = casca.replace('<header class="app-header">',
-                      '<header class="app-header app-header--faixa">')
-casca = casca.replace('<span class="app-header-aqui">Início</span>',
-                      '<span class="app-header-aqui">Admin</span>')
 
 # ═══════════════════════════════════════════════════════════════════════════
 #  OS SETE FILTROS, num lugar so.
@@ -107,41 +97,49 @@ secoes4 = u''.join(
     u'<div class="fx4__sec"><div class="fx4__rot">%s</div>%s</div>' % (r, opcoes_de(v, ops))
     for r, v, ops in FILTROS)
 
-BUSCA = (u'<div class="adm-busca">'
-         u'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" '
-         u'stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'
-         u'<input class="perfil-input" placeholder="Buscar por nome, e-mail ou CPF"></div>')
-
 PE = (u'<div class="fx__pe"><span class="fx__conta">5 de 19</span>'
       u'<button class="as-btn-cta">Ver 5 contas</button></div>')
 
-
-def botao(n):
-    return (u'<button class="adm-btn-linha" data-abre="%d">'
-            u'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" '
-            u'stroke-linecap="round"><path d="M3 5h18M6 12h12M10 19h4"/></svg>'
-            u'Filtros <span class="adm-btn-n">3</span></button>' % n)
-
+POPS = {
+    1: (u'<div class="fx__pop fx1" data-pop="1">'
+        u'<div class="fx__cab" data-cab1><h3>Filtros</h3></div>'
+        u'<div class="fx1__lista" data-tela1="raiz">%s</div>%s%s</div>'
+        % (linhas1, telas1, PE)),
+    2: (u'<div class="fx__pop fx2" data-pop="2">'
+        u'<div class="fx__cab"><h3>Filtros</h3>'
+        u'<button class="adm-limpar">limpar tudo</button></div>'
+        u'<div class="fx2__corpo">%s</div>%s</div>' % (campos, PE)),
+    3: (u'<div class="fx__pop fx3" data-pop="3">'
+        u'<div class="fx__cab"><h3>Filtros</h3>'
+        u'<button class="adm-limpar">limpar tudo</button></div>'
+        u'<div class="fx3__corpo">%s</div>%s</div>' % (campos, PE)),
+    4: (u'<div class="fx__pop fx4" data-pop="4">'
+        u'<div class="fx__cab"><h3>Filtros</h3>'
+        u'<button class="adm-limpar">limpar tudo</button></div>'
+        u'<div class="fx4__corpo">%s</div>%s</div>' % (secoes4, PE)),
+}
 
 NOTAS = [
-    (u'Menu que entra',
-     u'Uma coluna estreita, uma linha por filtro, com o valor escolhido à direita. '
-     u'Clicar numa linha troca o miolo pelas opções daquele filtro, com um voltar em cima.',
+    (u'Menu que entra', u'290 de largura',
+     u'Uma linha por filtro, com o valor escolhido à direita. Clicar numa linha troca o '
+     u'miolo pelas opções daquele filtro, com um voltar em cima. <b>Experimente clicar '
+     u'em Profissão.</b>',
      u'<b>A favor</b> é o mais estreito dos quatro, e cabe qualquer número de filtros sem '
      u'crescer. Cada lista de opções aparece inteira, sem rolagem. '
      u'<b>Contra</b> mudar três filtros exige entrar e voltar três vezes.'),
-    (u'Campos empilhados',
-     u'O dropdown fica largo e traz os sete campos, um embaixo do outro, com o mesmo '
-     u'controle do resto do site.',
-     u'<b>A favor</b> tudo à mão, e o controle é o mesmo do perfil e do login. '
+    (u'Campos empilhados', u'370 de largura',
+     u'Os sete campos um embaixo do outro, com o mesmo controle do perfil e do login. '
+     u'<b>Os campos abrem.</b>',
+     u'<b>A favor</b> tudo à mão, e o controle é o mesmo do resto do site. '
      u'<b>Contra</b> sete campos numa coluna precisam rolar, e cada um ainda abre a sua '
      u'própria lista por cima.'),
-    (u'Duas colunas',
-     u'O mesmo da anterior, em duas colunas. Os sete cabem sem rolar nenhuma vez.',
-     u'<b>A favor</b> vê os sete de uma vez, e o pé com a contagem fica sempre visível. '
+    (u'Duas colunas', u'620 de largura',
+     u'O mesmo da anterior, em duas colunas. Os sete cabem sem rolar nenhuma vez, e o pé '
+     u'com a contagem fica sempre visível.',
+     u'<b>A favor</b> vê os sete de uma vez. '
      u'<b>Contra</b> 620px de dropdown é quase um painel, e no telefone ele volta a ser '
      u'uma coluna só.'),
-    (u'Tudo aberto',
+    (u'Tudo aberto', u'330 de largura',
      u'Sem campo e sem entrar em lugar nenhum: cada filtro é uma seção com as opções à '
      u'vista, uma embaixo da outra. Rola por dentro.',
      u'<b>A favor</b> é o menor número de cliques possível, um por filtro, e o que está '
@@ -149,52 +147,30 @@ NOTAS = [
      u'<b>Contra</b> é o mais comprido dos quatro, e listas grandes deixam a rolagem longa.'),
 ]
 
-POPS = {
-    1: (u'<div class="fx__pop fx1" data-pop="1" hidden>'
-        u'<div class="fx__cab" data-cab1><h3>Filtros</h3></div>'
-        u'<div class="fx1__lista" data-tela1="raiz">%s</div>%s%s</div>'
-        % (linhas1, telas1, PE)),
-    2: (u'<div class="fx__pop fx2" data-pop="2" hidden>'
-        u'<div class="fx__cab"><h3>Filtros</h3>'
-        u'<button class="adm-limpar">limpar tudo</button></div>'
-        u'<div class="fx2__corpo">%s</div>%s</div>' % (campos, PE)),
-    3: (u'<div class="fx__pop fx3" data-pop="3" hidden>'
-        u'<div class="fx__cab"><h3>Filtros</h3>'
-        u'<button class="adm-limpar">limpar tudo</button></div>'
-        u'<div class="fx3__corpo">%s</div>%s</div>' % (campos, PE)),
-    4: (u'<div class="fx__pop fx4" data-pop="4" hidden>'
-        u'<div class="fx__cab"><h3>Filtros</h3>'
-        u'<button class="adm-limpar">limpar tudo</button></div>'
-        u'<div class="fx4__corpo">%s</div>%s</div>' % (secoes4, PE)),
-}
-
-secoes = []
+celulas = []
 for n in range(1, 5):
-    titulo, oque, pros = NOTAS[n - 1]
-    secoes.append(
-        u'<section data-op="%d"%s>'
-        u'<div class="esc__nota"><h2>%s</h2><p>%s</p><p>%s</p>'
-        u'<p class="esc__dica">Clique em <b>Filtros</b> aqui embaixo para abrir.</p></div>'
-        u'<div class="fx-barra">%s<div class="fx">%s%s</div></div>'
-        u'<div class="conta-card adm-card"><p class="adm-vazio">A tabela fica aqui, '
-        u'e o dropdown abre por cima dela.</p></div>'
-        u'</section>'
-        % (n, u'' if n == 1 else u' hidden', titulo, oque, pros, BUSCA, botao(n), POPS[n]))
+    titulo, medida, oque, pros = NOTAS[n - 1]
+    celulas.append(
+        u'<div class="cel%s">'
+        u'<div class="cel__cab"><span class="cel__n">%d</span><h2>%s</h2></div>'
+        u'<p class="cel__p">%s</p><p class="cel__p">%s</p>'
+        u'<div class="palco">%s</div>'
+        u'</div>'
+        % (u' cel--larga' if n == 3 else u'', n, titulo, oque, pros, POPS[n]))
 
-CORPO = (u"""    <div class="esc">
-      <p class="eyebrow">Admin &middot; o dropdown de filtros</p>
-      <h1>Quatro jeitos de abrir os filtros</h1>
-      <p class="esc__p">O botão Filtros abre um dropdown. São os mesmos sete filtros nos
-        quatro (período, situação, profissão, como conheceu, renderizador, país e estado),
-        mudando só o desenho de dentro. Os quatro abrem de verdade: clique em Filtros.</p>
-      <div class="esc__btns">
-        <button class="esc__bt on" data-op="1">1 &middot; Menu que entra</button>
-        <button class="esc__bt" data-op="2">2 &middot; Campos empilhados</button>
-        <button class="esc__bt" data-op="3">3 &middot; Duas colunas</button>
-        <button class="esc__bt" data-op="4">4 &middot; Tudo aberto</button>
-      </div>
-    </div>
-""" + u''.join(secoes))
+CORPO = (u"""  <div class="esc">
+    <p class="eyebrow">Admin &middot; o dropdown de filtros</p>
+    <h1>Quatro jeitos de abrir os filtros</h1>
+    <p class="esc__p">O botão Filtros do admin abre um dropdown. Aqui estão os quatro
+      desenhos possíveis, <b>os quatro abertos e funcionando</b>, com os mesmos sete
+      filtros dentro: período, situação, profissão, como conheceu, renderizador, país e
+      estado. Clique à vontade em qualquer um deles. Me diz o número.</p>
+  </div>
+
+  <div class="grade">
+""" + u''.join(celulas) + u"""
+  </div>
+""")
 
 CABECA = u"""<title>Dropdown de filtros</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -204,24 +180,24 @@ CABECA = u"""<title>Dropdown de filtros</title>
 <!--
      QUATRO DESENHOS DO DROPDOWN DE FILTROS DO ADMIN
 
-     O botao Filtros abre um dropdown. Sao quatro jeitos de desenhar esse
-     dropdown, ancorado no mesmo botao, com os mesmos sete filtros dentro.
-     Os quatro abrem de verdade.
+     Os quatro ficam ABERTOS na tela, lado a lado, e os quatro funcionam. A
+     primeira versao escondia cada um atras de um clique no botao Filtros, e
+     comparar quatro coisas que so aparecem uma de cada vez nao e comparar.
 
-     Este arquivo e MONTADO por `ferramentas/montar-filtros.py`, que copia a
-     casca do painel.html e monta as quatro a partir de UMA lista de filtros.
-     Editar o HTML direto e trabalho perdido.
+     A casca do painel (menu lateral, cabecalho) nao entra aqui de proposito:
+     esta e uma folha de comparacao, e o menu so roubaria 240px de largura de
+     quatro dropdowns que precisam caber lado a lado. O contexto ja foi visto
+     no artefato do admin.
+
+     Este arquivo e MONTADO por `ferramentas/montar-filtros.py`, que monta as
+     quatro a partir de UMA lista de filtros. Editar o HTML direto e trabalho
+     perdido.
 -->
 
 <style>
-@@CSS_OPCOES@@
-</style>
-
-<style data-demo>
-/* A folha do painel e a do admin, copiadas na montagem. */
 @@CSS_PAINEL@@
 
-@@CSS_ADMIN@@
+@@CSS_OPCOES@@
 
 [hidden]{ display:none!important; }
 </style>
@@ -229,57 +205,19 @@ CABECA = u"""<title>Dropdown de filtros</title>
 """
 
 RODAPE = u"""
-    </div>
-  </main>
-</div>
-
 <script>
-  /* So a demonstracao. No site quem abre o dropdown e o estado do componente. */
+  /* So a demonstracao. No site quem guarda o estado e o componente. */
   var d = document;
   var NOMES = @@NOMES@@;
 
-  function fecharDds() {
+  function fecharDds(menos) {
     d.querySelectorAll('.dd--aberto').forEach(function (x) {
+      if (x === menos) return;
       x.classList.remove('dd--aberto');
       var l = x.querySelector('.dd__lista');
       if (l) l.remove();
     });
   }
-
-  function fecharPops() {
-    d.querySelectorAll('.fx__pop').forEach(function (p) { p.hidden = true; });
-    d.querySelectorAll('[data-abre]').forEach(function (b) { b.classList.remove('adm-btn-linha--on'); });
-    fecharDds();
-  }
-
-  d.querySelectorAll('.esc__bt').forEach(function (b) {
-    b.addEventListener('click', function () {
-      d.querySelectorAll('.esc__bt').forEach(function (o) { o.classList.toggle('on', o === b); });
-      d.querySelectorAll('section[data-op]').forEach(function (s) {
-        s.hidden = s.dataset.op !== b.dataset.op;
-      });
-      fecharPops();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
-
-  d.querySelectorAll('[data-abre]').forEach(function (bt) {
-    bt.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var pop = d.querySelector('.fx__pop[data-pop="' + bt.dataset.abre + '"]');
-      var jaAberto = pop && !pop.hidden;
-      fecharPops();
-      if (pop && !jaAberto) {
-        pop.hidden = false;
-        bt.classList.add('adm-btn-linha--on');
-      }
-    });
-  });
-  d.querySelectorAll('.fx__pop').forEach(function (p) {
-    p.addEventListener('click', function (e) { e.stopPropagation(); });
-  });
-  d.addEventListener('click', fecharPops);
-  d.addEventListener('keydown', function (e) { if (e.key === 'Escape') fecharPops(); });
 
   /* Opcao 1: entrar e voltar dentro do proprio dropdown. */
   function verTela1(qual) {
@@ -296,19 +234,15 @@ RODAPE = u"""
     }
     cab.innerHTML = '<button class="fx__voltar" type="button" data-volta><i></i>'
       + NOMES[qual] + '</button>';
-    cab.querySelector('[data-volta]').addEventListener('click', function (e) {
-      e.stopPropagation();
-      verTela1('raiz');
-    });
+    cab.querySelector('[data-volta]').addEventListener('click', function () { verTela1('raiz'); });
   }
   d.querySelectorAll('[data-entra]').forEach(function (l) {
-    l.addEventListener('click', function (e) { e.stopPropagation(); verTela1(l.dataset.entra); });
+    l.addEventListener('click', function () { verTela1(l.dataset.entra); });
   });
 
   /* Escolher marca a opcao e desmarca as irmas. */
   d.querySelectorAll('.fx__op').forEach(function (o) {
-    o.addEventListener('click', function (e) {
-      e.stopPropagation();
+    o.addEventListener('click', function () {
       o.parentElement.querySelectorAll('.fx__op').forEach(function (x) {
         x.classList.remove('fx__op--sel');
       });
@@ -363,6 +297,8 @@ RODAPE = u"""
       dd.classList.add('dd--aberto');
     });
   });
+  d.addEventListener('click', function () { fecharDds(); });
+  d.addEventListener('keydown', function (e) { if (e.key === 'Escape') fecharDds(); });
 
   /* Limpar limpa de verdade: tudo volta para a primeira opcao de cada grupo. */
   d.querySelectorAll('.adm-limpar').forEach(function (b) {
@@ -384,16 +320,12 @@ RODAPE = u"""
 """
 
 FORA = (CABECA
-        .replace('@@CSS_OPCOES@@', css_opcoes)
         .replace('@@CSS_PAINEL@@', css_painel)
-        .replace('@@CSS_ADMIN@@', css_admin))
+        .replace('@@CSS_OPCOES@@', css_opcoes))
 
 nomes = u'{' + u','.join(u'"%d":"%s"' % (n, r) for n, (r, _, _) in enumerate(FILTROS)) + u'}'
 RODAPE = RODAPE.replace('@@NOMES@@', nomes)
 
-MIOLO = (u'  <main class="app-main">\n    <div class="app-main-conteudo">\n'
-         u'    <div class="admin-wrap" style="max-width:1180px;margin:0 auto">\n'
-         + CORPO + u'\n    </div>\n')
-
-io.open('ferramentas/filtros-admin.html', 'w', encoding='utf-8').write(FORA + casca + MIOLO + RODAPE)
+io.open('ferramentas/filtros-admin.html', 'w', encoding='utf-8').write(
+    FORA + u'<div class="env">\n' + CORPO + u'</div>\n' + RODAPE)
 print('filtros-admin.html: %.1f KB' % (os.path.getsize('ferramentas/filtros-admin.html') / 1024.0))

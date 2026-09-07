@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
@@ -48,6 +48,23 @@ export default function Admin() {
   const [negado, setNegado] = useState(false);
   const [assinantes, setAssinantes] = useState([]);
   const [painelFiltros, setPainelFiltros] = useState(false);
+  /* O dropdown dos filtros fecha ao clicar fora e no Esc. Sem isso ele ficava
+     aberto por cima da tabela que a pessoa acabou de filtrar. */
+  const caixaFiltros = useRef(null);
+  useEffect(() => {
+    if (!painelFiltros) return;
+    function fora(e) {
+      if (caixaFiltros.current && caixaFiltros.current.contains(e.target)) return;
+      setPainelFiltros(false);
+    }
+    function aoTeclar(e) { if (e.key === 'Escape') setPainelFiltros(false); }
+    document.addEventListener('mousedown', fora);
+    document.addEventListener('keydown', aoTeclar);
+    return () => {
+      document.removeEventListener('mousedown', fora);
+      document.removeEventListener('keydown', aoTeclar);
+    };
+  }, [painelFiltros]);
 
   // Paginação: com centenas de assinantes a página fica pesada e não há como
   // chegar ao fim da lista.
@@ -866,9 +883,10 @@ export default function Admin() {
           />
         </div>
 
+        <div className="adm-filtros" ref={caixaFiltros}>
         <button
           className={'adm-btn-linha' + (painelFiltros ? ' adm-btn-linha--on' : '')}
-          onClick={() => setPainelFiltros(true)}
+          onClick={(e) => { e.stopPropagation(); setPainelFiltros((v) => !v); }}
         >
           <svg viewBox="0 0 20 20" width="16" height="16" fill="none"
                stroke="currentColor" strokeWidth="1.6">
@@ -877,6 +895,155 @@ export default function Admin() {
           {t('adm_filtros')}
           {nFiltros > 0 && <em>{nFiltros}</em>}
         </button>
+
+        {/* ── O DROPDOWN DOS FILTROS ──
+            Era uma gaveta que entrava pela direita e tapava a tabela.
+            Virou dropdown ancorado no próprio botão, com os sete campos
+            empilhados (opção 2 das quatro em ferramentas/filtros-admin.html,
+            escolhida pelo dono em 07/09/2026). */}
+        {painelFiltros && (
+            <div className="adm-pop" onClick={(e) => e.stopPropagation()}>
+            <div className="adm-pop__cab">
+              <h2>{t('adm_filtros')}</h2>
+              <button className="adm-limpar" onClick={limparFiltros}>
+                {t('adm_limpar_filtros')}
+              </button>
+            </div>
+
+            <div className="adm-pop__corpo">
+
+                <div className="adm-pop__g">
+                  <DropdownCora
+                    rotulo={t('adm_periodo')}
+                    valor={filtroData}
+                    onEscolher={(v) => setFiltroData(v)}
+                    opcoes={[
+                      { v: 'todos', n: t('adm_qualquer') },
+                      { v: 'mes', n: t('adm_este_mes') },
+                      { v: '12meses', n: t('adm_ult12') },
+                      { v: 'ano', n: t('adm_ano_especifico') },
+                      { v: 'periodo', n: t('adm_intervalo') },
+                    ]}
+                  />
+
+                  {filtroData === 'ano' && (
+                    <input type="number" min="2024" max="2100" value={anoFiltro}
+                           onChange={(e) => setAnoFiltro(e.target.value)} />
+                  )}
+
+                  {filtroData === 'periodo' && (
+                    <div className="adm-pop__datas">
+                      <input type="date" value={dataDe} onChange={(e) => setDataDe(e.target.value)} />
+                      <span>{t('promp_ate')}</span>
+                      <input type="date" value={dataAte} onChange={(e) => setDataAte(e.target.value)} />
+                    </div>
+                  )}
+                </div>
+
+                {aba === 'pagantes' && (
+                  <div className="adm-pop__g">
+                    <DropdownCora
+                      rotulo={t('adm_status')}
+                      valor={filtroStatus}
+                      onEscolher={(v) => setFiltroStatus(v)}
+                      opcoes={[
+                        { v: '', n: t('promp_f_todos') },
+                        { v: 'vencendo', n: t('adm_quase_vencendo') },
+                      ]}
+                    />
+                  </div>
+                )}
+
+                <div className="adm-pop__g">
+                  <DropdownCora
+                    rotulo={t('adm_profissao')}
+                    valor={filtroProfissao}
+                    onEscolher={(v) => setFiltroProfissao(v)}
+                    opcoes={[
+                      { v: '', n: t('adm_qualquer') },
+                      { v: 'arquiteto', n: t('adm_p_arquiteto') },
+                      { v: 'designer_interiores', n: t('adm_p_designer') },
+                      { v: 'archviz', n: 'Archviz' },
+                      { v: 'engenheiro', n: t('adm_p_engenheiro') },
+                      { v: 'estudante', n: t('adm_p_estudante') },
+                      { v: 'paisagista', n: t('adm_p_paisagista') },
+                      { v: 'outro', n: t('adm_outro') },
+                    ]}
+                  />
+                </div>
+
+                <div className="adm-pop__g">
+                  <DropdownCora
+                    rotulo={t('adm_como_conheceu')}
+                    valor={filtroOrigem}
+                    onEscolher={(v) => setFiltroOrigem(v)}
+                    opcoes={[
+                      { v: '', n: t('adm_qualquer') },
+                      { v: 'instagram', n: 'Instagram' },
+                      { v: 'youtube', n: 'YouTube' },
+                      { v: 'google', n: 'Google' },
+                      { v: 'indicacao', n: t('adm_o_indicacao') },
+                      { v: 'tiktok', n: 'TikTok' },
+                      { v: 'anuncio', n: t('adm_o_anuncio') },
+                      { v: 'outro', n: t('adm_outro') },
+                    ]}
+                  />
+                </div>
+
+                <div className="adm-pop__g">
+                  <DropdownCora
+                    rotulo={t('adm_renderizador')}
+                    valor={filtroRender}
+                    onEscolher={(v) => setFiltroRender(v)}
+                    opcoes={[
+                      { v: '', n: t('adm_qualquer') },
+                      { v: 'nao', n: t('adm_r_nao') },
+                      { v: 'vray', n: 'V-Ray' },
+                      { v: 'corona', n: 'Corona' },
+                      { v: 'enscape', n: 'Enscape' },
+                      { v: 'lumion', n: 'Lumion' },
+                      { v: 'dhistudio', n: 'D5 / IA' },
+                      { v: 'outro', n: t('adm_outro') },
+                    ]}
+                  />
+                </div>
+
+                <div className="adm-pop__g">
+                  <DropdownCora
+                    rotulo={t('adm_pais')}
+                    valor={filtroPais}
+                    onEscolher={(v) => setFiltroPais(v)}
+                    opcoes={[
+                      { v: '', n: t('adm_qualquer_pais') },
+                      ...[...new Set(assinantes.map(a => (a.pais || '').toUpperCase()).filter(Boolean))].sort().map(p => ({ v: p, n: p })),
+                    ]}
+                  />
+
+                  <div style={{ marginTop: 10 }}>
+                    <DropdownCora
+                      rotulo={t('adm_estado')}
+                      valor={filtroEstado}
+                      onEscolher={(v) => setFiltroEstado(v)}
+                      opcoes={[
+                        { v: '', n: t('adm_qualquer_estado') },
+                        ...[...new Set(assinantes.map(a => (a.estado || '').toUpperCase()).filter(Boolean))].sort().map(uf => ({ v: uf, n: uf })),
+                      ]}
+                    />
+                  </div>
+                </div>
+            </div>
+
+            <div className="adm-pop__pe">
+              <span className="adm-pop__conta">
+                {filtrados.length} {t('adm_de')} {totalAba}
+              </span>
+              <button className="as-btn-cta" onClick={() => setPainelFiltros(false)}>
+                {t('adm_ver')} {filtrados.length} {filtrados.length === 1 ? t('adm_resultado') : t('adm_resultados')}
+              </button>
+            </div>
+          </div>
+        )}
+        </div>
 
       </div>
 
@@ -909,155 +1076,6 @@ export default function Admin() {
           </svg>
           {aba === 'convidados' ? t('adm_aviso_convidados') : t('adm_aviso_trial')}
         </p>
-      )}
-
-      {painelFiltros && (
-        <div className="adm-gaveta" onClick={() => setPainelFiltros(false)}>
-          <div className="adm-gaveta__folha" onClick={(e) => e.stopPropagation()}>
-
-            <div className="adm-gaveta__cab">
-              <strong>{t('adm_filtros')}</strong>
-              <button onClick={() => setPainelFiltros(false)} aria-label={t('ws_fechar')}>
-                <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
-                     stroke="currentColor" strokeWidth="1.6">
-                  <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round"/>
-                </svg>
-              </button>
-            </div>
-
-            <div className="adm-gaveta__corpo">
-
-              <div className="adm-gaveta__g">
-                <DropdownCora
-                  rotulo={t('adm_periodo')}
-                  valor={filtroData}
-                  onEscolher={(v) => setFiltroData(v)}
-                  opcoes={[
-                    { v: 'todos', n: t('adm_qualquer') },
-                    { v: 'mes', n: t('adm_este_mes') },
-                    { v: '12meses', n: t('adm_ult12') },
-                    { v: 'ano', n: t('adm_ano_especifico') },
-                    { v: 'periodo', n: t('adm_intervalo') },
-                  ]}
-                />
-
-                {filtroData === 'ano' && (
-                  <input type="number" min="2024" max="2100" value={anoFiltro}
-                         onChange={(e) => setAnoFiltro(e.target.value)} />
-                )}
-
-                {filtroData === 'periodo' && (
-                  <div className="adm-opcoes">
-                    <input type="date" value={dataDe} onChange={(e) => setDataDe(e.target.value)} />
-                    <span>{t('promp_ate')}</span>
-                    <input type="date" value={dataAte} onChange={(e) => setDataAte(e.target.value)} />
-                  </div>
-                )}
-              </div>
-
-              {aba === 'pagantes' && (
-                <div className="adm-gaveta__g">
-                  <DropdownCora
-                    rotulo={t('adm_status')}
-                    valor={filtroStatus}
-                    onEscolher={(v) => setFiltroStatus(v)}
-                    opcoes={[
-                      { v: '', n: t('promp_f_todos') },
-                      { v: 'vencendo', n: t('adm_quase_vencendo') },
-                    ]}
-                  />
-                </div>
-              )}
-
-              <div className="adm-gaveta__g">
-                <DropdownCora
-                  rotulo={t('adm_profissao')}
-                  valor={filtroProfissao}
-                  onEscolher={(v) => setFiltroProfissao(v)}
-                  opcoes={[
-                    { v: '', n: t('adm_qualquer') },
-                    { v: 'arquiteto', n: t('adm_p_arquiteto') },
-                    { v: 'designer_interiores', n: t('adm_p_designer') },
-                    { v: 'archviz', n: 'Archviz' },
-                    { v: 'engenheiro', n: t('adm_p_engenheiro') },
-                    { v: 'estudante', n: t('adm_p_estudante') },
-                    { v: 'paisagista', n: t('adm_p_paisagista') },
-                    { v: 'outro', n: t('adm_outro') },
-                  ]}
-                />
-              </div>
-
-              <div className="adm-gaveta__g">
-                <DropdownCora
-                  rotulo={t('adm_como_conheceu')}
-                  valor={filtroOrigem}
-                  onEscolher={(v) => setFiltroOrigem(v)}
-                  opcoes={[
-                    { v: '', n: t('adm_qualquer') },
-                    { v: 'instagram', n: 'Instagram' },
-                    { v: 'youtube', n: 'YouTube' },
-                    { v: 'google', n: 'Google' },
-                    { v: 'indicacao', n: t('adm_o_indicacao') },
-                    { v: 'tiktok', n: 'TikTok' },
-                    { v: 'anuncio', n: t('adm_o_anuncio') },
-                    { v: 'outro', n: t('adm_outro') },
-                  ]}
-                />
-              </div>
-
-              <div className="adm-gaveta__g">
-                <DropdownCora
-                  rotulo={t('adm_renderizador')}
-                  valor={filtroRender}
-                  onEscolher={(v) => setFiltroRender(v)}
-                  opcoes={[
-                    { v: '', n: t('adm_qualquer') },
-                    { v: 'nao', n: t('adm_r_nao') },
-                    { v: 'vray', n: 'V-Ray' },
-                    { v: 'corona', n: 'Corona' },
-                    { v: 'enscape', n: 'Enscape' },
-                    { v: 'lumion', n: 'Lumion' },
-                    { v: 'dhistudio', n: 'D5 / IA' },
-                    { v: 'outro', n: t('adm_outro') },
-                  ]}
-                />
-              </div>
-
-              <div className="adm-gaveta__g">
-                <DropdownCora
-                  rotulo={t('adm_pais')}
-                  valor={filtroPais}
-                  onEscolher={(v) => setFiltroPais(v)}
-                  opcoes={[
-                    { v: '', n: t('adm_qualquer_pais') },
-                    ...[...new Set(assinantes.map(a => (a.pais || '').toUpperCase()).filter(Boolean))].sort().map(p => ({ v: p, n: p })),
-                  ]}
-                />
-
-                <div style={{ marginTop: 10 }}>
-                  <DropdownCora
-                    rotulo={t('adm_estado')}
-                    valor={filtroEstado}
-                    onEscolher={(v) => setFiltroEstado(v)}
-                    opcoes={[
-                      { v: '', n: t('adm_qualquer_estado') },
-                      ...[...new Set(assinantes.map(a => (a.estado || '').toUpperCase()).filter(Boolean))].sort().map(uf => ({ v: uf, n: uf })),
-                    ]}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="adm-gaveta__pe">
-              <button className="adm-btn-linha" onClick={limparFiltros}>
-                {t('adm_limpar_filtros')}
-              </button>
-              <button className="as-btn-cta" onClick={() => setPainelFiltros(false)}>
-                {t('adm_ver')} {filtrados.length} {filtrados.length === 1 ? t('adm_resultado') : t('adm_resultados')}
-              </button>
-            </div>
-          </div>
-        </div>
       )}
 
       {/* A ficha e uma tela inteira, nao uma listagem: nao entra neste ternario.

@@ -229,46 +229,54 @@
 .adm-dl dd.adm-num{ font-variant-numeric:tabular-nums; }
 
 /* ══════════════════════════════════════════════════════════════════════
-   A GAVETA DOS FILTROS
-   Entra pela direita, e não no meio da tela: quem filtra quer ver a tabela
-   mudar atrás.
+   O DROPDOWN DOS FILTROS
+
+   Ele era uma gaveta que entrava pela direita e tapava a tabela. Virou um
+   dropdown ancorado no próprio botão Filtros (opção 2 das quatro que o dono
+   viu em ferramentas/filtros-admin.html, escolhida em 07/09/2026).
+
+   Sete campos empilhados, cada um o mesmo controle do perfil e do login, com
+   o rótulo dentro. O pé traz a contagem e some quando você fecha.
+
+   O corpo rola por dentro, com `overscroll-behavior:contain`: sem isso, a
+   rolagem que chega ao fim da lista empurra a página atrás.
    ══════════════════════════════════════════════════════════════════════ */
-.adm-gaveta{
-  position:fixed; inset:0; z-index:130;
-  background:rgba(17,17,17,.42); backdrop-filter:blur(4px);
+.adm-filtros{ position:relative; flex:none; }
+.adm-pop{
+  position:absolute; top:calc(100% + 8px); right:0; z-index:80;
+  width:min(370px,calc(100vw - 32px));
+  background:var(--paper); border:1px solid var(--line); border-radius:18px;
+  box-shadow:var(--sombra); overflow:hidden;
+  animation:adm-pop-entra .15s cubic-bezier(.16,1,.3,1);
 }
-.adm-gaveta__folha{
-  position:absolute; top:0; right:0; bottom:0; width:min(430px,100%);
-  background:var(--paper); display:flex; flex-direction:column; box-shadow:var(--sombra);
-}
-.adm-gaveta__cab{
+@keyframes adm-pop-entra{ from{ opacity:0; transform:translateY(-5px); } }
+@media (prefers-reduced-motion:reduce){ .adm-pop{ animation:none; } }
+
+.adm-pop__cab{
   display:flex; align-items:center; justify-content:space-between; gap:12px;
-  padding:22px 24px; border-bottom:1px solid var(--line);
+  padding:15px 18px 13px; border-bottom:1px solid var(--line);
 }
-.adm-gaveta__cab h2{ margin:0; font-size:18px; font-weight:500; letter-spacing:-.02em; }
-.adm-gaveta__x{
-  width:36px; height:36px; flex:none; border-radius:12px; border:1px solid var(--line);
-  background:var(--paper); color:var(--ink2); cursor:pointer; font-size:18px; line-height:1;
-  display:grid; place-items:center;
+.adm-pop__cab h2{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.014em; }
+.adm-pop__corpo{
+  padding:16px 18px; display:grid; gap:12px; align-content:start;
+  max-height:min(420px,50vh); overflow-y:auto; overscroll-behavior:contain;
 }
-.adm-gaveta__x:hover{ border-color:var(--ink); color:var(--ink); }
-.adm-gaveta__corpo{ flex:1; overflow-y:auto; padding:22px 24px; display:grid; gap:24px; }
-.adm-gaveta__g > label{
-  display:block; margin-bottom:10px;
-  font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+/* As duas datas do período, lado a lado. */
+.adm-pop__datas{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.adm-pop__datas input,
+.adm-pop__ano input{
+  width:100%; padding:11px 14px; border-radius:14px;
+  border:1px solid var(--line); background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:14px;
 }
-.adm-opcoes{ display:flex; gap:16px; flex-wrap:wrap; }
-/* Opção também é texto com fio, e não pastilha. Escolhida, o fio vira lima. */
-.adm-opcao{
-  border:0; background:none; padding:0 0 2px; cursor:pointer; font-family:inherit;
-  font-size:14px; color:var(--ink2); border-bottom:2px solid var(--line);
-  transition:color var(--t), border-color var(--t);
+.adm-pop__datas input:focus,
+.adm-pop__ano input:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+.adm-pop__pe{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:13px 18px; border-top:1px solid var(--line);
 }
-.adm-opcao:hover{ color:var(--ink); border-bottom-color:var(--ink3); }
-.adm-opcao.on{ color:var(--ink); font-weight:600; border-bottom-color:var(--lima); }
-.adm-gaveta__pe{ display:flex; gap:10px; padding:18px 24px; border-top:1px solid var(--line); }
-.adm-gaveta__pe .adm-btn-linha,
-.adm-gaveta__pe .as-btn-cta{ flex:1; justify-content:center; height:46px; }
+.adm-pop__conta{ font-size:13px; color:var(--ink3); font-variant-numeric:tabular-nums; }
+.adm-pop__pe .as-btn-cta{ height:38px; padding:0 18px; font-size:13.5px; }
 
 /* ══════════════════════════════════════════════════════════════════════
    O MENU DE EXPORTAR
