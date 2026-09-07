@@ -127,15 +127,63 @@ export default function Assinatura() {
   const ehDonoEquipe = conta.eh_dono_equipe === true;
   const loc = localeDeIdioma(idioma);
 
-  // Bandeira: o Stripe manda 'mastercard', 'visa', 'amex'. A sigla é o que cabe
-  // no quadradinho, e o nome por extenso é o que a pessoa lê na frase.
+  // ── A BANDEIRA DO CARTÃO ──
+  // O Stripe manda 'visa', 'mastercard', 'amex', 'elo', 'hipercard', 'diners',
+  // 'discover', 'jcb', 'unionpay' ou 'unknown'.
+  //
+  // As duas que aparecem quase sempre no Brasil ganham a marca desenhada, que
+  // é o que a pessoa reconhece sem ler. As outras ganham uma pastilha com a
+  // sigla na cor da bandeira: reconhecível o bastante, e sem eu redesenhar mal
+  // sete logotipos de terceiros.
   const BANDEIRAS = {
-    visa: ['VISA', 'Visa'], mastercard: ['MC', 'Mastercard'], amex: ['AMEX', 'American Express'],
-    elo: ['ELO', 'Elo'], hipercard: ['HIPER', 'Hipercard'], diners: ['DINERS', 'Diners Club'],
-    discover: ['DISC', 'Discover'], jcb: ['JCB', 'JCB'], unionpay: ['UP', 'UnionPay'],
+    visa:       { nome: 'Visa',             sigla: 'VISA',  cor: '#1A1F71' },
+    mastercard: { nome: 'Mastercard',       sigla: 'MC',    cor: '#EB001B' },
+    amex:       { nome: 'American Express', sigla: 'AMEX',  cor: '#2E77BC' },
+    elo:        { nome: 'Elo',              sigla: 'ELO',   cor: '#000000' },
+    hipercard:  { nome: 'Hipercard',        sigla: 'HIPER', cor: '#B3131B' },
+    diners:     { nome: 'Diners Club',      sigla: 'DINERS', cor: '#0079BE' },
+    discover:   { nome: 'Discover',         sigla: 'DISC',  cor: '#FF6000' },
+    jcb:        { nome: 'JCB',              sigla: 'JCB',   cor: '#0E4C96' },
+    unionpay:   { nome: 'UnionPay',         sigla: 'UP',    cor: '#005B9A' },
   };
-  const siglaDaBandeira = (m) => (BANDEIRAS[m] || [String(m || '').slice(0, 4).toUpperCase() || '···'])[0];
-  const nomeDaBandeira = (m) => (BANDEIRAS[m] || [null, m ? m.charAt(0).toUpperCase() + m.slice(1) : 'Cartão'])[1];
+  function nomeDaBandeira(m) {
+    const b = BANDEIRAS[m];
+    if (b) return b.nome;
+    return m && m !== 'unknown' ? m.charAt(0).toUpperCase() + m.slice(1) : t('pn_cartao');
+  }
+  function Bandeira({ marca }) {
+    if (marca === 'mastercard') {
+      // Os dois círculos, com a sobreposição no meio. É a marca inteira: ela
+      // se reconhece sem nenhuma letra.
+      return (
+        <span className="pag-bandeira pag-bandeira--marca" aria-hidden="true">
+          <svg width="34" height="22" viewBox="0 0 34 22">
+            <circle cx="13" cy="11" r="8.4" fill="#EB001B" />
+            <circle cx="21" cy="11" r="8.4" fill="#F79E1B" />
+            <path d="M17 4.7a8.4 8.4 0 0 0 0 12.6 8.4 8.4 0 0 0 0-12.6z" fill="#FF5F00" />
+          </svg>
+        </span>
+      );
+    }
+    if (marca === 'visa') {
+      return (
+        <span className="pag-bandeira pag-bandeira--marca" aria-hidden="true">
+          <svg width="38" height="14" viewBox="0 0 38 14">
+            <text x="19" y="11.6" textAnchor="middle" fill="#1A1F71"
+                  fontFamily="Georgia, 'Times New Roman', serif"
+                  fontSize="13" fontStyle="italic" fontWeight="700"
+                  letterSpacing="1.2">VISA</text>
+          </svg>
+        </span>
+      );
+    }
+    const b = BANDEIRAS[marca];
+    return (
+      <span className="pag-bandeira" style={b ? { color: b.cor } : undefined} aria-hidden="true">
+        {b ? b.sigla : '••••'}
+      </span>
+    );
+  }
 
   const dataLonga = (iso) => new Date(iso).toLocaleDateString(loc, { day: 'numeric', month: 'long', year: 'numeric' });
   const dinheiro = (centavos, moeda) => new Intl.NumberFormat(loc, {
@@ -258,6 +306,7 @@ export default function Assinatura() {
                   <span className="rec-nome">{t(r.nomeKey)}</span>
                   <strong>{r.creditos.toLocaleString(localeDeIdioma(idioma))}</strong>
                   <span className="rec-preco">{t('pn_creditos_min')}</span>
+                  <span className="rec-prazo">{t('pn_vale_6_meses')}</span>
                   {/* O preço mora no botão, e não no corpo do cartão: é no
                       clique que a pessoa assume o valor, e ali ele também
                       preenche uma pílula que com um "Comprar" sozinho ficava
@@ -286,7 +335,7 @@ export default function Assinatura() {
           <p className="conta-p">{t('pn_pagamento_sub')}</p>
           {cobranca?.cartao ? (
             <div className="pag-linha">
-              <span className="pag-bandeira">{siglaDaBandeira(cobranca.cartao.marca)}</span>
+              <Bandeira marca={cobranca.cartao.marca} />
               <div className="pag-txt">
                 <strong>
                   {nomeDaBandeira(cobranca.cartao.marca)} {t('pn_pagamento_termina')} {cobranca.cartao.fim}
@@ -297,7 +346,11 @@ export default function Assinatura() {
                   </span>
                 )}
               </div>
-              <button className="pag-btn" onClick={gerenciar} disabled={abrindo}>
+              {/* Leva para o portal do Stripe, o mesmo do "Gerenciar
+                  assinatura": e o `title` diz isso antes do clique, para o
+                  salto para fora do site não ser surpresa. */}
+              <button className="pag-btn" onClick={gerenciar} disabled={abrindo}
+                      title={t('pn_atualizar_titulo')}>
                 {abrindo ? t('assinatura_abrindo') : t('pn_atualizar')}
               </button>
             </div>
@@ -416,7 +469,11 @@ export default function Assinatura() {
               </p>
 
               <div className="doc__acoes">
-                <button className="doc__bt" onClick={() => window.print()}>{t('pn_imprimir')}</button>
+                {/* "Salvar em PDF" e não "Imprimir": a janela do navegador
+                    abre com "Salvar como PDF" já disponível, e é isso que a
+                    pessoa quer. O @media print da folha deixa só o documento
+                    na página. */}
+                <button className="doc__bt" onClick={() => window.print()}>{t('pn_salvar_pdf')}</button>
                 <button className="doc__bt doc__bt--linha" onClick={() => setFatura(null)}>{t('fechar')}</button>
               </div>
             </div>

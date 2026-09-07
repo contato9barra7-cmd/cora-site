@@ -952,6 +952,7 @@
 .rec-op strong{ font-size:26px; font-weight:500; letter-spacing:-.032em; color:var(--ink); }
 .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
 .rec-preco{ margin-top:2px; font-size:15px; color:var(--ink2); }
+.rec-prazo{ margin-top:2px; font-size:12.5px; color:var(--ink3); }
 .rec-tag{
   position:absolute; top:-11px; left:50%; transform:translateX(-50%);
   font-style:normal; white-space:nowrap; line-height:1;
@@ -968,11 +969,15 @@
   display:flex; align-items:center; gap:14px; margin-top:18px;
   padding:16px 18px; border:1px solid var(--line); border-radius:var(--r-peq);
 }
+/* A pastilha da bandeira. As duas que aparecem quase sempre no Brasil ganham
+   a marca desenhada e fundo branco, porque a marca já tem cor própria. As
+   outras ficam com a sigla na cor da bandeira. */
 .pag-bandeira{
-  width:42px; height:28px; flex:none; border-radius:6px; display:grid; place-items:center;
+  width:46px; height:30px; flex:none; border-radius:6px; display:grid; place-items:center;
   background:var(--wash2); color:var(--ink2); font-size:9.5px; font-weight:700;
-  letter-spacing:.06em; text-transform:uppercase;
+  letter-spacing:.06em; text-transform:uppercase; overflow:hidden;
 }
+.pag-bandeira--marca{ background:#FFFFFF; box-shadow:inset 0 0 0 1px var(--line); }
 .pag-txt{ flex:1; min-width:0; }
 .pag-txt strong{ display:block; font-size:14.5px; font-weight:500; letter-spacing:-.01em; }
 .pag-txt span{ display:block; margin-top:2px; font-size:12.5px; color:var(--ink3); }
@@ -1030,6 +1035,10 @@
 .doc-fundo{
   position:fixed; inset:0; z-index:130; overflow:auto; padding:clamp(16px,4vw,44px);
   background:rgba(17,17,17,.58); backdrop-filter:blur(6px);
+  /* A fonte é declarada aqui e não herdada: a janela é uma camada por cima de
+     tudo, e dependendo de onde ela nasce no documento a herança não chega. Sem
+     esta linha a fatura saía em Times, que é o padrão do navegador. */
+  font-family:var(--fonte); color:var(--ink); line-height:1.55;
 }
 .doc{
   width:min(560px,100%); margin:0 auto; overflow:hidden;
@@ -1086,12 +1095,22 @@
 .doc__bt--linha{ background:var(--paper); border:1px solid var(--line2); color:var(--ink); }
 .doc__bt--linha:hover{ background:var(--wash); border-color:var(--ink); }
 
-/* Impresso, some tudo que é da tela e sobra o documento. Uma fatura existe
-   para ser guardada, e guardar aqui quer dizer imprimir ou salvar em PDF. */
+/* Salvo em PDF, some tudo que é da tela e sobra o documento.
+   `print-color-adjust:exact` é o que faz o navegador imprimir a faixa e os
+   selos: por padrão ele joga fundo colorido fora para poupar tinta, e a
+   fatura sairia sem a marca em cima. */
 @media print{
-  .doc-fundo{ position:static; padding:0; background:none; backdrop-filter:none; }
-  .doc{ width:100%; box-shadow:none; border-radius:0; }
+  .doc-fundo{
+    position:static; inset:auto; padding:0; overflow:visible;
+    background:none; backdrop-filter:none;
+  }
+  .doc{
+    width:100%; max-width:none; box-shadow:none; border-radius:0;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .doc__faixa,.fat-selo{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   .doc__acoes{ display:none; }
+  @page{ margin:14mm; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -1805,7 +1824,7 @@ body{ margin:0; background:#F6F6F4; }
               </div>
               <p class="perfil-legal">
                 Desligando aqui, essas mensagens param de chegar. As de cobrança, de segurança e
-                de mudança nos&nbsp;Termos continuam, porque elas são sobre a sua conta e a gente
+                e&nbsp;de&nbsp;mudança&nbsp;nos&nbsp;Termos continuam, porque elas são sobre a sua conta e a gente
                 precisa avisar.<br>
                 O que a gente faz com o seu e-mail está escrito na
                 <a href="#" class="perfil-link">Política de Privacidade</a>.
@@ -1908,12 +1927,14 @@ body{ margin:0; background:#F6F6F4; }
               <span class="rec-nome">Pequena</span>
               <strong>2.000</strong>
               <span class="rec-preco">créditos</span>
+              <span class="rec-prazo">vale 6 meses</span>
               <button class="rec-comprar">Comprar por R$ 30</button>
             </div>
             <div class="rec-op">
               <span class="rec-nome">Média</span>
               <strong>5.000</strong>
               <span class="rec-preco">créditos</span>
+              <span class="rec-prazo">vale 6 meses</span>
               <button class="rec-comprar">Comprar por R$ 65</button>
             </div>
             <div class="rec-op rec-op--pop">
@@ -1921,12 +1942,14 @@ body{ margin:0; background:#F6F6F4; }
               <span class="rec-nome">Grande</span>
               <strong>12.000</strong>
               <span class="rec-preco">créditos</span>
+              <span class="rec-prazo">vale 6 meses</span>
               <button class="rec-comprar">Comprar por R$ 140</button>
             </div>
             <div class="rec-op">
               <span class="rec-nome">Enorme</span>
               <strong>30.000</strong>
               <span class="rec-preco">créditos</span>
+              <span class="rec-prazo">vale 6 meses</span>
               <button class="rec-comprar">Comprar por R$ 320</button>
             </div>
           </div>
@@ -1936,12 +1959,18 @@ body{ margin:0; background:#F6F6F4; }
           <h2 class="conta-h2">Forma de pagamento</h2>
           <p class="conta-p">O cartão que a gente cobra todo mês. Trocar acontece no portal do Stripe, que é quem guarda o número.</p>
           <div class="pag-linha">
-            <span class="pag-bandeira">MC</span>
+            <span class="pag-bandeira pag-bandeira--marca" aria-hidden="true">
+              <svg width="34" height="22" viewBox="0 0 34 22">
+                <circle cx="13" cy="11" r="8.4" fill="#EB001B"/>
+                <circle cx="21" cy="11" r="8.4" fill="#F79E1B"/>
+                <path d="M17 4.7a8.4 8.4 0 0 0 0 12.6 8.4 8.4 0 0 0 0-12.6z" fill="#FF5F00"/>
+              </svg>
+            </span>
             <div class="pag-txt">
               <strong>Mastercard terminado em 0352</strong>
               <span>Vence em 11/2029</span>
             </div>
-            <button class="pag-btn">Atualizar</button>
+            <button class="pag-btn" title="Abre o portal do Stripe, onde o cartão é trocado">Atualizar</button>
           </div>
         </div>
 
@@ -2109,7 +2138,7 @@ body{ margin:0; background:#F6F6F4; }
       </p>
 
       <div class="doc__acoes">
-        <button class="doc__bt" onclick="window.print()">Imprimir ou salvar</button>
+        <button class="doc__bt" onclick="window.print()">Salvar em PDF</button>
         <button class="doc__bt doc__bt--linha" data-fecha-fatura>Fechar</button>
       </div>
     </div>

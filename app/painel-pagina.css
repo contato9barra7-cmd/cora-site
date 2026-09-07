@@ -525,7 +525,7 @@
   background:var(--wash2); color:var(--ink);
   font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
   transition:background-color var(--t);
-}.pn .rec-comprar:hover{ background:var(--lima); }.pn .rec-op--pop .rec-comprar{ background:var(--lima); }.pn .rec-op--pop .rec-comprar:hover{ background:var(--lima-esc); }.pn .rec-comprar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }.pn .rec-op strong{ font-size:26px; font-weight:500; letter-spacing:-.032em; color:var(--ink); }.pn .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }.pn .rec-preco{ margin-top:2px; font-size:15px; color:var(--ink2); }.pn .rec-tag{
+}.pn .rec-comprar:hover{ background:var(--lima); }.pn .rec-op--pop .rec-comprar{ background:var(--lima); }.pn .rec-op--pop .rec-comprar:hover{ background:var(--lima-esc); }.pn .rec-comprar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }.pn .rec-op strong{ font-size:26px; font-weight:500; letter-spacing:-.032em; color:var(--ink); }.pn .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }.pn .rec-preco{ margin-top:2px; font-size:15px; color:var(--ink2); }.pn .rec-prazo{ margin-top:2px; font-size:12.5px; color:var(--ink3); }.pn .rec-tag{
   position:absolute; top:-11px; left:50%; transform:translateX(-50%);
   font-style:normal; white-space:nowrap; line-height:1;
   font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
@@ -535,11 +535,13 @@
    ══════════════════════════════════════════════════════════════════════ *//* ── a forma de pagamento ── */.pn .pag-linha{
   display:flex; align-items:center; gap:14px; margin-top:18px;
   padding:16px 18px; border:1px solid var(--line); border-radius:var(--r-peq);
-}.pn .pag-bandeira{
-  width:42px; height:28px; flex:none; border-radius:6px; display:grid; place-items:center;
+}/* A pastilha da bandeira. As duas que aparecem quase sempre no Brasil ganham
+   a marca desenhada e fundo branco, porque a marca já tem cor própria. As
+   outras ficam com a sigla na cor da bandeira. */.pn .pag-bandeira{
+  width:46px; height:30px; flex:none; border-radius:6px; display:grid; place-items:center;
   background:var(--wash2); color:var(--ink2); font-size:9.5px; font-weight:700;
-  letter-spacing:.06em; text-transform:uppercase;
-}.pn .pag-txt{ flex:1; min-width:0; }.pn .pag-txt strong{ display:block; font-size:14.5px; font-weight:500; letter-spacing:-.01em; }.pn .pag-txt span{ display:block; margin-top:2px; font-size:12.5px; color:var(--ink3); }.pn .pag-btn{
+  letter-spacing:.06em; text-transform:uppercase; overflow:hidden;
+}.pn .pag-bandeira--marca{ background:#FFFFFF; box-shadow:inset 0 0 0 1px var(--line); }.pn .pag-txt{ flex:1; min-width:0; }.pn .pag-txt strong{ display:block; font-size:14.5px; font-weight:500; letter-spacing:-.01em; }.pn .pag-txt span{ display:block; margin-top:2px; font-size:12.5px; color:var(--ink3); }.pn .pag-btn{
   flex:none; height:38px; padding:0 18px; border-radius:var(--pill);
   border:1px solid var(--line2); background:var(--paper); color:var(--ink);
   font-family:inherit; font-size:13.5px; font-weight:600; cursor:pointer;
@@ -568,9 +570,13 @@
    A mesma casca do e-mail: faixa no alto, marca, cartão de 520. Quem recebe
    um recibo por e-mail e depois abre este aqui tem que reconhecer os dois
    como a mesma empresa.
-   ══════════════════════════════════════════════════════════════════════ */.pn .doc-fundo{
+   ══════════════════════════════════════════════════════════════════════ */.pn .doc-fundo{/* A fonte é declarada aqui e não herdada: a janela é uma camada por cima de
+     tudo, e dependendo de onde ela nasce no documento a herança não chega. Sem
+     esta linha a fatura saía em Times, que é o padrão do navegador. */
   position:fixed; inset:0; z-index:130; overflow:auto; padding:clamp(16px,4vw,44px);
   background:rgba(17,17,17,.58); backdrop-filter:blur(6px);
+  
+  font-family:var(--fonte); color:var(--ink); line-height:1.55;
 }.pn .doc{
   width:min(560px,100%); margin:0 auto; overflow:hidden;
   background:var(--paper); border-radius:var(--r-heroi); box-shadow:var(--sombra);
@@ -599,11 +605,20 @@
   background:var(--lima); color:#111111;
   font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
   display:inline-flex; align-items:center;
-}.pn .doc__bt:hover{ background:var(--lima-esc); }.pn .doc__bt--linha{ background:var(--paper); border:1px solid var(--line2); color:var(--ink); }.pn .doc__bt--linha:hover{ background:var(--wash); border-color:var(--ink); }/* Impresso, some tudo que é da tela e sobra o documento. Uma fatura existe
-   para ser guardada, e guardar aqui quer dizer imprimir ou salvar em PDF. */
+}.pn .doc__bt:hover{ background:var(--lima-esc); }.pn .doc__bt--linha{ background:var(--paper); border:1px solid var(--line2); color:var(--ink); }.pn .doc__bt--linha:hover{ background:var(--wash); border-color:var(--ink); }/* Salvo em PDF, some tudo que é da tela e sobra o documento.
+   `print-color-adjust:exact` é o que faz o navegador imprimir a faixa e os
+   selos: por padrão ele joga fundo colorido fora para poupar tinta, e a
+   fatura sairia sem a marca em cima. */
 
 
-@media print{.pn .doc-fundo{ position:static; padding:0; background:none; backdrop-filter:none; }.pn .doc{ width:100%; box-shadow:none; border-radius:0; }.pn .doc__acoes{ display:none; }}/* ══════════════════════════════════════════════════════════════════════
+@media print{.pn .doc-fundo{
+    position:static; inset:auto; padding:0; overflow:visible;
+    background:none; backdrop-filter:none;
+  }.pn .doc{
+    width:100%; max-width:none; box-shadow:none; border-radius:0;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }.pn .doc__faixa, .pn .fat-selo{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }.pn .doc__acoes{ display:none; }
+  @page{ margin:14mm; }}/* ══════════════════════════════════════════════════════════════════════
    ATÉ 1024px a lateral vira gaveta, e a esteira deita
    ══════════════════════════════════════════════════════════════════════ */
 
