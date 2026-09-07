@@ -306,7 +306,44 @@ def faixa_svg(chao=None, forma=None):
     return svg
 
 
-CORES_FAIXA = {"chao": "#C4FBA7", "forma": "#ADECDF"}
+CORES_FAIXA = {"chao": "#C4FBA7", "forma": "#ADECDF", "forma2": "#A3A6FA"}
+
+
+def faixa_dupla_svg(chao=None, forma=None, forma2=None):
+    """A mesma faixa, com as formas alternando entre as DUAS cores da marca.
+
+    A geometria nao muda, so a pintura: uma forma turquesa, a proxima
+    periwinkle, e assim por diante. E a versao mais rica da peca, para onde
+    ela aparece pequena e sozinha, como o topo do menu do avatar. A faixa de
+    uma cor so continua sendo a padrao, a que vai nos e-mails e no heroi.
+    """
+    chao = chao or CORES_FAIXA["chao"]
+    forma = forma or CORES_FAIXA["forma"]
+    forma2 = forma2 or CORES_FAIXA["forma2"]
+    partes, x, n = [], 0.0, 0
+    for c in SEQUENCIA:
+        cor = forma if n % 2 == 0 else forma2
+        if c == "O":
+            partes.append('<circle cx="%g" cy=".5" r=".5" fill="%s"/>' % (x + 0.5, cor))
+            x += 1.0
+            n += 1
+        elif c == "D":
+            partes.append('<path d="M%g,0 A.5.5 0 0 1 %g,1 Z" fill="%s"/>' % (x, x, cor))
+            x += 0.5
+            n += 1
+        else:
+            x += 1.0
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="%g" height="1" '
+        'viewBox="0 0 %g 1" preserveAspectRatio="none">'
+        '<rect width="%g" height="1" fill="%s"/>%s</svg>'
+    ) % (x, x, x, chao, "".join(partes))
+
+
+def faixa_dupla_uri(chao=None, forma=None, forma2=None):
+    import urllib.parse
+    return "url(\"data:image/svg+xml,%s\")" % urllib.parse.quote(
+        faixa_dupla_svg(chao, forma, forma2), safe="")
 
 
 def faixa_uri(chao=None, forma=None):
