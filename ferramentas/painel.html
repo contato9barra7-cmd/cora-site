@@ -665,6 +665,7 @@
   display:flex; align-items:center; gap:10px; flex-wrap:wrap;
 }
 .perfil-sub{ margin:0 0 18px; font-size:13.5px; color:var(--ink3); line-height:1.55; max-width:60ch; }
+.perfil-sub--item{ margin:3px 0 0; max-width:52ch; }
 
 .perfil-linha{
   display:grid; grid-template-columns:1fr; gap:8px;
@@ -692,13 +693,28 @@
   background:var(--ink); color:var(--paper); font-size:22px; font-weight:600;
   background-size:cover; background-position:center;
 }
-.perfil-avatar-editar,.perfil-avatar-x{
-  position:absolute; width:26px; height:26px; border-radius:50%; border:2px solid var(--paper);
-  display:grid; place-items:center; cursor:pointer; padding:0;
+/* O lápis cobre o quadrado inteiro no hover, e não um selo no canto: é o
+   desenho do `.foto-box` dos Promptadores. Um alvo grande é mais fácil de
+   acertar que um botão de 26px, e o quadrado limpo é o que se vê 99% do
+   tempo. O X só aparece quando existe foto para remover. */
+.perfil-avatar-editar{
+  position:absolute; inset:0; border:0; border-radius:18px; cursor:pointer; padding:0;
+  display:grid; place-items:center;
+  background:rgba(17,17,17,.48); color:#FFFFFF;
+  opacity:0; transition:opacity var(--t);
 }
-.perfil-avatar-editar{ right:-6px; bottom:-6px; background:var(--lima); color:#111111; }
-.perfil-avatar-editar:hover{ background:var(--lima-esc); }
-.perfil-avatar-x{ right:-6px; top:-6px; background:var(--alerta); color:#FFFFFF; font-size:14px; line-height:1; }
+.perfil-avatar-box:hover .perfil-avatar-editar,
+.perfil-avatar-editar:focus-visible{ opacity:1; }
+.perfil-avatar-x{
+  position:absolute; top:-6px; right:-6px; width:24px; height:24px; padding:0;
+  border-radius:50%; border:2px solid var(--paper); cursor:pointer;
+  display:grid; place-items:center; font-size:14px; line-height:1;
+  background:var(--ink); color:var(--paper);
+  opacity:0; transition:opacity var(--t);
+}
+.perfil-avatar-box:hover .perfil-avatar-x,
+.perfil-avatar-x:focus-visible{ opacity:1; }
+.perfil-avatar-x:hover{ background:var(--alerta); color:#FFFFFF; }
 .perfil-foto-dica{ font-size:13px; color:var(--ink3); line-height:1.5; max-width:34ch; }
 
 .perfil-toggle-linha{ align-items:center; }
@@ -799,7 +815,8 @@
 .foto-orient{ font-size:13px; color:var(--ink3); line-height:1.55; margin-bottom:16px; }
 .foto-crop{
   width:260px; height:260px; margin:0 auto; border-radius:20px; overflow:hidden;
-  background:var(--wash2); touch-action:none; cursor:grab; display:block;
+  background:var(--turquesa); background-image:radial-gradient(circle at 30% 30%, var(--lima) 0 38%, transparent 38%);
+  background-size:100%; background-position:center; touch-action:none; cursor:grab; display:block;
 }
 .foto-crop:active{ cursor:grabbing; }
 .foto-zoom-row{ display:flex; align-items:center; gap:12px; margin-top:16px; }
@@ -981,8 +998,41 @@ body{ margin:0; background:#F6F6F4; }
 .demo-barra button:hover{ color:#fff; }
 .demo-barra button[data-on="sim"]{ background:#C4FBA7; color:#111; font-weight:600; }
 .demo-sep{ width:1px; height:20px; background:rgba(255,255,255,.16); margin:0 5px; }
-/* O lugar do DropdownCora, só para o menu não ficar com um buraco. No site
-   quem desenha isso é o componente, que já está na identidade nova. */
+/* O DropdownCora refeito à mão, no padrão do login (`.tc` do
+   telas-de-conta.css). No site ele é componente, e a lista dele sai por um
+   PORTAL no fim do documento: por isso o estilo de verdade mora no
+   globals.css e não numa folha de página. Aqui é só para o desenho poder ser
+   julgado junto do resto. */
+.dd{ position:relative; width:100%; }
+.dd__bt{
+  width:100%; height:46px; padding:0 18px; display:flex; align-items:center;
+  justify-content:space-between; gap:10px; cursor:pointer; text-align:left;
+  font-family:inherit; font-size:14.5px; color:var(--ink);
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--pill);
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.dd__bt:hover{ border-color:var(--line2); }
+.dd--aberto .dd__bt{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+.dd__seta{
+  width:7px; height:7px; flex:none; margin-top:-3px;
+  border-right:1.6px solid var(--ink3); border-bottom:1.6px solid var(--ink3);
+  transform:rotate(45deg); transition:transform var(--t);
+}
+.dd--aberto .dd__seta{ transform:rotate(-135deg); margin-top:3px; }
+.dd__lista{
+  position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:90;
+  padding:6px; background:var(--paper);
+  border:1px solid var(--line); border-radius:20px;
+  box-shadow:0 14px 38px rgba(17,17,17,.13);
+}
+.dd__op{
+  width:100%; padding:11px 16px; border:0; border-radius:var(--pill); cursor:pointer;
+  background:none; text-align:left; font-family:inherit; font-size:14.5px; color:var(--ink);
+}
+.dd__op:hover{ background:var(--wash); }
+/* A escolhida vai no turquesa, nunca no roxo: ele saiu da marca. */
+.dd__op--sel{ background:var(--turquesa); color:#111111; font-weight:600; }
+
 .demo-dd{
   height:34px; padding:0 14px; display:flex; align-items:center; justify-content:space-between;
   border:1px solid var(--line); border-radius:100px; background:var(--paper);
@@ -1131,7 +1181,7 @@ body{ margin:0; background:#F6F6F4; }
             </div>
           </div>
 
-          <a href="#" class="app-user-link">
+          <a href="#" class="app-user-link" data-vai-menu="conta">
             <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6">
               <circle cx="10" cy="6.5" r="3"/><path d="M3.5 17a6.5 6.5 0 0113 0" stroke-linecap="round"/>
             </svg>
@@ -1140,11 +1190,29 @@ body{ margin:0; background:#F6F6F4; }
 
           <div class="app-user-pref">
             <label>Idioma</label>
-            <div class="app-user-pref-dd"><div class="demo-dd">Português</div></div>
+            <div class="app-user-pref-dd">
+              <div class="dd" data-dd>
+                <button class="dd__bt" type="button">Português<span class="dd__seta"></span></button>
+                <div class="dd__lista" hidden>
+                  <button class="dd__op dd__op--sel" type="button">Português</button>
+                  <button class="dd__op" type="button">English</button>
+                  <button class="dd__op" type="button">Español</button>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="app-user-pref">
             <label>Tema</label>
-            <div class="app-user-pref-dd"><div class="demo-dd">Sistema</div></div>
+            <div class="app-user-pref-dd">
+              <div class="dd" data-dd>
+                <button class="dd__bt" type="button">Sistema<span class="dd__seta"></span></button>
+                <div class="dd__lista" hidden>
+                  <button class="dd__op" type="button">Claro</button>
+                  <button class="dd__op" type="button">Escuro</button>
+                  <button class="dd__op dd__op--sel" type="button">Sistema</button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <button class="app-user-link app-user-sair">
@@ -1489,11 +1557,12 @@ body{ margin:0; background:#F6F6F4; }
                 <div class="perfil-avatar-area">
                   <div class="perfil-avatar-box">
                     <div class="perfil-avatar">M</div>
-                    <button class="perfil-avatar-editar" aria-label="Trocar a foto">
-                      <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <path d="M4 14.5V16h1.5l8-8L12 6.5l-8 8z" stroke-linejoin="round"/>
+                    <button class="perfil-avatar-editar" id="abrir-foto" aria-label="Trocar a foto">
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
                       </svg>
                     </button>
+                    <button class="perfil-avatar-x" aria-label="Remover a foto">&times;</button>
                   </div>
                   <p class="perfil-foto-dica">Proporção 1:1, a partir de 400&times;400px. Arraste para enquadrar.</p>
                 </div>
@@ -1519,30 +1588,53 @@ body{ margin:0; background:#F6F6F4; }
               <h2 class="perfil-h2">Preferências</h2>
               <p class="perfil-sub">Valem em qualquer navegador onde você entrar.</p>
 
+              <!-- No site quem desenha isto é o DropdownCora, que sai por um
+                   portal no fim do documento. O estilo dele mora no
+                   globals.css, no padrão do login, e não nesta folha. Aqui ele
+                   é refeito à mão só para o desenho poder ser julgado. -->
               <div class="perfil-linha">
                 <label class="perfil-lbl">Idioma</label>
-                <!-- No site quem desenha isto é o DropdownCora, que sai por um
-                     portal no fim do documento. O estilo dele mora no
-                     globals.css, no padrão do login, e não nesta folha. -->
-                <div class="demo-dd" style="max-width:260px">Português</div>
+                <div class="dd" data-dd>
+                  <button class="dd__bt" type="button">Português<span class="dd__seta"></span></button>
+                  <div class="dd__lista" hidden>
+                    <button class="dd__op dd__op--sel" type="button">Português</button>
+                    <button class="dd__op" type="button">English</button>
+                    <button class="dd__op" type="button">Español</button>
+                  </div>
+                </div>
               </div>
               <div class="perfil-linha">
                 <label class="perfil-lbl">Tema</label>
-                <div class="demo-dd" style="max-width:260px">Sistema</div>
+                <div class="dd" data-dd>
+                  <button class="dd__bt" type="button">Sistema<span class="dd__seta"></span></button>
+                  <div class="dd__lista" hidden>
+                    <button class="dd__op" type="button">Claro</button>
+                    <button class="dd__op" type="button">Escuro</button>
+                    <button class="dd__op dd__op--sel" type="button">Sistema</button>
+                  </div>
+                </div>
               </div>
             </section>
 
             <section class="perfil-sec" id="sec-notif">
               <h2 class="perfil-h2">Notificações</h2>
+              <p class="perfil-sub">O que a gente manda para o seu e-mail, e o que dá para desligar aqui.</p>
               <div class="perfil-linha perfil-toggle-linha">
                 <div>
                   <label class="perfil-lbl">Novidades do Cora</label>
-                  <p class="perfil-sub" style="margin:2px 0 0">Uma por mês, no máximo. Nunca sobre cobrança.</p>
+                  <p class="perfil-sub perfil-sub--item">Ferramenta nova, mudança no jeito de usar, e o que entrou em cada plano. É pouca coisa por mês, e nunca é anúncio de terceiro.</p>
                 </div>
-                <button class="perfil-toggle" aria-pressed="true" aria-label="Receber novidades">
+                <button class="perfil-toggle on" aria-pressed="true" aria-label="Receber novidades">
                   <span class="perfil-toggle-bola"></span>
                 </button>
               </div>
+              <p class="perfil-legal">
+                Desligando aqui, essas mensagens param de chegar. As de cobrança, de segurança e
+                de mudança nos Termos continuam, porque elas são sobre a sua conta e a gente
+                precisa avisar.<br>
+                O que a gente faz com o seu e-mail está escrito na
+                <a href="#" class="perfil-link">Política de Privacidade</a>.
+              </p>
             </section>
 
             <div class="perfil-salvar-barra">
@@ -1589,7 +1681,7 @@ body{ margin:0; background:#F6F6F4; }
 
             <section class="perfil-sec perfil-perigo" id="sec-perigo">
               <h2 class="perfil-h2">Apagar a conta</h2>
-              <p class="perfil-sub">Some com o seu acesso, com as suas imagens e com o histórico. Não tem como desfazer, e o crédito que sobrar não volta.</p>
+              <p class="perfil-sub">Apagar a conta tira o seu acesso ao Cora e leva junto as imagens que você gerou, o histórico e os ajustes salvos. Não dá para recuperar depois, e o crédito que ainda estiver na conta não volta nem passa para outra pessoa. Se o que você quer é parar de pagar, cancele a assinatura: a conta continua de pé e as suas imagens ficam onde estão.</p>
               <button class="perfil-btn-deletar">Apagar a minha conta</button>
             </section>
 
@@ -1699,6 +1791,30 @@ body{ margin:0; background:#F6F6F4; }
         <button class="trial-bloqueio-sair">Sair</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ══════════════ RECORTAR A FOTO ══════════════
+     A janela existe no site desde antes desta redesenhada, com recorte 1:1 e
+     zoom, igual ao do plugin. Aqui ela aparece para o desenho poder ser
+     julgado junto do resto. O quadro é um bloco de cor, porque o recorte de
+     verdade desenha num canvas com a imagem que a pessoa escolher. -->
+<div class="foto-overlay" id="janela-foto" hidden>
+  <div class="foto-modal">
+    <div class="foto-titulo">Foto de perfil</div>
+    <p class="foto-orient">Proporção 1:1, a partir de 400&times;400px. Arraste para enquadrar e use o zoom.</p>
+    <div class="foto-crop" id="foto-crop"></div>
+    <div class="foto-zoom-row">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ink3)">
+        <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5" stroke-linecap="round"/>
+      </svg>
+      <input type="range" min="1" max="3" step="0.01" value="1" id="foto-zoom" aria-label="Zoom">
+    </div>
+    <div class="foto-botoes">
+      <button class="foto-btn-outra" data-fecha-foto>Escolher outra</button>
+      <button class="foto-btn-salvar" data-fecha-foto>Salvar</button>
+    </div>
+    <div class="foto-cancelar" data-fecha-foto>Cancelar</div>
   </div>
 </div>
 
@@ -1921,6 +2037,69 @@ body{ margin:0; background:#F6F6F4; }
       });
     });
   })();
+
+  /* ── "Minha conta" do menu do avatar leva para a tela ──
+     No site isto é um <Link href="/conta/perfil">, e o Next resolve. Aqui as
+     telas moram no mesmo arquivo, então o clique troca a que está à vista. */
+  [].forEach.call(document.querySelectorAll('[data-vai-menu]'), function (a) {
+    a.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      var qual = a.dataset.vaiMenu;
+      mostrarTela(qual);
+      marcar(gTela, gTela.querySelector('[data-tela="' + qual + '"]'));
+      menuUser.hidden = true;
+    });
+  });
+
+  /* ── os dropdowns ──
+     Um aberto por vez, fecha no Esc e no clique fora. É o comportamento do
+     DropdownCora, refeito aqui só para a demonstração. */
+  function fecharDropdowns(menos) {
+    [].forEach.call(document.querySelectorAll('[data-dd]'), function (dd) {
+      if (dd === menos) return;
+      dd.classList.remove('dd--aberto');
+      dd.querySelector('.dd__lista').hidden = true;
+    });
+  }
+  [].forEach.call(document.querySelectorAll('[data-dd]'), function (dd) {
+    var bt = dd.querySelector('.dd__bt');
+    var lista = dd.querySelector('.dd__lista');
+    bt.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var abrir = lista.hidden;
+      fecharDropdowns(dd);
+      lista.hidden = !abrir;
+      dd.classList.toggle('dd--aberto', abrir);
+    });
+    lista.addEventListener('click', function (ev) {
+      var op = ev.target.closest('.dd__op'); if (!op) return;
+      [].forEach.call(lista.children, function (o) { o.classList.remove('dd__op--sel'); });
+      op.classList.add('dd__op--sel');
+      bt.firstChild.textContent = op.textContent;
+      lista.hidden = true;
+      dd.classList.remove('dd--aberto');
+    });
+  });
+  document.addEventListener('click', function () { fecharDropdowns(null); });
+  window.addEventListener('keydown', function (e) { if (e.key === 'Escape') fecharDropdowns(null); });
+
+  /* ── a janela de recortar a foto ── */
+  var janelaFoto = document.getElementById('janela-foto');
+  var abrirFoto = document.getElementById('abrir-foto');
+  if (abrirFoto) abrirFoto.addEventListener('click', function () { janelaFoto.hidden = false; });
+  [].forEach.call(document.querySelectorAll('[data-fecha-foto]'), function (b) {
+    b.addEventListener('click', function () { janelaFoto.hidden = true; });
+  });
+  if (janelaFoto) janelaFoto.addEventListener('click', function (e) {
+    if (e.target === janelaFoto) janelaFoto.hidden = true;
+  });
+  var zoom = document.getElementById('foto-zoom');
+  var quadro = document.getElementById('foto-crop');
+  if (zoom && quadro) zoom.addEventListener('input', function () {
+    // No site o zoom redesenha o canvas com a imagem escolhida. Aqui ele só
+    // mexe no bloco de cor, para o controle não parecer morto.
+    quadro.style.backgroundSize = (100 * parseFloat(zoom.value)) + '%';
+  });
 
   /* ── as peças que a demonstração deixa clicáveis ── */
   var toggle = document.querySelector('.perfil-toggle');

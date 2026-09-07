@@ -299,10 +299,13 @@ export default function Perfil() {
         {/* NOTIFICAÇÕES */}
         <section className="perfil-sec" id="sec-notif">
           <h2 className="perfil-h2">{t('perfil_notificacoes')}</h2>
+          <p className="perfil-sub">{t('perfil_notif_sub')}</p>
           <div className="perfil-linha perfil-toggle-linha">
             <div>
-              <label className="perfil-lbl">Newsletter</label>
-              <p className="perfil-sub">{t('perfil_newsletter_sub')}</p>
+              {/* "Newsletter" estava cravado em inglês no meio de uma tela em
+                  português, e não dizia o que chega. */}
+              <label className="perfil-lbl">{t('perfil_newsletter_nome')}</label>
+              <p className="perfil-sub perfil-sub--item">{t('perfil_newsletter_sub')}</p>
             </div>
             <button
               className={'perfil-toggle' + (newsletter ? ' on' : '')}
