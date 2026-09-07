@@ -34,6 +34,19 @@ export default function EmConstrucao() {
   return (
     <main className="emc">
       <style>{`
+        /* ---- o rodapé do site não entra aqui ----
+           O middleware REESCREVE qualquer endereço para esta página, e reescrita
+           mantém a URL do navegador. Então o RodapeGlobal, que decide pelo
+           caminho, vê "/" e não "/em-construcao": a lista de exceções dele nunca
+           pegou esta tela. Enquanto o rodapé era a tira fina de links legais
+           ninguém reparou; virou o de quatro colunas, e ele passou a cobrir a
+           tela de construção inteira, porque vem depois no documento.
+
+           A regra mora aqui, e não lá, de propósito: ela só existe enquanto
+           esta página está na tela, vem no HTML do servidor (não pisca) e não
+           obriga o layout raiz a virar dinâmico só para ler um cabeçalho. */
+        .rodape, .rodape-legal { display: none !important; }
+
         .emc {
           position: fixed; inset: 0; overflow: hidden;
           background: #000;
