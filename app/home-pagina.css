@@ -783,6 +783,30 @@
     border-radius:var(--r-lg); overflow:hidden; cursor:grab;
     touch-action:none; user-select:none; -webkit-user-select:none;
   }.hm .visor-360:active{ cursor:grabbing; }.hm .visor-360 canvas{ width:100%; height:100%; display:block; }/* =========================================================
+     9b - A FAIXA DA MARCA
+     =========================================================
+     Fecha a autoria e abre os planos: sai a conversa sobre quem fez, entra a
+     conversa sobre quanto custa.
+
+     A arte e a mesma do PromptHub, e nao a do /suporte. Sao desenhos
+     diferentes: o do PromptHub mede 9,5 diametros de largura, na sequencia
+     ODD__O__DOD__OD, e o do suporte mede 8, na ODD__ODO__DO. Aqui vale o do
+     PromptHub letra por letra, so recolorido: lima no chao, turquesa nas
+     formas.
+
+     `background-size:auto 100%` e o que mantem o circulo redondo: a largura
+     na tela passa a ser sempre altura vezes 9,5, e o ladrilho anda pro lado.
+     Com `100% 100%` ele esticaria ate a largura da janela e o circulo
+     viraria elipse.
+
+     A altura tambem e a de la: 207px numa janela de 900 de altura. */.hm .faixa{
+    height:clamp(140px,23vh,220px);
+    background-color:#C4FBA7;
+    background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221368%22%20height%3D%22144%22%20viewBox%3D%220%200%201368%20144%22%20shape-rendering%3D%22geometricPrecision%22%3E%3Crect%20width%3D%221368%22%20height%3D%22144%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%2272%22%20cy%3D%2272%22%20r%3D%2272%22%2F%3E%3Ccircle%20cx%3D%22504%22%20cy%3D%2272%22%20r%3D%2272%22%2F%3E%3Ccircle%20cx%3D%22864%22%20cy%3D%2272%22%20r%3D%2272%22%2F%3E%3Ccircle%20cx%3D%221224%22%20cy%3D%2272%22%20r%3D%2272%22%2F%3E%3Cpath%20d%3D%22M144%200%20A72%2072%200%200%201%20144%20144%20Z%22%2F%3E%3Cpath%20d%3D%22M216%200%20A72%2072%200%200%201%20216%20144%20Z%22%2F%3E%3Cpath%20d%3D%22M720%200%20A72%2072%200%200%201%20720%20144%20Z%22%2F%3E%3Cpath%20d%3D%22M936%200%20A72%2072%200%200%201%20936%20144%20Z%22%2F%3E%3Cpath%20d%3D%22M1296%200%20A72%2072%200%200%201%201296%20144%20Z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+    background-repeat:repeat-x;
+    background-position:left center;
+    background-size:auto 100%;
+  }/* =========================================================
      10 · PLANOS — GRADE DENSA
      ========================================================= */.hm .grade-planos{ display:grid; gap:var(--e-4); }
   @media (min-width:700px){.hm .grade-planos{ grid-template-columns:repeat(3,1fr); gap:var(--e-4); }}
