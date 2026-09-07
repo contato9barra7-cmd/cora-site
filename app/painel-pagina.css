@@ -126,17 +126,21 @@
   background:var(--ink); color:var(--paper); font-size:14px; font-weight:600;
   letter-spacing:.02em; user-select:none;
   background-size:cover; background-position:center;
-}.pn .app-user-menu{/* o recuo mora no miolo, para a faixa encostar na borda */
+}.pn .app-user-menu{/* o recuo mora no miolo, para a faixa encostar na borda *//* `overflow:hidden` cortava a lista do dropdown pela borda do menu. Quem
+     arredonda a faixa agora é a própria faixa. No site o problema não existe,
+     porque a lista do DropdownCora sai por um portal. */
   position:absolute; top:calc(100% + 10px); right:0; width:284px; z-index:60;
   background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
-  box-shadow:var(--sombra); overflow:hidden; text-align:left;
+  box-shadow:var(--sombra); text-align:left;
   padding:0;   
+  
 }/* A faixa fecha o menu por cima, como fecha o cartão do e-mail.
    O ladrilho é a altura vezes oito, então engrossar a faixa aumenta as formas
    e diminui a quantidade delas na mesma largura. A 28px cabem umas dez, e a
    geometria se lê. A 16px eram dezessete e viravam textura. */.pn .app-user-faixa{
   height:28px; background:var(--faixa-deitada) repeat-x left center;
   background-size:calc(28px * 8) 100%;
+  border-radius:var(--r) var(--r) 0 0;
 }.pn .app-user-miolo{ padding:14px; }.pn .app-user-nome{
   font-size:14.5px; font-weight:600; letter-spacing:-.01em; color:var(--ink);
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
@@ -373,7 +377,10 @@
 }.pn .perfil-h2{
   margin:0 0 4px; font-size:17px; font-weight:600; letter-spacing:-.016em;
   display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-}.pn .perfil-sub{ margin:0 0 18px; font-size:13.5px; color:var(--ink3); line-height:1.55; max-width:60ch; }.pn .perfil-sub--item{ margin:3px 0 0; max-width:52ch; }.pn .perfil-linha{
+}.pn .perfil-sub{
+  margin:0 0 18px; font-size:13.5px; color:var(--ink3); line-height:1.55;
+  max-width:68ch; text-wrap:pretty;
+}.pn .perfil-sub--item{ margin:3px 0 0; max-width:52ch; }.pn .perfil-linha{
   display:grid; grid-template-columns:1fr; gap:8px;
   padding:16px 0; border-top:1px solid var(--line);
 }.pn .perfil-sec > .perfil-linha:first-of-type{ border-top:0; padding-top:6px; }
@@ -400,7 +407,11 @@
   display:grid; place-items:center; font-size:14px; line-height:1;
   background:var(--ink); color:var(--paper);
   opacity:0; transition:opacity var(--t);
-}.pn .perfil-avatar-box:hover .perfil-avatar-x, .pn .perfil-avatar-x:focus-visible{ opacity:1; }.pn .perfil-avatar-x:hover{ background:var(--alerta); color:#FFFFFF; }.pn .perfil-foto-dica{ font-size:13px; color:var(--ink3); line-height:1.5; max-width:34ch; }.pn .perfil-toggle-linha{ align-items:center; }.pn .perfil-toggle{
+}.pn .perfil-avatar-box:hover .perfil-avatar-x, .pn .perfil-avatar-x:focus-visible{ opacity:1; }.pn .perfil-avatar-x:hover{ background:var(--alerta); color:#FFFFFF; }.pn .perfil-foto-dica{ font-size:13px; color:var(--ink3); line-height:1.5; max-width:34ch; }/* A linha do interruptor NÃO é a grade de 150px das outras: ali o texto caía
+   numa coluna estreita e quebrava em cinco linhas. Aqui ele ocupa a largura
+   toda e o botão fica no canto, alinhado com o alto do bloco. */.pn .perfil-toggle-linha{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:28px;
+}.pn .perfil-toggle-linha > div{ flex:1; min-width:0; }.pn .perfil-toggle-linha .perfil-sub--item{ max-width:none; }.pn .perfil-toggle{
   width:46px; height:27px; flex:none; border:0; border-radius:var(--pill); cursor:pointer;
   background:var(--wash2); position:relative; transition:background-color var(--t);
 }.pn .perfil-toggle[aria-pressed="true"]{ background:var(--lima); }.pn .perfil-toggle-bola{
@@ -433,7 +444,10 @@
   font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
   transition:background-color var(--t), color var(--t);
 }.pn .perfil-btn-deletar:hover{ background:var(--alerta); color:#FFFFFF; }/* O interruptor no site é `.on`, não `aria-pressed`: quem manda é a marcação
-   que já existe, e a folha se ajusta a ela. */.pn .perfil-toggle.on{ background:var(--lima); }.pn .perfil-toggle.on .perfil-toggle-bola{ transform:translateX(19px); }.pn .perfil-legal{ margin:16px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6; }.pn .perfil-link{ color:var(--ink); border-bottom:1px solid var(--lima); }.pn .perfil-link:hover{ border-bottom-color:var(--ink); }/* o "?" ao lado do título de Segurança */.pn .perfil-ajuda{
+   que já existe, e a folha se ajusta a ela. */.pn .perfil-toggle.on{ background:var(--lima); }.pn .perfil-toggle.on .perfil-toggle-bola{ transform:translateX(19px); }.pn .perfil-legal{
+  margin:18px 0 0; padding-top:16px; border-top:1px solid var(--line);
+  font-size:12.5px; color:var(--ink3); line-height:1.6; text-wrap:pretty;
+}.pn .perfil-link{ color:var(--ink); border-bottom:1px solid var(--lima); }.pn .perfil-link:hover{ border-bottom-color:var(--ink); }/* o "?" ao lado do título de Segurança */.pn .perfil-ajuda{
   width:20px; height:20px; flex:none; border-radius:50%; border:1px solid var(--line2);
   background:none; color:var(--ink3); font-family:inherit; font-size:11.5px; font-weight:600;
   cursor:pointer; display:grid; place-items:center; padding:0;
@@ -485,15 +499,28 @@
 }.pn .as-btn-cta:hover{ background:var(--lima-esc); }.pn .as-btn-cta:active{ transform:scale(.985); }.pn .conta-card{
   margin-top:14px; background:var(--paper); border:1px solid var(--line);
   border-radius:var(--r); padding:24px 26px;
-}.pn .conta-h2{ margin:0; font-size:17px; font-weight:600; letter-spacing:-.016em; }.pn .conta-p{ margin:8px 0 0; font-size:14px; color:var(--ink2); line-height:1.6; max-width:62ch; }.pn .rec-destino{ margin-top:18px; max-width:360px; }.pn .rec-destino .perfil-lbl{ display:block; margin-bottom:8px; }.pn .rec-grade{ margin-top:20px; display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }.pn .rec-op{
-  position:relative; text-align:left; cursor:pointer; font-family:inherit;
+}.pn .conta-h2{ margin:0; font-size:17px; font-weight:600; letter-spacing:-.016em; }.pn .conta-p{
+  margin:8px 0 0; font-size:14px; color:var(--ink2); line-height:1.6;
+  max-width:72ch; text-wrap:pretty;
+}.pn .rec-destino{ margin-top:18px; max-width:360px; }.pn .rec-destino .perfil-lbl{ display:block; margin-bottom:8px; }/* O mesmo cartão da página de preços: conteúdo centrado, selo colado na
+   borda de cima e no meio, e o escolhido com o contorno de 2px em tinta.
+   O hover levanta e dá um zoom leve, que é o gesto de lá. */.pn .rec-grade{
+  margin-top:26px; display:grid; gap:14px;
+  grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+}.pn .rec-op{
+  position:relative; text-align:center; cursor:pointer; font-family:inherit;
   background:var(--paper); border:1px solid var(--line); border-radius:var(--r-peq);
-  padding:16px 18px; display:grid; gap:2px;
-  transition:border-color var(--t), background-color var(--t);
-}.pn .rec-op:hover{ border-color:var(--line2); }.pn .rec-op--on{ border-color:var(--ink); background:var(--wash); }.pn .rec-op strong{ font-size:22px; font-weight:500; letter-spacing:-.03em; color:var(--ink); }.pn .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }.pn .rec-preco{ font-size:14px; color:var(--ink2); }.pn .rec-tag{
-  position:absolute; top:-9px; right:12px; font-style:normal;
-  font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
-  background:var(--turquesa); color:#111111; padding:3px 9px; border-radius:var(--pill);
+  padding:26px 20px; display:grid; gap:4px; align-content:start;
+  transition:border-color var(--t), transform var(--t), box-shadow var(--t);
+}.pn .rec-op:hover{
+  border-color:var(--line2); transform:translateY(-3px) scale(1.015);
+  box-shadow:0 12px 28px rgba(17,17,17,.07);
+}/* Contorno de 2px, e por isso o recuo perde 1px de cada lado: sem isso o
+   cartão escolhido cresce dois pixels e a linha inteira treme. */.pn .rec-op--on{ border:2px solid var(--ink); padding:25px 19px; }.pn .rec-op strong{ font-size:26px; font-weight:500; letter-spacing:-.032em; color:var(--ink); }.pn .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }.pn .rec-preco{ margin-top:2px; font-size:15px; color:var(--ink2); }.pn .rec-tag{
+  position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+  font-style:normal; white-space:nowrap; line-height:1;
+  font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  background:var(--ink); color:var(--paper); padding:5px 14px; border-radius:var(--pill);
 }.pn .rec-btn{
   margin-top:20px; height:46px; padding:0 26px; border:0; border-radius:var(--pill);
   background:var(--lima); color:#111111; font-family:inherit; font-size:14.5px; font-weight:600;

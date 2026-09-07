@@ -1,0 +1,208 @@
+<title>Ícones do menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     QUATRO CONJUNTOS DE ÍCONE PARA O MENU DO PAINEL
+
+     Os seis itens aparecem em cada conjunto, no tamanho de verdade (20px)
+     dentro de uma lateral de mentira, e ampliados a 34px do lado, que é onde
+     dá para ver o traço.
+
+     Só um conjunto fica. Ícone de menu é lido de relance e sempre no mesmo
+     canto: o que importa não é qual é mais bonito sozinho, e sim qual deixa
+     os seis mais diferentes UNS DOS OUTROS.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --turquesa:#ADECDF;
+  --r:20px; --pill:100px;
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --t:170ms cubic-bezier(.16,1,.3,1);
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:15px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.env{ max-width:1240px; margin-inline:auto; padding:clamp(28px,5vw,54px) clamp(18px,4vw,40px) 90px; }
+.olho{ font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--ink3); }
+h1{ margin:12px 0 0; font-size:clamp(28px,4.4vw,44px); font-weight:500; letter-spacing:-.036em; line-height:1.06; }
+.sub{ margin:14px 0 0; font-size:16px; color:var(--ink2); max-width:64ch; text-wrap:pretty; }
+h2{ margin:0; font-size:19px; font-weight:600; letter-spacing:-.02em; }
+.porque{ margin:6px 0 16px; font-size:13.5px; color:var(--ink3); line-height:1.55; text-wrap:pretty; }
+
+.grade{ margin-top:46px; display:grid; gap:clamp(26px,3vw,36px); grid-template-columns:1fr; }
+@media (min-width:820px){ .grade{ grid-template-columns:1fr 1fr; } }
+
+.mostra{ display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap; }
+
+/* a lateral de mentira, no tamanho de verdade */
+.lat{
+  width:212px; flex:none; padding:10px; border-radius:var(--r);
+  background:var(--paper); border:1px solid var(--line);
+}
+.lat__item{
+  display:flex; align-items:center; gap:12px; height:40px; padding:0 12px;
+  border-radius:12px; color:var(--ink2); font-size:14.5px; font-weight:500;
+  letter-spacing:-.005em; position:relative;
+}
+.lat__item svg{ flex:none; }
+.lat__item--on{ background:var(--wash2); color:var(--ink); font-weight:600; }
+.lat__item--on::before{
+  content:""; position:absolute; left:0; top:50%; transform:translateY(-50%);
+  width:3px; height:18px; border-radius:2px; background:var(--lima);
+}
+.lat__div{ height:1px; background:var(--line); margin:10px 10px; }
+
+/* os mesmos ícones, grandes */
+.zoom{
+  flex:1; min-width:180px; display:grid; gap:14px;
+  grid-template-columns:repeat(3,1fr); align-content:start;
+  padding:18px; border-radius:var(--r); background:var(--paper); border:1px solid var(--line);
+}
+.zoom > div{ display:grid; place-items:center; gap:8px; color:var(--ink); }
+.zoom small{ font-size:10.5px; color:var(--ink3); letter-spacing:.04em; }
+
+.barra{
+  position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:50;
+  display:flex; gap:4px; padding:6px; border-radius:100px;
+  background:rgba(17,17,17,.93); box-shadow:0 12px 30px rgba(0,0,0,.30);
+}
+.barra button{
+  height:32px; padding:0 15px; border:0; border-radius:100px; background:none;
+  color:rgba(255,255,255,.6); font-family:inherit; font-size:12.5px; font-weight:500; cursor:pointer;
+}
+.barra button:hover{ color:#fff; }
+.barra button[data-on="sim"]{ background:#C4FBA7; color:#111; font-weight:600; }
+</style>
+
+<div class="env">
+  <span class="olho">Cora Render &middot; painel</span>
+  <h1>Quatro conjuntos de ícone<br>para o menu</h1>
+  <p class="sub">Cada um aparece no tamanho de verdade, dentro de uma lateral de mentira, e
+    ampliado do lado. Ícone de menu se lê de relance e sempre no mesmo canto: o que importa
+    não é qual é mais bonito sozinho, e sim qual deixa os seis mais diferentes uns dos outros.</p>
+
+  <div class="grade" id="grade"></div>
+</div>
+
+<div class="barra">
+  <button data-tema="light" data-on="sim">Claro</button>
+  <button data-tema="dark">Escuro</button>
+</div>
+
+<script>
+/* ── os quatro conjuntos ──
+   Cada função recebe o tamanho e devolve o SVG. Assim a lateral e o zoom
+   desenham exatamente o mesmo caminho, e não duas versões que se separam na
+   primeira correção. */
+var ITENS = ['Início', 'Cora Render', 'Minha conta', 'Equipe', 'Assinatura', 'Admin'];
+
+function svg(t, dentro, extra) {
+  return '<svg width="' + t + '" height="' + t + '" viewBox="0 0 24 24" ' + (extra || '') + '>' + dentro + '</svg>';
+}
+
+/* 1 · LINHA — o que está no ar, com o traço afinado e as pontas redondas. */
+var LINHA = {
+  base: 'fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"',
+  d: [
+    '<rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/>',
+    '<path d="M12 2.8l8.2 4.6v9.2L12 21.2l-8.2-4.6V7.4z"/><path d="M12 12l8.2-4.6M12 12v9.2M12 12L3.8 7.4"/>',
+    '<circle cx="12" cy="8" r="3.6"/><path d="M4.8 20.2a7.2 7.2 0 0 1 14.4 0"/>',
+    '<circle cx="9" cy="8" r="3.2"/><path d="M3 19.6a6 6 0 0 1 12 0"/><path d="M16.4 5.2a3.2 3.2 0 0 1 0 6.2M17 19.6a6 6 0 0 0-2.2-4.6"/>',
+    '<rect x="2.6" y="5.4" width="18.8" height="13.2" rx="2.4"/><path d="M2.6 10.2h18.8"/><path d="M6 14.6h3.6"/>',
+    '<path d="M12 2.6l8 3.5v5.6c0 4.7-3.3 7.6-8 9.7-4.7-2.1-8-5-8-9.7V6.1z"/><path d="M9 12l2.2 2.2L15.4 10"/>'
+  ]
+};
+
+/* 2 · CHEIO — silhueta sólida, sem traço. Marca mais forte no item ativo, e
+   perde detalhe: a diferença entre "conta" e "equipe" fica só no contorno. */
+var CHEIO = {
+  base: 'fill="currentColor"',
+  d: [
+    '<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/>',
+    '<path d="M12 2.4l8.6 4.8v9.6L12 21.6 3.4 16.8V7.2z" opacity=".28"/><path d="M12 12l8.6-4.8v9.6L12 21.6z"/>',
+    '<circle cx="12" cy="8" r="4"/><path d="M12 13.4c-4 0-7.2 2.7-7.2 6 0 .4.3.6.7.6h13c.4 0 .7-.2.7-.6 0-3.3-3.2-6-7.2-6z"/>',
+    '<circle cx="8.6" cy="8" r="3.6"/><path d="M8.6 13c-3.5 0-6.2 2.3-6.2 5.2 0 .4.3.6.6.6h11.2c.3 0 .6-.2.6-.6 0-2.9-2.7-5.2-6.2-5.2z"/><circle cx="17" cy="9" r="2.8" opacity=".4"/><path d="M17 13c-.7 0-1.3.1-1.9.3 1.3 1.2 2.1 2.8 2.1 4.5h4c.3 0 .6-.2.6-.6 0-2.4-2.2-4.2-4.8-4.2z" opacity=".4"/>',
+    '<rect x="2.4" y="5" width="19.2" height="14" rx="2.6"/><path d="M2.4 9.6h19.2" stroke="var(--paper)" stroke-width="1.6"/><rect x="5.4" y="13.4" width="4.6" height="1.8" rx=".9" fill="var(--paper)"/>',
+    '<path d="M12 2.4l8.2 3.6v5.8c0 4.8-3.4 7.8-8.2 10-4.8-2.2-8.2-5.2-8.2-10V6z"/><path d="M9 12l2.2 2.2L15.4 10" fill="none" stroke="var(--paper)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+  ]
+};
+
+/* 3 · DUOTOM — a silhueta em lima ou turquesa por baixo, o traço em tinta por
+   cima. A cor da marca entra no menu, que hoje é todo cinza. */
+var DUO = {
+  base: 'fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"',
+  d: [
+    '<rect x="3.5" y="3.5" width="7" height="7" rx="1.6" fill="var(--lima)"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6" fill="var(--turquesa)"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/>',
+    '<path d="M12 12l8.2-4.6v9.2L12 21.2z" fill="var(--lima)"/><path d="M12 2.8l8.2 4.6v9.2L12 21.2l-8.2-4.6V7.4z"/><path d="M12 12l8.2-4.6M12 12v9.2M12 12L3.8 7.4"/>',
+    '<circle cx="12" cy="8" r="3.6" fill="var(--lima)"/><path d="M4.8 20.2a7.2 7.2 0 0 1 14.4 0"/><circle cx="12" cy="8" r="3.6"/>',
+    '<circle cx="9" cy="8" r="3.2" fill="var(--lima)"/><circle cx="16.6" cy="8.3" r="2.6" fill="var(--turquesa)"/><circle cx="9" cy="8" r="3.2"/><path d="M3 19.6a6 6 0 0 1 12 0"/><path d="M17 19.6a6 6 0 0 0-2.2-4.6"/>',
+    '<rect x="2.6" y="5.4" width="18.8" height="4.8" rx="2.4" fill="var(--turquesa)"/><rect x="2.6" y="5.4" width="18.8" height="13.2" rx="2.4"/><path d="M2.6 10.2h18.8"/><path d="M6 14.6h3.6"/>',
+    '<path d="M12 2.6l8 3.5v5.6c0 4.7-3.3 7.6-8 9.7-4.7-2.1-8-5-8-9.7V6.1z" fill="var(--lima)"/><path d="M12 2.6l8 3.5v5.6c0 4.7-3.3 7.6-8 9.7-4.7-2.1-8-5-8-9.7V6.1z"/><path d="M9 12l2.2 2.2L15.4 10"/>'
+  ]
+};
+
+/* 4 · GEOMÉTRICO — desenhado com o vocabulário da própria marca: círculo,
+   meia-lua e vão, que é o alfabeto da faixa. É o mais nosso, e o que mais
+   pede tempo para ser aprendido: nenhum deles é o ícone que a pessoa já
+   conhece de outros lugares. */
+var GEO = {
+  base: 'fill="currentColor"',
+  d: [
+    '<circle cx="7" cy="7" r="4"/><path d="M13 3a4 4 0 0 1 0 8z"/><path d="M7 13a4 4 0 0 1 0 8z"/><circle cx="17" cy="17" r="4"/>',
+    '<circle cx="8" cy="12" r="5"/><path d="M14 7a5 5 0 0 1 0 10z"/>',
+    '<circle cx="12" cy="7.5" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0z"/>',
+    '<circle cx="7.5" cy="8" r="3.5"/><circle cx="16.5" cy="8" r="3.5"/><path d="M3 20a4.5 4.5 0 0 1 9 0z"/><path d="M12 20a4.5 4.5 0 0 1 9 0z"/>',
+    '<path d="M3 7h18a2 2 0 0 1 0 10H3a2 2 0 0 1 0-10z"/><circle cx="8" cy="12" r="2.6" fill="var(--paper)"/><path d="M14 9.4a2.6 2.6 0 0 1 0 5.2z" fill="var(--paper)"/>',
+    '<path d="M12 3a5 5 0 0 1 0 10z"/><path d="M12 13a5 5 0 0 1 0 8 5 5 0 0 1 0-8z"/><circle cx="7" cy="8" r="2.4"/>'
+  ]
+};
+
+var CONJUNTOS = [
+  { nome: '1 · Linha', porque: 'O que está no ar, com o traço afinado para 1,7 e as pontas redondas. É o mais neutro, e o que ninguém precisa aprender.', set: LINHA },
+  { nome: '2 · Cheio', porque: 'Silhueta sólida. Marca mais no item ativo e some melhor no inativo, mas perde detalhe: conta e equipe ficam parecidas de longe.', set: CHEIO },
+  { nome: '3 · Duotom', porque: 'A silhueta em lima ou turquesa por baixo do traço. Traz a cor da marca para um menu que hoje é todo cinza, sem perder o desenho.', set: DUO },
+  { nome: '4 · Geométrico', porque: 'Desenhado com o alfabeto da faixa: círculo, meia-lua e vão. É o mais nosso, e o que mais pede tempo, porque nenhum é o ícone que a pessoa já conhece.', set: GEO }
+];
+
+var grade = document.getElementById('grade');
+CONJUNTOS.forEach(function (c) {
+  var lat = '<div class="lat">';
+  ITENS.forEach(function (nome, i) {
+    if (i === 2) lat += '<div class="lat__div"></div>';
+    lat += '<div class="lat__item' + (i === 0 ? ' lat__item--on' : '') + '">'
+         + svg(20, c.set.d[i], c.set.base) + '<span>' + nome + '</span></div>';
+  });
+  lat += '</div>';
+
+  var zoom = '<div class="zoom">';
+  ITENS.forEach(function (nome, i) {
+    zoom += '<div>' + svg(34, c.set.d[i], c.set.base) + '<small>' + nome.split(' ')[0] + '</small></div>';
+  });
+  zoom += '</div>';
+
+  grade.insertAdjacentHTML('beforeend',
+    '<section><h2>' + c.nome + '</h2><p class="porque">' + c.porque + '</p>'
+    + '<div class="mostra">' + lat + zoom + '</div></section>');
+});
+
+document.querySelector('.barra').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  document.documentElement.setAttribute('data-theme', b.dataset.tema);
+  [].forEach.call(this.children, function (x) { x.removeAttribute('data-on'); });
+  b.setAttribute('data-on', 'sim');
+});
+document.documentElement.setAttribute('data-theme', 'light');
+</script>

@@ -207,8 +207,11 @@
 .app-user-menu{
   position:absolute; top:calc(100% + 10px); right:0; width:284px; z-index:60;
   background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
-  box-shadow:var(--sombra); overflow:hidden; text-align:left;
+  box-shadow:var(--sombra); text-align:left;
   padding:0;   /* o recuo mora no miolo, para a faixa encostar na borda */
+  /* `overflow:hidden` cortava a lista do dropdown pela borda do menu. Quem
+     arredonda a faixa agora é a própria faixa. No site o problema não existe,
+     porque a lista do DropdownCora sai por um portal. */
 }
 /* A faixa fecha o menu por cima, como fecha o cartão do e-mail.
    O ladrilho é a altura vezes oito, então engrossar a faixa aumenta as formas
@@ -217,6 +220,7 @@
 .app-user-faixa{
   height:28px; background:var(--faixa-deitada) repeat-x left center;
   background-size:calc(28px * 8) 100%;
+  border-radius:var(--r) var(--r) 0 0;
 }
 .app-user-miolo{ padding:14px; }
 .app-user-nome{
@@ -664,7 +668,10 @@
   margin:0 0 4px; font-size:17px; font-weight:600; letter-spacing:-.016em;
   display:flex; align-items:center; gap:10px; flex-wrap:wrap;
 }
-.perfil-sub{ margin:0 0 18px; font-size:13.5px; color:var(--ink3); line-height:1.55; max-width:60ch; }
+.perfil-sub{
+  margin:0 0 18px; font-size:13.5px; color:var(--ink3); line-height:1.55;
+  max-width:68ch; text-wrap:pretty;
+}
 .perfil-sub--item{ margin:3px 0 0; max-width:52ch; }
 
 .perfil-linha{
@@ -717,7 +724,14 @@
 .perfil-avatar-x:hover{ background:var(--alerta); color:#FFFFFF; }
 .perfil-foto-dica{ font-size:13px; color:var(--ink3); line-height:1.5; max-width:34ch; }
 
-.perfil-toggle-linha{ align-items:center; }
+/* A linha do interruptor NÃO é a grade de 150px das outras: ali o texto caía
+   numa coluna estreita e quebrava em cinco linhas. Aqui ele ocupa a largura
+   toda e o botão fica no canto, alinhado com o alto do bloco. */
+.perfil-toggle-linha{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:28px;
+}
+.perfil-toggle-linha > div{ flex:1; min-width:0; }
+.perfil-toggle-linha .perfil-sub--item{ max-width:none; }
 .perfil-toggle{
   width:46px; height:27px; flex:none; border:0; border-radius:var(--pill); cursor:pointer;
   background:var(--wash2); position:relative; transition:background-color var(--t);
@@ -788,7 +802,10 @@
 .perfil-toggle.on{ background:var(--lima); }
 .perfil-toggle.on .perfil-toggle-bola{ transform:translateX(19px); }
 
-.perfil-legal{ margin:16px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6; }
+.perfil-legal{
+  margin:18px 0 0; padding-top:16px; border-top:1px solid var(--line);
+  font-size:12.5px; color:var(--ink3); line-height:1.6; text-wrap:pretty;
+}
 .perfil-link{ color:var(--ink); border-bottom:1px solid var(--lima); }
 .perfil-link:hover{ border-bottom-color:var(--ink); }
 
@@ -889,27 +906,42 @@
   border-radius:var(--r); padding:24px 26px;
 }
 .conta-h2{ margin:0; font-size:17px; font-weight:600; letter-spacing:-.016em; }
-.conta-p{ margin:8px 0 0; font-size:14px; color:var(--ink2); line-height:1.6; max-width:62ch; }
+.conta-p{
+  margin:8px 0 0; font-size:14px; color:var(--ink2); line-height:1.6;
+  max-width:72ch; text-wrap:pretty;
+}
 
 .rec-destino{ margin-top:18px; max-width:360px; }
 .rec-destino .perfil-lbl{ display:block; margin-bottom:8px; }
 
-.rec-grade{ margin-top:20px; display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
-.rec-op{
-  position:relative; text-align:left; cursor:pointer; font-family:inherit;
-  background:var(--paper); border:1px solid var(--line); border-radius:var(--r-peq);
-  padding:16px 18px; display:grid; gap:2px;
-  transition:border-color var(--t), background-color var(--t);
+/* O mesmo cartão da página de preços: conteúdo centrado, selo colado na
+   borda de cima e no meio, e o escolhido com o contorno de 2px em tinta.
+   O hover levanta e dá um zoom leve, que é o gesto de lá. */
+.rec-grade{
+  margin-top:26px; display:grid; gap:14px;
+  grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
 }
-.rec-op:hover{ border-color:var(--line2); }
-.rec-op--on{ border-color:var(--ink); background:var(--wash); }
-.rec-op strong{ font-size:22px; font-weight:500; letter-spacing:-.03em; color:var(--ink); }
+.rec-op{
+  position:relative; text-align:center; cursor:pointer; font-family:inherit;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r-peq);
+  padding:26px 20px; display:grid; gap:4px; align-content:start;
+  transition:border-color var(--t), transform var(--t), box-shadow var(--t);
+}
+.rec-op:hover{
+  border-color:var(--line2); transform:translateY(-3px) scale(1.015);
+  box-shadow:0 12px 28px rgba(17,17,17,.07);
+}
+/* Contorno de 2px, e por isso o recuo perde 1px de cada lado: sem isso o
+   cartão escolhido cresce dois pixels e a linha inteira treme. */
+.rec-op--on{ border:2px solid var(--ink); padding:25px 19px; }
+.rec-op strong{ font-size:26px; font-weight:500; letter-spacing:-.032em; color:var(--ink); }
 .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
-.rec-preco{ font-size:14px; color:var(--ink2); }
+.rec-preco{ margin-top:2px; font-size:15px; color:var(--ink2); }
 .rec-tag{
-  position:absolute; top:-9px; right:12px; font-style:normal;
-  font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
-  background:var(--turquesa); color:#111111; padding:3px 9px; border-radius:var(--pill);
+  position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+  font-style:normal; white-space:nowrap; line-height:1;
+  font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  background:var(--ink); color:var(--paper); padding:5px 14px; border-radius:var(--pill);
 }
 .rec-btn{
   margin-top:20px; height:46px; padding:0 26px; border:0; border-radius:var(--pill);
@@ -1429,7 +1461,7 @@ body{ margin:0; background:#F6F6F4; }
 
           <div class="dash-cartao" data-so="membro">
             <span class="dash-cartao-rot">Equipe</span>
-            <strong class="dash-cartao-num">Estúdio<em> Fischer</em></strong>
+            <strong class="dash-cartao-num">Estúdio Fischer</strong>
             <div class="dash-cartao-linhas">
               <span>Quem paga é <b>Marilia Fischer</b></span>
               <span>Seus créditos vêm do plano da equipe</span>
