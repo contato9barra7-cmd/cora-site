@@ -156,6 +156,57 @@
   font-size:12px; font-weight:500; color:var(--ink3); vertical-align:middle;
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   O QUE AINDA DÁ PARA FAZER
+
+   Duas colunas com papéis distintos, e não um cartão com dois parágrafos:
+   à esquerda o que continua valendo, à direita a única coisa que tem prazo.
+   Empilhar as duas fazia a segunda parecer continuação da primeira, e o
+   botão parecer o fim da frase.
+
+   A da direita é a que age, e por isso é a que tem fundo: ela não é mais
+   importante, é a que tem hora marcada.
+   ══════════════════════════════════════════════════════════════════════ */
+.can-fazer{
+  display:grid; gap:14px; grid-template-columns:1fr;
+  align-items:stretch;
+}
+@media (min-width:760px){
+  .can-fazer{ grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); }
+}
+.can-fazer__vale, .can-fazer__prazo{
+  padding:22px 24px; border-radius:var(--r); border:1px solid var(--line);
+  display:flex; flex-direction:column;
+}
+.can-fazer__vale{ background:var(--paper); }
+.can-fazer__prazo{ background:var(--wash2); }
+.can-fazer__t{
+  margin:6px 0 0; font-size:17px; font-weight:600; letter-spacing:-.02em;
+  text-wrap:balance;
+}
+.can-fazer__p{
+  margin:8px 0 0; font-size:13.5px; color:var(--ink2); line-height:1.6;
+  text-wrap:pretty;
+}
+/* O botão desce para o fim do cartão: assim as duas colunas terminam na mesma
+   linha, mesmo com alturas de texto diferentes. */
+.can-fazer__prazo .as-btn-cta{ margin-top:auto; align-self:flex-start; }
+
+/* Os números do que sobrou. Rótulo à esquerda, valor à direita, alinhados
+   numa régua: quem olha quer comparar quanto sobrou de cada coisa, e valor
+   solto no meio da frase obriga a procurar. */
+.can-numeros{ margin:16px 0 0; display:grid; gap:0; }
+.can-numeros > div{
+  display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+  padding:10px 0; border-bottom:1px solid var(--line);
+}
+.can-numeros > div:last-child{ border-bottom:0; padding-bottom:0; }
+.can-numeros dt{ margin:0; font-size:13.5px; color:var(--ink3); }
+.can-numeros dd{
+  margin:0; font-size:15px; font-weight:600; color:var(--ink);
+  font-variant-numeric:tabular-nums;
+}
+
 /* ── O BLOQUEIO ──
    A mesma moldura do fim do teste, de propósito: quem já viu uma reconhece a
    outra. O que muda é só o texto. */
