@@ -244,7 +244,9 @@
                   </button>
                 </div>
               </div>
-              <span>de 2</span>
+              <!-- "de 2" saiu: quantos existem no total ja e a ultima linha da
+                   tabela, e o mesmo numero em dois lugares e um para dar errado. -->
+              <span>por página</span>
             </div>
             <div class="adm-pag-nums">
               <button class="adm-pag-seta" disabled aria-label="Anterior">
@@ -840,7 +842,17 @@
                   <td class="adm-mono">2026-08-14</td>
                   <td class="adm-mono">24/08/2026 &middot; 14h02</td>
                   <td class="adm-sub" style="font-size:12.5px">177.85.0.0<br>Chrome no Windows</td>
-                  <td class="fat__acao"><button class="fat-ver" data-comprovante>Comprovante</button></td>
+                  <!-- O comprovante e da PESSOA, e nao desta linha: ele sai com os
+                       DOIS documentos que ela aceitou, cada um com a sua data. Por
+                       isso o botao carrega quem ela e, e nao qual documento. -->
+                  <td class="fat__acao"><button class="fat-ver" data-comprovante
+                    data-nome="Marilia Fischer" data-email="marilia@corarender.com"
+                    data-doc="000.000.000-00" data-conta="3617"
+                    data-ip="177.85.0.0" data-nav="Chrome 128 no Windows 11"
+                    data-local="Curitiba, Paraná, Brasil"
+                    data-termos="24 de agosto de 2026, 14h02"
+                    data-privacidade="24 de agosto de 2026, 14h02"
+                    data-registro="0000418">Comprovante</button></td>
                 </tr>
                 <tr>
                   <td>
@@ -851,7 +863,14 @@
                   <td class="adm-mono">2026-08-14</td>
                   <td class="adm-mono">11/08/2026 &middot; 09h37</td>
                   <td class="adm-sub" style="font-size:12.5px">200.146.0.0<br>Safari no Mac</td>
-                  <td class="fat__acao"><button class="fat-ver" data-comprovante>Comprovante</button></td>
+                  <td class="fat__acao"><button class="fat-ver" data-comprovante
+                    data-nome="Estúdio Norte" data-email="contato@estudionorte.com.br"
+                    data-doc="12.345.678/0001-95" data-conta="3702"
+                    data-ip="200.146.0.0" data-nav="Safari 17 no macOS"
+                    data-local="São Paulo, SP, Brasil"
+                    data-termos="11 de agosto de 2026, 09h37"
+                    data-privacidade="11 de agosto de 2026, 09h37"
+                    data-registro="0000392">Comprovante</button></td>
                 </tr>
               </tbody>
             </table>

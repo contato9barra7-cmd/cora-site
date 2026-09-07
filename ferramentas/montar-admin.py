@@ -126,8 +126,30 @@ DROPDOWN = (
 
 corpo = corpo.replace('@@DROPDOWN@@', DROPDOWN)
 
+# ══ OS DOIS DOCUMENTOS DO COMPROVANTE ══
+# Eles vem de docs_legais.py, o mesmo modulo que a folha A4 usa. O comprovante
+# e da PESSOA, e o que ela aceitou foram os dois textos, cada um com a sua
+# versao e a sua data: um reaceite pode cobrir so o documento que mudou. Por
+# isso cada secao carrega a sua propria data no cabecalho, em vez de uma data
+# unica no topo da folha.
+import sys
+sys.path.insert(0, SCR)
+from docs_legais import DOCUMENTOS, TEXTOS as CLAUSULAS_DE, blocos
+
+CMP_DOCS = u''.join(
+    u'<section class="cmp__sec">'
+    u'<div class="cmp__sec-cab"><h4>%s</h4>'
+    u'<p>Versão <b>%s</b>, em vigor desde %s<br>'
+    u'Aceita por esta conta em <b>%s</b></p></div>'
+    u'<div class="cmp__doc">%s</div>'
+    u'</section>'
+    % (d['nome'], d['versao'], d['vigor'], d['aceito'],
+       blocos(CLAUSULAS_DE[d['clausulas']], 'cmp__cl'))
+    for d in DOCUMENTOS)
+
 CABECA = io.open(os.path.join(SCR, 'admin-cabeca.txt'), encoding='utf-8').read()
 RODAPE = io.open(os.path.join(SCR, 'admin-rodape.txt'), encoding='utf-8').read()
+RODAPE = RODAPE.replace('@@DOCUMENTOS@@', CMP_DOCS)
 
 FORA = (CABECA
         .replace('@@CSS_ADMIN@@', css_admin)

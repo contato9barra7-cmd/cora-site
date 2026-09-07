@@ -120,55 +120,50 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
         <div class="cmp__marca" role="img" aria-label="Cora Render"></div>
 
         <h3 class="cmp__tit">Comprovante de aceite</h3>
-        <p class="cmp__num">Registro nº 0000418 &middot; emitido em 7 de setembro de 2026</p>
+        <p class="cmp__num">Registro nº <span data-cmp-registro>0000418</span>
+          &middot; emitido em 7 de setembro de 2026</p>
 
         <div class="cmp__quem">
           <div>
             <span>Quem aceitou</span>
-            <p><b>Marilia Fischer</b><br>marilia@corarender.com<br>
-              CPF 000.000.000-00<br>Conta nº 3617</p>
+            <p><b data-cmp-nome>Marilia Fischer</b><br><span data-cmp-email>marilia@corarender.com</span><br>
+              CPF <span data-cmp-doc>000.000.000-00</span><br>Conta nº <span data-cmp-conta>3617</span></p>
           </div>
           <div>
             <span>O que foi aceito</span>
-            <p><b>Termos de Uso</b><br>Versão 2026-08-14<br>
-              em vigor desde 14 de agosto de 2026</p>
+            <p><b>Termos de Uso</b> e <b>Política de Privacidade</b><br>
+              os dois na íntegra, mais abaixo nesta folha</p>
           </div>
           <div>
             <span>Quando</span>
-            <p><b>24 de agosto de 2026, 14h02</b><br>
-              horário de Brasília (UTC&minus;3)</p>
+            <p data-cmp-datas></p>
           </div>
           <div>
             <span>De onde</span>
-            <p>IP 177.85.0.0<br>Chrome 128 no Windows 11<br>
-              aceito no cadastro</p>
+            <p>IP <span data-cmp-ip>177.85.0.0</span><br><span data-cmp-nav>Chrome 128 no Windows 11</span></p>
+            <p class="cmp__est" data-cmp-local>Pelo IP, a conexão saiu de <b>Curitiba, Paraná,
+              Brasil</b>. É leitura de uma base pública, e não o endereço da pessoa.</p>
           </div>
         </div>
 
+        <!-- ══ OS DOIS DOCUMENTOS, INTEIROS ══
+             Nao um deles, e nao um resumo. O comprovante e da PESSOA, e o que
+             ela aceitou foram os dois textos, cada um numa versao e numa data
+             que podem ser diferentes: um reaceite cobre so o documento que
+             mudou. Por isso cada secao carrega a sua propria data.
+
+             Reproduzir o texto e o que separa um comprovante de um recibo. Um
+             link pode mudar de conteudo depois; a folha, nao. -->
         <div class="cmp__texto">
           <span>O texto aceito, na íntegra</span>
-          <div class="cmp__doc">
-            <h4>Termos de Uso do Cora Render</h4>
-            <p><b>1. O que é o Cora Render.</b> O Cora Render é uma ferramenta que usa
-              inteligência artificial para gerar imagens, vídeos e recursos relacionados a
-              partir de modelos 3D e imagens que você fornece.</p>
-            <p><b>2. Os resultados.</b> As imagens são geradas automaticamente por modelos
-              de IA e, por natureza, podem conter erros, imprecisões e artefatos, ou se
-              afastar do projeto original. Isso é característica esperada da tecnologia e
-              não é considerado defeito do serviço.</p>
-            <p><b>3. Créditos e cobrança.</b> Cada geração consome créditos conforme a
-              tabela vigente. Recargas avulsas valem 6 meses e são usadas depois que os
-              créditos do plano acabam.</p>
-            <p class="cmp__corte">O texto continua na versão completa, que é a que está
-              gravada no registro e sai inteira no PDF.</p>
-          </div>
+@@DOCUMENTOS@@
         </div>
 
         <p class="cmp__pe">
           Este comprovante reproduz o registro guardado no sistema do Cora Render no momento
           do aceite. O registro guarda o identificador da versão do documento, e a versão em
           si é imutável: um texto novo entra como versão nova, sem apagar a anterior.<br>
-          9BARRA7 Academy &middot; CNPJ 00.000.000/0001-00 &middot; corarender.com
+          9BARRA7 Academy &middot; CNPJ 43.879.950/0001-40 &middot; corarender.com
         </p>
       </div>
     </div>
@@ -459,13 +454,43 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
     });
   });
 
-  /* ── O COMPROVANTE DE ACEITE ── */
-  function abrirAceite(sim) {
-    d.getElementById('modal-aceite').hidden = !sim;
+  /* ── O COMPROVANTE DE ACEITE ──
+     A folha e da PESSOA, e nao da linha em que se clicou. Ela sai sempre com
+     os DOIS documentos por inteiro, cada um com a sua data de aceite: um
+     reaceite pode cobrir so o que mudou, e a folha precisa dizer as duas
+     datas. Por isso o botao de cada linha carrega quem e a pessoa, e nao qual
+     documento aquela linha representa.
+
+     No site estes campos vem de `GET /admin/aceites/conta/:id/comprovante`,
+     que ja devolve o ultimo aceite de cada documento com o texto inteiro. */
+  function abrirAceite(sim, bt) {
+    var m = d.getElementById('modal-aceite');
+    if (sim && bt) {
+      var q = function (sel) { return m.querySelector(sel); };
+      var por = function (sel, texto) { var e = q(sel); if (e) e.textContent = texto; };
+      por('[data-cmp-nome]', bt.dataset.nome);
+      por('[data-cmp-email]', bt.dataset.email);
+      por('[data-cmp-doc]', bt.dataset.doc);
+      por('[data-cmp-conta]', bt.dataset.conta);
+      por('[data-cmp-ip]', bt.dataset.ip);
+      por('[data-cmp-nav]', bt.dataset.nav);
+      q('[data-cmp-local]').innerHTML =
+        'Pelo IP, a conexão saiu de <b>' + bt.dataset.local + '</b>. É leitura de uma '
+        + 'base pública, e não o endereço da pessoa.';
+      /* As duas datas na mesma caixa, uma por documento. Quando coincidem
+         continuam aparecendo as duas: o dia em que deixarem de coincidir, a
+         folha nao precisa mudar de formato para dizer isso. */
+      q('[data-cmp-datas]').innerHTML =
+        'Termos, em <b>' + bt.dataset.termos + '</b><br>'
+        + 'Privacidade, em <b>' + bt.dataset.privacidade + '</b><br>'
+        + 'horário de Brasília (UTC−3)';
+      q('[data-cmp-registro]').textContent = bt.dataset.registro;
+    }
+    m.hidden = !sim;
     d.body.style.overflow = sim ? 'hidden' : '';
   }
   d.querySelectorAll('[data-comprovante]').forEach(function (b) {
-    b.addEventListener('click', function () { abrirAceite(true); });
+    b.addEventListener('click', function () { abrirAceite(true, b); });
   });
   d.getElementById('fecha-aceite').addEventListener('click', function () { abrirAceite(false); });
   d.getElementById('modal-aceite').addEventListener('click', function (e) {

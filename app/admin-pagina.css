@@ -154,7 +154,8 @@
   display:flex; align-items:center; justify-content:space-between;
   gap:14px; flex-wrap:wrap; margin-top:18px;
   font-size:13.5px; color:var(--ink3);
-}.adm-pag-nums{ display:flex; align-items:center; gap:14px; }/* O quantos-por-pagina e um dropdown estreito. Sem largura ele ocuparia a
+}.adm-pag-nums{ display:flex; align-items:center; gap:14px; }/* Em linha. Sem isto o dropdown, que e um bloco, empilhava com os dois textos
+   e "Mostrar", "50" e o resto viravam tres andares para dizer uma frase so. */.adm-pag-qtd{ display:flex; align-items:center; gap:9px; }/* O quantos-por-pagina e um dropdown estreito. Sem largura ele ocuparia a
    linha inteira, porque o `.cora-dd` nasce com 100%. */.adm-pag-qtd__dd{ width:86px; }.adm-pag-qtd__dd .cora-dd-btn{ padding:7px 12px; font-size:13.5px; border-radius:12px; }.adm-pag-n{
   border:0; background:none; padding:0 0 3px; cursor:pointer; font-family:inherit;
   font-size:13.5px; color:var(--ink2); font-variant-numeric:tabular-nums;
@@ -293,7 +294,20 @@
    A casca da prévia é a mesma dos e-mails de verdade (faixa no alto, marca,
    cartão de papel), pelo mesmo motivo da fatura: quem recebe tem que
    reconhecer os dois como a mesma empresa.
-   ══════════════════════════════════════════════════════════════════════ */.adm-modal{
+   ══════════════════════════════════════════════════════════════════════ *//* ── POR QUE ESTA LINHA EXISTE ──
+   O `box-sizing:border-box` do painel esta escopado em `.app-shell *`, e as
+   janelas nao moram dentro dela: elas sao irmas da casca, no fim do documento,
+   porque precisam cobrir a tela inteira.
+
+   Sem isto, `width:100%` num campo com 16px de recuo de cada lado e 1px de
+   borda mede 100% MAIS 34px. Os campos passavam da coluna, o do link ficava
+   maior que o do botao e os dois encostavam um no outro. O layout parecia
+   errado, mas o layout estava certo: era a conta da largura que era outra.
+
+   Fica aqui e nao no seletor global de cima justamente porque o de cima nao
+   alcanca este pedaco do documento. */.adm-modal, .adm-modal *, .adm-modal *::before, .adm-modal *::after{
+  box-sizing:border-box;
+}.adm-modal{
   position:fixed; inset:0; z-index:140; overflow:auto;
   padding:clamp(16px,4vw,44px);
   background:rgba(17,17,17,.5); backdrop-filter:blur(5px);
@@ -389,7 +403,14 @@
 }.ad .cmp__doc{
   padding:20px 22px; border:1px solid var(--line); border-radius:var(--r-peq);
   background:var(--wash);
-}.ad .cmp__doc h4{ margin:0 0 12px; font-size:15px; font-weight:600; letter-spacing:-.014em; }.ad .cmp__doc p{ margin:0 0 10px; font-size:13px; color:var(--ink2); line-height:1.7; text-wrap:pretty; }.ad .cmp__doc b{ color:var(--ink); font-weight:600; }.ad .cmp__corte{ color:var(--ink3)!important; font-style:italic; }.ad .cmp__pe{
+}/* Cada documento e uma secao com o proprio cabecalho, porque cada um tem a
+   propria versao e a propria data de aceite. Uma data unica no topo da folha
+   mentiria no dia em que a pessoa reaceitar so um dos dois. */.ad .cmp__sec + .cmp__sec{ margin-top:18px; }.ad .cmp__sec-cab{ margin-bottom:9px; }.ad .cmp__sec-cab h4{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.014em; }.ad .cmp__sec-cab p{ margin:4px 0 0; font-size:11.5px; color:var(--ink3); line-height:1.6; }.ad .cmp__sec-cab b{ color:var(--ink2); font-weight:600; }.ad .cmp__cl + .cmp__cl{ margin-top:12px; }.ad .cmp__cl h4{ margin:0 0 4px; font-size:12.5px; font-weight:600; letter-spacing:-.01em; }.ad .cmp__cl p{ margin:0; font-size:12.5px; color:var(--ink2); line-height:1.7; text-wrap:pretty; }.ad .cmp__cl b{ color:var(--ink); font-weight:600; }/* A localizacao lida do IP, abaixo dele e em letra menor: o IP e o fato
+   registrado, a cidade e leitura dele. Num papel que pode ir para a Justica,
+   as duas na mesma linha teriam a mesma forca, e nao tem. */.ad .cmp__est{
+  margin:6px 0 0!important; font-size:11px!important; color:var(--ink3)!important;
+  line-height:1.55!important;
+}.ad .cmp__pe{
   margin:26px 0 0; padding-top:16px; border-top:1px solid var(--line);
   font-size:11.5px; color:var(--ink3); line-height:1.7; text-wrap:pretty;
 }/* A medida do CONTADOR de novidades desligadas. Cinza, e não vermelho:

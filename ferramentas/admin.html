@@ -269,6 +269,9 @@
   font-size:13.5px; color:var(--ink3);
 }
 .adm-pag-nums{ display:flex; align-items:center; gap:14px; }
+/* Em linha. Sem isto o dropdown, que e um bloco, empilhava com os dois textos
+   e "Mostrar", "50" e o resto viravam tres andares para dizer uma frase so. */
+.adm-pag-qtd{ display:flex; align-items:center; gap:9px; }
 /* O quantos-por-pagina e um dropdown estreito. Sem largura ele ocuparia a
    linha inteira, porque o `.cora-dd` nasce com 100%. */
 .adm-pag-qtd__dd{ width:86px; }
@@ -498,6 +501,22 @@
    cartão de papel), pelo mesmo motivo da fatura: quem recebe tem que
    reconhecer os dois como a mesma empresa.
    ══════════════════════════════════════════════════════════════════════ */
+/* ── POR QUE ESTA LINHA EXISTE ──
+   O `box-sizing:border-box` do painel esta escopado em `.app-shell *`, e as
+   janelas nao moram dentro dela: elas sao irmas da casca, no fim do documento,
+   porque precisam cobrir a tela inteira.
+
+   Sem isto, `width:100%` num campo com 16px de recuo de cada lado e 1px de
+   borda mede 100% MAIS 34px. Os campos passavam da coluna, o do link ficava
+   maior que o do botao e os dois encostavam um no outro. O layout parecia
+   errado, mas o layout estava certo: era a conta da largura que era outra.
+
+   Fica aqui e nao no seletor global de cima justamente porque o de cima nao
+   alcanca este pedaco do documento. */
+.adm-modal, .adm-modal *, .adm-modal *::before, .adm-modal *::after{
+  box-sizing:border-box;
+}
+
 .adm-modal{
   position:fixed; inset:0; z-index:140; overflow:auto;
   padding:clamp(16px,4vw,44px);
@@ -651,10 +670,25 @@
   padding:20px 22px; border:1px solid var(--line); border-radius:var(--r-peq);
   background:var(--wash);
 }
-.cmp__doc h4{ margin:0 0 12px; font-size:15px; font-weight:600; letter-spacing:-.014em; }
-.cmp__doc p{ margin:0 0 10px; font-size:13px; color:var(--ink2); line-height:1.7; text-wrap:pretty; }
-.cmp__doc b{ color:var(--ink); font-weight:600; }
-.cmp__corte{ color:var(--ink3)!important; font-style:italic; }
+/* Cada documento e uma secao com o proprio cabecalho, porque cada um tem a
+   propria versao e a propria data de aceite. Uma data unica no topo da folha
+   mentiria no dia em que a pessoa reaceitar so um dos dois. */
+.cmp__sec + .cmp__sec{ margin-top:18px; }
+.cmp__sec-cab{ margin-bottom:9px; }
+.cmp__sec-cab h4{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.014em; }
+.cmp__sec-cab p{ margin:4px 0 0; font-size:11.5px; color:var(--ink3); line-height:1.6; }
+.cmp__sec-cab b{ color:var(--ink2); font-weight:600; }
+.cmp__cl + .cmp__cl{ margin-top:12px; }
+.cmp__cl h4{ margin:0 0 4px; font-size:12.5px; font-weight:600; letter-spacing:-.01em; }
+.cmp__cl p{ margin:0; font-size:12.5px; color:var(--ink2); line-height:1.7; text-wrap:pretty; }
+.cmp__cl b{ color:var(--ink); font-weight:600; }
+/* A localizacao lida do IP, abaixo dele e em letra menor: o IP e o fato
+   registrado, a cidade e leitura dele. Num papel que pode ir para a Justica,
+   as duas na mesma linha teriam a mesma forca, e nao tem. */
+.cmp__est{
+  margin:6px 0 0!important; font-size:11px!important; color:var(--ink3)!important;
+  line-height:1.55!important;
+}
 .cmp__pe{
   margin:26px 0 0; padding-top:16px; border-top:1px solid var(--line);
   font-size:11.5px; color:var(--ink3); line-height:1.7; text-wrap:pretty;
@@ -2857,7 +2891,9 @@
                   </button>
                 </div>
               </div>
-              <span>de 2</span>
+              <!-- "de 2" saiu: quantos existem no total ja e a ultima linha da
+                   tabela, e o mesmo numero em dois lugares e um para dar errado. -->
+              <span>por página</span>
             </div>
             <div class="adm-pag-nums">
               <button class="adm-pag-seta" disabled aria-label="Anterior">
@@ -3453,7 +3489,17 @@
                   <td class="adm-mono">2026-08-14</td>
                   <td class="adm-mono">24/08/2026 &middot; 14h02</td>
                   <td class="adm-sub" style="font-size:12.5px">177.85.0.0<br>Chrome no Windows</td>
-                  <td class="fat__acao"><button class="fat-ver" data-comprovante>Comprovante</button></td>
+                  <!-- O comprovante e da PESSOA, e nao desta linha: ele sai com os
+                       DOIS documentos que ela aceitou, cada um com a sua data. Por
+                       isso o botao carrega quem ela e, e nao qual documento. -->
+                  <td class="fat__acao"><button class="fat-ver" data-comprovante
+                    data-nome="Marilia Fischer" data-email="marilia@corarender.com"
+                    data-doc="000.000.000-00" data-conta="3617"
+                    data-ip="177.85.0.0" data-nav="Chrome 128 no Windows 11"
+                    data-local="Curitiba, Paraná, Brasil"
+                    data-termos="24 de agosto de 2026, 14h02"
+                    data-privacidade="24 de agosto de 2026, 14h02"
+                    data-registro="0000418">Comprovante</button></td>
                 </tr>
                 <tr>
                   <td>
@@ -3464,7 +3510,14 @@
                   <td class="adm-mono">2026-08-14</td>
                   <td class="adm-mono">11/08/2026 &middot; 09h37</td>
                   <td class="adm-sub" style="font-size:12.5px">200.146.0.0<br>Safari no Mac</td>
-                  <td class="fat__acao"><button class="fat-ver" data-comprovante>Comprovante</button></td>
+                  <td class="fat__acao"><button class="fat-ver" data-comprovante
+                    data-nome="Estúdio Norte" data-email="contato@estudionorte.com.br"
+                    data-doc="12.345.678/0001-95" data-conta="3702"
+                    data-ip="200.146.0.0" data-nav="Safari 17 no macOS"
+                    data-local="São Paulo, SP, Brasil"
+                    data-termos="11 de agosto de 2026, 09h37"
+                    data-privacidade="11 de agosto de 2026, 09h37"
+                    data-registro="0000392">Comprovante</button></td>
                 </tr>
               </tbody>
             </table>
@@ -3835,55 +3888,50 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
         <div class="cmp__marca" role="img" aria-label="Cora Render"></div>
 
         <h3 class="cmp__tit">Comprovante de aceite</h3>
-        <p class="cmp__num">Registro nº 0000418 &middot; emitido em 7 de setembro de 2026</p>
+        <p class="cmp__num">Registro nº <span data-cmp-registro>0000418</span>
+          &middot; emitido em 7 de setembro de 2026</p>
 
         <div class="cmp__quem">
           <div>
             <span>Quem aceitou</span>
-            <p><b>Marilia Fischer</b><br>marilia@corarender.com<br>
-              CPF 000.000.000-00<br>Conta nº 3617</p>
+            <p><b data-cmp-nome>Marilia Fischer</b><br><span data-cmp-email>marilia@corarender.com</span><br>
+              CPF <span data-cmp-doc>000.000.000-00</span><br>Conta nº <span data-cmp-conta>3617</span></p>
           </div>
           <div>
             <span>O que foi aceito</span>
-            <p><b>Termos de Uso</b><br>Versão 2026-08-14<br>
-              em vigor desde 14 de agosto de 2026</p>
+            <p><b>Termos de Uso</b> e <b>Política de Privacidade</b><br>
+              os dois na íntegra, mais abaixo nesta folha</p>
           </div>
           <div>
             <span>Quando</span>
-            <p><b>24 de agosto de 2026, 14h02</b><br>
-              horário de Brasília (UTC&minus;3)</p>
+            <p data-cmp-datas></p>
           </div>
           <div>
             <span>De onde</span>
-            <p>IP 177.85.0.0<br>Chrome 128 no Windows 11<br>
-              aceito no cadastro</p>
+            <p>IP <span data-cmp-ip>177.85.0.0</span><br><span data-cmp-nav>Chrome 128 no Windows 11</span></p>
+            <p class="cmp__est" data-cmp-local>Pelo IP, a conexão saiu de <b>Curitiba, Paraná,
+              Brasil</b>. É leitura de uma base pública, e não o endereço da pessoa.</p>
           </div>
         </div>
 
+        <!-- ══ OS DOIS DOCUMENTOS, INTEIROS ══
+             Nao um deles, e nao um resumo. O comprovante e da PESSOA, e o que
+             ela aceitou foram os dois textos, cada um numa versao e numa data
+             que podem ser diferentes: um reaceite cobre so o documento que
+             mudou. Por isso cada secao carrega a sua propria data.
+
+             Reproduzir o texto e o que separa um comprovante de um recibo. Um
+             link pode mudar de conteudo depois; a folha, nao. -->
         <div class="cmp__texto">
           <span>O texto aceito, na íntegra</span>
-          <div class="cmp__doc">
-            <h4>Termos de Uso do Cora Render</h4>
-            <p><b>1. O que é o Cora Render.</b> O Cora Render é uma ferramenta que usa
-              inteligência artificial para gerar imagens, vídeos e recursos relacionados a
-              partir de modelos 3D e imagens que você fornece.</p>
-            <p><b>2. Os resultados.</b> As imagens são geradas automaticamente por modelos
-              de IA e, por natureza, podem conter erros, imprecisões e artefatos, ou se
-              afastar do projeto original. Isso é característica esperada da tecnologia e
-              não é considerado defeito do serviço.</p>
-            <p><b>3. Créditos e cobrança.</b> Cada geração consome créditos conforme a
-              tabela vigente. Recargas avulsas valem 6 meses e são usadas depois que os
-              créditos do plano acabam.</p>
-            <p class="cmp__corte">O texto continua na versão completa, que é a que está
-              gravada no registro e sai inteira no PDF.</p>
-          </div>
+<section class="cmp__sec"><div class="cmp__sec-cab"><h4>Termos de Uso</h4><p>Versão <b>2026-09-07</b>, em vigor desde 7 de setembro de 2026<br>Aceita por esta conta em <b>7 de setembro de 2026, 09h14min02s</b></p></div><div class="cmp__doc"><div class="cmp__cl"><h4>1. O que é o Cora Render</h4><p>O Cora Render é uma ferramenta que usa inteligência artificial para gerar imagens, vídeos, upscales e recursos relacionados a partir de modelos 3D e imagens que você fornece. O acesso acontece pela extensão do SketchUp e pela versão web, com a mesma conta.</p></div><div class="cmp__cl"><h4>2. Os resultados gerados</h4><p>As imagens são geradas <b>automaticamente por modelos de IA</b> e, por natureza, podem conter erros, imprecisões, artefatos, ou se afastar do projeto original, alterando elementos, cores, proporções, materiais ou detalhes. Isso é uma característica esperada da tecnologia e não é considerado defeito do serviço.</p></div><div class="cmp__cl"><h4>3. Créditos, planos e recarga</h4><p>Cada geração consome créditos conforme a tabela vigente, publicada na página de planos. O crédito do plano é renovado a cada ciclo. A recarga avulsa vale 6 meses e só é usada depois que o crédito do plano acaba. Crédito não usado no ciclo não vira dinheiro nem é transferível.</p></div><div class="cmp__cl"><h4>4. O que você envia</h4><p>Você declara ter direito sobre os modelos e as imagens que envia. O Cora Render usa esse conteúdo apenas para executar a geração que você pediu, e não o utiliza para treinar modelos.</p></div><div class="cmp__cl"><h4>5. Cancelamento</h4><p>A assinatura pode ser cancelada a qualquer momento, e o acesso continua até o fim do período já pago. Não há multa nem fidelidade.</p></div><div class="cmp__cl"><h4>6. Foro</h4><p>Fica eleito o foro da comarca de Curitiba, Paraná, para dirimir questões oriundas destes Termos, com renúncia a qualquer outro, por mais privilegiado que seja.</p></div></div></section><section class="cmp__sec"><div class="cmp__sec-cab"><h4>Política de Privacidade</h4><p>Versão <b>2026-08-14</b>, em vigor desde 14 de agosto de 2026<br>Aceita por esta conta em <b>24 de agosto de 2026, 14h02min37s</b></p></div><div class="cmp__doc"><div class="cmp__cl"><h4>1. Quem trata os seus dados</h4><p>A 9BARRA7 Academy, CNPJ 43.879.950/0001-40, é a controladora dos dados pessoais tratados no Cora Render. O contato para assuntos de privacidade é contato@corarender.com.</p></div><div class="cmp__cl"><h4>2. O que a gente guarda</h4><p>Nome, e-mail, documento fiscal e endereço, quando você informa; os dados de cobrança tratados pelo Stripe, sem que o número do cartão passe pelos nossos servidores; as imagens que você gera e os ajustes usados nelas; e registros técnicos de acesso, como endereço de IP, navegador, data e hora.</p></div><div class="cmp__cl"><h4>3. Para que a gente usa</h4><p>Para executar a geração que você pede, cobrar o plano contratado, dar suporte, cumprir obrigações fiscais e melhorar o produto. <b>As suas imagens não são usadas para treinar modelos.</b></p></div><div class="cmp__cl"><h4>4. Por quanto tempo</h4><p>Enquanto a conta estiver ativa e pelo prazo exigido por lei nos dados fiscais e de cobrança. As imagens do seu histórico ficam disponíveis até você excluí-las ou encerrar a conta.</p></div><div class="cmp__cl"><h4>5. Acesso do suporte à sua conta</h4><p>Para investigar problemas técnicos, membros autorizados da equipe podem acessar temporariamente a plataforma visualizando-a a partir da sua conta, <b>apenas em modo de leitura</b>. Cada acesso dura no máximo 30 minutos, exige autenticação individual e fica registrado com quem acessou, a conta e a data. Você pode pedir a relação desses acessos a qualquer momento.</p></div><div class="cmp__cl"><h4>6. Os seus direitos</h4><p>Você pode pedir acesso, correção, portabilidade ou eliminação dos seus dados, nos termos da Lei nº 13.709/2018, pelos canais de atendimento.</p></div></div></section>
         </div>
 
         <p class="cmp__pe">
           Este comprovante reproduz o registro guardado no sistema do Cora Render no momento
           do aceite. O registro guarda o identificador da versão do documento, e a versão em
           si é imutável: um texto novo entra como versão nova, sem apagar a anterior.<br>
-          9BARRA7 Academy &middot; CNPJ 00.000.000/0001-00 &middot; corarender.com
+          9BARRA7 Academy &middot; CNPJ 43.879.950/0001-40 &middot; corarender.com
         </p>
       </div>
     </div>
@@ -4174,13 +4222,43 @@ Está no Pro e no Studio, sem custo a mais além do crédito da geração.</text
     });
   });
 
-  /* ── O COMPROVANTE DE ACEITE ── */
-  function abrirAceite(sim) {
-    d.getElementById('modal-aceite').hidden = !sim;
+  /* ── O COMPROVANTE DE ACEITE ──
+     A folha e da PESSOA, e nao da linha em que se clicou. Ela sai sempre com
+     os DOIS documentos por inteiro, cada um com a sua data de aceite: um
+     reaceite pode cobrir so o que mudou, e a folha precisa dizer as duas
+     datas. Por isso o botao de cada linha carrega quem e a pessoa, e nao qual
+     documento aquela linha representa.
+
+     No site estes campos vem de `GET /admin/aceites/conta/:id/comprovante`,
+     que ja devolve o ultimo aceite de cada documento com o texto inteiro. */
+  function abrirAceite(sim, bt) {
+    var m = d.getElementById('modal-aceite');
+    if (sim && bt) {
+      var q = function (sel) { return m.querySelector(sel); };
+      var por = function (sel, texto) { var e = q(sel); if (e) e.textContent = texto; };
+      por('[data-cmp-nome]', bt.dataset.nome);
+      por('[data-cmp-email]', bt.dataset.email);
+      por('[data-cmp-doc]', bt.dataset.doc);
+      por('[data-cmp-conta]', bt.dataset.conta);
+      por('[data-cmp-ip]', bt.dataset.ip);
+      por('[data-cmp-nav]', bt.dataset.nav);
+      q('[data-cmp-local]').innerHTML =
+        'Pelo IP, a conexão saiu de <b>' + bt.dataset.local + '</b>. É leitura de uma '
+        + 'base pública, e não o endereço da pessoa.';
+      /* As duas datas na mesma caixa, uma por documento. Quando coincidem
+         continuam aparecendo as duas: o dia em que deixarem de coincidir, a
+         folha nao precisa mudar de formato para dizer isso. */
+      q('[data-cmp-datas]').innerHTML =
+        'Termos, em <b>' + bt.dataset.termos + '</b><br>'
+        + 'Privacidade, em <b>' + bt.dataset.privacidade + '</b><br>'
+        + 'horário de Brasília (UTC−3)';
+      q('[data-cmp-registro]').textContent = bt.dataset.registro;
+    }
+    m.hidden = !sim;
     d.body.style.overflow = sim ? 'hidden' : '';
   }
   d.querySelectorAll('[data-comprovante]').forEach(function (b) {
-    b.addEventListener('click', function () { abrirAceite(true); });
+    b.addEventListener('click', function () { abrirAceite(true, b); });
   });
   d.getElementById('fecha-aceite').addEventListener('click', function () { abrirAceite(false); });
   d.getElementById('modal-aceite').addEventListener('click', function (e) {
