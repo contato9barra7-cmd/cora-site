@@ -1,0 +1,887 @@
+<title>Admin do Cora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<!--
+     O ADMIN NA IDENTIDADE NOVA
+
+     Este arquivo e o desenho, e a folha `app/admin-pagina.css` e GERADA dele
+     por `gerar-css-artefato.py admin.html ../app/admin-pagina.css ad`. Mexer
+     no desenho e mexer aqui e rodar o gerador. Nunca editar a folha.
+
+     O que ele NAO desenha, de proposito: a casca (menu lateral, cabecalho,
+     avatar) ja e a nova, e vem do AppShell. Aqui e so o miolo da tela.
+
+     Tres decisoes que valem a pena estarem escritas:
+
+     1. O CABECALHO FICA LISO. A faixa entrou em Minha conta e Assinatura, e
+        nao entra aqui. Foi a mesma conclusao que os Promptadores escreveram
+        no PromptHub deles: na tela de trabalho a padronagem sai para a tela
+        ficar calma. O admin e a tela de trabalho mais densa que existe no
+        produto.
+
+     2. A ABA ATIVA E PRETA, e nao colorida. Lima e a cor de AGIR, e ela ja e
+        do botao principal. Se a aba tambem fosse lima, a tela teria duas
+        coisas gritando a mesma coisa. Preto diz "voce esta aqui" sem
+        competir, e e o mesmo gesto do selo Popular la nas recargas.
+
+     3. O ROXO SAIU. Ele estava em dois botoes (`#A4A1F3`) e num selo de
+        equipe escrito direto no JSX. Cor que ficou para tras e a que mais
+        denuncia uma tela que nao foi revisada.
+-->
+
+<style>
+:root{
+  /* Os mesmos tokens do painel. Se um dia divergirem, o admin passa a
+     parecer outro produto dentro do mesmo menu. */
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D; --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --ok:#1F7A44; --ok-bg:#EAF6EE;
+  --alerta:#C8342A; --alerta-bg:#FCEDEC;
+  --aviso:#8A6100; --aviso-bg:#FBF2DE;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --t:170ms cubic-bezier(.16,1,.3,1);
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --ok:#7BD3A0; --ok-bg:rgba(31,122,68,.16);
+  --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.16);
+  --aviso:#E8C877; --aviso-bg:rgba(138,97,0,.18);
+  --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+}
+
+body{
+  margin:0; background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:15px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+button{ font-family:inherit; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   A MOLDURA
+   ══════════════════════════════════════════════════════════════════════ */
+.admin-wrap{
+  width:100%; max-width:1180px; margin:0 auto;
+  padding:clamp(20px,3vw,34px) clamp(16px,3vw,28px) 80px;
+}
+
+/* ── o topo: quem eu sou, quantos sao, e o que da pra fazer ── */
+.admin-topo{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:20px; flex-wrap:wrap; margin-bottom:22px;
+}
+.admin-topo .eyebrow{
+  margin:0; font-size:11px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.admin-topo h1{
+  margin:6px 0 0; font-size:clamp(24px,3vw,30px); font-weight:500;
+  letter-spacing:-.032em; line-height:1.08;
+}
+
+/* Os numeros do cabecalho eram uma frase corrida ("19 contas · 2 com plano
+   pago ativo"). Em pastilhas eles param de ser texto e passam a ser leitura
+   de relance, que e o que se quer de um numero no topo de um painel. */
+.admin-medidas{ margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+.admin-medida{
+  display:inline-flex; align-items:baseline; gap:6px;
+  padding:6px 13px; border-radius:var(--pill);
+  background:var(--paper); border:1px solid var(--line);
+  font-size:13px; color:var(--ink2);
+}
+.admin-medida b{
+  font-size:14px; font-weight:600; color:var(--ink);
+  font-variant-numeric:tabular-nums;
+}
+.admin-medida--paga{ background:var(--ok-bg); border-color:transparent; color:var(--ok); }
+.admin-medida--paga b{ color:var(--ok); }
+
+.admin-acoes{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+/* O botao principal e lima, como em todo o resto do produto. Ele era roxo. */
+.admin-btn{
+  height:40px; padding:0 18px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111;
+  font-size:14px; font-weight:600; cursor:pointer;
+  display:inline-flex; align-items:center; gap:8px;
+  transition:background-color var(--t);
+}
+.admin-btn:hover{ background:var(--lima-esc); }
+.admin-btn svg{ width:16px; height:16px; }
+
+/* Os quatro interruptores do topo. Quadrado de canto redondo, sem cor
+   enquanto desligado: ligado, o fundo vira lima e o icone escurece. */
+.admin-ico{
+  width:40px; height:40px; flex:none; border-radius:12px;
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2);
+  display:grid; place-items:center; cursor:pointer;
+  transition:background-color var(--t), border-color var(--t), color var(--t);
+}
+.admin-ico:hover{ border-color:var(--line2); color:var(--ink); }
+.admin-ico svg{ width:18px; height:18px; }
+.admin-ico--on{ background:var(--lima); border-color:transparent; color:#111111; }
+.admin-ico--on:hover{ background:var(--lima-esc); color:#111111; }
+.admin-ico:disabled{ opacity:.55; cursor:default; }
+/* O anel que gira enquanto os dados fiscais carregam. */
+.admin-ico-girando{
+  width:16px; height:16px; border-radius:50%;
+  border:2px solid var(--line2); border-top-color:var(--ink);
+  animation:ad-girar .7s linear infinite;
+}
+@keyframes ad-girar{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce){
+  .admin-ico-girando{ animation-duration:2.4s; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   AS ABAS
+
+   Rolam na horizontal no telefone, e a barra some. Empilhar oito abas em
+   duas linhas empurra a tabela para baixo da dobra.
+   ══════════════════════════════════════════════════════════════════════ */
+.seg-track{
+  display:flex; gap:6px; margin-bottom:16px; padding-bottom:4px;
+  overflow-x:auto; scrollbar-width:none;
+}
+.seg-track::-webkit-scrollbar{ display:none; }
+.seg-item{
+  flex:none; display:inline-flex; align-items:center; gap:7px;
+  height:36px; padding:0 15px; border-radius:var(--pill);
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2);
+  font-size:13.5px; font-weight:500; letter-spacing:-.01em; cursor:pointer;
+  white-space:nowrap; transition:background-color var(--t), color var(--t), border-color var(--t);
+}
+.seg-item:hover{ color:var(--ink); border-color:var(--line2); }
+/* Preta, e nao lima: lima e a cor de agir, e ela ja e do botao principal. */
+.seg-item.ativa{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.seg-badge{
+  min-width:20px; height:20px; padding:0 6px; border-radius:var(--pill);
+  display:inline-grid; place-items:center;
+  background:var(--wash2); color:var(--ink3);
+  font-size:11.5px; font-weight:700; font-variant-numeric:tabular-nums;
+}
+.seg-item.ativa .seg-badge{ background:var(--lima); color:#111111; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   A BARRA DE BUSCA
+   ══════════════════════════════════════════════════════════════════════ */
+.admin-barra{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+.admin-busca-wrap{ position:relative; flex:1; min-width:240px; }
+.admin-busca-wrap svg{
+  position:absolute; left:15px; top:50%; transform:translateY(-50%);
+  width:17px; height:17px; color:var(--ink3); pointer-events:none;
+}
+.admin-busca{
+  width:100%; height:44px; padding:0 16px 0 42px;
+  border:1px solid var(--line); border-radius:var(--pill);
+  background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:14.5px;
+  transition:border-color var(--t);
+}
+.admin-busca::placeholder{ color:var(--ink3); }
+.admin-busca:focus{ outline:none; border-color:var(--ink); }
+
+.admin-filtros-btn{
+  flex:none; height:44px; padding:0 18px; border-radius:var(--pill);
+  border:1px solid var(--line); background:var(--paper); color:var(--ink);
+  font-size:14px; font-weight:600; cursor:pointer;
+  display:inline-flex; align-items:center; gap:8px;
+  transition:background-color var(--t), border-color var(--t);
+}
+.admin-filtros-btn:hover{ border-color:var(--ink); }
+.admin-filtros-btn svg{ width:16px; height:16px; }
+/* Ligado ele fica preto, do mesmo jeito que a aba ativa: e o mesmo recado. */
+.admin-filtros-btn--on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.admin-filtros-btn--on:hover{ background:#000000; }
+.admin-filtros-n{
+  min-width:19px; height:19px; padding:0 5px; border-radius:var(--pill);
+  display:inline-grid; place-items:center; background:var(--lima); color:#111111;
+  font-size:11px; font-weight:700;
+}
+
+/* ── as etiquetas do que esta filtrando ── */
+.admin-chips{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.admin-chip{
+  display:inline-flex; align-items:center; gap:7px;
+  height:30px; padding:0 8px 0 13px; border-radius:var(--pill);
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2);
+  font-size:12.5px; cursor:pointer; transition:border-color var(--t), color var(--t);
+}
+.admin-chip:hover{ border-color:var(--ink); color:var(--ink); }
+.admin-chip::after{
+  content:'×'; display:grid; place-items:center;
+  width:17px; height:17px; border-radius:50%;
+  background:var(--wash2); color:var(--ink3); font-size:13px; line-height:1;
+}
+.admin-chip:hover::after{ background:var(--ink); color:var(--paper); }
+.admin-chip-limpar{
+  border:0; background:none; color:var(--ink3); cursor:pointer;
+  font-size:12.5px; font-weight:600; text-decoration:underline;
+  text-underline-offset:3px; padding:0 4px;
+}
+.admin-chip-limpar:hover{ color:var(--ink); }
+.admin-conta{ margin-left:auto; font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   A TABELA
+
+   Ela morava solta na página, sem nada em volta. Num cartão de papel com o
+   canto redondo ela vira um objeto, e é o mesmo cartão do resto do painel.
+
+   O cabeçalho gruda ao rolar: com quarenta linhas, a coluna vira adivinhação
+   na metade da lista.
+   ══════════════════════════════════════════════════════════════════════ */
+.admin-tabela-wrap{
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+  overflow:hidden;
+}
+.admin-tabela-rolo{ overflow-x:auto; }
+.admin-tabela{ width:100%; border-collapse:collapse; font-size:14px; }
+.admin-tabela th{
+  position:sticky; top:0; z-index:1;
+  text-align:left; padding:14px 16px; white-space:nowrap;
+  background:var(--wash2); color:var(--ink3);
+  font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+  border-bottom:1px solid var(--line);
+}
+.admin-tabela td{
+  padding:14px 16px; border-bottom:1px solid var(--line);
+  color:var(--ink2); vertical-align:middle;
+}
+.admin-tabela tbody tr:last-child td{ border-bottom:0; }
+.admin-tabela tbody tr{ transition:background-color var(--t); }
+.admin-tabela tbody tr:hover{ background:var(--wash); }
+.admin-tabela .num{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink); font-weight:600; }
+.admin-tabela .mono{ font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+.admin-nome{ color:var(--ink); font-weight:600; letter-spacing:-.01em; }
+.admin-email{ margin-top:2px; font-size:12.5px; color:var(--ink3); }
+.admin-email-txt{
+  display:inline-block; max-width:230px; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap; vertical-align:bottom;
+}
+/* O plano e o selo de assentos empilham. Lado a lado numa coluna estreita o
+   selo empurrava o nome do plano e a célula ficava com duas alturas. */
+.admin-plano{ color:var(--ink); font-weight:500; }
+.admin-plano .admin-badge{ display:inline-block; margin-top:4px; }
+
+.admin-tag-nv{
+  margin-left:6px; padding:1px 7px; border-radius:var(--pill);
+  background:var(--aviso-bg); color:var(--aviso);
+  font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}
+
+/* Os selos. Verde e vermelho aqui são SINAL, não marca: eles dizem se está
+   valendo ou não, e é a única coisa na tela que pode usar essas duas cores. */
+.admin-badge{
+  display:inline-block; padding:3px 10px; border-radius:var(--pill);
+  background:var(--wash2); color:var(--ink2);
+  font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+}
+.admin-badge.ok{ background:var(--ok-bg); color:var(--ok); }
+.admin-badge.off{ background:var(--alerta-bg); color:var(--alerta); }
+/* O selo de equipe estava com o roxo escrito direto no JSX. */
+.admin-badge.equipe{ background:var(--turquesa); color:#0B3A31; }
+
+.admin-vazio{
+  margin:0; padding:28px 20px; text-align:center;
+  font-size:14px; color:var(--ink3); line-height:1.6;
+}
+.admin-resumo{
+  margin:0; padding:14px 18px; border-top:1px solid var(--line);
+  background:var(--wash2); font-size:13px; color:var(--ink2);
+  display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;
+}
+.admin-resumo b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }
+
+/* Na LINHA da tabela a produção já usa `.admin-acoes` para o mesmo papel.
+   Renomear o JSX por causa disso seria mexer em código para acomodar CSS. */
+.admin-acoes-linha,
+.admin-tabela .admin-acoes{ display:flex; gap:6px; justify-content:flex-end; }
+.admin-btn-linha,
+.admin-btn-stripe{
+  height:30px; padding:0 12px; border-radius:var(--pill);
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2);
+  font-size:12.5px; font-weight:600; cursor:pointer;
+  transition:border-color var(--t), color var(--t);
+}
+.admin-btn-linha:hover,
+.admin-btn-stripe:hover{ border-color:var(--ink); color:var(--ink); }
+
+/* ── a paginação ── */
+.admin-pag{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:14px; flex-wrap:wrap; margin-top:16px;
+}
+.admin-pag-qtd{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink3); }
+.admin-pag-nums{ display:flex; align-items:center; gap:6px; }
+.admin-pag-n{
+  min-width:34px; height:34px; padding:0 8px; border-radius:10px;
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2);
+  font-size:13px; font-weight:600; cursor:pointer; font-variant-numeric:tabular-nums;
+  transition:border-color var(--t), background-color var(--t), color var(--t);
+}
+.admin-pag-n:hover{ border-color:var(--ink); color:var(--ink); }
+.admin-pag-n.ativa{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.admin-pag-seta{
+  width:34px; height:34px; border-radius:10px; display:grid; place-items:center;
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2); cursor:pointer;
+}
+.admin-pag-seta:hover:not(:disabled){ border-color:var(--ink); color:var(--ink); }
+.admin-pag-seta:disabled{ opacity:.35; cursor:default; }
+.admin-pag-seta svg{ width:15px; height:15px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   A GAVETA DOS FILTROS
+   Entra pela direita, como um painel de ferramenta, e nao no meio da tela:
+   quem filtra quer ver a tabela mudar atras.
+   ══════════════════════════════════════════════════════════════════════ */
+.admin-pf-fundo{
+  position:fixed; inset:0; z-index:120;
+  background:rgba(17,17,17,.42); backdrop-filter:blur(3px);
+}
+.admin-pf{
+  position:absolute; top:0; right:0; bottom:0; width:min(420px,100%);
+  background:var(--paper); display:flex; flex-direction:column;
+  box-shadow:var(--sombra);
+}
+.admin-pf-cab{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:20px 22px; border-bottom:1px solid var(--line);
+}
+.admin-pf-cab h2,
+.admin-pf-cab > strong{ margin:0; font-size:18px; font-weight:500; letter-spacing:-.02em; }
+/* O botão de fechar da produção não tem classe: é o único `button` direto
+   dentro do cabeçalho da gaveta. */
+.admin-pf-x,
+.admin-pf-cab > button{
+  width:34px; height:34px; flex:none; border-radius:10px; border:1px solid var(--line);
+  background:var(--paper); color:var(--ink2); cursor:pointer; font-size:18px; line-height:1;
+  display:grid; place-items:center;
+}
+.admin-pf-x:hover,
+.admin-pf-cab > button:hover{ border-color:var(--ink); color:var(--ink); }
+.admin-pf-corpo{ flex:1; overflow-y:auto; padding:20px 22px; display:grid; gap:22px; }
+.admin-pf-g > label{
+  display:block; margin-bottom:8px;
+  font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+}
+.admin-pf-pe{
+  display:flex; gap:10px; padding:16px 22px; border-top:1px solid var(--line);
+}
+.admin-pf-limpar{
+  flex:1; height:44px; border-radius:var(--pill);
+  border:1px solid var(--line2); background:var(--paper); color:var(--ink);
+  font-size:14px; font-weight:600; cursor:pointer;
+}
+.admin-pf-limpar:hover{ border-color:var(--ink); }
+.admin-pf-ok{
+  flex:1; height:44px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-size:14px; font-weight:600; cursor:pointer;
+}
+.admin-pf-ok:hover{ background:var(--lima-esc); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   A GEOGRAFIA
+
+   Duas barras por linha: clientes e receita. Turquesa e lima, e nao duas
+   cores inventadas. Quem le entende a diferenca pela legenda uma vez e
+   depois pela posicao, sempre a mesma.
+   ══════════════════════════════════════════════════════════════════════ */
+.admin-geo-bloco + .admin-geo-bloco{ margin-top:26px; }
+.admin-geo-sub{
+  margin-bottom:12px; font-size:11px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+}
+.admin-geo-linha + .admin-geo-linha{ margin-top:14px; }
+.admin-geo-cab{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+.admin-geo-k{ font-size:14px; font-weight:600; letter-spacing:-.01em; }
+.admin-geo-v{ font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }
+.admin-geo-barra{ margin-top:6px; display:grid; gap:3px; }
+.admin-geo-fill{ height:8px; border-radius:var(--pill); min-width:3px; }
+.admin-geo-fill--n{ background:var(--turquesa); }
+.admin-geo-fill--r{ background:var(--lima); }
+.admin-geo-legenda{
+  margin-top:22px; padding-top:16px; border-top:1px solid var(--line);
+  display:flex; gap:18px; flex-wrap:wrap; font-size:12.5px; color:var(--ink3);
+}
+.admin-geo-legenda span{ display:inline-flex; align-items:center; gap:7px; }
+.admin-geo-p{ width:12px; height:8px; border-radius:var(--pill); display:inline-block; }
+.admin-geo-p--n{ background:var(--turquesa); }
+.admin-geo-p--r{ background:var(--lima); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O MENU DE EXPORTAR
+   ══════════════════════════════════════════════════════════════════════ */
+.admin-export-wrap{ position:relative; }
+.admin-export-menu{
+  position:absolute; top:calc(100% + 8px); right:0; z-index:60;
+  width:290px; padding:8px; border-radius:16px;
+  background:var(--paper); border:1px solid var(--line); box-shadow:var(--sombra);
+}
+.admin-export-grupo{
+  padding:8px 12px 6px; font-size:10.5px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+}
+.admin-export-item{
+  display:block; width:100%; text-align:left; padding:9px 12px;
+  border:0; border-radius:10px; background:none; cursor:pointer;
+  transition:background-color var(--t);
+}
+.admin-export-item:hover:not(:disabled){ background:var(--wash); }
+.admin-export-item:disabled{ opacity:.4; cursor:default; }
+.admin-export-item strong{ display:block; font-size:14px; font-weight:600; color:var(--ink); letter-spacing:-.01em; }
+.admin-export-item em{ display:block; margin-top:1px; font-size:12.5px; font-style:normal; color:var(--ink3); line-height:1.45; }
+.admin-export-sep{ height:1px; margin:6px 10px; background:var(--line); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   ATÉ 720px
+   A tabela vira rolo horizontal dentro do cartão, e nunca faz a página
+   inteira rolar de lado.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width:720px){
+  .admin-topo{ flex-direction:column; align-items:stretch; }
+  .admin-acoes{ justify-content:space-between; }
+  .admin-conta{ margin-left:0; width:100%; }
+  .admin-tabela th,.admin-tabela td{ padding:12px 13px; }
+  .admin-email-txt{ max-width:150px; }
+}
+</style>
+
+<style data-demo>
+/* Só a moldura da demonstração. O gerador ignora este bloco. */
+[hidden]{ display:none!important; }
+/* A barra da demonstração é grudada no topo e cobriria o cabeçalho da gaveta.
+   Só aqui: no site não existe barra nenhuma por cima. */
+.admin-pf-fundo{ z-index:300; }
+.demo{
+  position:sticky; top:0; z-index:200; display:flex; gap:8px; flex-wrap:wrap;
+  align-items:center; padding:10px 16px;
+  background:#111111; color:#F2F2EF; font-size:12.5px;
+}
+.demo b{ font-weight:600; letter-spacing:.04em; text-transform:uppercase; font-size:10.5px; opacity:.6; }
+.demo button{
+  height:28px; padding:0 12px; border-radius:100px; border:1px solid rgba(255,255,255,.2);
+  background:none; color:inherit; font-size:12.5px; cursor:pointer;
+}
+.demo button:hover{ background:rgba(255,255,255,.1); }
+.demo button.on{ background:#C4FBA7; border-color:#C4FBA7; color:#111111; font-weight:600; }
+</style>
+
+<div class="demo">
+  <b>ver</b>
+  <button data-ver="assinantes" class="on">Assinantes</button>
+  <button data-ver="faturas">Faturas</button>
+  <button data-ver="vazio">Nada encontrado</button>
+  <b>abrir</b>
+  <button data-abre="filtros">Filtros</button>
+  <button data-abre="geo">Geografia</button>
+  <button data-abre="export">Exportar</button>
+  <b>tema</b>
+  <button data-tema>Escuro</button>
+</div>
+
+<div class="admin-wrap">
+
+  <div class="admin-topo">
+    <div>
+      <p class="eyebrow">Administração</p>
+      <h1>Quem está no Cora</h1>
+      <div class="admin-medidas">
+        <span class="admin-medida"><b>19</b> contas</span>
+        <span class="admin-medida admin-medida--paga"><b>2</b> com plano pago</span>
+        <span class="admin-medida"><b>12</b> no teste</span>
+        <span class="admin-medida"><b>R$&nbsp;1.482</b> por mês</span>
+      </div>
+    </div>
+
+    <div class="admin-acoes">
+      <button class="admin-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/>
+        </svg>
+        Enviar e-mail
+      </button>
+
+      <button class="admin-ico" title="Dados fiscais" aria-label="Dados fiscais">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>
+        </svg>
+      </button>
+      <button class="admin-ico" title="Perfil" aria-label="Perfil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M3 12h18M3 18h12"/>
+        </svg>
+      </button>
+      <button class="admin-ico" id="bt-geo" title="Geografia" aria-label="Geografia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="10" r="3"/><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/>
+        </svg>
+      </button>
+
+      <div class="admin-export-wrap">
+        <button class="admin-ico" id="bt-export" title="Exportar" aria-label="Exportar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>
+          </svg>
+        </button>
+
+        <div class="admin-export-menu" id="menu-export" hidden>
+          <div class="admin-export-grupo">Fiscal</div>
+          <button class="admin-export-item">
+            <strong>Assinantes</strong>
+            <em>Nome, documento, endereço e o que cada um paga.</em>
+          </button>
+          <button class="admin-export-item">
+            <strong>Recargas</strong>
+            <em>Só as compras avulsas, com documento de quem comprou.</em>
+          </button>
+          <button class="admin-export-item">
+            <strong>Faturas</strong>
+            <em>Plano e recarga juntos, do jeito que a tela mostra.</em>
+          </button>
+          <div class="admin-export-sep"></div>
+          <div class="admin-export-grupo">Tráfego</div>
+          <button class="admin-export-item">
+            <strong>Origem geográfica</strong>
+            <em>País, estado e cidade, com clientes e receita.</em>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="seg-track">
+    <button class="seg-item ativa" data-aba="assinantes">Assinantes <span class="seg-badge">2</span></button>
+    <button class="seg-item" data-aba="trial">Trial <span class="seg-badge">12</span></button>
+    <button class="seg-item" data-aba="membros">Membros de equipe <span class="seg-badge">3</span></button>
+    <button class="seg-item" data-aba="cancelados">Cancelados <span class="seg-badge">2</span></button>
+    <button class="seg-item" data-aba="recargas">Recargas <span class="seg-badge">6</span></button>
+    <button class="seg-item" data-aba="faturas">Faturas <span class="seg-badge">24</span></button>
+    <button class="seg-item" data-aba="aceites">Aceites</button>
+    <button class="seg-item" data-aba="ficha">Ficha da conta</button>
+  </div>
+
+  <div class="admin-barra">
+    <div class="admin-busca-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+      </svg>
+      <input class="admin-busca" placeholder="Buscar por nome, e-mail ou CPF">
+    </div>
+    <button class="admin-filtros-btn" id="bt-filtros">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+        <path d="M3 5h18M6 12h12M10 19h4"/>
+      </svg>
+      Filtros
+      <span class="admin-filtros-n">2</span>
+    </button>
+  </div>
+
+  <div class="admin-chips">
+    <button class="admin-chip">Assinou nos últimos 12 meses</button>
+    <button class="admin-chip">São Paulo</button>
+    <button class="admin-chip-limpar">Limpar tudo</button>
+    <span class="admin-conta">5 de 19</span>
+  </div>
+
+  <!-- ── ASSINANTES ── -->
+  <div data-tabela="assinantes">
+    <div class="admin-tabela-wrap">
+      <div class="admin-tabela-rolo">
+        <table class="admin-tabela">
+          <thead>
+            <tr>
+              <th>Nome e e-mail</th>
+              <th>CPF ou documento</th>
+              <th>Plano</th>
+              <th class="num">Valor</th>
+              <th>Renova em</th>
+              <th>Status</th>
+              <th class="num">Créditos</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="admin-nome">Marilia Fischer</div>
+                <div class="admin-email"><span class="admin-email-txt">marilia@corarender.com</span></div>
+              </td>
+              <td class="mono">000.000.000-00</td>
+              <td><div class="admin-plano">Pro</div></td>
+              <td class="num">R$&nbsp;197,00</td>
+              <td class="mono">24/09/2026</td>
+              <td><span class="admin-badge ok">Ativo</span></td>
+              <td class="num">15.800</td>
+              <td><div class="admin-acoes-linha"><button class="admin-btn-linha">Ficha</button></div></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="admin-nome">Estúdio Norte</div>
+                <div class="admin-email">
+                  <span class="admin-email-txt">contato@estudionorte.com.br</span>
+                  <span class="admin-tag-nv">não verificado</span>
+                </div>
+              </td>
+              <td class="mono">00.000.000/0001-00</td>
+              <td>
+                <div class="admin-plano">Studio<br><span class="admin-badge equipe">5 assentos</span></div>
+              </td>
+              <td class="num">R$&nbsp;497,00</td>
+              <td class="mono">11/09/2026</td>
+              <td><span class="admin-badge ok">Ativo</span></td>
+              <td class="num">60.000</td>
+              <td><div class="admin-acoes-linha"><button class="admin-btn-linha">Ficha</button></div></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="admin-nome">Joana Reis</div>
+                <div class="admin-email"><span class="admin-email-txt">joana@arquitetura.com</span></div>
+              </td>
+              <td class="mono">000.000.000-00</td>
+              <td><div class="admin-plano">Starter</div></td>
+              <td class="num">R$&nbsp;97,00</td>
+              <td class="mono">02/09/2026</td>
+              <td><span class="admin-badge off">Cancelado</span></td>
+              <td class="num">1.240</td>
+              <td><div class="admin-acoes-linha"><button class="admin-btn-linha">Ficha</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-pag">
+      <div class="admin-pag-qtd">Mostrar 50 de 19</div>
+      <div class="admin-pag-nums">
+        <button class="admin-pag-seta" disabled aria-label="Página anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button class="admin-pag-n ativa">1</button>
+        <button class="admin-pag-n">2</button>
+        <button class="admin-pag-n">3</button>
+        <button class="admin-pag-seta" aria-label="Próxima página">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FATURAS ── -->
+  <div data-tabela="faturas" hidden>
+    <div class="admin-tabela-wrap">
+      <div class="admin-tabela-rolo">
+        <table class="admin-tabela">
+          <thead>
+            <tr>
+              <th>Data</th><th>Número</th><th>Tipo</th><th>Comprador</th>
+              <th>Compra</th><th>Status</th><th class="num">Valor</th><th>Documento</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">02/09/2026</td>
+              <td class="mono">QBPKH43R-0003</td>
+              <td>Plano</td>
+              <td>
+                <div class="admin-nome">Marilia Fischer</div>
+                <div class="admin-email"><span class="admin-email-txt">marilia@corarender.com</span></div>
+              </td>
+              <td>Cora Render Pro, mensal</td>
+              <td><span class="admin-badge ok">Paga</span></td>
+              <td class="num">R$&nbsp;197,00</td>
+              <td><div class="admin-acoes-linha"><button class="admin-btn-linha">Abrir</button></div></td>
+            </tr>
+            <tr>
+              <td class="mono">29/08/2026</td>
+              <td class="mono">REC-01287</td>
+              <td>Recarga</td>
+              <td>
+                <div class="admin-nome">Estúdio Norte</div>
+                <div class="admin-email"><span class="admin-email-txt">contato@estudionorte.com.br</span></div>
+              </td>
+              <td>Recarga de 12.000 créditos</td>
+              <td><span class="admin-badge ok">Paga</span></td>
+              <td class="num">R$&nbsp;140,00</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td class="mono">12/08/2026</td>
+              <td class="mono">FJPFTZJ8-0002</td>
+              <td>
+                Plano
+                <div class="admin-email">pró-rata da troca</div>
+              </td>
+              <td>
+                <div class="admin-nome">sem conta ligada</div>
+                <div class="admin-email"><span class="admin-email-txt">queridoinacio05@gmail.com</span></div>
+              </td>
+              <td>Cora Render Studio, mensal</td>
+              <td><span class="admin-badge off">Aberta</span></td>
+              <td class="num">R$&nbsp;297,00</td>
+              <td><div class="admin-acoes-linha"><button class="admin-btn-linha">Abrir</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="admin-resumo">24 cobranças, <b>R$&nbsp;4.318,00</b> pagos.</p>
+    </div>
+  </div>
+
+  <!-- ── NADA ENCONTRADO ── -->
+  <div data-tabela="vazio" hidden>
+    <div class="admin-tabela-wrap">
+      <p class="admin-vazio">Nenhuma conta com esses filtros.<br>Tente limpar a busca ou trocar o período.</p>
+    </div>
+  </div>
+
+  <!-- ── GEOGRAFIA ── -->
+  <div class="admin-tabela-wrap" id="bloco-geo" hidden style="margin-top:22px;padding:24px">
+    <div class="admin-geo-bloco">
+      <div class="admin-geo-sub">Por país</div>
+      <div class="admin-geo-linha">
+        <div class="admin-geo-cab"><span class="admin-geo-k">Brasil</span><span class="admin-geo-v">16 contas · R$&nbsp;1.285</span></div>
+        <div class="admin-geo-barra">
+          <div class="admin-geo-fill admin-geo-fill--n" style="width:100%"></div>
+          <div class="admin-geo-fill admin-geo-fill--r" style="width:87%"></div>
+        </div>
+      </div>
+      <div class="admin-geo-linha">
+        <div class="admin-geo-cab"><span class="admin-geo-k">Portugal</span><span class="admin-geo-v">2 contas · R$&nbsp;197</span></div>
+        <div class="admin-geo-barra">
+          <div class="admin-geo-fill admin-geo-fill--n" style="width:13%"></div>
+          <div class="admin-geo-fill admin-geo-fill--r" style="width:13%"></div>
+        </div>
+      </div>
+      <div class="admin-geo-linha">
+        <div class="admin-geo-cab"><span class="admin-geo-k">México</span><span class="admin-geo-v">1 conta · R$&nbsp;0</span></div>
+        <div class="admin-geo-barra">
+          <div class="admin-geo-fill admin-geo-fill--n" style="width:7%"></div>
+          <div class="admin-geo-fill admin-geo-fill--r" style="width:3%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="admin-geo-legenda">
+      <span><i class="admin-geo-p admin-geo-p--n"></i>Contas</span>
+      <span><i class="admin-geo-p admin-geo-p--r"></i>Receita</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── A GAVETA DOS FILTROS ── -->
+<div class="admin-pf-fundo" id="gaveta-filtros" hidden>
+  <div class="admin-pf">
+    <div class="admin-pf-cab">
+      <h2>Filtros</h2>
+      <button class="admin-pf-x" id="fecha-filtros" aria-label="Fechar">×</button>
+    </div>
+    <div class="admin-pf-corpo">
+      <div class="admin-pf-g">
+        <label>Período</label>
+        <div class="admin-chips" style="margin:0">
+          <button class="admin-chip">Este mês</button>
+          <button class="admin-chip">12 meses</button>
+        </div>
+      </div>
+      <div class="admin-pf-g">
+        <label>Status</label>
+        <div class="admin-chips" style="margin:0">
+          <button class="admin-chip">Vencendo</button>
+          <button class="admin-chip">Cancelado</button>
+        </div>
+      </div>
+      <div class="admin-pf-g">
+        <label>Onde a pessoa está</label>
+        <div class="admin-chips" style="margin:0">
+          <button class="admin-chip">São Paulo</button>
+          <button class="admin-chip">Brasil</button>
+        </div>
+      </div>
+    </div>
+    <div class="admin-pf-pe">
+      <button class="admin-pf-limpar">Limpar</button>
+      <button class="admin-pf-ok" id="ok-filtros">Ver 5 contas</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Só a demonstração. Nada aqui vai para o site: lá quem troca de aba é o
+  // React, e quem abre a gaveta é o estado do componente.
+  var d = document;
+  function alterna(sel, mostrar) { d.querySelector(sel).hidden = !mostrar; }
+
+  d.querySelectorAll('[data-ver]').forEach(function (bt) {
+    bt.addEventListener('click', function () {
+      d.querySelectorAll('[data-ver]').forEach(function (b) { b.classList.toggle('on', b === bt); });
+      d.querySelectorAll('[data-tabela]').forEach(function (t) {
+        t.hidden = t.dataset.tabela !== bt.dataset.ver;
+      });
+      d.querySelectorAll('.seg-item').forEach(function (s) {
+        s.classList.toggle('ativa', s.dataset.aba === bt.dataset.ver
+          || (bt.dataset.ver === 'vazio' && s.dataset.aba === 'assinantes'));
+      });
+    });
+  });
+
+  d.querySelectorAll('.seg-item').forEach(function (s) {
+    s.addEventListener('click', function () {
+      d.querySelectorAll('.seg-item').forEach(function (o) { o.classList.toggle('ativa', o === s); });
+    });
+  });
+
+  d.querySelector('[data-abre="filtros"]').addEventListener('click', function () {
+    alterna('#gaveta-filtros', true);
+    d.getElementById('bt-filtros').classList.add('admin-filtros-btn--on');
+  });
+  d.getElementById('bt-filtros').addEventListener('click', function () {
+    alterna('#gaveta-filtros', true);
+    this.classList.add('admin-filtros-btn--on');
+  });
+  function fecharFiltros() {
+    alterna('#gaveta-filtros', false);
+    d.getElementById('bt-filtros').classList.remove('admin-filtros-btn--on');
+  }
+  d.getElementById('fecha-filtros').addEventListener('click', fecharFiltros);
+  d.getElementById('ok-filtros').addEventListener('click', fecharFiltros);
+  d.getElementById('gaveta-filtros').addEventListener('click', function (e) {
+    if (e.target === this) fecharFiltros();
+  });
+
+  d.querySelector('[data-abre="geo"]').addEventListener('click', function () {
+    var bloco = d.getElementById('bloco-geo');
+    bloco.hidden = !bloco.hidden;
+    d.getElementById('bt-geo').classList.toggle('admin-ico--on', !bloco.hidden);
+  });
+  d.getElementById('bt-geo').addEventListener('click', function () {
+    var bloco = d.getElementById('bloco-geo');
+    bloco.hidden = !bloco.hidden;
+    this.classList.toggle('admin-ico--on', !bloco.hidden);
+  });
+
+  d.querySelector('[data-abre="export"]').addEventListener('click', function () {
+    var m = d.getElementById('menu-export');
+    m.hidden = !m.hidden;
+    d.getElementById('bt-export').classList.toggle('admin-ico--on', !m.hidden);
+  });
+  d.getElementById('bt-export').addEventListener('click', function () {
+    var m = d.getElementById('menu-export');
+    m.hidden = !m.hidden;
+    this.classList.toggle('admin-ico--on', !m.hidden);
+  });
+
+  d.querySelector('[data-tema]').addEventListener('click', function () {
+    var escuro = d.documentElement.getAttribute('data-theme') === 'dark';
+    d.documentElement.setAttribute('data-theme', escuro ? 'light' : 'dark');
+    this.textContent = escuro ? 'Escuro' : 'Claro';
+  });
+</script>

@@ -8,6 +8,9 @@ import './precos-pagina.css';
 import './home-pagina.css';
 import './suporte-pagina.css';
 import './painel-pagina.css';
+// Depois da folha do painel de propósito: o admin vive dentro da mesma
+// casca e precisa poder ajustar o que ela deixa passar.
+import './admin-pagina.css';
 import RodapeGlobal from '../components/RodapeGlobal';
 import CookieConsent from '../components/CookieConsent';
 import { IdiomaProvider } from '../lib/i18n';

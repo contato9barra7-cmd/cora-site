@@ -1,0 +1,279 @@
+/* ============================================================================
+   PAGINA DO ARTEFATO, ESCOPADA
+
+   Gerado por gerar-css-artefato.py a partir do <style> do artefato, que e o
+   desenho aprovado. NAO editar aqui: editar o artefato e rodar o script de
+   novo, senao os dois desencontram na primeira mudanca.
+
+   Tudo depende da classe da pagina. Isso resolve dois problemas de
+   uma vez: o desenho aprovado ganha do molde antigo por especificidade, sem
+   `!important`, e nada dele vaza pras outras telas do site.
+
+   O bloco de variaveis do artefato virou essa classe em vez de `:root` de
+   proposito: ele redefine `--wash`, `--rc` e outras que ja existem no
+   globals com outro valor, e como `:root` isso mudaria o site inteiro.
+   ========================================================================= */
+
+.ad{/* Os mesmos tokens do painel. Se um dia divergirem, o admin passa a
+     parecer outro produto dentro do mesmo menu. */
+  
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D; --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --ok:#1F7A44; --ok-bg:#EAF6EE;
+  --alerta:#C8342A; --alerta-bg:#FCEDEC;
+  --aviso:#8A6100; --aviso-bg:#FBF2DE;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --t:170ms cubic-bezier(.16,1,.3,1);
+}[data-theme="dark"] .ad{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --ok:#7BD3A0; --ok-bg:rgba(31,122,68,.16);
+  --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.16);
+  --aviso:#E8C877; --aviso-bg:rgba(138,97,0,.18);
+  --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+}.ad{
+  margin:0; background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:15px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}.ad *, .ad *::before, .ad *::after{ box-sizing:border-box; }.ad button{ font-family:inherit; }/* ══════════════════════════════════════════════════════════════════════
+   A MOLDURA
+   ══════════════════════════════════════════════════════════════════════ */.admin-wrap{
+  width:100%; max-width:1180px; margin:0 auto;
+  padding:clamp(20px,3vw,34px) clamp(16px,3vw,28px) 80px;
+}/* ── o topo: quem eu sou, quantos sao, e o que da pra fazer ── */.admin-topo{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:20px; flex-wrap:wrap; margin-bottom:22px;
+}.admin-topo .eyebrow{
+  margin:0; font-size:11px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3);
+}.admin-topo h1{
+  margin:6px 0 0; font-size:clamp(24px,3vw,30px); font-weight:500;
+  letter-spacing:-.032em; line-height:1.08;
+}/* Os numeros do cabecalho eram uma frase corrida ("19 contas · 2 com plano
+   pago ativo"). Em pastilhas eles param de ser texto e passam a ser leitura
+   de relance, que e o que se quer de um numero no topo de um painel. */.admin-medidas{ margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }.admin-medida{
+  display:inline-flex; align-items:baseline; gap:6px;
+  padding:6px 13px; border-radius:var(--pill);
+  background:var(--paper); border:1px solid var(--line);
+  font-size:13px; color:var(--ink2);
+}.admin-medida b{
+  font-size:14px; font-weight:600; color:var(--ink);
+  font-variant-numeric:tabular-nums;
+}.admin-medida--paga{ background:var(--ok-bg); border-color:transparent; color:var(--ok); }.admin-medida--paga b{ color:var(--ok); }.admin-acoes{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }/* O botao principal e lima, como em todo o resto do produto. Ele era roxo. */.admin-btn{
+  height:40px; padding:0 18px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111;
+  font-size:14px; font-weight:600; cursor:pointer;
+  display:inline-flex; align-items:center; gap:8px;
+  transition:background-color var(--t);
+}.admin-btn:hover{ background:var(--lima-esc); }.admin-btn svg{ width:16px; height:16px; }/* Os quatro interruptores do topo. Quadrado de canto redondo, sem cor
+   enquanto desligado: ligado, o fundo vira lima e o icone escurece. */.admin-ico{
+  width:40px; height:40px; flex:none; border-radius:12px;
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2);
+  display:grid; place-items:center; cursor:pointer;
+  transition:background-color var(--t), border-color var(--t), color var(--t);
+}.admin-ico:hover{ border-color:var(--line2); color:var(--ink); }.admin-ico svg{ width:18px; height:18px; }.admin-ico--on{ background:var(--lima); border-color:transparent; color:#111111; }.admin-ico--on:hover{ background:var(--lima-esc); color:#111111; }.admin-ico:disabled{ opacity:.55; cursor:default; }/* O anel que gira enquanto os dados fiscais carregam. */.admin-ico-girando{
+  width:16px; height:16px; border-radius:50%;
+  border:2px solid var(--line2); border-top-color:var(--ink);
+  animation:ad-girar .7s linear infinite;
+}
+@keyframes ad-girar{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce){.admin-ico-girando{ animation-duration:2.4s; }}/* ══════════════════════════════════════════════════════════════════════
+   AS ABAS
+
+   Rolam na horizontal no telefone, e a barra some. Empilhar oito abas em
+   duas linhas empurra a tabela para baixo da dobra.
+   ══════════════════════════════════════════════════════════════════════ */.ad .seg-track{
+  display:flex; gap:6px; margin-bottom:16px; padding-bottom:4px;
+  overflow-x:auto; scrollbar-width:none;
+}.ad .seg-track::-webkit-scrollbar{ display:none; }.ad .seg-item{
+  flex:none; display:inline-flex; align-items:center; gap:7px;
+  height:36px; padding:0 15px; border-radius:var(--pill);
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2);
+  font-size:13.5px; font-weight:500; letter-spacing:-.01em; cursor:pointer;
+  white-space:nowrap; transition:background-color var(--t), color var(--t), border-color var(--t);
+}.ad .seg-item:hover{ color:var(--ink); border-color:var(--line2); }/* Preta, e nao lima: lima e a cor de agir, e ela ja e do botao principal. */.ad .seg-item.ativa{ background:var(--ink); border-color:var(--ink); color:var(--paper); }.ad .seg-badge{
+  min-width:20px; height:20px; padding:0 6px; border-radius:var(--pill);
+  display:inline-grid; place-items:center;
+  background:var(--wash2); color:var(--ink3);
+  font-size:11.5px; font-weight:700; font-variant-numeric:tabular-nums;
+}.ad .seg-item.ativa .seg-badge{ background:var(--lima); color:#111111; }/* ══════════════════════════════════════════════════════════════════════
+   A BARRA DE BUSCA
+   ══════════════════════════════════════════════════════════════════════ */.admin-barra{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }.admin-busca-wrap{ position:relative; flex:1; min-width:240px; }.admin-busca-wrap svg{
+  position:absolute; left:15px; top:50%; transform:translateY(-50%);
+  width:17px; height:17px; color:var(--ink3); pointer-events:none;
+}.admin-busca{
+  width:100%; height:44px; padding:0 16px 0 42px;
+  border:1px solid var(--line); border-radius:var(--pill);
+  background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:14.5px;
+  transition:border-color var(--t);
+}.admin-busca::placeholder{ color:var(--ink3); }.admin-busca:focus{ outline:none; border-color:var(--ink); }.admin-filtros-btn{
+  flex:none; height:44px; padding:0 18px; border-radius:var(--pill);
+  border:1px solid var(--line); background:var(--paper); color:var(--ink);
+  font-size:14px; font-weight:600; cursor:pointer;
+  display:inline-flex; align-items:center; gap:8px;
+  transition:background-color var(--t), border-color var(--t);
+}.admin-filtros-btn:hover{ border-color:var(--ink); }.admin-filtros-btn svg{ width:16px; height:16px; }/* Ligado ele fica preto, do mesmo jeito que a aba ativa: e o mesmo recado. */.admin-filtros-btn--on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }.admin-filtros-btn--on:hover{ background:#000000; }.admin-filtros-n{
+  min-width:19px; height:19px; padding:0 5px; border-radius:var(--pill);
+  display:inline-grid; place-items:center; background:var(--lima); color:#111111;
+  font-size:11px; font-weight:700;
+}/* ── as etiquetas do que esta filtrando ── */.admin-chips{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:14px; }.admin-chip{
+  display:inline-flex; align-items:center; gap:7px;
+  height:30px; padding:0 8px 0 13px; border-radius:var(--pill);
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2);
+  font-size:12.5px; cursor:pointer; transition:border-color var(--t), color var(--t);
+}.admin-chip:hover{ border-color:var(--ink); color:var(--ink); }.admin-chip::after{
+  content:'×'; display:grid; place-items:center;
+  width:17px; height:17px; border-radius:50%;
+  background:var(--wash2); color:var(--ink3); font-size:13px; line-height:1;
+}.admin-chip:hover::after{ background:var(--ink); color:var(--paper); }.admin-chip-limpar{
+  border:0; background:none; color:var(--ink3); cursor:pointer;
+  font-size:12.5px; font-weight:600; text-decoration:underline;
+  text-underline-offset:3px; padding:0 4px;
+}.admin-chip-limpar:hover{ color:var(--ink); }.admin-conta{ margin-left:auto; font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }/* ══════════════════════════════════════════════════════════════════════
+   A TABELA
+
+   Ela morava solta na página, sem nada em volta. Num cartão de papel com o
+   canto redondo ela vira um objeto, e é o mesmo cartão do resto do painel.
+
+   O cabeçalho gruda ao rolar: com quarenta linhas, a coluna vira adivinhação
+   na metade da lista.
+   ══════════════════════════════════════════════════════════════════════ */.admin-tabela-wrap{
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+  overflow:hidden;
+}.admin-tabela-rolo{ overflow-x:auto; }.admin-tabela{ width:100%; border-collapse:collapse; font-size:14px; }.admin-tabela th{
+  position:sticky; top:0; z-index:1;
+  text-align:left; padding:14px 16px; white-space:nowrap;
+  background:var(--wash2); color:var(--ink3);
+  font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+  border-bottom:1px solid var(--line);
+}.admin-tabela td{
+  padding:14px 16px; border-bottom:1px solid var(--line);
+  color:var(--ink2); vertical-align:middle;
+}.admin-tabela tbody tr:last-child td{ border-bottom:0; }.admin-tabela tbody tr{ transition:background-color var(--t); }.admin-tabela tbody tr:hover{ background:var(--wash); }.admin-tabela .num{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink); font-weight:600; }.admin-tabela .mono{ font-variant-numeric:tabular-nums; white-space:nowrap; }.admin-nome{ color:var(--ink); font-weight:600; letter-spacing:-.01em; }.admin-email{ margin-top:2px; font-size:12.5px; color:var(--ink3); }.admin-email-txt{
+  display:inline-block; max-width:230px; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap; vertical-align:bottom;
+}/* O plano e o selo de assentos empilham. Lado a lado numa coluna estreita o
+   selo empurrava o nome do plano e a célula ficava com duas alturas. */.admin-plano{ color:var(--ink); font-weight:500; }.admin-plano .admin-badge{ display:inline-block; margin-top:4px; }.admin-tag-nv{
+  margin-left:6px; padding:1px 7px; border-radius:var(--pill);
+  background:var(--aviso-bg); color:var(--aviso);
+  font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}/* Os selos. Verde e vermelho aqui são SINAL, não marca: eles dizem se está
+   valendo ou não, e é a única coisa na tela que pode usar essas duas cores. */.admin-badge{
+  display:inline-block; padding:3px 10px; border-radius:var(--pill);
+  background:var(--wash2); color:var(--ink2);
+  font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+}.admin-badge.ok{ background:var(--ok-bg); color:var(--ok); }.admin-badge.off{ background:var(--alerta-bg); color:var(--alerta); }/* O selo de equipe estava com o roxo escrito direto no JSX. */.admin-badge.equipe{ background:var(--turquesa); color:#0B3A31; }.admin-vazio{
+  margin:0; padding:28px 20px; text-align:center;
+  font-size:14px; color:var(--ink3); line-height:1.6;
+}.admin-resumo{
+  margin:0; padding:14px 18px; border-top:1px solid var(--line);
+  background:var(--wash2); font-size:13px; color:var(--ink2);
+  display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;
+}.admin-resumo b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }/* Na LINHA da tabela a produção já usa `.admin-acoes` para o mesmo papel.
+   Renomear o JSX por causa disso seria mexer em código para acomodar CSS. */.admin-acoes-linha, .admin-tabela .admin-acoes{ display:flex; gap:6px; justify-content:flex-end; }.admin-btn-linha, .admin-btn-stripe{
+  height:30px; padding:0 12px; border-radius:var(--pill);
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2);
+  font-size:12.5px; font-weight:600; cursor:pointer;
+  transition:border-color var(--t), color var(--t);
+}.admin-btn-linha:hover, .admin-btn-stripe:hover{ border-color:var(--ink); color:var(--ink); }/* ── a paginação ── */.admin-pag{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:14px; flex-wrap:wrap; margin-top:16px;
+}.admin-pag-qtd{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink3); }.admin-pag-nums{ display:flex; align-items:center; gap:6px; }.admin-pag-n{
+  min-width:34px; height:34px; padding:0 8px; border-radius:10px;
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2);
+  font-size:13px; font-weight:600; cursor:pointer; font-variant-numeric:tabular-nums;
+  transition:border-color var(--t), background-color var(--t), color var(--t);
+}.admin-pag-n:hover{ border-color:var(--ink); color:var(--ink); }.admin-pag-n.ativa{ background:var(--ink); border-color:var(--ink); color:var(--paper); }.admin-pag-seta{
+  width:34px; height:34px; border-radius:10px; display:grid; place-items:center;
+  border:1px solid var(--line); background:var(--paper); color:var(--ink2); cursor:pointer;
+}.admin-pag-seta:hover:not(:disabled){ border-color:var(--ink); color:var(--ink); }.admin-pag-seta:disabled{ opacity:.35; cursor:default; }.admin-pag-seta svg{ width:15px; height:15px; }/* ══════════════════════════════════════════════════════════════════════
+   A GAVETA DOS FILTROS
+   Entra pela direita, como um painel de ferramenta, e nao no meio da tela:
+   quem filtra quer ver a tabela mudar atras.
+   ══════════════════════════════════════════════════════════════════════ */.admin-pf-fundo{
+  position:fixed; inset:0; z-index:120;
+  background:rgba(17,17,17,.42); backdrop-filter:blur(3px);
+}.admin-pf{
+  position:absolute; top:0; right:0; bottom:0; width:min(420px,100%);
+  background:var(--paper); display:flex; flex-direction:column;
+  box-shadow:var(--sombra);
+}.admin-pf-cab{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:20px 22px; border-bottom:1px solid var(--line);
+}.admin-pf-cab h2, .admin-pf-cab > strong{ margin:0; font-size:18px; font-weight:500; letter-spacing:-.02em; }/* O botão de fechar da produção não tem classe: é o único `button` direto
+   dentro do cabeçalho da gaveta. */.admin-pf-x, .admin-pf-cab > button{
+  width:34px; height:34px; flex:none; border-radius:10px; border:1px solid var(--line);
+  background:var(--paper); color:var(--ink2); cursor:pointer; font-size:18px; line-height:1;
+  display:grid; place-items:center;
+}.admin-pf-x:hover, .admin-pf-cab > button:hover{ border-color:var(--ink); color:var(--ink); }.admin-pf-corpo{ flex:1; overflow-y:auto; padding:20px 22px; display:grid; gap:22px; }.admin-pf-g > label{
+  display:block; margin-bottom:8px;
+  font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+}.admin-pf-pe{
+  display:flex; gap:10px; padding:16px 22px; border-top:1px solid var(--line);
+}.admin-pf-limpar{
+  flex:1; height:44px; border-radius:var(--pill);
+  border:1px solid var(--line2); background:var(--paper); color:var(--ink);
+  font-size:14px; font-weight:600; cursor:pointer;
+}.admin-pf-limpar:hover{ border-color:var(--ink); }.admin-pf-ok{
+  flex:1; height:44px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-size:14px; font-weight:600; cursor:pointer;
+}.admin-pf-ok:hover{ background:var(--lima-esc); }/* ══════════════════════════════════════════════════════════════════════
+   A GEOGRAFIA
+
+   Duas barras por linha: clientes e receita. Turquesa e lima, e nao duas
+   cores inventadas. Quem le entende a diferenca pela legenda uma vez e
+   depois pela posicao, sempre a mesma.
+   ══════════════════════════════════════════════════════════════════════ */.admin-geo-bloco + .admin-geo-bloco{ margin-top:26px; }.admin-geo-sub{
+  margin-bottom:12px; font-size:11px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+}.admin-geo-linha + .admin-geo-linha{ margin-top:14px; }.admin-geo-cab{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; }.admin-geo-k{ font-size:14px; font-weight:600; letter-spacing:-.01em; }.admin-geo-v{ font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }.admin-geo-barra{ margin-top:6px; display:grid; gap:3px; }.admin-geo-fill{ height:8px; border-radius:var(--pill); min-width:3px; }.admin-geo-fill--n{ background:var(--turquesa); }.admin-geo-fill--r{ background:var(--lima); }.admin-geo-legenda{
+  margin-top:22px; padding-top:16px; border-top:1px solid var(--line);
+  display:flex; gap:18px; flex-wrap:wrap; font-size:12.5px; color:var(--ink3);
+}.admin-geo-legenda span{ display:inline-flex; align-items:center; gap:7px; }.admin-geo-p{ width:12px; height:8px; border-radius:var(--pill); display:inline-block; }.admin-geo-p--n{ background:var(--turquesa); }.admin-geo-p--r{ background:var(--lima); }/* ══════════════════════════════════════════════════════════════════════
+   O MENU DE EXPORTAR
+   ══════════════════════════════════════════════════════════════════════ */.admin-export-wrap{ position:relative; }.admin-export-menu{
+  position:absolute; top:calc(100% + 8px); right:0; z-index:60;
+  width:290px; padding:8px; border-radius:16px;
+  background:var(--paper); border:1px solid var(--line); box-shadow:var(--sombra);
+}.admin-export-grupo{
+  padding:8px 12px 6px; font-size:10.5px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+}.admin-export-item{
+  display:block; width:100%; text-align:left; padding:9px 12px;
+  border:0; border-radius:10px; background:none; cursor:pointer;
+  transition:background-color var(--t);
+}.admin-export-item:hover:not(:disabled){ background:var(--wash); }.admin-export-item:disabled{ opacity:.4; cursor:default; }.admin-export-item strong{ display:block; font-size:14px; font-weight:600; color:var(--ink); letter-spacing:-.01em; }.admin-export-item em{ display:block; margin-top:1px; font-size:12.5px; font-style:normal; color:var(--ink3); line-height:1.45; }.admin-export-sep{ height:1px; margin:6px 10px; background:var(--line); }/* ══════════════════════════════════════════════════════════════════════
+   ATÉ 720px
+   A tabela vira rolo horizontal dentro do cartão, e nunca faz a página
+   inteira rolar de lado.
+   ══════════════════════════════════════════════════════════════════════ */
+
+
+@media (max-width:720px){.admin-topo{ flex-direction:column; align-items:stretch; }.admin-acoes{ justify-content:space-between; }.admin-conta{ margin-left:0; width:100%; }.admin-tabela th, .admin-tabela td{ padding:12px 13px; }.admin-email-txt{ max-width:150px; }}
+
+/* ── a fonte, em tamanho nominal ──
+   Ver a nota no gerador: o site serve a DM Sans com size-adjust de 88%, o que
+   encolhe todo texto em 12% e faz a pagina nunca fechar com o artefato. Como
+   size-adjust e descritor de @font-face, a unica saida e uma familia irma,
+   mesmo arquivo, sem o ajuste, usada so aqui dentro. */
+@font-face{
+  font-family:'DM Sans TC';
+  src:url('/fontes/DMSans-latin.woff2') format('woff2');
+  font-weight:100 1000; font-style:normal; font-display:swap;
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family:'DM Sans TC';
+  src:url('/fontes/DMSans-latin-ext.woff2') format('woff2');
+  font-weight:100 1000; font-style:normal; font-display:swap;
+  unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+.ad, .ad *{
+  font-family:'DM Sans TC','DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}

@@ -553,14 +553,29 @@ export default function Admin() {
 
   return (
     <AppShell>
+    {/* `ad` é a classe da página. O desenho aprovado do admin vive em
+        admin-pagina.css, escopado nela: assim ele ganha do molde antigo por
+        especificidade, sem `!important`, e nada dele vaza para o resto do
+        site. A folha é GERADA a partir de ferramentas/admin.html, que é o
+        artefato. Mexer no desenho é mexer lá e rodar o gerador, nunca editar
+        a folha. */}
+    <div className="ad">
     <div className="admin-wrap">
       <div className="admin-topo">
         <div>
+          <p className="eyebrow">{t('adm_eyebrow')}</p>
           <h1>{t('adm_titulo')}</h1>
-          <p className="admin-sub">{totalContas} {t('adm_contas')} · {pagos} {t('adm_pago_ativo')}</p>
+          {/* Os números eram uma frase corrida. Em pastilhas eles param de ser
+              texto e viram leitura de relance, que é o que se quer de um
+              número no topo de um painel. */}
+          <div className="admin-medidas">
+            <span className="admin-medida"><b>{totalContas}</b> {t('adm_contas')}</span>
+            <span className="admin-medida admin-medida--paga"><b>{pagos}</b> {t('adm_medida_pago')}</span>
+            <span className="admin-medida"><b>{totalTrial}</b> {t('adm_medida_teste')}</span>
+          </div>
         </div>
         <div className="admin-acoes">
-          <button className="admin-email-btn" onClick={() => setEmailAberto(true)}>
+          <button className="admin-btn" onClick={() => setEmailAberto(true)}>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 6l8 6 8-6" /></svg>
             {t('promp_enviar_email')}
           </button>
@@ -1059,6 +1074,7 @@ export default function Admin() {
             <p className="admin-vazio">{t('adm_fat_buscando')}</p>
           ) : (
             <>
+              <div className="admin-tabela-rolo">
               <table className="admin-tabela">
                 <thead>
                   <tr>
@@ -1108,6 +1124,7 @@ export default function Admin() {
                   ))}
                 </tbody>
               </table>
+              </div>
 
               {faturasFiltradas.length === 0
                 ? <p className="admin-vazio">{t('adm_fat_vazio')}</p>
@@ -1121,6 +1138,7 @@ export default function Admin() {
         </div>
       ) : aba === 'compras' ? (
         <div className="admin-tabela-wrap">
+          <div className="admin-tabela-rolo">
           <table className="admin-tabela">
             <thead>
               <tr>
@@ -1160,10 +1178,12 @@ export default function Admin() {
               ))}
             </tbody>
           </table>
+          </div>
           {compras.length === 0 && <p className="admin-vazio">{t('adm_compras_vazio')}</p>}
         </div>
       ) : (
       <div className="admin-tabela-wrap">
+        <div className="admin-tabela-rolo">
         <table className={'admin-tabela' + (mostrarPerfil ? ' admin-tabela--compacto' : '')}>
           <thead>
             <tr>
@@ -1213,7 +1233,7 @@ export default function Admin() {
                 {!mostrarPerfil && (
                 <td>
                   {a.eh_dono_equipe ? (
-                    <span className="admin-badge" style={{ background: '#eef0ff', color: '#4b46b3' }}>
+                    <span className="admin-badge equipe">
                       Teams · {a.assentos || '?'} {t('adm_teams_assentos')}
                     </span>
                   ) : (
@@ -1264,6 +1284,7 @@ export default function Admin() {
             ))}
           </tbody>
         </table>
+        </div>
         {filtrados.length === 0 && <p className="admin-vazio">{t('adm_conta_nao_encontrada')}</p>}
 
         {filtrados.length > 0 && (
@@ -1330,6 +1351,7 @@ export default function Admin() {
       )}
     </div>
     {emailAberto && <EmailAssinantes onClose={() => setEmailAberto(false)} />}
+    </div>
     </AppShell>
   );
 }

@@ -20,6 +20,9 @@ next-env.d.ts
 # proposital: ja existe uma com espaco no fim do nome, e sem ele um `git
 # add -A` levaria uma pasta de build inteira pro repositorio.
 .next-conferencia*
+# o mesmo para as outras pastas de CORA_DIST criadas durante uma conferencia
+.next-verifica*
+.next-admin*
 
 # a pasta de rascunho dos geradores: saida intermediaria, nao entra no repo
 ferramentas/scratchpad/
