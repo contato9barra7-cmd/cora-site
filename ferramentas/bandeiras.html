@@ -1,0 +1,298 @@
+<title>Bandeiras de cartão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<!--
+     TODAS AS BANDEIRAS QUE O STRIPE PODE MANDAR
+
+     A lista aqui não é escolhida: e a lista fechada do campo `card.brand` do
+     Stripe. Se um cartao chega e a bandeira dele nao esta desenhada, ele cai
+     na pastilha neutra, e a pessoa ve um retangulo cinza no lugar do cartao
+     dela. Vendendo fora do Brasil isso deixa de ser detalhe.
+
+     O DESENHO. Cada marca aqui e uma REDUCAO, nao o logotipo oficial: as
+     formas e as cores que fazem a pessoa reconhecer o proprio cartao de
+     relance, num espaco de 46 por 30 pixels. Redesenhar sete logotipos de
+     terceiros em fidelidade seria pior nos dois sentidos, no direito e no
+     resultado.
+
+     A ULTIMA LINHA e a que importa mais: bandeira desconhecida. Ela nunca
+     pode virar um vazio. Enquanto ela mostrar quatro pontinhos e o texto
+     "Cartao terminado em 4242", a tela continua util.
+-->
+
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F1F1EE; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --turquesa:#ADECDF;
+  --alerta:#C8342A; --alerta-bg:#FBECEA;
+  --ok:#1F7A44; --ok-bg:#EAF6EE;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+    --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+    --line:#2B2B30; --line2:#3A3A41;
+    --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.16);
+    --ok:#7BD3A0; --ok-bg:rgba(31,122,68,.16);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.16);
+  --ok:#7BD3A0; --ok-bg:rgba(31,122,68,.16);
+}
+*,*::before,*::after{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:15px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.env{ max-width:900px; margin:0 auto; padding:clamp(20px,4vw,48px) clamp(16px,4vw,32px) 64px; }
+.olho{ font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--ink3); }
+h1{ margin:10px 0 0; font-size:clamp(26px,4vw,36px); font-weight:500; letter-spacing:-.034em; line-height:1.1; text-wrap:balance; }
+.sub{ margin:14px 0 0; font-size:15.5px; color:var(--ink2); max-width:62ch; text-wrap:pretty; }
+h2{ margin:0; font-size:17px; font-weight:600; letter-spacing:-.02em; }
+.nota{ margin:8px 0 0; font-size:13.5px; color:var(--ink2); max-width:64ch; text-wrap:pretty; }
+
+.card{
+  margin-top:26px; padding:24px clamp(18px,3vw,28px) 28px;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+}
+
+/* ── a linha da forma de pagamento, igual à do painel ── */
+.pag-linha{
+  display:flex; align-items:center; gap:14px; margin-top:14px;
+  padding:16px 18px; border:1px solid var(--line); border-radius:var(--r-peq);
+}
+.pag-bandeira{
+  width:46px; height:30px; flex:none; border-radius:6px; display:grid; place-items:center;
+  background:var(--wash2); color:var(--ink2); font-size:9.5px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; overflow:hidden;
+}
+.pag-bandeira--marca{ background:#FFFFFF; box-shadow:inset 0 0 0 1px var(--line); }
+.pag-txt{ flex:1; min-width:0; }
+.pag-txt strong{ display:block; font-size:14.5px; font-weight:500; letter-spacing:-.01em; }
+.pag-txt span{ display:block; margin-top:2px; font-size:12.5px; color:var(--ink3); }
+.pag-txt em{ font-style:normal; color:var(--alerta); font-weight:600; }
+.pag-btn{
+  flex:none; height:38px; padding:0 18px; border-radius:var(--pill);
+  border:1px solid var(--line2); background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:13.5px; font-weight:600; cursor:pointer;
+}
+.pag-btn:hover{ border-color:var(--ink); }
+.marca-id{ font-size:11px; color:var(--ink3); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+
+/* A grade das pastilhas sozinhas, para conferir o desenho lado a lado. */
+.grade{
+  margin-top:16px; display:grid; gap:14px;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+}
+.chip{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; border:1px solid var(--line); border-radius:var(--r-peq);
+}
+.chip div{ min-width:0; }
+.chip b{ display:block; font-size:13px; font-weight:600; letter-spacing:-.01em; }
+.chip .marca-id{ display:block; }
+
+.selo{
+  display:inline-block; margin-left:8px; padding:2px 9px; border-radius:var(--pill);
+  font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  background:var(--ok-bg); color:var(--ok); vertical-align:2px;
+}
+.selo--aviso{ background:var(--alerta-bg); color:var(--alerta); }
+</style>
+
+<div class="env">
+  <span class="olho">Cora Render &middot; assinatura</span>
+  <h1>Todas as bandeiras que o Stripe pode mandar</h1>
+  <p class="sub">A lista não é escolhida, é o campo <code>card.brand</code> do Stripe inteiro.
+    Vendendo fora do Brasil, uma bandeira sem desenho vira um retângulo cinza no lugar
+    do cartão da pessoa. Aqui estão todas, do jeito que aparecem no painel.</p>
+
+  <div class="card">
+    <h2>Na linha da forma de pagamento</h2>
+    <p class="nota">É assim que cada uma chega na tela de Assinatura.</p>
+    <div id="linhas"></div>
+  </div>
+
+  <div class="card">
+    <h2>As pastilhas lado a lado</h2>
+    <p class="nota">Em 46 por 30 pixels. O que vale é reconhecer de relance, sem ler.</p>
+    <div class="grade" id="grade"></div>
+  </div>
+
+  <div class="card">
+    <h2>Quando algo foge do previsto</h2>
+    <p class="nota">Uma bandeira que o Stripe passe a mandar amanhã cai na pastilha neutra,
+      e a linha continua dizendo o que interessa. O vencimento próximo e o vencido
+      têm que aparecer, porque é a cobrança do mês que depende deles.</p>
+    <div id="bordas"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   AS MARCAS
+
+   Cada uma é uma redução, não o logotipo oficial: as formas e as cores que
+   fazem a pessoa reconhecer o próprio cartão num espaço de 46 por 30.
+
+   `fundoBranco` diz quais ganham a pastilha branca com fio: as que têm cor
+   própria forte. As outras ficam melhor com a cor da bandeira preenchendo.
+   ═══════════════════════════════════════════════════════════════════════ */
+var MARCAS = {
+  visa: {
+    nome: 'Visa', fundoBranco: true,
+    svg: '<svg width="38" height="14" viewBox="0 0 38 14" aria-hidden="true">'
+       + '<text x="19" y="11.6" text-anchor="middle" fill="#1A1F71"'
+       + ' font-family="Georgia, \'Times New Roman\', serif" font-size="13"'
+       + ' font-style="italic" font-weight="700" letter-spacing="1.2">VISA</text></svg>',
+  },
+  mastercard: {
+    nome: 'Mastercard', fundoBranco: true,
+    // Os dois círculos com a sobreposição no meio. É a marca inteira: ela se
+    // reconhece sem nenhuma letra.
+    svg: '<svg width="34" height="22" viewBox="0 0 34 22" aria-hidden="true">'
+       + '<circle cx="13" cy="11" r="8.4" fill="#EB001B"/>'
+       + '<circle cx="21" cy="11" r="8.4" fill="#F79E1B"/>'
+       + '<path d="M17 4.7a8.4 8.4 0 0 0 0 12.6 8.4 8.4 0 0 0 0-12.6z" fill="#FF5F00"/></svg>',
+  },
+  amex: {
+    nome: 'American Express', fundo: '#2E77BC',
+    svg: '<svg width="42" height="16" viewBox="0 0 42 16" aria-hidden="true">'
+       + '<text x="21" y="12" text-anchor="middle" fill="#FFFFFF"'
+       + ' font-family="inherit" font-size="10" font-weight="700"'
+       + ' letter-spacing=".5">AMEX</text></svg>',
+  },
+  discover: {
+    nome: 'Discover', fundoBranco: true,
+    // A bola laranja é o que se vê de longe num cartão Discover.
+    svg: '<svg width="42" height="18" viewBox="0 0 42 18" aria-hidden="true">'
+       + '<text x="3" y="12" fill="#111111" font-family="inherit" font-size="7.5"'
+       + ' font-weight="700" letter-spacing=".2">DISC</text>'
+       + '<circle cx="34" cy="9" r="6.4" fill="#FF6000"/></svg>',
+  },
+  diners: {
+    nome: 'Diners Club', fundoBranco: true,
+    // O disco partido: metade cheia, metade vazada.
+    svg: '<svg width="30" height="20" viewBox="0 0 30 20" aria-hidden="true">'
+       + '<circle cx="11" cy="10" r="8" fill="#0079BE"/>'
+       + '<circle cx="19" cy="10" r="8" fill="none" stroke="#0079BE" stroke-width="1.8"/></svg>',
+  },
+  jcb: {
+    nome: 'JCB', fundoBranco: true,
+    // As três barras, azul, vermelha e verde.
+    svg: '<svg width="36" height="20" viewBox="0 0 36 20" aria-hidden="true">'
+       + '<rect x="1" y="2" width="10" height="16" rx="2.5" fill="#0E4C96"/>'
+       + '<rect x="13" y="2" width="10" height="16" rx="2.5" fill="#C8102E"/>'
+       + '<rect x="25" y="2" width="10" height="16" rx="2.5" fill="#1E8A45"/></svg>',
+  },
+  unionpay: {
+    nome: 'UnionPay', fundoBranco: true,
+    svg: '<svg width="36" height="20" viewBox="0 0 36 20" aria-hidden="true">'
+       + '<path d="M3 2h9l-3 16H0z" fill="#E21836"/>'
+       + '<path d="M13 2h9l-3 16h-9z" fill="#00447C"/>'
+       + '<path d="M23 2h9l-3 16h-9z" fill="#007B84"/></svg>',
+  },
+  elo: {
+    nome: 'Elo', fundo: '#000000',
+    // Os três pontos coloridos, que é o que sobra da marca em tamanho pequeno.
+    svg: '<svg width="38" height="16" viewBox="0 0 38 16" aria-hidden="true">'
+       + '<circle cx="7" cy="8" r="3.4" fill="#FFCB05"/>'
+       + '<circle cx="15" cy="8" r="3.4" fill="#EF4123"/>'
+       + '<circle cx="23" cy="8" r="3.4" fill="#00A4E0"/>'
+       + '<text x="31" y="11" text-anchor="middle" fill="#FFFFFF"'
+       + ' font-family="inherit" font-size="7.5" font-weight="700">elo</text></svg>',
+  },
+  hipercard: {
+    nome: 'Hipercard', fundo: '#B3131B',
+    svg: '<svg width="42" height="16" viewBox="0 0 42 16" aria-hidden="true">'
+       + '<text x="21" y="12" text-anchor="middle" fill="#FFFFFF"'
+       + ' font-family="inherit" font-size="9" font-weight="700"'
+       + ' letter-spacing=".3">HIPER</text></svg>',
+  },
+  cartes_bancaires: {
+    nome: 'Cartes Bancaires', fundoBranco: true,
+    svg: '<svg width="34" height="20" viewBox="0 0 34 20" aria-hidden="true">'
+       + '<rect x="1" y="2" width="32" height="16" rx="3" fill="#004F9F"/>'
+       + '<path d="M1 10h32v8a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3z" fill="#009640"/>'
+       + '<text x="17" y="13.6" text-anchor="middle" fill="#FFFFFF"'
+       + ' font-family="inherit" font-size="8" font-weight="700">CB</text></svg>',
+  },
+  eftpos_au: {
+    nome: 'eftpos', fundo: '#E4002B',
+    svg: '<svg width="42" height="16" viewBox="0 0 42 16" aria-hidden="true">'
+       + '<text x="21" y="12" text-anchor="middle" fill="#FFFFFF"'
+       + ' font-family="inherit" font-size="9" font-weight="700">eftpos</text></svg>',
+  },
+  link: {
+    nome: 'Link', fundo: '#00D66F',
+    svg: '<svg width="36" height="16" viewBox="0 0 36 16" aria-hidden="true">'
+       + '<text x="18" y="12" text-anchor="middle" fill="#011E0F"'
+       + ' font-family="inherit" font-size="9.5" font-weight="700">link</text></svg>',
+  },
+};
+
+// O que aparece quando a bandeira é 'unknown' ou uma que o Stripe passe a
+// mandar amanhã. Quatro pontinhos, e a linha continua dizendo o que interessa.
+var NEUTRA = '<svg width="30" height="8" viewBox="0 0 30 8" aria-hidden="true">'
+  + '<circle cx="3" cy="4" r="2.4" fill="currentColor"/>'
+  + '<circle cx="11" cy="4" r="2.4" fill="currentColor"/>'
+  + '<circle cx="19" cy="4" r="2.4" fill="currentColor"/>'
+  + '<circle cx="27" cy="4" r="2.4" fill="currentColor"/></svg>';
+
+function pastilha(marca) {
+  var m = MARCAS[marca];
+  if (!m) return '<span class="pag-bandeira" aria-hidden="true">' + NEUTRA + '</span>';
+  var cls = 'pag-bandeira' + (m.fundoBranco ? ' pag-bandeira--marca' : '');
+  var estilo = m.fundo ? ' style="background:' + m.fundo + '"' : '';
+  return '<span class="' + cls + '"' + estilo + ' aria-hidden="true">' + m.svg + '</span>';
+}
+function nomeDa(marca) {
+  return MARCAS[marca] ? MARCAS[marca].nome : 'Cartão';
+}
+
+// Os quatro finais são de cartões de teste do próprio Stripe, para não
+// inventar número de ninguém.
+var ORDEM = ['mastercard','visa','amex','elo','hipercard','discover','diners',
+             'jcb','unionpay','cartes_bancaires','eftpos_au','link'];
+var FINAIS = { mastercard:'4444', visa:'4242', amex:'0005', elo:'4011',
+  hipercard:'0006', discover:'1117', diners:'0004', jcb:'0000',
+  unionpay:'0005', cartes_bancaires:'3000', eftpos_au:'0002', link:'0000' };
+
+function linha(marca, fim, sub, botao) {
+  return '<div class="pag-linha">' + pastilha(marca)
+    + '<div class="pag-txt"><strong>' + nomeDa(marca) + ' terminado em ' + fim + '</strong>'
+    + '<span>' + sub + '</span></div>'
+    + (botao === false ? '' : '<button class="pag-btn">Atualizar</button>')
+    + '</div>';
+}
+
+document.getElementById('linhas').innerHTML = ORDEM
+  .map(function (m) { return linha(m, FINAIS[m], 'Vence em 11/2029'); }).join('');
+
+document.getElementById('grade').innerHTML = ORDEM
+  .map(function (m) {
+    return '<div class="chip">' + pastilha(m)
+      + '<div><b>' + nomeDa(m) + '</b><span class="marca-id">' + m + '</span></div></div>';
+  }).join('');
+
+document.getElementById('bordas').innerHTML =
+    linha('bandeira_que_nao_existe', '4242', 'Vence em 03/2030')
+  + linha('visa', '4242', 'Vence em 10/2026 <em>&middot; vence em menos de 60 dias</em>')
+  + linha('mastercard', '4444', '<em>Venceu em 08/2026</em>')
+  + '<div class="pag-linha" style="border-style:dashed">'
+  + '<span class="pag-bandeira" aria-hidden="true">' + NEUTRA + '</span>'
+  + '<div class="pag-txt"><strong>Nenhum cartão guardado</strong>'
+  + '<span>A primeira cobrança guarda o cartão. Até lá não tem o que mostrar.</span></div>'
+  + '</div>';
+</script>

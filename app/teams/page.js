@@ -8,7 +8,11 @@ import { calcularTeams, descontoAssentos } from '../../lib/planos';
 import { iniciarCheckoutEquipe, lerEquipePendente, limparEquipePendente } from '../../lib/auth';
 import { useIdioma } from '../../lib/i18n';
 
-function brl(n) { return 'R$ ' + n.toLocaleString('pt-BR'); }
+// O espaco entre o R$ e o numero e FIXO ( ). Com espaco normal o
+// responsivo quebra "R$" numa linha e "140" na outra, e um preco partido
+// no meio para de ser um preco. Escrito com a fuga e nao com o caractere
+// solto: nbsp no codigo-fonte e invisivel, e some numa colagem.
+function brl(n) { return 'R$ ' + n.toLocaleString('pt-BR'); }
 
 export default function Teams() {
   const router = useRouter();

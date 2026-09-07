@@ -6,15 +6,20 @@ import { iniciarCheckout, lerConta } from '../../lib/auth';
 import { itemDoPlano, itemDaRecarga } from '../../lib/stripe-prices';
 import Cabecalho from '../../components/Cabecalho';
 import ModalFiscal from '../../components/ModalFiscal';
-import { useIdioma } from '../../lib/i18n';
+import { useIdioma, localeDeIdioma } from '../../lib/i18n';
 import {
   planos, recargas, descontoAnual,
   comparacao, custos, faq,
   teamsPro, teamsStudio,
+  RESOLUCAO_ANUNCIADA,
 } from '../../lib/planos';
 
-function brl(n) { return 'R$ ' + n.toFixed(2).replace('.', ','); }
-function brlInt(n) { return 'R$ ' + n.toLocaleString('pt-BR'); }
+// O espaco entre o R$ e o numero e FIXO ( ). Com espaco normal o
+// responsivo quebra "R$" numa linha e "140" na outra, e um preco partido
+// no meio para de ser um preco. Escrito com a fuga e nao com o caractere
+// solto: nbsp no codigo-fonte e invisivel, e some numa colagem.
+function brl(n) { return 'R$ ' + n.toFixed(2).replace('.', ','); }
+function brlInt(n) { return 'R$ ' + n.toLocaleString('pt-BR'); }
 function num(v) { return typeof v === 'number' ? v.toLocaleString('pt-BR') : v; }
 
 // O mesmo cheque do artefato: traco de 2.2, ponta redonda, herdando a cor do
@@ -79,7 +84,7 @@ function TabelaTeams({ titulo, dados, t }) {
 }
 
 export default function Precos() {
-  const { t } = useIdioma();
+  const { t, idioma } = useIdioma();
   const tr = (s) => traduzir(t, s);
   const [anual, setAnual] = useState(false);
   const [abaCusto, setAbaCusto] = useState('imagens');
@@ -222,9 +227,29 @@ export default function Precos() {
                   </div>
                   <p className="plano__cobranca">{cobranca}</p>
                 </div>
+                {/* Os NÚMEROS saem de lib/planos.js, e não de uma frase
+                    escrita em cada idioma. Escritos à mão, eles ficaram meses
+                    dizendo 10.000 créditos no Pro enquanto o servidor concedia
+                    20.000, e prometendo 68 imagens onde cabiam 35. Agora muda
+                    o crédito num lugar só e a frase acompanha, nos três
+                    idiomas. O Free continua com chave própria porque ele não
+                    tem número nenhum para contar. */}
                 <div className="plano__cred">
-                  <p className="plano__credtxt">{t(p.creditosTxtKey)}</p>
-                  <p className="plano__credsub">{t(p.creditosSubKey)}</p>
+                  {p.creditos ? (
+                    <>
+                      <p className="plano__credtxt">
+                        {p.creditos.toLocaleString(localeDeIdioma(idioma))} {t('pl_creditos_mes')}
+                      </p>
+                      <p className="plano__credsub">
+                        {p.imagens.toLocaleString(localeDeIdioma(idioma))} {t('pl_imagens_em')} {RESOLUCAO_ANUNCIADA}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="plano__credtxt">{t(p.creditosTxtKey)}</p>
+                      <p className="plano__credsub">{t(p.creditosSubKey)}</p>
+                    </>
+                  )}
                 </div>
                 <div className="plano__cta">
                   {/* O artefato escreve o nome do plano no botao: "Assinar Pro",

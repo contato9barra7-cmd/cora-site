@@ -758,7 +758,11 @@
 .perfil-avatar-box:hover .perfil-avatar-x,
 .perfil-avatar-x:focus-visible{ opacity:1; }
 .perfil-avatar-x:hover{ background:var(--alerta); color:#FFFFFF; }
-.perfil-foto-dica{ font-size:13px; color:var(--ink3); line-height:1.5; max-width:34ch; }
+/* A regra fica onde a pessoa ESCOLHE o arquivo, e não só dentro do recorte:
+   quem descobre o limite depois de escolher já perdeu a viagem. */
+.perfil-foto-dica{ font-size:13px; color:var(--ink3); line-height:1.5; max-width:34ch;
+  text-wrap:pretty; }
+.perfil-foto-erro{ font-style:normal; font-weight:600; color:var(--alerta); }
 
 /* A linha do interruptor NÃO é a grade de 150px das outras: ali o texto caía
    numa coluna estreita e quebrava em cinco linhas. Aqui ele ocupa a largura
@@ -772,13 +776,13 @@
   width:46px; height:27px; flex:none; border:0; border-radius:var(--pill); cursor:pointer;
   background:var(--wash2); position:relative; transition:background-color var(--t);
 }
-.perfil-toggle[aria-pressed="true"]{ background:var(--lima); }
+
 .perfil-toggle-bola{
   position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%;
   background:var(--paper); box-shadow:0 1px 3px rgba(17,17,17,.24);
   transition:transform var(--t);
 }
-.perfil-toggle[aria-pressed="true"] .perfil-toggle-bola{ transform:translateX(19px); }
+
 
 .perfil-salvar-barra{ display:flex; justify-content:flex-end; gap:10px; }
 .perfil-salvar-barra .btn{ height:48px; padding:0 28px; border:0; border-radius:var(--pill);
@@ -833,8 +837,11 @@
 }
 .perfil-btn-deletar:hover{ background:var(--alerta); color:#FFFFFF; }
 
-/* O interruptor no site é `.on`, não `aria-pressed`: quem manda é a marcação
-   que já existe, e a folha se ajusta a ela. */
+/* O interruptor no site é `.on`, com `role="switch"` e `aria-checked`. Esta é
+   a ÚNICA regra do estado ligado: havia uma segunda, por `aria-pressed`, que
+   não pegava nada em produção porque o site nunca emite esse atributo. Duas
+   regras para o mesmo estado é como o interruptor daqui ficou parecendo ligado
+   sem nada ligar ele. */
 .perfil-toggle.on{ background:var(--lima); }
 .perfil-toggle.on .perfil-toggle-bola{ transform:translateX(19px); }
 
@@ -988,9 +995,15 @@
 .rec-op strong{ font-size:26px; font-weight:500; letter-spacing:-.032em; color:var(--ink); }
 .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
 .rec-preco{ margin-top:2px; font-size:15px; color:var(--ink2); }
-/* Duas linhas curtas dentro de um cartão estreito: sem `balance` a
-   segunda quebrava com uma palavra sozinha no fim. */
-.rec-prazo{ margin-top:2px; font-size:12.5px; line-height:1.45; color:var(--ink3);
+/* Duas frases curtas dentro de um cartão estreito: sem `balance` a última
+   quebrava com uma palavra sozinha no fim.
+   A frase é a linha que a pessoa lê para decidir, e vem no tom do texto. O
+   prazo é letra miúda, e fica um degrau abaixo. */
+.rec-frase{
+  margin-top:10px; font-size:13px; line-height:1.5; color:var(--ink2);
+  text-wrap:balance; max-width:22ch;
+}
+.rec-prazo{ margin-top:8px; font-size:12px; line-height:1.45; color:var(--ink3);
   text-wrap:balance; }
 .rec-tag{
   position:absolute; top:-11px; left:50%; transform:translateX(-50%);
@@ -1031,6 +1044,25 @@
   margin-top:18px; padding:18px; border:1px dashed var(--line2); border-radius:var(--r-peq);
   font-size:13.5px; color:var(--ink3); line-height:1.55;
 }
+
+/* ── QUANDO A COBRANÇA NÃO PASSOU ──
+   Fio de 3px na esquerda, e não a caixa inteira vermelha. A tela toda de
+   Assinatura é branca e calma: uma caixa cheia de cor aqui gritaria mais que
+   o problema merece, e o fio já leva o olho até ela.
+   `role="status"` no HTML: quem usa leitor de tela recebe o aviso quando ele
+   aparece, sem precisar tropeçar nele. */
+.pag-erro{
+  margin-top:12px; padding:14px 16px 14px 18px;
+  border-radius:var(--r-peq); border:1px solid var(--alerta-bg);
+  border-left:3px solid var(--alerta); background:var(--alerta-bg);
+  display:flex; flex-direction:column; gap:4px;
+}
+.pag-erro strong{
+  font-size:14px; font-weight:600; letter-spacing:-.01em; color:var(--alerta);
+  text-wrap:balance;
+}
+.pag-erro span{ font-size:13px; color:var(--ink2); line-height:1.55; max-width:62ch; text-wrap:pretty; }
+.pag-erro__quando{ color:var(--ink3); font-size:12.5px; }
 
 /* ── a lista de faturas ──
    Tabela de verdade, e não uma pilha de divs: são quatro colunas que a pessoa
@@ -1788,7 +1820,7 @@ body{ margin:0; background:#F6F6F4; }
                     </button>
                     <button class="perfil-avatar-x" aria-label="Remover a foto">&times;</button>
                   </div>
-                  <p class="perfil-foto-dica">Proporção 1:1, a partir de 400&times;400px. Arraste para enquadrar.</p>
+                  <p class="perfil-foto-dica">Quadrada, guardada em 400&times;400px. O arquivo pode ter até 10&nbsp;MB.</p>
                 </div>
               </div>
 
@@ -1848,12 +1880,13 @@ body{ margin:0; background:#F6F6F4; }
                   <label class="perfil-lbl">Novidades do Cora</label>
                   <p class="perfil-sub perfil-sub--item">Ferramenta nova, mudança no jeito de usar e o que entrou em cada plano. Pouca coisa por mês, e nunca anúncio de terceiro.</p>
                 </div>
-                <button class="perfil-toggle on" aria-pressed="true" aria-label="Receber novidades">
+                <button class="perfil-toggle on" role="switch" aria-checked="true"
+                        data-interruptor aria-label="Receber novidades">
                   <span class="perfil-toggle-bola"></span>
                 </button>
               </div>
               <p class="perfil-legal">
-                Desligando aqui, essas mensagens param de chegar. As de cobrança, de segurança e
+                Desligando aqui, essas mensagens param de chegar. As de cobrança, de segurança
                 e&nbsp;de&nbsp;mudança&nbsp;nos&nbsp;Termos continuam, porque elas são sobre a sua conta e a gente
                 precisa avisar.<br>
                 O que a gente faz com o seu e-mail está escrito na
@@ -1949,7 +1982,7 @@ body{ margin:0; background:#F6F6F4; }
           <h2 class="conta-h2">Precisa de mais créditos?</h2>
           <p class="conta-p">
             Crédito avulso, para quando o mês apertar. Ele não zera na virada
-            do plano.
+            do plano e só entra depois que o crédito do plano acabar.
           </p>
 
           <div class="rec-grade">
@@ -1957,16 +1990,16 @@ body{ margin:0; background:#F6F6F4; }
               <span class="rec-nome">Pequena</span>
               <strong>2.000</strong>
               <span class="rec-preco">créditos</span>
+              <span class="rec-frase">Pra quebrar um galho. Dá umas 14 imagens.</span>
               <span class="rec-prazo">válido por 6 meses</span>
-              <span class="rec-prazo">só entra quando o crédito do plano acabar</span>
               <button class="rec-comprar">Comprar por R$ 30</button>
             </div>
             <div class="rec-op">
               <span class="rec-nome">Média</span>
               <strong>5.000</strong>
               <span class="rec-preco">créditos</span>
+              <span class="rec-frase">Dá pra fechar um projeto. Dá umas 35 imagens.</span>
               <span class="rec-prazo">válido por 6 meses</span>
-              <span class="rec-prazo">só entra quando o crédito do plano acabar</span>
               <button class="rec-comprar">Comprar por R$ 65</button>
             </div>
             <div class="rec-op rec-op--pop">
@@ -1974,16 +2007,16 @@ body{ margin:0; background:#F6F6F4; }
               <span class="rec-nome">Grande</span>
               <strong>12.000</strong>
               <span class="rec-preco">créditos</span>
+              <span class="rec-frase">Um mês inteiro com folga. Dá umas 84 imagens.</span>
               <span class="rec-prazo">válido por 6 meses</span>
-              <span class="rec-prazo">só entra quando o crédito do plano acabar</span>
               <button class="rec-comprar">Comprar por R$ 140</button>
             </div>
             <div class="rec-op">
               <span class="rec-nome">Enorme</span>
               <strong>30.000</strong>
               <span class="rec-preco">créditos</span>
+              <span class="rec-frase">Tá com demanda grande? Esse segura. Dá umas 211 imagens.</span>
               <span class="rec-prazo">válido por 6 meses</span>
-              <span class="rec-prazo">só entra quando o crédito do plano acabar</span>
               <button class="rec-comprar">Comprar por R$ 320</button>
             </div>
           </div>
@@ -2005,6 +2038,11 @@ body{ margin:0; background:#F6F6F4; }
               <span>Vence em 11/2029</span>
             </div>
             <button class="pag-btn" title="Abre o portal do Stripe, onde o cartão é trocado">Atualizar</button>
+          </div>
+          <div class="pag-erro" role="status">
+            <strong>A última cobrança foi recusada.</strong>
+            <span>Cadastre outro cartão em Atualizar. A gente tenta de novo assim que ele entrar.</span>
+            <span class="pag-erro__quando">Desde 24 de agosto de 2026. 3 tentativas até agora.</span>
           </div>
         </div>
 
@@ -2103,7 +2141,7 @@ body{ margin:0; background:#F6F6F4; }
 <div class="foto-overlay" id="janela-foto" hidden>
   <div class="foto-modal">
     <div class="foto-titulo">Foto de perfil</div>
-    <p class="foto-orient">Proporção 1:1, a partir de 400&times;400px. Arraste para enquadrar e use o zoom.</p>
+    <p class="foto-orient">Arraste e use o zoom para enquadrar.</p>
     <div class="foto-crop" id="foto-crop"></div>
     <div class="foto-zoom-row">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ink3)">
@@ -2338,6 +2376,20 @@ body{ margin:0; background:#F6F6F4; }
     document.getElementById('card-trial').hidden = !e.trial;
     if (e.trial) document.getElementById('card-cred').hidden = true;
   }
+
+  /* ── o interruptor ──
+     No site quem guarda o estado é o React, e a classe sai dele. Aqui não tem
+     React nenhum, e sem estas quatro linhas o interruptor nascia ligado e
+     ficava ligado para sempre: dava para clicar e nada acontecia.
+     Ele mexe na classe E no aria-checked juntos. Só a classe deixaria a tela
+     certa e o leitor de tela dizendo o contrário. */
+  document.addEventListener('click', function (ev) {
+    var bt = ev.target.closest('[data-interruptor]');
+    if (!bt) return;
+    var ligado = bt.getAttribute('aria-checked') !== 'true';
+    bt.setAttribute('aria-checked', ligado ? 'true' : 'false');
+    bt.classList.toggle('on', ligado);
+  });
 
   /* ── trocar de tela ──
      No site cada uma é uma rota, e quem troca é o Next. Aqui elas convivem no

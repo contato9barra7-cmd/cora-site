@@ -436,18 +436,20 @@
   display:grid; place-items:center; font-size:14px; line-height:1;
   background:var(--ink); color:var(--paper);
   opacity:0; transition:opacity var(--t);
-}.pn .perfil-avatar-box:hover .perfil-avatar-x, .pn .perfil-avatar-x:focus-visible{ opacity:1; }.pn .perfil-avatar-x:hover{ background:var(--alerta); color:#FFFFFF; }.pn .perfil-foto-dica{ font-size:13px; color:var(--ink3); line-height:1.5; max-width:34ch; }/* A linha do interruptor NÃO é a grade de 150px das outras: ali o texto caía
+}.pn .perfil-avatar-box:hover .perfil-avatar-x, .pn .perfil-avatar-x:focus-visible{ opacity:1; }.pn .perfil-avatar-x:hover{ background:var(--alerta); color:#FFFFFF; }/* A regra fica onde a pessoa ESCOLHE o arquivo, e não só dentro do recorte:
+   quem descobre o limite depois de escolher já perdeu a viagem. */.pn .perfil-foto-dica{ font-size:13px; color:var(--ink3); line-height:1.5; max-width:34ch;
+  text-wrap:pretty; }.pn .perfil-foto-erro{ font-style:normal; font-weight:600; color:var(--alerta); }/* A linha do interruptor NÃO é a grade de 150px das outras: ali o texto caía
    numa coluna estreita e quebrava em cinco linhas. Aqui ele ocupa a largura
    toda e o botão fica no canto, alinhado com o alto do bloco. */.pn .perfil-toggle-linha{
   display:flex; align-items:flex-start; justify-content:space-between; gap:28px;
 }.pn .perfil-toggle-linha > div{ flex:1; min-width:0; }.pn .perfil-toggle-linha .perfil-sub--item{ max-width:62ch; text-wrap:balance; }.pn .perfil-toggle{
   width:46px; height:27px; flex:none; border:0; border-radius:var(--pill); cursor:pointer;
   background:var(--wash2); position:relative; transition:background-color var(--t);
-}.pn .perfil-toggle[aria-pressed="true"]{ background:var(--lima); }.pn .perfil-toggle-bola{
+}.pn .perfil-toggle-bola{
   position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%;
   background:var(--paper); box-shadow:0 1px 3px rgba(17,17,17,.24);
   transition:transform var(--t);
-}.pn .perfil-toggle[aria-pressed="true"] .perfil-toggle-bola{ transform:translateX(19px); }.pn .perfil-salvar-barra{ display:flex; justify-content:flex-end; gap:10px; }.pn .perfil-salvar-barra .btn{ height:48px; padding:0 28px; border:0; border-radius:var(--pill);
+}.pn .perfil-salvar-barra{ display:flex; justify-content:flex-end; gap:10px; }.pn .perfil-salvar-barra .btn{ height:48px; padding:0 28px; border:0; border-radius:var(--pill);
   background:var(--lima); color:#111111; font-family:inherit; font-size:14.5px; font-weight:600;
   cursor:pointer; transition:background-color var(--t); }.pn .perfil-salvar-barra .btn:hover{ background:var(--lima-esc); }.pn .perfil-salvar-barra .btn:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }.pn .perfil-salvar{
   height:48px; padding:0 28px; border:0; border-radius:var(--pill);
@@ -472,8 +474,11 @@
   border:1px solid var(--alerta); background:transparent; color:var(--alerta);
   font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
   transition:background-color var(--t), color var(--t);
-}.pn .perfil-btn-deletar:hover{ background:var(--alerta); color:#FFFFFF; }/* O interruptor no site é `.on`, não `aria-pressed`: quem manda é a marcação
-   que já existe, e a folha se ajusta a ela. */.pn .perfil-toggle.on{ background:var(--lima); }.pn .perfil-toggle.on .perfil-toggle-bola{ transform:translateX(19px); }.pn .perfil-legal{
+}.pn .perfil-btn-deletar:hover{ background:var(--alerta); color:#FFFFFF; }/* O interruptor no site é `.on`, com `role="switch"` e `aria-checked`. Esta é
+   a ÚNICA regra do estado ligado: havia uma segunda, por `aria-pressed`, que
+   não pegava nada em produção porque o site nunca emite esse atributo. Duas
+   regras para o mesmo estado é como o interruptor daqui ficou parecendo ligado
+   sem nada ligar ele. */.pn .perfil-toggle.on{ background:var(--lima); }.pn .perfil-toggle.on .perfil-toggle-bola{ transform:translateX(19px); }.pn .perfil-legal{
   margin:18px 0 0; padding-top:16px; border-top:1px solid var(--line);
   font-size:12.5px; color:var(--ink3); line-height:1.6;
   max-width:72ch; text-wrap:pretty;
@@ -554,8 +559,13 @@
   background:var(--wash2); color:var(--ink);
   font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
   transition:background-color var(--t);
-}.pn .rec-comprar:hover{ background:var(--lima); }.pn .rec-op--pop .rec-comprar{ background:var(--lima); }.pn .rec-op--pop .rec-comprar:hover{ background:var(--lima-esc); }.pn .rec-comprar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }.pn .rec-op strong{ font-size:26px; font-weight:500; letter-spacing:-.032em; color:var(--ink); }.pn .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }.pn .rec-preco{ margin-top:2px; font-size:15px; color:var(--ink2); }/* Duas linhas curtas dentro de um cartão estreito: sem `balance` a
-   segunda quebrava com uma palavra sozinha no fim. */.pn .rec-prazo{ margin-top:2px; font-size:12.5px; line-height:1.45; color:var(--ink3);
+}.pn .rec-comprar:hover{ background:var(--lima); }.pn .rec-op--pop .rec-comprar{ background:var(--lima); }.pn .rec-op--pop .rec-comprar:hover{ background:var(--lima-esc); }.pn .rec-comprar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }.pn .rec-op strong{ font-size:26px; font-weight:500; letter-spacing:-.032em; color:var(--ink); }.pn .rec-nome{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }.pn .rec-preco{ margin-top:2px; font-size:15px; color:var(--ink2); }/* Duas frases curtas dentro de um cartão estreito: sem `balance` a última
+   quebrava com uma palavra sozinha no fim.
+   A frase é a linha que a pessoa lê para decidir, e vem no tom do texto. O
+   prazo é letra miúda, e fica um degrau abaixo. */.pn .rec-frase{
+  margin-top:10px; font-size:13px; line-height:1.5; color:var(--ink2);
+  text-wrap:balance; max-width:22ch;
+}.pn .rec-prazo{ margin-top:8px; font-size:12px; line-height:1.45; color:var(--ink3);
   text-wrap:balance; }.pn .rec-tag{
   position:absolute; top:-11px; left:50%; transform:translateX(-50%);
   font-style:normal; white-space:nowrap; line-height:1;
@@ -580,7 +590,20 @@
 }.pn .pag-btn:hover{ border-color:var(--ink); }.pn .pag-vazio{
   margin-top:18px; padding:18px; border:1px dashed var(--line2); border-radius:var(--r-peq);
   font-size:13.5px; color:var(--ink3); line-height:1.55;
-}/* ── a lista de faturas ──
+}/* ── QUANDO A COBRANÇA NÃO PASSOU ──
+   Fio de 3px na esquerda, e não a caixa inteira vermelha. A tela toda de
+   Assinatura é branca e calma: uma caixa cheia de cor aqui gritaria mais que
+   o problema merece, e o fio já leva o olho até ela.
+   `role="status"` no HTML: quem usa leitor de tela recebe o aviso quando ele
+   aparece, sem precisar tropeçar nele. */.pn .pag-erro{
+  margin-top:12px; padding:14px 16px 14px 18px;
+  border-radius:var(--r-peq); border:1px solid var(--alerta-bg);
+  border-left:3px solid var(--alerta); background:var(--alerta-bg);
+  display:flex; flex-direction:column; gap:4px;
+}.pn .pag-erro strong{
+  font-size:14px; font-weight:600; letter-spacing:-.01em; color:var(--alerta);
+  text-wrap:balance;
+}.pn .pag-erro span{ font-size:13px; color:var(--ink2); line-height:1.55; max-width:62ch; text-wrap:pretty; }.pn .pag-erro__quando{ color:var(--ink3); font-size:12.5px; }/* ── a lista de faturas ──
    Tabela de verdade, e não uma pilha de divs: são quatro colunas que a pessoa
    compara de cima para baixo, e alinhar valor com valor é o que faz a coluna
    de dinheiro poder ser lida de relance. */.pn .fat-rolo{ margin-top:16px; overflow-x:auto; }.pn .fat{ width:100%; border-collapse:collapse; font-size:14px; }.pn .fat th{

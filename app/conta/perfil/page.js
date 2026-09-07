@@ -18,6 +18,15 @@ const TEMAS = [
   { v: 'sistema', k: 'tema_sistema' },
 ];
 
+// O recorte sai sempre em 400 por 400 (ver salvarFotoRecortada). O teto aqui
+// é do ARQUIVO que a pessoa escolhe, que é o que o navegador tem que ler
+// inteiro para a memória antes de qualquer recorte acontecer.
+// Mudar este número quer dizer mudar `perfil_foto_orient` e
+// `perfil_foto_grande` nos três idiomas: o `t()` não interpola de
+// propósito, então o "10 MB" está escrito nas frases.
+const MAX_FOTO_BYTES = 10 * 1024 * 1024;   // 10 MB
+const LADO_FOTO = 400;                     // o lado do que fica guardado
+
 export default function Perfil() {
   const router = useRouter();
   const { t, idioma } = useIdioma();
@@ -62,6 +71,7 @@ export default function Perfil() {
 
   // --- foto de perfil (recorte 1:1, igual ao plugin) ---
   const [modalFoto, setModalFoto] = useState(false);
+  const [erroFoto, setErroFoto] = useState('');
   const [salvandoFoto, setSalvandoFoto] = useState(false);
   const inputFotoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -71,6 +81,19 @@ export default function Perfil() {
   function aoSelecionarFoto(ev) {
     const file = ev.target.files && ev.target.files[0];
     if (!file) return;
+    /* O LIMITE É DO ARQUIVO, e não da imagem.
+       O recorte sempre sai em 400 por 400, então o tamanho do que a pessoa
+       escolhe nunca chega ao servidor: uma foto de 8000px vira 400 aqui
+       mesmo. O que o arquivo grande faz de ruim é acontecer ANTES disso, no
+       navegador, que lê tudo para memória de uma vez. Num telefone antigo uma
+       foto de 40MB trava a aba, e a pessoa não vê erro nenhum, só a tela
+       parada. Daí o teto. */
+    if (file.size > MAX_FOTO_BYTES) {
+      setErroFoto(t('perfil_foto_grande'));
+      ev.target.value = '';
+      return;
+    }
+    setErroFoto('');
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -111,12 +134,12 @@ export default function Perfil() {
     setSalvandoFoto(true);
     try {
       const out = document.createElement('canvas');
-      out.width = 400; out.height = 400;
+      out.width = LADO_FOTO; out.height = LADO_FOTO;
       const octx = out.getContext('2d');
-      const esc = st.base * st.zoom * (400 / 260);
+      const esc = st.base * st.zoom * (LADO_FOTO / 260);
       const w = st.img.width * esc, h = st.img.height * esc;
-      const x = (400 - w) / 2 + st.x * (400 / 260);
-      const y = (400 - h) / 2 + st.y * (400 / 260);
+      const x = (LADO_FOTO - w) / 2 + st.x * (LADO_FOTO / 260);
+      const y = (LADO_FOTO - h) / 2 + st.y * (LADO_FOTO / 260);
       octx.drawImage(st.img, x, y, w, h);
       const dataUrl = out.toDataURL('image/jpeg', 0.85);
       const c = await salvarFoto(dataUrl);
@@ -257,6 +280,13 @@ export default function Perfil() {
                 {conta.foto_url && (
                   <button className="perfil-avatar-x" onClick={removerFoto} title={t('perfil_remover_foto')} aria-label={t('perfil_remover_foto')}>×</button>
                 )}
+              </div>
+              {/* A regra fica onde a pessoa ESCOLHE o arquivo, e não só dentro
+                  do recorte: quem descobre o limite depois de escolher já
+                  perdeu a viagem. */}
+              <div className="perfil-foto-dica">
+                {t('perfil_foto_orient')}
+                {erroFoto && <><br /><em className="perfil-foto-erro">{erroFoto}</em></>}
               </div>
               <input type="file" ref={inputFotoRef} accept="image/*" style={{ display: 'none' }} onChange={aoSelecionarFoto} />
             </div>
@@ -445,7 +475,7 @@ export default function Perfil() {
         <div className="foto-overlay" onClick={() => setModalFoto(false)}>
           <div className="foto-modal" onClick={(e) => e.stopPropagation()}>
             <div className="foto-titulo">{t('perfil_foto_titulo')}</div>
-            <div className="foto-orient">{t('perfil_foto_orient')}</div>
+            <div className="foto-orient">{t('perfil_foto_enquadrar')}</div>
             <div className="foto-crop" onPointerDown={dragStart} onPointerMove={dragMove} onPointerUp={dragEnd}>
               <canvas ref={canvasRef} width={260} height={260} style={{ display: 'block' }} />
             </div>

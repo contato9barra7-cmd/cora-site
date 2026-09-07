@@ -443,7 +443,7 @@ function ContaConteudo() {
               <span className="dash-cartao-rot">{t('nav_assinatura')}</span>
               <strong className="dash-cartao-num">
                 {valorCent > 0
-                  ? <>R$ {(valorCent / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<em>{t('conta_mes')}</em></>
+                  ? <>{'R$ '}{(valorCent / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<em>{t('conta_mes')}</em></>
                   : '—'}
               </strong>
               {/* Mês por extenso, como no cartão do lado. Abreviado, o

@@ -8,7 +8,7 @@ import EmailAssinantes from '../../components/EmailAssinantes';
 import DropdownCora from '../../components/DropdownCora';
 import FichaConta from '../../components/FichaConta';
 import { useIdioma } from '../../lib/i18n';
-import { lerConta, adminListarAssinantes, adminDadosFiscais, adminCompras, adminSincronizarStripe } from '../../lib/auth';
+import { lerConta, adminListarAssinantes, adminDadosFiscais, adminCompras, adminFaturas, adminSincronizarStripe } from '../../lib/auth';
 import PainelAceites from '../../components/PainelAceites';
 
 
@@ -37,7 +37,8 @@ function docFiscalTexto(o) {
 function fmtValor(centavos, moeda) {
   if (!centavos) return '—';
   const v = (centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-  return (moeda === 'brl' || !moeda ? 'R$ ' : (moeda.toUpperCase() + ' ')) + v;
+  // Espaco fixo entre a moeda e o numero: ver a nota em precos/page.js.
+  return (moeda === 'brl' || !moeda ? 'R$ ' : (moeda.toUpperCase() + ' ')) + v;
 }
 
 export default function Admin() {
@@ -55,7 +56,7 @@ export default function Admin() {
   const [busca, setBusca] = useState('');
   // Qual conta a Ficha deve abrir quando se clica numa linha da tabela.
   const [fichaAbrir, setFichaAbrir] = useState(null);
-  const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'trial' | 'convidados' | 'cancelados' | 'compras' | 'aceites' | 'ficha'
+  const [aba, setAba] = useState('pagantes'); // 'pagantes' | 'trial' | 'convidados' | 'cancelados' | 'compras' | 'faturas' | 'aceites' | 'ficha'
   const [filtroData, setFiltroData] = useState('todos'); // todos | mes | 12meses | ano | periodo
   const [anoFiltro, setAnoFiltro] = useState(String(new Date().getFullYear()));
   const [dataDe, setDataDe] = useState('');
@@ -101,6 +102,54 @@ export default function Admin() {
 
   const [menuExport, setMenuExport] = useState(false);
   const [compras, setCompras] = useState([]);
+
+  /* ── AS FATURAS ──
+     Carregam quando a aba abre, e não junto com o resto. A rota vai ao Stripe
+     e pagina até quatro vezes: pendurar isso na abertura do admin faria toda
+     visita pagar por uma tela que nem sempre é a que se veio ver. */
+  const [faturas, setFaturas] = useState(null);   // null = ainda não pedi
+  const [avisoFaturas, setAvisoFaturas] = useState(null);
+  const [buscandoFaturas, setBuscandoFaturas] = useState(false);
+
+  useEffect(() => {
+    if (aba !== 'faturas' || faturas !== null || buscandoFaturas) return;
+    setBuscandoFaturas(true);
+    adminFaturas()
+      .then((d) => { setFaturas(d.faturas); setAvisoFaturas(d.aviso); })
+      .catch((e) => { setFaturas([]); setAvisoFaturas(e.message); })
+      .finally(() => setBuscandoFaturas(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aba]);
+
+  const faturasFiltradas = (faturas || []).filter((f) => {
+    const q = busca.toLowerCase().trim();
+    if (!q) return true;
+    return [f.nome, f.email, f.numero, f.descricao]
+      .some((v) => (v || '').toLowerCase().includes(q));
+  });
+
+  // O total só conta o que foi PAGO. Somar fatura em aberto seria anunciar
+  // dinheiro que ainda não entrou.
+  const totalFaturas = faturasFiltradas
+    .filter((f) => f.status === 'paga')
+    .reduce((soma, f) => soma + (f.total_centavos || 0), 0);
+
+  function exportarFaturas() {
+    setMenuExport(false);
+    baixarCSV('faturas',
+      [t('adm_h_data'), t('adm_h_numero'), t('adm_h_tipo_cobranca'), t('adm_h_comprador'),
+       t('adm_csv_email'), t('adm_h_compra'), t('adm_status'), t('adm_csv_valor_rs')],
+      faturasFiltradas.map((f) => [
+        fmtData(f.data),
+        f.numero || '—',
+        f.origem === 'recarga' ? t('adm_fat_recarga') : t('adm_fat_plano'),
+        f.nome || '—',
+        f.email || '—',
+        f.descricao || '—',
+        f.status === 'paga' ? t('pn_paga') : t('pn_aberta'),
+        ((f.total_centavos || 0) / 100).toFixed(2).replace('.', ','),
+      ]));
+  }
 
   useEffect(() => {
     // catch com log (não vazio): uma falha em compras/sincronização deixava a
@@ -596,6 +645,12 @@ export default function Admin() {
                   <em>{t('adm_exp_recargas_d')}</em>
                 </button>
 
+                <button className="admin-export-item" onClick={exportarFaturas}
+                        disabled={!faturas || !faturas.length}>
+                  <strong>{t('adm_exp_faturas')}</strong>
+                  <em>{t('adm_exp_faturas_d')}</em>
+                </button>
+
                 <div className="admin-export-sep" />
                 <div className="admin-export-grupo">{t('adm_grupo_trafego')}</div>
 
@@ -746,6 +801,13 @@ export default function Admin() {
         </button>
         <button className={'seg-item' + (aba === 'compras' ? ' ativa' : '')} onClick={() => setAba('compras')}>
           {t('adm_aba_recargas')} <span className="seg-badge">{compras.length}</span>
+        </button>
+        {/* Recargas é a nossa tabela. Faturas é ela MAIS o que só existe no
+            Stripe, que é o que faltava para o dono conferir um mês inteiro
+            sem abrir dois painéis. */}
+        <button className={'seg-item' + (aba === 'faturas' ? ' ativa' : '')} onClick={() => setAba('faturas')}>
+          {t('adm_aba_faturas')}
+          {faturas !== null && <span className="seg-badge">{faturas.length}</span>}
         </button>
         {/* A prova do aceite dos Termos. Fica aqui, e nao numa pagina propria,
             porque a pergunta que leva ate ela ("essa pessoa aceitou?") nasce
@@ -985,7 +1047,79 @@ export default function Admin() {
       {/* A ficha e uma tela inteira, nao uma listagem: nao entra neste ternario.
           Sem o `null` explicito ela caia no ELSE e a tabela geral de contas
           aparecia solta embaixo da ficha aberta. */}
-      {aba === 'ficha' ? null : aba === 'compras' ? (
+      {aba === 'ficha' ? null : aba === 'faturas' ? (
+        <div className="admin-tabela-wrap">
+          {/* O aviso aparece quando o Stripe não respondeu. Sem ele a tela
+              mostraria só as recargas e daria a entender que não houve fatura
+              de plano nenhuma, que é o pior jeito de errar numa tela de
+              dinheiro. */}
+          {avisoFaturas && <p className="admin-vazio">{avisoFaturas}</p>}
+
+          {buscandoFaturas ? (
+            <p className="admin-vazio">{t('adm_fat_buscando')}</p>
+          ) : (
+            <>
+              <table className="admin-tabela">
+                <thead>
+                  <tr>
+                    <th>{t('adm_h_data')}</th>
+                    <th>{t('adm_h_numero')}</th>
+                    <th>{t('adm_h_tipo_cobranca')}</th>
+                    <th>{t('adm_h_comprador')}</th>
+                    <th>{t('adm_h_compra')}</th>
+                    <th>{t('adm_status')}</th>
+                    <th>{t('adm_h_valor')}</th>
+                    <th>{t('adm_h_documento')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {faturasFiltradas.map((f) => (
+                    <tr key={f.id}>
+                      <td>{fmtData(f.data)}</td>
+                      <td style={{ fontVariantNumeric: 'tabular-nums' }}>{f.numero || '—'}</td>
+                      <td>
+                        {f.origem === 'recarga' ? t('adm_fat_recarga') : t('adm_fat_plano')}
+                        {/* Pró-rata é a diferença cobrada numa troca de plano
+                            no meio do mês. Sem dizer isso, ela parece uma
+                            mensalidade com o valor errado. */}
+                        {f.motivo === 'subscription_update' && (
+                          <div className="admin-email">{t('adm_fat_prorata')}</div>
+                        )}
+                      </td>
+                      <td>
+                        <div className="admin-nome">{f.nome || t('adm_fat_sem_conta')}</div>
+                        <div className="admin-email">
+                          <span className="admin-email-txt" title={f.email || ''}>{f.email || '—'}</span>
+                        </div>
+                      </td>
+                      <td style={{ fontSize: 13, maxWidth: 260 }}>{f.descricao}</td>
+                      <td>
+                        <span className={'fat-selo' + (f.status === 'paga' ? '' : ' fat-selo--aberta')}>
+                          {f.status === 'paga' ? t('pn_paga') : t('pn_aberta')}
+                        </span>
+                      </td>
+                      <td>{fmtValor(f.total_centavos, f.moeda)}</td>
+                      <td>
+                        {f.pdf
+                          ? <a className="fat-ver" href={f.pdf} target="_blank" rel="noopener noreferrer">{t('adm_fat_abrir')}</a>
+                          : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {faturasFiltradas.length === 0
+                ? <p className="admin-vazio">{t('adm_fat_vazio')}</p>
+                : (
+                  <p className="admin-vazio">
+                    {faturasFiltradas.length} {t('adm_fat_conta')} {fmtValor(totalFaturas, 'brl')} {t('adm_fat_pago')}
+                  </p>
+                )}
+            </>
+          )}
+        </div>
+      ) : aba === 'compras' ? (
         <div className="admin-tabela-wrap">
           <table className="admin-tabela">
             <thead>

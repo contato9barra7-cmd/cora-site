@@ -7,7 +7,7 @@ import AppShell from '../../components/AppShell';
 import ModalFiscal from '../../components/ModalFiscal';
 import DropdownCora from '../../components/DropdownCora';
 import { lerConta, abrirPortal, lerEquipe, iniciarCheckout, lerCobranca } from '../../lib/auth';
-import { recargas } from '../../lib/planos';
+import { recargas, imagensPor } from '../../lib/planos';
 import { itemDaRecarga } from '../../lib/stripe-prices';
 import { useIdioma, tOpt, localeDeIdioma } from '../../lib/i18n';
 
@@ -127,60 +127,183 @@ export default function Assinatura() {
   const ehDonoEquipe = conta.eh_dono_equipe === true;
   const loc = localeDeIdioma(idioma);
 
-  // ── A BANDEIRA DO CARTÃO ──
-  // O Stripe manda 'visa', 'mastercard', 'amex', 'elo', 'hipercard', 'diners',
-  // 'discover', 'jcb', 'unionpay' ou 'unknown'.
-  //
-  // As duas que aparecem quase sempre no Brasil ganham a marca desenhada, que
-  // é o que a pessoa reconhece sem ler. As outras ganham uma pastilha com a
-  // sigla na cor da bandeira: reconhecível o bastante, e sem eu redesenhar mal
-  // sete logotipos de terceiros.
+  /* ── A BANDEIRA DO CARTÃO ──
+     A lista aqui não é escolhida: é o campo `card.brand` do Stripe inteiro.
+     Vendendo fora do Brasil, uma bandeira sem desenho vira um retângulo cinza
+     no lugar do cartão da pessoa.
+
+     Cada marca é uma REDUÇÃO, e não o logotipo oficial: as formas e as cores
+     que fazem a pessoa reconhecer o próprio cartão de relance, num espaço de
+     46 por 30. Redesenhar logotipo de terceiro em fidelidade seria pior nos
+     dois sentidos, no direito e no resultado.
+
+     Desenho de todas elas lado a lado: ferramentas/bandeiras.html.
+
+     `fundoBranco` é para as que já têm cor própria forte, e ficam melhor
+     sobre branco com um fio. As outras preenchem a pastilha com a cor delas.
+
+     O `unknown` e o que o Stripe passar a mandar amanhã caem na pastilha
+     neutra, com quatro pontinhos. Ela nunca pode virar um vazio: enquanto a
+     linha disser "Cartão terminado em 4242", a tela continua servindo. */
   const BANDEIRAS = {
-    visa:       { nome: 'Visa',             sigla: 'VISA',  cor: '#1A1F71' },
-    mastercard: { nome: 'Mastercard',       sigla: 'MC',    cor: '#EB001B' },
-    amex:       { nome: 'American Express', sigla: 'AMEX',  cor: '#2E77BC' },
-    elo:        { nome: 'Elo',              sigla: 'ELO',   cor: '#000000' },
-    hipercard:  { nome: 'Hipercard',        sigla: 'HIPER', cor: '#B3131B' },
-    diners:     { nome: 'Diners Club',      sigla: 'DINERS', cor: '#0079BE' },
-    discover:   { nome: 'Discover',         sigla: 'DISC',  cor: '#FF6000' },
-    jcb:        { nome: 'JCB',              sigla: 'JCB',   cor: '#0E4C96' },
-    unionpay:   { nome: 'UnionPay',         sigla: 'UP',    cor: '#005B9A' },
+    visa: {
+      nome: 'Visa', fundoBranco: true,
+      marca: (
+        <svg width="38" height="14" viewBox="0 0 38 14">
+          <text x="19" y="11.6" textAnchor="middle" fill="#1A1F71"
+                fontFamily="Georgia, 'Times New Roman', serif" fontSize="13"
+                fontStyle="italic" fontWeight="700" letterSpacing="1.2">VISA</text>
+        </svg>
+      ),
+    },
+    mastercard: {
+      nome: 'Mastercard', fundoBranco: true,
+      // Os dois círculos com a sobreposição no meio. É a marca inteira: ela se
+      // reconhece sem nenhuma letra.
+      marca: (
+        <svg width="34" height="22" viewBox="0 0 34 22">
+          <circle cx="13" cy="11" r="8.4" fill="#EB001B" />
+          <circle cx="21" cy="11" r="8.4" fill="#F79E1B" />
+          <path d="M17 4.7a8.4 8.4 0 0 0 0 12.6 8.4 8.4 0 0 0 0-12.6z" fill="#FF5F00" />
+        </svg>
+      ),
+    },
+    amex: {
+      nome: 'American Express', fundo: '#2E77BC',
+      marca: (
+        <svg width="42" height="16" viewBox="0 0 42 16">
+          <text x="21" y="12" textAnchor="middle" fill="#FFFFFF"
+                fontFamily="inherit" fontSize="10" fontWeight="700"
+                letterSpacing=".5">AMEX</text>
+        </svg>
+      ),
+    },
+    elo: {
+      nome: 'Elo', fundo: '#000000',
+      // Os três pontos coloridos, que é o que sobra da marca em tamanho pequeno.
+      marca: (
+        <svg width="38" height="16" viewBox="0 0 38 16">
+          <circle cx="7" cy="8" r="3.4" fill="#FFCB05" />
+          <circle cx="15" cy="8" r="3.4" fill="#EF4123" />
+          <circle cx="23" cy="8" r="3.4" fill="#00A4E0" />
+          <text x="31" y="11" textAnchor="middle" fill="#FFFFFF"
+                fontFamily="inherit" fontSize="7.5" fontWeight="700">elo</text>
+        </svg>
+      ),
+    },
+    hipercard: {
+      nome: 'Hipercard', fundo: '#B3131B',
+      marca: (
+        <svg width="42" height="16" viewBox="0 0 42 16">
+          <text x="21" y="12" textAnchor="middle" fill="#FFFFFF"
+                fontFamily="inherit" fontSize="9" fontWeight="700"
+                letterSpacing=".3">HIPER</text>
+        </svg>
+      ),
+    },
+    discover: {
+      nome: 'Discover', fundoBranco: true,
+      // A bola laranja é o que se vê de longe num cartão Discover.
+      marca: (
+        <svg width="42" height="18" viewBox="0 0 42 18">
+          <text x="3" y="12" fill="#111111" fontFamily="inherit" fontSize="7.5"
+                fontWeight="700" letterSpacing=".2">DISC</text>
+          <circle cx="34" cy="9" r="6.4" fill="#FF6000" />
+        </svg>
+      ),
+    },
+    diners: {
+      nome: 'Diners Club', fundoBranco: true,
+      // O disco partido: metade cheia, metade vazada.
+      marca: (
+        <svg width="30" height="20" viewBox="0 0 30 20">
+          <circle cx="11" cy="10" r="8" fill="#0079BE" />
+          <circle cx="19" cy="10" r="8" fill="none" stroke="#0079BE" strokeWidth="1.8" />
+        </svg>
+      ),
+    },
+    jcb: {
+      nome: 'JCB', fundoBranco: true,
+      // As três barras, azul, vermelha e verde.
+      marca: (
+        <svg width="36" height="20" viewBox="0 0 36 20">
+          <rect x="1" y="2" width="10" height="16" rx="2.5" fill="#0E4C96" />
+          <rect x="13" y="2" width="10" height="16" rx="2.5" fill="#C8102E" />
+          <rect x="25" y="2" width="10" height="16" rx="2.5" fill="#1E8A45" />
+        </svg>
+      ),
+    },
+    unionpay: {
+      nome: 'UnionPay', fundoBranco: true,
+      marca: (
+        <svg width="36" height="20" viewBox="0 0 36 20">
+          <path d="M3 2h9l-3 16H0z" fill="#E21836" />
+          <path d="M13 2h9l-3 16h-9z" fill="#00447C" />
+          <path d="M23 2h9l-3 16h-9z" fill="#007B84" />
+        </svg>
+      ),
+    },
+    cartes_bancaires: {
+      nome: 'Cartes Bancaires', fundoBranco: true,
+      marca: (
+        <svg width="34" height="20" viewBox="0 0 34 20">
+          <rect x="1" y="2" width="32" height="16" rx="3" fill="#004F9F" />
+          <path d="M1 10h32v8a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3z" fill="#009640" />
+          <text x="17" y="13.6" textAnchor="middle" fill="#FFFFFF"
+                fontFamily="inherit" fontSize="8" fontWeight="700">CB</text>
+        </svg>
+      ),
+    },
+    eftpos_au: {
+      nome: 'eftpos', fundo: '#E4002B',
+      marca: (
+        <svg width="42" height="16" viewBox="0 0 42 16">
+          <text x="21" y="12" textAnchor="middle" fill="#FFFFFF"
+                fontFamily="inherit" fontSize="9" fontWeight="700">eftpos</text>
+        </svg>
+      ),
+    },
+    link: {
+      nome: 'Link', fundo: '#00D66F',
+      marca: (
+        <svg width="36" height="16" viewBox="0 0 36 16">
+          <text x="18" y="12" textAnchor="middle" fill="#011E0F"
+                fontFamily="inherit" fontSize="9.5" fontWeight="700">link</text>
+        </svg>
+      ),
+    },
   };
+
   function nomeDaBandeira(m) {
     const b = BANDEIRAS[m];
     if (b) return b.nome;
-    return m && m !== 'unknown' ? m.charAt(0).toUpperCase() + m.slice(1) : t('pn_cartao');
+    // Uma bandeira nova do Stripe chega em minúsculas e com underscore. Vira
+    // texto legível em vez de sumir.
+    if (m && m !== 'unknown') {
+      return m.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+    return t('pn_cartao');
   }
+
   function Bandeira({ marca }) {
-    if (marca === 'mastercard') {
-      // Os dois círculos, com a sobreposição no meio. É a marca inteira: ela
-      // se reconhece sem nenhuma letra.
-      return (
-        <span className="pag-bandeira pag-bandeira--marca" aria-hidden="true">
-          <svg width="34" height="22" viewBox="0 0 34 22">
-            <circle cx="13" cy="11" r="8.4" fill="#EB001B" />
-            <circle cx="21" cy="11" r="8.4" fill="#F79E1B" />
-            <path d="M17 4.7a8.4 8.4 0 0 0 0 12.6 8.4 8.4 0 0 0 0-12.6z" fill="#FF5F00" />
-          </svg>
-        </span>
-      );
-    }
-    if (marca === 'visa') {
-      return (
-        <span className="pag-bandeira pag-bandeira--marca" aria-hidden="true">
-          <svg width="38" height="14" viewBox="0 0 38 14">
-            <text x="19" y="11.6" textAnchor="middle" fill="#1A1F71"
-                  fontFamily="Georgia, 'Times New Roman', serif"
-                  fontSize="13" fontStyle="italic" fontWeight="700"
-                  letterSpacing="1.2">VISA</text>
-          </svg>
-        </span>
-      );
-    }
     const b = BANDEIRAS[marca];
+    if (!b) {
+      return (
+        <span className="pag-bandeira" aria-hidden="true">
+          <svg width="30" height="8" viewBox="0 0 30 8">
+            <circle cx="3" cy="4" r="2.4" fill="currentColor" />
+            <circle cx="11" cy="4" r="2.4" fill="currentColor" />
+            <circle cx="19" cy="4" r="2.4" fill="currentColor" />
+            <circle cx="27" cy="4" r="2.4" fill="currentColor" />
+          </svg>
+        </span>
+      );
+    }
     return (
-      <span className="pag-bandeira" style={b ? { color: b.cor } : undefined} aria-hidden="true">
-        {b ? b.sigla : '••••'}
+      <span className={'pag-bandeira' + (b.fundoBranco ? ' pag-bandeira--marca' : '')}
+            style={b.fundo ? { background: b.fundo } : undefined}
+            aria-hidden="true">
+        {b.marca}
       </span>
     );
   }
@@ -245,7 +368,7 @@ export default function Assinatura() {
               {!ehAdmin && conta.valor_centavos > 0 && (
                 <div className="as-plano-preco">
                   <strong>
-                    R$ {((conta.valor_centavos || 0) / 100).toLocaleString(localeDeIdioma(idioma), { minimumFractionDigits: 2 })}
+                    {'R$ '}{((conta.valor_centavos || 0) / 100).toLocaleString(localeDeIdioma(idioma), { minimumFractionDigits: 2 })}
                     <em>{t('assinatura_por_mes')}</em>
                   </strong>
                   {conta.assinou_em && (
@@ -312,8 +435,16 @@ export default function Assinatura() {
                   <span className="rec-nome">{t(r.nomeKey)}</span>
                   <strong>{r.creditos.toLocaleString(localeDeIdioma(idioma))}</strong>
                   <span className="rec-preco">{t('pn_creditos_min')}</span>
+                  {/* O que o tamanho RESOLVE, e depois quantas imagens ele dá.
+                      A conta sai do custo real de um render e não de um número
+                      escrito à mão: mexer no custo e esquecer daqui faria o
+                      cartão prometer o que não entrega. A regra de quando o
+                      crédito é gasto ficou na chamada em cima, uma vez só: em
+                      quatro cartões ela aparecia cinco vezes na mesma tela. */}
+                  <span className="rec-frase">
+                    {t(r.fraseKey)} {t('pn_da_umas')} {imagensPor(r.creditos)} {t('pn_imagens')}
+                  </span>
                   <span className="rec-prazo">{t('pn_vale_6_meses')}</span>
-                  <span className="rec-prazo">{t('pn_so_depois')}</span>
                   {/* O preço mora no botão, e não no corpo do cartão: é no
                       clique que a pessoa assume o valor, e ali ele também
                       preenche uma pílula que com um "Comprar" sozinho ficava
@@ -325,7 +456,7 @@ export default function Assinatura() {
                   >
                     {comprando && recargaSel === r.id
                       ? t('assinatura_abrindo_pagamento')
-                      : `${t('pn_comprar_por')} R$ ${r.preco}`}
+                      : `${t('pn_comprar_por')} R$ ${r.preco}`}
                   </button>
                 </div>
               ))}
@@ -363,6 +494,30 @@ export default function Assinatura() {
             </div>
           ) : (
             <p className="pag-vazio">{t('pn_pagamento_sem')}</p>
+          )}
+
+          {/* ── QUANDO A COBRANÇA NÃO PASSOU ──
+              Sem isto a pessoa via o cartão listado com cara de tudo certo
+              enquanto a cobrança do mês tinha sido recusada e o acesso já
+              tinha caído. O motivo vem do Stripe e é traduzido no servidor,
+              porque o texto de lá é em inglês e fala com quem integra.
+              O que fazer aponta para o mesmo Atualizar logo acima, que é o
+              portal do Stripe. */}
+          {cobranca?.problema && (
+            <div className="pag-erro" role="status">
+              <strong>{t('pn_cartao_titulo_' + cobranca.problema.tipo)}</strong>
+              <span>{t('pn_cartao_o_que_fazer')}</span>
+              {(cobranca.problema.desde || cobranca.problema.tentativas > 1) && (
+                <span className="pag-erro__quando">
+                  {cobranca.problema.desde && (
+                    <>{t('pn_cartao_desde')} {dataLonga(cobranca.problema.desde)}. </>
+                  )}
+                  {cobranca.problema.tentativas > 1 && (
+                    <>{cobranca.problema.tentativas} {t('pn_cartao_tentativas')}</>
+                  )}
+                </span>
+              )}
+            </div>
           )}
         </div>
 
