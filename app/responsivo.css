@@ -192,7 +192,7 @@ img, video, iframe {
      Estes vivem em fila, encostados: um retângulo de 44px por cima passaria
      sobre o vizinho e o toque cairia no botão errado. Aqui o botão cresce de
      verdade, e o grupo inteiro cresce junto. */
-  .cr-tam { width: 38px; height: 34px; font-size: 12px; }
+  .cr-tam { width: 38px; height: 34px; font-size: 12.5px; }
   .cr-nav button { padding: 8px 12px; font-size: 22px; }
 
   /* O − e o + da quantidade: 20×20 encostados um no outro, com o número no
@@ -200,7 +200,7 @@ img, video, iframe {
      eles crescem de verdade, e a cápsula cresce junto. Continua sendo um
      controle só, agora acertável. */
   .cr-qty { height: 46px; padding: 0 5px; gap: 2px; }
-  .cr-qty button { width: 36px; height: 36px; font-size: 18px; }
+  .cr-qty button { width: 36px; height: 36px; font-size: 17px; }
   .cr-qty span { min-width: 22px; }
 
   /* O cursor-círculo do pincel segue o MOUSE. Sem mouse ele fica parado num
@@ -316,12 +316,12 @@ img, video, iframe {
   .container { padding: 0 18px; }
   .card, .depo { padding: 20px; }
   .marquee__track { gap: 34px; }
-  .marquee__item { font-size: 18px; }
-  .faixa__label { font-size: 13px; }
-  .galeria__item { aspect-ratio: 16 / 10; font-size: 14px; }
+  .marquee__item { font-size: 17px; }
+  .faixa__label { font-size: 12.5px; }
+  .galeria__item { aspect-ratio: 16 / 10; font-size: 13.5px; }
   .destaque { padding: 32px 20px; border-radius: 16px; }
   .destaque h2 { font-size: 22px; }
-  .destaque p { font-size: 16px; margin-top: 12px; }
+  .destaque p { font-size: 14.5px; margin-top: 12px; }
   .hero__tag { font-size: 12.5px; padding: 5px 12px; }
 }
 
@@ -344,7 +344,7 @@ img, video, iframe {
 
 @media (max-width: 820px) {
   .head { padding: 44px 0 30px; }
-  .head p { font-size: 16px; }
+  .head p { font-size: 14.5px; }
   .toggle { margin-top: 20px; }
   .toggle button { padding: 10px 18px; font-size: 14.5px; }
 
@@ -362,9 +362,9 @@ img, video, iframe {
   }
 
   .custo-abas { gap: 6px; }
-  .custo-aba { padding: 9px 16px; font-size: 14px; }
-  .faq summary { font-size: 16px; padding: 16px 2px; }
-  .faq p { font-size: 15px; }
+  .custo-aba { padding: 9px 16px; font-size: 13.5px; }
+  .faq summary { font-size: 14.5px; padding: 16px 2px; }
+  .faq p { font-size: 14.5px; }
 }
 
 @media (max-width: 640px) {
@@ -380,7 +380,7 @@ img, video, iframe {
   .plano__valor { font-size: 34px; }
 
   .teams__lado, .teams__tabelas { padding: 24px 18px; }
-  .teams__tabela th, .teams__tabela td { padding: 11px 12px; font-size: 14px; }
+  .teams__tabela th, .teams__tabela td { padding: 11px 12px; font-size: 13.5px; }
 
   /* As tabelas do Teams têm quatro colunas e não cabem: rolam dentro do
      próprio card, em vez de estourar a página. */
@@ -403,7 +403,7 @@ img, video, iframe {
 @media (max-width: 1100px) {
   .login-visual { padding: 26px; }
   .login-visual-frase { font-size: 24px; }
-  .login-visual-sub { font-size: 14px; }
+  .login-visual-sub { font-size: 13.5px; }
 }
 
 @media (max-width: 900px) {
@@ -419,7 +419,7 @@ img, video, iframe {
   .login-form-lado .login-card,
   .login-card { padding: 26px 20px; border-radius: 18px; }
   .login-titulo { font-size: 24px; margin-top: 16px; }
-  .login-sub { font-size: 14px; margin-bottom: 18px; }
+  .login-sub { font-size: 13.5px; margin-bottom: 18px; }
   .cad-passo-tag { margin-top: 12px; }
 }
 
@@ -544,7 +544,7 @@ img, video, iframe {
   .app-shell.recolhido .app-side-topo { justify-content: space-between; padding: 0 14px; }
   .app-shell.recolhido .app-nav-item { justify-content: flex-start; padding: 11px 14px; }
   .app-shell.recolhido .app-nav-div { margin: 10px 12px; }
-  .app-nav-item { padding: 11px 14px; font-size: 15.5px; }
+  .app-nav-item { padding: 11px 14px; font-size: 14.5px; }
   .app-shell .app-nav-lbl,
   .app-shell.recolhido .app-nav-lbl { display: inline; }
 
@@ -730,7 +730,7 @@ img, video, iframe {
     background: var(--wash2);
     color: var(--ink3);
     font-family: inherit;
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
@@ -840,7 +840,7 @@ img, video, iframe {
   .cr-cards--linha.cr-cards--gg .cr-slot { width: 100%; }
 
   .cr-lote-cab { flex-wrap: wrap; gap: 6px; }
-  .cr-mes-tit { font-size: 15px; }
+  .cr-mes-tit { font-size: 14.5px; }
   .cr-voltar-topo {
     bottom: calc(16px + var(--seg-base));
     right: 14px;
@@ -909,7 +909,7 @@ img, video, iframe {
     background: var(--paper);
     color: var(--ink2);
     font-family: inherit;
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 600;
     cursor: pointer;
     box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
@@ -1167,7 +1167,7 @@ img, video, iframe {
   /* De ponta a ponta tambem no celular: recuo lateral aqui deixaria a
      faixa com cara de cartao, e ela nao e cartao. */
   .cookie-bar { padding: 14px; }
-  .cookie-btn { font-size: 12px; padding: 10px 14px; }
+  .cookie-btn { font-size: 12.5px; padding: 10px 14px; }
 }
 
 
@@ -1180,7 +1180,7 @@ img, video, iframe {
   :root { --header-h: 48px; }
   .app-header { height: calc(48px + var(--seg-topo)); }
   .app-user-btn { width: 38px; height: 38px; }
-  .app-avatar { width: 30px; height: 30px; font-size: 14px; }
+  .app-avatar { width: 30px; height: 30px; font-size: 13.5px; }
   .app-anel { width: 38px; height: 38px; }
 
   /* Com a tela deitada há largura para as duas colunas do studio de volta. */

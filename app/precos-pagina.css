@@ -100,11 +100,11 @@
       letter-spacing: -0.02em;
       line-height: 1.25;
     }.pr h4{
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 500;
       letter-spacing: -0.01em;
       line-height: 1.4;
-    }.pr p{ text-wrap: pretty; }.pr .mono{ font-family: var(--fonte-mono); font-feature-settings: "tnum"; }.pr .corpo-g{ font-size: clamp(16px, 1.3vw, 18px); color: var(--ink2); line-height: 1.55; }.pr .corpo-p{ font-size: 14px; color: var(--ink2); line-height: 1.5; }.pr .env{
+    }.pr p{ text-wrap: pretty; }.pr .mono{ font-family: var(--fonte-mono); font-feature-settings: "tnum"; }.pr .corpo-g{ font-size: clamp(16px, 1.3vw, 18px); color: var(--ink2); line-height: 1.55; }.pr .corpo-p{ font-size: 13.5px; color: var(--ink2); line-height: 1.5; }.pr .env{
       width: 100%;
       max-width: var(--largura-max);
       margin-inline: auto;
@@ -136,7 +136,7 @@
       border: 1px solid transparent;
       font-family: inherit;
       font-weight: 600;
-      font-size: 15px;
+      font-size: 14.5px;
       letter-spacing: -0.005em;
       line-height: 1.2;
       text-align: center;
@@ -169,7 +169,7 @@
     @media (min-width: 1024px) {.pr .cabecalho__marca img{ height: 24px; }}.pr .cabecalho__nav{
       display: none;
       gap: var(--e-5);
-      font-size: 15px;
+      font-size: 14.5px;
       letter-spacing: -0.005em;
     }.pr .cabecalho__nav a{
       display: inline-flex;
@@ -258,7 +258,7 @@
       min-height: 44px;
       border-radius: var(--r-pill);
       font-family: inherit;
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 500;
       color: var(--ink2);
       cursor: pointer;
@@ -332,7 +332,7 @@
       color: var(--ink);
       text-align: center;
     }.pr .plano__desc{
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--ink2);
       margin-top: 6px;
       line-height: 1.45;
@@ -357,7 +357,7 @@
     }.pr .plano__risco{
       color: var(--ink3);
       text-decoration: line-through;
-      font-size: 16px;
+      font-size: 14.5px;
       font-family: var(--fonte-mono);
       margin-right: 6px;
       display: none;
@@ -369,11 +369,11 @@
       color: var(--ink);
       text-align: center;
     }.pr .plano__per{
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--ink2);
       font-weight: 400;
     }.pr .plano__cobranca{
-      font-size: 13px;
+      font-size: 12.5px;
       color: var(--ink3);
       margin-top: 8px;
       line-height: 1.2;
@@ -389,7 +389,7 @@
       justify-content: flex-start;
       text-align: center;
     }.pr .plano__credtxt{
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 600;
       color: var(--ink);
       letter-spacing: -0.01em;
@@ -407,7 +407,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--ink2);
       margin-top: 0;
       padding-top: 24px;
@@ -467,7 +467,7 @@
       text-align: left;
     }.pr .teams__lead{
       color: var(--ink2);
-      font-size: 15px;
+      font-size: 14.5px;
       line-height: 1.55;
       margin-top: 12px;
       text-align: left;
@@ -504,7 +504,7 @@
       flex-direction: column;
       gap: clamp(28px, 3.5vw, 40px);
     }.pr .teams__tabela h4{
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 500;
       letter-spacing: -0.01em;
       color: var(--ink);
@@ -517,7 +517,7 @@
     }.pr .teams__tabela table{
       width: 100%;
       border-collapse: collapse;
-      font-size: 14px;
+      font-size: 13.5px;
       text-align: left;
     }.pr .teams__tabela th, .pr .teams__tabela td{
       padding: 13px 18px;
@@ -525,7 +525,7 @@
       font-weight: 400;
     }.pr .teams__tabela thead th{
       background: var(--wash);
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 500;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -598,7 +598,7 @@
       font-weight: 400;
     }.pr .tabela-comp .mono-dado{
       font-family: var(--fonte-mono);
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 400;
     }/* Fixação responsiva da 1ª coluna no mobile para não perder contexto */
 
@@ -632,7 +632,7 @@
       color: var(--ink);
     }.pr .secao-consumo__cab p{
       margin-top: 10px;
-      font-size: 16px;
+      font-size: 14.5px;
       color: var(--ink2);
     }/* Pílulas de filtro */.pr .consumo-tabs{
       display: inline-flex;
@@ -691,7 +691,7 @@
       font-size: 14.5px;
       font-weight: 400;
     }.pr .tabela-consumo thead th{
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 500;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -766,7 +766,7 @@
       letter-spacing: -0.03em;
       margin-top: 14px;
     }.pr .recarga__u{
-      font-size: 13px;
+      font-size: 12.5px;
       color: var(--ink3);
       font-family: var(--fonte-mono);
       margin-top: 4px;
@@ -839,7 +839,7 @@
       overflow: hidden;
     }.pr .faq__resp-inner{
       padding-bottom: 22px;
-      font-size: 15px;
+      font-size: 14.5px;
       line-height: 1.6;
       color: var(--ink2);
       max-width: 58ch;
@@ -876,14 +876,14 @@
       position: relative;
       z-index: 1;
     }.pr .rodape__t{
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 600;
       letter-spacing: -0.005em;
       color: var(--paper);
       margin-bottom: var(--e-2);
     }.pr .rodape__links{
       display: grid;
-      font-size: 14px;
+      font-size: 13.5px;
       letter-spacing: 0.005em;
       list-style: none;
     }.pr .rodape__links a{
@@ -898,7 +898,7 @@
     @media (hover: hover) and (pointer: fine) {.pr .rodape__links a:hover{ color: var(--paper); }}.pr .rodape__base{
       padding-top: var(--e-5);
       border-top: 1px solid var(--linha-escura);
-      font-size: 13px;
+      font-size: 12.5px;
       letter-spacing: 0.01em;
       text-align: center;
       display: grid;
@@ -912,7 +912,7 @@
        volta a quebrar sozinha em vez de estourar na horizontal. */.pr .rodape__disclaimer{
       margin: 0;
       color: rgba(255, 255, 255, .32);
-      font-size: 12px;
+      font-size: 12.5px;
       line-height: 1.5;
       text-wrap: balance;
     }

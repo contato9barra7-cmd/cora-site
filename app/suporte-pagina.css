@@ -41,7 +41,7 @@
   width:fit-content; min-width:160px; min-height:48px;
   padding:var(--e-3) var(--e-5); white-space:nowrap;
   border-radius:var(--r-pill); border:1px solid transparent;
-  font-family:inherit; font-weight:600; font-size:15px; letter-spacing:-.005em;
+  font-family:inherit; font-weight:600; font-size:14.5px; letter-spacing:-.005em;
   line-height:1.2; text-align:center; text-decoration:none; cursor:pointer;
   transition:transform var(--tr-press) var(--easing),
              background-color var(--tr-padrao) var(--easing),
@@ -51,18 +51,18 @@
 @media (hover:hover) and (pointer:fine){.sp .btn--lima:hover{ background:var(--lima-esc); }.sp .btn--escuro:hover{ background:#242424; }.sp .btn--linha:hover{ background:var(--wash2); border-color:var(--ink); }.sp .btn--claro:hover{ background:var(--wash2); }.sp .btn[disabled]:hover{ background:var(--wash2); }}/* cabecalho */.sp .cabecalho{ position:sticky; top:0; z-index:50; background:var(--wash);
   border-bottom:1px solid var(--line); }.sp .cabecalho__interno{ position:relative; display:flex; align-items:center;
   gap:var(--e-5); min-height:var(--altura-cabecalho); }.sp .cabecalho__marca{ margin-right:auto; display:inline-flex; align-items:center; min-height:44px; }.sp .cabecalho__marca img{ width:auto; height:20px; }
-@media (min-width:1024px){.sp .cabecalho__marca img{ height:24px; }}.sp .cabecalho__nav{ display:none; gap:var(--e-5); font-size:15px; letter-spacing:-.005em; }.sp .cabecalho__nav a{ display:inline-flex; align-items:center; min-height:44px;
+@media (min-width:1024px){.sp .cabecalho__marca img{ height:24px; }}.sp .cabecalho__nav{ display:none; gap:var(--e-5); font-size:14.5px; letter-spacing:-.005em; }.sp .cabecalho__nav a{ display:inline-flex; align-items:center; min-height:44px;
   padding-inline:var(--e-2); border-radius:var(--r-sm); color:var(--ink2);
-  text-decoration:none; transition:color var(--tr-rapida) var(--easing); }.sp .cabecalho__acoes{ display:none; gap:var(--e-2); }.sp .cabecalho__acoes .btn{ min-width:0; min-height:40px; padding:var(--e-2) var(--e-4); font-size:14px; }.sp .burger{ display:flex; align-items:center; justify-content:center; width:44px; height:44px;
+  text-decoration:none; transition:color var(--tr-rapida) var(--easing); }.sp .cabecalho__acoes{ display:none; gap:var(--e-2); }.sp .cabecalho__acoes .btn{ min-width:0; min-height:40px; padding:var(--e-2) var(--e-4); font-size:13.5px; }.sp .burger{ display:flex; align-items:center; justify-content:center; width:44px; height:44px;
   margin-left:auto; border-radius:var(--r-sm); border:none; background:transparent;
   color:var(--ink); cursor:pointer; transition:background-color var(--tr-padrao) var(--easing); }
 @media (hover:hover) and (pointer:fine){.sp .cabecalho__nav a:hover{ color:var(--ink); }.sp .burger:hover{ background:var(--wash2); }}
 @media (min-width:900px){.sp .cabecalho__nav{ display:flex; }.sp .cabecalho__acoes{ display:flex; margin-left:auto; }.sp .burger{ display:none; }}.sp .menu{ display:grid; gap:var(--e-2); padding:var(--e-4) var(--gutter) var(--e-6);
   border-top:1px solid var(--line); background:var(--paper); }.sp .menu a{ display:flex; align-items:center; min-height:44px; padding:var(--e-3) 0;
   font-size:17px; letter-spacing:-.015em; color:var(--ink); text-decoration:none; }.sp .menu__acoes{ display:grid; gap:var(--e-2); margin-top:var(--e-4); }.sp .menu[hidden]{ display:none; }
-@media (min-width:900px){.sp .menu{ display:none; }}/* conteudo */.sp main{ flex:1; }.sp .secao{ padding-block:var(--secao-y); }.sp .olho{ display:inline-block; font-size:11.5px; font-weight:600; letter-spacing:.14em;
-  text-transform:uppercase; color:var(--ink3); }/* campos */.sp .campo{ display:grid; gap:var(--e-2); }.sp .campo > label{ font-size:13px; font-weight:500; color:var(--ink2); }.sp .campo input, .sp .campo select, .sp .campo textarea{
-  width:100%; font-family:inherit; font-size:15px; color:var(--ink);
+@media (min-width:900px){.sp .menu{ display:none; }}/* conteudo */.sp main{ flex:1; }.sp .secao{ padding-block:var(--secao-y); }.sp .olho{ display:inline-block; font-size:11px; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3); }/* campos */.sp .campo{ display:grid; gap:var(--e-2); }.sp .campo > label{ font-size:12.5px; font-weight:500; color:var(--ink2); }.sp .campo input, .sp .campo select, .sp .campo textarea{
+  width:100%; font-family:inherit; font-size:14.5px; color:var(--ink);
   background:var(--paper); border:1px solid var(--line);
   transition:border-color var(--tr-padrao) var(--easing),
              box-shadow var(--tr-padrao) var(--easing);
@@ -73,7 +73,7 @@
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238e8e88' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
   background-repeat:no-repeat; background-position:right 20px center;
 }.sp .dupla{ display:grid; gap:var(--e-4); }
-@media (min-width:640px){.sp .dupla{ grid-template-columns:1fr 1fr; }}.sp .ajuda{ font-size:13px; color:var(--ink3); line-height:1.5; }/* rodape fino, o mesmo que o site ja usa hoje */.sp .rodape-legal{ padding:22px var(--gutter) 26px; text-align:center;
+@media (min-width:640px){.sp .dupla{ grid-template-columns:1fr 1fr; }}.sp .ajuda{ font-size:12.5px; color:var(--ink3); line-height:1.5; }/* rodape fino, o mesmo que o site ja usa hoje */.sp .rodape-legal{ padding:22px var(--gutter) 26px; text-align:center;
   font-size:12.5px; color:var(--ink3); border-top:1px solid var(--line);
   background:var(--wash); }.sp .rodape-legal a{ color:inherit; text-decoration:none; opacity:.9; }.sp .rodape-legal a:hover{ opacity:1; text-decoration:underline; }.sp .rodape-legal .sep{ margin:0 8px; opacity:.5; }/* ── o topo mora DENTRO da coluna ───────────────────────────────────────────
    Antes o titulo e o subtitulo eram uma faixa de largura inteira em cima da
@@ -87,7 +87,7 @@
    de duas linhas que a coluna ja tinha. */.sp .faq-grade{ display:grid; grid-template-columns:1fr; gap:clamp(24px,3vw,40px);
   align-items:start; padding-top:clamp(26px,3vw,40px); }
 @media (min-width:900px){.sp .faq-grade{ grid-template-columns:34fr 66fr; gap:var(--e-8); }.sp .faq-lado{ position:sticky; top:calc(var(--altura-cabecalho) + var(--e-6)); }}.sp .faq-lado h1{ margin-top:var(--e-3); font-size:clamp(30px,3.5vw,42px);
-  letter-spacing:-.032em; line-height:1.1; }.sp .faq-lado > p{ margin-top:var(--e-4); font-size:15px; color:var(--ink2); line-height:1.55; }/* ── o voltar ───────────────────────────────────────────────────────────────
+  letter-spacing:-.032em; line-height:1.1; }.sp .faq-lado > p{ margin-top:var(--e-4); font-size:14.5px; color:var(--ink2); line-height:1.55; }/* ── o voltar ───────────────────────────────────────────────────────────────
    O mesmo controle das paginas de Termos e Privacidade, que ja esta no ar:
    pilula com contorno, e nao texto solto, porque texto solto no meio de outro
    texto nao se le como controle.
@@ -110,7 +110,7 @@
   cursor:pointer;
   transition:color var(--tr-rapida) var(--easing),
              border-color var(--tr-rapida) var(--easing); }.sp .indice button[aria-pressed="true"]{ color:var(--ink); font-weight:500;
-  border-left-color:var(--lima); border-left-width:3px; }.sp .indice .qt{ font-size:12px; color:var(--ink3); font-variant-numeric:tabular-nums; }
+  border-left-color:var(--lima); border-left-width:3px; }.sp .indice .qt{ font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }
 @media (hover:hover) and (pointer:fine){.sp .indice button:hover{ color:var(--ink); border-left-color:var(--ink3); }.sp .indice button[aria-pressed="true"]:hover{ border-left-color:var(--lima); }}.sp .faq-item{ border-bottom:1px solid var(--line); }.sp .faq-item[hidden]{ display:none; }.sp .faq-gat{ width:100%; display:flex; justify-content:space-between; align-items:center;
   gap:var(--e-4); padding:19px 0; text-align:left; border:none; background:none;
   cursor:pointer; font-family:inherit; font-weight:500;
@@ -119,7 +119,7 @@
 @media (min-width:768px){.sp .faq-gat{ padding:22px 0; }}.sp .faq-ic{ flex:none; color:var(--ink3); display:inline-flex;
   transition:transform var(--tr-padrao) var(--easing), color var(--tr-padrao) var(--easing); }.sp .faq-gat[aria-expanded="true"] .faq-ic{ transform:rotate(45deg); color:var(--ink); }
 @media (hover:hover) and (pointer:fine){.sp .faq-gat:hover .faq-ic{ color:var(--ink); }}.sp .faq-resp{ display:grid; grid-template-rows:0fr;
-  transition:grid-template-rows var(--tr-acordeao) var(--easing); }.sp .faq-gat[aria-expanded="true"] + .faq-resp{ grid-template-rows:1fr; }.sp .faq-resp > div{ overflow:hidden; }.sp .faq-txt{ padding-bottom:22px; font-size:15px; line-height:1.62; color:var(--ink2);
+  transition:grid-template-rows var(--tr-acordeao) var(--easing); }.sp .faq-gat[aria-expanded="true"] + .faq-resp{ grid-template-rows:1fr; }.sp .faq-resp > div{ overflow:hidden; }.sp .faq-txt{ padding-bottom:22px; font-size:14.5px; line-height:1.62; color:var(--ink2);
   max-width:60ch; }/* ── a virada ───────────────────────────────────────────────────────────────
    A faixa dos Promptadores fecha as perguntas e abre o formulario, do mesmo
    jeito que ela abre o cartao do e-mail. Geometria descrita em
@@ -132,14 +132,14 @@
    pedido foi a MESMA altura: com outra unidade as duas so coincidiriam numa
    largura de tela. */.sp .faixa{ height:clamp(140px,23vh,220px); background-color:#C4FBA7;
   background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); background-repeat:repeat-x;
-  background-position:left center; background-size:auto 100%; }.sp .sup-virada{ background:var(--paper); border-bottom:1px solid var(--line); }.sp .sup-form{ max-width:640px; margin-inline:auto; }.sp .sup-form__cab{ text-align:center; }.sp .sup-form__cab h2{ margin-top:var(--e-3); font-size:clamp(22px,2.6vw,30px); }.sp .sup-form__cab p{ margin-top:var(--e-3); font-size:15px; color:var(--ink2); }.sp .sup-form form{ margin-top:var(--e-7); display:grid; gap:var(--e-5); }/* `background-color`, e nao o atalho `background`: o atalho apagaria a seta
+  background-position:left center; background-size:auto 100%; }.sp .sup-virada{ background:var(--paper); border-bottom:1px solid var(--line); }.sp .sup-form{ max-width:640px; margin-inline:auto; }.sp .sup-form__cab{ text-align:center; }.sp .sup-form__cab h2{ margin-top:var(--e-3); font-size:clamp(22px,2.6vw,30px); }.sp .sup-form__cab p{ margin-top:var(--e-3); font-size:14.5px; color:var(--ink2); }.sp .sup-form form{ margin-top:var(--e-7); display:grid; gap:var(--e-5); }/* `background-color`, e nao o atalho `background`: o atalho apagaria a seta
    do campo, que e um background-image. */.sp .sup-form .campo input, .sp .sup-form .campo textarea, .sp .sup-form .gat{ background-color:var(--wash); }.sp .sup-form .campo input:focus, .sp .sup-form .campo textarea:focus, .sp .sup-form .gat.aberto{
   background-color:var(--paper); }/* ── dropdown da marca ──────────────────────────────────────────────────────
    O <select> do sistema pinta a lista com o azul do Windows, que nao e nossa
    cor e nao respeita nem a fonte nem o raio dos outros campos. Este e o mesmo
    desenho do CoraSelect que o painel ja usa, vestido com a paleta nova. */.sp .sel{ position:relative; }.sp .gat{ display:flex; align-items:center; gap:var(--e-2); width:100%; height:50px;
   padding:0 var(--e-5); border:1px solid var(--line); border-radius:var(--r-pill);
-  background:var(--paper); color:var(--ink); font-family:inherit; font-size:15px;
+  background:var(--paper); color:var(--ink); font-family:inherit; font-size:14.5px;
   text-align:left; cursor:pointer;
   transition:border-color var(--tr-padrao) var(--easing),
              box-shadow var(--tr-padrao) var(--easing),
@@ -158,14 +158,14 @@
    O aviso e a borda vermelha andam juntos: so a frase em cima obriga a
    procurar qual campo, e so a borda nao diz o que aconteceu. */.sp .sup-erro{ margin-bottom:var(--e-2); padding:12px 18px; border-radius:var(--r-md);
   background:#FCEDEC; border:1px solid #E9BFBB; color:#8E2620;
-  font-size:14px; line-height:1.5; }.sp .campo input.erro, .sp .campo textarea.erro, .sp .gat.erro{ border-color:#C8342A; }.sp .campo input.erro:focus, .sp .campo textarea.erro:focus{
+  font-size:13.5px; line-height:1.5; }.sp .campo input.erro, .sp .campo textarea.erro, .sp .gat.erro{ border-color:#C8342A; }.sp .campo input.erro:focus, .sp .campo textarea.erro:focus{
   border-color:#C8342A; box-shadow:0 0 0 3px rgba(200,52,42,.12); }/* ── depois de enviar ───────────────────────────────────────────────────────
    Ocupa o lugar do formulario, e nao aparece embaixo dele. Deixar o
    formulario vazio na tela depois do envio convida a mandar de novo, e ai
    chegam duas mensagens iguais no suporte.
 
    O circulo lima e o mesmo sinal de conclusao das telas de conta. */.sp .sup-ok{ text-align:center; display:grid; justify-items:center; gap:var(--e-4); }.sp .sup-ok__marca{ width:58px; height:58px; border-radius:50%; background:var(--lima);
-  display:grid; place-items:center; color:var(--ink); }.sp .sup-ok h2{ font-size:clamp(22px,2.6vw,30px); }.sp .sup-ok p{ font-size:15px; color:var(--ink2); max-width:44ch; }.sp .sup-ok strong{ color:var(--ink); font-weight:600; }.sp .sup-ok .miudo{ font-size:13.5px; color:var(--ink3); }.sp .sup-ok .btn{ margin-top:var(--e-3); }.sp [hidden]{ display:none !important; }.sp .sup-pe{ margin-top:var(--e-5); text-align:center; font-size:14px; color:var(--ink2); }.sp .sup-pe a{ color:var(--ink); text-decoration:underline; text-underline-offset:3px;
+  display:grid; place-items:center; color:var(--ink); }.sp .sup-ok h2{ font-size:clamp(22px,2.6vw,30px); }.sp .sup-ok p{ font-size:14.5px; color:var(--ink2); max-width:44ch; }.sp .sup-ok strong{ color:var(--ink); font-weight:600; }.sp .sup-ok .miudo{ font-size:13.5px; color:var(--ink3); }.sp .sup-ok .btn{ margin-top:var(--e-3); }.sp [hidden]{ display:none !important; }.sp .sup-pe{ margin-top:var(--e-5); text-align:center; font-size:13.5px; color:var(--ink2); }.sp .sup-pe a{ color:var(--ink); text-decoration:underline; text-underline-offset:3px;
   text-decoration-thickness:1px; text-decoration-color:var(--line2); }.sp .sup-pe a:hover{ text-decoration-color:var(--ink); }
 
 /* ── a fonte, em tamanho nominal ──

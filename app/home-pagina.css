@@ -59,9 +59,9 @@
   }
   @media (min-width:1024px){.hm{ font-size:17px; }}.hm img, .hm svg, .hm video{ display:block; max-width:100%; }.hm button{ font:inherit; color:inherit; background:none; border:none; cursor:pointer; }.hm a{ color:inherit; text-decoration:none; }.hm ul{ list-style:none; padding:0; }.hm ::selection{ background:var(--lima); color:var(--ink); }.hm :focus-visible{ outline:2px solid var(--preto); outline-offset:2px; border-radius:inherit; }/* ===== Tipografia v2.0 ===== */.hm h1, .hm h2, .hm h3, .hm h4{ font-weight:500; text-wrap:balance; }/* Peso 400, não 500 — teste aprovado por William em 21/08/2026, a partir da
      auditoria do academypass.ai (§1 do "Vidro & Bento"): título grande não
-     precisa de peso pra ter presença, o tracking fechado já resolve isso. */.hm .display, .hm h1{ font-size:clamp(42px,5.9vw,76px); font-weight:400; letter-spacing:-.038em; line-height:1.02; }.hm h2{ font-size:clamp(30px,4vw,52px); letter-spacing:-.032em; line-height:1.08; }.hm h3{ font-size:clamp(22px,2.2vw,26px); letter-spacing:-.022em; line-height:1.22; }.hm h4, .hm .h4{ font-size:18px; font-weight:600; letter-spacing:-.01em; line-height:1.35; }/* Papel novo (§2): titulo de card grande de imagem. Fica abaixo do H2 de
+     precisa de peso pra ter presença, o tracking fechado já resolve isso. */.hm .display, .hm h1{ font-size:clamp(42px,5.9vw,76px); font-weight:400; letter-spacing:-.038em; line-height:1.02; }.hm h2{ font-size:clamp(30px,4vw,52px); letter-spacing:-.032em; line-height:1.08; }.hm h3{ font-size:clamp(22px,2.2vw,26px); letter-spacing:-.022em; line-height:1.22; }.hm h4, .hm .h4{ font-size:17px; font-weight:600; letter-spacing:-.01em; line-height:1.35; }/* Papel novo (§2): titulo de card grande de imagem. Fica abaixo do H2 de
      proposito — a 42px ele empatava com o titulo da secao e achatava a
-     hierarquia. */.hm .h3-cartao{ font-size:clamp(26px,2.6vw,34px); font-weight:500; letter-spacing:-.028em; line-height:1.08; }.hm .corpo-g{ font-size:clamp(17px,1.4vw,19px); line-height:1.5; letter-spacing:0; }.hm .corpo-p{ font-size:14px; letter-spacing:.005em; line-height:1.5; }.hm .legenda{ font-size:13px; letter-spacing:.01em; line-height:1.45; }.hm .eyebrow{ font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--ink2); }.hm p{ text-wrap:pretty; }.hm .prosa{ max-width:66ch; }.hm .env{ width:100%; max-width:var(--largura-max); margin-inline:auto; padding-inline:var(--gutter); }.hm .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }/* ===== Botões v3.5 — pílula (pedido do William, 27/08; ver design system §4) =====
+     hierarquia. */.hm .h3-cartao{ font-size:clamp(26px,2.6vw,34px); font-weight:500; letter-spacing:-.028em; line-height:1.08; }.hm .corpo-g{ font-size:clamp(17px,1.4vw,19px); line-height:1.5; letter-spacing:0; }.hm .corpo-p{ font-size:13.5px; letter-spacing:.005em; line-height:1.5; }.hm .legenda{ font-size:12.5px; letter-spacing:.01em; line-height:1.45; }.hm .eyebrow{ font-size:12.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--ink2); }.hm p{ text-wrap:pretty; }.hm .prosa{ max-width:66ch; }.hm .env{ width:100%; max-width:var(--largura-max); margin-inline:auto; padding-inline:var(--gutter); }.hm .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }/* ===== Botões v3.5 — pílula (pedido do William, 27/08; ver design system §4) =====
      Largura é `min-width`, não `width` fixo — mesmo modelo do `.filtro`, que foi a
      referência que ele mandou. 160px é o piso: cobre o rótulo mais longo que
      divide linha com outro botão ("Criar conta", medido em 30/08), então todo par
@@ -74,7 +74,7 @@
     width:fit-content; min-width:160px; min-height:48px; padding:var(--e-3) var(--e-5); box-sizing:border-box;
     white-space:nowrap;
     border-radius:var(--r-pill); border:1px solid transparent;
-    font-weight:600; font-size:15px; letter-spacing:-.005em; line-height:1.2; text-align:center;
+    font-weight:600; font-size:14.5px; letter-spacing:-.005em; line-height:1.2; text-align:center;
     transition:transform var(--tr-press) var(--easing),
                background-color var(--tr-padrao) var(--easing),
                border-color var(--tr-padrao) var(--easing),
@@ -86,7 +86,7 @@
   @media (hover:hover) and (pointer:fine){.hm .btn--lima:hover{ background:var(--lima-esc); }.hm .btn--preto:hover{ background:#242424; }.hm .btn--linha:hover{ background:var(--wash2); border-color:var(--ink); }.hm .btn--escuro:hover{ background:#242424; }.hm .btn--claro:hover{ background:var(--wash2); }}.hm .btn-grupo{ display:flex; flex-wrap:wrap; gap:var(--e-3); }.hm .btn-grupo--centro{ justify-content:center; }
   @media (max-width:519px){.hm .btn-grupo--empilha{ flex-direction:column; align-items:stretch; }}.hm .link-cta{
     display:inline-flex; align-items:center; gap:var(--e-2);
-    font-weight:600; font-size:15px; letter-spacing:-.005em;
+    font-weight:600; font-size:14.5px; letter-spacing:-.005em;
     border-bottom:1px solid currentColor; padding-bottom:2px;
     transition:gap var(--tr-padrao) var(--easing), color var(--tr-padrao) var(--easing);
   }
@@ -137,7 +137,7 @@
     backdrop-filter:blur(12px);
     border-bottom:1px solid var(--line);
   }.hm .cabecalho__interno{ position:relative; display:flex; align-items:center; gap:var(--e-5); min-height:var(--altura-cabecalho); }.hm .cabecalho__marca{ margin-right:auto; }.hm .cabecalho__marca img{ width:auto; height:20px; }
-  @media (min-width:1024px){.hm .cabecalho__marca img{ height:24px; }}.hm .cabecalho__nav{ display:none; gap:var(--e-5); font-size:15px; letter-spacing:-.005em; }/* Alvo de toque de 44px também nos links de navegação (WCAG 2.5.5) */.hm .cabecalho__nav a{
+  @media (min-width:1024px){.hm .cabecalho__marca img{ height:24px; }}.hm .cabecalho__nav{ display:none; gap:var(--e-5); font-size:14.5px; letter-spacing:-.005em; }/* Alvo de toque de 44px também nos links de navegação (WCAG 2.5.5) */.hm .cabecalho__nav a{
     display:inline-flex; align-items:center; min-height:44px; padding-inline:var(--e-2);
     border-radius:var(--r-sm); color:var(--ink2);
     transition:color var(--tr-rapida) var(--easing), background-color var(--tr-rapida) var(--easing);
@@ -200,7 +200,7 @@
     padding:0; border:0; background:none; box-shadow:none;
   }.hm .hero h1{ color:var(--paper); }.hm .hero .hero__apoio{ color:var(--paper); }/* Linha de apoio do CTA (30/08): a duracao do teste vive aqui, nao dentro do
      botao, para poder ser corrigida sem mexer no rotulo. */.hm .hero__apoio-cta{
-    margin:0; font-size:14px; letter-spacing:.005em;
+    margin:0; font-size:13.5px; letter-spacing:.005em;
     color:var(--sobre-escuro); text-align:center;
   }.hm .nao-quebra{ display:inline-block; }
   @media (min-width:640px){.hm .nao-quebra{ white-space:nowrap; }}/* =========================================================
@@ -225,7 +225,7 @@
      bloco acima. A classe existia no markup sem nenhuma regra, então herdava
      corpo e cor de parágrafo padrão e nascia colada no palco. */.hm .passos__nota{
     margin:var(--e-6) auto 0;
-    text-align:center; font-size:14px; letter-spacing:.005em;
+    text-align:center; font-size:13.5px; letter-spacing:.005em;
     color:var(--ink2);
   }/* Uma linha só: o cap de 52ch quebrava a frase e deixava "igual." órfão. */
   
@@ -261,11 +261,11 @@
     width:var(--marca-sm); height:var(--marca-sm); border-radius:var(--r-pill);
     background:rgba(255,255,255,.18);
     border:1px solid rgba(255,255,255,.28);
-    font-family:var(--fonte); font-weight:600; font-size:14px; letter-spacing:0; color:var(--paper);
+    font-family:var(--fonte); font-weight:600; font-size:13.5px; letter-spacing:0; color:var(--paper);
     transition:background-color var(--tr-padrao) var(--easing), border-color var(--tr-padrao) var(--easing);
-  }.hm .passo[aria-selected="true"] .passo__n{ background:rgba(255,255,255,.24); border-color:rgba(255,255,255,.44); }.hm .passo__t{ font-weight:600; font-size:18px; letter-spacing:-.01em; line-height:1.35; }/* A descrição do passo inativo recua; a do ativo acende. É o que faz a leitura
+  }.hm .passo[aria-selected="true"] .passo__n{ background:rgba(255,255,255,.24); border-color:rgba(255,255,255,.44); }.hm .passo__t{ font-weight:600; font-size:17px; letter-spacing:-.01em; line-height:1.35; }/* A descrição do passo inativo recua; a do ativo acende. É o que faz a leitura
      ir para o bloco certo sem esconder nada (esconder mexeria na altura). */.hm .passo__x{
-    font-size:14px; letter-spacing:.005em; color:rgba(255,255,255,.5);
+    font-size:13.5px; letter-spacing:.005em; color:rgba(255,255,255,.5);
     transition:color var(--tr-entrada) var(--easing);
   }.hm .passo[aria-selected="true"] .passo__x{ color:var(--sobre-escuro); }/* =========================================================
      04 · PASSOS — MOBILE REFINADO (Apple-grade)
@@ -340,7 +340,7 @@
       width:22px; height:22px; margin:0;
       border-radius:var(--r-pill);
       background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.30);
-      font-family:var(--fonte); font-size:12px; font-weight:600; line-height:1;
+      font-family:var(--fonte); font-size:12.5px; font-weight:600; line-height:1;
       color:var(--paper); flex-shrink:0;
       align-self:start;
     }.hm .passo[aria-selected="true"] .passo__n{
@@ -348,13 +348,13 @@
     }.hm .passo .passo__t{
       grid-area:tit;
       display:block; font-family:var(--fonte);
-      font-size:18px; font-weight:600; letter-spacing:-.01em; line-height:1.35;
+      font-size:17px; font-weight:600; letter-spacing:-.01em; line-height:1.35;
       color:var(--paper); margin:0;
       align-self:start;
     }.hm .passo .passo__x{
       grid-area:desc;
       display:block; font-family:var(--fonte);
-      font-size:14px; line-height:1.5; letter-spacing:normal;
+      font-size:13.5px; line-height:1.5; letter-spacing:normal;
       color:rgba(255,255,255,.76);
       margin-top:var(--e-2);
     }}/* =========================================================
@@ -379,7 +379,7 @@
     display:inline-flex; align-items:center; justify-content:center;
     padding:var(--e-2) var(--e-4); min-height:44px; border-radius:var(--r-pill);
     border:1px solid var(--line); background:var(--paper);
-    font-size:14px; font-weight:600; letter-spacing:-.005em; color:var(--ink2);
+    font-size:13.5px; font-weight:600; letter-spacing:-.005em; color:var(--ink2);
     cursor:pointer;
     transition:background-color var(--tr-padrao) var(--easing), color var(--tr-padrao) var(--easing), border-color var(--tr-padrao) var(--easing), transform var(--tr-press) var(--easing);
   }
@@ -430,7 +430,7 @@
     display:grid; gap:var(--e-2);
     padding:var(--e-5) var(--e-4) var(--e-4);
   }.hm .ferramenta h3{
-    font-size:18px; letter-spacing:-.02em; color:var(--paper);
+    font-size:17px; letter-spacing:-.02em; color:var(--paper);
     line-height:1.22;
   }/* Padronização pedida pelo William: os onze cards com três linhas de texto, pra
      o título cair na mesma altura em todos. O bloco de texto é ancorado na base e
@@ -439,7 +439,7 @@
      Os textos foram encurtados pra caber em três linhas na largura MÍNIMA do card
      (232px) — na máxima (286px) também dá três. O `min-height` é rede de segurança:
      se um texto futuro couber em duas, o card continua alinhado com os vizinhos. */.hm .ferramenta p{
-    font-size:13px; letter-spacing:.005em; line-height:1.45; color:var(--sobre-escuro);
+    font-size:12.5px; letter-spacing:.005em; line-height:1.45; color:var(--sobre-escuro);
     min-height:calc(3 * 1.45em);
   }.hm .ferramenta[hidden]{ display:none; }/* =========================================================
      07 · ONDE USAR — painel largo, cartão com altura estável e abas fluidas
@@ -457,7 +457,7 @@
     border-radius:var(--r-pill);
     border:0;
     background:transparent;
-    font-size:14px;
+    font-size:13.5px;
     font-weight:600;
     letter-spacing:-.005em;
     color:var(--ink2);
@@ -520,7 +520,7 @@
     color:var(--ink);
   }.hm .painel__texto p{
     color:var(--ink2);
-    font-size:15px;
+    font-size:14.5px;
     line-height:1.55;
     letter-spacing:.005em;
   }.hm .painel__interno{
@@ -600,7 +600,7 @@
     font-size:clamp(15px,1.45vw,17px); font-weight:400; line-height:1.48;
     letter-spacing:-.01em; color:var(--paper);
     text-indent:-.36em; text-wrap:pretty;
-  }.hm .autoria__credito{ display:grid; gap:2px; }.hm .autoria__nome{ font-weight:600; font-size:15px; letter-spacing:-.01em; color:var(--paper); }.hm .autoria__papel{ font-size:13px; letter-spacing:.005em; color:var(--sobre-escuro); }
+  }.hm .autoria__credito{ display:grid; gap:2px; }.hm .autoria__nome{ font-weight:600; font-size:14.5px; letter-spacing:-.01em; color:var(--paper); }.hm .autoria__papel{ font-size:12.5px; letter-spacing:.005em; color:var(--sobre-escuro); }
 
   @media (min-width:900px){.hm .autoria{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--e-8); align-items:center; }.hm .autoria__foto{ aspect-ratio:4/5; }}/* =========================================================
      09 · DEMONSTRACAO — provas empilhadas, largura inteira
@@ -645,7 +645,7 @@
     justify-content:center;
     gap:var(--e-1);
     min-height:86px;
-  }.hm .prova__legenda h3{ font-size:18px; font-weight:600; letter-spacing:-.01em; line-height:1.35; margin:0; color:var(--paper); }.hm .prova__legenda p{ margin:0; color:var(--paper); font-size:14px; letter-spacing:.005em; line-height:1.45; }/* Assinatura de quem fez o projeto, no canto oposto ao da legenda. Mesmo
+  }.hm .prova__legenda h3{ font-size:17px; font-weight:600; letter-spacing:-.01em; line-height:1.35; margin:0; color:var(--paper); }.hm .prova__legenda p{ margin:0; color:var(--paper); font-size:13.5px; letter-spacing:.005em; line-height:1.45; }/* Assinatura de quem fez o projeto, no canto oposto ao da legenda. Mesmo
      vidro dela, um pouco mais cheio (43%) porque este canto costuma ser mais
      claro na foto, e em corpo menor: é assinatura, não conteúdo. */.hm .prova__credito{
     position:absolute; z-index:3; pointer-events:none;
@@ -658,7 +658,7 @@
     backdrop-filter:blur(8px) saturate(1.4);
     color:var(--paper);
     text-shadow:0 1px 3px rgba(0,0,0,.55);
-    font-size:12px; line-height:1.2; letter-spacing:.005em;
+    font-size:12.5px; line-height:1.2; letter-spacing:.005em;
     white-space:nowrap;
   }
   @media (min-width:768px){.hm .prova__credito{ right:var(--e-5); bottom:var(--e-5); }}
@@ -672,7 +672,7 @@
       min-height:114px;
       height:auto;
       gap:var(--e-2);
-    }.hm .prova__legenda h3{ font-size:18px; line-height:1.35; }.hm .prova__legenda p{ font-size:15px; line-height:1.45; }}
+    }.hm .prova__legenda h3{ font-size:17px; line-height:1.35; }.hm .prova__legenda p{ font-size:14.5px; line-height:1.45; }}
   @media (min-width:1024px){.hm .provas{ gap:var(--e-8); }.hm .prova__legenda{
       left:var(--e-6); bottom:var(--e-6);
       width:460px;
@@ -812,7 +812,7 @@
   @media (min-width:700px){.hm .grade-planos{ grid-template-columns:repeat(3,1fr); gap:var(--e-4); }}
   @media (min-width:1024px){.hm .grade-planos{ grid-template-columns:repeat(3,1fr); gap:var(--e-5); }}.hm .planos__garantia{
     margin:var(--e-5) 0 0; text-align:center;
-    font-size:14px; color:var(--ink2); letter-spacing:.005em;
+    font-size:13.5px; color:var(--ink2); letter-spacing:.005em;
   }.hm .plano{
     position:relative; display:flex; flex-direction:column;
     padding:var(--e-5) var(--e-4); border:1px solid var(--line); border-radius:var(--r-lg); background:var(--paper);
@@ -837,21 +837,21 @@
     letter-spacing:.08em; text-transform:uppercase; line-height:1.3;
   }
   @media (min-width:1024px){.hm .plano__selo{ left:var(--e-5); }}.hm .plano__cab{ display:grid; gap:var(--e-1); margin-bottom:var(--e-3); }
-  @media (min-width:700px){.hm .plano__cab{ margin-bottom:var(--e-4); }}.hm .plano__nome{ font-size:17px; font-weight:600; letter-spacing:-.015em; color:var(--ink); }.hm .plano__pitch{ font-size:14px; letter-spacing:.005em; line-height:1.45; color:var(--ink2); min-height:0; }
+  @media (min-width:700px){.hm .plano__cab{ margin-bottom:var(--e-4); }}.hm .plano__nome{ font-size:17px; font-weight:600; letter-spacing:-.015em; color:var(--ink); }.hm .plano__pitch{ font-size:13.5px; letter-spacing:.005em; line-height:1.45; color:var(--ink2); min-height:0; }
   @media (min-width:700px){.hm .plano__pitch{ min-height:2.9em; }}.hm .plano__preco{
     font-size:34px; font-weight:600; letter-spacing:-.035em; line-height:1;
     font-variant-numeric:tabular-nums; display:flex; align-items:baseline; gap:var(--e-2);
     flex-wrap:wrap; color:var(--ink); margin-bottom:var(--e-3);
   }
-  @media (min-width:700px){.hm .plano__preco{ font-size:34px; margin-bottom:var(--e-4); }}.hm .plano__per{ font-size:14px; font-weight:400; letter-spacing:.005em; color:var(--ink2); }.hm .plano__linha{ height:1px; background:var(--line); margin-bottom:var(--e-3); }
+  @media (min-width:700px){.hm .plano__preco{ font-size:34px; margin-bottom:var(--e-4); }}.hm .plano__per{ font-size:13.5px; font-weight:400; letter-spacing:.005em; color:var(--ink2); }.hm .plano__linha{ height:1px; background:var(--line); margin-bottom:var(--e-3); }
   @media (min-width:700px){.hm .plano__linha{ margin-bottom:var(--e-4); }}.hm .plano__beneficios{ display:grid; gap:var(--e-2); margin-bottom:var(--e-4); flex-grow:1; }
-  @media (min-width:700px){.hm .plano__beneficios{ margin-bottom:var(--e-6); }}.hm .plano__cred{ font-size:14px; font-weight:600; letter-spacing:-.005em; font-variant-numeric:tabular-nums; color:var(--ink); }.hm .plano__rend{ font-size:13px; letter-spacing:.01em; color:var(--ink2); line-height:1.4; font-variant-numeric:tabular-nums; }.hm .plano .btn{ margin-top:auto; width:100%; }.hm .equipe{
+  @media (min-width:700px){.hm .plano__beneficios{ margin-bottom:var(--e-6); }}.hm .plano__cred{ font-size:13.5px; font-weight:600; letter-spacing:-.005em; font-variant-numeric:tabular-nums; color:var(--ink); }.hm .plano__rend{ font-size:12.5px; letter-spacing:.01em; color:var(--ink2); line-height:1.4; font-variant-numeric:tabular-nums; }.hm .plano .btn{ margin-top:auto; width:100%; }.hm .equipe{
     margin-top:var(--e-4); padding:var(--e-5) var(--e-4); border-radius:var(--r-lg);
     background:var(--paper); border:1px solid var(--line);
     display:grid; gap:var(--e-4); align-items:center;
   }.hm .equipe .btn{ width:100%; }
-  @media (min-width:768px){.hm .equipe{ grid-template-columns:1fr auto; gap:var(--e-7); padding:var(--e-6) var(--e-7); margin-top:var(--e-6); }.hm .equipe .btn{ width:auto; }}.hm .equipe h3{ font-size:16px; font-weight:600; letter-spacing:-.01em; color:var(--ink); line-height:1.4; }
-  @media (min-width:768px){.hm .equipe h3{ font-size:18px; line-height:1.35; }}/* =========================================================
+  @media (min-width:768px){.hm .equipe{ grid-template-columns:1fr auto; gap:var(--e-7); padding:var(--e-6) var(--e-7); margin-top:var(--e-6); }.hm .equipe .btn{ width:auto; }}.hm .equipe h3{ font-size:14.5px; font-weight:600; letter-spacing:-.01em; color:var(--ink); line-height:1.4; }
+  @media (min-width:768px){.hm .equipe h3{ font-size:17px; line-height:1.35; }}/* =========================================================
      11 · FAQ — DUAS COLUNAS assimétricas
      ========================================================= *//* Coluna unica, centralizada (30/08). FECHA O ACHADO 03 da auditoria de
      22/08, "coluna morta do FAQ": em duas colunas de acordeao, abrir uma
@@ -863,7 +863,7 @@
      centralizada para fechar o achado 03 de 22/08 ("coluna morta"). A reversao
      e segura porque o achado era sobre DUAS COLUNAS DE ACORDEAO lado a lado:
      abrir uma pergunta de um lado deixava buraco do outro. Aqui a lista de
-     acordeao continua em uma coluna so; a outra tem apenas o titulo. */.hm .faq__grade{ display:grid; gap:var(--e-6); align-items:start; }.hm .faq__aside{ display:grid; gap:var(--e-3); align-content:start; }.hm .faq__aside p{ color:var(--ink2); font-size:15px; letter-spacing:.005em; }/* A capitular do H2 de 52px nasce 15px abaixo do topo da caixa e o texto da
+     acordeao continua em uma coluna so; a outra tem apenas o titulo. */.hm .faq__grade{ display:grid; gap:var(--e-6); align-items:start; }.hm .faq__aside{ display:grid; gap:var(--e-3); align-content:start; }.hm .faq__aside p{ color:var(--ink2); font-size:14.5px; letter-spacing:.005em; }/* A capitular do H2 de 52px nasce 15px abaixo do topo da caixa e o texto da
      primeira pergunta, 8: alinhados pela caixa, o título afundava 7px. */
   
   @media (min-width:1024px){.hm .faq__grade{ grid-template-columns:34fr 66fr; gap:var(--e-8); }.hm .faq__aside{ position:sticky; top:calc(var(--altura-cabecalho) + var(--e-6)); margin-top:-7px; }}.hm .faq__grade h2{ max-width:none; }.hm .faq__lista{ display:grid; }.hm .faq__item{ border-bottom:1px solid var(--line); }.hm .faq__item:first-child{ border-top:1px solid var(--line); }.hm .faq__gat{
@@ -874,7 +874,7 @@
   }
   @media (min-width:768px){.hm .faq__gat{ padding:var(--e-5) 0; }}.hm .faq__ic{ flex:none; color:var(--ink3); transition:transform var(--tr-padrao) var(--easing), color var(--tr-padrao) var(--easing); }.hm .faq__gat[aria-expanded="true"] .faq__ic{ transform:rotate(45deg); color:var(--ink); }
   @media (hover:hover) and (pointer:fine){.hm .faq__gat:hover .faq__ic{ color:var(--ink); }}.hm .faq__resp{ display:grid; grid-template-rows:0fr; transition:grid-template-rows var(--tr-acordeao) var(--easing); }.hm .faq__gat[aria-expanded="true"] + .faq__resp{ grid-template-rows:1fr; }.hm .faq__resp > div{ overflow:hidden; }/* 44ch ≈ 62 caracteres. Em 62ch a resposta rodava a 88 caracteres por linha,
-     em cinco linhas seguidas — o único texto corrido longo da página. */.hm .faq__resp p{ padding-bottom:var(--e-5); font-size:15px; letter-spacing:.005em; color:var(--ink2); max-width:44ch; }.hm .faq__resp .marcacao{ margin-bottom:var(--e-5); }/* 12 · CTA FINAL — CENTRALIZADO */.hm .cta{ position:relative; overflow:hidden; isolation:isolate; }/* Luz ambiente (pedido do William, 21/08 — 20h40: "iluminação cinematográfica
+     em cinco linhas seguidas — o único texto corrido longo da página. */.hm .faq__resp p{ padding-bottom:var(--e-5); font-size:14.5px; letter-spacing:.005em; color:var(--ink2); max-width:44ch; }.hm .faq__resp .marcacao{ margin-bottom:var(--e-5); }/* 12 · CTA FINAL — CENTRALIZADO */.hm .cta{ position:relative; overflow:hidden; isolation:isolate; }/* Luz ambiente (pedido do William, 21/08 — 20h40: "iluminação cinematográfica
      do YouTube"). O modo ambiente do YouTube pega a imagem em exibição, borra
      muito e pinta isso como brilho atrás do player. Aqui a fonte da luz é a
      PRÓPRIA fita de imagens: uma cópia da esteira, feita de miniaturas de 48x60,
@@ -968,14 +968,14 @@
     display:block; width:100%; height:auto;
     opacity:.11; filter:invert(1); pointer-events:none;
   }.hm .rodape .env{ position:relative; z-index:1; }/* Era o mesmo tratamento do eyebrow (11px, caixa alta, tracking aberto) — que
-     saiu da página inteira. Título de coluna passa a ser texto normal em DM Sans. */.hm .rodape__t{ font-size:14px; font-weight:600; letter-spacing:-.005em; color:var(--paper); margin-bottom:var(--e-2); }.hm .rodape__links{ display:grid; font-size:14px; letter-spacing:.005em; }/* O espaço largo entre os links vinha do alvo de toque de 44px, aplicado em
+     saiu da página inteira. Título de coluna passa a ser texto normal em DM Sans. */.hm .rodape__t{ font-size:13.5px; font-weight:600; letter-spacing:-.005em; color:var(--paper); margin-bottom:var(--e-2); }.hm .rodape__links{ display:grid; font-size:13.5px; letter-spacing:.005em; }/* O espaço largo entre os links vinha do alvo de toque de 44px, aplicado em
      todo mundo. No mouse ele não serve pra nada e só afasta os links, então os
      44px ficam só onde há dedo; no ponteiro fino cai pra 32px, ainda acima do
      piso de 24px da WCAG 2.5.8. */.hm .rodape__links a{ display:flex; align-items:center; min-height:44px; transition:color var(--tr-rapida) var(--easing); }
   @media (pointer:fine){.hm .rodape__links a{ min-height:32px; }}
-  @media (hover:hover) and (pointer:fine){.hm .rodape__links a:hover{ color:var(--paper); }}.hm .rodape__base{ padding-top:var(--e-5); border-top:1px solid var(--linha-escura); font-size:13px; letter-spacing:.01em; text-align:center; display:grid; gap:var(--e-2); justify-items:center; }.hm .rodape__copy{ margin:0; color:var(--sobre-escuro); }/* Uma linha so: o cap de 82ch e o <br> quebravam a frase em tres pedacos.
+  @media (hover:hover) and (pointer:fine){.hm .rodape__links a:hover{ color:var(--paper); }}.hm .rodape__base{ padding-top:var(--e-5); border-top:1px solid var(--linha-escura); font-size:12.5px; letter-spacing:.01em; text-align:center; display:grid; gap:var(--e-2); justify-items:center; }.hm .rodape__copy{ margin:0; color:var(--sobre-escuro); }/* Uma linha so: o cap de 82ch e o <br> quebravam a frase em tres pedacos.
      A partir de 1140px a linha inteira cabe no container; abaixo disso ela
-     volta a quebrar sozinha em vez de estourar na horizontal. */.hm .rodape__disclaimer{ margin:0; color:rgba(255,255,255,.32); font-size:12px; line-height:1.5; text-wrap:balance; }
+     volta a quebrar sozinha em vez de estourar na horizontal. */.hm .rodape__disclaimer{ margin:0; color:rgba(255,255,255,.32); font-size:12.5px; line-height:1.5; text-wrap:balance; }
   @media (min-width:1140px){.hm .rodape__disclaimer{ white-space:nowrap; }}/* =========================================================
      BARRA DE COOKIES (LGPD) — rodapé
      =========================================================

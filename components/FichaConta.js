@@ -687,7 +687,7 @@ export default function FichaConta({ abrirConta }) {
               <p className="ficha-confirma-t">Cancelar o plano de <b>{ficha.conta.email}</b></p>
               <p className="ficha-confirma-p">
                 A conta volta para Free e perde os créditos do plano. <b>Não cancela a
-                assinatura no Stripe</b> — se houver cobrança ativa, cancele lá também,
+                assinatura no Stripe</b>. Se houver cobrança ativa, cancele lá também,
                 senão o cliente continua pagando sem acesso.
               </p>
             </>
@@ -949,7 +949,7 @@ export default function FichaConta({ abrirConta }) {
               <Linha rotulo="É dono da equipe">#{ficha.equipe_dono.id} {ficha.equipe_dono.nome || ''}</Linha>
               <Linha rotulo="Plano e assentos">
                 {ficha.equipe_dono.plano} · {ficha.equipe_dono.ocupados} de {ficha.equipe_dono.assentos} ocupado(s)
-                {ficha.equipe_dono.ocupados > ficha.equipe_dono.assentos && ' — ACIMA DO CONTRATADO'}
+                {ficha.equipe_dono.ocupados > ficha.equipe_dono.assentos && ', ACIMA DO CONTRATADO'}
               </Linha>
               <Linha rotulo="Status">{ficha.equipe_dono.status}</Linha>
             </>
@@ -1013,13 +1013,13 @@ export default function FichaConta({ abrirConta }) {
                 {' · '}líquido {num(extrato.resumo.liquido)} · {extrato.resumo.lancamentos} lançamento(s)
                 {extrato.resumo.suspeitos > 0 && (
                   <span style={{ color: '#C8342A', fontWeight: 700 }}>
-                    {' — '}{extrato.resumo.suspeitos} sem retorno, conferir
+                    {', '}{extrato.resumo.suspeitos} sem retorno, conferir
                   </span>
                 )}
               </div>
               {!extrato.pedidos_ok && (
                 <p style={{ fontSize: 12, color: '#B7791F', marginBottom: 10 }}>
-                  Sem os pedidos do servidor de geração neste ambiente — a Situação
+                  Sem os pedidos do servidor de geração neste ambiente, a Situação
                   mostra só o pareamento débito↔estorno.
                 </p>
               )}
@@ -1072,7 +1072,7 @@ export default function FichaConta({ abrirConta }) {
               <p style={{ fontSize: 12, color: 'var(--ink3)', marginTop: 10 }}>
                 Débito com situação <b>entregue</b> é o caso normal (gerou e não há o que
                 devolver). <b>Em voo</b> além de 1h e <b>CONFERIR</b> são candidatos a
-                devolução. “—” é cobrança sem registro de pedido (plugin) — cruze com a
+                devolução. “—” é cobrança sem registro de pedido (plugin). Cruze com a
                 aba Uso antes de decidir.
               </p>
             </>
@@ -1084,7 +1084,7 @@ export default function FichaConta({ abrirConta }) {
         <div className="conta-card adm-card">
           {ficha.eventos.length === 0 ? (
             <p style={{ color: 'var(--ink3)' }}>
-              Nenhum evento registrado. A gravação começou agora — contas antigas
+              Nenhum evento registrado. A gravação começou agora, e contas antigas
               não têm histórico anterior a ela.
             </p>
           ) : ficha.eventos.map((ev) => (
@@ -1094,7 +1094,7 @@ export default function FichaConta({ abrirConta }) {
               </div>
               <div style={{ fontSize: 14, marginTop: 2 }}>
                 {ev.descricao}
-                {ev.valor_centavos != null && ` — ${dinheiro(ev.valor_centavos, ev.moeda)}`}
+                {ev.valor_centavos != null && `, ${dinheiro(ev.valor_centavos, ev.moeda)}`}
               </div>
             </div>
           ))}
@@ -1104,7 +1104,7 @@ export default function FichaConta({ abrirConta }) {
       {aba === 'imagens' && (
         <p style={{ color: 'var(--ink3)', paddingBottom: 24 }}>
           As imagens ficam no bucket do servidor de geração, que tem banco e
-          credenciais próprios — a aba precisa de uma rota administrativa lá.
+          credenciais próprios, e a aba precisa de uma rota administrativa lá.
           Fase 1.5. Quando entrar, abrir esta aba vai gravar um evento com quem
           abriu e quando.
         </p>

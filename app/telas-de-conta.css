@@ -309,7 +309,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
      so. Ele acompanha a frase de longe, um degrau abaixo.
      `pretty` e o que impede a ultima palavra de cair sozinha na segunda linha
      quando a frase passa da largura por pouco. */
-  .tc .apoio{ margin-top:3px; font-size:15px; line-height:1.4; color:rgba(255,255,255,.74); text-wrap:pretty; }
+  .tc .apoio{ margin-top:3px; font-size:14.5px; line-height:1.4; color:rgba(255,255,255,.74); text-wrap:pretty; }
 /* ---- toque pra avançar e voltar ---- */
   .tc .toque{ position:absolute; inset:0; z-index:5; display:flex; }.tc .toque button{ height:100%; background:none; border:0; cursor:pointer; }.tc .toque button:first-child{ width:32%; }.tc .toque button:last-child{ width:68%; }
 
@@ -321,8 +321,8 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
    Sem isto, medido no ar em 360x640: "Esqueci minha senha" cortado ao meio e
    "Criar conta gratis" inteiro atras da faixa, com o toque caindo no botao
    "Aceitar" do aviso. */
-.tc .lado-form{ background:var(--paper); display:grid; place-items:center; padding:var(--e-7) 20px calc(var(--e-7) + var(--aviso, 0px)); }.tc .cartao{ width:100%; max-width:360px; }.tc .cartao__marca{ margin-bottom:var(--e-7); }.tc .cartao__marca img{ height:34px; width:auto; }.tc .cartao h1{ font-size:34px; font-weight:500; letter-spacing:-.03em; line-height:1.1; }.tc .cartao__apoio{ margin-top:var(--e-2); color:var(--ink2); font-size:14.5px; }.tc .campo{ margin-top:var(--e-5); }.tc .campo label{ display:block; font-size:13px; font-weight:500; color:var(--ink2); margin-bottom:var(--e-2); }.tc .campo__caixa{ position:relative; }.tc .campo input{
-    width:100%; height:50px; padding:0 var(--e-5); font-family:inherit; font-size:15px; color:var(--ink);
+.tc .lado-form{ background:var(--paper); display:grid; place-items:center; padding:var(--e-7) 20px calc(var(--e-7) + var(--aviso, 0px)); }.tc .cartao{ width:100%; max-width:360px; }.tc .cartao__marca{ margin-bottom:var(--e-7); }.tc .cartao__marca img{ height:34px; width:auto; }.tc .cartao h1{ font-size:34px; font-weight:500; letter-spacing:-.03em; line-height:1.1; }.tc .cartao__apoio{ margin-top:var(--e-2); color:var(--ink2); font-size:14.5px; }.tc .campo{ margin-top:var(--e-5); }.tc .campo label{ display:block; font-size:12.5px; font-weight:500; color:var(--ink2); margin-bottom:var(--e-2); }.tc .campo__caixa{ position:relative; }.tc .campo input{
+    width:100%; height:50px; padding:0 var(--e-5); font-family:inherit; font-size:14.5px; color:var(--ink);
     background:var(--paper); border:1px solid var(--line); border-radius:var(--r-pill);
     transition:border-color var(--tr-padrao) var(--easing), box-shadow var(--tr-padrao) var(--easing);
   }.tc .campo input::placeholder{ color:var(--ink3); }.tc .campo input:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }.tc .campo--senha input{ padding-right:52px; }.tc .campo__olho{
@@ -332,13 +332,13 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
   }.tc .campo__olho:hover{ color:var(--ink); }.tc .btn{
     width:100%; height:50px; margin-top:var(--e-6);
     display:inline-flex; align-items:center; justify-content:center;
-    font-family:inherit; font-size:15px; font-weight:600; letter-spacing:-.005em;
+    font-family:inherit; font-size:14.5px; font-weight:600; letter-spacing:-.005em;
     border:0; border-radius:var(--r-pill); cursor:pointer;
     background:var(--lima); color:var(--ink);
     transition:background-color var(--tr-padrao) var(--easing), transform 120ms var(--easing);
-  }.tc .btn:hover{ background:var(--lima-esc); }.tc .btn:active{ transform:scale(.98); }.tc .btn:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }.tc .elo{ display:block; text-align:center; margin-top:var(--e-4); font-size:14px; color:var(--ink2); text-decoration:none; }.tc .elo:hover{ color:var(--ink); text-decoration:underline; text-underline-offset:2px; }.tc .rodape-cartao{
+  }.tc .btn:hover{ background:var(--lima-esc); }.tc .btn:active{ transform:scale(.98); }.tc .btn:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }.tc .elo{ display:block; text-align:center; margin-top:var(--e-4); font-size:13.5px; color:var(--ink2); text-decoration:none; }.tc .elo:hover{ color:var(--ink); text-decoration:underline; text-underline-offset:2px; }.tc .rodape-cartao{
     margin-top:var(--e-7); padding-top:var(--e-5); border-top:1px solid var(--line);
-    text-align:center; font-size:14px; color:var(--ink2);
+    text-align:center; font-size:13.5px; color:var(--ink2);
   }.tc .rodape-cartao a{ color:var(--ink); font-weight:600; text-decoration:none; }.tc .rodape-cartao a:hover{ text-decoration:underline; text-underline-offset:2px; }
 
 /* ═══ campos comuns ═══ */
@@ -350,7 +350,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 /* ---- lista suspensa (o DropdownCora, na linguagem do cartao) ---- */
   .tc .dd{ position:relative; }.tc .cartao--denso .dd__btn{
     width:100%; height:50px; padding:0 var(--e-5); display:flex; align-items:center;
-    justify-content:space-between; gap:10px; font-family:inherit; font-size:15px;
+    justify-content:space-between; gap:10px; font-family:inherit; font-size:14.5px;
     text-align:left; color:var(--ink3); background:var(--paper);
     border:1px solid var(--line); border-radius:var(--r-pill); cursor:pointer;
     transition:border-color var(--tr-padrao) var(--easing), box-shadow var(--tr-padrao) var(--easing);
@@ -404,7 +404,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
    sistema quando a DM Sans ainda nao carregou. */
 .tc .cad-aceite{
   display:flex; align-items:flex-start; gap:10px; margin-top:var(--e-5);
-  font-size:11.5px; line-height:1.55; color:var(--ink2); cursor:pointer;
+  font-size:11px; line-height:1.55; color:var(--ink2); cursor:pointer;
 }
 .tc .cad-aceite input{
   flex:0 0 auto; width:17px; height:17px; margin-top:1px;
@@ -418,7 +418,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 .tc .cad-dd{ margin-bottom:0; }
 .tc .cad-dd .cora-dd-btn{
   width:100%; height:50px; padding:0 var(--e-5); display:flex; align-items:center;
-  justify-content:space-between; gap:10px; font-size:15px; text-align:left;
+  justify-content:space-between; gap:10px; font-size:14.5px; text-align:left;
   color:var(--ink3); background:var(--paper);
   border:1px solid var(--line); border-radius:var(--r-pill);
 }
@@ -435,7 +435,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 
 .tc .cad-voltar{
   display:block; width:100%; margin-top:var(--e-4); padding:var(--e-2);
-  background:none; border:0; font-family:inherit; font-size:14px;
+  background:none; border:0; font-family:inherit; font-size:13.5px;
   color:var(--ink2); cursor:pointer;
 }
 .tc .cad-voltar:hover{ color:var(--ink); }
@@ -444,7 +444,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 .tc .login-erro{
   margin-top:var(--e-3); padding:10px var(--e-4);
   background:#FDF3F2; border:1px solid #F0D3D0; border-radius:16px;
-  color:var(--alerta); font-size:13px;
+  color:var(--alerta); font-size:12.5px;
 }
 /* Sobrou roxo em elos que o globals.css pinta por classe. Aqui eles seguem a
    mesma regra do resto: turquesa escurecido, que passa no minimo de leitura.
@@ -466,11 +466,11 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 /* ---- rotulos e campos que ainda usam as classes antigas ---- */
 .tc .login-label{
   display:block; margin:var(--e-5) 0 var(--e-2);
-  font-size:13px; font-weight:500; color:var(--ink2);
+  font-size:12.5px; font-weight:500; color:var(--ink2);
 }
 .tc .login-input{
   width:100%; height:50px; margin:0; padding:0 var(--e-5);
-  font-family:inherit; font-size:15px; color:var(--ink);
+  font-family:inherit; font-size:14.5px; color:var(--ink);
   background:var(--paper); border:1px solid var(--line); border-radius:var(--r-pill);
   transition:border-color var(--tr-padrao) var(--easing), box-shadow var(--tr-padrao) var(--easing);
 }
@@ -491,7 +491,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 .tc .login-card{ width:100%; max-width:360px; }
 .tc .login-rodape{
   margin-top:var(--e-7); padding-top:var(--e-5); border-top:1px solid var(--line);
-  text-align:center; font-size:14px; color:var(--ink2);
+  text-align:center; font-size:13.5px; color:var(--ink2);
 }
 .tc .login-rodape a{ color:var(--ink); font-weight:600; text-decoration:none; }
 .tc .login-rodape a:hover{ text-decoration:underline; text-underline-offset:2px; }
@@ -502,7 +502,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 .tc .btn{
   width:100%; height:50px; margin-top:var(--e-6);
   display:inline-flex; align-items:center; justify-content:center;
-  font-family:inherit; font-size:15px; font-weight:600; letter-spacing:-.005em;
+  font-family:inherit; font-size:14.5px; font-weight:600; letter-spacing:-.005em;
   border:0; border-radius:var(--r-pill); cursor:pointer;
   background:var(--lima); color:var(--ink);
   transition:background-color var(--tr-padrao) var(--easing), transform 120ms var(--easing);
@@ -541,15 +541,15 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
   .tc--denso .cad-passo-tag{ font-size:10px; padding:4px 10px; margin-bottom:6px; }
   .tc--denso .login-titulo, .tc .cartao h1{ font-size:21px; }
   .tc--denso .login-sub, .tc .cartao__apoio{ font-size:12.5px; }
-  .tc--denso .login-label, .tc .campo label{ margin-top:9px; margin-bottom:3px; font-size:11.5px; }
-  .tc--denso .login-input, .tc .campo input, .tc .cad-dd .cora-dd-btn{ height:38px; font-size:14px; }
+  .tc--denso .login-label, .tc .campo label{ margin-top:9px; margin-bottom:3px; font-size:11px; }
+  .tc--denso .login-input, .tc .campo input, .tc .cad-dd .cora-dd-btn{ height:38px; font-size:13.5px; }
   .tc--denso .cora-dd-opt{ padding:8px var(--e-3); font-size:13.5px; }
   .tc--denso .cad-aceite{ margin-top:10px; font-size:11px; }
-  .tc--denso .btn{ height:40px; margin-top:12px; font-size:14px; }
+  .tc--denso .btn{ height:40px; margin-top:12px; font-size:13.5px; }
   .tc--denso .login-rodape{ margin-top:12px; padding-top:9px; font-size:12.5px; }
   .tc--denso .cad-voltar{ margin-top:2px; font-size:12.5px; }
   .tc--denso .cs-reqs{ padding:10px var(--e-3); }
-  .tc--denso .cs-req{ font-size:12px; }
+  .tc--denso .cs-req{ font-size:12.5px; }
 }
 @media (min-width:900px) and (max-height:730px){
   .tc--denso .login-logo{ margin-bottom:8px; }
@@ -598,11 +598,11 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 .mf h3{ font-size:26px; font-weight:500; letter-spacing:-.03em; line-height:1.15; margin:0; text-wrap:balance; }
 .mf-desc{ margin:var(--e-2) 0 0; color:var(--ink2); font-size:14.5px; text-wrap:pretty; }
 .mf-campo{ margin-top:var(--e-5); }
-.mf-rot{ display:block; margin-bottom:var(--e-2); font-size:13px; font-weight:500; color:var(--ink2); }
+.mf-rot{ display:block; margin-bottom:var(--e-2); font-size:12.5px; font-weight:500; color:var(--ink2); }
 
 .mf-escolha{
   width:100%; height:50px; padding:0 var(--e-5); display:flex; align-items:center;
-  justify-content:space-between; gap:10px; font-family:inherit; font-size:15px;
+  justify-content:space-between; gap:10px; font-family:inherit; font-size:14.5px;
   text-align:left; color:var(--ink); background:var(--paper);
   border:1px solid var(--line); border-radius:var(--r-pill); cursor:pointer;
   transition:border-color var(--tr-padrao) var(--easing), box-shadow var(--tr-padrao) var(--easing);
@@ -617,14 +617,14 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 }
 .mf-segmento button{
   padding:9px 22px; border:0; border-radius:var(--r-pill); cursor:pointer;
-  font-family:inherit; font-size:14px; color:var(--ink2); background:transparent;
+  font-family:inherit; font-size:13.5px; color:var(--ink2); background:transparent;
   transition:background-color 150ms var(--easing), color 150ms var(--easing);
 }
 .mf-segmento button:hover{ color:var(--ink); }
 .mf-segmento button[aria-pressed="true"]{ background:var(--ink); color:#fff; font-weight:500; }
 
 .mf-input{
-  width:100%; height:50px; padding:0 var(--e-5); font-family:inherit; font-size:15px;
+  width:100%; height:50px; padding:0 var(--e-5); font-family:inherit; font-size:14.5px;
   color:var(--ink); background:var(--paper);
   border:1px solid var(--line); border-radius:var(--r-pill);
   transition:border-color var(--tr-padrao) var(--easing), box-shadow var(--tr-padrao) var(--easing);
@@ -635,12 +635,12 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 .mf-erro{
   margin-top:var(--e-3); padding:10px var(--e-4);
   background:#FDF3F2; border:1px solid #F0D3D0; border-radius:16px;
-  color:var(--alerta); font-size:13px;
+  color:var(--alerta); font-size:12.5px;
 }
 .mf-acoes{ display:grid; grid-template-columns:1fr 1.4fr; gap:var(--e-3); margin-top:var(--e-6); }
 .mf-acoes button{
   height:50px; display:inline-flex; align-items:center; justify-content:center;
-  font-family:inherit; font-size:15px; font-weight:600; letter-spacing:-.005em;
+  font-family:inherit; font-size:14.5px; font-weight:600; letter-spacing:-.005em;
   border:0; border-radius:var(--r-pill); cursor:pointer;
   transition:background-color var(--tr-padrao) var(--easing), transform 120ms var(--easing);
 }
@@ -660,7 +660,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 .mf-voltar:hover{ background:#efefeb; }
 .mf-topo h3{ font-size:19px; font-weight:500; letter-spacing:-.02em; }
 .mf-busca{
-  width:100%; height:46px; padding:0 var(--e-5); font-family:inherit; font-size:15px;
+  width:100%; height:46px; padding:0 var(--e-5); font-family:inherit; font-size:14.5px;
   color:var(--ink); background:var(--paper); border:1px solid var(--line);
   border-radius:var(--r-pill);
 }
@@ -675,10 +675,10 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 .mf-lista::-webkit-scrollbar-track{ background:transparent; }
 .mf-opt{
   padding:11px var(--e-5); border:0; border-radius:var(--r-pill); width:100%;
-  font-family:inherit; font-size:15px; text-align:left;
+  font-family:inherit; font-size:14.5px; text-align:left;
   color:var(--ink); background:transparent; cursor:pointer;
   transition:background-color 120ms var(--easing);
 }
 .mf-opt:hover{ background:var(--wash); }
 .mf-opt--sel{ background:var(--turquesa); font-weight:600; }
-.mf-vazio{ padding:var(--e-5); color:var(--ink3); font-size:14px; text-align:center; }
+.mf-vazio{ padding:var(--e-5); color:var(--ink3); font-size:13.5px; text-align:center; }
