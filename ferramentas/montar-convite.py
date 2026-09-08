@@ -91,6 +91,30 @@ assert len(slides) == 5, 'esperava 5 slides, achei %d' % len(slides)
 dur_grade = re.search(r'DUR_GRADE = (\d+)', fonte_split).group(1)
 dur_foto = re.search(r'DUR_FOTO = (\d+)', fonte_split).group(1)
 
+# ── 3b. O MOTOR, RECORTADO DO PROPRIO COMPONENTE ──────────────────────────
+#
+# Ele nao e reescrito aqui, e COPIADO. A troca entre a grade e uma foto nao e
+# um cross-fade: as colunas da grade saem uma a uma com a foto ja atras, o
+# texto sai 240ms antes de a tela terminar de deslizar, a barrinha reinicia a
+# animacao quando se volta para o mesmo slide, e a pausa acontece so enquanto o
+# ponteiro esta PRESSIONADO. Sao seis comportamentos, e uma reescrita minha
+# acertaria dois e envelheceria no terceiro.
+#
+# O corpo do `useEffect` ja e JS puro: ele so fala com o DOM (querySelector,
+# dataset, addEventListener). O que muda aqui e a primeira linha, que pega o
+# painel pelo id em vez do ref do React, e a ultima, que joga fora a funcao de
+# limpeza (nesta pagina o painel nunca e desmontado).
+ABRE = "  useEffect(() => {\n    const painel = painelRef.current;\n    if (!painel) return;"
+i = fonte_split.index(ABRE)
+j = fonte_split.index('    return () => {', i)
+motor = fonte_split[i:j]
+motor = motor.replace(ABRE, "  var painel = document.getElementById('painel');", 1)
+# As duas constantes moram no TOPO do modulo, fora do `useEffect`, e o recorte
+# nao as leva junto. Elas entram antes, com os valores lidos do proprio arquivo.
+motor = ('  var DUR_GRADE = %s, DUR_FOTO = %s;\n' % (dur_grade, dur_foto)) + motor
+# `const`/`let` dentro de um IIFE seguem valendo; o que sai e so o JSX ao redor.
+assert 'function ir(n)' in motor and 'aplicarPausa()' in motor, 'o recorte do motor perdeu peca'
+
 # as frases do painel, do dicionario
 i18n = ler('lib/i18n.js')
 def frase(chave):
@@ -105,17 +129,15 @@ def frase(chave):
 # e as numeradas de 2 a 6 acompanham as cinco fotos.
 FRASES = [('login_visual_frase', 'login_visual_sub')] + [
     ('login_visual_frase_%d' % n, 'login_visual_sub_%d' % n) for n in range(2, 7)]
-textos = [[frase(a), frase(b)] for a, b in FRASES]
-faltando = [a for (a, _), t in zip(FRASES, textos) if not t[0]]
+textos = [{'frase': frase(a), 'apoio': frase(b)} for a, b in FRASES]
+faltando = [a for (a, _), t in zip(FRASES, textos) if not t['frase']]
 assert not faltando, 'nao achei no dicionario: %s' % faltando
 
 slides_html = ''.join(
     '<div class="slide slide--img" data-ativo="false"><img src="%s" alt=""></div>'
     % embutir(s.lstrip('/').replace('img/', 'public/img/', 1)) for s in slides)
 
-barras_html = ''.join('<button class="barra" type="button"></button>'
-                      for _ in range(len(slides) + 1))
-
+# As barrinhas o MOTOR cria, com a duracao de cada uma. Nao se escrevem aqui.
 logo9 = embutir('public/img/logo-9barra7.png')
 logoc = embutir('public/img/logo-cora.png')
 
@@ -198,7 +220,7 @@ body{ margin:0; display:block; min-height:0; background:#F4F4F4;
 <div class="demo-moldura">
 <main class="login-split tc">
 
-  <div class="painel" id="painel">
+  <div class="painel" id="painel" data-textos='%(textos)s'>
     <div class="slide slide--grade" data-ativo="true">
       %(grade)s
     </div>
@@ -212,8 +234,15 @@ body{ margin:0; display:block; min-height:0; background:#F4F4F4;
       <div class="texto">
         <p class="frase"></p>
         <p class="apoio"></p>
-        <div class="barras" role="tablist" aria-label="Telas do painel">%(barras)s</div>
+        <div class="barras" role="tablist" aria-label="Telas do painel"></div>
       </div>
+    </div>
+
+    <!-- METADES INVISIVEIS: clicar na esquerda volta, na direita avanca. Sao
+         as mesmas do site, e o motor as procura por `[data-ir]`. -->
+    <div class="toque" aria-hidden="true">
+      <button type="button" data-ir="-1" aria-label="Anterior"></button>
+      <button type="button" data-ir="1" aria-label="Proxima"></button>
     </div>
   </div>
 
@@ -275,36 +304,13 @@ body{ margin:0; display:block; min-height:0; background:#F4F4F4;
 
 <script>
 (function () {
-  /* A ROTACAO. No site ela e o motor do LoginSplit, com pausa no hover, no
-     foco e quando a aba sai de vista, mais as setas invisiveis dos lados.
-     Aqui e o essencial: trocar de slide e escrever a frase. As duracoes sao
-     as de la, lidas do arquivo na hora de montar. */
-  var TEXTOS = %(textos)s;
-  var DUR_GRADE = %(durgrade)s, DUR_FOTO = %(durfoto)s;
-  var painel = document.getElementById('painel');
-  var slides = [].slice.call(painel.querySelectorAll('.slide'));
-  var barras = [].slice.call(painel.querySelectorAll('.barra'));
-  var frase = painel.querySelector('.frase');
-  var apoio = painel.querySelector('.apoio');
-  var atual = 0, tempo = null;
+  /* ── O MOTOR, COPIADO DO LoginSplit.js ──
+     Tudo daqui para baixo, ate o fim do bloco, e o corpo do `useEffect` do
+     componente, recortado na hora de montar. Ele nao foi adaptado: o codigo do
+     site ja falava so com o DOM. */
+%(motor)s
 
-  function mostrar(n) {
-    atual = (n + slides.length) %% slides.length;
-    slides.forEach(function (s, i) { s.dataset.ativo = i === atual ? 'true' : 'false'; });
-    barras.forEach(function (b, i) {
-      b.dataset.status = i < atual ? 'completa' : (i > atual ? 'pendente' : 'ativa');
-    });
-    var t = TEXTOS[atual] || ['', ''];
-    frase.textContent = t[0];
-    apoio.textContent = t[1];
-    clearTimeout(tempo);
-    tempo = setTimeout(function () { mostrar(atual + 1); },
-                       atual === 0 ? DUR_GRADE : DUR_FOTO);
-  }
-  barras.forEach(function (b, i) { b.addEventListener('click', function () { mostrar(i); }); });
-  mostrar(0);
-
-  /* trocar de estado */
+  /* ── daqui para baixo e so a demonstracao ── */
   var barraEstados = document.getElementById('estados');
   barraEstados.addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
@@ -323,7 +329,7 @@ body{ margin:0; display:block; min-height:0; background:#F4F4F4;
     'css': css,
     'grade': grade_html,
     'slides': slides_html,
-    'barras': barras_html,
+    'motor': motor,
     'logo9': logo9,
     'logoc': logoc,
     'durgrade': dur_grade,
