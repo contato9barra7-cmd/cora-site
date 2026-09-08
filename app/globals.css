@@ -1612,18 +1612,35 @@ select.perfil-input {
 .tm-input { width: 100%; padding: 12px 14px; border: 1px solid var(--line2); border-radius: 10px; font-size: 16px; background: var(--paper); color: var(--ink); }
 .tm-erro { color: var(--alerta); font-size: 14.5px; margin-top: 10px; text-align: center; }
 
-/* Workspace (gestão de equipe) */
-.ws-topo { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-.ws-plano { font-size: 17px; font-weight: 700; color: var(--ink); }
-.ws-assentos { font-size: 14.5px; color: var(--ink3); margin-top: 2px; }
-.ws-badge { font-size: 13.5px; font-weight: 600; padding: 6px 12px; border-radius: 100px; background: #eef0ff; color: #4b46b3; }
+/* ══════════════════════════════════════════════════════════════════════
+   WORKSPACE (gestão de equipe)
+
+   Esta foi a última tela do produto na casca antiga, e ela carregava o roxo
+   em cinco lugares. O roxo saiu da marca em 06/09/2026, e cor que ficou para
+   trás é a que mais denuncia uma tela que ninguém revisou.
+
+   O que entrou no lugar não foi lima em tudo: cada uma dessas cores estava
+   dizendo alguma coisa, e a substituição respeita o que era dito. Dono e um
+   RÓTULO, e rótulo se lê em cinza. Ativo e suspenso são SINAL, e sinal tem as
+   duas cores do produto inteiro, verde e vermelho.
+
+   `.ws-topo`, `.ws-plano`, `.ws-assentos` e `.ws-badge` saíram junto com o
+   cartão de resumo que os usava: plano e assentos agora vivem na linha de
+   apoio do cabeçalho, e a contagem de livres a própria lista mostra, em forma.
+   ══════════════════════════════════════════════════════════════════════ */
 .ws-convidar { display: flex; gap: 10px; }
 .ws-linha-input { display: flex; gap: 10px; align-items: stretch; }
 .ws-input { flex: 1; height: 44px; padding: 0 18px; border: 1px solid var(--line2); border-radius: 100px; font-size: 16px; background: var(--paper); color: var(--ink); box-sizing: border-box; }
 .ws-btn { height: 44px; width: auto; margin-top: 0; padding: 0 20px; border-radius: 100px; white-space: nowrap; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; }
 .ws-btn-convidar { white-space: nowrap; padding: 0 20px; }
 .ws-obs { font-size: 14.5px; color: var(--ink3); margin-top: 10px; }
-.ws-aviso-txt { color: #1b7a43; font-size: 14.5px; margin-top: 10px; }
+.ws-aviso-txt { color: var(--ok); font-size: 14.5px; margin-top: 10px; }
+/* O erro fica à esquerda como todo texto da tela. Centralizado, ele era o
+   único parágrafo do produto no meio da linha. */
+.ws-erro { color: var(--alerta); font-size: 14.5px; margin: 0; }
+/* O cartão de "equipe criada": verde de sinal na borda, e não na moldura
+   inteira. Ele aparece uma vez na vida da equipe. */
+.ws-criada { border-color: var(--ok); }
 .ws-aviso-download { display: flex; align-items: center; gap: 6px; font-size: 15px; color: var(--ink2); padding: 14px 18px; }
 
 /* Slots (assentos) */
@@ -1636,20 +1653,25 @@ select.perfil-input {
 .ws-vazio-hint { font-size: 13.5px; color: var(--ink3); }
 .ws-gerenciar { padding: 7px 16px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
 .ws-gerenciar:hover { background: var(--wash2); }
-.ws-atribuir { padding: 7px 16px; border: none; background: var(--roxo); color: #fff; border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+.ws-atribuir { padding: 7px 16px; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; font-weight: 600; }
 .ws-atribuir:hover { opacity: .9; }
 
 /* Tags */
 .ws-tag { font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 10px; margin-left: 8px; }
-.ws-tag-dono { background: #eef0ff; color: #4b46b3; }
-.ws-tag-ativo { background: #eafaf0; color: #1b7a43; }
-.ws-tag-pend { background: #fff4e0; color: #a5680a; }
+.ws-tag-dono { background: var(--wash2); color: var(--ink2); }
+.ws-tag-ativo { background: var(--ok-bg); color: var(--ok); }
+/* Pendente e suspenso NAO sao a mesma coisa, e antes dividiam a mesma cor.
+   Convite pendente e espera: ninguem precisa fazer nada, so a pessoa aceitar.
+   Suspenso e atencao: alguem ficou de fora do contratado e perdeu o acesso.
+   Vermelho nos dois fazia a tela gritar por um convite enviado ontem. */
+.ws-tag-pend { background: var(--wash2); color: var(--ink3); }
+.ws-tag-susp { background: var(--alerta-bg); color: var(--alerta); }
 
 /* Detalhe expandido (gerenciar) */
 .ws-detalhe { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
 .ws-disp-tit { font-size: 14.5px; font-weight: 600; color: var(--ink2); margin-bottom: 10px; }
-.ws-remover { margin-top: 0; padding: 8px 18px; border: 1px solid #e5b3ae; background: none; color: var(--alerta); border-radius: 100px; font-size: 14.5px; cursor: pointer; }
-.ws-remover:hover { background: var(--alerta); color: #fff; }
+.ws-remover { margin-top: 0; padding: 8px 18px; border: 1px solid var(--alerta-bg); background: none; color: var(--alerta); border-radius: 100px; font-size: 14.5px; cursor: pointer; }
+.ws-remover:hover { background: var(--alerta); color: var(--paper); }
 .ws-acoes { display: flex; gap: 10px; margin-top: 14px; }
 .ws-btn-sec { padding: 8px 18px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 14.5px; cursor: pointer; }
 .ws-btn-sec:hover { background: var(--wash); }
@@ -7982,9 +8004,12 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: var(--roxo);
-  color: #fff;
+  /* Quadrado de canto redondo, preto: o MESMO avatar do menu e do cabecalho.
+     Ele era um circulo roxo, que e a unica peca do produto que continuava
+     dizendo que uma pessoa se desenha de outro jeito aqui. */
+  border-radius: 11px;
+  background: var(--ink);
+  color: var(--paper);
   font-size: 14.5px;
   font-weight: 600;
 }
@@ -7994,6 +8019,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: var(--wash);
   border: 1px dashed var(--line2);
   color: var(--ink3);
+  border-radius: 11px;
 }
 
 /* Assento livre */
@@ -8001,6 +8027,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: var(--wash);
   border: 1px dashed var(--line2);
   color: var(--ink3);
+  border-radius: 11px;
 }
 
 .ws-slot-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }

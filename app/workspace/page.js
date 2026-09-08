@@ -244,11 +244,26 @@ function WorkspaceConteudo() {
   if (!equipe) {
     return (
       <div className="admin-wrap">
-        <h1 className="conta-ola">{t('ws_sua_equipe')}</h1>
+        <div className="conta-cabeca">
+          <div className="conta-cabeca__foto">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                 strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="9" cy="8" r="3.2" /><circle cx="17" cy="9" r="2.4" />
+              <path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 13.6a4.4 4.4 0 0 1 4.5 4.4" />
+            </svg>
+          </div>
+          <div className="conta-cabeca__txt">
+            <p className="eyebrow">{t('nav_equipe')}</p>
+            <h1 className="conta-cabeca__nome">{t('ws_sua_equipe')}</h1>
+            {/* Sem repetir a frase do cartao logo abaixo: duas vezes a mesma
+                promessa em trinta pixels de distancia. */}
+            <p className="conta-cabeca__email">{t('ws_nenhuma_ainda')}</p>
+          </div>
+        </div>
         <div className="conta-card">
           <h2 className="conta-h2">{t('ws_sem_equipe_h')}</h2>
           <p className="conta-p">{t('ws_sem_equipe_p')}</p>
-          <button className="btn btn--verde" style={{ width: 'auto', marginTop: 14, padding: '11px 24px' }} onClick={() => router.push('/teams')}>
+          <button className="as-btn-cta" onClick={() => router.push('/teams')}>
             {t('ws_criar_equipe')}
           </button>
         </div>
@@ -264,10 +279,30 @@ function WorkspaceConteudo() {
 
   return (
     <div className="admin-wrap">
-      <h1 className="conta-ola">{t('ws_sua_equipe')}</h1>
+      {/* A mesma cabeca de Minha conta, Assinatura e Admin: a foto da equipe no
+          lugar da foto da pessoa, o rotulo em cima e a linha de apoio dizendo
+          quantos assentos estao ocupados. Era um <h1> solto, e esta foi a
+          ultima tela do produto na casca antiga. */}
+      <div className="conta-cabeca">
+        <div className="conta-cabeca__foto"
+             style={foto ? { backgroundImage: `url(${foto})`, color: 'transparent' } : undefined}>
+          {foto ? '' : (nomeEquipe || equipe.nome || 'E').charAt(0).toUpperCase()}
+        </div>
+        <div className="conta-cabeca__txt">
+          <p className="eyebrow">{t('nav_equipe')}</p>
+          <h1 className="conta-cabeca__nome">{nomeEquipe || equipe.nome || t('ws_sua_equipe')}</h1>
+          <p className="conta-cabeca__email">
+            {NOME_PLANO[equipe.plano] || equipe.plano} · {membros.length} {t('ws_de')}{' '}
+            {equipe.assentos} {t('ws_assentos_ocupados')}
+          </p>
+        </div>
+      </div>
 
+      {/* Verde, e nao roxo: o roxo saiu da marca em 06/09/2026, e cor que ficou
+          para tras e a que mais denuncia uma tela que nao foi revisada. E aqui
+          ele nem era decorativo, era o sinal de "deu certo". */}
       {criada && (
-        <div className="conta-card" style={{ borderColor: 'var(--roxo)' }}>
+        <div className="conta-card ws-criada">
           <h2 className="conta-h2">{t('ws_criada_h')}</h2>
           <p className="conta-p">{t('ws_criada_p')}</p>
         </div>
@@ -333,18 +368,21 @@ function WorkspaceConteudo() {
         </div>
       )}
 
-      {/* Resumo do plano */}
-      <div className="conta-card">
-        <div className="ws-topo">
-          <div>
-            <div className="ws-plano">{t('ws_plano')} {NOME_PLANO[equipe.plano] || equipe.plano}</div>
-            <div className="ws-assentos">{membros.length} {t('ws_de')} {equipe.assentos} {t('ws_assentos_ocupados')}</div>
-          </div>
-          <div className="ws-badge">{livres} {livres === 1 ? t('ws_assento_livre') : t('ws_assentos_livres')}</div>
+      {/* O CARTAO DE RESUMO SAIU. Ele repetia o plano e os assentos, que agora
+          estao na linha de apoio do cabecalho, e a contagem de livres, que a
+          lista de assentos ja mostra em forma: cada assento vazio e uma linha
+          com um campo esperando um e-mail.
+
+          O que ele tinha de proprio, e nao existia em outro lugar, era o
+          espaco do erro e do aviso. Isso fica, sozinho, e so quando ha o que
+          dizer: um cartao vazio no meio da tela todos os dias para servir dois
+          dias por ano e um cartao que ensina a ser ignorado. */}
+      {(erro || aviso) && (
+        <div className="conta-card">
+          {erro && <p className="ws-erro">{erro}</p>}
+          {aviso && <p className="ws-aviso-txt">{aviso}</p>}
         </div>
-        {erro && <p className="tm-erro" style={{ textAlign: 'left', marginBottom: 0 }}>{erro}</p>}
-        {aviso && <p className="ws-aviso-txt">{aviso}</p>}
-      </div>
+      )}
 
       {/* Assentos */}
       <div className="conta-card">
@@ -369,7 +407,7 @@ function WorkspaceConteudo() {
                 {m.eh_dono && <span className="ws-tag ws-tag-dono">{t('ws_dono')}</span>}
                 {m.status === 'convidado' && <span className="ws-tag ws-tag-pend">{t('ws_convite_pendente')}</span>}
                 {m.status === 'ativo' && !m.eh_dono && <span className="ws-tag ws-tag-ativo">{t('ws_ativo')}</span>}
-                {m.status === 'suspenso' && <span className="ws-tag ws-tag-pend">{t('ws_suspenso')}</span>}
+                {m.status === 'suspenso' && <span className="ws-tag ws-tag-susp">{t('ws_suspenso')}</span>}
               </div>
               <div className="ws-slot-dir">
                 {m.status === 'ativo' && m.creditos_total != null && (() => {
@@ -380,7 +418,8 @@ function WorkspaceConteudo() {
                     <div className="ws-anel-wrap">
                       <svg width="34" height="34" viewBox="0 0 36 36">
                         <circle cx="18" cy="18" r="15" fill="none" stroke="var(--line)" strokeWidth="4" />
-                        <circle cx="18" cy="18" r="15" fill="none" stroke="var(--roxo)" strokeWidth="4"
+                        <circle cx="18" cy="18" r="15" fill="none"
+                          stroke={pct <= 10 ? 'var(--alerta)' : 'var(--turquesa-esc)'} strokeWidth="4"
                           strokeDasharray={circ} strokeDashoffset={circ * (1 - pct / 100)}
                           strokeLinecap="round" transform="rotate(-90 18 18)" />
                       </svg>

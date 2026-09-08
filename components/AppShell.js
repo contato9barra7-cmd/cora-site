@@ -199,14 +199,17 @@ export default function AppShell({ children }) {
   // continuam de pé para quem chegar por link, e o `promptador_cursos` da
   // conta segue valendo logo abaixo, onde ele decide que aluno do curso não
   // leva bloqueio de tela cheia no Cora.
-  const itens = [
+  const TODOS_ITENS = [
     { href: '/conta', rotulo: t('nav_dashboard'), icone: Icone.dashboard, admin: false },
     { href: '/app', rotulo: 'Cora Render', icone: Icone.studio, admin: false },
     { href: '/conta/perfil', rotulo: t('nav_minhaconta'), icone: Icone.conta, admin: false, divisor: true },
     { href: '/workspace', rotulo: t('nav_equipe'), icone: Icone.equipe, admin: false, soDono: true },
     { href: '/assinatura', rotulo: t('nav_assinatura'), icone: Icone.assinatura, admin: false, soPagante: true },
     { href: '/admin', rotulo: 'Admin', icone: Icone.admin, admin: true },
-  ].filter(i => (!i.admin || (conta && conta.is_admin))
+  ];
+
+  /* O menu esconde o que nao se aplica a esta conta. */
+  const itens = TODOS_ITENS.filter(i => (!i.admin || (conta && conta.is_admin))
     && (!i.soDono || (conta && conta.eh_dono_equipe))
     && (!i.soPagante || !(conta && conta.eh_membro_equipe)));
 
@@ -347,13 +350,17 @@ export default function AppShell({ children }) {
 
   // Onde a pessoa está agora, para o cabeçalho dizer. Sem isso ele é uma
   // barra vazia de ponta a ponta com o avatar num canto.
-  const aqui = (itens.find((i) => i.href === pathname) || {}).rotulo || '';
+  /* O rotulo do cabecalho sai da lista INTEIRA, e nao da filtrada. Quem abre
+     /workspace sem ser dono de equipe (por link direto, ou logo depois de
+     criar a equipe, antes de a conta em cache saber disso) via a pastilha
+     vazia: o item nao estava no menu, entao nao havia de onde tirar o nome. */
+  const aqui = (TODOS_ITENS.find((i) => i.href === pathname) || {}).rotulo || '';
 
   // A padronagem no cabeçalho fica só em Minha conta e Assinatura, do jeito
   // que o PromptHub faz. No Início ela já mora na esteira do herói, e duas na
   // mesma tela competem. Foi a mesma conclusão do lado dos Promptadores, e é
   // por isso que lá o cabeçalho liso é o normal e a faixa é a exceção.
-  const TELAS_COM_FAIXA = ['/conta/perfil', '/assinatura', '/admin'];
+  const TELAS_COM_FAIXA = ['/conta/perfil', '/assinatura', '/admin', '/workspace'];
   const cabecalhoComFaixa = TELAS_COM_FAIXA.includes(pathname);
 
   return (
