@@ -541,7 +541,7 @@ function ContaConteudo() {
                     ? { backgroundImage: `url(${m.foto_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' }
                     : undefined}
                 >
-                  {m.foto_url ? '' : (m.email || '?')[0].toUpperCase()}
+                  {m.foto_url ? '' : (m.nome || m.email || '?')[0].toUpperCase()}
                 </span>
                 <div className="dash-eq-quem">
                   <strong>

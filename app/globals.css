@@ -1666,6 +1666,11 @@ select.perfil-input {
 .ws-slot-atribuir { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-left: 46px; }
 .ws-slot-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .ws-slot-linha > .disp-nome { flex: 1; min-width: 0; }
+/* Nome em cima, e-mail embaixo. A lista mostrava so enderecos, e numa empresa
+   eles sao todos parecidos: nome.sobrenome@aempresa.com.br, cinco vezes. */
+.ws-slot-linha > .ws-quem { flex: 1; min-width: 0; }
+.ws-quem-email { margin-top: 2px; font-size: 13px; color: var(--ink3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ws-vazio-label { font-size: 15px; color: var(--ink3); }
 .ws-vazio-hint { font-size: 13.5px; color: var(--ink3); }
 .ws-gerenciar { padding: 7px 16px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
@@ -1679,6 +1684,22 @@ select.perfil-input {
 .ws-lotado-txt b { display: block; margin-bottom: 2px; font-size: 14.5px; font-weight: 600; color: var(--ink); }
 .ws-lotado-bt { flex: none; padding: 9px 18px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink); border-radius: 100px; font-family: inherit; font-size: 14.5px; cursor: pointer; white-space: nowrap; transition: border-color .17s, background .17s; }
 .ws-lotado-bt:hover { border-color: var(--ink); background: var(--wash2); }
+
+/* ── A COBRANCA NAO PASSOU ──
+   Aviso, e nao erro: quem ja esta na equipe continua com acesso, so nao entra
+   mais ninguem. Por isso a borda leva a cor de alerta e o fundo nao. */
+.ws-cobranca { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; border-color: var(--alerta); }
+.ws-cobranca-txt { flex: 1; min-width: 240px; font-size: 13.5px; color: var(--ink2); }
+.ws-cobranca-txt b { display: block; margin-bottom: 3px; font-size: 15px; font-weight: 600; color: var(--alerta); }
+
+/* ── MOVER CREDITO ──
+   Fica dentro do Gerenciar, e nao na linha do assento: e uma decisao que se
+   toma olhando quanto a pessoa usou, e essa conta esta aberta bem ali em cima. */
+.ws-mover { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.ws-mover-linha { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; }
+.ws-mover-qtd { flex: 0 1 130px; min-width: 110px; height: 42px; font-size: 15px; }
+.ws-mover-quem { flex: 1 1 180px; min-width: 150px; height: 42px; }
+.ws-mover .ws-btn-sec { flex: none; height: 42px; }
 
 /* ── SOU EU ──
    O botão "Atribuir a mim" era preto chapado e ficava no meio da linha de

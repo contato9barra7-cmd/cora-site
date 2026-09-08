@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import { useIdioma, localeDeIdioma } from '../../lib/i18n';
-import { lerConta, lerEquipe, convidarMembro, removerMembro, atribuirAMim, dispositivosDoMembro, nomearEquipe, reenviarConvite, salvarFotoEquipe, reativarAssento } from '../../lib/auth';
+import { lerConta, lerEquipe, convidarMembro, removerMembro, atribuirAMim, dispositivosDoMembro, nomearEquipe, reenviarConvite, salvarFotoEquipe, reativarAssento, abrirPortal, moverCredito } from '../../lib/auth';
 
 const NOME_PLANO = { pro: 'Pro', studio: 'Studio' };
 
@@ -52,6 +52,10 @@ function WorkspaceConteudo() {
   const [dispositivos, setDispositivos] = useState({});
   const [meuEmail, setMeuEmail] = useState('');
   const [nomeEquipe, setNomeEquipe] = useState('');
+  const [abrindoPortal, setAbrindoPortal] = useState(false);
+  const [mover, setMover] = useState({ para: '', quanto: '', erro: '', ok: '' });
+  const [movendo, setMovendo] = useState(false);
+  const [cobrancaEmDia, setCobrancaEmDia] = useState(true);
   const [salvandoNome, setSalvandoNome] = useState(false);
   const [avisoNome, setAvisoNome] = useState('');
   const [foto, setFoto] = useState('');
@@ -134,6 +138,7 @@ function WorkspaceConteudo() {
       setMeuEmail((c.email || '').toLowerCase());
       const dados = await lerEquipe();
       setEquipe(dados.equipe);
+      setCobrancaEmDia(dados.cobranca_em_dia !== false);
       setMembros(dados.membros || []);
       if (dados.equipe) { setNomeEquipe(dados.equipe.nome || ''); setFoto(dados.equipe.foto || ''); }
     } catch (e) {
@@ -210,6 +215,35 @@ function WorkspaceConteudo() {
     finally { setConvidandoSlot(null); }
   }
 
+  /* MOVER CRÉDITO de um assento para outro. O que se move é a cota DESTE
+     ciclo, e não um saldo guardado: no próximo reset todo mundo volta à cota
+     do plano, e a tela diz isso em vez de deixar a pessoa descobrir sozinha.
+     Quem confere o resto (dono, mesma equipe, assentos ativos, e o piso do que
+     já foi gasto) é o servidor. */
+  async function moverAgora(deId) {
+    const quanto = parseInt(String(mover.quanto).replace(/\D/g, ''), 10);
+    if (!mover.para) { setMover((x) => ({ ...x, erro: t('ws_mov_escolha') })); return; }
+    if (!quanto) { setMover((x) => ({ ...x, erro: t('ws_mov_quanto') })); return; }
+    setMovendo(true);
+    setMover((x) => ({ ...x, erro: '', ok: '' }));
+    try {
+      await moverCredito(deId, parseInt(mover.para, 10), quanto);
+      await carregar();
+      setMover({ para: '', quanto: '', erro: '', ok: t('ws_mov_pronto') });
+    } catch (e) {
+      setMover((x) => ({ ...x, erro: e.message }));
+    } finally { setMovendo(false); }
+  }
+
+  async function abrirAssentos() {
+    setErro('');
+    const guia = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+    setAbrindoPortal(true);
+    try { await abrirPortal(guia); }
+    catch (e) { setErro(e.message); }
+    finally { setAbrindoPortal(false); }
+  }
+
   async function remover(id) {
     if (!confirm(t('ws_conf_remover'))) return;
     setErro('');
@@ -245,6 +279,15 @@ function WorkspaceConteudo() {
   async function toggleGerenciar(m) {
     if (expandido === m.id) { setExpandido(null); return; }
     setExpandido(m.id);
+    setMover({ para: '', quanto: '', erro: '', ok: '' });
+    /* ROLA O ASSENTO PARA A VISTA. O detalhe abre com uns 340px e cresce para
+       BAIXO: clicando num assento que estava no pé da tela, tudo o que abriu
+       nasce fora dela, e a única coisa que muda à vista é o rótulo do botão.
+       Parece que o clique não fez nada. */
+    setTimeout(() => {
+      const el = document.getElementById('assento-' + m.id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 60);
     if (!dispositivos[m.id]) {
       try {
         const lista = await dispositivosDoMembro(m.id);
@@ -419,12 +462,30 @@ function WorkspaceConteudo() {
         </div>
       )}
 
+      {/* ── A COBRANÇA NÃO PASSOU ──
+          O servidor já recusava convite com "regularize o pagamento", mas a
+          tela só contava isso DEPOIS de a pessoa escrever um e-mail e apertar
+          Convidar. Quem paga merece saber antes, e não como resposta a uma
+          tentativa. Fica no topo, acima dos assentos, porque afeta a lista
+          inteira e não um assento. */}
+      {!cobrancaEmDia && (
+        <div className="conta-card ws-cobranca">
+          <div className="ws-cobranca-txt">
+            <b>{t('ws_cobranca_h')}</b>
+            {t('ws_cobranca_p')}
+          </div>
+          <button className="ws-lotado-bt" onClick={abrirAssentos} disabled={abrindoPortal}>
+            {abrindoPortal ? t('assinatura_abrindo') : t('ws_cobranca_bt')}
+          </button>
+        </div>
+      )}
+
       {/* Assentos */}
       <div className="conta-card">
         <h2 className="conta-h2">{t('teams_assentos_tit')}</h2>
 
         {membros.map((m) => (
-          <div key={m.id} className="ws-slot">
+          <div key={m.id} id={'assento-' + m.id} className="ws-slot">
             <div className="ws-slot-linha">
               {/* A FOTO DE QUEM JÁ TEM. A lista mostrava a inicial do e-mail
                   para todo mundo, mesmo para quem tinha foto no perfil. Numa
@@ -447,14 +508,22 @@ function WorkspaceConteudo() {
                       <path d="M3 5.5l7 5 7-5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   )
-                  : m.foto_url ? '' : (m.email || '?')[0].toUpperCase()}
+                  : m.foto_url ? '' : (m.nome || m.email || '?')[0].toUpperCase()}
               </span>
-              <div className="disp-nome">
-                {m.email}
-                {m.eh_dono && <span className="ws-tag ws-tag-dono">{t('ws_dono')}</span>}
-                {m.status === 'convidado' && <span className="ws-tag ws-tag-pend">{t('ws_convite_pendente')}</span>}
-                {m.status === 'ativo' && !m.eh_dono && <span className="ws-tag ws-tag-ativo">{t('ws_ativo')}</span>}
-                {m.status === 'suspenso' && <span className="ws-tag ws-tag-susp">{t('ws_suspenso')}</span>}
+              {/* NOME EM CIMA, E-MAIL EMBAIXO, quando a pessoa já tem nome.
+                  A lista mostrava só endereços, e numa empresa eles são todos
+                  parecidos: nome.sobrenome@aempresa.com.br, cinco vezes. Quem
+                  ainda não aceitou o convite não tem conta, e aí o e-mail é
+                  tudo que existe: ele fica sozinho, na linha de cima. */}
+              <div className="ws-quem">
+                <div className="disp-nome">
+                  {m.nome || m.email}
+                  {m.eh_dono && <span className="ws-tag ws-tag-dono">{t('ws_dono')}</span>}
+                  {m.status === 'convidado' && <span className="ws-tag ws-tag-pend">{t('ws_convite_pendente')}</span>}
+                  {m.status === 'ativo' && !m.eh_dono && <span className="ws-tag ws-tag-ativo">{t('ws_ativo')}</span>}
+                  {m.status === 'suspenso' && <span className="ws-tag ws-tag-susp">{t('ws_suspenso')}</span>}
+                </div>
+                {m.nome && <div className="ws-quem-email">{m.email}</div>}
               </div>
               <div className="ws-slot-dir">
                 {/* O crédito era um anel de 34px com os dois números escritos
@@ -500,6 +569,53 @@ function WorkspaceConteudo() {
                       </>
                     )}
                   </>
+                )}
+
+                {/* ── MOVER CRÉDITO ──
+                    O plano dá a mesma cota para todo mundo, e a realidade não
+                    é essa: uma pessoa passa o mês sem abrir o plugin enquanto
+                    outra trava no dia 20. Antes, a única saída era comprar
+                    recarga com o crédito da primeira parado ao lado.
+
+                    O QUE SE MOVE É A COTA DESTE CICLO. No próximo reset todo
+                    mundo volta à cota do plano, e a frase abaixo diz isso: sem
+                    ela, o dono acharia que arrumou o mês que vem também.
+
+                    Só aparece entre assentos ativos, e só se houver outro para
+                    receber. Assento vazio guarda saldo para quem chegar, e
+                    convite pendente ainda não tem conta onde escrever. */}
+                {m.status === 'ativo' && m.creditos_total != null
+                  && membros.filter((o) => o.id !== m.id && o.status === 'ativo' && o.creditos_total != null).length > 0 && (
+                  <div className="ws-mover">
+                    <div className="ws-disp-tit">{t('ws_mov_tit')}</div>
+                    <div className="ws-mover-linha">
+                      <input
+                        className="ws-input ws-mover-qtd"
+                        inputMode="numeric"
+                        placeholder={t('ws_mov_ph')}
+                        value={mover.quanto}
+                        onChange={(e) => setMover((x) => ({ ...x, quanto: e.target.value, erro: '', ok: '' }))}
+                      />
+                      <select
+                        className="perfil-select ws-mover-quem"
+                        value={mover.para}
+                        onChange={(e) => setMover((x) => ({ ...x, para: e.target.value, erro: '', ok: '' }))}
+                      >
+                        <option value="">{t('ws_mov_para')}</option>
+                        {membros
+                          .filter((o) => o.id !== m.id && o.status === 'ativo' && o.creditos_total != null)
+                          .map((o) => (
+                            <option key={o.id} value={o.id}>{o.nome || o.email}</option>
+                          ))}
+                      </select>
+                      <button className="ws-btn-sec" onClick={() => moverAgora(m.id)} disabled={movendo}>
+                        {movendo ? t('comum_salvando') : t('ws_mov_bt')}
+                      </button>
+                    </div>
+                    <p className="ws-obs" style={{ marginTop: 8 }}>{t('ws_mov_obs')}</p>
+                    {mover.erro && <p className="ws-erro" style={{ marginTop: 6 }}>{mover.erro}</p>}
+                    {mover.ok && <p className="ws-aviso-txt" style={{ marginTop: 6 }}>{mover.ok}</p>}
+                  </div>
                 )}
 
                 <div className="ws-acoes">
@@ -594,8 +710,13 @@ function WorkspaceConteudo() {
               <b>{t('ws_lotado_h')}</b>
               {t('ws_lotado_p')}
             </div>
-            <button className="ws-lotado-bt" onClick={() => router.push('/assinatura')}>
-              {t('ws_lotado_bt')}
+            {/* Vai DIRETO para o portal do Stripe, e não para Assinatura. Quem
+                está aqui já sabe o que quer, e mandar para uma tela que só tem
+                outro botão para o mesmo lugar é cobrar dois cliques pela mesma
+                viagem. A guia abre dentro do clique: aberta depois do await,
+                o navegador trata como pop-up e bloqueia. */}
+            <button className="ws-lotado-bt" onClick={abrirAssentos} disabled={abrindoPortal}>
+              {abrindoPortal ? t('assinatura_abrindo') : t('ws_lotado_bt')}
             </button>
           </div>
         )}
