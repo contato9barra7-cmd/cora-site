@@ -28,7 +28,15 @@
 
      Sao oito degraus, e cada um tem UM trabalho. Tamanho novo aqui so entra
      se nenhum destes servir, e nesse caso o certo costuma ser mudar o peso ou
-     a cor, e nao o tamanho. *//* eyebrow, tag, contagem *//* nota de rodape, dica *//* paragrafo secundario, e-mail sob o nome *//* o texto normal, e todo botao *//* o h2 de um cartao *//* o titulo de um bloco grande *//* o h1 *//* o credito do heroi, que se le de longe */
+     a cor, e nao o tamanho. *//* eyebrow, tag, contagem *//* nota de rodape, dica *//* paragrafo secundario, e-mail sob o nome *//* o texto normal, e todo botao *//* o h2 de um cartao *//* o titulo de um bloco grande *//* o h1 *//* o credito do heroi, que se le de longe *//* ── A MARCA INVERTIDA, PARA O TEMA ESCURO ──
+     A mesma geometria, com as duas cores trocadas de lugar: o que era
+     chao de lima vira chao de turquesa, e as formas viram lima. Continua
+     sendo a marca, e ganha um jeito proprio de aparecer no escuro.
+
+     Seguro para o que fica EM CIMA dela: a pastilha de vidro e o anel do
+     avatar sao pretos fixos, e o preto da 15,9:1 sobre a lima e 14,2:1
+     sobre a turquesa. Nenhum dos dois chega perto do minimo. *//* Qual das duas vale AGORA. Quem desenha uma faixa chama esta, e nao a
+     lima direto: assim o tema decide num lugar so. */
   
   --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
   --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
@@ -66,10 +74,22 @@
   --faixa-pe:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%224.5%22%20viewBox%3D%220%200%201%204.5%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%221%22%20height%3D%224.5%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Cpath%20d%3D%22M0%2C0%20A.5.5%200%200%200%201%2C0%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C0.5%20A.5.5%200%200%200%201%2C0.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C1%20A.5.5%200%200%200%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C1.5%20A.5.5%200%200%200%201%2C1.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C2%20A.5.5%200%200%200%201%2C2%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C2.5%20A.5.5%200%200%200%201%2C2.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C3%20A.5.5%200%200%200%201%2C3%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C3.5%20A.5.5%200%200%200%201%2C3.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C4%20A.5.5%200%200%200%201%2C4%20Z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
   --faixa-deitada:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
   
+  --faixa-pe-inv:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%224.5%22%20viewBox%3D%220%200%201%204.5%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%221%22%20height%3D%224.5%22%20fill%3D%22%23ADECDF%22%2F%3E%3Cg%20fill%3D%22%23C4FBA7%22%3E%3Cpath%20d%3D%22M0%2C0%20A.5.5%200%200%200%201%2C0%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C0.5%20A.5.5%200%200%200%201%2C0.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C1%20A.5.5%200%200%200%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C1.5%20A.5.5%200%200%200%201%2C1.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C2%20A.5.5%200%200%200%201%2C2%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C2.5%20A.5.5%200%200%200%201%2C2.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C3%20A.5.5%200%200%200%201%2C3%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C3.5%20A.5.5%200%200%200%201%2C3.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C4%20A.5.5%200%200%200%201%2C4%20Z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --faixa-deitada-inv:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23ADECDF%22%2F%3E%3Cg%20fill%3D%22%23C4FBA7%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  
+  --faixa-agora:var(--faixa-deitada);
+  --faixa-pe-agora:var(--faixa-pe);
+  
 }/* O escuro do painel. As páginas públicas não têm tema escuro, o painel tem,
    com ajuste na conta e no menu do avatar. Tirar seria tirar uma preferência
-   que já existe, então ele fica, com um par coerente dos tokens novos. A
-   faixa não muda de cor no escuro: ela é a marca, e a marca é a mesma. */[data-theme="dark"] .pn{
+   que já existe, então ele fica, com um par coerente dos tokens novos.
+
+   A FAIXA INVERTE NO ESCURO (decisão do dono em 08/09/2026). Ela continua
+   sendo a marca: o que muda é qual das duas cores faz o chão. No claro o
+   chão é lima com as formas em turquesa, no escuro é o contrário. O
+   cabeçalho troca com um cruzamento de 420ms, porque o seletor de tema mora
+   no menu do avatar, que abre em cima dele: quem troca o tema está olhando
+   justamente para a faixa quando ela muda. */[data-theme="dark"] .pn{
   --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
   --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
   --line:#2B2B30; --line2:#3A3A41;
@@ -77,6 +97,8 @@
   --turq-txt:var(--turquesa-esc);
   --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.16);
   --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+  --faixa-agora:var(--faixa-deitada-inv);
+  --faixa-pe-agora:var(--faixa-pe-inv);
 }.pn .app-shell{
   min-height:100vh; background:var(--wash); color:var(--ink);
   font-family:var(--fonte); font-size:14.5px; line-height:1.55;
@@ -181,11 +203,26 @@
    A faixa entra numa camada absoluta e não no fundo do próprio cabeçalho:
    assim quem fica em cima sobe com z-index, em vez de disputar com o pai.
    E o `background-size` vai em conta, nunca `auto`: o SVG da faixa carrega
-   preserveAspectRatio="none" e o `auto` não devolve a proporção dele. */.pn .app-header--faixa{ border-bottom-color:var(--vidro-linha); }.pn .app-header--faixa::before{
+   preserveAspectRatio="none" e o `auto` não devolve a proporção dele. */.pn .app-header--faixa{ border-bottom-color:var(--vidro-linha); }/* ── AS DUAS FAIXAS, UMA POR CIMA DA OUTRA ──
+   Trocar de tema troca o `background-image`, e imagem de fundo NAO se anima:
+   ela pula de uma para a outra. Para o cruzamento existir, as duas precisam
+   estar na tela ao mesmo tempo, e o que se anima e a OPACIDADE da de cima.
+
+   Por isso sao duas camadas e nao uma: `::before` carrega a de chao lima e
+   fica sempre visivel, `::after` carrega a invertida e vive em zero. No
+   escuro ela sobe para um, e o que o olho ve e uma virando a outra.
+
+   Vale a pena justamente aqui: o seletor de tema mora no menu do avatar, que
+   abre EM CIMA do cabecalho. Quem troca o tema esta olhando para esta faixa
+   no instante em que ela muda. */.pn .app-header--faixa::before, .pn .app-header--faixa::after{
   content:''; position:absolute; inset:0; pointer-events:none;
-  background:var(--faixa-deitada) repeat-x left center;
+  background-repeat:repeat-x; background-position:left center;
   background-size:calc(var(--header-h) * 8) 100%;
-}.pn .app-header--faixa > *{ position:relative; z-index:1; }.pn .app-header--faixa .app-header-aqui{/* Preto fixo, e não var(--ink): no tema escuro o --ink é claro, e sobre o
+  transition:opacity 420ms cubic-bezier(.16,1,.3,1);
+}.pn .app-header--faixa::before{ background-image:var(--faixa-deitada); }.pn .app-header--faixa::after{ background-image:var(--faixa-deitada-inv); opacity:0; }[data-theme="dark"] .pn .app-header--faixa::after{ opacity:1; }/* Quem pediu menos movimento nao ganha um cruzamento de meio segundo toda vez
+   que o sistema troca de tema. A troca acontece igual, so que seca. */
+
+@media (prefers-reduced-motion:reduce){.pn .app-header--faixa::before, .pn .app-header--faixa::after{ transition:none; }}.pn .app-header--faixa > *{ position:relative; z-index:1; }.pn .app-header--faixa .app-header-aqui{/* Preto fixo, e não var(--ink): no tema escuro o --ink é claro, e sobre o
      vidro branco ele sumiria. A faixa é clara nos dois temas. */
   padding:8px 15px; border-radius:var(--pill);
   
@@ -241,7 +278,7 @@
    O ladrilho é a altura vezes oito, então engrossar a faixa aumenta as formas
    e diminui a quantidade delas na mesma largura. A 28px cabem umas dez, e a
    geometria se lê. A 16px eram dezessete e viravam textura. */.pn .app-user-faixa{
-  height:28px; background:var(--faixa-deitada) repeat-x left center;
+  height:28px; background:var(--faixa-agora) repeat-x left center;
   background-size:calc(28px * 8) 100%;
   border-radius:var(--r) var(--r) 0 0;
 }.pn .app-user-miolo{ padding:14px; }.pn .app-user-nome{
@@ -287,7 +324,7 @@
      porque o SVG vai com preserveAspectRatio="none" e o `auto` nem sempre
      devolve a proporcao dele: quando nao devolve, o ladrilho estica ate a
      altura da caixa e as meias-luas viram lascas achatadas. */
-  background:var(--faixa-pe) repeat-y center;
+  background:var(--faixa-pe-agora) repeat-y center;
   
   background-size:100% calc(var(--pad-heroi) * 4.5);
   animation:pn-esteira 64s linear infinite;
@@ -481,7 +518,7 @@
 
    `aspect-ratio` em vez de altura fixa: assim a proporcao se mantem em
    qualquer largura de cartao, que e o que "mesmo padrao" quer dizer. */.pn .trial-bloqueio-faixa{
-  aspect-ratio:520 / 73; background:var(--faixa-deitada) repeat-x left center;
+  aspect-ratio:520 / 73; background:var(--faixa-agora) repeat-x left center;
   background-size:auto 100%;
 }.pn .trial-bloqueio-miolo{ padding:30px 34px 34px; }.pn .trial-bloqueio-eb{ font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }.pn .trial-bloqueio-card h1{ margin:12px 0 0; font-size:26px; font-weight:500; letter-spacing:-.03em; line-height:1.14; }.pn .trial-bloqueio-card p{ margin:12px 0 0; font-size:14.5px; color:var(--ink2); line-height:1.6; }.pn .trial-bloqueio-card .btn{
   margin-top:24px; height:50px; padding:0 30px; border:0; border-radius:var(--pill);
@@ -945,7 +982,7 @@
   width:min(560px,100%); margin:0 auto; overflow:hidden;
   background:var(--paper); border-radius:var(--r-heroi); box-shadow:var(--sombra);
 }.pn .doc__faixa{
-  height:44px; background:var(--faixa-deitada) repeat-x left center;
+  height:44px; background:var(--faixa-agora) repeat-x left center;
   background-size:calc(44px * 8) 100%;
 }.pn .doc__miolo{ padding:28px clamp(22px,4vw,34px) 30px; }.pn .doc__marca{
   width:104px; height:25px; background:var(--ink);
@@ -994,7 +1031,7 @@
   }.pn .app-side-fechar:hover{ background:var(--wash2); color:var(--ink); }.pn .app-shell.recolhido .app-nav-item{ justify-content:flex-start; padding:0 12px; }.pn .app-shell.recolhido .app-nav-lbl{ display:block; }.pn .admin-wrap{ padding:26px 20px 48px; }/* Deitada, a esteira troca de ladrilho e de eixo. Esticar o de pé na
      horizontal esmagaria os círculos em elipses. */.pn .heroi{ grid-template-columns:1fr; min-height:0; }.pn .heroi__pad{
     height:var(--pad-deitado);
-    background:var(--faixa-deitada) repeat-x left center;
+    background:var(--faixa-agora) repeat-x left center;
     background-size:calc(var(--pad-deitado) * 8) 100%;
     animation:pn-esteira-deitada 54s linear infinite;
   }

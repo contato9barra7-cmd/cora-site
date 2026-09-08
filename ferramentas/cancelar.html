@@ -78,13 +78,33 @@
   --simbolo:url('data:image/png;base64,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');
   --faixa-pe:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%224.5%22%20viewBox%3D%220%200%201%204.5%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%221%22%20height%3D%224.5%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Cpath%20d%3D%22M0%2C0%20A.5.5%200%200%200%201%2C0%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C0.5%20A.5.5%200%200%200%201%2C0.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C1%20A.5.5%200%200%200%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C1.5%20A.5.5%200%200%200%201%2C1.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C2%20A.5.5%200%200%200%201%2C2%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C2.5%20A.5.5%200%200%200%201%2C2.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C3%20A.5.5%200%200%200%201%2C3%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C3.5%20A.5.5%200%200%200%201%2C3.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C4%20A.5.5%200%200%200%201%2C4%20Z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
   --faixa-deitada:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  /* ── A MARCA INVERTIDA, PARA O TEMA ESCURO ──
+     A mesma geometria, com as duas cores trocadas de lugar: o que era
+     chao de lima vira chao de turquesa, e as formas viram lima. Continua
+     sendo a marca, e ganha um jeito proprio de aparecer no escuro.
+
+     Seguro para o que fica EM CIMA dela: a pastilha de vidro e o anel do
+     avatar sao pretos fixos, e o preto da 15,9:1 sobre a lima e 14,2:1
+     sobre a turquesa. Nenhum dos dois chega perto do minimo. */
+  --faixa-pe-inv:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%224.5%22%20viewBox%3D%220%200%201%204.5%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%221%22%20height%3D%224.5%22%20fill%3D%22%23ADECDF%22%2F%3E%3Cg%20fill%3D%22%23C4FBA7%22%3E%3Cpath%20d%3D%22M0%2C0%20A.5.5%200%200%200%201%2C0%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C0.5%20A.5.5%200%200%200%201%2C0.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C1%20A.5.5%200%200%200%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C1.5%20A.5.5%200%200%200%201%2C1.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C2%20A.5.5%200%200%200%201%2C2%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C2.5%20A.5.5%200%200%200%201%2C2.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C3%20A.5.5%200%200%200%201%2C3%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C3.5%20A.5.5%200%200%200%201%2C3.5%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C4%20A.5.5%200%200%200%201%2C4%20Z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --faixa-deitada-inv:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23ADECDF%22%2F%3E%3Cg%20fill%3D%22%23C4FBA7%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  /* Qual das duas vale AGORA. Quem desenha uma faixa chama esta, e nao a
+     lima direto: assim o tema decide num lugar so. */
+  --faixa-agora:var(--faixa-deitada);
+  --faixa-pe-agora:var(--faixa-pe);
   
 }
 
 /* O escuro do painel. As páginas públicas não têm tema escuro, o painel tem,
    com ajuste na conta e no menu do avatar. Tirar seria tirar uma preferência
-   que já existe, então ele fica, com um par coerente dos tokens novos. A
-   faixa não muda de cor no escuro: ela é a marca, e a marca é a mesma. */
+   que já existe, então ele fica, com um par coerente dos tokens novos.
+
+   A FAIXA INVERTE NO ESCURO (decisão do dono em 08/09/2026). Ela continua
+   sendo a marca: o que muda é qual das duas cores faz o chão. No claro o
+   chão é lima com as formas em turquesa, no escuro é o contrário. O
+   cabeçalho troca com um cruzamento de 420ms, porque o seletor de tema mora
+   no menu do avatar, que abre em cima dele: quem troca o tema está olhando
+   justamente para a faixa quando ela muda. */
 :root[data-theme="dark"]{
   --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
   --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
@@ -93,6 +113,8 @@
   --turq-txt:var(--turquesa-esc);
   --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.16);
   --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+  --faixa-agora:var(--faixa-deitada-inv);
+  --faixa-pe-agora:var(--faixa-pe-inv);
 }
 
 .app-shell{
@@ -262,10 +284,33 @@
    E o `background-size` vai em conta, nunca `auto`: o SVG da faixa carrega
    preserveAspectRatio="none" e o `auto` não devolve a proporção dele. */
 .app-header--faixa{ border-bottom-color:var(--vidro-linha); }
-.app-header--faixa::before{
+/* ── AS DUAS FAIXAS, UMA POR CIMA DA OUTRA ──
+   Trocar de tema troca o `background-image`, e imagem de fundo NAO se anima:
+   ela pula de uma para a outra. Para o cruzamento existir, as duas precisam
+   estar na tela ao mesmo tempo, e o que se anima e a OPACIDADE da de cima.
+
+   Por isso sao duas camadas e nao uma: `::before` carrega a de chao lima e
+   fica sempre visivel, `::after` carrega a invertida e vive em zero. No
+   escuro ela sobe para um, e o que o olho ve e uma virando a outra.
+
+   Vale a pena justamente aqui: o seletor de tema mora no menu do avatar, que
+   abre EM CIMA do cabecalho. Quem troca o tema esta olhando para esta faixa
+   no instante em que ela muda. */
+.app-header--faixa::before,
+.app-header--faixa::after{
   content:''; position:absolute; inset:0; pointer-events:none;
-  background:var(--faixa-deitada) repeat-x left center;
+  background-repeat:repeat-x; background-position:left center;
   background-size:calc(var(--header-h) * 8) 100%;
+  transition:opacity 420ms cubic-bezier(.16,1,.3,1);
+}
+.app-header--faixa::before{ background-image:var(--faixa-deitada); }
+.app-header--faixa::after{ background-image:var(--faixa-deitada-inv); opacity:0; }
+:root[data-theme="dark"] .app-header--faixa::after{ opacity:1; }
+/* Quem pediu menos movimento nao ganha um cruzamento de meio segundo toda vez
+   que o sistema troca de tema. A troca acontece igual, so que seca. */
+@media (prefers-reduced-motion:reduce){
+  .app-header--faixa::before,
+  .app-header--faixa::after{ transition:none; }
 }
 .app-header--faixa > *{ position:relative; z-index:1; }
 .app-header--faixa .app-header-aqui{
@@ -347,7 +392,7 @@
    e diminui a quantidade delas na mesma largura. A 28px cabem umas dez, e a
    geometria se lê. A 16px eram dezessete e viravam textura. */
 .app-user-faixa{
-  height:28px; background:var(--faixa-deitada) repeat-x left center;
+  height:28px; background:var(--faixa-agora) repeat-x left center;
   background-size:calc(28px * 8) 100%;
   border-radius:var(--r) var(--r) 0 0;
 }
@@ -421,7 +466,7 @@
   background:var(--paper); min-height:330px;
 }
 .heroi__pad{
-  background:var(--faixa-pe) repeat-y center;
+  background:var(--faixa-pe-agora) repeat-y center;
   /* O ladrilho tem 4,5 larguras de altura. Escrito em conta e nao com `auto`
      porque o SVG vai com preserveAspectRatio="none" e o `auto` nem sempre
      devolve a proporcao dele: quando nao devolve, o ladrilho estica ate a
@@ -771,7 +816,7 @@
    `aspect-ratio` em vez de altura fixa: assim a proporcao se mantem em
    qualquer largura de cartao, que e o que "mesmo padrao" quer dizer. */
 .trial-bloqueio-faixa{
-  aspect-ratio:520 / 73; background:var(--faixa-deitada) repeat-x left center;
+  aspect-ratio:520 / 73; background:var(--faixa-agora) repeat-x left center;
   background-size:auto 100%;
 }
 .trial-bloqueio-miolo{ padding:30px 34px 34px; }
@@ -1534,7 +1579,7 @@
   background:var(--paper); border-radius:var(--r-heroi); box-shadow:var(--sombra);
 }
 .doc__faixa{
-  height:44px; background:var(--faixa-deitada) repeat-x left center;
+  height:44px; background:var(--faixa-agora) repeat-x left center;
   background-size:calc(44px * 8) 100%;
 }
 .doc__miolo{ padding:28px clamp(22px,4vw,34px) 30px; }
@@ -1628,7 +1673,7 @@
   .heroi{ grid-template-columns:1fr; min-height:0; }
   .heroi__pad{
     height:var(--pad-deitado);
-    background:var(--faixa-deitada) repeat-x left center;
+    background:var(--faixa-agora) repeat-x left center;
     background-size:calc(var(--pad-deitado) * 8) 100%;
     animation:pn-esteira-deitada 54s linear infinite;
   }
