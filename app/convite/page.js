@@ -2,7 +2,8 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Nav from '../../components/Nav';
+import Link from 'next/link';
+import LoginSplit from '../../components/LoginSplit';
 import { estaLogado, aceitarConvite, infoConvite } from '../../lib/auth';
 import { useIdioma } from '../../lib/i18n';
 
@@ -55,47 +56,64 @@ function ConviteConteudo() {
   }, []);
 
   return (
-    <>
-      <Nav />
-      <div className="container">
-        <div className="tm-wrap" style={{ maxWidth: 520, textAlign: 'center' }}>
-          {estado === 'carregando' && <p>{t('conv_processando')}</p>}
-          {estado === 'ok' && (
-            <>
-              <h1 className="tm-h1">{t('conv_bemvindo')}</h1>
-              <p className="tm-lead" style={{ margin: '0 auto 24px' }}>{t('conv_ativado')}</p>
-              <button className="btn btn--verde" style={{ padding: '12px 28px' }} onClick={() => router.push('/conta')}>{t('conv_ir_conta')}</button>
-            </>
-          )}
-          {estado === 'precisa_login' && (
-            <>
-              <h1 className="tm-h1">{t('conv_aceite')}</h1>
-              <p className="tm-lead" style={{ margin: '0 auto 24px' }}>{t('conv_login_cadastro')}</p>
-              <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-                <button className="btn btn--verde" style={{ padding: '12px 24px' }} onClick={() => router.push('/login')}>{t('conv_fazer_login')}</button>
-                <button className="btn btn--ink" style={{ padding: '12px 24px' }} onClick={() => router.push('/cadastro')}>{t('cad_criar')}</button>
-              </div>
-            </>
-          )}
-          {estado === 'erro' && (
-            <>
-              <h1 className="tm-h1">{t('conv_indisponivel')}</h1>
-              <p className="tm-lead" style={{ margin: '0 auto 24px' }}>
-                {msg || t('conv_nao_processar')} {t('conv_ja_aceito')}
-              </p>
-              <button className="btn btn--verde" style={{ padding: '12px 28px' }} onClick={() => router.push('/conta')}>{t('conv_ir_conta')}</button>
-            </>
-          )}
-        </div>
+    <LoginSplit>
+      <div className="login-card">
+        <Link href="/" className="login-logo">
+          <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
+        </Link>
+
+        {estado === 'carregando' && <p className="login-sub">{t('conv_processando')}</p>}
+
+        {estado === 'ok' && (
+          <>
+            <h1 className="login-titulo">{t('conv_bemvindo')}</h1>
+            <p className="login-sub">{t('conv_ativado')}</p>
+            <button className="btn btn--verde" onClick={() => router.push('/conta')}>
+              {t('conv_ir_conta')}
+            </button>
+          </>
+        )}
+
+        {/* DOIS BOTOES, E O DE CRIAR CONTA E O PRINCIPAL: quem chega por um
+            convite quase nunca tem conta. Quem ja tem entra pelo elo de baixo,
+            no mesmo lugar onde o login poe o "criar conta" e o cadastro poe o
+            "entrar" — a tela nao inventa um caminho que o fluxo ja tem. */}
+        {estado === 'precisa_login' && (
+          <>
+            <h1 className="login-titulo">{t('conv_aceite')}</h1>
+            <p className="login-sub">{t('conv_login_cadastro')}</p>
+            <button className="btn btn--verde" onClick={() => router.push('/cadastro')}>
+              {t('cad_criar')}
+            </button>
+            <p className="login-rodape">
+              {t('conv_ja_tem_conta')}{' '}
+              <button className="link-botao" onClick={() => router.push('/login')}>
+                {t('conv_fazer_login')}
+              </button>
+            </p>
+          </>
+        )}
+
+        {estado === 'erro' && (
+          <>
+            <h1 className="login-titulo">{t('conv_indisponivel')}</h1>
+            <p className="login-sub">
+              {msg || t('conv_nao_processar')} {t('conv_ja_aceito')}
+            </p>
+            <button className="btn btn--verde" onClick={() => router.push('/conta')}>
+              {t('conv_ir_conta')}
+            </button>
+          </>
+        )}
       </div>
-    </>
+    </LoginSplit>
   );
 }
 
 export default function Convite() {
   const { t } = useIdioma();
   return (
-    <Suspense fallback={<div className="container"><p>{t('comum_carregando')}</p></div>}>
+    <Suspense fallback={<LoginSplit><div className="login-card"><p className="login-sub">{t('comum_carregando')}</p></div></LoginSplit>}>
       <ConviteConteudo />
     </Suspense>
   );
