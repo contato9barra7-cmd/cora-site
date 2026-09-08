@@ -63,7 +63,7 @@
   display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 20px;
   border:1px solid var(--line2); border-radius:var(--pill);
   background:var(--paper); color:var(--ink);
-  font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  font-family:inherit; font-size:14.5px; font-weight:600; cursor:pointer;
   transition:border-color var(--t), background-color var(--t), color var(--t);
 }.adm-btn-linha:hover{ border-color:var(--ink); }.adm-btn-linha svg{ width:16px; height:16px; }.adm-btn-linha--on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }.adm-btn-linha--on:hover{ background:#000000; }.adm-btn-n{ font-variant-numeric:tabular-nums; opacity:.72; }/* ══════════════════════════════════════════════════════════════════════
    AS ABAS
@@ -85,7 +85,7 @@
   overflow-x:auto; scrollbar-width:none;
 }.adm-abas__g{
   flex:none; padding-bottom:13px; white-space:nowrap;
-  font-size:10px; font-weight:700; letter-spacing:.14em;
+  font-size:11px; font-weight:700; letter-spacing:.14em;
   text-transform:uppercase; color:var(--ink3);
 }.adm-abas__g + .adm-aba{ margin-left:-4px; }/* O fio entre os grupos. Ele para antes da linha de baixo para os dois nao
    se encontrarem num T. */.adm-abas__fio{
@@ -114,7 +114,7 @@
   flex:none; display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 18px;
   border:1px solid var(--line2); border-radius:var(--pill);
   background:var(--paper); color:var(--ink);
-  font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  font-family:inherit; font-size:14.5px; font-weight:600; cursor:pointer;
   transition:border-color var(--t), background-color var(--t), color var(--t);
 }.adm-btn-ficha:hover{ border-color:var(--ink); }.adm-btn-ficha svg{ width:16px; height:16px; }.adm-btn-ficha--on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }/* O que está filtrando não vira etiqueta com cápsula: vira texto sublinhado
    de lima, o mesmo gesto do "Ver" da lista de faturas. Clicar tira. */.adm-filtros-linha{
@@ -126,7 +126,7 @@
   font-size:13.5px; font-weight:600; color:var(--ink);
   border-bottom:2px solid var(--lima); line-height:1.4;
   transition:border-color var(--t);
-}.adm-filtro:hover{ border-bottom-color:var(--ink); }.adm-filtro::after{ content:"×"; font-size:15px; line-height:1; color:var(--ink3); }.adm-filtro:hover::after{ color:var(--ink); }.adm-limpar{
+}.adm-filtro:hover{ border-bottom-color:var(--ink); }.adm-filtro::after{ content:"×"; font-size:14.5px; line-height:1; color:var(--ink3); }.adm-filtro:hover::after{ color:var(--ink); }.adm-limpar{
   border:0; background:none; padding:0; cursor:pointer; font-family:inherit;
   font-size:13.5px; color:var(--ink3); text-decoration:underline; text-underline-offset:3px;
 }.adm-limpar:hover{ color:var(--ink); }.adm-quantos{ margin-left:auto; font-variant-numeric:tabular-nums; }/* ══════════════════════════════════════════════════════════════════════
@@ -146,14 +146,14 @@
    nome. */.adm-id{
   display:inline-block; margin-right:7px; padding:0 5px;
   border-radius:5px; background:var(--wash2); color:var(--ink2);
-  font-size:11.5px; font-weight:600; font-variant-numeric:tabular-nums;
+  font-size:11px; font-weight:600; font-variant-numeric:tabular-nums;
   vertical-align:bottom;
 }.adm-num{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }.adm-mono{ white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--ink2); }.ad .fat-selo--neutro{ background:var(--wash2); color:var(--ink2); }/* O selo de equipe estava com o roxo escrito direto no JSX. */.ad .fat-selo--equipe{ background:var(--turquesa); color:#0B3A31; }.adm-tag-nv{
   margin-left:6px; padding:1px 7px; border-radius:var(--pill);
   background:var(--aviso-bg); color:var(--aviso);
-  font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+  font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
 }.adm-vazio{
-  margin:26px 0 6px; text-align:center; font-size:14px; color:var(--ink3);
+  margin:26px 0 6px; text-align:center; font-size:14.5px; color:var(--ink3);
   line-height:1.6; text-wrap:balance;
 }.adm-total{
   margin:16px 0 0; padding-top:14px; border-top:1px solid var(--line);
@@ -179,9 +179,9 @@
    ══════════════════════════════════════════════════════════════════════ */.adm-geo + .adm-geo{ margin-top:26px; }.adm-geo-sub{
   margin:0 0 14px; font-size:11px; font-weight:700;
   letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
-}.adm-geo-linha + .adm-geo-linha{ margin-top:15px; }.adm-geo-cab{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; }.adm-geo-k{ font-size:14px; font-weight:600; letter-spacing:-.01em; }.adm-geo-v{ font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }.adm-geo-barra{ margin-top:7px; display:grid; gap:3px; }.adm-geo-fill{ height:8px; border-radius:var(--pill); min-width:3px; }.adm-geo-fill--n{ background:var(--turquesa); }.adm-geo-fill--r{ background:var(--lima); }.adm-geo-legenda{
+}.adm-geo-linha + .adm-geo-linha{ margin-top:15px; }.adm-geo-cab{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; }.adm-geo-k{ font-size:14.5px; font-weight:600; letter-spacing:-.01em; }.adm-geo-v{ font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }.adm-geo-barra{ margin-top:7px; display:grid; gap:3px; }.adm-geo-fill{ height:8px; border-radius:var(--pill); min-width:3px; }.adm-geo-fill--n{ background:var(--turquesa); }.adm-geo-fill--r{ background:var(--lima); }.adm-geo-legenda{
   margin-top:24px; padding-top:16px; border-top:1px solid var(--line);
-  display:flex; gap:20px; flex-wrap:wrap; font-size:13px; color:var(--ink3);
+  display:flex; gap:20px; flex-wrap:wrap; font-size:13.5px; color:var(--ink3);
 }.adm-geo-legenda span{ display:inline-flex; align-items:center; gap:8px; }.adm-geo-p{ width:14px; height:8px; border-radius:var(--pill); display:inline-block; }.adm-geo-p--n{ background:var(--turquesa); }.adm-geo-p--r{ background:var(--lima); }/* ══════════════════════════════════════════════════════════════════════
    AS ABAS DE DENTRO DA FICHA
 
@@ -204,7 +204,7 @@
 }.ad .seg-track::-webkit-scrollbar{ display:none; }.ad .seg-item{
   position:relative; flex:none; display:inline-flex; align-items:center; gap:7px;
   padding:0 0 11px; border:0; border-radius:0; background:none;
-  font-family:inherit; font-size:14px; font-weight:500; letter-spacing:-.008em;
+  font-family:inherit; font-size:14.5px; font-weight:500; letter-spacing:-.008em;
   color:var(--ink2); cursor:pointer; white-space:nowrap;
   box-shadow:none; transition:color var(--t);
 }.ad .seg-item:hover{ color:var(--ink); }.ad .seg-item::after{
@@ -214,14 +214,14 @@
   background:none; color:var(--ink); font-weight:600; box-shadow:none;
 }.ad .seg-item.ativa::after{ background:var(--lima); }.ad .seg-badge{
   padding:0; border-radius:0; background:none; color:var(--ink3);
-  font-size:13px; font-weight:500; font-variant-numeric:tabular-nums;
+  font-size:13.5px; font-weight:500; font-variant-numeric:tabular-nums;
 }.ad .seg-item.ativa .seg-badge{ background:none; color:var(--ink3); }/* ══════════════════════════════════════════════════════════════════════
    OS ACEITES E A FICHA
    ══════════════════════════════════════════════════════════════════════ */.adm-ficha-grade{ display:grid; gap:14px; }
 @media (min-width:820px){.adm-ficha-grade{ grid-template-columns:1fr 1fr; }}.adm-dl{ margin:16px 0 0; display:grid; gap:0; }.adm-dl div{
   display:flex; align-items:baseline; justify-content:space-between; gap:16px;
   padding:11px 0; border-top:1px solid var(--line);
-}.adm-dl dt{ font-size:13.5px; color:var(--ink3); }.adm-dl dd{ margin:0; font-size:14px; color:var(--ink); font-weight:500; text-align:right; }.adm-dl dd.adm-num{ font-variant-numeric:tabular-nums; }/* ══════════════════════════════════════════════════════════════════════
+}.adm-dl dt{ font-size:13.5px; color:var(--ink3); }.adm-dl dd{ margin:0; font-size:14.5px; color:var(--ink); font-weight:500; text-align:right; }.adm-dl dd.adm-num{ font-variant-numeric:tabular-nums; }/* ══════════════════════════════════════════════════════════════════════
    O DROPDOWN DOS FILTROS
 
    Ele era uma gaveta que entrava pela direita e tapava a tabela. Virou um
@@ -244,30 +244,30 @@
 @media (prefers-reduced-motion:reduce){.adm-pop{ animation:none; }}.adm-pop__cab{
   display:flex; align-items:center; justify-content:space-between; gap:12px;
   padding:15px 18px 13px; border-bottom:1px solid var(--line);
-}.adm-pop__cab h2{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.014em; }.adm-pop__corpo{
+}.adm-pop__cab h2{ margin:0; font-size:14.5px; font-weight:600; letter-spacing:-.014em; }.adm-pop__corpo{
   padding:16px 18px; display:grid; gap:12px; align-content:start;
   max-height:min(420px,50vh); overflow-y:auto; overscroll-behavior:contain;
 }/* As duas datas do período, lado a lado. */.adm-pop__datas{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }.adm-pop__datas input, .adm-pop__ano input{
   width:100%; padding:11px 14px; border-radius:14px;
   border:1px solid var(--line); background:var(--paper); color:var(--ink);
-  font-family:inherit; font-size:14px;
+  font-family:inherit; font-size:14.5px;
 }.adm-pop__datas input:focus, .adm-pop__ano input:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }.adm-pop__pe{
   display:flex; align-items:center; justify-content:space-between; gap:12px;
   padding:13px 18px; border-top:1px solid var(--line);
-}.adm-pop__conta{ font-size:13px; color:var(--ink3); font-variant-numeric:tabular-nums; }.adm-pop__pe .as-btn-cta{ height:38px; padding:0 18px; font-size:13.5px; }/* ══════════════════════════════════════════════════════════════════════
+}.adm-pop__conta{ font-size:13.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }.adm-pop__pe .as-btn-cta{ height:38px; padding:0 18px; font-size:13.5px; }/* ══════════════════════════════════════════════════════════════════════
    O MENU DE EXPORTAR
    ══════════════════════════════════════════════════════════════════════ */.adm-export{ position:relative; }.adm-export__menu{
   position:absolute; top:calc(100% + 10px); right:0; z-index:60;
   width:300px; padding:8px; border-radius:18px;
   background:var(--paper); border:1px solid var(--line); box-shadow:var(--sombra);
 }.adm-export__grupo{
-  padding:9px 13px 6px; font-size:10.5px; font-weight:700;
+  padding:9px 13px 6px; font-size:11px; font-weight:700;
   letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
 }.adm-export__item{
   display:block; width:100%; text-align:left; padding:10px 13px;
   border:0; border-radius:12px; background:none; cursor:pointer; font-family:inherit;
   transition:background-color var(--t);
-}.adm-export__item:hover:not(:disabled){ background:var(--wash); }.adm-export__item:disabled{ opacity:.4; cursor:default; }.adm-export__item strong{ display:block; font-size:14px; font-weight:600; color:var(--ink); letter-spacing:-.01em; }.adm-export__item em{ display:block; margin-top:2px; font-size:12.5px; font-style:normal; color:var(--ink3); line-height:1.45; }.adm-export__sep{ height:1px; margin:7px 12px; background:var(--line); }
+}.adm-export__item:hover:not(:disabled){ background:var(--wash); }.adm-export__item:disabled{ opacity:.4; cursor:default; }.adm-export__item strong{ display:block; font-size:14.5px; font-weight:600; color:var(--ink); letter-spacing:-.01em; }.adm-export__item em{ display:block; margin-top:2px; font-size:12.5px; font-style:normal; color:var(--ink3); line-height:1.45; }.adm-export__sep{ height:1px; margin:7px 12px; background:var(--line); }
 
 @media (max-width:720px){.adm-cabeca{ align-items:stretch; }.adm-quantos{ margin-left:0; }.adm-sub-txt{ max-width:150px; }}/* ══════════════════════════════════════════════════════════════════════
    AS COLUNAS QUE OS INTERRUPTORES LIGAM
@@ -326,9 +326,9 @@
 }.adm-modal__cab{
   display:flex; align-items:center; justify-content:space-between; gap:14px;
   padding:20px 24px; border-bottom:1px solid var(--line);
-}.adm-modal__cab h2{ margin:0; font-size:19px; font-weight:500; letter-spacing:-.024em; }.adm-modal__x{
+}.adm-modal__cab h2{ margin:0; font-size:20px; font-weight:500; letter-spacing:-.024em; }.adm-modal__x{
   width:36px; height:36px; flex:none; border-radius:12px; border:1px solid var(--line);
-  background:var(--paper); color:var(--ink2); cursor:pointer; font-size:19px; line-height:1;
+  background:var(--paper); color:var(--ink2); cursor:pointer; font-size:20px; line-height:1;
   display:grid; place-items:center;
 }.adm-modal__x:hover{ border-color:var(--ink); color:var(--ink); }.adm-modal__corpo{ display:grid; grid-template-columns:1fr; }/* `minmax(0,1fr)` e nao `1fr`. O `1fr` tem largura minima AUTOMATICA, que
    nasce do conteudo: um campo de texto largo empurrava a coluna para fora do
@@ -348,7 +348,7 @@
   transition:border-color var(--t), box-shadow var(--t);
 }.adm-campo textarea{ min-height:180px; resize:vertical; }.adm-campo input:focus, .adm-campo textarea:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }.adm-campo__nota{ margin:7px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.5; }.adm-campo__nota code{
   padding:1px 6px; border-radius:6px; background:var(--wash2);
-  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; color:var(--ink2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; color:var(--ink2);
 }/* Mesmo motivo: o link do botao e comprido e empurrava o campo do lado. */.adm-dupla{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; }
 @media (max-width:520px){.adm-dupla{ grid-template-columns:1fr; }}/* ── a prévia ── */.adm-previa__rot{
   margin:0 0 10px; font-size:11px; font-weight:700;
@@ -369,14 +369,14 @@
   font-size:20px; font-weight:500; letter-spacing:-.028em; line-height:1.2;
   text-wrap:balance;
 }.adm-previa__txt{
-  margin:12px 0 0; font-size:14px; color:var(--ink2); line-height:1.65;
+  margin:12px 0 0; font-size:14.5px; color:var(--ink2); line-height:1.65;
   white-space:pre-wrap; text-wrap:pretty;
 }.adm-previa__bt{
   display:inline-block; margin-top:18px; padding:12px 22px; border-radius:var(--pill);
-  background:var(--lima); color:#111111; font-size:14px; font-weight:600;
+  background:var(--lima); color:#111111; font-size:14.5px; font-weight:600;
 }.adm-previa__pe{
   margin:20px 0 0; padding-top:14px; border-top:1px solid var(--line);
-  font-size:11.5px; color:var(--ink3); line-height:1.6;
+  font-size:11px; color:var(--ink3); line-height:1.6;
 }.adm-modal__pe{
   display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
   padding:16px 24px; border-top:1px solid var(--line);
@@ -399,14 +399,14 @@
   -webkit-mask:var(--marca) no-repeat left center / contain;
   mask:var(--marca) no-repeat left center / contain;
 }.ad .cmp__tit{
-  margin:26px 0 0; font-size:24px; font-weight:500; color:var(--ink);
+  margin:26px 0 0; font-size:26px; font-weight:500; color:var(--ink);
   letter-spacing:-.03em; line-height:1.15;
 }.ad .cmp__num{ margin:5px 0 0; font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }.ad .cmp__quem{ margin-top:26px; display:grid; gap:18px; grid-template-columns:1fr; }
 @media (min-width:620px){.ad .cmp__quem{ grid-template-columns:1fr 1fr; }}.ad .cmp__quem span{
-  display:block; margin-bottom:6px; font-size:10px; font-weight:700;
+  display:block; margin-bottom:6px; font-size:11px; font-weight:700;
   letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
-}.ad .cmp__quem p{ margin:0; font-size:13px; color:var(--ink2); line-height:1.65; }.ad .cmp__quem b{ color:var(--ink); font-weight:600; }.ad .cmp__texto{ margin-top:28px; }.ad .cmp__texto > span{
-  display:block; margin-bottom:10px; font-size:10px; font-weight:700;
+}.ad .cmp__quem p{ margin:0; font-size:13.5px; color:var(--ink2); line-height:1.65; }.ad .cmp__quem b{ color:var(--ink); font-weight:600; }.ad .cmp__texto{ margin-top:28px; }.ad .cmp__texto > span{
+  display:block; margin-bottom:10px; font-size:11px; font-weight:700;
   letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
 }.ad .cmp__doc{
   padding:20px 22px; border:1px solid var(--line); border-radius:var(--r-peq);
@@ -416,23 +416,23 @@
    mentiria no dia em que a pessoa reaceitar so um dos dois. *//* Dizer, antes de comecar, que sao dois. Sem esta linha quem abre le o titulo
    "Termos de Uso" logo no topo do texto e conclui que a folha e so dele, e nao
    rola ate achar a Privacidade mais abaixo. */.ad .cmp__aviso{
-  margin:0 0 14px; font-size:12px; color:var(--ink3); line-height:1.6;
+  margin:0 0 14px; font-size:12.5px; color:var(--ink3); line-height:1.6;
   text-wrap:pretty;
-}.ad .cmp__sec + .cmp__sec{ margin-top:18px; }.ad .cmp__sec-cab{ margin-bottom:9px; }.ad .cmp__sec-cab h4{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.014em; }.ad .cmp__sec-cab p{ margin:4px 0 0; font-size:11.5px; color:var(--ink3); line-height:1.6; }.ad .cmp__sec-cab b{ color:var(--ink2); font-weight:600; }.ad .cmp__cl + .cmp__cl{ margin-top:12px; }.ad .cmp__cl h4{ margin:0 0 4px; font-size:12.5px; font-weight:600; letter-spacing:-.01em; }.ad .cmp__cl p{ margin:0; font-size:12.5px; color:var(--ink2); line-height:1.7; text-wrap:pretty; }.ad .cmp__cl b{ color:var(--ink); font-weight:600; }/* A localizacao lida do IP, abaixo dele e em letra menor: o IP e o fato
+}.ad .cmp__sec + .cmp__sec{ margin-top:18px; }.ad .cmp__sec-cab{ margin-bottom:9px; }.ad .cmp__sec-cab h4{ margin:0; font-size:14.5px; font-weight:600; letter-spacing:-.014em; }.ad .cmp__sec-cab p{ margin:4px 0 0; font-size:11px; color:var(--ink3); line-height:1.6; }.ad .cmp__sec-cab b{ color:var(--ink2); font-weight:600; }.ad .cmp__cl + .cmp__cl{ margin-top:12px; }.ad .cmp__cl h4{ margin:0 0 4px; font-size:12.5px; font-weight:600; letter-spacing:-.01em; }.ad .cmp__cl p{ margin:0; font-size:12.5px; color:var(--ink2); line-height:1.7; text-wrap:pretty; }.ad .cmp__cl b{ color:var(--ink); font-weight:600; }/* A localizacao lida do IP, abaixo dele e em letra menor: o IP e o fato
    registrado, a cidade e leitura dele. Num papel que pode ir para a Justica,
    as duas na mesma linha teriam a mesma forca, e nao tem. */.ad .cmp__est{
   margin:6px 0 0!important; font-size:11px!important; color:var(--ink3)!important;
   line-height:1.55!important;
 }.ad .cmp__pe{
   margin:26px 0 0; padding-top:16px; border-top:1px solid var(--line);
-  font-size:11.5px; color:var(--ink3); line-height:1.7; text-wrap:pretty;
+  font-size:11px; color:var(--ink3); line-height:1.7; text-wrap:pretty;
 }/* A medida do CONTADOR de novidades desligadas. Cinza, e não vermelho:
    desligar não é erro, é escolha de quem recebe. */.adm-medida--off{ background:var(--wash2); border-color:transparent; color:var(--ink2); }.adm-medida--off b{ color:var(--ink); }.adm-medidas{ margin:18px 0 0; display:flex; gap:8px; flex-wrap:wrap; }.adm-medida{
   display:inline-flex; align-items:baseline; gap:6px;
   padding:6px 14px; border-radius:var(--pill);
   background:var(--ok-bg); border:1px solid transparent;
-  font-size:13px; color:var(--ok);
-}.adm-medida b{ font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ok); }/* ══════════════════════════════════════════════════════════════════════
+  font-size:13.5px; color:var(--ok);
+}.adm-medida b{ font-size:14.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ok); }/* ══════════════════════════════════════════════════════════════════════
    A PRIMEIRA LINHA DA FICHA: POR QUE PODE OU NÃO PODE GERAR
 
    É a primeira pergunta de todo atendimento, e a resposta já é calculada no
@@ -448,7 +448,7 @@
 }.adm-porque__selo{
   width:34px; height:34px; flex:none; border-radius:11px;
   display:grid; place-items:center;
-}.adm-porque__selo svg{ width:19px; height:19px; }.adm-porque__t{ margin:0; font-size:16px; font-weight:600; letter-spacing:-.016em; }.adm-porque__p{ margin:5px 0 0; font-size:13.5px; color:var(--ink2); line-height:1.6; max-width:70ch; }.adm-porque--ok{ border-left-color:var(--ok); }.adm-porque--ok .adm-porque__selo{ background:var(--ok-bg); color:var(--ok); }.adm-porque--ok .adm-porque__t{ color:var(--ok); }.adm-porque--nao{ border-left-color:var(--alerta); }.adm-porque--nao .adm-porque__selo{ background:var(--alerta-bg); color:var(--alerta); }.adm-porque--nao .adm-porque__t{ color:var(--alerta); }/* ══════════════════════════════════════════════════════════════════════
+}.adm-porque__selo svg{ width:19px; height:19px; }.adm-porque__t{ margin:0; font-size:17px; font-weight:600; letter-spacing:-.016em; }.adm-porque__p{ margin:5px 0 0; font-size:13.5px; color:var(--ink2); line-height:1.6; max-width:70ch; }.adm-porque--ok{ border-left-color:var(--ok); }.adm-porque--ok .adm-porque__selo{ background:var(--ok-bg); color:var(--ok); }.adm-porque--ok .adm-porque__t{ color:var(--ok); }.adm-porque--nao{ border-left-color:var(--alerta); }.adm-porque--nao .adm-porque__selo{ background:var(--alerta-bg); color:var(--alerta); }.adm-porque--nao .adm-porque__t{ color:var(--alerta); }/* ══════════════════════════════════════════════════════════════════════
    AS ANOTAÇÕES
 
    A memória do suporte hoje vive na cabeça de quem atendeu. Cada anotação
@@ -457,11 +457,11 @@
    ══════════════════════════════════════════════════════════════════════ */.adm-notas{ margin-top:18px; display:grid; gap:12px; }.adm-nota{
   padding:13px 15px; border-radius:var(--r-peq);
   background:var(--wash); border:1px solid var(--line);
-}.adm-nota p{ margin:0; font-size:13.5px; color:var(--ink); line-height:1.6; text-wrap:pretty; }.adm-nota span{ display:block; margin-top:7px; font-size:12px; color:var(--ink3); }.adm-nota-nova{ margin-top:14px; display:grid; gap:10px; justify-items:end; }.adm-nota-nova textarea{
+}.adm-nota p{ margin:0; font-size:13.5px; color:var(--ink); line-height:1.6; text-wrap:pretty; }.adm-nota span{ display:block; margin-top:7px; font-size:12.5px; color:var(--ink3); }.adm-nota-nova{ margin-top:14px; display:grid; gap:10px; justify-items:end; }.adm-nota-nova textarea{
   width:100%; min-height:78px; resize:vertical; padding:12px 15px;
   border:1px solid var(--line); border-radius:var(--r-peq);
   background:var(--paper); color:var(--ink);
-  font-family:inherit; font-size:14px; line-height:1.6;
+  font-family:inherit; font-size:14.5px; line-height:1.6;
   transition:border-color var(--t), box-shadow var(--t);
 }.adm-nota-nova textarea:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }.adm-acoes-acesso{ margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; }.adm-acoes-acesso .adm-btn-linha:disabled{ opacity:.45; cursor:default; }.adm-acoes-acesso .adm-btn-linha:disabled:hover{ border-color:var(--line2); }/* ══════════════════════════════════════════════════════════════════════
    O QUE A TABELA MOSTRA
@@ -489,9 +489,9 @@
    13px com recuo menor faz o recorte mais largo (Cadastro mais Dados
    fiscais) caber num monitor comum. Não é encolher por encolher: é a mesma
    escala que o resto do painel usa em texto de apoio.
-   ══════════════════════════════════════════════════════════════════════ */.ad .fat{ font-size:13px; }.ad .fat th{ padding:0 11px 9px; font-size:9.5px; letter-spacing:.12em; }.ad .fat td{ padding:11px 11px; }.adm-nome{ font-size:13.5px; }.adm-sub{ font-size:11.5px; }.adm-sub-txt{ max-width:180px; }/* O endereço é a coluna que mais estica. Duas linhas curtas ocupam menos
+   ══════════════════════════════════════════════════════════════════════ */.ad .fat{ font-size:13.5px; }.ad .fat th{ padding:0 11px 9px; font-size:11px; letter-spacing:.12em; }.ad .fat td{ padding:11px 11px; }.adm-nome{ font-size:13.5px; }.adm-sub{ font-size:11px; }.adm-sub-txt{ max-width:180px; }/* O endereço é a coluna que mais estica. Duas linhas curtas ocupam menos
    largura que uma linha longa, e a tabela inteira agradece. */.ad .fat td.adm-endereco{ max-width:120px; white-space:normal; line-height:1.4; }/* No recorte fiscal o e-mail encolhe: ali quem procura já sabe o nome, e as
-   três colunas de documento precisam da largura. */.ad-fiscal .adm-sub-txt{ max-width:140px; }.adm-tag-nv{ font-size:9px; padding:1px 6px; }.ad .fat-selo{ font-size:9.5px; padding:2px 8px; }/* ══════════════════════════════════════════════════════════════════════
+   três colunas de documento precisam da largura. */.ad-fiscal .adm-sub-txt{ max-width:140px; }.adm-tag-nv{ font-size:9px; padding:1px 6px; }.ad .fat-selo{ font-size:11px; padding:2px 8px; }/* ══════════════════════════════════════════════════════════════════════
    O RESUMO DO DINHEIRO
 
    Quatro perguntas, nesta ordem, porque é a ordem em que elas aparecem na
@@ -520,8 +520,8 @@
 }.ad .din-num small{ font-size:.42em; font-weight:500; color:var(--ink3); letter-spacing:-.02em; }.ad .din-var{
   display:inline-flex; align-items:center; gap:6px; margin-top:12px;
   padding:4px 12px; border-radius:var(--pill);
-  font-size:13px; font-weight:600;
-}.ad .din-var--sobe{ background:var(--ok-bg); color:var(--ok); }.ad .din-var--desce{ background:var(--alerta-bg); color:var(--alerta); }.ad .din-var span{ font-weight:500; color:var(--ink3); }.ad .din-nota{ margin:18px 0 0; font-size:13px; color:var(--ink3); line-height:1.6; max-width:52ch; }/* A nota desce para o fim do cartao: e o que faz o rodape dela encontrar o
+  font-size:13.5px; font-weight:600;
+}.ad .din-var--sobe{ background:var(--ok-bg); color:var(--ok); }.ad .din-var--desce{ background:var(--alerta-bg); color:var(--alerta); }.ad .din-var span{ font-weight:500; color:var(--ink3); }.ad .din-nota{ margin:18px 0 0; font-size:13.5px; color:var(--ink3); line-height:1.6; max-width:52ch; }/* A nota desce para o fim do cartao: e o que faz o rodape dela encontrar o
    rodape da tabela do cartao vizinho, em vez de sobrar um vao embaixo. */.ad .din-grande .din-nota{ margin-top:auto; padding-top:18px; }/* ══════════════════════════════════════════════════════════════════════
    A BARRA DE PERÍODO
 
@@ -553,7 +553,7 @@
    pedir que ninguem decore codigo de tres letras. */.ad .per__moedas{ display:flex; gap:4px; margin-right:auto; margin-left:14px;
   padding:3px; background:var(--wash2); border-radius:var(--pill); }.ad .per__moeda{
   min-width:38px; padding:5px 10px; border:0; background:none;
-  border-radius:var(--pill); font:inherit; font-size:13px; font-weight:500;
+  border-radius:var(--pill); font:inherit; font-size:13.5px; font-weight:500;
   color:var(--ink3); cursor:pointer; transition:background .14s, color .14s;
 }.ad .per__moeda:hover{ color:var(--ink); }.ad .per__moeda.ativo{
   background:var(--paper); color:var(--ink); font-weight:600;
@@ -582,7 +582,7 @@
   background:var(--turquesa); height:var(--h,2px);
   transition:background .14s, height .2s;
 }.ad .per__mes:hover i{ background:var(--turquesa-esc); }.ad .per__mes b{
-  font-size:10px; font-weight:500; color:var(--ink3);
+  font-size:11px; font-weight:500; color:var(--ink3);
   text-transform:uppercase; letter-spacing:.05em;
   padding-bottom:7px; position:relative;
 }/* O trilho lima embaixo do rótulo é o mesmo gesto do menu lateral e das
@@ -592,7 +592,7 @@
   transition:background .14s;
 }.ad .per__mes.ativo i{ background:var(--lima); }.ad .per__mes.ativo b{ color:var(--ink); font-weight:600; }.ad .per__mes.ativo b::after{ background:var(--lima); }/* Mês que ainda não chegou. Ele fica na régua para o ano não mudar de
    largura em janeiro, mas não aceita clique. */.ad .per__mes[disabled]{ cursor:default; opacity:.4; }.ad .per__mes[disabled]:hover{ background:none; }.ad .per__vazio{
-  margin:14px 0 2px; font-size:13px; color:var(--ink3); text-align:center;
+  margin:14px 0 2px; font-size:13.5px; color:var(--ink3); text-align:center;
 }/* ── BRUTO OU LÍQUIDO ──
    Duas leituras do mesmo dinheiro. Como abas e não como dois cartões:
    ninguém precisa dos dois números ao mesmo tempo, precisa saber qual está
@@ -601,7 +601,7 @@
   background:var(--wash2); border-radius:var(--pill);
 }.ad .din-abas button{
   padding:6px 16px; border:0; background:none; border-radius:var(--pill);
-  font:inherit; font-size:13px; font-weight:500; color:var(--ink3);
+  font:inherit; font-size:13.5px; font-weight:500; color:var(--ink3);
   cursor:pointer; transition:background .14s, color .14s;
 }.ad .din-abas button:hover{ color:var(--ink); }.ad .din-abas button.ativa{
   background:var(--paper); color:var(--ink); font-weight:600;
@@ -613,10 +613,10 @@
   border-bottom:1px solid var(--line);
 }.ad .din-taxa__linha b{ font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }.ad .din-taxa__linha em{
   font-style:normal; color:var(--ink3); font-size:12.5px; margin-left:4px;
-}.ad .din-taxa__linha--tira b{ color:var(--alerta); }.ad .din-taxa__linha--fim{ border-bottom:0; padding-bottom:0; }.ad .din-taxa__linha--fim b{ font-size:16px; }/* O botao de todas as moedas fica no fim da fila e um pouco separado: ele
+}.ad .din-taxa__linha--tira b{ color:var(--alerta); }.ad .din-taxa__linha--fim{ border-bottom:0; padding-bottom:0; }.ad .din-taxa__linha--fim b{ font-size:17px; }/* O botao de todas as moedas fica no fim da fila e um pouco separado: ele
    nao e uma moeda, e uma leitura diferente. Texto em vez de simbolo pelo
    mesmo motivo. */.ad .per__moeda--todas{ margin-left:2px; padding:5px 12px; }/* A nota da regua quando ela conta cobrancas em vez de valor. */.ad .per__regua{
-  margin:10px 0 0; font-size:11.5px; color:var(--ink3); text-align:center;
+  margin:10px 0 0; font-size:11px; color:var(--ink3); text-align:center;
 }/* ── TODAS AS MOEDAS ──
    Com a tabela no lugar do numero grande, o cartao ocupa a largura inteira: o
    vizinho "De onde vem" some, porque ele so sabe falar de uma moeda por vez. */.ad .din-topo--todas{ grid-template-columns:minmax(0,1fr) !important; }.ad .din-tabela-moedas{ margin-top:4px; }.ad .din-moeda-nome{ font-weight:600; }.ad .din-moeda-cod{
@@ -627,7 +627,7 @@
 }.ad .din-legenda em.a{ background:var(--turquesa); }.ad .din-legenda em.b{ background:var(--lima); }/* Cinza, e nao uma terceira cor da marca: esta fatia nao e uma linha de
    receita, e o que a gente ainda nao soube explicar. */.ad .din-legenda em.c{ background:var(--ink3); }.ad .din-legenda b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }/* Os números menores, em fila. Eles são o contexto do número grande, e por
    isso ficam num degrau claramente abaixo dele. */.ad .din-fila{ margin-top:14px; display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); }.ad .din-cel{ padding:20px 22px; }.ad .din-cel .eyebrow{ margin:0; }.ad .din-cel strong{
-  display:block; margin-top:8px; font-size:24px; font-weight:500;
+  display:block; margin-top:8px; font-size:26px; font-weight:500;
   letter-spacing:-.03em; font-variant-numeric:tabular-nums;
 }.ad .din-cel p{ margin:6px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.55; }.ad .din-cel--saiu strong{ color:var(--alerta); }
 

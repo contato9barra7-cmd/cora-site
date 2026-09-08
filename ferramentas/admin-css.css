@@ -52,7 +52,7 @@
   display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 20px;
   border:1px solid var(--line2); border-radius:var(--pill);
   background:var(--paper); color:var(--ink);
-  font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  font-family:inherit; font-size:14.5px; font-weight:600; cursor:pointer;
   transition:border-color var(--t), background-color var(--t), color var(--t);
 }
 .adm-btn-linha:hover{ border-color:var(--ink); }
@@ -84,7 +84,7 @@
 }
 .adm-abas__g{
   flex:none; padding-bottom:13px; white-space:nowrap;
-  font-size:10px; font-weight:700; letter-spacing:.14em;
+  font-size:11px; font-weight:700; letter-spacing:.14em;
   text-transform:uppercase; color:var(--ink3);
 }
 .adm-abas__g + .adm-aba{ margin-left:-4px; }
@@ -133,7 +133,7 @@
   flex:none; display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 18px;
   border:1px solid var(--line2); border-radius:var(--pill);
   background:var(--paper); color:var(--ink);
-  font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  font-family:inherit; font-size:14.5px; font-weight:600; cursor:pointer;
   transition:border-color var(--t), background-color var(--t), color var(--t);
 }
 .adm-btn-ficha:hover{ border-color:var(--ink); }
@@ -154,7 +154,7 @@
   transition:border-color var(--t);
 }
 .adm-filtro:hover{ border-bottom-color:var(--ink); }
-.adm-filtro::after{ content:"×"; font-size:15px; line-height:1; color:var(--ink3); }
+.adm-filtro::after{ content:"×"; font-size:14.5px; line-height:1; color:var(--ink3); }
 .adm-filtro:hover::after{ color:var(--ink); }
 .adm-limpar{
   border:0; background:none; padding:0; cursor:pointer; font-family:inherit;
@@ -192,7 +192,7 @@
 .adm-id{
   display:inline-block; margin-right:7px; padding:0 5px;
   border-radius:5px; background:var(--wash2); color:var(--ink2);
-  font-size:11.5px; font-weight:600; font-variant-numeric:tabular-nums;
+  font-size:11px; font-weight:600; font-variant-numeric:tabular-nums;
   vertical-align:bottom;
 }
 .adm-num{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
@@ -203,10 +203,10 @@
 .adm-tag-nv{
   margin-left:6px; padding:1px 7px; border-radius:var(--pill);
   background:var(--aviso-bg); color:var(--aviso);
-  font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+  font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
 }
 .adm-vazio{
-  margin:26px 0 6px; text-align:center; font-size:14px; color:var(--ink3);
+  margin:26px 0 6px; text-align:center; font-size:14.5px; color:var(--ink3);
   line-height:1.6; text-wrap:balance;
 }
 .adm-total{
@@ -257,7 +257,7 @@
 }
 .adm-geo-linha + .adm-geo-linha{ margin-top:15px; }
 .adm-geo-cab{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
-.adm-geo-k{ font-size:14px; font-weight:600; letter-spacing:-.01em; }
+.adm-geo-k{ font-size:14.5px; font-weight:600; letter-spacing:-.01em; }
 .adm-geo-v{ font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }
 .adm-geo-barra{ margin-top:7px; display:grid; gap:3px; }
 .adm-geo-fill{ height:8px; border-radius:var(--pill); min-width:3px; }
@@ -265,7 +265,7 @@
 .adm-geo-fill--r{ background:var(--lima); }
 .adm-geo-legenda{
   margin-top:24px; padding-top:16px; border-top:1px solid var(--line);
-  display:flex; gap:20px; flex-wrap:wrap; font-size:13px; color:var(--ink3);
+  display:flex; gap:20px; flex-wrap:wrap; font-size:13.5px; color:var(--ink3);
 }
 .adm-geo-legenda span{ display:inline-flex; align-items:center; gap:8px; }
 .adm-geo-p{ width:14px; height:8px; border-radius:var(--pill); display:inline-block; }
@@ -297,7 +297,7 @@
 .seg-item{
   position:relative; flex:none; display:inline-flex; align-items:center; gap:7px;
   padding:0 0 11px; border:0; border-radius:0; background:none;
-  font-family:inherit; font-size:14px; font-weight:500; letter-spacing:-.008em;
+  font-family:inherit; font-size:14.5px; font-weight:500; letter-spacing:-.008em;
   color:var(--ink2); cursor:pointer; white-space:nowrap;
   box-shadow:none; transition:color var(--t);
 }
@@ -313,7 +313,7 @@
 .seg-item.ativa::after{ background:var(--lima); }
 .seg-badge{
   padding:0; border-radius:0; background:none; color:var(--ink3);
-  font-size:13px; font-weight:500; font-variant-numeric:tabular-nums;
+  font-size:13.5px; font-weight:500; font-variant-numeric:tabular-nums;
 }
 .seg-item.ativa .seg-badge{ background:none; color:var(--ink3); }
 
@@ -328,7 +328,7 @@
   padding:11px 0; border-top:1px solid var(--line);
 }
 .adm-dl dt{ font-size:13.5px; color:var(--ink3); }
-.adm-dl dd{ margin:0; font-size:14px; color:var(--ink); font-weight:500; text-align:right; }
+.adm-dl dd{ margin:0; font-size:14.5px; color:var(--ink); font-weight:500; text-align:right; }
 .adm-dl dd.adm-num{ font-variant-numeric:tabular-nums; }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -359,7 +359,7 @@
   display:flex; align-items:center; justify-content:space-between; gap:12px;
   padding:15px 18px 13px; border-bottom:1px solid var(--line);
 }
-.adm-pop__cab h2{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.014em; }
+.adm-pop__cab h2{ margin:0; font-size:14.5px; font-weight:600; letter-spacing:-.014em; }
 .adm-pop__corpo{
   padding:16px 18px; display:grid; gap:12px; align-content:start;
   max-height:min(420px,50vh); overflow-y:auto; overscroll-behavior:contain;
@@ -370,7 +370,7 @@
 .adm-pop__ano input{
   width:100%; padding:11px 14px; border-radius:14px;
   border:1px solid var(--line); background:var(--paper); color:var(--ink);
-  font-family:inherit; font-size:14px;
+  font-family:inherit; font-size:14.5px;
 }
 .adm-pop__datas input:focus,
 .adm-pop__ano input:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
@@ -378,7 +378,7 @@
   display:flex; align-items:center; justify-content:space-between; gap:12px;
   padding:13px 18px; border-top:1px solid var(--line);
 }
-.adm-pop__conta{ font-size:13px; color:var(--ink3); font-variant-numeric:tabular-nums; }
+.adm-pop__conta{ font-size:13.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }
 .adm-pop__pe .as-btn-cta{ height:38px; padding:0 18px; font-size:13.5px; }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -391,7 +391,7 @@
   background:var(--paper); border:1px solid var(--line); box-shadow:var(--sombra);
 }
 .adm-export__grupo{
-  padding:9px 13px 6px; font-size:10.5px; font-weight:700;
+  padding:9px 13px 6px; font-size:11px; font-weight:700;
   letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
 }
 .adm-export__item{
@@ -401,7 +401,7 @@
 }
 .adm-export__item:hover:not(:disabled){ background:var(--wash); }
 .adm-export__item:disabled{ opacity:.4; cursor:default; }
-.adm-export__item strong{ display:block; font-size:14px; font-weight:600; color:var(--ink); letter-spacing:-.01em; }
+.adm-export__item strong{ display:block; font-size:14.5px; font-weight:600; color:var(--ink); letter-spacing:-.01em; }
 .adm-export__item em{ display:block; margin-top:2px; font-size:12.5px; font-style:normal; color:var(--ink3); line-height:1.45; }
 .adm-export__sep{ height:1px; margin:7px 12px; background:var(--line); }
 
@@ -484,10 +484,10 @@
   display:flex; align-items:center; justify-content:space-between; gap:14px;
   padding:20px 24px; border-bottom:1px solid var(--line);
 }
-.adm-modal__cab h2{ margin:0; font-size:19px; font-weight:500; letter-spacing:-.024em; }
+.adm-modal__cab h2{ margin:0; font-size:20px; font-weight:500; letter-spacing:-.024em; }
 .adm-modal__x{
   width:36px; height:36px; flex:none; border-radius:12px; border:1px solid var(--line);
-  background:var(--paper); color:var(--ink2); cursor:pointer; font-size:19px; line-height:1;
+  background:var(--paper); color:var(--ink2); cursor:pointer; font-size:20px; line-height:1;
   display:grid; place-items:center;
 }
 .adm-modal__x:hover{ border-color:var(--ink); color:var(--ink); }
@@ -522,7 +522,7 @@
 .adm-campo__nota{ margin:7px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.5; }
 .adm-campo__nota code{
   padding:1px 6px; border-radius:6px; background:var(--wash2);
-  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; color:var(--ink2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; color:var(--ink2);
 }
 /* Mesmo motivo: o link do botao e comprido e empurrava o campo do lado. */
 .adm-dupla{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; }
@@ -554,16 +554,16 @@
   text-wrap:balance;
 }
 .adm-previa__txt{
-  margin:12px 0 0; font-size:14px; color:var(--ink2); line-height:1.65;
+  margin:12px 0 0; font-size:14.5px; color:var(--ink2); line-height:1.65;
   white-space:pre-wrap; text-wrap:pretty;
 }
 .adm-previa__bt{
   display:inline-block; margin-top:18px; padding:12px 22px; border-radius:var(--pill);
-  background:var(--lima); color:#111111; font-size:14px; font-weight:600;
+  background:var(--lima); color:#111111; font-size:14.5px; font-weight:600;
 }
 .adm-previa__pe{
   margin:20px 0 0; padding-top:14px; border-top:1px solid var(--line);
-  font-size:11.5px; color:var(--ink3); line-height:1.6;
+  font-size:11px; color:var(--ink3); line-height:1.6;
 }
 .adm-modal__pe{
   display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
@@ -600,7 +600,7 @@
   mask:var(--marca) no-repeat left center / contain;
 }
 .cmp__tit{
-  margin:26px 0 0; font-size:24px; font-weight:500; color:var(--ink);
+  margin:26px 0 0; font-size:26px; font-weight:500; color:var(--ink);
   letter-spacing:-.03em; line-height:1.15;
 }
 .cmp__num{ margin:5px 0 0; font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }
@@ -608,15 +608,15 @@
 .cmp__quem{ margin-top:26px; display:grid; gap:18px; grid-template-columns:1fr; }
 @media (min-width:620px){ .cmp__quem{ grid-template-columns:1fr 1fr; } }
 .cmp__quem span{
-  display:block; margin-bottom:6px; font-size:10px; font-weight:700;
+  display:block; margin-bottom:6px; font-size:11px; font-weight:700;
   letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
 }
-.cmp__quem p{ margin:0; font-size:13px; color:var(--ink2); line-height:1.65; }
+.cmp__quem p{ margin:0; font-size:13.5px; color:var(--ink2); line-height:1.65; }
 .cmp__quem b{ color:var(--ink); font-weight:600; }
 
 .cmp__texto{ margin-top:28px; }
 .cmp__texto > span{
-  display:block; margin-bottom:10px; font-size:10px; font-weight:700;
+  display:block; margin-bottom:10px; font-size:11px; font-weight:700;
   letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
 }
 .cmp__doc{
@@ -630,13 +630,13 @@
    "Termos de Uso" logo no topo do texto e conclui que a folha e so dele, e nao
    rola ate achar a Privacidade mais abaixo. */
 .cmp__aviso{
-  margin:0 0 14px; font-size:12px; color:var(--ink3); line-height:1.6;
+  margin:0 0 14px; font-size:12.5px; color:var(--ink3); line-height:1.6;
   text-wrap:pretty;
 }
 .cmp__sec + .cmp__sec{ margin-top:18px; }
 .cmp__sec-cab{ margin-bottom:9px; }
-.cmp__sec-cab h4{ margin:0; font-size:15px; font-weight:600; letter-spacing:-.014em; }
-.cmp__sec-cab p{ margin:4px 0 0; font-size:11.5px; color:var(--ink3); line-height:1.6; }
+.cmp__sec-cab h4{ margin:0; font-size:14.5px; font-weight:600; letter-spacing:-.014em; }
+.cmp__sec-cab p{ margin:4px 0 0; font-size:11px; color:var(--ink3); line-height:1.6; }
 .cmp__sec-cab b{ color:var(--ink2); font-weight:600; }
 .cmp__cl + .cmp__cl{ margin-top:12px; }
 .cmp__cl h4{ margin:0 0 4px; font-size:12.5px; font-weight:600; letter-spacing:-.01em; }
@@ -651,7 +651,7 @@
 }
 .cmp__pe{
   margin:26px 0 0; padding-top:16px; border-top:1px solid var(--line);
-  font-size:11.5px; color:var(--ink3); line-height:1.7; text-wrap:pretty;
+  font-size:11px; color:var(--ink3); line-height:1.7; text-wrap:pretty;
 }
 
 /* A medida do CONTADOR de novidades desligadas. Cinza, e não vermelho:
@@ -663,9 +663,9 @@
   display:inline-flex; align-items:baseline; gap:6px;
   padding:6px 14px; border-radius:var(--pill);
   background:var(--ok-bg); border:1px solid transparent;
-  font-size:13px; color:var(--ok);
+  font-size:13.5px; color:var(--ok);
 }
-.adm-medida b{ font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ok); }
+.adm-medida b{ font-size:14.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ok); }
 
 /* ══════════════════════════════════════════════════════════════════════
    A PRIMEIRA LINHA DA FICHA: POR QUE PODE OU NÃO PODE GERAR
@@ -687,7 +687,7 @@
   display:grid; place-items:center;
 }
 .adm-porque__selo svg{ width:19px; height:19px; }
-.adm-porque__t{ margin:0; font-size:16px; font-weight:600; letter-spacing:-.016em; }
+.adm-porque__t{ margin:0; font-size:17px; font-weight:600; letter-spacing:-.016em; }
 .adm-porque__p{ margin:5px 0 0; font-size:13.5px; color:var(--ink2); line-height:1.6; max-width:70ch; }
 
 .adm-porque--ok{ border-left-color:var(--ok); }
@@ -711,13 +711,13 @@
   background:var(--wash); border:1px solid var(--line);
 }
 .adm-nota p{ margin:0; font-size:13.5px; color:var(--ink); line-height:1.6; text-wrap:pretty; }
-.adm-nota span{ display:block; margin-top:7px; font-size:12px; color:var(--ink3); }
+.adm-nota span{ display:block; margin-top:7px; font-size:12.5px; color:var(--ink3); }
 .adm-nota-nova{ margin-top:14px; display:grid; gap:10px; justify-items:end; }
 .adm-nota-nova textarea{
   width:100%; min-height:78px; resize:vertical; padding:12px 15px;
   border:1px solid var(--line); border-radius:var(--r-peq);
   background:var(--paper); color:var(--ink);
-  font-family:inherit; font-size:14px; line-height:1.6;
+  font-family:inherit; font-size:14.5px; line-height:1.6;
   transition:border-color var(--t), box-shadow var(--t);
 }
 .adm-nota-nova textarea:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
@@ -760,11 +760,11 @@
    fiscais) caber num monitor comum. Não é encolher por encolher: é a mesma
    escala que o resto do painel usa em texto de apoio.
    ══════════════════════════════════════════════════════════════════════ */
-.fat{ font-size:13px; }
-.fat th{ padding:0 11px 9px; font-size:9.5px; letter-spacing:.12em; }
+.fat{ font-size:13.5px; }
+.fat th{ padding:0 11px 9px; font-size:11px; letter-spacing:.12em; }
 .fat td{ padding:11px 11px; }
 .adm-nome{ font-size:13.5px; }
-.adm-sub{ font-size:11.5px; }
+.adm-sub{ font-size:11px; }
 .adm-sub-txt{ max-width:180px; }
 /* O endereço é a coluna que mais estica. Duas linhas curtas ocupam menos
    largura que uma linha longa, e a tabela inteira agradece. */
@@ -773,7 +773,7 @@
    três colunas de documento precisam da largura. */
 .ad-fiscal .adm-sub-txt{ max-width:140px; }
 .adm-tag-nv{ font-size:9px; padding:1px 6px; }
-.fat-selo{ font-size:9.5px; padding:2px 8px; }
+.fat-selo{ font-size:11px; padding:2px 8px; }
 
 /* ══════════════════════════════════════════════════════════════════════
    O RESUMO DO DINHEIRO
@@ -814,12 +814,12 @@
 .din-var{
   display:inline-flex; align-items:center; gap:6px; margin-top:12px;
   padding:4px 12px; border-radius:var(--pill);
-  font-size:13px; font-weight:600;
+  font-size:13.5px; font-weight:600;
 }
 .din-var--sobe{ background:var(--ok-bg); color:var(--ok); }
 .din-var--desce{ background:var(--alerta-bg); color:var(--alerta); }
 .din-var span{ font-weight:500; color:var(--ink3); }
-.din-nota{ margin:18px 0 0; font-size:13px; color:var(--ink3); line-height:1.6; max-width:52ch; }
+.din-nota{ margin:18px 0 0; font-size:13.5px; color:var(--ink3); line-height:1.6; max-width:52ch; }
 /* A nota desce para o fim do cartao: e o que faz o rodape dela encontrar o
    rodape da tabela do cartao vizinho, em vez de sobrar um vao embaixo. */
 .din-grande .din-nota{ margin-top:auto; padding-top:18px; }
@@ -870,7 +870,7 @@
   padding:3px; background:var(--wash2); border-radius:var(--pill); }
 .per__moeda{
   min-width:38px; padding:5px 10px; border:0; background:none;
-  border-radius:var(--pill); font:inherit; font-size:13px; font-weight:500;
+  border-radius:var(--pill); font:inherit; font-size:13.5px; font-weight:500;
   color:var(--ink3); cursor:pointer; transition:background .14s, color .14s;
 }
 .per__moeda:hover{ color:var(--ink); }
@@ -916,7 +916,7 @@
 }
 .per__mes:hover i{ background:var(--turquesa-esc); }
 .per__mes b{
-  font-size:10px; font-weight:500; color:var(--ink3);
+  font-size:11px; font-weight:500; color:var(--ink3);
   text-transform:uppercase; letter-spacing:.05em;
   padding-bottom:7px; position:relative;
 }
@@ -936,7 +936,7 @@
 .per__mes[disabled]:hover{ background:none; }
 
 .per__vazio{
-  margin:14px 0 2px; font-size:13px; color:var(--ink3); text-align:center;
+  margin:14px 0 2px; font-size:13.5px; color:var(--ink3); text-align:center;
 }
 
 /* ── BRUTO OU LÍQUIDO ──
@@ -949,7 +949,7 @@
 }
 .din-abas button{
   padding:6px 16px; border:0; background:none; border-radius:var(--pill);
-  font:inherit; font-size:13px; font-weight:500; color:var(--ink3);
+  font:inherit; font-size:13.5px; font-weight:500; color:var(--ink3);
   cursor:pointer; transition:background .14s, color .14s;
 }
 .din-abas button:hover{ color:var(--ink); }
@@ -972,7 +972,7 @@
 }
 .din-taxa__linha--tira b{ color:var(--alerta); }
 .din-taxa__linha--fim{ border-bottom:0; padding-bottom:0; }
-.din-taxa__linha--fim b{ font-size:16px; }
+.din-taxa__linha--fim b{ font-size:17px; }
 
 /* O botao de todas as moedas fica no fim da fila e um pouco separado: ele
    nao e uma moeda, e uma leitura diferente. Texto em vez de simbolo pelo
@@ -981,7 +981,7 @@
 
 /* A nota da regua quando ela conta cobrancas em vez de valor. */
 .per__regua{
-  margin:10px 0 0; font-size:11.5px; color:var(--ink3); text-align:center;
+  margin:10px 0 0; font-size:11px; color:var(--ink3); text-align:center;
 }
 
 /* ── TODAS AS MOEDAS ──
@@ -1021,7 +1021,7 @@
 .din-cel{ padding:20px 22px; }
 .din-cel .eyebrow{ margin:0; }
 .din-cel strong{
-  display:block; margin-top:8px; font-size:24px; font-weight:500;
+  display:block; margin-top:8px; font-size:26px; font-weight:500;
   letter-spacing:-.03em; font-variant-numeric:tabular-nums;
 }
 .din-cel p{ margin:6px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.55; }

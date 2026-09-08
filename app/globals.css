@@ -12425,202 +12425,22 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 
 /* ═══════════════════════════════════════════════════════════
    PROMPTADORES — aba de agentes de GPT (layout A) + modal admin
-   ═══════════════════════════════════════════════════════════ */
-.promp-wrap { max-width: 100%; padding: 32px 40px; }
-.promp-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-.promp-top h1 { font-size: 26px; font-weight: 800; color: var(--ink); }
-.promp-sub { color: var(--ink3); font-size: 13.5px; margin-top: 4px; }
-.promp-novo {
-  display: inline-flex; align-items: center; gap: 7px; flex: none;
-  background: var(--roxo); color: #1a1650; border: 0; border-radius: var(--r);
-  font-size: 13px; font-weight: 700; padding: 10px 18px; cursor: pointer;
-}
-.promp-novo span { font-size: 16px; line-height: 1; }
-.promp-novo:hover { background: var(--roxo-esc); }
+   ═══════════════════════════════════════════════════════════ *
 
-.promp-barra { display: flex; align-items: center; gap: 12px; margin: 20px 0 16px; flex-wrap: wrap; }
-.promp-busca {
-  display: flex; align-items: center; gap: 8px; background: var(--paper);
-  border: 1px solid var(--line); border-radius: var(--r); padding: 9px 16px; flex: 1; max-width: 340px;
-}
-.promp-busca input { border: 0; outline: 0; background: transparent; font-size: 13px; width: 100%; color: var(--ink); font-family: inherit; }
-.promp-busca svg { width: 15px; height: 15px; color: var(--ink3); flex: none; }
-.promp-toggle { display: flex; background: var(--wash2); border-radius: var(--r); padding: 3px; margin-left: auto; }
-.promp-toggle button {
-  border: 0; background: transparent; border-radius: var(--r); padding: 7px 16px;
-  font-size: 12.5px; font-weight: 700; color: var(--ink3); cursor: pointer; font-family: inherit;
-}
-.promp-toggle button.on { background: var(--paper); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-
-/* Grade de 2 colunas de cards. */
-.promp-lista { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-@media (max-width: 900px) { .promp-lista { grid-template-columns: 1fr; } }
-.promp-row {
-  position: relative; display: flex; align-items: center; gap: 13px;
-  padding: 14px 16px; background: var(--paper);
-  border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,.05);
-}
+/* Grade de 2 colunas de cards. *
 /* Card sendo arrastado: apagado + contorno roxo tracejado, marcando a célula
-   de destino ao vivo. Onde ele está ao soltar é onde ele fica. */
-.promp-row--arrastando { opacity: .5; border-style: dashed; border-color: var(--roxo); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
-/* handle de arraste (6 pontinhos) — só admin */
-.promp-grip { flex: none; width: 20px; height: 30px; margin: -6px -4px -6px -6px; display: flex; align-items: center; justify-content: center; color: var(--ink3); cursor: grab; border-radius: 8px; }
-.promp-grip svg { width: 16px; height: 16px; opacity: .55; }
-.promp-grip:hover { background: var(--wash2); }
-.promp-grip:hover svg { opacity: .9; }
-.promp-grip:active { cursor: grabbing; }
-.promp-grip--off { cursor: default; opacity: .35; }
-.promp-grip--off:hover { background: transparent; }
-.promp-cir {
-  width: 40px; height: 40px; border-radius: 50%; flex: none;
-  background: linear-gradient(135deg, var(--verde), var(--roxo));
-  color: #0d2b06; font-weight: 800; font-size: 15px;
-  display: flex; align-items: center; justify-content: center;
-  background-size: cover; background-position: center;
-}
-.promp-info { flex: 1; min-width: 0; }
-.promp-nm { font-weight: 600; font-size: 14px; color: var(--ink); margin-bottom: 2px; }
-.promp-ds { font-size: 12px; color: var(--ink3); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.promp-att { font-size: 10.5px; color: var(--ink3); opacity: .8; margin-top: 4px; }
-.promp-abrir {
-  background: var(--verde); color: #0d2b06; border: 0; border-radius: var(--r);
-  font-size: 12px; font-weight: 700; padding: 9px 20px; cursor: pointer;
-  font-family: inherit; white-space: nowrap; flex: none;
-}
-.promp-abrir:hover { background: var(--verde-esc); }
-.promp-lapis {
-  width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line);
-  background: var(--paper); display: flex; align-items: center; justify-content: center;
-  cursor: pointer; flex: none;
-}
-.promp-lapis svg { width: 15px; height: 15px; stroke: var(--ink3); fill: none; }
-.promp-lapis:hover { border-color: var(--roxo); }
-.promp-lapis:hover svg { stroke: var(--roxo); }
+   de destino ao vivo. Onde ele está ao soltar é onde ele fica. *
+/* handle de arraste (6 pontinhos) — só admin *
 
-.promp-vazio { background: var(--paper); border: 1px dashed var(--line2); border-radius: 16px; padding: 34px; text-align: center; color: var(--ink3); font-size: 13.5px; }
-.promp-erro { color: var(--alerta); font-size: 13px; margin-bottom: 12px; }
+/* ── modal ── *
 
-/* ── modal ── */
-.promp-ov { position: fixed; inset: 0; background: rgba(20,20,26,.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-.promp-modal { background: var(--paper); width: 520px; max-width: 100%; border-radius: 20px; box-shadow: 0 24px 70px rgba(0,0,0,.35); overflow: hidden; max-height: 92vh; display: flex; flex-direction: column; }
-.promp-mh { padding: 20px 24px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.promp-mh h3 { font-size: 18px; font-weight: 800; color: var(--ink); }
-.promp-lang { display: inline-flex; background: var(--wash2); border-radius: var(--r); padding: 3px; flex: none; }
-.promp-lang button { border: 0; background: transparent; border-radius: var(--r); padding: 6px 14px; font-size: 12px; font-weight: 700; color: var(--ink3); cursor: pointer; font-family: inherit; }
-.promp-lang button.on { background: var(--paper); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+/* Aviso fixo dos 30 dias (topo da lista de promptadores) *
 
-.promp-mb { padding: 6px 24px 4px; overflow: auto; }
-.promp-av-fld { display: flex; align-items: center; margin: 6px 0 18px; }
-.promp-av-wrap { position: relative; width: 78px; height: 78px; cursor: pointer; }
-.promp-av-img {
-  width: 78px; height: 78px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--verde), var(--roxo));
-  color: #0d2b06; font-weight: 800; font-size: 26px;
-  display: flex; align-items: center; justify-content: center;
-  background-size: cover; background-position: center; overflow: hidden;
-}
-.promp-av-cam { position: absolute; inset: 0; border-radius: 50%; background: rgba(20,20,26,.42); display: flex; align-items: center; justify-content: center; opacity: 0; transition: .15s; }
-.promp-av-wrap:hover .promp-av-cam { opacity: 1; }
-.promp-av-cam svg { width: 24px; height: 24px; stroke: #fff; fill: none; }
-.promp-av-x { position: absolute; top: -3px; right: -3px; width: 24px; height: 24px; border-radius: 50%; background: #14141a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 2px solid var(--paper); cursor: pointer; }
+/* ═══ Promptadores — área de Usuários / Acesso (admin) ═══ *
 
-.promp-fld { margin-bottom: 14px; }
-.promp-fld label { display: block; font-size: 12px; font-weight: 700; color: var(--ink2); margin-bottom: 6px; }
-.promp-fld input, .promp-fld textarea {
-  width: 100%; border: 1.5px solid var(--line); border-radius: var(--r);
-  padding: 10px 15px; font-size: 13px; font-family: inherit; outline: 0;
-  color: var(--ink); background: var(--paper);
-}
-.promp-fld textarea { border-radius: 16px; resize: none; height: 68px; line-height: 1.4; }
-.promp-fld input:focus, .promp-fld textarea:focus { border-color: var(--roxo); }
-.promp-disabled { background: var(--wash) !important; color: var(--ink3) !important; }
-.promp-auto { font-size: 10.5px; font-weight: 800; color: var(--roxo); text-transform: uppercase; letter-spacing: .4px; margin-left: 6px; }
+/* Janela de acesso encerrado (aluno) *
 
-.promp-mf { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px 20px; border-top: 1px solid var(--line); margin-top: 6px; }
-.promp-excluir { background: none; border: 0; color: var(--alerta); font-size: 12.5px; font-weight: 700; cursor: pointer; }
-.promp-dir { display: flex; gap: 10px; }
-.promp-btn { border: 0; border-radius: var(--r); font-size: 13px; font-weight: 700; padding: 10px 22px; cursor: pointer; font-family: inherit; }
-.promp-cancelar { background: var(--wash2); color: var(--ink2); }
-.promp-salvar { background: var(--verde); color: #0d2b06; }
-.promp-btn:disabled { opacity: .6; cursor: default; }
-
-/* Aviso fixo dos 30 dias (topo da lista de promptadores) */
-.promp-aviso30 { display: flex; gap: 11px; align-items: flex-start; background: var(--accent-bg); border: 1px solid var(--roxo); border-radius: 14px; padding: 13px 16px; margin: 22px 0 10px; }
-.promp-aviso30 svg { width: 20px; height: 20px; stroke: var(--roxo-esc); fill: none; flex: none; margin-top: 1px; }
-.promp-aviso30 .t { font-size: 12.5px; color: var(--roxo-esc); line-height: 1.45; }
-.promp-aviso30 .t b { color: var(--roxo-esc); }
-
-/* ═══ Promptadores — área de Usuários / Acesso (admin) ═══ */
-.promp-acoes-top { display: flex; gap: 10px; }
-.promp-usuarios {
-  display: inline-flex; align-items: center; gap: 7px; flex: none;
-  background: var(--paper); color: var(--roxo-esc); border: 1.5px solid var(--roxo);
-  border-radius: 100px; font-size: 13px; font-weight: 700; padding: 9px 18px; cursor: pointer;
-}
-.promp-usuarios:hover { background: var(--accent-bg); }
-.promp-voltar { background: none; border: 0; color: var(--ink3); font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 14px; }
-.promp-voltar:hover { color: var(--ink); }
-
-.promp-conv-wrap { position: relative; }
-.promp-drop {
-  position: absolute; right: 0; top: 48px; width: 300px; background: var(--paper);
-  border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 16px 44px rgba(0,0,0,.18);
-  padding: 6px; z-index: 30;
-}
-.promp-dopt { display: flex; gap: 11px; align-items: flex-start; padding: 11px 12px; border-radius: 10px; cursor: pointer; }
-.promp-dopt:hover { background: var(--wash); }
-.promp-dico { width: 34px; height: 34px; border-radius: 9px; flex: none; display: flex; align-items: center; justify-content: center; }
-.promp-dico.g { background: rgba(63,157,84,.12); }
-.promp-dico.r { background: var(--accent-bg); }
-.promp-dico svg { width: 18px; height: 18px; }
-.promp-dopt .t { font-size: 13px; font-weight: 700; color: var(--ink); }
-.promp-dopt .s { font-size: 11.5px; color: var(--ink3); margin-top: 1px; line-height: 1.35; }
-
-.promp-tabela-wrap { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,.05); overflow: hidden; margin-top: 18px; }
-.promp-tabela { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-.promp-tabela th { text-align: left; color: var(--ink3); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
-.promp-tabela td { padding: 13px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; color: var(--ink); }
-.promp-tabela tr:last-child td { border-bottom: 0; }
-.promp-al-nome { font-weight: 700; }
-.promp-al-mail { color: var(--ink3); font-size: 11.5px; }
-.promp-badge { display: inline-block; padding: 4px 11px; border-radius: 100px; font-size: 11px; font-weight: 700; }
-.promp-badge.vital { background: rgba(63,157,84,.14); color: #2f7d18; }
-.promp-badge.data { background: var(--accent-bg); color: var(--roxo-esc); }
-.promp-badge.venc { background: rgba(196,68,58,.12); color: var(--alerta); }
-.promp-tag { display: inline-block; padding: 3px 9px; border-radius: 100px; font-size: 10.5px; font-weight: 700; background: var(--wash2); color: var(--ink2); }
-.promp-st { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 12px; }
-.promp-st .promp-dot { width: 7px; height: 7px; border-radius: 50%; }
-.promp-st.ok { color: #2f9d4e; } .promp-st.ok .promp-dot { background: #3fbf5f; }
-.promp-st.pend { color: #b7861f; } .promp-st.pend .promp-dot { background: #e0a92a; }
-.promp-st.exp { color: var(--alerta); } .promp-st.exp .promp-dot { background: var(--alerta); }
-.promp-revogar { background: none; border: 0; color: var(--alerta); font-weight: 700; font-size: 12px; cursor: pointer; }
-
-.promp-nota { display: flex; gap: 9px; background: var(--accent-bg); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; font-size: 12px; color: var(--roxo-esc); line-height: 1.4; }
-.promp-nota svg { width: 16px; height: 16px; flex: none; margin-top: 1px; }
-.promp-add { background: var(--roxo); color: #1a1650; }
-
-/* Janela de acesso encerrado (aluno) */
-.promp-exp-ov { position: fixed; inset: 0; z-index: 200; padding: 20px; background: rgba(20,18,26,.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; }
-.promp-exp-card { background: var(--paper); width: 460px; max-width: 92%; border-radius: 22px; box-shadow: 0 24px 70px rgba(0,0,0,.18); border: 1px solid var(--line); padding: 34px 32px 28px; text-align: center; }
-.promp-exp-ic { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--verde), var(--roxo)); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
-.promp-exp-ic svg { width: 30px; height: 30px; }
-.promp-exp-eb { display: inline-block; background: var(--accent-bg); color: var(--roxo-esc); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; padding: 6px 14px; border-radius: 100px; margin-bottom: 14px; }
-.promp-exp-card h2 { font-size: 21px; font-weight: 800; color: var(--ink); margin-bottom: 10px; }
-.promp-exp-card p { color: var(--ink3); font-size: 13.5px; line-height: 1.5; margin-bottom: 22px; }
-.promp-exp-btn { display: block; background: var(--verde); color: #0d2b06; text-decoration: none; border-radius: 100px; font-size: 14px; font-weight: 700; padding: 13px 30px; }
-.promp-exp-voltar { background: none; border: 0; color: var(--ink3); font-size: 13px; font-weight: 600; margin-top: 14px; cursor: pointer; }
-
-/* Filtros da lista de acesso (admin) */
-.promp-filtros { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 16px; flex-wrap: wrap; }
-.promp-chips { display: flex; gap: 8px; flex-wrap: wrap; }
-.promp-chip { border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; padding: 8px 15px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
-.promp-chip:hover { border-color: var(--roxo); }
-.promp-chip.on { background: var(--roxo); color: #1a1650; border-color: var(--roxo); }
-.promp-chip-n { display: inline-block; margin-left: 4px; padding: 1px 7px; border-radius: 100px; background: var(--line2); color: var(--ink2); font-size: 11px; font-weight: 800; }
-.promp-chip.on .promp-chip-n { background: rgba(26,22,80,.15); color: #1a1650; }
-.promp-busca--sm { max-width: 300px; padding: 8px 14px; }
-.promp-curso-tag { font-size: 12px; color: var(--ink3); margin-bottom: 12px; }
-.promp-curso-tag b { color: var(--roxo-esc); }
+/* Filtros da lista de acesso (admin) *
 
 /* Calendário da marca (DatePickerCora) */
 .coradp { position: relative; width: 100%; }
@@ -12643,9 +12463,7 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 .coradp-pe { display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
 .coradp-hoje { border: 0; background: none; color: var(--roxo-esc); font-size: 12.5px; font-weight: 700; cursor: pointer; }
 
-/* Modal de acesso: deixa o calendário/dropdown "vazar" sem ser cortado */
-.promp-modal--acesso { overflow: visible; }
-.promp-modal--acesso .promp-mb { overflow: visible; }
+/* Modal de acesso: deixa o calendário/dropdown "vazar" sem ser cortado *
 
 /* ═══ Admin — Enviar e-mail aos assinantes ═══ */
 .admin-email-btn { display:inline-flex; align-items:center; gap:7px; background:var(--roxo); color:#1a1650; border:0; border-radius:100px; font-size:13px; font-weight:700; padding:9px 16px; cursor:pointer; }
@@ -12696,8 +12514,6 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 .ea-result h3 { font-size:19px; font-weight:800; color:var(--ink); margin-bottom:8px; }
 .ea-result p { font-size:13.5px; color:var(--ink3); margin-bottom:22px; }
 .ea-result .ea-enviar { width:auto; padding:12px 30px; }
-
-.promp-top-acoes { display:flex; gap:10px; align-items:flex-start; }
 
 /* ── CampoSenha — checklist de senha forte ── */
 .cs-wrap { display: block; }

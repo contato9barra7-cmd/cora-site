@@ -97,7 +97,7 @@ img, video, iframe {
    caixa e produzem a rolagem lateral. Só nos lugares onde de fato entra
    texto de tamanho imprevisível. */
 .admin-email, .app-user-nome, .disp-nome, .ws-slot-linha,
-.conta-linha strong, .cr-erro-txt, .promp-nm, .promp-al-mail {
+.conta-linha strong, .cr-erro-txt {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -153,7 +153,6 @@ img, video, iframe {
   .seq-slot--clic .seq-slot-acoes,
   .cr-bcena .cr-bcena-x,
   .ps-filtro .ps-filtro-x,
-  .promp-av-wrap .promp-av-cam,
   .perfil-avatar-box .perfil-avatar-editar,
   .perfil-avatar-box .perfil-avatar-x {
     opacity: 1;
@@ -169,13 +168,13 @@ img, video, iframe {
   .cr-fbtn, .cr-mini, .ps-ic, .cr-seta, .link-botao,
   .perfil-ajuda, .cr-busca-x, .cred-nudge-x, .senha-olho,
   .login-visual-dot, .app-side-fechar, .ps-col-fechar,
-  .promp-av-x, .pk-multi-x, .ps-filtro-x {
+  .pk-multi-x, .ps-filtro-x {
     position: relative;
   }
   .cr-fbtn::after, .cr-mini::after, .ps-ic::after, .cr-seta::after,
   .perfil-ajuda::after, .cr-busca-x::after, .cred-nudge-x::after,
   .senha-olho::after, .app-side-fechar::after, .ps-col-fechar::after,
-  .promp-av-x::after, .pk-multi-x::after, .ps-filtro-x::after {
+  .pk-multi-x::after, .ps-filtro-x::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -442,24 +441,8 @@ img, video, iframe {
 @media (max-width: 640px) {
   .legal-wrap { padding: 34px 18px 64px; }
   .sup-wrap { padding: 28px 16px 48px; }
-  .promp-wrap { padding-left: 16px; padding-right: 16px; }
-  .promp-busca, .promp-busca--sm { max-width: none; }
-  .promp-lista { grid-template-columns: 1fr; }
-  /* A tabela de usuários do promptador tem seis colunas: rola em vez de
-     estourar a página. */
-  .promp-tabela-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .promp-tabela { min-width: 560px; }
 }
 
-@media (max-width: 480px) {
-  .promp-top, .promp-barra, .promp-filtros, .promp-top-acoes, .promp-acoes-top {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  /* O menu abre ancorado à direita do botão; com 300px fixos, a ponta
-     esquerda saía da tela em aparelhos de 360px. */
-  .promp-drop { width: min(300px, calc(100vw - 36px)); }
-}
 
 /* O rodapé legal é um bloco de texto corrido com "·" entre os links. Quebrando
    em três linhas, os separadores ficam órfãos no começo da linha.
@@ -1020,8 +1003,6 @@ img, video, iframe {
 @media (max-width: 640px) {
   .cr-overlay,
   .vz-prompt-fundo,
-  .promp-ov,
-  .promp-exp-ov,
   .up-modal-fundo,
   .modal-overlay,
   .ea-ov,
@@ -1108,7 +1089,7 @@ img, video, iframe {
    visível da tela. */
 @media (max-width: 640px) {
   .cr-modal, .dt, .hl, .at-win, .cr-picker, .vz-prompt-janela,
-  .promp-modal, .ea-modal, .admin-geo-janela {
+  .ea-modal, .admin-geo-janela {
     max-width: 100%;
     max-height: calc(var(--altura-tela) - 24px);
   }
@@ -1148,10 +1129,10 @@ img, video, iframe {
    rodapé ficam. Sem isto, o botão de confirmar some abaixo da dobra. */
 @media (orientation: landscape) and (max-height: 560px) {
   .cr-modal, .dt, .hl, .at-win, .cr-picker, .vz-prompt-janela, .aj-win, .pk,
-  .promp-modal, .ea-modal, .admin-geo-janela, .vz {
+  .ea-modal, .admin-geo-janela, .vz {
     max-height: calc(var(--altura-tela) - 16px);
   }
-  .cr-overlay, .promp-ov, .up-modal-fundo, .modal-overlay, .aj-fundo { padding: 8px; }
+  .cr-overlay, .up-modal-fundo, .modal-overlay, .aj-fundo { padding: 8px; }
 }
 
 
