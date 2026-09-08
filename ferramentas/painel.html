@@ -1672,7 +1672,17 @@
 
 /* Só a moldura desta demonstração. Nada aqui vai para o site: o gerador lê o
    primeiro <style>, e a expressão dele não casa com uma tag que tem atributo. */
-body{ margin:0; background:#F6F6F4; }
+/* A FONTE NO BODY, e nao so no `.app-shell`.
+   As janelas que abrem por cima (recortar a foto, confirmar o mover) sao
+   IRMAS da casca, e nao filhas: sem esta linha elas caiam no Times New Roman
+   do navegador, e ficavam com uma fonte que o produto nao usa em lugar nenhum.
+   No site isso ja esta certo: o globals define a fonte em `html, body`, e mais
+   uma regra para `button, input, select, textarea`, porque controle de
+   formulario nao herda fonte, o navegador impoe a dele. As duas linhas abaixo
+   sao a mesma coisa, aqui. */
+body{ margin:0; background:#F6F6F4; font-family:var(--fonte); color:var(--ink);
+  line-height:1.55; -webkit-font-smoothing:antialiased; }
+button, input, select, textarea, optgroup{ font-family:var(--fonte); }
 :root[data-theme="dark"] body{ background:#0F0F11; }
 /* Sem isto o atributo hidden perde para o display do CSS, e a tarja, o
    bloqueio e os cartões do canto aparecem todos de uma vez. No site quem
