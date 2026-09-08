@@ -410,21 +410,21 @@ function WorkspaceConteudo() {
                 {m.status === 'suspenso' && <span className="ws-tag ws-tag-susp">{t('ws_suspenso')}</span>}
               </div>
               <div className="ws-slot-dir">
+                {/* O crédito era um anel de 34px com os dois números escritos
+                    dentro dele, em letra de 8px. Virou o mesmo desenho do
+                    cartão de crédito do Início: número que se lê, e a barra
+                    embaixo dizendo quanto sobrou. */}
                 {m.status === 'ativo' && m.creditos_total != null && (() => {
                   const rest = Math.max(0, (m.creditos_total || 0) - (m.creditos_usados || 0));
                   const pct = m.creditos_total > 0 ? Math.round((rest / m.creditos_total) * 100) : 0;
-                  const circ = 2 * Math.PI * 15;
                   return (
-                    <div className="ws-anel-wrap">
-                      <svg width="34" height="34" viewBox="0 0 36 36">
-                        <circle cx="18" cy="18" r="15" fill="none" stroke="var(--line)" strokeWidth="4" />
-                        <circle cx="18" cy="18" r="15" fill="none"
-                          stroke={pct <= 10 ? 'var(--alerta)' : 'var(--turquesa-esc)'} strokeWidth="4"
-                          strokeDasharray={circ} strokeDashoffset={circ * (1 - pct / 100)}
-                          strokeLinecap="round" transform="rotate(-90 18 18)" />
-                      </svg>
-                      <div className="ws-anel-txt">
-                        {rest.toLocaleString(locale)}<br /><span>{t('ws_de')} {(m.creditos_total || 0).toLocaleString(locale)}</span>
+                    <div className="ws-cred">
+                      <div className="ws-cred-num">
+                        {rest.toLocaleString(locale)}{' '}
+                        <span>{t('ws_de')} {(m.creditos_total || 0).toLocaleString(locale)}</span>
+                      </div>
+                      <div className="ws-cred-barra">
+                        <i className={pct <= 10 ? 'baixo' : undefined} style={{ width: pct + '%' }} />
                       </div>
                     </div>
                   );
@@ -498,14 +498,19 @@ function WorkspaceConteudo() {
                 </button>
               </div>
             </div>
-            <div className="ws-slot-atribuir">
-              <span className="ws-vazio-hint">
-                {t('ws_assento_livre_hint')}
-              </span>
-              {!donoNaEquipe && i === 0 && (
-                <button className="ws-atribuir" onClick={atribuir}>{t('ws_atribuir_mim')}</button>
-              )}
-            </div>
+            {/* A frase de aviso aparece UMA vez, no primeiro assento livre.
+                Repetida em cada um, ela deixava de ser aviso e virava
+                padronagem: a pessoa lê a primeira e para de ver as outras. */}
+            {i === 0 && (
+              <div className="ws-slot-atribuir">
+                <span className="ws-vazio-hint">
+                  {t('ws_assento_livre_hint')}
+                </span>
+                {!donoNaEquipe && (
+                  <button className="ws-atribuir" onClick={atribuir}>{t('ws_atribuir_mim')}</button>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>

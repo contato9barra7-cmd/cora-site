@@ -349,7 +349,12 @@ export default function Perfil() {
           <p className="perfil-legal">
             {t('perfil_newsletter_legal1')}<br />
             {t('perfil_newsletter_legal2')}{' '}
-            <a href="/privacidade" className="perfil-link">{t('perfil_politica_privacidade')}</a>.
+            {/* Aba nova, e não navegação. Esta tela tem um botão Salvar, e quem
+                está mexendo nos interruptores ainda não salvou: sair daqui para
+                ler a Política jogava fora o que a pessoa acabou de mudar. Ler o
+                documento é consulta, não é ir embora. */}
+            <a href="/privacidade" target="_blank" rel="noopener noreferrer"
+               className="perfil-link">{t('perfil_politica_privacidade')}</a>.
           </p>
         </section>
 

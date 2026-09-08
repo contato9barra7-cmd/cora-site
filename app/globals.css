@@ -1649,15 +1649,26 @@ select.perfil-input {
 /* Slots (assentos) */
 .ws-slot { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; background: var(--wash); }
 .ws-slot-vazio { border-style: dashed; background: transparent; }
-.ws-slot-vazio-topo { display: flex; align-items: center; }
-.ws-slot-atribuir { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.ws-slot-vazio-topo { display: flex; align-items: center; gap: 12px; }
+/* A linha de apoio do assento vazio começa onde o CAMPO começa, e não onde o
+   avatar começa: 34 do quadrado mais 12 do vão. Alinhada na margem do
+   cartão, ela parecia outra coisa, solta embaixo. */
+.ws-slot-atribuir { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-left: 46px; }
 .ws-slot-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ws-slot-linha > .disp-nome { flex: 1; min-width: 0; }
 .ws-vazio-label { font-size: 15px; color: var(--ink3); }
 .ws-vazio-hint { font-size: 13.5px; color: var(--ink3); }
 .ws-gerenciar { padding: 7px 16px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
 .ws-gerenciar:hover { background: var(--wash2); }
-.ws-atribuir { padding: 7px 16px; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; font-weight: 600; }
-.ws-atribuir:hover { opacity: .9; }
+/* ── ATRIBUIR A MIM ──
+   Era preto chapado e grudado no texto, no meio da linha. Duas coisas
+   erradas de uma vez: preto é o peso da ação principal, e a principal deste
+   cartão é o Convidar verde logo acima. Duas ações fortes empilhadas, e a
+   pessoa não sabia qual era o caminho normal.
+   Agora ele vai para a ponta direita, no mesmo desenho do Gerenciar: é a
+   alternativa, e se lê como alternativa. */
+.ws-atribuir { margin-left: auto; padding: 7px 16px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
+.ws-atribuir:hover { background: var(--wash2); border-color: var(--ink3); color: var(--ink); }
 
 /* Tags */
 .ws-tag { font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 10px; margin-left: 8px; }
@@ -1712,11 +1723,33 @@ select.perfil-input {
 
 .ws-creditos { display: block; font-size: 13.5px; color: var(--ink3); margin-top: 4px; }
 
-/* Anel de créditos do membro (aba equipe) */
-.ws-slot-dir { display: flex; align-items: center; gap: 14px; }
-.ws-anel-wrap { display: flex; align-items: center; gap: 8px; }
-.ws-anel-txt { font-size: 13.5px; color: var(--ink2); line-height: 1.25; }
-.ws-anel-txt span { color: var(--ink3); }
+/* ── O CRÉDITO DE CADA ASSENTO ──
+   Era um anel de 34px com os dois números escritos DENTRO, em letra de 8px.
+   Ninguém lia: o texto brigava com o próprio fio, e o "de 20.000" ficava
+   cinza sobre turquesa. Um anel desse tamanho só cabe uma coisa, e ali havia
+   três.
+
+   Agora é o mesmo desenho do cartão de crédito do Início: o número em letra
+   que se lê, e a barra embaixo dizendo quanto sobrou. A barra é chapada e de
+   4px, e por isso leva o turquesa fechado e não o claro do anel do avatar. É
+   a mesma razão do anel: cor clara some em fio fino. */
+.ws-slot-dir { display: flex; align-items: center; gap: 16px; }
+.ws-cred { width: 126px; flex: none; }
+.ws-cred-num { font-size: 14px; font-weight: 600; line-height: 1;
+  letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.ws-cred-num span { font-weight: 400; color: var(--ink3); }
+.ws-cred-barra { margin-top: 7px; height: 4px; border-radius: 99px;
+  background: var(--wash2); overflow: hidden; }
+.ws-cred-barra i { display: block; height: 100%; border-radius: 99px;
+  background: var(--turquesa-esc); }
+/* Acabando, a barra troca de assunto: deixa de ser marca e vira sinal. */
+.ws-cred-barra i.baixo { background: var(--alerta); }
+/* Em tela estreita o número fica, e a barra é o que sai: ela repete em forma
+   o que o número já diz, e é a metade que dá para perder. */
+@media (max-width: 560px) {
+  .ws-cred { width: auto; }
+  .ws-cred-barra { display: none; }
+}
 
 /* Dropdown de exportação */
 .admin-export-wrap { position: relative; display: inline-block; }
@@ -8033,24 +8066,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border-radius: 11px;
 }
 
-.ws-slot-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.ws-slot-linha > .disp-nome { flex: 1; min-width: 0; }
-
-.ws-slot-vazio-topo { display: flex; align-items: center; gap: 12px; }
-
-/* A frase que faz convidar */
-.ws-vazio-hint {
-  font-size: 11.5px;
-  color: var(--ink3);
-}
-
-.ws-slot-atribuir {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 9px;
-  padding-left: 46px;   /* alinha com o texto, não com o avatar */
-}
+/* Estas quatro regras estavam repetidas aqui embaixo, com valores DIFERENTES
+   dos de cima: a de baixo ganhava por vir depois, e mexer na de cima não
+   fazia nada na tela. Ficou uma cópia só, lá em "Slots (assentos)". */
 
 /* ═══════════════════════════════════════════════════════════
    Assinatura — o cartão do plano

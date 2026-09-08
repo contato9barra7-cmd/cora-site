@@ -1401,15 +1401,25 @@
 /* Slots (assentos) */
 .ws-slot { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; background: var(--wash); }
 .ws-slot-vazio { border-style: dashed; background: transparent; }
-.ws-slot-vazio-topo { display: flex; align-items: center; }
-.ws-slot-atribuir { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.ws-slot-vazio-topo { display: flex; align-items: center; gap: 12px; }
+/* A linha de apoio do assento vazio começa onde o CAMPO começa, e não onde o
+   avatar começa: 34 do quadrado mais 12 do vão. Alinhada na margem do
+   cartão, ela parecia outra coisa, solta embaixo. */
+.ws-slot-atribuir { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-left: 46px; }
 .ws-slot-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .ws-vazio-label { font-size: 15px; color: var(--ink3); }
 .ws-vazio-hint { font-size: 13.5px; color: var(--ink3); }
 .ws-gerenciar { padding: 7px 16px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
 .ws-gerenciar:hover { background: var(--wash2); }
-.ws-atribuir { padding: 7px 16px; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; font-weight: 600; }
-.ws-atribuir:hover { opacity: .9; }
+/* ── ATRIBUIR A MIM ──
+   Era preto chapado e grudado no texto, no meio da linha. Duas coisas
+   erradas de uma vez: preto é o peso da ação principal, e a principal deste
+   cartão é o Convidar verde logo acima. Duas ações fortes empilhadas, e a
+   pessoa não sabia qual era o caminho normal.
+   Agora ele vai para a ponta direita, no mesmo desenho do Gerenciar: é a
+   alternativa, e se lê como alternativa. */
+.ws-atribuir { margin-left: auto; padding: 7px 16px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
+.ws-atribuir:hover { background: var(--wash2); border-color: var(--ink3); color: var(--ink); }
 
 /* Tags */
 .ws-tag { font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 10px; margin-left: 8px; }
@@ -1467,14 +1477,36 @@
   border-radius: 11px;
 }
 
-.ws-slot-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .ws-slot-linha > .disp-nome { flex: 1; min-width: 0; }
 .ws-identidade{ display:flex; align-items:flex-start; gap:18px; }
-.ws-slot-dir{ display:flex; align-items:center; gap:12px; }
-.ws-anel-wrap{ position:relative; width:34px; height:34px; flex:none; }
-.ws-anel-txt{ position:absolute; inset:0; display:grid; place-items:center;
-  font-size:8.5px; font-weight:600; line-height:1.1; text-align:center; }
-.ws-anel-txt span{ font-weight:500; color:var(--ink3); font-size:7.5px; }
+.ws-slot-dir{ display:flex; align-items:center; gap:16px; }
+
+/* ── O CRÉDITO DE CADA ASSENTO ──
+   Era um anel de 34px com os dois números escritos DENTRO, em letra de 8px.
+   Ninguém lia: o texto brigava com o próprio fio, e o "de 20.000" ficava
+   cinza sobre turquesa. Um anel desse tamanho só cabe uma coisa, e ali havia
+   três.
+
+   Agora é o mesmo desenho do cartão de crédito do Início: o número em letra
+   que se lê, e a barra embaixo dizendo quanto sobrou. A barra é chapada e de
+   4px, e por isso leva o turquesa fechado e não o claro do anel do avatar. É
+   a mesma razão que já está escrita lá em cima: cor clara some em fio fino. */
+.ws-cred{ width:126px; flex:none; }
+.ws-cred-num{ font-size:14px; font-weight:600; line-height:1;
+  letter-spacing:-.01em; font-variant-numeric:tabular-nums; }
+.ws-cred-num span{ font-weight:400; color:var(--ink3); }
+.ws-cred-barra{ margin-top:7px; height:4px; border-radius:99px;
+  background:var(--wash2); overflow:hidden; }
+.ws-cred-barra i{ display:block; height:100%; border-radius:99px;
+  background:var(--turquesa-esc); }
+/* Acabando, a barra troca de assunto: deixa de ser marca e vira sinal. */
+.ws-cred-barra i.baixo{ background:var(--alerta); }
+/* Em tela estreita o número fica, e a barra é o que sai: ela repete em forma
+   o que o número já diz, e é a metade que dá para perder. */
+@media (max-width: 560px){
+  .ws-cred{ width:auto; }
+  .ws-cred-barra{ display:none; }
+}
 
 /* As imagens de exemplo da esteira. Não vão para o site. */
 .mini-1{ background-image:url("data:image/jpeg;base64,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"); }
@@ -2165,7 +2197,12 @@ body{ margin:0; background:#F6F6F4; }
                 e&nbsp;de&nbsp;mudança&nbsp;nos&nbsp;Termos continuam, porque elas são sobre a sua conta e a gente
                 precisa avisar.<br>
                 O que a gente faz com o seu e-mail está escrito na
-                <a href="#" class="perfil-link">Política de Privacidade</a>.
+                <!-- ABA NOVA, e não navegação. Esta tela tem um botão Salvar, e
+                     quem está mexendo nos interruptores ainda não salvou: sair
+                     daqui para ler a Política jogava fora o que a pessoa acabou
+                     de mudar. Ler o documento é consulta, não é ir embora. -->
+                <a href="/privacidade" target="_blank" rel="noopener noreferrer"
+                   class="perfil-link">Política de Privacidade</a>.
               </p>
             </section>
 
@@ -2269,6 +2306,11 @@ body{ margin:0; background:#F6F6F4; }
         <div class="conta-card">
           <h2 class="conta-h2">Assentos</h2>
 
+          <!-- GERENCIAR NÃO ABRE OUTRA TELA: abre o próprio assento, aqui
+               embaixo. É o lugar certo, porque tudo que ele mostra é sobre
+               aquela pessoa, e tirar a pessoa da lista para decidir sobre ela
+               faria perder de vista quantos assentos há e quem são os outros.
+               O botão vira "Fechar" enquanto está aberto. -->
           <div class="ws-slot">
             <div class="ws-slot-linha">
               <span class="ws-av">M</span>
@@ -2277,16 +2319,45 @@ body{ margin:0; background:#F6F6F4; }
                 <span class="ws-tag ws-tag-ativo">Ativo</span>
               </div>
               <div class="ws-slot-dir">
-                <div class="ws-anel-wrap">
-                  <svg width="34" height="34" viewBox="0 0 36 36">
-                    <circle cx="18" cy="18" r="15" fill="none" stroke="var(--line)" stroke-width="4"/>
-                    <circle cx="18" cy="18" r="15" fill="none" stroke="var(--turquesa-esc)"
-                      stroke-width="4" stroke-dasharray="94.2" stroke-dashoffset="24.5"
-                      stroke-linecap="round" transform="rotate(-90 18 18)"/>
-                  </svg>
-                  <div class="ws-anel-txt">15.800<br><span>de 20.000</span></div>
+                <div class="ws-cred">
+                  <div class="ws-cred-num">15.800 <span>de 20.000</span></div>
+                  <div class="ws-cred-barra"><i style="width:79%"></i></div>
                 </div>
-                <button class="ws-gerenciar">Gerenciar</button>
+                <button class="ws-gerenciar" data-abre="d1">Gerenciar</button>
+              </div>
+            </div>
+            <div class="ws-detalhe" id="d1" hidden>
+              <div class="ws-disp-tit">Dispositivos (uso de um por vez)</div>
+              <div class="disp-grupo">
+                <div class="disp-grupo-tit">Plugin (SketchUp) <span class="disp-contagem">2/2</span></div>
+                <div class="disp-lista">
+                  <div class="disp-item">
+                    <div>
+                      <div class="disp-nome">Estúdio · Windows <span class="disp-ativo">em uso</span></div>
+                      <div class="disp-sub">Último acesso hoje, 14:02</div>
+                    </div>
+                  </div>
+                  <div class="disp-item">
+                    <div>
+                      <div class="disp-nome">Notebook · macOS</div>
+                      <div class="disp-sub">Último acesso 3 de setembro, 09:41</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="disp-grupo">
+                <div class="disp-grupo-tit">Versão web <span class="disp-contagem">1/3</span></div>
+                <div class="disp-lista">
+                  <div class="disp-item">
+                    <div>
+                      <div class="disp-nome">Chrome · Windows</div>
+                      <div class="disp-sub">Último acesso hoje, 09:12</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="ws-acoes">
+                <button class="ws-remover">Remover acesso</button>
               </div>
             </div>
           </div>
@@ -2308,7 +2379,17 @@ body{ margin:0; background:#F6F6F4; }
                 <span class="ws-tag ws-tag-pend">Convite pendente</span>
               </div>
               <div class="ws-slot-dir">
-                <button class="ws-gerenciar">Gerenciar</button>
+                <button class="ws-gerenciar" data-abre="d2">Gerenciar</button>
+              </div>
+            </div>
+            <!-- Sem lista de dispositivos, porque ainda não há nenhum. A frase
+                 diz isso, em vez de mostrar um grupo vazio dizendo 0/2. -->
+            <div class="ws-detalhe" id="d2" hidden>
+              <p class="ws-obs" style="margin-top:0">O convite ainda não foi aceito. Os
+                dispositivos aparecem quando a pessoa ativar o acesso.</p>
+              <div class="ws-acoes">
+                <button class="ws-btn-sec">Reenviar acesso</button>
+                <button class="ws-remover">Remover acesso</button>
               </div>
             </div>
           </div>
@@ -2323,7 +2404,16 @@ body{ margin:0; background:#F6F6F4; }
                 <span class="ws-tag ws-tag-susp">Suspenso</span>
               </div>
               <div class="ws-slot-dir">
-                <button class="ws-gerenciar">Gerenciar</button>
+                <button class="ws-gerenciar" data-abre="d3">Gerenciar</button>
+              </div>
+            </div>
+            <div class="ws-detalhe" id="d3" hidden>
+              <p class="ws-obs" style="margin-top:0">O acesso desta pessoa foi suspenso porque a
+                equipe tem mais gente do que assentos contratados. O histórico dela continua
+                guardado.</p>
+              <div class="ws-acoes">
+                <button class="ws-btn-sec">Reativar acesso</button>
+                <button class="ws-remover">Remover acesso</button>
               </div>
             </div>
           </div>
@@ -2360,9 +2450,9 @@ body{ margin:0; background:#F6F6F4; }
                 <button class="btn btn--verde ws-btn">Convidar</button>
               </div>
             </div>
-            <div class="ws-slot-atribuir">
-              <span class="ws-vazio-hint">Assento livre, e você já está pagando por ele.</span>
-            </div>
+            <!-- A frase de aviso aparece UMA vez, no primeiro assento livre.
+                 Repetida em cada um, ela deixava de ser aviso e virava
+                 padronagem: a pessoa lê a primeira e para de ver as outras. -->
           </div>
         </div>
       </div>
@@ -2868,19 +2958,38 @@ body{ margin:0; background:#F6F6F4; }
       });
     });
 
+  /* Gerenciar, na Equipe: abre o assento aqui mesmo, e um de cada vez. Dois
+     abertos ao mesmo tempo empurram a lista para longe e a pessoa perde de
+     vista de quem era o segundo. No site é o mesmo: um `expandido` só. */
+  document.querySelectorAll('.ws-gerenciar[data-abre]').forEach(function (bt) {
+    bt.addEventListener('click', function () {
+      var alvo = document.getElementById(bt.dataset.abre);
+      var abrindo = alvo.hidden;
+      document.querySelectorAll('.ws-detalhe').forEach(function (d) { d.hidden = true; });
+      document.querySelectorAll('.ws-gerenciar[data-abre]').forEach(function (b) {
+        b.textContent = 'Gerenciar';
+      });
+      alvo.hidden = !abrindo;
+      bt.textContent = abrindo ? 'Fechar' : 'Gerenciar';
+    });
+  });
+
   /* ── trocar de tela ──
      No site cada uma é uma rota, e quem troca é o Next. Aqui elas convivem no
      mesmo arquivo, escondidas, para dar para comparar as três sem sair. */
-  var NOMES = { inicio: 'Início', conta: 'Minha conta', assinatura: 'Assinatura' };
+  var NOMES = { inicio: 'Início', conta: 'Minha conta', equipe: 'Equipe',
+                assinatura: 'Assinatura' };
   function mostrarTela(qual) {
     [].forEach.call(document.querySelectorAll('[data-tela]'), function (el) {
       el.hidden = el.dataset.tela !== qual;
     });
     document.querySelector('.app-header-aqui').textContent = NOMES[qual];
-    // A padronagem só em Minha conta e Assinatura. No Início ela já está na
-    // esteira do herói, e duas na mesma tela competem.
+    // A padronagem nas telas que abrem com o cabeçalho de conta. No Início ela
+    // já está na esteira do herói, e duas na mesma tela competem.
+    // (No site esta lista é a `TELAS_COM_FAIXA` do AppShell, e a Equipe está
+    // nela. Aqui ela faltava, e a Equipe abria sem faixa.)
     document.querySelector('.app-header')
-      .classList.toggle('app-header--faixa', qual === 'conta' || qual === 'assinatura');
+      .classList.toggle('app-header--faixa', qual !== 'inicio');
     // O índice mede as seções, e elemento escondido mede zero: rodando com a
     // tela fechada, TODAS passavam no teste e a última ganhava. Refaz a conta
     // depois que a tela aparece. (No site isto não existe: lá cada tela é uma
