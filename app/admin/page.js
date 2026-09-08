@@ -11,6 +11,7 @@ import { useIdioma } from '../../lib/i18n';
 import { lerConta, adminListarAssinantes, adminDadosFiscais, adminCompras, adminFaturas, adminSincronizarStripe } from '../../lib/auth';
 import PainelAceites from '../../components/PainelAceites';
 import AdminDinheiro from '../../components/AdminDinheiro';
+import PainelNovidades from '../../components/PainelNovidades';
 import { usarTelaAdmin, irParaTelaAdmin } from '../../lib/telaAdmin';
 
 
@@ -94,7 +95,7 @@ export default function Admin() {
                 abas: ['pagantes', 'trial', 'convidados', 'cancelados', 'ficha'],
                 primeira: 'pagantes' },
     registros:{ olho: 'Admin · Registros', titulo: 'O que ficou gravado',
-                abas: ['aceites'], primeira: 'aceites' },
+                abas: ['aceites', 'novidades'], primeira: 'aceites' },
   };
 
   /* Trocou de tela, a aba vai para a primeira dela. Sem isto, sair de Contas
@@ -122,7 +123,15 @@ export default function Admin() {
   const [emailAberto, setEmailAberto] = useState(false);
   const [dadosFiscais, setDadosFiscais] = useState(null); // { email: {telefone, endereco} }
   const [carregandoFiscais, setCarregandoFiscais] = useState(false);
-  const [verPerfil, setVerPerfil] = useState(false); // troca colunas de cobrança pelas respostas do cadastro
+  /* ── OS TRES RECORTES DA TABELA ──
+     Cobranca, Cadastro e Dados fiscais sao TRES PERGUNTAS DIFERENTES sobre a
+     mesma pessoa, e ninguem faz as tres ao mesmo tempo. Antes os fiscais
+     ACRESCENTAVAM tres colunas a qualquer um dos outros dois, e a tabela
+     chegava a onze colunas: 1266px dentro de um cartao de 775, com barra de
+     rolagem horizontal, que e onde o olho se perde.
+
+     Como recortes que se excluem, o mais largo cabe. */
+  const [recorte, setRecorte] = useState('cobranca');   // cobranca | perfil | fiscal
   const [meuId, setMeuId] = useState(null);
 
   // Rótulos traduzidos das respostas do cadastro (marcas ficam literais).
@@ -562,8 +571,12 @@ export default function Admin() {
   const nPags   = Math.max(1, Math.ceil(filtrados.length / porPag));
   const pagAtual = Math.min(pag, nPags);   // filtrar pode encolher a lista sob os pés
   const pagina  = filtrados.slice((pagAtual - 1) * porPag, pagAtual * porPag);
-  const mostrarPerfil   = (aba === 'trial' || verPerfil);
-  const mostrarCobranca = (aba === 'pagantes' && !verPerfil);
+  /* No Trial o recorte de cobranca nao tem o que mostrar: quem esta em teste
+     nao tem plano pago nem fatura. Por isso ele cai no cadastro sozinho, que e
+     a pergunta que se faz sobre quem acabou de entrar. */
+  const mostrarPerfil   = (aba === 'trial' || recorte === 'perfil');
+  const mostrarFiscal   = (recorte === 'fiscal');
+  const mostrarCobranca = (aba === 'pagantes' && recorte === 'cobranca');
 
   const totalConvidados = assinantes.filter(a => a.eh_convidado && a.id !== meuId).length;
   const totalTrial = assinantes.filter(a => a.eh_trial && a.id !== meuId).length;
@@ -640,39 +653,6 @@ export default function Admin() {
               Registros eles nao tem sobre o que agir, e um icone que nao faz
               nada e pior que icone nenhum: ele promete. */}
           {telaAdm === 'contas' && (<>
-          <button
-            className={'adm-ico' + (dadosFiscais ? ' adm-ico--on' : '')}
-            onClick={mostrarFiscais}
-            disabled={carregandoFiscais}
-            data-tip={dadosFiscais ? t('adm_ocultar_fiscais') : t('adm_ver_fiscais')}
-            aria-label={dadosFiscais ? t('adm_ocultar_fiscais') : t('adm_ver_fiscais')}
-          >
-            {carregandoFiscais ? (
-              <span className="adm-girando" />
-            ) : (
-              <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
-                   stroke="currentColor" strokeWidth="1.5">
-                <path d="M5 2.5h7l3 3v12H5z" strokeLinejoin="round"/>
-                <path d="M12 2.5v3h3M7.5 9h5M7.5 12h5M7.5 15h3" strokeLinecap="round"/>
-              </svg>
-            )}
-          </button>
-
-          <button
-            className={'adm-ico' + (verPerfil ? ' adm-ico--on' : '')}
-            onClick={() => setVerPerfil(v => !v)}
-            data-tip={verPerfil ? t('adm_ver_cobranca') : t('adm_ver_cadastro')}
-            aria-label={verPerfil ? t('adm_ver_cobranca') : t('adm_ver_cadastro')}
-          >
-            <svg viewBox="0 0 20 20" width="17" height="17" fill="none"
-                 stroke="currentColor" strokeWidth="1.5">
-              <path d="M7 4h9M7 10h9M7 16h9" strokeLinecap="round"/>
-              <circle cx="3.5" cy="4" r="1.2"/>
-              <circle cx="3.5" cy="10" r="1.2"/>
-              <circle cx="3.5" cy="16" r="1.2"/>
-            </svg>
-          </button>
-
           {geo.totalClientes > 0 && (
             <button
               className={'adm-ico' + (verGeo ? ' adm-ico--on' : '')}
@@ -915,6 +895,13 @@ export default function Admin() {
         <div className="adm-abas" role="tablist" data-fila="registros">
           <button className={'adm-aba' + (aba === 'aceites' ? ' ativa' : '')}
                   onClick={() => setAba('aceites')}>{t('adm_aba_aceites')}</button>
+          {/* Quem quer receber novidades. Fica aqui, e nao em Contas, porque a
+              pergunta e outra: nao e "quem e essa pessoa", e "para quantas eu
+              posso escrever". */}
+          <button className={'adm-aba' + (aba === 'novidades' ? ' ativa' : '')}
+                  onClick={() => setAba('novidades')}>
+            {t('adm_nov_coluna')} <b>{assinantes.filter((c) => c.newsletter !== false).length}</b>
+          </button>
         </div>
       )}
 
@@ -932,10 +919,43 @@ export default function Admin() {
         <div style={{ marginTop: 18 }}><PainelAceites /></div>
       )}
 
+      {aba === 'novidades' && (
+        <div style={{ marginTop: 18 }}><PainelNovidades contas={assinantes} /></div>
+      )}
+
       {/* A barra de filtro/busca e das LISTAGENS. Na ficha ela nao se aplica —
           escondida por estilo em vez de condicional, para nao mexer no
           aninhamento do JSX que segue abaixo. Os blocos de conteudo ja sao
           condicionais por aba, entao nada mais precisa ser escondido. */}
+      {/* ── O QUE A TABELA MOSTRA ──
+          Tres recortes que se EXCLUEM, e nao dois interruptores que somam.
+          Sao tres perguntas diferentes sobre a mesma pessoa, e ninguem faz as
+          tres ao mesmo tempo. Somadas davam onze colunas e uma barra de
+          rolagem horizontal, que e onde o olho se perde.
+
+          Ficam colados na tabela, e nao no cabecalho da pagina: eles mudam o
+          que a tabela mostra, e nao o que a tela e. */}
+      {telaAdm === 'contas' && aba !== 'ficha' && (
+        <div className="adm-colunas">
+          <span className="adm-colunas__r">{t('adm_mostrar')}</span>
+          <button className={'adm-coluna' + (recorte === 'cobranca' ? ' on' : '')}
+                  onClick={() => setRecorte('cobranca')}>{t('adm_col_cobranca')}</button>
+          <button className={'adm-coluna' + (recorte === 'perfil' ? ' on' : '')}
+                  onClick={() => setRecorte('perfil')}>{t('adm_col_cadastro')}</button>
+          {/* Os dados fiscais chegam por outra chamada, e so quando alguem
+              pede: sao telefone e endereco de todo mundo, e carregar isso em
+              toda visita seria trazer dado pessoal que ninguem pediu. */}
+          <button className={'adm-coluna' + (recorte === 'fiscal' ? ' on' : '')}
+                  disabled={carregandoFiscais}
+                  onClick={() => {
+                    setRecorte('fiscal');
+                    if (!dadosFiscais) mostrarFiscais();
+                  }}>
+            {carregandoFiscais ? t('adm_carregando') : t('adm_col_fiscal')}
+          </button>
+        </div>
+      )}
+
       {/* A barra de filtro e busca e das LISTAGENS. Nao vale na Ficha, que e
           uma conta so, nem no Resumo, que nao e lista: buscar um nome dentro
           de um total em dinheiro nao quer dizer nada.
@@ -943,7 +963,7 @@ export default function Admin() {
           Escondida por estilo em vez de condicional para nao mexer no
           aninhamento do JSX que segue abaixo. */}
       <div className="adm-barra"
-           style={aba === 'ficha' || aba === 'resumo' || aba === 'aceites'
+           style={['ficha', 'resumo', 'aceites', 'novidades'].includes(aba)
              ? { display: 'none' } : undefined}>
         <div className="adm-busca">
           <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
@@ -1158,7 +1178,7 @@ export default function Admin() {
       {/* A ficha e uma tela inteira, nao uma listagem: nao entra neste ternario.
           Sem o `null` explicito ela caia no ELSE e a tabela geral de contas
           aparecia solta embaixo da ficha aberta. */}
-      {aba === 'ficha' || aba === 'resumo' || aba === 'aceites' ? null : aba === 'faturas' ? (
+      {['ficha', 'resumo', 'aceites', 'novidades'].includes(aba) ? null : aba === 'faturas' ? (
         <div className="conta-card adm-card">
           {/* O aviso aparece quando o Stripe não respondeu. Sem ele a tela
               mostraria só as recargas e daria a entender que não houve fatura
@@ -1241,9 +1261,9 @@ export default function Admin() {
                 <th>{t('adm_h_data')}</th>
                 <th>{t('adm_h_comprador')}</th>
                 <th>{t('adm_h_cpfid')}</th>
-                {dadosFiscais && <th>{t('adm_h_telefone')}</th>}
-                {dadosFiscais && <th>{t('adm_h_cep')}</th>}
-                {dadosFiscais && <th>{t('adm_h_endereco')}</th>}
+                {mostrarFiscal && dadosFiscais && <th>{t('adm_h_telefone')}</th>}
+                {mostrarFiscal && dadosFiscais && <th>{t('adm_h_cep')}</th>}
+                {mostrarFiscal && dadosFiscais && <th>{t('adm_h_endereco')}</th>}
                 <th>{t('adm_h_compra')}</th>
                 <th>{t('adm_h_creditos')}</th>
                 <th>{t('adm_h_destino')}</th>
@@ -1263,9 +1283,9 @@ export default function Admin() {
                     <div className="adm-sub"><span className="adm-sub-txt" title={c.email}>{c.email}</span></div>
                   </td>
                   <td><DocFiscal cpf={c.cpf} doc_intl={c.doc_intl} doc_pais={c.doc_pais} /></td>
-                  {dadosFiscais && <td>{dadosFiscais[c.email]?.telefone || '—'}</td>}
-                  {dadosFiscais && <td>{dadosFiscais[c.email]?.cep || '—'}</td>}
-                  {dadosFiscais && <td style={{ fontSize: 13, maxWidth: 220 }}>{dadosFiscais[c.email]?.endereco || '—'}</td>}
+                  {mostrarFiscal && dadosFiscais && <td>{dadosFiscais[c.email]?.telefone || '—'}</td>}
+                  {mostrarFiscal && dadosFiscais && <td>{dadosFiscais[c.email]?.cep || '—'}</td>}
+                  {mostrarFiscal && dadosFiscais && <td style={{ fontSize: 13, maxWidth: 220 }}>{dadosFiscais[c.email]?.endereco || '—'}</td>}
                   <td>{c.descricao}</td>
                   <td>{(c.creditos || 0).toLocaleString('pt-BR')}</td>
                   <td style={{ fontSize: 13 }}>{c.destino_email && c.destino_email !== c.email ? c.destino_email : '—'}</td>
@@ -1284,29 +1304,36 @@ export default function Admin() {
           <thead>
             <tr>
               <th>{t('adm_h_nome_email')}</th>
-              {!mostrarPerfil && <th>{t('adm_h_cpfid')}</th>}
-              {dadosFiscais && <th>{t('adm_h_telefone')}</th>}
-              {dadosFiscais && <th>{t('adm_h_cep')}</th>}
-              {dadosFiscais && <th>{t('adm_h_endereco')}</th>}
+              {/* O documento fiscal saiu de Cobranca: ele e o recorte FISCAL, e
+                  estava nos dois. Era a coluna que sozinha nao cabia. */}
+              {mostrarFiscal && <th>{t('adm_h_cpfid')}</th>}
+              {mostrarFiscal && dadosFiscais && <th>{t('adm_h_telefone')}</th>}
+              {mostrarFiscal && dadosFiscais && <th>{t('adm_h_cep')}</th>}
+              {mostrarFiscal && dadosFiscais && <th>{t('adm_h_endereco')}</th>}
               {!mostrarPerfil && <th>{t('adm_h_plano')}</th>}
               {aba === 'convidados' && <th>{t('adm_h_equipe')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_genero')}</th>}
               {mostrarPerfil && <th>{t('adm_profissao')}</th>}
               {mostrarPerfil && <th>{t('adm_h_origem')}</th>}
               {mostrarPerfil && <th>{t('adm_h_usa_render')}</th>}
+              {/* Tamanho da equipe e projetos por ano sao a mesma pergunta:
+                  o porte de quem esta do outro lado. Empilhados numa coluna
+                  eles custam 122px em vez de 231. */}
               {mostrarPerfil && <th>{t('adm_h_tamanho')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_projetos')}</th>}
+              {/* Cidade, estado e pais numa coluna so. Sao tres pedacos de UMA
+                  resposta, e separados custavam 177px para dizer o que "Sao
+                  Paulo, SP, BR" diz em 110. */}
               {mostrarPerfil && <th>{t('adm_h_cidade')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_estado')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_pais')}</th>}
-              {mostrarPerfil && <th>{t('adm_h_cadastro')}</th>}
               {mostrarCobranca && <th>{t('adm_h_valor')}</th>}
-              {mostrarCobranca && <th>{t('adm_h_assinou')}</th>}
-              {mostrarCobranca && <th>{t('adm_h_renova')}</th>}
-              {mostrarCobranca && <th>{t('adm_h_renov')}</th>}
+              {/* Assinou, renova e quantas vezes renovou sao a MESMA historia,
+                  contada em tres colunas. Juntas numa so, com as datas
+                  empilhadas, elas custam 87px em vez de 222. */}
+              {mostrarCobranca && <th>{t('adm_h_ciclo')}</th>}
               {aba === 'cancelados' && <th>{t('adm_h_cancelado_em')}</th>}
-              <th>{t('adm_status')}</th>
-              {!mostrarPerfil && <th>{t('adm_h_creditos')}</th>}
+              {/* O status nao aparece no recorte de cadastro: a aba escolhida
+                  ja diz qual e (Assinantes, Trial, Cancelados), e repeti-lo
+                  custava uma coluna para nao dizer nada de novo. */}
+              {!mostrarPerfil && <th>{t('adm_status')}</th>}
+              {mostrarCobranca && <th>{t('adm_h_creditos')}</th>}
               <th>{t('adm_h_ficha')}</th>
             </tr>
           </thead>
@@ -1321,11 +1348,22 @@ export default function Admin() {
                     <span className="adm-sub-txt" title={a.email}>{a.email}</span>
                     {!a.email_verificado && <span className="adm-tag-nv">{t('adm_nao_verificado')}</span>}
                   </div>
+                  {/* A data de entrada desce para ca no recorte de cadastro. Ela
+                      valia uma coluna de 83px para dizer o que cabe aqui em
+                      cima da linha que ja existe, e eram esses 83px que faziam
+                      o recorte estourar a largura do cartao. */}
+                  {mostrarPerfil && (
+                    <div className="adm-sub">
+                      <span className="adm-sub-txt">
+                        {t('adm_h_cadastro').toLowerCase()} {fmtData(a.criado_em)}
+                      </span>
+                    </div>
+                  )}
                 </td>
-                {!mostrarPerfil && <td><DocFiscal cpf={a.cpf} doc_intl={a.doc_intl} doc_pais={a.doc_pais} /></td>}
-                {dadosFiscais && <td>{dadosFiscais[a.email]?.telefone || '—'}</td>}
-                {dadosFiscais && <td>{dadosFiscais[a.email]?.cep || '—'}</td>}
-                {dadosFiscais && <td style={{ fontSize: 13, maxWidth: 220 }}>{dadosFiscais[a.email]?.endereco || '—'}</td>}
+                {mostrarFiscal && <td><DocFiscal cpf={a.cpf} doc_intl={a.doc_intl} doc_pais={a.doc_pais} /></td>}
+                {mostrarFiscal && dadosFiscais && <td>{dadosFiscais[a.email]?.telefone || '—'}</td>}
+                {mostrarFiscal && dadosFiscais && <td>{dadosFiscais[a.email]?.cep || '—'}</td>}
+                {mostrarFiscal && dadosFiscais && <td style={{ fontSize: 13, maxWidth: 220 }}>{dadosFiscais[a.email]?.endereco || '—'}</td>}
                 {!mostrarPerfil && (
                 <td>
                   {a.eh_dono_equipe ? (
@@ -1344,23 +1382,39 @@ export default function Admin() {
                     <div className="adm-sub"><span className="adm-sub-txt" title={a.equipe_dono_email || ''}>{a.equipe_dono_email || ''}</span></div>
                   </td>
                 )}
-                {mostrarPerfil && <td style={{ fontSize: 13 }}>{GENERO_LBL[a.genero] || a.genero || '—'}</td>}
                 {mostrarPerfil && <td style={{ fontSize: 13 }}>{PROFISSAO_LBL[a.profissao] || a.profissao || '—'}</td>}
                 {mostrarPerfil && <td style={{ fontSize: 13 }}>{ORIGEM_LBL[a.origem] || a.origem || '—'}</td>}
                 {mostrarPerfil && <td style={{ fontSize: 13 }}>{RENDER_LBL[a.usa_render] || a.usa_render || '—'}</td>}
-                {mostrarPerfil && <td style={{ fontSize: 13 }}>{TAMANHO_LBL[a.tamanho] || a.tamanho || '—'}</td>}
-                {mostrarPerfil && <td style={{ fontSize: 13 }}>{VOLUME_LBL[a.volume] || a.volume || '—'}</td>}
-                {mostrarPerfil && <td style={{ fontSize: 13 }}>{a.cidade || '—'}</td>}
-                {mostrarPerfil && <td style={{ fontSize: 13 }}>{a.estado || '—'}</td>}
-                {mostrarPerfil && <td style={{ fontSize: 13 }}>{a.pais || '—'}</td>}
-                {mostrarPerfil && <td>{fmtData(a.criado_em)}</td>}
+                {mostrarPerfil && (
+                  <td style={{ fontSize: 13 }}>
+                    <div>{TAMANHO_LBL[a.tamanho] || a.tamanho || '—'}</div>
+                    {(VOLUME_LBL[a.volume] || a.volume) && (
+                      <div className="adm-sub">
+                        <span className="adm-sub-txt">{VOLUME_LBL[a.volume] || a.volume}</span>
+                      </div>
+                    )}
+                  </td>
+                )}
+                {mostrarPerfil && (
+                  <td style={{ fontSize: 13 }}>
+                    {[a.cidade, a.estado, a.pais].filter(Boolean).join(', ') || '—'}
+                  </td>
+                )}
                 {mostrarCobranca && <td>{a.valor_centavos ? fmtValor(a.valor_centavos, a.moeda) : '—'}</td>}
-                {mostrarCobranca && <td>{fmtData(a.assinou_em)}</td>}
-                {mostrarCobranca && <td>{fmtData(a.renova_em)}</td>}
-                {mostrarCobranca && <td style={{ textAlign: 'center' }}>{a.renovacoes || 0}</td>}
+                {mostrarCobranca && (
+                  <td style={{ fontSize: 13 }}>
+                    <div>{fmtData(a.assinou_em)}</div>
+                    <div className="adm-sub">
+                      <span className="adm-sub-txt">
+                        {a.renova_em ? t('adm_h_renova').toLowerCase() + ' ' + fmtData(a.renova_em) : ''}
+                        {a.renovacoes > 0 && ' · ' + a.renovacoes + 'x'}
+                      </span>
+                    </div>
+                  </td>
+                )}
                 {aba === 'cancelados' && <td>{a.cancelado_em ? fmtData(a.cancelado_em) : '—'}</td>}
-                <td><span className={'fat-selo' + (a.assinatura_status === 'cancelado' || a.status !== 'ativo' ? ' fat-selo--aberta' : '')}>{a.assinatura_status === 'cancelado' ? t('adm_st_cancelado') : a.status}</span></td>
-                {!mostrarPerfil && <td>{a.plano === 'free' && !a.eh_dono_equipe ? '—' : `${a.creditos_restantes}/${a.creditos_total}`}</td>}
+                {!mostrarPerfil && <td><span className={'fat-selo' + (a.assinatura_status === 'cancelado' || a.status !== 'ativo' ? ' fat-selo--aberta' : '')}>{a.assinatura_status === 'cancelado' ? t('adm_st_cancelado') : a.status}</span></td>}
+                {mostrarCobranca && <td>{a.plano === 'free' && !a.eh_dono_equipe ? '—' : `${a.creditos_restantes}/${a.creditos_total}`}</td>}
                 {/* As tabelas viraram lista. Cancelar, deletar e trocar plano
                     moram na Ficha, junto da conta: com a ação aqui, era fácil
                     aplicar na linha de cima ou de baixo — e são irreversíveis.

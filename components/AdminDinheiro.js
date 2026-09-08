@@ -79,6 +79,8 @@ export default function AdminDinheiro() {
 
   const moedas = dados?.moedas || [];
   const meses = dados?.meses || {};
+  const resumo = dados?.resumo || null;
+  const contas = dados?.contas || [];
 
   const info = (cod) => moedas.find((m) => m.codigo === cod)
     || { codigo: cod, simbolo: String(cod || '').toUpperCase(), nome: '', primeira: '' };
@@ -485,6 +487,120 @@ export default function AdminDinheiro() {
           </div>
         )}
       </div>
+
+      {/* ── OS NÚMEROS DE CONTEXTO ──
+          Eles não obedecem ao período de propósito: são sobre o estado de
+          HOJE, e não sobre o que entrou num recorte. Misturá-los com a régua
+          de meses faria o recorrente mudar ao clicar num mês, e recorrente que
+          muda com o mês escolhido não é recorrente.
+
+          Ficam num degrau visualmente abaixo do número grande porque são o
+          contexto dele, e não uma segunda resposta. */}
+      {resumo && (
+        <div className="din-fila">
+          <div className="conta-card adm-card din-cel">
+            <p className="eyebrow">Recorrente por mês</p>
+            <strong>{dinheiro(resumo.recorrente_centavos, moedas[0]?.codigo)}</strong>
+            <p>
+              A soma das mensalidades ativas hoje, com o anual dividido por doze.
+              Recarga não entra: ela é avulsa e não se repete sozinha.
+            </p>
+          </div>
+          <div className="conta-card adm-card din-cel">
+            <p className="eyebrow">Ticket médio</p>
+            <strong>
+              {contas.length
+                ? dinheiro(Math.round(contas.reduce((a, c) => a + c.total, 0) / contas.length),
+                           moedas[0]?.codigo)
+                : '—'}
+            </strong>
+            <p>Quanto cada conta pagante já pagou, na média, contando recarga.</p>
+          </div>
+          <div className="conta-card adm-card din-cel">
+            <p className="eyebrow">Quanto dura uma conta</p>
+            <strong>
+              {resumo.meses_de_vida >= 0.1
+                ? resumo.meses_de_vida.toFixed(1).replace('.', ',') + ' meses'
+                : '—'}
+            </strong>
+            {/* Só quem já cancelou entra nesta média: quem ainda assina não tem
+                duração final, e incluir essas contas puxaria o número para
+                baixo toda vez que alguém novo entrasse. */}
+            <p>
+              Média de quem já cancelou, entre {resumo.assinaturas_encerradas}{' '}
+              {resumo.assinaturas_encerradas === 1 ? 'conta' : 'contas'}.
+            </p>
+          </div>
+          <div className="conta-card adm-card din-cel">
+            <p className="eyebrow">Assinaturas ativas</p>
+            <strong>{resumo.assinaturas_ativas}</strong>
+            <p>
+              {resumo.assinaturas_encerradas > 0
+                ? resumo.assinaturas_encerradas + (resumo.assinaturas_encerradas === 1
+                    ? ' já foi encerrada.' : ' já foram encerradas.')
+                : 'Nenhuma encerrada até agora.'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── QUANTO CADA CONTA JÁ PAGOU ──
+          Do primeiro mês até hoje, e não no período: a pergunta aqui é quem
+          sustenta o negócio, e ela não muda porque alguém clicou em setembro.
+
+          Sai do nosso banco, e não do Stripe. A pergunta é sobre a CONTA, e
+          cruzar cobrança com conta pelo customer jogaria no balde errado tudo
+          que não casasse. */}
+      {contas.length > 0 && (
+        <div className="conta-card adm-card">
+          <h2 className="conta-h2">Quanto cada conta já pagou</h2>
+          <p className="conta-p">
+            A mensalidade de cada ciclo mais as recargas, desde a primeira cobrança.
+            Ordenado por quem mais pagou.
+          </p>
+          <div className="fat-rolo">
+            <table className="fat">
+              <thead>
+                <tr>
+                  <th>Conta</th><th>Plano</th><th>Desde</th>
+                  <th className="adm-num">Ciclos</th>
+                  <th className="adm-num">Assinatura</th>
+                  <th className="adm-num">Recarga</th>
+                  <th className="adm-num">Total pago</th>
+                </tr>
+              </thead>
+              <tbody>
+                {contas.map((c) => (
+                  <tr key={c.id}>
+                    <td>
+                      <div className="adm-nome">{c.nome || '—'}</div>
+                      <div className="adm-sub">
+                        <span className="adm-sub-txt">{c.email}</span>
+                        {c.cancelou && <span className="fat-selo fat-selo--aberta">Cancelou</span>}
+                      </div>
+                    </td>
+                    <td>{c.plano || '—'}</td>
+                    <td className="adm-mono">
+                      {c.desde ? new Date(c.desde).toLocaleDateString('pt-BR',
+                        { month: '2-digit', year: 'numeric' }) : '—'}
+                    </td>
+                    <td className="adm-num">{c.ciclos}</td>
+                    <td className="adm-num">{dinheiro(c.assinatura, c.moeda)}</td>
+                    <td className="adm-num">
+                      {c.recarga ? dinheiro(c.recarga, c.moeda) : '—'}
+                    </td>
+                    <td className="adm-num"><b>{dinheiro(c.total, c.moeda)}</b></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="adm-total">
+            {contas.length} {contas.length === 1 ? 'conta já pagou' : 'contas já pagaram'}{' '}
+            alguma coisa.
+          </p>
+        </div>
+      )}
 
       <div className="conta-card adm-card">
         <div className="adm-ficha-cab">

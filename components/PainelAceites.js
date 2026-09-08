@@ -25,6 +25,7 @@
 
 import { useEffect, useState } from 'react';
 import { adminAceites, adminAceiteTexto } from '../lib/auth';
+import ComprovanteAceite from './ComprovanteAceite';
 import { useIdioma } from '../lib/i18n';
 
 function quando(iso) {
@@ -41,7 +42,8 @@ export default function PainelAceites() {
   const [dados, setDados] = useState(null);
   const [erro, setErro] = useState('');
   const [busca, setBusca] = useState('');
-  const [aberto, setAberto] = useState(null);   // o texto que está sendo lido
+  const [aberto, setAberto] = useState(null);
+  const [comprovante, setComprovante] = useState(null);   // o texto que está sendo lido
 
   useEffect(() => {
     adminAceites().then(setDados).catch((e) => setErro(e.message));
@@ -128,15 +130,34 @@ export default function PainelAceites() {
                     </div>
                   </td>
                   <td>
+                    {/* Dois botoes com papeis diferentes. "Ver texto" e a
+                        conferencia rapida de UMA linha, dentro da tela. O
+                        comprovante e a folha da PESSOA, com os dois documentos
+                        inteiros, e existe para ser impressa e levada.
+
+                        O comprovante so aparece com conta ligada: sem conta_id
+                        nao ha de quem montar a folha, e um botao que abre um
+                        erro e pior que botao nenhum. */}
                     <button className="admin-ac-ver" onClick={() => verTexto(a.id)}>
                       {t('adm_ac_ver_texto')}
                     </button>
+                    {a.conta_id && (
+                      <button className="admin-ac-ver"
+                              onClick={() => setComprovante({ id: a.conta_id, nome: a.nome })}>
+                        {t('adm_ac_comprovante')}
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {comprovante && (
+        <ComprovanteAceite contaId={comprovante.id} nome={comprovante.nome}
+                           onFechar={() => setComprovante(null)} />
       )}
 
       {aberto && (
