@@ -41,8 +41,22 @@ def embutir(caminho):
     return 'data:%s;base64,%s' % (tipo, dados)
 
 
-# ── 1. o CSS, como esta ───────────────────────────────────────────────────
-css = ler('app/telas-de-conta.css')
+# ── 1. o CSS: AS TRES FOLHAS, NA ORDEM DO layout.js ──────────────────────
+#
+# A primeira versao carregava so o `telas-de-conta.css`, e por isso a tela
+# chegava ACHATADA: aquela folha nao e a tela, e a CAMADA DE CIMA dela. As
+# regras base (o reset, `.login-card` com o seu recuo, `.login-titulo` em 28px,
+# `.link-botao` sem borda) moram no globals, e o `.tc` so as sobrescreve onde
+# precisa. Sem a de baixo, o botao de link ganhava a borda padrao do navegador
+# e cada medida caia no valor de fabrica.
+#
+# A ordem importa e e a mesma do `app/layout.js`: globals, responsivo, e por
+# ultimo o `.tc`, que ganha por vir depois e por ter mais especificidade.
+css = u'\n'.join([
+    u'/* ══ app/globals.css ══ */',        ler('app/globals.css'),
+    u'/* ══ app/responsivo.css ══ */',     ler('app/responsivo.css'),
+    u'/* ══ app/telas-de-conta.css ══ */', ler('app/telas-de-conta.css'),
+])
 
 # ── 2. a grade, do proprio GradeCora ──────────────────────────────────────
 # O arquivo e gerado por `gerar-grade.py` e a lista mora nele como literal.
@@ -129,9 +143,11 @@ HTML = u"""<!DOCTYPE html>
 </style>
 
 <style>
-/* So a moldura desta demonstracao. */
-body{ margin:0; background:#F4F4F4; font-family:'DM Sans',system-ui,sans-serif;
-  -webkit-font-smoothing:antialiased; }
+/* So a moldura desta demonstracao. Ela vem DEPOIS das tres folhas, e precisa
+   desfazer o `display:flex` que o globals poe no body para o rodape colar no
+   pe das paginas publicas: aqui nao ha rodape, e o flex esticava a moldura. */
+body{ margin:0; display:block; min-height:0; background:#F4F4F4;
+  font-family:'DM Sans',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
 .demo-topo{ max-width:1180px; margin:0 auto; padding:30px 20px 0; }
 .demo-eb{ margin:0 0 6px; font-size:11px; font-weight:700; letter-spacing:.14em;
   text-transform:uppercase; color:#5B5B57; }
@@ -146,9 +162,16 @@ body{ margin:0; background:#F4F4F4; font-family:'DM Sans',system-ui,sans-serif;
   cursor:pointer; font-family:inherit; font-size:13.5px; background:transparent;
   color:#F2F2EF; }
 .demo-barra button[data-on]{ background:#C4FBA7; color:#111; font-weight:600; }
-.demo-moldura{ max-width:1180px; margin:0 auto 40px; padding:0 20px; }
-.demo-moldura .login-split{ border-radius:20px; overflow:hidden;
-  border:1px solid #E4E4DF; min-height:620px; }
+/* A TELA VAI DE PONTA A PONTA, como no site.
+   Ela estava dentro de uma moldura de 1180px com recuo dos lados, e por isso
+   chegava ACHATADA: o `.tc.login-split` divide a largura em 1.05fr / 1fr, e
+   com 100px a menos os dois lados encolhem juntos. A proporcao continuava
+   certa, mas o painel perdia 73px e o cartao ficava espremido contra a borda.
+   Aqui ela recebe a largura da janela e a altura de `100dvh` menos o topo
+   desta demonstracao, que e o mesmo calculo do site (la o desconto e a altura
+   do aviso de cookies). */
+.demo-moldura{ margin:0 0 40px; }
+.demo-moldura .login-split{ height:calc(100dvh - 210px); min-height:560px; }
 .demo-nota{ max-width:1180px; margin:0 auto; padding:0 20px 60px; }
 .demo-nota div{ padding:18px 20px; border-radius:14px; background:#fff;
   border:1px solid #E4E4DF; font-size:13.5px; line-height:1.55; color:#5B5B57;
