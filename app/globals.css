@@ -83,6 +83,11 @@
      cores escurecidas ate darem contraste, e sao os mesmos valores que as
      telas de conta ja usavam. */
   --turq-txt: #196C5B;
+  /* O fundo claro que combina com `--turq-txt` como letra (5,7:1). Ele
+     ocupa o lugar de um `--roxo-suave` que nunca existiu: as duas regras
+     que o chamavam caiam no fallback lavanda, e era o unico roxo que
+     ainda pintava alguma coisa fora da tela do Cora. */
+  --turq-bg: #E6F7F3;
   --lima-txt: #256B2A;
 
   --verde: #C4FBA7;
@@ -121,6 +126,10 @@
      No escuro entram as claras, que sobre o preto dao 11 e 15. */
   --turq-txt: var(--turquesa-esc);
   --lima-txt: var(--lima);
+  /* O fundo da pastilha segue o mesmo caminho. No escuro a letra vira clara,
+     e um fundo quase branco deixaria as duas do mesmo lado: um veu da propria
+     turquesa sobre o papel escuro e o que devolve o par. */
+  --turq-bg: rgba(143,221,204,.16);
 
   /* A mesma lima do claro. O que muda no escuro e so o quanto do fundo dela
      se ve por tras do texto. */
@@ -717,7 +726,7 @@ select.login-input { padding-right: 34px; }
   flex: 1; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink2);
   border-radius: 100px; padding: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
-.modal-seg-btn.on { border-color: var(--turq-txt); background: var(--roxo-suave, #f3f2fe); color: var(--turq-txt); }
+.modal-seg-btn.on { border-color: var(--turq-txt); background: var(--turq-bg); color: var(--turq-txt); }
 
 /* ── Os dropdowns da janela de nota fiscal ──
    País e tipo de documento usam o DropdownCora (o mesmo pill roxo de
@@ -852,7 +861,7 @@ select.login-input { padding-right: 34px; }
 
 /* Célula CPF / ID */
 .idcel { font-variant-numeric: tabular-nums; }
-.admin-pais-tag { display: inline-block; margin-left: 8px; font-size: 11px; font-weight: 700; color: var(--turq-txt); background: var(--roxo-suave, #f3f2fe); border-radius: 100px; padding: 2px 8px; vertical-align: middle; }
+.admin-pais-tag { display: inline-block; margin-left: 8px; font-size: 11px; font-weight: 700; color: var(--turq-txt); background: var(--turq-bg); border-radius: 100px; padding: 2px 8px; vertical-align: middle; }
 /* Visão "respostas do cadastro": muitas colunas, compacta.
    `table-layout: fixed` com `width: 100%` e NENHUMA largura declarada reparte a
    tabela em partes iguais — com 13 colunas, a de Nome/Email ficava com 1/13 e o
@@ -7827,7 +7836,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border: none;
   border-radius: 100px;
   background: var(--turquesa-esc);
-  color: #26215C;
+  color: #111111;
   font-size: 12.5px;
   font-weight: 600;
   font-family: inherit;
@@ -12391,9 +12400,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .sup-card { background: var(--paper); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; }
 .sup-banda { background: linear-gradient(120deg, #ADECDF, #DDF6E8 55%, #C4FBA7); padding: 30px 36px; }
 .sup-banda-ic { width: 44px; height: 44px; border-radius: 14px; background: rgba(255,255,255,.6); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
-.sup-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #4a4570; }
-.sup-titulo { font-size: 27px; font-weight: 700; letter-spacing: -.01em; margin: 8px 0 4px; color: #14141a; }
-.sup-sub { font-size: 13.5px; color: #3a3556; margin: 0; }
+.sup-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(17,17,17,.70); }
+.sup-titulo { font-size: 27px; font-weight: 700; letter-spacing: -.01em; margin: 8px 0 4px; color: #111111; }
+.sup-sub { font-size: 13.5px; color: rgba(17,17,17,.66); margin: 0; }
 .sup-body { padding: 30px 36px 34px; }
 .sup-label { display: block; font-size: 12.5px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--ink3); margin: 0 0 7px; }
 /* Nome, E-mail e Assunto (select) em PÍLULA (raio total); padding horizontal
