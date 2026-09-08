@@ -20,7 +20,7 @@ import { useState, useEffect } from 'react';
 import DropdownCora from './DropdownCora';
 import {
   adminBuscarContas, adminFichaDaConta, adminExtratoDaConta, adminCreditar,
-  adminMudarPlano, adminCancelar, adminDeletarConta, adminPersonificar,
+  adminMudarPlano, adminCancelar, adminDeletarConta, adminPersonificar, adminGerente,
 } from '../lib/auth';
 
 const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
@@ -313,6 +313,12 @@ export default function FichaConta({ abrirConta }) {
         // qualquer estado que sobrasse em memória seria do admin anterior.
         window.location.href = '/conta';
         return;
+      } else if (acao === 'gerente') {
+        const virar = !ficha.conta.gerente;
+        await adminGerente(conta.id, virar);
+        setAviso(virar
+          ? 'Agora é gerente: gera sem consumir crédito, e continua sem o admin.'
+          : 'Não é mais gerente: volta a consumir crédito do plano.');
       } else if (acao === 'cancelar') {
         await adminCancelar(conta.id);
         setAviso('Plano cancelado — a conta voltou para Free.');
@@ -615,6 +621,13 @@ export default function FichaConta({ abrirConta }) {
               <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('creditar'); }}>
                 Creditar
               </button>
+              {/* Promover e rebaixar são o mesmo item, com o rótulo dizendo o
+                  que vai acontecer. Dois itens ("tornar" e "tirar") deixariam
+                  sempre um deles sem efeito na tela, e um menu com metade dos
+                  itens inertes é um menu que a pessoa para de ler. */}
+              <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('gerente'); }}>
+                {ficha.conta.gerente ? 'Tirar de gerente' : 'Tornar gerente'}
+              </button>
               {/* Fica acima da divisória: cancelar tira o plano, mas dá para
                   devolvê-lo. Abaixo da linha só entra o que não tem volta. */}
               {a?.plano !== 'free' && (
@@ -689,6 +702,24 @@ export default function FichaConta({ abrirConta }) {
                 A conta volta para Free e perde os créditos do plano. <b>Não cancela a
                 assinatura no Stripe</b>. Se houver cobrança ativa, cancele lá também,
                 senão o cliente continua pagando sem acesso.
+              </p>
+            </>
+          )}
+
+          {acao === 'gerente' && (
+            <>
+              <p className="ficha-confirma-t">
+                {ficha.conta.gerente ? 'Tirar de gerente ' : 'Tornar gerente '}
+                <b>{ficha.conta.email}</b>
+              </p>
+              <p className="ficha-confirma-p">
+                {ficha.conta.gerente ? (
+                  <>Volta a consumir crédito do plano dela, como qualquer conta.</>
+                ) : (
+                  <>Passa a gerar <b>sem consumir crédito</b>, e continua <b>sem acesso
+                    ao admin</b>: o menu dela não ganha esta aba, e as rotas daqui
+                    seguem recusando. Dá para desfazer por este mesmo caminho.</>
+                )}
               </p>
             </>
           )}
