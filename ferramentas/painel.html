@@ -772,11 +772,14 @@
   background:var(--wash);
 }
 .blq-doc__n{ min-width:0; }
-/* O nome e o selo dividem uma linha de flex. Antes o selo se pendurava na
-   LINHA DE BASE do nome com `vertical-align`, e uma pastilha de 11px alinhada
-   pela base fica sempre um fio abaixo do centro de um texto de 14.5px. */
+/* O NOME VOLTOU A SER TEXTO CORRIDO, e nao uma linha de flex.
+   Com flex, um nome que quebra em duas linhas vira um item de duas linhas, e
+   `align-items:center` jogava a pastilha para o meio das duas, flutuando ao
+   lado do nada. Acontece com "Politica de Privacidade" em tela estreita e com
+   os nomes mais longos do ingles e do espanhol. Em texto corrido a pastilha
+   anda junto da palavra, que e o comportamento certo. */
 .blq-doc__n b{
-  display:flex; align-items:center; gap:7px;
+  display:block;
   font-size:14.5px; font-weight:600; letter-spacing:-.012em; line-height:1.35;
 }
 /* `>` PARA A DATA NÃO PEGAR O SELO. Sem ele, `.blq-doc__n span` valia também
@@ -796,10 +799,18 @@
    "atualizado" nos dois quando só um mudou é mentira pequena que custa a
    confiança na próxima. */
 .blq-doc__n .blq-doc__novo{
-  display:inline-flex; align-items:center; flex:none;
-  margin:0; padding:1px 8px; border-radius:var(--pill);
+  display:inline-flex; align-items:center;
+  margin:0 0 0 7px; padding:1px 8px; border-radius:var(--pill);
   background:var(--lima); color:#111111;
   font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  /* ALINHADO PELA ALTURA DE CAIXA-ALTA, e nao pelo meio da linha.
+     `vertical-align:middle` poe o centro da pastilha na linha de base mais
+     METADE DA ALTURA-X. Medido nesta fonte: altura-x 8px, altura do T 11px.
+     O olho compara a pastilha com o T, e o meio do T fica (11-8)/2 = 1,5px
+     mais alto. Sem esses 1,5px ela le como pendurada, que foi o que apareceu
+     no print. `position:relative` porque isto e correcao optica: nao pode
+     empurrar a linha nem crescer a altura do cartao. */
+  vertical-align:middle; position:relative; top:-1.5px;
 }
 /* O certo de lido. É estado, e não elogio: fica do lado do botão, no tamanho
    de etiqueta, para a lista continuar sendo uma lista. */
