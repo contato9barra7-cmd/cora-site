@@ -881,7 +881,14 @@
   transition:border-color var(--t), box-shadow var(--t);
 }
 .perfil-input::placeholder{ color:var(--ink3); }
-.perfil-input:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+/* ── O FOCO ──
+   Turquesa, e nao o preto de antes: foco e sinal de "o cursor esta aqui", e
+   sinal quer cor. Ela nao briga com a lima (que e acao) nem com o vermelho
+   (que e erro), e e a segunda cor da marca.
+   Campo sem foco definido ganha o do NAVEGADOR, que no Chrome de alguns
+   sistemas sai ambar: era o que acontecia no campo de mover credito. */
+.perfil-input:focus{ outline:0; border-color:var(--turquesa-esc);
+  box-shadow:0 0 0 3px rgba(143,221,204,.35); }
 .perfil-input:disabled{ background:var(--wash); color:var(--ink3); cursor:not-allowed; }
 
 .perfil-avatar-area{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
@@ -1421,7 +1428,17 @@
 .ws-linha-input { display: flex; gap: 10px; align-items: stretch; }
 /* 46px, e não 44: é a altura do campo em Minha conta, e a diferença de dois
    aparecia justamente aqui, onde as duas telas se encostam. */
-.ws-input { flex: 1; height: 46px; padding: 0 18px; border: 1px solid var(--line2); border-radius: 100px; font-size: 17px; background: var(--paper); color: var(--ink); box-sizing: border-box; }
+/* 16px, e nao os 14.5 do corpo nem os 17 da escala: e A UNICA EXCECAO dela, e
+   e tecnica. Campo com menos de 16px faz o iPhone dar zoom sozinho ao receber
+   o foco, e a tela inteira pula. */
+.ws-input { flex: 1; height: 46px; padding: 0 18px; border: 1px solid var(--line2); border-radius: 100px; font-size: 16px; background: var(--paper); color: var(--ink); box-sizing: border-box; }
+/* O mesmo foco do campo de Minha conta, aqui porque `.ws-input` e classe do
+   globals e nao passa pelo bloco de producao desta folha. */
+.ws-input:focus, .ws-input:focus-visible {
+  outline: 0; border-color: var(--turquesa-esc);
+  box-shadow: 0 0 0 3px rgba(143, 221, 204, .35);
+}
+
 /* O BOTÃO DE AÇÃO DA EQUIPE É O DE MINHA CONTA: lima, pílula, letra preta.
    Ele vinha com `btn btn--verde`, que é da casca ANTIGA. A classe não existe
    nesta folha, então no artefato o Convidar saía sem desenho nenhum, e no

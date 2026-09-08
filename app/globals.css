@@ -1636,6 +1636,19 @@ select.perfil-input {
 /* 46px, e nao 44: e a altura do campo em Minha conta, e a diferenca de dois
    aparecia justamente aqui, onde as duas telas se encostam. */
 .ws-input { flex: 1; height: 46px; padding: 0 18px; border: 1px solid var(--line2); border-radius: 100px; font-size: 16px; background: var(--paper); color: var(--ink); box-sizing: border-box; }
+/* ── O FOCO ──
+   O `.ws-input` nao definia foco nenhum, e o navegador desenhava o dele: no
+   Chrome de alguns sistemas sai um anel AMBAR, que nao e cor deste produto e
+   aparecia so neste campo, porque todos os outros ja definem o seu.
+
+   A cor e a turquesa escurecida, e nao o preto dos campos antigos: foco e
+   sinal de "o cursor esta aqui", e sinal quer cor. Ela nao briga com a lima
+   (que e acao) nem com o vermelho (que e erro), e e a segunda cor da marca. */
+.ws-input:focus, .ws-input:focus-visible {
+  outline: 0; border-color: #8FDDCC;
+  box-shadow: 0 0 0 3px rgba(143, 221, 204, .35);
+}
+
 /* O BOTAO DE ACAO DA EQUIPE E O DE MINHA CONTA: lima, pilula, letra preta.
    Ele vinha com `btn btn--verde`, que e da casca ANTIGA: aquele verde e o
    #B3FF9F de antes de a marca virar lima e turquesa. */
@@ -12409,13 +12422,24 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
    baixo encontra o convite para ler antes de encontrar o botão de aceitar. Na
    ordem inversa, o botão vira o fim da leitura e os links viram rodapé. */
 .rea-links {
-  margin: 4px 0 20px; font-size: 14px; color: var(--ink3);
+  margin: 4px 0 20px; font-size: 12.5px; color: var(--ink3);
 }
+/* O MESMO DESENHO DOS LINKS LEGAIS DO CADASTRO: turquesa escurecido para
+   texto, sublinhado sempre, e o preto no hover. Aqui eles estavam em cinza,
+   que e a cor do texto de apoio ao redor: um link da mesma cor do paragrafo
+   nao se le como link, e esta e justamente a tela onde a pessoa precisa
+   entender que da para LER antes de aceitar.
+   O #196C5B e o `--turq-texto` das telas de conta, e nao a turquesa da marca:
+   a clara nao tem contraste para texto. */
 .rea-links a {
-  color: var(--ink2); text-decoration: underline;
-  text-underline-offset: 3px;
+  color: #196C5B; text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .rea-links a:hover { color: var(--ink); }
+/* No escuro o #196C5B some no fundo: entra o turquesa claro da marca, que
+   e o mesmo valor do `--turquesa-esc`, escrito aqui porque o token so
+   existe dentro do `.pn` e esta regra precisa valer em qualquer lugar. */
+:root[data-theme="dark"] .rea-links a { color: #8FDDCC; }
 /* O erro fica acima do botão, onde o olho volta depois de clicar e nada
    acontecer. */
 .rea-erro {

@@ -536,7 +536,13 @@
   border:1px solid var(--line); background:var(--paper); color:var(--ink);
   font-family:inherit; font-size:14.5px;
   transition:border-color var(--t), box-shadow var(--t);
-}.pn .perfil-input::placeholder{ color:var(--ink3); }.pn .perfil-input:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }.pn .perfil-input:disabled{ background:var(--wash); color:var(--ink3); cursor:not-allowed; }.pn .perfil-avatar-area{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }.pn .perfil-avatar-box{ position:relative; flex:none; }.pn .perfil-avatar{
+}.pn .perfil-input::placeholder{ color:var(--ink3); }/* ── O FOCO ──
+   Turquesa, e nao o preto de antes: foco e sinal de "o cursor esta aqui", e
+   sinal quer cor. Ela nao briga com a lima (que e acao) nem com o vermelho
+   (que e erro), e e a segunda cor da marca.
+   Campo sem foco definido ganha o do NAVEGADOR, que no Chrome de alguns
+   sistemas sai ambar: era o que acontecia no campo de mover credito. */.pn .perfil-input:focus{ outline:0; border-color:var(--turquesa-esc);
+  box-shadow:0 0 0 3px rgba(143,221,204,.35); }.pn .perfil-input:disabled{ background:var(--wash); color:var(--ink3); cursor:not-allowed; }.pn .perfil-avatar-area{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }.pn .perfil-avatar-box{ position:relative; flex:none; }.pn .perfil-avatar{
   width:64px; height:64px; border-radius:18px; display:grid; place-items:center;
   background:var(--ink); color:var(--paper); font-size:20px; font-weight:600;
   background-size:cover; background-position:center;
