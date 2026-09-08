@@ -33,6 +33,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { adminDinheiro, baixarDinheiroPlanilha } from '../lib/auth';
+import Calendario, { faixaPorExtenso, hojeISO } from './Calendario';
 
 const MES_NOME = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
                   'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -54,6 +55,11 @@ export default function AdminDinheiro() {
   const [erro, setErro] = useState('');
   const [moeda, setMoeda] = useState(null);   // null até saber quais existem
   const [anoAberto, setAnoAberto] = useState(new Date().getFullYear());
+  /* A faixa exata, em 'YYYY-MM-DD'. Quando ela existe, ganha de tudo: do mes
+     aberto e do atalho. E ela e o unico periodo que nao cabe na regua, entao
+     a regua para de marcar mes enquanto ela vale. */
+  const [faixa, setFaixa] = useState(null);
+  const [calAberto, setCalAberto] = useState(false);
   const [mesAberto, setMesAberto] = useState(null);   // null = o período inteiro
   const [atalho, setAtalho] = useState('12m');
   const [verLiquido, setVerLiquido] = useState(false);
@@ -79,6 +85,10 @@ export default function AdminDinheiro() {
 
   const moedas = dados?.moedas || [];
   const meses = dados?.meses || {};
+  /* `dias` e a contagem de verdade, e `meses` e a soma dela (o servidor manda
+     as duas). A regua e mensal, entao ela le `meses`; todo o resto le `dias`,
+     porque so ele responde "de 12 a 19". */
+  const dias = dados?.dias || {};
   const resumo = dados?.resumo || null;
   const contas = dados?.contas || [];
 
@@ -90,26 +100,51 @@ export default function AdminDinheiro() {
     + (centavos / 100).toLocaleString('pt-BR',
         { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  /* Um mês do período conta? A regra é a mesma para todos os blocos, então ela
-     mora num lugar só. */
-  const noPeriodo = (chave) => {
-    const ano = +String(chave).slice(0, 4);
-    const mes = +String(chave).slice(5, 7) - 1;
-    if (mesAberto !== null) return ano === anoAberto && mes === mesAberto;
+  /* O primeiro dia dos ultimos 12 meses, contado a partir de HOJE. */
+  const inicio12m = useMemo(() => {
+    const [a, m, d] = hojeISO().split('-').map(Number);
+    const x = new Date(Date.UTC(a, m - 1, d));
+    x.setUTCMonth(x.getUTCMonth() - 12);
+    return x.toISOString().slice(0, 10);
+  }, []);
+
+  /* Um DIA do período conta? A regra é a mesma para todos os blocos, então ela
+     mora num lugar só.
+
+     Datas em 'YYYY-MM-DD' se comparam como texto e dão a ordem certa sozinhas.
+     Virar `Date` aqui traria de volta o erro de fuso que o servidor acabou de
+     corrigir, onde a cobrança das 22h aparecia no dia seguinte.
+
+     "ÚLTIMOS 12 MESES" ERA IGUAL A "O ANO TODO", e isso era defeito: os dois
+     caíam no mesmo `return ano === anoAberto`, então os dois rótulos mostravam
+     o MESMO número. Agora ele conta 12 meses para trás de hoje, que é o que
+     ele sempre disse fazer. */
+  const noPeriodo = (dia) => {
+    const k = String(dia);
+    if (faixa) return k >= faixa.de && k <= faixa.ate;
+    if (mesAberto !== null) {
+      return k.slice(0, 7) === anoAberto + '-' + String(mesAberto + 1).padStart(2, '0');
+    }
     if (atalho === 'tudo') return true;
-    return ano === anoAberto;
+    if (atalho === '12m') return k >= inicio12m;
+    return k.slice(0, 4) === String(anoAberto);
   };
 
   const somaDaMoeda = (cod) => {
     const s = { ...VAZIO };
-    const m = meses[cod] || {};
+    const m = dias[cod] || {};
+    /* `s.meses` alimenta a média mensal, e agora ele conta MESES DISTINTOS
+       tocados pelo período, e não baldes: varrendo dias, `s.meses++` contaria
+       dias e a média sairia dividida por trinta. */
+    const mesesTocados = new Set();
     Object.keys(m).forEach((k) => {
       if (!noPeriodo(k)) return;
       const v = m[k];
       s.assinatura += v.assinatura; s.recarga += v.recarga; s.outro += v.outro;
       s.taxa += v.taxa; s.reembolso += v.reembolso; s.cobrancas += v.cobrancas;
-      s.meses++;
+      mesesTocados.add(k.slice(0, 7));
     });
+    s.meses = mesesTocados.size;
     s.bruto = s.assinatura + s.recarga + s.outro;
     s.liquido = s.bruto - s.taxa;
     return s;
@@ -122,6 +157,17 @@ export default function AdminDinheiro() {
     const menor = moedas.reduce((a, m) => (!a || m.primeira < a ? m.primeira : a), null);
     return menor ? mesPorExtenso(menor) : 'o começo';
   };
+
+  /* O dia da primeira cobranca, entre todas as moedas. E o piso do calendario:
+     antes dele nao existe dinheiro nenhum, e deixar escolher ali seria oferecer
+     uma resposta vazia como se fosse uma resposta.
+
+     `primeira` agora vem como 'YYYY-MM-DD' (o servidor passou a agrupar por
+     dia). Como todas vem no mesmo formato, comparar como texto continua dando
+     a mais antiga. */
+  const menorPrimeira = useMemo(
+    () => moedas.reduce((a, m) => (!a || m.primeira < a ? m.primeira : a), null),
+    [moedas]);
 
   const primeiroAno = useMemo(() => {
     const hoje = new Date().getFullYear();
@@ -162,9 +208,15 @@ export default function AdminDinheiro() {
     return 'nos últimos 12 meses';
   };
 
-  const rotulo = mesAberto !== null || atalho === 'ano'
-    ? 'Entrou em ' + nomeDoPeriodo()
+  const rotulo = faixa ? 'Entrou de ' + faixaPorExtenso(faixa.de, faixa.ate)
+    : mesAberto !== null || atalho === 'ano' ? 'Entrou em ' + nomeDoPeriodo()
     : atalho === 'tudo' ? 'Entrou desde ' + desdeQuando() : 'Entrou nos últimos 12 meses';
+
+  /* Quantos dias a faixa cobre, contando as duas pontas: de 12 a 19 são oito
+     dias, e não sete. É o divisor da média. */
+  const diasNaFaixa = faixa
+    ? Math.round((Date.parse(faixa.ate) - Date.parse(faixa.de)) / 86400000) + 1
+    : 0;
 
   /* A comparação só faz sentido com um mês aberto: comparar "o ano todo" com o
      quê? Sem mês, a linha vira a média mensal do período. */
@@ -173,10 +225,18 @@ export default function AdminDinheiro() {
     : null;
   const total = verLiquido ? s.liquido : s.bruto;
   let comparacao = null;
-  if (mesAberto !== null && anterior) {
+  if (!faixa && mesAberto !== null && anterior) {
     const antes = anterior.assinatura + anterior.recarga + anterior.outro
       - (verLiquido ? anterior.taxa : 0);
     comparacao = { difer: total - antes, texto: 'em relação a ' + MES_LONGO[mesAberto - 1] };
+  } else if (faixa) {
+    /* Numa faixa de dias a média MENSAL não diz nada: oito dias não são um
+       mês, e dividir por "1 mês tocado" daria o total de novo com outro nome.
+       A média por dia é a que responde alguma coisa. */
+    comparacao = {
+      difer: diasNaFaixa ? Math.round(total / diasNaFaixa) : 0,
+      texto: 'por dia, na média', semSinal: true,
+    };
   } else if (mesAberto === null) {
     comparacao = {
       difer: s.meses ? Math.round(total / s.meses) : 0,
@@ -187,6 +247,9 @@ export default function AdminDinheiro() {
   function trocarAtalho(qual) {
     setAtalho(qual);
     setMesAberto(null);
+    // Um atalho e uma faixa respondem à mesma pergunta. Deixar as duas ligadas
+    // faria o rótulo dizer uma coisa e o número mostrar outra.
+    setFaixa(null);
     /* Qualquer atalho traz a régua de volta para o ano corrente. Sem isto,
        quem estivesse olhando um ano vazio e clicasse no atalho de tudo veria o
        total inteiro em cima de um gráfico vazio, e os dois discordavam. */
@@ -226,20 +289,47 @@ export default function AdminDinheiro() {
           <div className="per__ano">
             <button className="per__seta" aria-label="Ano anterior"
                     disabled={anoAberto <= primeiroAno}
-                    onClick={() => { setAnoAberto((a) => a - 1); setMesAberto(null);
+                    onClick={() => { setAnoAberto((a) => a - 1); setMesAberto(null); setFaixa(null);
                                      if (atalho === 'tudo') setAtalho('ano'); }}>
               <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor"
                    strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M10 3L5 8l5 5" />
               </svg>
             </button>
-            <button className="per__nome"
-                    onClick={() => { setMesAberto(null); setAtalho('ano'); }}>
-              {anoAberto}
-            </button>
+            {/* O ANO ABRE O CALENDARIO.
+                Antes ele so ligava o atalho "o ano todo", que ja existe logo
+                ali do lado como botao com nome. Clicar num ano escrito grande
+                pede um seletor de data, e era isso que faltava para responder
+                "de 12 a 19". */}
+            <div className="per__cal-wrap">
+              <button className={'per__nome' + (faixa ? ' per__nome--faixa' : '')}
+                      onClick={() => setCalAberto((v) => !v)}
+                      aria-haspopup="dialog" aria-expanded={calAberto}
+                      title="Escolher dias exatos">
+                {faixa ? faixaPorExtenso(faixa.de, faixa.ate) : anoAberto}
+              </button>
+              {calAberto && (
+                <Calendario
+                  de={faixa?.de} ate={faixa?.ate}
+                  min={menorPrimeira} max={hojeISO()}
+                  aoFechar={() => setCalAberto(false)}
+                  aoEscolher={(f) => {
+                    setFaixa(f);
+                    setCalAberto(false);
+                    if (f) {
+                      // A regua acompanha: ela e mensal, e olhar marco com a
+                      // regua parada em setembro seria a tela discordando de
+                      // si mesma.
+                      setMesAberto(null);
+                      setAnoAberto(+f.de.slice(0, 4));
+                    }
+                  }}
+                />
+              )}
+            </div>
             <button className="per__seta" aria-label="Próximo ano"
                     disabled={anoAberto >= new Date().getFullYear()}
-                    onClick={() => { setAnoAberto((a) => a + 1); setMesAberto(null);
+                    onClick={() => { setAnoAberto((a) => a + 1); setMesAberto(null); setFaixa(null);
                                      if (atalho === 'tudo') setAtalho('ano'); }}>
               <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor"
                    strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
@@ -298,6 +388,7 @@ export default function AdminDinheiro() {
                       onClick={() => {
                         /* Clicar de novo no mês aberto volta para o ano: é o
                            mesmo gesto de ida e volta, sem procurar um "limpar". */
+                        setFaixa(null);
                         setMesAberto((m) => (m === i ? null : i));
                         if (mesAberto !== i) setAtalho('ano');
                       }}>

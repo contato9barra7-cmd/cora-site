@@ -1092,6 +1092,106 @@
 .din-cel p{ margin:6px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.55; }
 .din-cel--saiu strong{ color:var(--alerta); }
 
+/* ══════════════════════════════════════════════════════════════════════
+   O CALENDÁRIO DE FAIXA
+
+   Ele abre ancorado no ano, dentro da barra de período, e serve para
+   responder "de 12 a 19". Um mês por vez: dois lado a lado ajudariam a
+   faixa que cruza a virada e custariam 640px de largura, que não existem
+   num cartão dentro de um laptop.
+
+   O DESENHO DA FAIXA USA AS DUAS CORES, e cada uma diz uma coisa. As duas
+   pontas são lima, que é o gesto de "é este aqui" no resto do produto. O
+   meio é o fundo turquesa claro, que diz "está dentro" sem competir com as
+   pontas. Se o meio fosse lima também, a faixa viraria um bloco só e o
+   primeiro e o último dia parariam de se distinguir — e são justamente eles
+   que a pessoa está tentando acertar.
+
+   Os cantos: a ponta esquerda arredonda à esquerda, a direita à direita, e
+   o meio é reto. É isso que faz sete botões separados lerem como UMA faixa.
+   ══════════════════════════════════════════════════════════════════════ */
+.per__cal-wrap{ position:relative; }
+/* Com faixa escolhida o botão deixa de ser um ano e passa a ser a frase
+   inteira, então ele não pode continuar com a medida de quatro dígitos. */
+.per__nome--faixa{ font-size:14.5px; letter-spacing:-.01em; }
+
+.cal{
+  position:absolute; top:calc(100% + 8px); left:0; z-index:80;
+  width:282px; padding:14px;
+  background:var(--paper); border:1px solid var(--line); border-radius:18px;
+  box-shadow:var(--sombra);
+}
+.cal__cab{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  margin-bottom:12px;
+}
+.cal__mes{ font-size:14.5px; font-weight:500; color:var(--ink2); text-transform:capitalize; }
+.cal__mes b{ font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
+.cal__seta{
+  width:28px; height:28px; flex:none; display:grid; place-items:center;
+  border:0; background:none; border-radius:9px; cursor:pointer; color:var(--ink3);
+  transition:background-color var(--t), color var(--t);
+}
+.cal__seta:hover:not(:disabled){ background:var(--wash2); color:var(--ink); }
+.cal__seta:disabled{ opacity:.3; cursor:default; }
+
+.cal__semana{
+  display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:4px;
+}
+.cal__semana span{
+  text-align:center; font-size:11px; font-weight:700; letter-spacing:.06em;
+  color:var(--ink3);
+}
+.cal__grade{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px 0; }
+.cal__vao{ height:34px; }
+.cal__dia{
+  height:34px; border:0; background:none; cursor:pointer; padding:0;
+  font-family:inherit; font-size:13.5px; color:var(--ink);
+  font-variant-numeric:tabular-nums; border-radius:9px;
+  transition:background-color var(--t), color var(--t);
+}
+.cal__dia:hover:not(:disabled){ background:var(--wash2); }
+.cal__dia:disabled{ color:var(--ink3); opacity:.35; cursor:default; }
+/* Hoje ganha um ponto embaixo, e não um fundo: fundo aqui competiria com a
+   faixa, que é o assunto da tela. */
+.cal__dia--hoje{ position:relative; font-weight:600; }
+.cal__dia--hoje::after{
+  content:''; position:absolute; left:50%; bottom:4px; transform:translateX(-50%);
+  width:4px; height:4px; border-radius:50%; background:var(--ink3);
+}
+.cal__dia--dentro{ background:var(--turq-bg); border-radius:0; }
+.cal__dia--dentro:hover:not(:disabled){ background:var(--turquesa); }
+.cal__dia--ini,
+.cal__dia--fim{ background:var(--lima); color:#111111; font-weight:600; }
+.cal__dia--ini:hover:not(:disabled),
+.cal__dia--fim:hover:not(:disabled){ background:var(--lima-esc); }
+.cal__dia--ini{ border-radius:9px 0 0 9px; }
+.cal__dia--fim{ border-radius:0 9px 9px 0; }
+/* Um dia só é as duas pontas ao mesmo tempo, e aí ele volta a ser redondo
+   dos dois lados. Sem esta linha ele herdaria só o raio da direita. */
+.cal__dia--ini.cal__dia--fim{ border-radius:9px; }
+.cal__dia--ini .cal__dia--hoje::after,
+.cal__dia--fim::after{ background:#111111; }
+
+.cal__pe{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin-top:12px; padding-top:11px; border-top:1px solid var(--line);
+}
+.cal__dica{ font-size:12.5px; color:var(--ink3); }
+.cal__limpar{
+  border:0; background:none; padding:0; cursor:pointer; font-family:inherit;
+  font-size:12.5px; font-weight:600; color:var(--ink);
+  border-bottom:2px solid var(--lima); line-height:1.4;
+  transition:border-color var(--t);
+}
+.cal__limpar:hover{ border-bottom-color:var(--ink); }
+
+/* No celular a coluna do ano é estreita e o popover de 282px sairia pela
+   direita. Ancorado à esquerda do cartão ele cabe. */
+@media (max-width:520px){
+  .cal{ left:auto; right:0; }
+}
+
 </style>
 
 <style data-demo>
