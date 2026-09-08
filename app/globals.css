@@ -59,6 +59,9 @@
   --lima: #C4FBA7;
   --lima-esc: #A5F37D;
   --turquesa: #ADECDF;
+  /* Nunca tinha sido declarado aqui: existia so dentro do `.pn`, e as regras
+     do globals que o usavam caiam em nada. */
+  --turquesa-esc: #8FDDCC;
 
   /* ── OS NOMES VELHOS, APONTANDO PARA AS CORES NOVAS ──
      Sao 504 usos espalhados por 12 mil linhas. Trocar um por um seria repetir
@@ -111,6 +114,14 @@
   --accent-txt: #111111;          /* PRETO sobre a lima — o branco some */
 }
 :root[data-theme="dark"] {
+  /* ── OS TONS DE TEXTO VIRAM AS CORES CLARAS ──
+     `--turq-txt` e `--lima-txt` sao escuros para terem contraste sobre papel
+     BRANCO. Sobre o fundo preto eles dao 2,8 de razao, e o minimo legivel e
+     4,5: a mesma cor que resolve um tema quebra o outro.
+     No escuro entram as claras, que sobre o preto dao 11 e 15. */
+  --turq-txt: var(--turquesa-esc);
+  --lima-txt: var(--lima);
+
   /* A mesma lima do claro. O que muda no escuro e so o quanto do fundo dela
      se ve por tras do texto. */
   --accent:     var(--lima);
@@ -130,8 +141,17 @@
 
 /* Seleção de texto no accent do tema (roxo no claro, verde no escuro),
    igual ao plugin — nunca o azul padrão do navegador. */
-::selection { background: var(--accent); color: #000; }
-::-moz-selection { background: var(--accent); color: #000; }
+/* ── A SELEÇÃO DE TEXTO ──
+   A lima da marca. Ela era ROXA no site inteiro, a cor que saiu da marca, e
+   aparecia em toda tela sem ninguém ter escolhido: qualquer pessoa que
+   arrastasse o mouse sobre um preço ou um e-mail a via.
+
+   A HOME JÁ USAVA A LIMA, com uma regra própria. Agora é uma regra só, e o
+   resto do site passa a marcar o texto do mesmo jeito que a primeira tela que
+   a pessoa vê. A letra fica preta: fundo claro com letra clara torna ilegível
+   justo o trecho que ela quis ler. */
+::selection { background: var(--lima); color: #111111; }
+::-moz-selection { background: var(--lima); color: #111111; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
