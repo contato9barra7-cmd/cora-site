@@ -640,7 +640,14 @@
   background:var(--wash); border:1px solid var(--line);
 }.pn .ajuda-tit{ font-size:14.5px; font-weight:600; letter-spacing:-.012em; }.pn .ajuda-txt{ margin:6px 0 0; font-size:13.5px; color:var(--ink2); line-height:1.6; }/* ══════════════════════════════════════════════════════════════════════
    ASSINATURA
-   ══════════════════════════════════════════════════════════════════════ */.pn .as-plano{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; }.pn .as-plano-topo{
+   ══════════════════════════════════════════════════════════════════════ *//* `padding:0` E O QUE FAZ O PE ENCOSTAR NA BORDA.
+   A regra velha do globals traz `padding:28px` no `.as-plano`, e esta aqui
+   sobrescrevia fundo, borda, raio e overflow, mas nao o recuo. Com ele, TODO
+   filho do cartao ficava 28px para dentro: a faixa cinza do pe parava antes das
+   bordas e antes do fundo, e os cantos retos dela apareciam soltos no branco,
+   dentro de um cartao arredondado.
+   O recuo de cada parte ja mora nela: 26/28 no topo, 16/28 no pe. */.pn .as-plano{ padding:0; background:var(--paper); border:1px solid var(--line);
+  border-radius:var(--r); overflow:hidden; }.pn .as-plano-topo{
   display:flex; align-items:flex-start; justify-content:space-between;
   gap:24px; flex-wrap:wrap; padding:26px 28px;
 }.pn .as-plano-rot{ display:flex; align-items:center; gap:9px; }.pn .as-plano-rot span{
