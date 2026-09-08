@@ -50,6 +50,7 @@ function WorkspaceConteudo() {
   const [convidando, setConvidando] = useState(false);
   const [expandido, setExpandido] = useState(null);
   const [dispositivos, setDispositivos] = useState({});
+  const [meuEmail, setMeuEmail] = useState('');
   const [nomeEquipe, setNomeEquipe] = useState('');
   const [salvandoNome, setSalvandoNome] = useState(false);
   const [avisoNome, setAvisoNome] = useState('');
@@ -130,6 +131,7 @@ function WorkspaceConteudo() {
     try {
       const c = await lerConta();
       if (!c) { router.push('/login'); return; }
+      setMeuEmail((c.email || '').toLowerCase());
       const dados = await lerEquipe();
       setEquipe(dados.equipe);
       setMembros(dados.membros || []);
@@ -194,7 +196,14 @@ function WorkspaceConteudo() {
     if (!em.includes('@')) { poeErro(t('ws_email_invalido')); return; }
     setConvidandoSlot(idx);
     try {
-      await convidarMembro(em);
+      /* CONVIDAR A SI MESMO É ATRIBUIR, e quem decide isso é o e-mail digitado,
+         não o botão que foi apertado. Sem esta linha o dono recebia um convite
+         por e-mail para entrar na própria equipe e o assento ficava pendente
+         em vez de ativo. O servidor também trata esse caso, para quem chega
+         por outro caminho, e as duas guardas são de propósito: esta poupa a
+         viagem, a de lá é a que vale. */
+      if (meuEmail && em.toLowerCase() === meuEmail) await atribuirAMim();
+      else await convidarMembro(em);
       setEmailsSlot((s) => { const n = { ...s }; delete n[idx]; return n; });
       await carregar();
     } catch (e) { poeErro(e.message); }
@@ -229,11 +238,9 @@ function WorkspaceConteudo() {
     catch (e) { setErro(e.message); }
   }
 
-  async function atribuir() {
-    setErro('');
-    try { await atribuirAMim(); await carregar(); }
-    catch (e) { setErro(e.message); }
-  }
+  /* A função `atribuir` saiu junto com o botão preto que a chamava. Quem
+     atribui agora é o `convidarSlot`, quando o e-mail digitado é o seu: um
+     caminho só, e o botão que executa é sempre o mesmo. */
 
   async function toggleGerenciar(m) {
     if (expandido === m.id) { setExpandido(null); return; }
@@ -521,6 +528,25 @@ function WorkspaceConteudo() {
                   placeholder="email@da-pessoa.com"
                   onKeyDown={(e) => { if (e.key === 'Enter') convidarSlot(i); }}
                 />
+                {/* ATRIBUIR A SI É CONVIDAR VOCÊ MESMO, e aqui os dois caminhos
+                    viram um só: o atalho escreve o seu e-mail no campo e o
+                    Convidar faz o resto. A pessoa vê o que vai acontecer antes
+                    de acontecer, e dá para desistir.
+                    Ele some no celular: ali o campo já ocupa a linha inteira, e
+                    três controles lado a lado não cabem. */}
+                {!donoNaEquipe && (
+                  <button className="ws-sou-eu" onClick={() => {
+                    setEmailsSlot((s) => ({ ...s, [i]: meuEmail }));
+                    setErrosSlot((s) => ({ ...s, [i]: '' }));
+                  }}>
+                    <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
+                         stroke="currentColor" strokeWidth="1.6">
+                      <circle cx="10" cy="7" r="3.2" />
+                      <path d="M4 16.5c.9-2.7 3.2-4.2 6-4.2s5.1 1.5 6 4.2" strokeLinecap="round" />
+                    </svg>
+                    {t('ws_sou_eu')}
+                  </button>
+                )}
                 <button className="ws-btn" onClick={() => convidarSlot(i)} disabled={convidandoSlot === i}>
                   {convidandoSlot === i ? t('ws_enviando') : t('ws_convidar')}
                 </button>
@@ -535,9 +561,6 @@ function WorkspaceConteudo() {
                 <span className="ws-vazio-hint">
                   {t('ws_assento_livre_hint')}
                 </span>
-                {!donoNaEquipe && (
-                  <button className="ws-atribuir" onClick={atribuir}>{t('ws_atribuir_mim')}</button>
-                )}
               </div>
             )}
           </div>

@@ -1425,15 +1425,24 @@
 .ws-vazio-hint { font-size: 13.5px; color: var(--ink3); }
 .ws-gerenciar { padding: 7px 16px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
 .ws-gerenciar:hover { background: var(--wash2); }
-/* ── ATRIBUIR A MIM ──
-   Era preto chapado e grudado no texto, no meio da linha. Duas coisas
-   erradas de uma vez: preto é o peso da ação principal, e a principal deste
-   cartão é o Convidar verde logo acima. Duas ações fortes empilhadas, e a
-   pessoa não sabia qual era o caminho normal.
-   Agora ele vai para a ponta direita, no mesmo desenho do Gerenciar: é a
-   alternativa, e se lê como alternativa. */
-.ws-atribuir { margin-left: auto; padding: 7px 16px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
-.ws-atribuir:hover { background: var(--wash2); border-color: var(--ink3); color: var(--ink); }
+/* ── SOU EU ──
+   O botão "Atribuir a mim" era preto chapado e ficava no meio da linha de
+   apoio, disputando com o Convidar logo acima. Duas ações fortes empilhadas,
+   e a pessoa não sabia qual era o caminho normal.
+
+   ELE VIROU UM ATALHO, e não uma segunda ação: atribuir a si é convidar você
+   mesmo, então este botão só ESCREVE O SEU E-MAIL NO CAMPO. Quem executa
+   continua sendo o Convidar. A pessoa vê o que vai acontecer antes de
+   acontecer, e dá para desistir.
+
+   Por isso ele é cinza e fica ANTES do verde: quem executa é o verde. */
+.ws-sou-eu { height: 46px; padding: 0 15px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-family: inherit; font-size: 14.5px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 7px; flex: none; transition: background var(--t), border-color var(--t), color var(--t); }
+.ws-sou-eu:hover { background: var(--wash2); border-color: var(--ink3); color: var(--ink); }
+.ws-sou-eu svg { flex: none; }
+/* No celular o campo já ocupa a linha inteira, e três controles lado a lado
+   não cabem. O atalho sai, e o caminho continua existindo: digitar o próprio
+   e-mail faz a mesma coisa, no site e no servidor. */
+@media (max-width: 560px) { .ws-sou-eu { display: none; } }
 
 /* Tags */
 .ws-tag { font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 10px; margin-left: 8px; }
@@ -1507,8 +1516,8 @@
    que se lê, e a barra embaixo dizendo quanto sobrou. A barra é chapada e de
    4px, e por isso leva o turquesa fechado e não o claro do anel do avatar. É
    a mesma razão que já está escrita lá em cima: cor clara some em fio fino. */
-.ws-cred{ width:126px; flex:none; }
-.ws-cred-num{ font-size:14px; font-weight:600; line-height:1;
+.ws-cred{ width:118px; flex:none; }
+.ws-cred-num{ font-size:13px; font-weight:600; line-height:1;
   letter-spacing:-.01em; font-variant-numeric:tabular-nums; }
 .ws-cred-num span{ font-weight:400; color:var(--ink3); }
 .ws-cred-barra{ margin-top:7px; height:4px; border-radius:99px;
@@ -2143,7 +2152,7 @@ body{ margin:0; background:#F6F6F4; }
                     </button>
                     <button class="perfil-avatar-x" aria-label="Remover a foto">&times;</button>
                   </div>
-                  <p class="perfil-foto-dica">Quadrada, guardada em 400&times;400px. O arquivo pode ter até 10&nbsp;MB.</p>
+                  <p class="perfil-foto-dica">Quadrada, tamanho máximo de 10&nbsp;MB.</p>
                 </div>
               </div>
 
@@ -2326,8 +2335,7 @@ body{ margin:0; background:#F6F6F4; }
                 </button>
                 <button class="perfil-avatar-x" aria-label="Remover a foto">&times;</button>
               </div>
-              <p class="perfil-foto-dica">Quadrada, guardada em 400&times;400px. O arquivo
-                pode ter até 10&nbsp;MB.</p>
+              <p class="perfil-foto-dica">Quadrada, tamanho máximo de 10&nbsp;MB.</p>
             </div>
           </div>
 
@@ -2354,9 +2362,12 @@ body{ margin:0; background:#F6F6F4; }
                O botão vira "Fechar" enquanto está aberto. -->
           <div class="ws-slot">
             <div class="ws-slot-linha">
-              <span class="ws-av">M</span>
+              <!-- A dona da equipe (Marilia, a do avatar no cabecalho) NAO esta
+                   nesta lista de proposito: e o estado em que o atalho "Sou eu"
+                   existe. Assim que ela ocupa um assento, ele some. -->
+              <span class="ws-av">C</span>
               <div class="disp-nome">
-                marilia@corarender.com
+                carla@estudionorte.com.br
                 <span class="ws-tag ws-tag-ativo">Ativo</span>
               </div>
               <div class="ws-slot-dir">
@@ -2485,13 +2496,23 @@ body{ margin:0; background:#F6F6F4; }
               </span>
               <div class="ws-linha-input" style="flex:1">
                 <input class="ws-input" placeholder="email@da-pessoa.com">
+                <!-- Este botão NÃO atribui: ele escreve o seu e-mail no campo,
+                     e quem executa continua sendo o Convidar. Atribuir a si é
+                     convidar você mesmo, e assim os dois caminhos viram um. -->
+                <button class="ws-sou-eu" data-sou-eu>
+                  <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
+                       stroke="currentColor" stroke-width="1.6">
+                    <circle cx="10" cy="7" r="3.2"/>
+                    <path d="M4 16.5c.9-2.7 3.2-4.2 6-4.2s5.1 1.5 6 4.2" stroke-linecap="round"/>
+                  </svg>
+                  Sou eu
+                </button>
                 <button class="ws-btn">Convidar</button>
               </div>
             </div>
             <p class="ws-erro ws-erro-campo" hidden>Digite um e-mail válido.</p>
             <div class="ws-slot-atribuir">
               <span class="ws-vazio-hint">Assento livre, e você já está pagando por ele.</span>
-              <button class="ws-atribuir">Atribuir a mim</button>
             </div>
           </div>
 
@@ -3037,10 +3058,19 @@ body{ margin:0; background:#F6F6F4; }
      servidor, e o que volta é a lista recarregada. O caminho é o mesmo: o
      assento vazio deixa de existir e no lugar dele aparece o assento de quem
      foi convidado. */
+  var MEU_EMAIL = 'marilia@corarender.com';
   document.querySelectorAll('[data-convite]').forEach(function (slot) {
     var campo = slot.querySelector('.ws-input');
     var bt = slot.querySelector('.ws-btn');
     var erro = slot.querySelector('.ws-erro-campo');
+    var souEu = slot.querySelector('[data-sou-eu]');
+    if (souEu) {
+      souEu.addEventListener('click', function () {
+        campo.value = MEU_EMAIL;
+        erro.hidden = true;
+        campo.focus();
+      });
+    }
     function enviar() {
       var email = campo.value.trim();
       if (email.indexOf('@') < 1 || email.indexOf('.', email.indexOf('@')) < 0) {
@@ -3058,19 +3088,34 @@ body{ margin:0; background:#F6F6F4; }
     campo.addEventListener('keydown', function (e) { if (e.key === 'Enter') enviar(); });
   });
 
+  /* Convidar a si mesmo É atribuir, e quem decide isso é o e-mail digitado, e
+     não o botão que foi apertado: quem escreve o próprio endereço à mão chega
+     no mesmo lugar de quem usou o atalho. No site a mesma regra está no
+     `convidarSlot` e no servidor, porque sem ela o dono recebia um convite por
+     e-mail para entrar na própria equipe. */
   function virarPendente(slot, email) {
+    var souEu = email.toLowerCase() === MEU_EMAIL;
     slot.classList.remove('ws-slot-vazio');
     slot.removeAttribute('data-convite');
     slot.innerHTML =
       '<div class="ws-slot-linha">' +
-        '<span class="ws-av ws-av--pend">' +
-          '<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor"' +
-          ' stroke-width="1.5"><rect x="2.5" y="4.5" width="15" height="11" rx="1.5"/>' +
-          '<path d="M3 5.5l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-        '</span>' +
+        (souEu
+          ? '<span class="ws-av">M</span>'
+          : '<span class="ws-av ws-av--pend">' +
+              '<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor"' +
+              ' stroke-width="1.5"><rect x="2.5" y="4.5" width="15" height="11" rx="1.5"/>' +
+              '<path d="M3 5.5l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            '</span>') +
         '<div class="disp-nome">' + email +
-          '<span class="ws-tag ws-tag-pend">Convite pendente</span></div>' +
-        '<div class="ws-slot-dir"><button class="ws-gerenciar">Gerenciar</button></div>' +
+          (souEu
+            ? '<span class="ws-tag ws-tag-ativo">Ativo</span></div>' +
+              '<div class="ws-slot-dir"><div class="ws-cred">' +
+                '<div class="ws-cred-num">20.000 <span>de 20.000</span></div>' +
+                '<div class="ws-cred-barra"><i style="width:100%"></i></div>' +
+              '</div>'
+            : '<span class="ws-tag ws-tag-pend">Convite pendente</span></div>' +
+              '<div class="ws-slot-dir">') +
+        '<button class="ws-gerenciar">Gerenciar</button></div>' +
       '</div>';
   }
 
