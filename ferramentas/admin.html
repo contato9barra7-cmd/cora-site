@@ -1825,7 +1825,7 @@
   background:var(--wash);
 }
 .blq-doc__n{ min-width:0; }
-.blq-doc__n b{ display:block; font-size:14.5px; font-weight:600; letter-spacing:-.012em; }
+.blq-doc__n b{ display:block; font-size:14.5px; font-weight:600; letter-spacing:-.012em; line-height:1.35; }
 .blq-doc__n span{ display:block; margin-top:2px; font-size:12.5px; color:var(--ink3); }
 .blq-doc__ver{
   flex:none; border:0; background:none; padding:0; cursor:pointer; font-family:inherit;
@@ -1837,13 +1837,25 @@
 /* O selo do que MUDOU. Só aparece no documento que teve versão nova: dizer
    "atualizado" nos dois quando só um mudou é mentira pequena que custa a
    confiança na próxima. */
-.blq-doc__novo{
-  flex:none; padding:2px 9px; border-radius:var(--pill);
+/* O SELO PRECISA DO PAI NO SELETOR. Sozinho ele e 0,1,0 e perde para
+   `.blq-doc__n span`, que e a regra da DATA logo abaixo do nome: dela o selo
+   herdava `display:block` e 12.5px, e a pastilha esticava na largura toda,
+   numa linha so para ela. */
+.blq-doc__n .blq-doc__novo{
+  display:inline-flex; align-items:center; flex:none;
+  margin-left:7px; padding:1px 8px; border-radius:var(--pill);
   background:var(--lima); color:#111111;
   font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  vertical-align:middle;
 }
 .trial-bloqueio-card--docs .btn{ width:100%; margin-top:22px; }
-.blq-pe{ margin:14px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6; }
+/* O mesmo caso: `.blq-pe` sozinho perde para `.trial-bloqueio-card p`, e o pe
+   ficava em 14.5px. Nesse tamanho a frase estoura em tres linhas num cartao de
+   420px, e a terceira fica com uma palavra so. */
+.trial-bloqueio-card .blq-pe{
+  margin:14px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6;
+  text-wrap:pretty;
+}
 
 /* ── a tarja de personificação ── */
 .tarja-personificacao{

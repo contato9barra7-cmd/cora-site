@@ -29,7 +29,7 @@ export default function PopupCreditos() {
     <div className="cred-overlay" onClick={() => setAberto(false)}>
       <div className="cred-modal" onClick={(e) => e.stopPropagation()}>
         <div className="cred-ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#A4A1F3" strokeWidth="2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="9" /><path d="M12 8v5" /><path d="M12 16h.01" />
           </svg>
         </div>
