@@ -87,6 +87,12 @@
 }
 .can-txt + .can-txt{ margin-top:10px; }
 .can-txt b{ color:var(--ink); font-weight:600; }
+/* A CONTINUACAO DESCE INTEIRA. "com os creditos que voce ja tem" e uma
+   informacao a mais sobre a data, e nao parte dela: deixada no fluxo, ela subia
+   grudada na data e quebrava no meio, com "que voce ja tem" sozinho embaixo.
+   Como bloco, ela cai inteira na linha seguinte em qualquer largura, e a data
+   fica sozinha na sua. */
+.can-linha2{ display:block; }
 .can-nota{
   margin:12px 0 0; font-size:13px; color:var(--ink3); line-height:1.6;
 }

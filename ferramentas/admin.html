@@ -2170,7 +2170,13 @@
   font-style:normal; font-size:14.5px; font-weight:400; color:var(--ink3); letter-spacing:0;
 }
 .as-plano-preco span{ display:block; margin-top:4px; font-size:13.5px; color:var(--ink3); }
-.as-plano-pe{ padding:16px 28px; border-top:1px solid var(--line); background:var(--wash); }
+/* `margin-top:0` NAO E ENFEITE. A regra velha do globals traz
+   `margin-top:18px` no `.as-plano-pe`, e esta aqui nao a sobrescrevia: o pe
+   descolava do fundo do cartao, e ai o `overflow:hidden` do pai nao tinha o que
+   cortar. O resultado era uma faixa cinza de cantos RETOS flutuando dentro de
+   um cartao arredondado. So aparece no site, porque aqui o globals nao existe. */
+.as-plano-pe{ margin-top:0; padding:16px 28px; border-top:1px solid var(--line);
+  background:var(--wash); }
 .as-btn-cta{
   display:inline-flex; align-items:center; height:46px; padding:0 26px; border:0;
   border-radius:var(--pill); background:var(--lima); color:#111111;
