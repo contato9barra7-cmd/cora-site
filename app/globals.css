@@ -1461,8 +1461,11 @@ select.perfil-input {
 
 /* Avatar com hover (lápis) e X no canto */
 .perfil-avatar-box { position: relative; width: 72px; height: 72px; }
+/* O avatar grande de Minha conta e da Equipe. Quadrado de canto redondo e
+   preto, como o do menu e o do cabecalho: o circulo roxo era a ultima peca do
+   produto dizendo que uma pessoa se desenha de outro jeito em cada tela. */
 .perfil-avatar {
-  width: 72px; height: 72px; border-radius: 50%; background: var(--roxo); color: #fff;
+  width: 72px; height: 72px; border-radius: 20px; background: var(--ink); color: var(--paper);
   display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 26px; flex-shrink: 0;
 }
 .perfil-avatar-editar {
