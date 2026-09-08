@@ -594,7 +594,25 @@
 .dash-eq-uso span{ font-size:12.5px; color:var(--ink3); }
 
 /* ── o plugin ── */
-.dash-plugin{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; }
+/* `padding:0` NAO E DECORACAO, e o que faz a faixa cinza ficar redonda.
+
+   O molde velho do globals tem `.dash-plugin{ padding:22px 24px }`, e esta
+   regra sobrescrevia fundo, borda, raio e overflow, mas nao o recuo. Com ele
+   sobrando, TODO filho do cartao ficava para dentro: a faixa parava 25px antes
+   de cada lado e 23px antes do fundo (medido), e ai os cantos retos dela
+   apareciam soltos no meio de um cartao arredondado. O `overflow:hidden`
+   estava certo o tempo todo, so nao tinha nada encostado nele para cortar.
+
+   Zerado aqui, a faixa vai de ponta a ponta e encosta no fundo, e o corte do
+   cartao arredonda os cantos de baixo dela. Cada parte ja carrega o proprio
+   recuo: 22px no cabecalho, 22px na faixa, 22px nos passos.
+
+   Mesmo defeito do `.as-plano-pe`, e pela mesma causa. */
+.dash-plugin{
+  padding:0;
+  background:var(--paper); border:1px solid var(--line);
+  border-radius:var(--r); overflow:hidden;
+}
 .dash-plugin-cab{ display:flex; align-items:center; gap:14px; padding:22px; }
 .dash-plugin-ico{
   width:44px; height:44px; flex:none; border-radius:13px; display:grid; place-items:center;
@@ -612,9 +630,12 @@
 .dash-plugin-btn:active{ transform:scale(.985); }
 .dash-plugin-btn:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
 
+/* SEM BORDA EM CIMA. A faixa e cinza e o que esta acima dela e branco: a
+   troca de fundo ja separa os dois. A linha era um segundo separador em cima
+   do primeiro, e duas marcas para a mesma divisao pesam a tela. */
 .dash-plugin-abre{
   width:100%; display:flex; align-items:center; gap:9px; padding:14px 22px;
-  border:0; border-top:1px solid var(--line); background:var(--wash);
+  border:0; background:var(--wash);
   font-size:14.5px; font-weight:500; color:var(--ink2); cursor:pointer; text-align:left;
   transition:background-color var(--t), color var(--t);
 }
@@ -626,9 +647,29 @@
   letter-spacing:.1em; text-transform:uppercase; color:var(--ink3);
 }
 
-.dash-plugin-passos{ padding:6px 22px 22px; display:grid; gap:0; }
-.dash-passo{ display:flex; gap:14px; padding:12px 0; border-top:1px solid var(--line); }
-.dash-passo:first-child{ border-top:0; }
+/* ── OS SEIS PASSOS ──
+   AS TRES COLUNAS PASSAM A SER ESCRITAS AQUI. Elas ja apareciam na tela, mas
+   por vazamento: esta regra declarava `display:grid` e nao declarava
+   `grid-template-columns`, entao o `repeat(3,1fr)` do molde velho continuava
+   valendo. Especificidade se resolve PROPRIEDADE POR PROPRIEDADE, e nao regra
+   contra regra, e por isso metade de uma regra velha sobrevive sem avisar. No
+   dia em que o molde antigo sair, os passos viravam uma coluna sozinhos.
+
+   SEM LINHA ENTRE ELES. A borda era de quando isto era uma pilha de uma
+   coluna, onde separar um item do seguinte fazia sentido. Numa grade de tres
+   ela desenhava outra coisa: o item 1 era o unico sem borda, entao a linha de
+   cima cobria so as colunas 2 e 3 e morria antes do "1". O que separa os
+   passos agora e o vao, que e o que separa colunas. */
+.dash-plugin-passos{
+  padding:18px 22px 22px; display:grid;
+  grid-template-columns:repeat(3,1fr); gap:18px 22px;
+}
+/* Em tela estreita tres colunas de 100px partem toda frase no meio. O mesmo
+   ponto de virada do molde velho, agora escrito no escopo que ganha dele. */
+@media (max-width:860px){
+  .dash-plugin-passos{ grid-template-columns:1fr; gap:16px; }
+}
+.dash-passo{ display:flex; gap:14px; }
 .dash-passo > span{
   width:26px; height:26px; flex:none; border-radius:50%; display:grid; place-items:center;
   background:var(--wash2); color:var(--ink2); font-size:12.5px; font-weight:600;
@@ -908,6 +949,19 @@
   margin:14px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6;
   text-wrap:pretty;
 }
+/* O "Sair" VOLTA PARA A BORDA DA ESQUERDA.
+   Ele nasceu no cartao do teste encerrado, que e centralizado inteiro, e ali
+   `margin:auto` era o certo. Esta variante declara `text-align:left`, e sete
+   pecas obedecem: o olho, o titulo, o paragrafo, a caixa da regra, as duas
+   linhas de documento e o pe. So ele continuava no meio, por causa de uma
+   margem herdada do cartao de onde foi copiado, e nao por escolha.
+
+   Medido antes: `margin: 14px 233.4px 0 233.4px`. A coluna toda comeca no
+   mesmo x, e agora ele tambem.
+
+   Escopado no `--docs` de proposito: no cartao do teste encerrado a margem
+   automatica continua sendo a certa, porque la TUDO e centralizado. */
+.trial-bloqueio-card--docs .trial-bloqueio-sair{ margin-left:0; }
 
 /* ── a tarja de personificação ── */
 .tarja-personificacao{
