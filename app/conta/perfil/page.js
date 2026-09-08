@@ -319,8 +319,7 @@ export default function Perfil() {
               Ele é o único identificador que não muda: nome se edita, e-mail se
               troca, e duas pessoas podem ter o mesmo nome. Quem escreve para o
               suporte manda este número e a conta é encontrada na hora, sem a
-              troca de mensagens de "qual e-mail mesmo?".
-              Aparece como texto e não como campo, porque não se edita. */}
+              troca de mensagens de "qual e-mail mesmo?". */}
           <div className="perfil-linha">
             <label className="perfil-lbl">{t('perfil_num_conta')}</label>
             <div className="perfil-num-conta">
