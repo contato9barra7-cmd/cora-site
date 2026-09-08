@@ -41,6 +41,11 @@ export default function Perfil() {
   const [aviso, setAviso] = useState('');
   const [erro, setErro] = useState('');
   const [modalDeletar, setModalDeletar] = useState(false);
+  /* O número da conta copiado. Ele volta ao normal sozinho depois de 1,4s, e
+     o `useRef` guarda o relógio para dois cliques seguidos não deixarem o
+     primeiro apagando a confirmação do segundo. */
+  const [numCopiado, setNumCopiado] = useState(false);
+  const relogioCopia = useRef(null);
   const [deletando, setDeletando] = useState(false);
   const [dispositivos, setDispositivos] = useState([]);
   const [modalAjuda, setModalAjuda] = useState(false);
@@ -153,6 +158,13 @@ export default function Perfil() {
       const c = await salvarFoto('');
       if (c) setConta(c);
     } catch (err) { console.error(err); }
+  }
+
+  async function copiarNumeroDaConta() {
+    try { await navigator.clipboard.writeText('#' + conta.id); } catch (e) {}
+    setNumCopiado(true);
+    clearTimeout(relogioCopia.current);
+    relogioCopia.current = setTimeout(() => setNumCopiado(false), 1400);
   }
 
   useEffect(() => {
@@ -312,8 +324,34 @@ export default function Perfil() {
           <div className="perfil-linha">
             <label className="perfil-lbl">{t('perfil_num_conta')}</label>
             <div className="perfil-num-conta">
-              <span>#{conta.id}</span>
-              <p className="perfil-foto-dica" style={{ marginTop: 6 }}>{t('perfil_num_conta_dica')}</p>
+              {/* Pastilha, e não campo: campo diz "digite aqui", e este número
+                  não se edita. Clicar copia, porque "diga este número ao
+                  suporte" quer dizer que ele vai sair daqui. */}
+              <button className="perfil-num-conta__p" type="button"
+                      data-feito={numCopiado ? 'sim' : undefined}
+                      aria-label={t('perfil_num_copiar')}
+                      onClick={copiarNumeroDaConta}>
+                #{conta.id}
+                <span className="perfil-num-conta__ic" aria-hidden="true">
+                  {numCopiado ? (
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 8.5l3.5 3.5L13 4.5" />
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                         strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="5.5" y="5.5" width="8" height="8" rx="2" />
+                      <path d="M10.5 5.5v-1a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h1" />
+                    </svg>
+                  )}
+                </span>
+              </button>
+              <span className="perfil-num-conta__d">{t('perfil_num_conta_dica')}</span>
+              {/* Sem isto, copiar não acontece para quem ouve a tela. */}
+              <span className="pn-so-leitor" role="status">
+                {numCopiado ? t('perfil_num_copiado') : ''}
+              </span>
             </div>
           </div>
         </section>

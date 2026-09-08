@@ -903,10 +903,6 @@
   margin:14px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6;
   text-wrap:pretty;
 }
-/* A SEGUNDA FRASE INTEIRA NA LINHA DE BAIXO. Deixando as duas correrem, "O
-   comprovante" caia sozinho no fim da primeira linha e o resto da frase ia
-   para a segunda: uma frase partida no meio, com a ponta curta pendurada. */
-.trial-bloqueio-card .blq-pe span{ display:block; }
 
 /* ── a tarja de personificação ── */
 .tarja-personificacao{
@@ -1055,11 +1051,49 @@
    quem descobre o limite depois de escolher já perdeu a viagem. */
 .perfil-foto-dica{ font-size:13.5px; color:var(--ink3); line-height:1.5; max-width:34ch;
   text-wrap:pretty; }
-/* O NUMERO DA CONTA. Texto, e nao campo: nao se edita. Em fonte tabular e um
-   pouco maior que o corpo, porque ele existe para ser LIDO EM VOZ ALTA ou
-   copiado para uma mensagem de suporte. */
-.perfil-num-conta span{ font-size:17px; font-weight:600; letter-spacing:.01em;
-  font-variant-numeric:tabular-nums; }
+/* ── O NÚMERO DA CONTA ──
+   Ele estava solto: 17px pousados no meio da coluna, com a dica embaixo. Numa
+   tela onde toda linha tem um comprimido do lado direito, ele era a única
+   coisa sem forma própria.
+
+   Virou pastilha, e não campo. Campo diz "digite aqui", e este número não se
+   edita. A pastilha tem o tamanho exato do que carrega, a dica anda ao lado
+   dela na mesma linha, e a linha inteira fica com metade da altura das
+   outras: ela não precisava de mais.
+
+   E ela COPIA. "Diga este número ao suporte" quer dizer que a pessoa vai
+   levar o número para outro lugar, e o gesto de levar tem que estar aqui.
+   Tabular porque número em coluna pede algarismo de largura fixa. */
+.perfil-num-conta{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.perfil-num-conta__p{
+  display:inline-flex; align-items:center; gap:8px;
+  height:34px; padding:0 6px 0 14px; border-radius:var(--pill);
+  background:var(--wash2); border:1px solid transparent; cursor:pointer;
+  font-family:inherit; font-size:14.5px; font-weight:600; color:var(--ink);
+  font-variant-numeric:tabular-nums; letter-spacing:.01em;
+  transition:background-color var(--t), border-color var(--t), color var(--t);
+}
+.perfil-num-conta__p:hover{ background:var(--paper); border-color:var(--line2); }
+/* Copiado: a pastilha acende E o ícone vira certo. Só a cor não serve, porque
+   quem não distingue a lima do cinza ficaria sem confirmação nenhuma. Os dois
+   ícones têm 14px, então a troca não muda a largura e a linha não pula. */
+.perfil-num-conta__p[data-feito="sim"]{
+  background:var(--lima); border-color:var(--lima); color:#111111;
+}
+.perfil-num-conta__ic{
+  flex:none; width:22px; height:22px; border-radius:var(--pill);
+  display:inline-flex; align-items:center; justify-content:center;
+  color:var(--ink3); transition:color var(--t);
+}
+.perfil-num-conta__p:hover .perfil-num-conta__ic{ color:var(--ink); }
+.perfil-num-conta__p[data-feito="sim"] .perfil-num-conta__ic{ color:#111111; }
+.perfil-num-conta__ic svg{ width:14px; height:14px; }
+.perfil-num-conta__d{ font-size:12.5px; color:var(--ink3); max-width:38ch; text-wrap:pretty; }
+/* O aviso de copiado para quem ouve a tela em vez de olhar. */
+.pn-so-leitor{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
 .perfil-foto-erro{ font-style:normal; font-weight:600; color:var(--alerta); }
 
 /* A linha do interruptor NÃO é a grade de 150px das outras: ali o texto caía
