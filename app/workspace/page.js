@@ -43,6 +43,7 @@ function WorkspaceConteudo() {
   const [membros, setMembros] = useState([]);
   const [email, setEmail] = useState('');
   const [emailsSlot, setEmailsSlot] = useState({});
+  const [errosSlot, setErrosSlot] = useState({});
   const [convidandoSlot, setConvidandoSlot] = useState(null);
   const [erro, setErro] = useState('');
   const [aviso, setAviso] = useState('');
@@ -178,17 +179,25 @@ function WorkspaceConteudo() {
     finally { setConvidando(false); }
   }
 
+  /* O ERRO DO CONVITE FICA COLADO NO CAMPO, e não num cartão acima da lista
+     inteira: numa equipe de dez assentos a pessoa apertava um botão embaixo e
+     a resposta aparecia fora da tela. Erro se lê onde se conserta.
+
+     E o "convite enviado" saiu: o assento vira pendente na hora, debaixo do
+     dedo de quem clicou, e essa é a confirmação. Dizer a mesma coisa duas
+     vezes ensina a ignorar as duas. */
   async function convidarSlot(idx) {
-    setErro(''); setAviso('');
+    setErro('');
     const em = (emailsSlot[idx] || '').trim();
-    if (!em.includes('@')) { setErro(t('ws_email_invalido')); return; }
+    const poeErro = (m) => setErrosSlot((s) => ({ ...s, [idx]: m }));
+    poeErro('');
+    if (!em.includes('@')) { poeErro(t('ws_email_invalido')); return; }
     setConvidandoSlot(idx);
     try {
       await convidarMembro(em);
-      setAviso(t('ws_convite_enviado_para') + ' ' + em);
       setEmailsSlot((s) => { const n = { ...s }; delete n[idx]; return n; });
       await carregar();
-    } catch (e) { setErro(e.message); }
+    } catch (e) { poeErro(e.message); }
     finally { setConvidandoSlot(null); }
   }
 
@@ -310,11 +319,19 @@ function WorkspaceConteudo() {
 
       <div className="conta-card ws-aviso-download" dangerouslySetInnerHTML={{ __html: t('ws_aviso_download') }} />
 
-      {/* Foto e nome da equipe */}
-      <div className="conta-card">
-        <h2 className="conta-h2">{t('ws_identidade')}</h2>
-        <div className="ws-identidade">
-          <div className="perfil-avatar-box">
+      {/* ── IDENTIDADE ──
+          A MESMA GRADE DE MINHA CONTA: rótulo à esquerda, campo à direita, uma
+          linha por coisa. Era um flex com a foto de um lado e um bloco de texto
+          do outro, e por isso nada alinhava com nada: a foto flutuava acima do
+          campo e a frase de apoio ficava pendurada no meio da altura. */}
+      <div className="conta-card ws-identidade">
+        <h2 className="perfil-h2">{t('ws_identidade')}</h2>
+        <p className="perfil-sub">{t('ws_nome_foto_hint')}</p>
+
+        <div className="perfil-linha">
+          <label className="perfil-lbl">{t('ws_foto_lbl')}</label>
+          <div className="perfil-avatar-area">
+            <div className="perfil-avatar-box">
             <span
               className="perfil-avatar"
               style={foto ? { backgroundImage: `url(${foto})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : undefined}
@@ -329,13 +346,21 @@ function WorkspaceConteudo() {
             {foto && (
               <button className="perfil-avatar-x" onClick={removerFotoEquipe} title={t('ws_remover_foto')} aria-label={t('ws_remover_foto')}>×</button>
             )}
-            <input ref={inputFotoRef} type="file" accept="image/*" onChange={aoSelecionarFoto} style={{ display: 'none' }} />
+              <input ref={inputFotoRef} type="file" accept="image/*" onChange={aoSelecionarFoto} style={{ display: 'none' }} />
+            </div>
+            {/* A regra do arquivo fica onde a pessoa ESCOLHE, e não só dentro do
+                recorte: quem descobre o limite depois de escolher já perdeu a
+                viagem. É o mesmo texto de Minha conta. */}
+            <p className="perfil-foto-dica">{t('ws_foto_orient')}</p>
           </div>
-          <div style={{ flex: 1 }}>
-            <p className="ws-obs" style={{ marginTop: 0, marginBottom: 10 }}>{t('ws_nome_foto_hint')}</p>
+        </div>
+
+        <div className="perfil-linha">
+          <label className="perfil-lbl" htmlFor="nome-equipe">{t('ws_nome_lbl')}</label>
+          <div>
             <div className="ws-linha-input">
-              <input className="ws-input" value={nomeEquipe} onChange={(e) => setNomeEquipe(e.target.value)} placeholder={t('ws_nome_ph')} maxLength={60} />
-              <button className="btn btn--verde ws-btn" onClick={salvarNome} disabled={salvandoNome}>
+              <input className="perfil-input" id="nome-equipe" value={nomeEquipe} onChange={(e) => setNomeEquipe(e.target.value)} placeholder={t('ws_nome_ph')} maxLength={60} />
+              <button className="ws-btn" onClick={salvarNome} disabled={salvandoNome}>
                 {salvandoNome ? t('comum_salvando') : t('ws_salvar')}
               </button>
             </div>
@@ -489,15 +514,19 @@ function WorkspaceConteudo() {
                   id={'convite-slot-' + i}
                   autoComplete="off"
                   value={emailsSlot[i] || ''}
-                  onChange={(e) => setEmailsSlot((s) => ({ ...s, [i]: e.target.value }))}
+                  onChange={(e) => {
+                    setEmailsSlot((s) => ({ ...s, [i]: e.target.value }));
+                    if (errosSlot[i]) setErrosSlot((s) => ({ ...s, [i]: '' }));
+                  }}
                   placeholder="email@da-pessoa.com"
                   onKeyDown={(e) => { if (e.key === 'Enter') convidarSlot(i); }}
                 />
-                <button className="btn btn--verde ws-btn" onClick={() => convidarSlot(i)} disabled={convidandoSlot === i}>
+                <button className="ws-btn" onClick={() => convidarSlot(i)} disabled={convidandoSlot === i}>
                   {convidandoSlot === i ? t('ws_enviando') : t('ws_convidar')}
                 </button>
               </div>
             </div>
+            {errosSlot[i] && <p className="ws-erro ws-erro-campo">{errosSlot[i]}</p>}
             {/* A frase de aviso aparece UMA vez, no primeiro assento livre.
                 Repetida em cada um, ela deixava de ser aviso e virava
                 padronagem: a pessoa lê a primeira e para de ver as outras. */}

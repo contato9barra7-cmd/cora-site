@@ -1633,14 +1633,24 @@ select.perfil-input {
    ══════════════════════════════════════════════════════════════════════ */
 .ws-convidar { display: flex; gap: 10px; }
 .ws-linha-input { display: flex; gap: 10px; align-items: stretch; }
-.ws-input { flex: 1; height: 44px; padding: 0 18px; border: 1px solid var(--line2); border-radius: 100px; font-size: 16px; background: var(--paper); color: var(--ink); box-sizing: border-box; }
-.ws-btn { height: 44px; width: auto; margin-top: 0; padding: 0 20px; border-radius: 100px; white-space: nowrap; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; }
+/* 46px, e nao 44: e a altura do campo em Minha conta, e a diferenca de dois
+   aparecia justamente aqui, onde as duas telas se encostam. */
+.ws-input { flex: 1; height: 46px; padding: 0 18px; border: 1px solid var(--line2); border-radius: 100px; font-size: 16px; background: var(--paper); color: var(--ink); box-sizing: border-box; }
+/* O BOTAO DE ACAO DA EQUIPE E O DE MINHA CONTA: lima, pilula, letra preta.
+   Ele vinha com `btn btn--verde`, que e da casca ANTIGA: aquele verde e o
+   #B3FF9F de antes de a marca virar lima e turquesa. */
+.ws-btn { height: 46px; width: auto; margin-top: 0; padding: 0 22px; border: 0; border-radius: 100px; white-space: nowrap; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; background: var(--lima); color: #111111; font-family: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; transition: background-color .17s; }
+.ws-btn:hover { background: var(--lima-esc); }
+.ws-btn:disabled { background: var(--wash2); color: var(--ink3); cursor: default; }
 .ws-btn-convidar { white-space: nowrap; padding: 0 20px; }
 .ws-obs { font-size: 14.5px; color: var(--ink3); margin-top: 10px; }
 .ws-aviso-txt { color: var(--ok); font-size: 14.5px; margin-top: 10px; }
 /* O erro fica à esquerda como todo texto da tela. Centralizado, ele era o
    único parágrafo do produto no meio da linha. */
 .ws-erro { color: var(--alerta); font-size: 14.5px; margin: 0; }
+/* O erro do convite mora colado no campo, e recuado como a linha de apoio:
+   os dois começam onde o campo começa. */
+.ws-erro-campo { margin-top: 10px; padding-left: 46px; font-size: 13.5px; }
 /* O cartão de "equipe criada": verde de sinal na borda, e não na moldura
    inteira. Ele aparece uma vez na vida da equipe. */
 .ws-criada { border-color: var(--ok); }
@@ -1713,7 +1723,9 @@ select.perfil-input {
 .admin-aba.ativa .admin-aba-n { background: rgba(255,255,255,.22); color: var(--paper); }
 
 /* Foto da equipe */
-.ws-identidade { display: flex; gap: 20px; align-items: flex-start; }
+/* A primeira linha do cartao nao leva risco em cima: o risco separa uma
+   linha da outra, e acima da primeira o que ha e o titulo. */
+.ws-identidade > .perfil-linha:first-of-type { border-top: 0; padding-top: 6px; }
 @media (max-width: 560px) { .ws-identidade { flex-direction: column; } }
 
 /* Admin — filtros */

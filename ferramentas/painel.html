@@ -1359,13 +1359,16 @@
    isso NÃO entram na folha gerada: duplicar a mesma regra em duas folhas é
    como se cria uma que envelhece sozinha.
    ═══════════════════════════════════════════════════════════════════════ */
-.perfil-avatar-box { position: relative; width: 72px; height: 72px; }
-.disp-nome { font-weight: 600; font-size: 15px; color: var(--ink); display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-.ws-identidade { display: flex; gap: 20px; align-items: flex-start; }
-.perfil-avatar {
-  width: 72px; height: 72px; border-radius: 20px; background: var(--ink); color: var(--paper);
-  display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 26px; flex-shrink: 0;
-}
+/* AQUI HAVIA QUATRO REGRAS COPIADAS DO globals.css, e todas as quatro já
+   existem lá em cima, no bloco de produção, com o desenho novo. Como estas
+   vinham depois e sem escopo, eram elas que valiam: o avatar voltava a ter
+   72px em vez de 64, o lápis do hover era um círculo desenhado sobre um
+   quadrado de canto redondo, e `.ws-identidade` continuava um flex, o que
+   espremia o cartão inteiro em 219px de largura.
+
+   Uma regra que já existe na folha de produção não se copia para cá. Foi
+   assim que este artefato passou a mostrar uma tela que o site não tem. */
+.disp-nome { flex: 1; min-width: 0; }
 
 /* ══════════════════════════════════════════════════════════════════════
    WORKSPACE (gestão de equipe)
@@ -1385,14 +1388,25 @@
    ══════════════════════════════════════════════════════════════════════ */
 .ws-convidar { display: flex; gap: 10px; }
 .ws-linha-input { display: flex; gap: 10px; align-items: stretch; }
-.ws-input { flex: 1; height: 44px; padding: 0 18px; border: 1px solid var(--line2); border-radius: 100px; font-size: 16px; background: var(--paper); color: var(--ink); box-sizing: border-box; }
-.ws-btn { height: 44px; width: auto; margin-top: 0; padding: 0 20px; border-radius: 100px; white-space: nowrap; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; }
+/* 46px, e não 44: é a altura do campo em Minha conta, e a diferença de dois
+   aparecia justamente aqui, onde as duas telas se encostam. */
+.ws-input { flex: 1; height: 46px; padding: 0 18px; border: 1px solid var(--line2); border-radius: 100px; font-size: 16px; background: var(--paper); color: var(--ink); box-sizing: border-box; }
+/* O BOTÃO DE AÇÃO DA EQUIPE É O DE MINHA CONTA: lima, pílula, letra preta.
+   Ele vinha com `btn btn--verde`, que é da casca ANTIGA. A classe não existe
+   nesta folha, então no artefato o Convidar saía sem desenho nenhum, e no
+   site ela pinta o verde velho, de antes de a marca virar lima e turquesa. */
+.ws-btn { height: 46px; width: auto; margin-top: 0; padding: 0 22px; border: 0; border-radius: 100px; white-space: nowrap; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; background: var(--lima); color: #111111; font-family: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; transition: background-color var(--t); }
+.ws-btn:hover { background: var(--lima-esc); }
+.ws-btn:disabled { background: var(--wash2); color: var(--ink3); cursor: default; }
 .ws-btn-convidar { white-space: nowrap; padding: 0 20px; }
 .ws-obs { font-size: 14.5px; color: var(--ink3); margin-top: 10px; }
 .ws-aviso-txt { color: var(--ok); font-size: 14.5px; margin-top: 10px; }
 /* O erro fica à esquerda como todo texto da tela. Centralizado, ele era o
    único parágrafo do produto no meio da linha. */
 .ws-erro { color: var(--alerta); font-size: 14.5px; margin: 0; }
+/* O erro do convite mora colado no campo, e recuado como a linha de apoio:
+   os dois começam onde o campo começa. */
+.ws-erro-campo { margin-top: 10px; padding-left: 46px; font-size: 13.5px; }
 /* O cartão de "equipe criada": verde de sinal na borda, e não na moldura
    inteira. Ele aparece uma vez na vida da equipe. */
 .ws-criada { border-color: var(--ok); }
@@ -1478,7 +1492,9 @@
 }
 
 .ws-slot-linha > .disp-nome { flex: 1; min-width: 0; }
-.ws-identidade{ display:flex; align-items:flex-start; gap:18px; }
+/* A primeira linha do cartão não leva risco em cima: o risco separa uma linha
+   da outra, e acima da primeira o que há é o título. */
+.ws-identidade > .perfil-linha:first-of-type{ border-top:0; padding-top:6px; }
 .ws-slot-dir{ display:flex; align-items:center; gap:16px; }
 
 /* ── O CRÉDITO DE CADA ASSENTO ──
@@ -2282,19 +2298,44 @@ body{ margin:0; background:#F6F6F4; }
           O download do plugin fica na aba <b>Início</b>.
         </div>
 
-        <div class="conta-card">
-          <h2 class="conta-h2">Identidade da equipe</h2>
-          <div class="ws-identidade">
-            <div class="perfil-avatar-box">
-              <span class="perfil-avatar">E</span>
-            </div>
-            <div style="flex:1">
-              <p class="ws-obs" style="margin-top:0;margin-bottom:10px">Nome e foto aparecem
-                para as pessoas convidadas.</p>
-              <div class="ws-linha-input">
-                <input class="ws-input" value="Estúdio Norte">
-                <button class="btn btn--verde ws-btn">Salvar</button>
+        <!-- ── IDENTIDADE ──
+             A MESMA GRADE DE MINHA CONTA: rótulo à esquerda, campo à direita,
+             uma linha por coisa. Era um flex com a foto de um lado e um bloco
+             de texto do outro, e por isso nada alinhava com nada: a foto
+             flutuava acima do campo e a frase de apoio ficava pendurada no
+             meio da altura.
+
+             A foto ganhou o que já existe em Minha conta e faltava aqui: o
+             lápis que cobre o quadrado no hover, e o X para tirar. Sem eles a
+             foto da equipe era um quadrado que ninguém sabia como trocar. -->
+        <div class="conta-card ws-identidade">
+          <h2 class="perfil-h2">Identidade da equipe</h2>
+          <p class="perfil-sub">Nome e foto aparecem para as pessoas convidadas, no convite
+            e no topo desta tela.</p>
+
+          <div class="perfil-linha">
+            <label class="perfil-lbl">Foto</label>
+            <div class="perfil-avatar-area">
+              <div class="perfil-avatar-box">
+                <div class="perfil-avatar">E</div>
+                <button class="perfil-avatar-editar" aria-label="Trocar a foto">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+                       stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                  </svg>
+                </button>
+                <button class="perfil-avatar-x" aria-label="Remover a foto">&times;</button>
               </div>
+              <p class="perfil-foto-dica">Quadrada, guardada em 400&times;400px. O arquivo
+                pode ter até 10&nbsp;MB.</p>
+            </div>
+          </div>
+
+          <div class="perfil-linha">
+            <label class="perfil-lbl" for="nome-equipe">Nome</label>
+            <div class="ws-linha-input">
+              <input class="perfil-input" id="nome-equipe" value="Estúdio Norte">
+              <button class="ws-btn">Salvar</button>
             </div>
           </div>
         </div>
@@ -2418,7 +2459,23 @@ body{ margin:0; background:#F6F6F4; }
             </div>
           </div>
 
-          <div class="ws-slot ws-slot-vazio">
+          <!-- ── CONVIDAR ──
+               Não abre janela nenhuma, e é de propósito: o assento vazio já é
+               o formulário. A pessoa escreve o e-mail na linha e aperta.
+
+               O QUE ACONTECE, na ordem: o botão vira "Enviando", o convite
+               sai, e ESTE MESMO ASSENTO passa a ser o de quem foi convidado,
+               com o envelope e a tag "Convite pendente".
+
+               O erro fica AQUI EMBAIXO, colado no campo. Ele estava num
+               cartão acima da lista inteira, e numa equipe de dez assentos a
+               pessoa apertava um botão embaixo e a resposta aparecia fora da
+               tela. Erro se lê onde se conserta.
+
+               E o "convite enviado" não precisa de recado nenhum: o assento
+               vira pendente na hora, debaixo do dedo de quem clicou. Dizer a
+               mesma coisa duas vezes ensina a ignorar as duas. -->
+          <div class="ws-slot ws-slot-vazio" data-convite>
             <div class="ws-slot-vazio-topo">
               <span class="ws-av ws-av--livre">
                 <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
@@ -2428,16 +2485,17 @@ body{ margin:0; background:#F6F6F4; }
               </span>
               <div class="ws-linha-input" style="flex:1">
                 <input class="ws-input" placeholder="email@da-pessoa.com">
-                <button class="btn btn--verde ws-btn">Convidar</button>
+                <button class="ws-btn">Convidar</button>
               </div>
             </div>
+            <p class="ws-erro ws-erro-campo" hidden>Digite um e-mail válido.</p>
             <div class="ws-slot-atribuir">
               <span class="ws-vazio-hint">Assento livre, e você já está pagando por ele.</span>
               <button class="ws-atribuir">Atribuir a mim</button>
             </div>
           </div>
 
-          <div class="ws-slot ws-slot-vazio">
+          <div class="ws-slot ws-slot-vazio" data-convite>
             <div class="ws-slot-vazio-topo">
               <span class="ws-av ws-av--livre">
                 <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
@@ -2447,9 +2505,10 @@ body{ margin:0; background:#F6F6F4; }
               </span>
               <div class="ws-linha-input" style="flex:1">
                 <input class="ws-input" placeholder="email@da-pessoa.com">
-                <button class="btn btn--verde ws-btn">Convidar</button>
+                <button class="ws-btn">Convidar</button>
               </div>
             </div>
+            <p class="ws-erro ws-erro-campo" hidden>Digite um e-mail válido.</p>
             <!-- A frase de aviso aparece UMA vez, no primeiro assento livre.
                  Repetida em cada um, ela deixava de ser aviso e virava
                  padronagem: a pessoa lê a primeira e para de ver as outras. -->
@@ -2973,6 +3032,47 @@ body{ margin:0; background:#F6F6F4; }
       bt.textContent = abrindo ? 'Fechar' : 'Gerenciar';
     });
   });
+
+  /* Convidar, para dar para ver o que acontece. No site quem envia é o
+     servidor, e o que volta é a lista recarregada. O caminho é o mesmo: o
+     assento vazio deixa de existir e no lugar dele aparece o assento de quem
+     foi convidado. */
+  document.querySelectorAll('[data-convite]').forEach(function (slot) {
+    var campo = slot.querySelector('.ws-input');
+    var bt = slot.querySelector('.ws-btn');
+    var erro = slot.querySelector('.ws-erro-campo');
+    function enviar() {
+      var email = campo.value.trim();
+      if (email.indexOf('@') < 1 || email.indexOf('.', email.indexOf('@')) < 0) {
+        erro.hidden = false;
+        campo.focus();
+        return;
+      }
+      erro.hidden = true;
+      bt.textContent = 'Enviando';
+      bt.disabled = true;
+      setTimeout(function () { virarPendente(slot, email); }, 700);
+    }
+    bt.addEventListener('click', enviar);
+    campo.addEventListener('input', function () { erro.hidden = true; });
+    campo.addEventListener('keydown', function (e) { if (e.key === 'Enter') enviar(); });
+  });
+
+  function virarPendente(slot, email) {
+    slot.classList.remove('ws-slot-vazio');
+    slot.removeAttribute('data-convite');
+    slot.innerHTML =
+      '<div class="ws-slot-linha">' +
+        '<span class="ws-av ws-av--pend">' +
+          '<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor"' +
+          ' stroke-width="1.5"><rect x="2.5" y="4.5" width="15" height="11" rx="1.5"/>' +
+          '<path d="M3 5.5l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</span>' +
+        '<div class="disp-nome">' + email +
+          '<span class="ws-tag ws-tag-pend">Convite pendente</span></div>' +
+        '<div class="ws-slot-dir"><button class="ws-gerenciar">Gerenciar</button></div>' +
+      '</div>';
+  }
 
   /* ── trocar de tela ──
      No site cada uma é uma rota, e quem troca é o Next. Aqui elas convivem no
