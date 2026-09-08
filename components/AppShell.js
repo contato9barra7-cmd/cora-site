@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta, aceitarDocumentosLegais, EVENTO_CREDITOS } from '../lib/auth';
@@ -10,6 +10,8 @@ import PopupUpgrade from './PopupUpgrade';
 import DropdownCora from './DropdownCora';
 import { TELAS_ADMIN, usarTelaAdmin } from '../lib/telaAdmin';
 import { useIdioma, IDIOMAS, localeDeIdioma } from '../lib/i18n';
+import { DOCUMENTOS, maisRecentes } from '../lib/documentos';
+import { TextoTermos, TextoPrivacidade } from './TextosLegais';
 
 // Ícones simples em SVG (sem dependência externa)
 function rotuloPlano(c, t) {
@@ -282,6 +284,63 @@ export default function AppShell({ children }) {
   const precisaAceitar = conta?.precisa_aceitar === true;
   const [aceitando, setAceitando] = useState(false);
   const [erroAceite, setErroAceite] = useState('');
+
+  /* ── A REGRA DA LEITURA ──
+     O aceite só destrava depois de a pessoa ABRIR e ROLAR ATÉ O FIM cada
+     documento, aqui dentro da janela.
+
+     Antes os dois eram links para outra aba. Numa aba nova não dá para saber
+     se alguém chegou ao fim do texto, e um aceite que não sabe disso é só uma
+     caixa marcada. O texto que vale contra a gente num tribunal é o que a
+     pessoa teve a chance real de ler, e é essa chance que a rolagem registra.
+
+     `lidos` guarda os ids já lidos. Não vai para o servidor: ele grava o
+     aceite, e a prova dele continua sendo o texto congelado mais o hash. */
+  const [docLendo, setDocLendo] = useState(null);
+  const [lidos, setLidos] = useState([]);
+  const [progresso, setProgresso] = useState(0);
+  const caixaTextoRef = useRef(null);
+  const novos = maisRecentes();
+  const todosLidos = DOCUMENTOS.every((d) => lidos.includes(d.id));
+
+  /* A FOLGA DE 4px. Zoom do navegador e altura fracionária fazem
+     `scrollTop + clientHeight` parar meio pixel antes do fim, e sem a folga o
+     documento nunca ficaria lido para quem rolou até embaixo. */
+  function medirLeitura() {
+    const c = caixaTextoRef.current;
+    if (!c || !docLendo) return;
+    /* SEM ALTURA, SEM CONCLUSÃO. Enquanto a caixa não foi desenhada,
+       `clientHeight` é 0 e `scrollHeight` também: a conta daria "não tem o que
+       rolar" e o documento nasceria lido. O ResizeObserver chama isto na hora
+       em que começa a observar, que é justamente esse instante. */
+    if (!c.clientHeight) return;
+    const sobra = c.scrollHeight - c.clientHeight;
+    /* Texto menor que a caixa não tem o que rolar. Exigir rolagem aí seria um
+       botão que nunca destrava. */
+    if (sobra <= 4) { setProgresso(100); marcarLido(docLendo); return; }
+    setProgresso(Math.min(100, Math.round((c.scrollTop / sobra) * 100)));
+    if (c.scrollTop >= sobra - 4) marcarLido(docLendo);
+  }
+
+  function marcarLido(id) {
+    setLidos((L) => (L.includes(id) ? L : [...L, id]));
+  }
+
+  useEffect(() => {
+    if (!docLendo) return;
+    const c = caixaTextoRef.current;
+    if (!c) return;
+    c.scrollTop = 0;
+    setProgresso(0);
+    medirLeitura();
+    /* Mede de novo quando a caixa muda de tamanho: girar o celular ou abrir o
+       teclado muda a altura, e um documento que cabia inteiro passa a não
+       caber (ou o contrário). */
+    const obs = new ResizeObserver(medirLeitura);
+    obs.observe(c);
+    return () => obs.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [docLendo]);
 
   async function aceitarDocumentos() {
     setAceitando(true);
@@ -671,28 +730,93 @@ export default function AppShell({ children }) {
           está ali embaixo. */}
       {precisaAceitar && (
         <div className="trial-bloqueio">
-          <div className="trial-bloqueio-card">
+          <div className="trial-bloqueio-card trial-bloqueio-card--docs">
             <div className="trial-bloqueio-faixa" aria-hidden="true" />
             <div className="trial-bloqueio-miolo">
-              <span className="trial-bloqueio-eb">{t('rea_eyebrow')}</span>
-              <h1>{t('rea_h1')}</h1>
-              <p>{t('rea_p')}</p>
+              {!docLendo && (
+                <div>
+                  <span className="trial-bloqueio-eb">{t('rea_eyebrow')}</span>
+                  <h1>{t('rea_h1')}</h1>
+                  <p>{t('rea_p')}</p>
 
-              {/* Os links abrem em outra aba: fechar esta tela para ler o texto
-                  e ter que entrar de novo seria transformar uma leitura de dois
-                  minutos num motivo para aceitar sem ler. */}
-              <p className="rea-links">
-                <a href="/termos" target="_blank" rel="noopener noreferrer">{t('rea_termos')}</a>
-                <span aria-hidden="true"> · </span>
-                <a href="/privacidade" target="_blank" rel="noopener noreferrer">{t('rea_privacidade')}</a>
-              </p>
+                  {/* A condição vem escrita ANTES da lista, e não embaixo do
+                      botão travado: quem lê depois de tentar clicar já leu a
+                      tela como recusa. */}
+                  <p className="blq-como">{t('rea_como')}</p>
 
-              {erroAceite && <p className="rea-erro">{erroAceite}</p>}
+                  <div className="blq-docs">
+                    {DOCUMENTOS.map((d) => {
+                      const lido = lidos.includes(d.id);
+                      return (
+                        <div className="blq-doc" key={d.id} data-lido={lido ? 'sim' : 'nao'}>
+                          <div className="blq-doc__n">
+                            <b>
+                              {t(d.titulo)}
+                              {novos.includes(d.id) && (
+                                <span className="blq-doc__novo">{t('rea_novo')}</span>
+                              )}
+                            </b>
+                            <span>{t('rea_versao').replace('{data}', t(d.data))}</span>
+                          </div>
+                          <div className="blq-doc__dir">
+                            {lido && (
+                              <span className="blq-doc__lido">
+                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                  <path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2.2"
+                                        strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                {t('rea_lido')}
+                              </span>
+                            )}
+                            <button className="blq-doc__ver" onClick={() => setDocLendo(d.id)}>
+                              {lido ? t('rea_ler_de_novo') : t('rea_ler')}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
 
-              <button className="btn" disabled={aceitando} onClick={aceitarDocumentos}>
-                {aceitando ? t('rea_gravando') : t('rea_botao')}
-              </button>
-              <button className="trial-bloqueio-sair" onClick={logout}>{t('sair')}</button>
+                  {erroAceite && <p className="rea-erro">{erroAceite}</p>}
+
+                  <button className="btn" disabled={aceitando || !todosLidos}
+                          onClick={aceitarDocumentos}>
+                    {aceitando ? t('rea_gravando') : t('rea_botao')}
+                  </button>
+                  <p className="blq-pe">
+                    {t('rea_pe')} <span>{t('rea_pe2')}</span>
+                  </p>
+                  <button className="trial-bloqueio-sair" onClick={logout}>{t('sair')}</button>
+                </div>
+              )}
+
+              {/* ── O LEITOR ──
+                  O texto vem do MESMO componente que desenha /termos e
+                  /privacidade. Mudar o documento lá muda aqui, e não existe a
+                  chance de a pessoa aceitar uma versão e a página pública
+                  mostrar outra. */}
+              {docLendo && (
+                <div>
+                  <div className="blq-leitor__topo">
+                    <span className="blq-leitor__nome">
+                      {t(DOCUMENTOS.find((d) => d.id === docLendo).titulo)}
+                    </span>
+                    <button className="blq-leitor__volta" onClick={() => setDocLendo(null)}>
+                      {t('rea_voltar')}
+                    </button>
+                  </div>
+                  <div className="blq-texto" ref={caixaTextoRef} tabIndex={0}
+                       onScroll={medirLeitura}>
+                    {docLendo === 'termos' ? <TextoTermos /> : <TextoPrivacidade />}
+                  </div>
+                  <div className="blq-prog" aria-hidden="true">
+                    <i style={{ width: progresso + '%' }} />
+                  </div>
+                  <p className="blq-status" data-fim={lidos.includes(docLendo) ? 'sim' : 'nao'}>
+                    {lidos.includes(docLendo) ? t('rea_doc_lido') : t('rea_role')}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

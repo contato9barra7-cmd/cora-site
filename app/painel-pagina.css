@@ -16,7 +16,9 @@
 
 .pn{/* ── a identidade nova, a mesma das páginas públicas ── *//* Lima e turquesa, e mais nada. O roxo saiu da marca, entao ele nao pode
      sobrar num canto do painel: cor que ficou para tras e a que mais denuncia
-     uma tela que nao foi revisada. *//* a coluna da esteira *//* a mesma esteira, virada, no celular *//* O vidro das pastilhas que ficam EM CIMA da padronagem. Ele não muda
+     uma tela que nao foi revisada. *//* A turquesa clara nao tem contraste para LETRA. Este e o mesmo
+     `--turq-txt` do globals, e o unico tom da marca que passa em AA
+     como texto (6,3:1 sobre papel). *//* a coluna da esteira *//* a mesma esteira, virada, no celular *//* O vidro das pastilhas que ficam EM CIMA da padronagem. Ele não muda
      no tema escuro: a lima e a turquesa da faixa também não mudam, e um
      vidro escuro sobre elas ficaria sujo. *//* ── A ESCALA DE TIPO ──
      O painel usava VINTE tamanhos diferentes, seis deles entre 13 e 15.5px
@@ -33,6 +35,8 @@
   --line:#E4E4DF; --line2:#D2D2CB;
   
   --lima:#C4FBA7; --lima-esc:#A5F37D; --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  
+  --turq-txt:#196C5B;
   --ok:#1F7A44; --ok-bg:#EAF6EE;
   --alerta:#C8342A; --alerta-bg:#FCEDEC;
 
@@ -70,6 +74,7 @@
   --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
   --line:#2B2B30; --line2:#3A3A41;
   --ok:#7BD3A0; --ok-bg:rgba(31,122,68,.16);
+  --turq-txt:var(--turquesa-esc);
   --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.16);
   --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
 }.pn .app-shell{
@@ -457,32 +462,92 @@
    um link no fim deixa as duas com recuos diferentes.
 
    Ela não tem X nem "depois". Aceitar é o que libera, e um botão de fechar
-   ao lado disso ensinaria que dá para não aceitar. */.pn .trial-bloqueio-card--docs{ width:min(520px,100%); max-width:520px; text-align:left; }.pn .blq-docs{ margin:22px 0 0; display:grid; gap:10px; }.pn .blq-doc{
+   ao lado disso ensinaria que dá para não aceitar. */.pn .trial-bloqueio-card--docs{ width:min(560px,100%); max-width:560px; text-align:left; }/* A REGRA DA LEITURA, ESCRITA ANTES DA LISTA.
+   Um botão travado sem explicação é lido como defeito, e quem descobre o
+   motivo depois de tentar clicar já leu a tela como recusa. Então a condição
+   vem escrita em cima, antes do primeiro clique. */.pn .trial-bloqueio-card .blq-como{
+  margin:20px 0 0; padding:11px 14px;
+  border:1px solid var(--line); border-radius:var(--r-peq); background:var(--wash);
+  font-size:12.5px; color:var(--ink2); line-height:1.55;
+}.pn .blq-docs{ margin:12px 0 0; display:grid; gap:10px; }.pn .blq-doc{
   display:flex; align-items:center; justify-content:space-between; gap:14px;
   padding:14px 16px; border:1px solid var(--line); border-radius:var(--r-peq);
   background:var(--wash);
-}.pn .blq-doc__n{ min-width:0; }.pn .blq-doc__n b{ display:block; font-size:14.5px; font-weight:600; letter-spacing:-.012em; line-height:1.35; }.pn .blq-doc__n span{ display:block; margin-top:2px; font-size:12.5px; color:var(--ink3); }.pn .blq-doc__ver{
+}.pn .blq-doc__n{ min-width:0; }/* O nome e o selo dividem uma linha de flex. Antes o selo se pendurava na
+   LINHA DE BASE do nome com `vertical-align`, e uma pastilha de 11px alinhada
+   pela base fica sempre um fio abaixo do centro de um texto de 14.5px. */.pn .blq-doc__n b{
+  display:flex; align-items:center; gap:7px;
+  font-size:14.5px; font-weight:600; letter-spacing:-.012em; line-height:1.35;
+}/* `>` PARA A DATA NÃO PEGAR O SELO. Sem ele, `.blq-doc__n span` valia também
+   para a pastilha, e como as duas regras têm a mesma força (0,2,0) e nenhuma
+   das duas anulava a margem, o `margin-top:2px` da data continuava valendo no
+   selo: eram esses 2px que o deixavam desalinhado do nome. */.pn .blq-doc__n > span{ display:block; margin-top:2px; font-size:12.5px; color:var(--ink3); }.pn .blq-doc__dir{ display:flex; align-items:center; gap:12px; flex:none; }.pn .blq-doc__ver{
   flex:none; border:0; background:none; padding:0; cursor:pointer; font-family:inherit;
   font-size:13.5px; font-weight:600; color:var(--ink);
   border-bottom:2px solid var(--lima); line-height:1.4;
   transition:border-color var(--t);
 }.pn .blq-doc__ver:hover{ border-bottom-color:var(--ink); }/* O selo do que MUDOU. Só aparece no documento que teve versão nova: dizer
    "atualizado" nos dois quando só um mudou é mentira pequena que custa a
-   confiança na próxima. *//* O SELO PRECISA DO PAI NO SELETOR. Sozinho ele e 0,1,0 e perde para
-   `.blq-doc__n span`, que e a regra da DATA logo abaixo do nome: dela o selo
-   herdava `display:block` e 12.5px, e a pastilha esticava na largura toda,
-   numa linha so para ela. */.pn .blq-doc__n .blq-doc__novo{
+   confiança na próxima. */.pn .blq-doc__n .blq-doc__novo{
   display:inline-flex; align-items:center; flex:none;
-  margin-left:7px; padding:1px 8px; border-radius:var(--pill);
+  margin:0; padding:1px 8px; border-radius:var(--pill);
   background:var(--lima); color:#111111;
   font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-  vertical-align:middle;
-}.pn .trial-bloqueio-card--docs .btn{ width:100%; margin-top:22px; }/* O mesmo caso: `.blq-pe` sozinho perde para `.trial-bloqueio-card p`, e o pe
+}/* O certo de lido. É estado, e não elogio: fica do lado do botão, no tamanho
+   de etiqueta, para a lista continuar sendo uma lista. */.pn .blq-doc__lido{
+  display:inline-flex; align-items:center; gap:5px; flex:none;
+  font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ok);
+}.pn .blq-doc__lido svg{ width:13px; height:13px; }.pn .blq-doc[data-lido="sim"]{ border-color:var(--lima-esc); background:var(--paper); }/* ── O LEITOR, DENTRO DA JANELA ──
+   O documento abre AQUI, e não noutra aba. Numa aba nova não dá para saber se
+   a pessoa chegou ao fim, e sem saber disso o aceite volta a ser uma caixa
+   que se marca sem ler. Aqui dentro, a rolagem é a prova.
+
+   A altura é relativa à janela porque o cartão inteiro tem que caber em tela
+   de notebook baixo, e texto legal não cabe em altura fixa nenhuma. */.pn .blq-leitor__topo{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  margin:20px 0 0;
+}.pn .blq-leitor__nome{ font-size:14.5px; font-weight:600; letter-spacing:-.012em; }.pn .blq-leitor__volta{
+  flex:none; border:0; background:none; padding:0; cursor:pointer; font-family:inherit;
+  font-size:13.5px; font-weight:600; color:var(--ink);
+  border-bottom:2px solid var(--lima); line-height:1.4;
+  transition:border-color var(--t);
+}.pn .blq-leitor__volta:hover{ border-bottom-color:var(--ink); }.pn .blq-texto{
+  margin-top:12px; height:min(42vh,300px); overflow-y:auto; overscroll-behavior:contain;
+  padding:16px 18px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); font-size:13.5px; line-height:1.7; color:var(--ink2);
+}.pn .blq-texto:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }/* AS MESMAS CLASSES DE /termos E /privacidade. O texto aqui dentro e o texto
+   daquelas paginas, montado pelo mesmo componente, entao ele chega com
+   `legal-sec`, `legal-h2` e `legal-p`. O que muda e a escala: 21px de titulo e
+   15.5px de corpo sao de uma pagina de leitura com uma coluna inteira, e nao
+   de uma caixa de 300px dentro de uma janela. */.pn .blq-texto .legal-sec{ margin-top:18px; }.pn .blq-texto .legal-sec:first-of-type{ margin-top:0; }.pn .blq-texto .legal-h2{ margin:0 0 6px; font-size:13.5px; font-weight:600; line-height:1.4; color:var(--ink); }.pn .blq-texto .legal-p{ margin:0 0 9px; font-size:13.5px; line-height:1.7; color:var(--ink2); }.pn .blq-texto .legal-p:last-child{ margin-bottom:0; }.pn .blq-texto .legal-lista{ margin:0 0 9px; padding-left:0; list-style:none; }.pn .blq-texto .legal-lista li{
+  position:relative; margin-bottom:6px; padding-left:18px;
+  font-size:13.5px; line-height:1.7; color:var(--ink2);
+}.pn .blq-texto .legal-lista li::before{
+  content:""; position:absolute; left:2px; top:.66em;
+  width:5px; height:5px; border-radius:50%; background:var(--lima);
+}.pn .blq-texto .legal-p strong, .pn .blq-texto .legal-lista li strong{ color:var(--ink); font-weight:600; }/* O ELO PRECISA DE TRES CLASSES NO SELETOR. `.app-shell a` zera cor e
+   sublinhado de todo link do painel, e com duas classes o empate (0,2,1) seria
+   resolvido pela ordem no arquivo. Ordem e fundamento fraco demais para a
+   regra que decide se um link parece link, e aqui ele precisa parecer: e um
+   documento legal, e o elo faz parte do que a pessoa esta aceitando. */.pn .trial-bloqueio-card .blq-texto a{
+  color:var(--turq-txt); text-decoration:underline;
+  text-underline-offset:2px; text-decoration-thickness:1px;
+}.pn .trial-bloqueio-card .blq-texto a:hover{ color:var(--ink); }/* A barrinha diz quanto falta ENQUANTO rola. Sem ela o texto é um poço sem
+   fundo visível, e um poço sem fundo é o que faz desistir na terceira tela. */.pn .blq-prog{ margin-top:10px; height:3px; border-radius:2px; background:var(--wash2); overflow:hidden; }.pn .blq-prog i{ display:block; height:100%; width:0; background:var(--lima-esc); transition:width .12s linear; }.pn .trial-bloqueio-card .blq-status{
+  margin:9px 0 0; display:flex; align-items:center; gap:6px;
+  font-size:12.5px; color:var(--ink3); line-height:1.5;
+}.pn .trial-bloqueio-card .blq-status[data-fim="sim"]{ color:var(--ok); font-weight:600; }.pn .blq-status svg{ width:14px; height:14px; flex:none; }.pn .trial-bloqueio-card--docs .btn{ width:100%; margin-top:22px; }/* O botão travado tem que PARECER travado antes de alguém clicar nele. Cinza e
+   sem cursor de mão: o mesmo estado que a barra de salvar do perfil já usa. */.pn .trial-bloqueio-card--docs .btn:disabled, .pn .trial-bloqueio-card--docs .btn:disabled:hover{
+  background:var(--wash2); color:var(--ink3); cursor:default;
+}/* O mesmo caso: `.blq-pe` sozinho perde para `.trial-bloqueio-card p`, e o pe
    ficava em 14.5px. Nesse tamanho a frase estoura em tres linhas num cartao de
    420px, e a terceira fica com uma palavra so. */.pn .trial-bloqueio-card .blq-pe{
   margin:14px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6;
   text-wrap:pretty;
-}/* ── a tarja de personificação ── */.pn .tarja-personificacao{
+}/* A SEGUNDA FRASE INTEIRA NA LINHA DE BAIXO. Deixando as duas correrem, "O
+   comprovante" caia sozinho no fim da primeira linha e o resto da frase ia
+   para a segunda: uma frase partida no meio, com a ponta curta pendurada. */.pn .trial-bloqueio-card .blq-pe span{ display:block; }/* ── a tarja de personificação ── */.pn .tarja-personificacao{
   position:fixed; top:0; left:0; right:0; z-index:80;
   display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;
   padding:9px 18px; background:var(--turquesa); color:#111111; font-size:13.5px;

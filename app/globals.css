@@ -12465,29 +12465,6 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 .trial-bloqueio-card p { color: var(--ink2); font-size: 15px; line-height: 1.6; margin: 0 0 24px; }
 .trial-bloqueio-sair { display: block; margin: 14px auto 0; background: none; border: none; color: var(--ink3); font-size: 14px; cursor: pointer; font-family: inherit; text-decoration: underline; }
 
-/* ── Os dois links da tela de reaceite ──
-   Eles ficam ENTRE o texto e o botão, e não depois dele: quem lê de cima para
-   baixo encontra o convite para ler antes de encontrar o botão de aceitar. Na
-   ordem inversa, o botão vira o fim da leitura e os links viram rodapé. */
-.rea-links {
-  margin: 4px 0 20px; font-size: 12.5px; color: var(--ink3);
-}
-/* O MESMO DESENHO DOS LINKS LEGAIS DO CADASTRO: turquesa escurecido para
-   texto, sublinhado sempre, e o preto no hover. Aqui eles estavam em cinza,
-   que e a cor do texto de apoio ao redor: um link da mesma cor do paragrafo
-   nao se le como link, e esta e justamente a tela onde a pessoa precisa
-   entender que da para LER antes de aceitar.
-   O #196C5B e o `--turq-texto` das telas de conta, e nao a turquesa da marca:
-   a clara nao tem contraste para texto. */
-.rea-links a {
-  color: #196C5B; text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.rea-links a:hover { color: var(--ink); }
-/* No escuro o #196C5B some no fundo: entra o turquesa claro da marca, que
-   e o mesmo valor do `--turquesa-esc`, escrito aqui porque o token so
-   existe dentro do `.pn` e esta regra precisa valer em qualquer lugar. */
-:root[data-theme="dark"] .rea-links a { color: #8FDDCC; }
 /* O erro fica acima do botão, onde o olho volta depois de clicar e nada
    acontecer. */
 .rea-erro {
