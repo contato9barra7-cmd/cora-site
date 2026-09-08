@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../../components/AppShell';
 import DropdownCora from '../../../components/DropdownCora';
+import Confirma from '../../../components/Confirma';
 import { lerConta, salvarPerfil, deletarMinhaConta, aplicarTema, sair, salvarFoto, listarDispositivos, removerDispositivo, registrarDispositivoWeb } from '../../../lib/auth';
 import { useIdioma, localeDeIdioma } from '../../../lib/i18n';
 
@@ -64,8 +65,12 @@ export default function Perfil() {
     } catch (e) { /* silencioso */ }
   }
 
+  /* Qual dispositivo esta esperando confirmacao. Guarda o id, e nao um
+     booleano: a pergunta e sobre UM aparelho, e o id e o que diz qual. */
+  const [confPc, setConfPc] = useState(null);
+
   async function tirarDispositivo(id) {
-    if (!confirm(t('perfil_confirm_remover_pc'))) return;
+    setConfPc(null);
     try {
       await removerDispositivo(id);
       await carregarDispositivos();
@@ -445,7 +450,7 @@ export default function Perfil() {
                             {t('perfil_ultimo_acesso')} {d.ultimo_acesso ? new Date(d.ultimo_acesso).toLocaleString(localeDeIdioma(idioma)) : '—'}
                           </div>
                         </div>
-                        <button className="disp-remover" onClick={() => tirarDispositivo(d.id)}>{t('comum_remover')}</button>
+                        <button className="disp-remover" onClick={() => setConfPc(d.id)}>{t('comum_remover')}</button>
                       </div>
                     ))}
                   </div>
@@ -548,6 +553,17 @@ export default function Perfil() {
             <div className="foto-cancelar" onClick={() => setModalFoto(false)}>{t('comum_cancelar')}</div>
           </div>
         </div>
+      )}
+
+      {/* Tirar um computador nao se desfaz com um clique: a pessoa precisa
+          entrar de novo naquele aparelho. A pergunta e nossa. */}
+      {confPc && (
+        <Confirma
+          texto={t('perfil_confirm_remover_pc')}
+          ok={t('comum_remover')}
+          aoOk={() => tirarDispositivo(confPc)}
+          aoCancelar={() => setConfPc(null)}
+        />
       )}
     </AppShell>
   );

@@ -138,7 +138,7 @@ export default function PainelNovidades({ contas }) {
           </div>
         )}
 
-        <p className="adm-total">{t('adm_nov_rodape')}</p>
+        <p className="adm-total adm-total--nota">{t('adm_nov_rodape')}</p>
       </div>
     </>
   );

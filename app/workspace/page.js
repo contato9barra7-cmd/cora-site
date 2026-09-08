@@ -271,8 +271,10 @@ function WorkspaceConteudo() {
     finally { setAbrindoPortal(false); }
   }
 
+  const [confRemover, setConfRemover] = useState(null);
+
   async function remover(id) {
-    if (!confirm(t('ws_conf_remover'))) return;
+    setConfRemover(null);
     setErro('');
     try { await removerMembro(id); setExpandido(null); await carregar(); }
     catch (e) { setErro(e.message); }
@@ -665,9 +667,9 @@ function WorkspaceConteudo() {
                     <button className="ws-btn-sec" onClick={() => reativar(m.id)}>{t('ws_reativar_acesso')}</button>
                   )}
                   {m.eh_dono ? (
-                    <button className="ws-remover" onClick={() => remover(m.id)}>{t('ws_liberar_assento')}</button>
+                    <button className="ws-remover" onClick={() => setConfRemover(m.id)}>{t('ws_liberar_assento')}</button>
                   ) : (
-                    <button className="ws-remover" onClick={() => remover(m.id)}>{t('ws_remover_acesso')}</button>
+                    <button className="ws-remover" onClick={() => setConfRemover(m.id)}>{t('ws_remover_acesso')}</button>
                   )}
                 </div>
               </div>
@@ -772,6 +774,14 @@ function WorkspaceConteudo() {
           perigo={false}
           aoOk={() => moverAgora(confirmaMover.de, confirmaMover.quanto)}
           aoCancelar={() => setConfirmaMover(null)}
+        />
+      )}
+      {confRemover && (
+        <Confirma
+          texto={t('ws_conf_remover')}
+          ok={t('ws_remover_acesso')}
+          aoOk={() => remover(confRemover)}
+          aoCancelar={() => setConfRemover(null)}
         />
       )}
     </div>

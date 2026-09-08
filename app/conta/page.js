@@ -13,9 +13,11 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useState, Suspense } from 'react';
+import { lerModo, gravarModo, DEMO_TOTAL, DEMO_RESTANTES } from '../../lib/verComo';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import AppShell from '../../components/AppShell';
+import Confirma from '../../components/Confirma';
 import { lerConta, atualizarConta, baixarPlugin, minhaEquipe, sairDaEquipe, lerEquipe, EVENTO_CREDITOS} from '../../lib/auth';
 import { listarGeracoes } from '../../lib/geracoes';
 import { useIdioma, localeDeIdioma } from '../../lib/i18n';
@@ -43,14 +45,25 @@ function ContaConteudo() {
   const [equipeMembro, setEquipeMembro] = useState(null);
   const [saindo, setSaindo] = useState(false);
   const [equipe, setEquipe] = useState(null);
+  /* O modo mora no `lib/verComo.js`, e nao aqui: a moldura (AppShell) precisa
+     dele para trocar o menu junto. Enquanto ele morava so nesta pagina, o
+     seletor mudava o miolo e deixava a aba Admin no lugar e a aba Equipe
+     escondida, que nao e a visao de ninguem. */
   const [verComo, setVerComo] = useState('real');   // real | normal | dono | membro
+  useEffect(() => { setVerComo(lerModo()); }, []);
+  function escolherVerComo(m) { setVerComo(gravarModo(m)); }
 
   // As últimas imagens. Vêm do mesmo `/geracoes` que alimenta o feed dentro
   // do /app, e ele já devolve do mais novo para o mais velho.
   const [renders, setRenders] = useState([]);
 
+  /* A pergunta e nossa, e nao a caixa do navegador: aquela nasce com o
+     dominio no titulo, com os botoes do sistema e sem o tema escuro, e num
+     produto ela le como se fosse de outro. */
+  const [confSair, setConfSair] = useState(false);
+
   async function sairEquipe() {
-    if (!confirm(t('conta_sair_confirm'))) return;
+    setConfSair(false);
     setSaindo(true);
     try {
       await sairDaEquipe();
@@ -156,23 +169,29 @@ function ContaConteudo() {
     : `${t('plano_label')} ${NOME_PLANO[conta.plano] || conta.plano}`;
 
   const demoCreditos = ehAdmin && modo !== 'real';
+  /* ── O CRÉDITO DA DEMONSTRAÇÃO SAI DE UM LUGAR SÓ ──
+     O número inventado precisa valer para TODAS as leituras da tela: o número
+     grande, o "de X no ciclo", a barra e a linha de "sem créditos". Antes só
+     as duas primeiras olhavam a demonstração, e as outras duas continuavam
+     lendo a conta real de quem está espiando. O resultado era a tela mostrar
+     14.320 e escrever "Você não tem créditos" três linhas abaixo. */
+  const restantesNum = demoCreditos ? DEMO_RESTANTES : (conta.creditos_restantes ?? 0);
+  const totalNum = demoCreditos ? DEMO_TOTAL : (conta.creditos_total ?? 0);
+
   const creditos = mostrarIlimitado ? t('conta_ilimitado')
     : ehDono ? (conta.equipe_creditos_total ?? 0).toLocaleString(loc)
-    : demoCreditos ? (14320).toLocaleString(loc)
-    : (conta.creditos_restantes ?? 0).toLocaleString(loc);
+    : restantesNum.toLocaleString(loc);
   const totalCreditos = mostrarIlimitado ? null
     : ehDono ? null
-    : demoCreditos ? (20000).toLocaleString(loc)
-    : (conta.creditos_total ?? 0).toLocaleString(loc);
+    : totalNum.toLocaleString(loc);
   // No teste a data que importa e a do teste, e o `expira_em` do plano free
   // pode nem existir.
   const dataRenov = ehDono ? conta.equipe_renova_em
     : (conta.eh_trial === true) ? (conta.trial_expira_em || conta.expira_em)
     : conta.expira_em;
 
-  const pctCreditos = (conta.creditos_total > 0 && !mostrarIlimitado)
-    ? Math.max(0, Math.min(100,
-        Math.round(((conta.creditos_restantes ?? 0) / conta.creditos_total) * 100)))
+  const pctCreditos = (totalNum > 0 && !mostrarIlimitado)
+    ? Math.max(0, Math.min(100, Math.round((restantesNum / totalNum) * 100)))
     : 0;
 
   const diasAte = dataRenov
@@ -182,7 +201,7 @@ function ContaConteudo() {
   // Quem tem crédito de verdade. `totalCreditos` é string, e "0" é verdadeiro:
   // sem esta conta, a barra e a linha "de 0 no ciclo" apareciam para quem não
   // tem crédito nenhum.
-  const temCreditos = mostrarIlimitado || ehDono || (conta.creditos_total > 0);
+  const temCreditos = mostrarIlimitado || ehDono || (totalNum > 0);
 
   const vagos = equipe?.equipe
     ? Math.max(0, (equipe.equipe.assentos || 0) - (equipe.membros || []).length)
@@ -268,7 +287,7 @@ function ContaConteudo() {
               <button
                 key={o.v}
                 className={'vercomo-btn' + (verComo === o.v ? ' vercomo-btn--on' : '')}
-                onClick={() => setVerComo(o.v)}
+                onClick={() => escolherVerComo(o.v)}
               >{o.n}</button>
             ))}
           </div>
@@ -499,10 +518,10 @@ function ContaConteudo() {
               </strong>
             </div>
             <div className="dash-cartao-linhas">
-              <span>{t('pn_quem_paga')} <b>{equipeMembro?.dono_nome || equipeMembro?.dono_email || '—'}</b></span>
+              <span>{t('pn_quem_gerencia')} <b>{equipeMembro?.dono_nome || equipeMembro?.dono_email || '—'}</b></span>
               <span>{t('pn_cred_da_equipe')}</span>
             </div>
-            <button className="dash-cartao-acao" onClick={sairEquipe} disabled={saindo}>
+            <button className="dash-cartao-acao" onClick={() => setConfSair(true)} disabled={saindo}>
               {saindo ? t('conta_saindo') : t('conta_sair_equipe')}
             </button>
           </div>
@@ -607,6 +626,14 @@ function ContaConteudo() {
           </div>
         )}
       </div>
+      {confSair && (
+        <Confirma
+          texto={t('conta_sair_confirm')}
+          ok={t('conta_sair_equipe')}
+          aoOk={sairEquipe}
+          aoCancelar={() => setConfSair(false)}
+        />
+      )}
     </div>
     </AppShell>
   );

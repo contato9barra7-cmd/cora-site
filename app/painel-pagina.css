@@ -764,7 +764,19 @@
    a ÚNICA regra do estado ligado: havia uma segunda, por `aria-pressed`, que
    não pegava nada em produção porque o site nunca emite esse atributo. Duas
    regras para o mesmo estado é como o interruptor daqui ficou parecendo ligado
-   sem nada ligar ele. */.pn .perfil-toggle.on{ background:var(--lima); }.pn .perfil-toggle.on .perfil-toggle-bola{ transform:translateX(19px); }.pn .perfil-legal{
+   sem nada ligar ele. */.pn .perfil-toggle.on{ background:var(--lima); }/* O `left:3px` DESFAZ O MOLDE VELHO, e sem ele a bolinha saia do trilho.
+
+   O globals tem `.perfil-toggle.on .perfil-toggle-bola{ left:23px }`, que e
+   como o molde antigo movia a bolinha. Aqui ela se move por `transform`, e as
+   duas coisas NAO se substituem: elas somam. `left:23px` mais 19px de
+   translacao punham a bolinha em 42px, num trilho de 46 com bola de 21, ou
+   seja, ela terminava em 63px e vazava pela direita.
+
+   Nao bastava o `left:3px` que a bolinha ja tem na regra de cima: aquela e
+   `.pn .perfil-toggle-bola` (0,2,0) e perde para a do globals (0,3,0). Escrito
+   aqui, no seletor com o `.on`, da (0,4,0) e ganha.
+
+   19px e a conta certa desta pista: 46 menos 3 de folga menos 21 da bola. */.pn .perfil-toggle.on .perfil-toggle-bola{ left:3px; transform:translateX(19px); }.pn .perfil-legal{
   margin:18px 0 0; padding-top:16px; border-top:1px solid var(--line);
   font-size:12.5px; color:var(--ink3); line-height:1.6;
   max-width:72ch; text-wrap:pretty;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { lerConta, sair, aplicarTema, salvarPerfil, atualizarConta, aceitarDocumentosLegais, EVENTO_CREDITOS } from '../lib/auth';
@@ -8,6 +8,7 @@ import RodapeLegal from './RodapeLegal';
 import PopupCreditos from './PopupCreditos';
 import PopupUpgrade from './PopupUpgrade';
 import DropdownCora from './DropdownCora';
+import { contaVista, lerModo, EVENTO_VER_COMO } from '../lib/verComo';
 import { TELAS_ADMIN, usarTelaAdmin } from '../lib/telaAdmin';
 import { useIdioma, IDIOMAS, localeDeIdioma } from '../lib/i18n';
 import { DOCUMENTOS, maisRecentes } from '../lib/documentos';
@@ -88,7 +89,19 @@ export default function AppShell({ children }) {
   const telaAdm = usarTelaAdmin();
   const router = useRouter();
   const { t, idioma, trocarIdioma } = useIdioma();
-  const [conta, setConta] = useState(null);
+  /* ── A CONTA REAL E A CONTA VISTA ──
+     `contaReal` e quem esta logado. `conta` e como a pessoa do modo escolhido
+     enxerga a tela, e e ela que o resto do componente desenha: assim o menu,
+     o anel e o rotulo do plano mudam junto com o miolo, em vez de a tela
+     dizer ser de outra pessoa com o menu de quem esta olhando.
+
+     Fora do modo de demonstracao as duas sao o MESMO objeto, entao isto nao
+     custa nada a quem nao e admin. O `useMemo` mantem a identidade estavel:
+     sem ele, cada render criaria um objeto novo e os efeitos que dependem de
+     `conta` rodariam para sempre. */
+  const [contaReal, setConta] = useState(null);
+  const [modoVer, setModoVer] = useState('real');
+  const conta = useMemo(() => contaVista(contaReal, modoVer), [contaReal, modoVer]);
   // Quem evita o flash é o <html class="menu-recolhido"> (script do layout.js
   // + regras-espelho no globals.css): o menu nasce fechado antes do React
   // rodar. Então o estado pode começar IGUAL ao servidor (false) e ler o
@@ -151,6 +164,17 @@ export default function AppShell({ children }) {
 
   // Alguém gastou crédito (uma geração no /app)? Atualiza o número, o anel
   // e tudo mais — sem precisar de F5.
+  /* O seletor mora no /conta e a moldura mora aqui. O evento e o fio entre os
+     dois: sem ele o menu so mudaria na proxima navegacao, e o seletor
+     pareceria nao fazer nada. A leitura no inicio e o que faz o modo
+     sobreviver ao ir ate /workspace e voltar. */
+  useEffect(() => {
+    setModoVer(lerModo());
+    function onVerComo(e) { setModoVer(e.detail || 'real'); }
+    window.addEventListener(EVENTO_VER_COMO, onVerComo);
+    return () => window.removeEventListener(EVENTO_VER_COMO, onVerComo);
+  }, []);
+
   useEffect(() => {
     function onCreditos(e) {
       if (e.detail) setConta(e.detail);
@@ -181,7 +205,9 @@ export default function AppShell({ children }) {
 
   // troca rápida de tema/idioma direto no menu do avatar
   async function trocarPref(campo, valor) {
-    const nova = { ...conta, [campo]: valor };
+    // `contaReal`, e nao `conta`: no modo de demonstracao a `conta` e uma
+    // copia maquiada, e gravar a partir dela guardaria o fingimento.
+    const nova = { ...contaReal, [campo]: valor };
     setConta(nova);
     if (campo === 'tema') aplicarTema(valor);
     if (campo === 'idioma') trocarIdioma(valor);   // troca a UI ao vivo

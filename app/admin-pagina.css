@@ -158,7 +158,13 @@
 }.adm-total{
   margin:16px 0 0; padding-top:14px; border-top:1px solid var(--line);
   text-align:right; font-size:13.5px; color:var(--ink3);
-}.adm-total b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }/* ── a paginação, com o mesmo fio ── */.adm-pag{
+}.adm-total b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }/* ── QUANDO O RODAPE E EXPLICACAO, E NAO TOTAL ──
+   `.adm-total` alinha a direita porque quase sempre ele fecha uma contagem, e
+   numero fecha na direita, embaixo da coluna que ele soma.
+
+   Este nao soma nada: e uma frase que explica a regra da tela. Frase se le da
+   esquerda, como todo o resto da pagina, e alinhada a direita ela comeca numa
+   coluna que nenhuma outra linha usa. */.adm-total--nota{ text-align:left; text-wrap:pretty; }/* ── a paginação, com o mesmo fio ── */.adm-pag{
   display:flex; align-items:center; justify-content:space-between;
   gap:14px; flex-wrap:wrap; margin-top:18px;
   font-size:13.5px; color:var(--ink3);
