@@ -303,6 +303,19 @@ export default function Perfil() {
             <label className="perfil-lbl">Email</label>
             <input className="perfil-input" value={conta.email} disabled title={t('perfil_email_bloqueado')} />
           </div>
+          {/* ── O NÚMERO DA CONTA ──
+              Ele é o único identificador que não muda: nome se edita, e-mail se
+              troca, e duas pessoas podem ter o mesmo nome. Quem escreve para o
+              suporte manda este número e a conta é encontrada na hora, sem a
+              troca de mensagens de "qual e-mail mesmo?".
+              Aparece como texto e não como campo, porque não se edita. */}
+          <div className="perfil-linha">
+            <label className="perfil-lbl">{t('perfil_num_conta')}</label>
+            <div className="perfil-num-conta">
+              <span>#{conta.id}</span>
+              <p className="perfil-foto-dica" style={{ marginTop: 6 }}>{t('perfil_num_conta_dica')}</p>
+            </div>
+          </div>
         </section>
 
         {/* PREFERÊNCIAS */}

@@ -899,6 +899,11 @@
    quem descobre o limite depois de escolher já perdeu a viagem. */
 .perfil-foto-dica{ font-size:13px; color:var(--ink3); line-height:1.5; max-width:34ch;
   text-wrap:pretty; }
+/* O NUMERO DA CONTA. Texto, e nao campo: nao se edita. Em fonte tabular e um
+   pouco maior que o corpo, porque ele existe para ser LIDO EM VOZ ALTA ou
+   copiado para uma mensagem de suporte. */
+.perfil-num-conta span{ font-size:17px; font-weight:600; letter-spacing:.01em;
+  font-variant-numeric:tabular-nums; }
 .perfil-foto-erro{ font-style:normal; font-weight:600; color:var(--alerta); }
 
 /* A linha do interruptor NÃO é a grade de 150px das outras: ali o texto caía
@@ -2224,6 +2229,20 @@ body{ margin:0; background:#F6F6F4; }
                 <label class="perfil-lbl">E-mail</label>
                 <input class="perfil-input" value="marilia@estudio.com.br" disabled>
               </div>
+
+              <!-- ── O NUMERO DA CONTA ──
+                   Ele e o unico identificador que nao muda: nome se edita,
+                   e-mail se troca, e duas pessoas podem ter o mesmo nome. Quem
+                   escreve para o suporte manda este numero e a conta e
+                   encontrada na hora. Texto, e nao campo, porque nao se edita. -->
+              <div class="perfil-linha">
+                <label class="perfil-lbl">Número da conta</label>
+                <div class="perfil-num-conta">
+                  <span>#1284</span>
+                  <p class="perfil-foto-dica" style="margin-top:6px">Diga este número ao falar
+                    com o suporte. Ele identifica a sua conta.</p>
+                </div>
+              </div>
             </section>
 
             <section class="perfil-sec" id="sec-prefs">
@@ -2403,6 +2422,23 @@ body{ margin:0; background:#F6F6F4; }
              Um assento vazio é uma linha com um campo esperando um e-mail, e
              não um número escrito em algum canto. A contagem de livres saiu do
              cartão de resumo justamente por isso: a lista já mostra em forma. -->
+        <!-- ── A COBRANCA NAO PASSOU ──
+             O servidor ja recusava convite com "regularize o pagamento", mas a
+             tela so contava isso DEPOIS de a pessoa escrever um e-mail e
+             apertar Convidar. Quem paga merece saber antes, e nao como resposta
+             a uma tentativa. Aviso, e nao erro: quem ja esta na equipe continua
+             com acesso, so nao entra mais ninguem. Por isso a borda leva a cor
+             de alerta e o fundo nao.
+             O botao "Cobranca falhou" da barra de baixo liga e desliga. -->
+        <div class="conta-card ws-cobranca" id="ws-cobranca" hidden>
+          <div class="ws-cobranca-txt">
+            <b>A cobrança da equipe não foi aprovada</b>
+            Enquanto isso não se resolve, não dá para convidar ninguém novo. Quem já está
+            na equipe continua com o acesso.
+          </div>
+          <button class="ws-lotado-bt">Ver a cobrança</button>
+        </div>
+
         <div class="conta-card">
           <h2 class="conta-h2">Assentos</h2>
 
@@ -2417,9 +2453,15 @@ body{ margin:0; background:#F6F6F4; }
                    nesta lista de proposito: e o estado em que o atalho "Sou eu"
                    existe. Assim que ela ocupa um assento, ele some. -->
               <span class="ws-av ws-av--foto mini-3">C</span>
-              <div class="disp-nome">
-                carla@estudionorte.com.br
-                <span class="ws-tag ws-tag-ativo">Ativo</span>
+              <!-- NOME EM CIMA, E-MAIL EMBAIXO. A lista mostrava so enderecos, e
+                   numa empresa eles sao todos parecidos:
+                   nome.sobrenome@aempresa.com.br, cinco vezes. -->
+              <div class="ws-quem">
+                <div class="disp-nome">
+                  Carla Menezes
+                  <span class="ws-tag ws-tag-ativo">Ativo</span>
+                </div>
+                <div class="ws-quem-email">carla@estudionorte.com.br</div>
               </div>
               <div class="ws-slot-dir">
                 <div class="ws-cred">
@@ -2459,6 +2501,33 @@ body{ margin:0; background:#F6F6F4; }
                   </div>
                 </div>
               </div>
+              <!-- ── MOVER CREDITO ──
+                   O plano da a mesma cota para todo mundo, e a realidade nao e
+                   essa: uma pessoa passa o mes sem abrir o plugin enquanto
+                   outra trava no dia 20. Antes, a unica saida era comprar
+                   recarga com o credito da primeira parado ao lado.
+
+                   O QUE SE MOVE E A COTA DESTE CICLO. Na renovacao todo mundo
+                   volta a cota do plano, e a frase abaixo diz isso: sem ela, o
+                   dono acharia que arrumou o mes que vem tambem.
+
+                   O PISO E O QUE JA FOI GASTO. Quem usou 4.200 dos 20.000 tem
+                   15.800 para ceder, e nao 20.000. -->
+              <div class="ws-mover">
+                <div class="ws-disp-tit">Mover crédito para outra pessoa</div>
+                <div class="ws-mover-linha">
+                  <input class="ws-input ws-mover-qtd" inputmode="numeric" placeholder="Quanto">
+                  <select class="perfil-select ws-mover-quem">
+                    <option>Para quem</option>
+                    <option>Ana Ribeiro</option>
+                    <option>Marilia Fischer</option>
+                  </select>
+                  <button class="ws-btn-sec">Mover</button>
+                </div>
+                <p class="ws-obs" style="margin-top:8px">Vale para este ciclo. Na renovação,
+                  cada assento volta à cota do plano.</p>
+              </div>
+
               <div class="ws-acoes">
                 <button class="ws-remover">Remover acesso</button>
               </div>
@@ -2477,9 +2546,13 @@ body{ margin:0; background:#F6F6F4; }
                   <path d="M3 5.5l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </span>
-              <div class="disp-nome">
-                bruno@estudionorte.com.br
-                <span class="ws-tag ws-tag-pend">Convite pendente</span>
+              <!-- Quem ainda nao aceitou nao tem conta, e portanto nao tem
+                   nome: o e-mail fica sozinho, na linha de cima. -->
+              <div class="ws-quem">
+                <div class="disp-nome">
+                  bruno@estudionorte.com.br
+                  <span class="ws-tag ws-tag-pend">Convite pendente</span>
+                </div>
               </div>
               <div class="ws-slot-dir">
                 <button class="ws-gerenciar" data-abre="d2">Gerenciar</button>
@@ -2502,9 +2575,12 @@ body{ margin:0; background:#F6F6F4; }
           <div class="ws-slot">
             <div class="ws-slot-linha">
               <span class="ws-av ws-av--foto mini-5">A</span>
-              <div class="disp-nome">
-                ana@estudionorte.com.br
-                <span class="ws-tag ws-tag-susp">Suspenso</span>
+              <div class="ws-quem">
+                <div class="disp-nome">
+                  Ana Ribeiro
+                  <span class="ws-tag ws-tag-susp">Suspenso</span>
+                </div>
+                <div class="ws-quem-email">ana@estudionorte.com.br</div>
               </div>
               <div class="ws-slot-dir">
                 <button class="ws-gerenciar" data-abre="d3">Gerenciar</button>
@@ -2937,6 +3013,7 @@ body{ margin:0; background:#F6F6F4; }
     <button data-abre-docs>Documentos mudaram</button>
     <button data-extra="tarja">Tarja</button>
     <button data-extra="lotado">Sem assentos</button>
+    <button data-extra="cobranca">Cobrança falhou</button>
   </div>
 </div>
 
@@ -3170,14 +3247,14 @@ body{ margin:0; background:#F6F6F4; }
               ' stroke-width="1.5"><rect x="2.5" y="4.5" width="15" height="11" rx="1.5"/>' +
               '<path d="M3 5.5l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             '</span>') +
-        '<div class="disp-nome">' + email +
+        '<div class="ws-quem"><div class="disp-nome">' + email +
           (souEu
-            ? '<span class="ws-tag ws-tag-ativo">Ativo</span></div>' +
+            ? '<span class="ws-tag ws-tag-ativo">Ativo</span></div></div>' +
               '<div class="ws-slot-dir"><div class="ws-cred">' +
                 '<div class="ws-cred-num">20.000 <span>de 20.000</span></div>' +
                 '<div class="ws-cred-barra"><i style="width:100%"></i></div>' +
               '</div>'
-            : '<span class="ws-tag ws-tag-pend">Convite pendente</span></div>' +
+            : '<span class="ws-tag ws-tag-pend">Convite pendente</span></div></div>' +
               '<div class="ws-slot-dir">') +
         '<button class="ws-gerenciar">Gerenciar</button></div>' +
       '</div>';
@@ -3368,6 +3445,9 @@ body{ margin:0; background:#F6F6F4; }
     /* Equipe lotada: os campos de convite somem e entra a linha que diz onde
        mudar a quantidade de assentos. No site os dois lados vêm do mesmo
        número, o de assentos livres. */
+    if (b.dataset.extra === 'cobranca') {
+      document.getElementById('ws-cobranca').hidden = ligado;
+    }
     if (b.dataset.extra === 'lotado') {
       document.getElementById('ws-lotado').hidden = ligado;
       document.querySelectorAll('.ws-slot-vazio').forEach(function (el) {

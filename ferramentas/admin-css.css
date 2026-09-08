@@ -185,6 +185,16 @@
   display:inline-block; max-width:230px; overflow:hidden;
   text-overflow:ellipsis; white-space:nowrap; vertical-align:bottom;
 }
+/* O NUMERO DA CONTA. Fica antes do e-mail e em fonte tabular, para os numeros
+   ficarem alinhados de uma linha para a outra. Ele e o unico identificador que
+   nao muda: nome se edita, e-mail se troca, e duas pessoas podem ter o mesmo
+   nome. */
+.adm-id{
+  display:inline-block; margin-right:7px; padding:0 5px;
+  border-radius:5px; background:var(--wash2); color:var(--ink2);
+  font-size:11.5px; font-weight:600; font-variant-numeric:tabular-nums;
+  vertical-align:bottom;
+}
 .adm-num{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
 .adm-mono{ white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--ink2); }
 .fat-selo--neutro{ background:var(--wash2); color:var(--ink2); }

@@ -498,6 +498,14 @@ export default function Admin() {
     // busca textual
     const q = busca.toLowerCase().trim();
     if (!q) return true;
+    /* O NÚMERO DA CONTA entra na busca, com ou sem o `#`, e casa EXATO. Achar
+       uma conta pelo id é o caminho de quem veio de um e-mail de suporte ou de
+       um registro de cobrança, e é o único identificador que não muda: nome se
+       edita, e-mail se troca.
+       Exato, e não `includes`: buscar "12" trazendo 12, 120, 312 e 1200 não é
+       busca por id, é ruído. */
+    const soDigitos = q.replace(/^#/, '');
+    if (/^\d+$/.test(soDigitos) && String(a.id) === soDigitos) return true;
     return (a.nome || '').toLowerCase().includes(q)
       || (a.email || '').toLowerCase().includes(q)
       || (a.cpf || '').includes(q)
@@ -1345,6 +1353,11 @@ export default function Admin() {
                   {/* O e-mail vai num span próprio para poder cortar com reticências
                       sem levar o selo "não verificado" junto — ver .admin-email-txt. */}
                   <div className="adm-sub">
+                    {/* O NÚMERO DA CONTA, ao lado do e-mail. É por ele que se
+                        identifica uma conta sem ambiguidade: nome se edita,
+                        e-mail se troca, e duas pessoas podem ter o mesmo nome.
+                        Ele também é o que se digita na busca. */}
+                    <span className="adm-id" title={t('adm_id_dica')}>#{a.id}</span>
                     <span className="adm-sub-txt" title={a.email}>{a.email}</span>
                     {!a.email_verificado && <span className="adm-tag-nv">{t('adm_nao_verificado')}</span>}
                   </div>

@@ -140,6 +140,14 @@
    e da ÚLTIMA célula, então o alinhamento com o título continua. */.adm-card > .fat-rolo{ margin-left:-22px; margin-right:-22px; }.adm-card > .fat-rolo .fat th:first-child, .adm-card > .fat-rolo .fat td:first-child{ padding-left:22px; }.adm-card > .fat-rolo .fat th:last-child, .adm-card > .fat-rolo .fat td:last-child{ padding-right:22px; }.adm-nome{ color:var(--ink); font-weight:600; letter-spacing:-.01em; }.adm-sub{ margin-top:2px; font-size:12.5px; color:var(--ink3); }.adm-sub-txt{
   display:inline-block; max-width:230px; overflow:hidden;
   text-overflow:ellipsis; white-space:nowrap; vertical-align:bottom;
+}/* O NUMERO DA CONTA. Fica antes do e-mail e em fonte tabular, para os numeros
+   ficarem alinhados de uma linha para a outra. Ele e o unico identificador que
+   nao muda: nome se edita, e-mail se troca, e duas pessoas podem ter o mesmo
+   nome. */.adm-id{
+  display:inline-block; margin-right:7px; padding:0 5px;
+  border-radius:5px; background:var(--wash2); color:var(--ink2);
+  font-size:11.5px; font-weight:600; font-variant-numeric:tabular-nums;
+  vertical-align:bottom;
 }.adm-num{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }.adm-mono{ white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--ink2); }.ad .fat-selo--neutro{ background:var(--wash2); color:var(--ink2); }/* O selo de equipe estava com o roxo escrito direto no JSX. */.ad .fat-selo--equipe{ background:var(--turquesa); color:#0B3A31; }.adm-tag-nv{
   margin-left:6px; padding:1px 7px; border-radius:var(--pill);
   background:var(--aviso-bg); color:var(--aviso);

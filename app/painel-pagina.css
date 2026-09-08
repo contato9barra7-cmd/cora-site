@@ -538,7 +538,10 @@
   opacity:0; transition:opacity var(--t);
 }.pn .perfil-avatar-box:hover .perfil-avatar-x, .pn .perfil-avatar-x:focus-visible{ opacity:1; }.pn .perfil-avatar-x:hover{ background:var(--alerta); color:#FFFFFF; }/* A regra fica onde a pessoa ESCOLHE o arquivo, e não só dentro do recorte:
    quem descobre o limite depois de escolher já perdeu a viagem. */.pn .perfil-foto-dica{ font-size:13px; color:var(--ink3); line-height:1.5; max-width:34ch;
-  text-wrap:pretty; }.pn .perfil-foto-erro{ font-style:normal; font-weight:600; color:var(--alerta); }/* A linha do interruptor NÃO é a grade de 150px das outras: ali o texto caía
+  text-wrap:pretty; }/* O NUMERO DA CONTA. Texto, e nao campo: nao se edita. Em fonte tabular e um
+   pouco maior que o corpo, porque ele existe para ser LIDO EM VOZ ALTA ou
+   copiado para uma mensagem de suporte. */.pn .perfil-num-conta span{ font-size:17px; font-weight:600; letter-spacing:.01em;
+  font-variant-numeric:tabular-nums; }.pn .perfil-foto-erro{ font-style:normal; font-weight:600; color:var(--alerta); }/* A linha do interruptor NÃO é a grade de 150px das outras: ali o texto caía
    numa coluna estreita e quebrava em cinco linhas. Aqui ele ocupa a largura
    toda e o botão fica no canto, alinhado com o alto do bloco. */.pn .perfil-toggle-linha{
   display:flex; align-items:flex-start; justify-content:space-between; gap:28px;

@@ -242,6 +242,16 @@
   display:inline-block; max-width:230px; overflow:hidden;
   text-overflow:ellipsis; white-space:nowrap; vertical-align:bottom;
 }
+/* O NUMERO DA CONTA. Fica antes do e-mail e em fonte tabular, para os numeros
+   ficarem alinhados de uma linha para a outra. Ele e o unico identificador que
+   nao muda: nome se edita, e-mail se troca, e duas pessoas podem ter o mesmo
+   nome. */
+.adm-id{
+  display:inline-block; margin-right:7px; padding:0 5px;
+  border-radius:5px; background:var(--wash2); color:var(--ink2);
+  font-size:11.5px; font-weight:600; font-variant-numeric:tabular-nums;
+  vertical-align:bottom;
+}
 .adm-num{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
 .adm-mono{ white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--ink2); }
 .fat-selo--neutro{ background:var(--wash2); color:var(--ink2); }
@@ -1590,6 +1600,14 @@
 }
 .dash-eq-cab{ display:flex; align-items:center; gap:14px; padding:20px 22px; }
 .dash-eq-foto{ width:42px; height:42px; border-radius:12px; background:var(--wash2) center/cover; flex:none; }
+/* Sem foto, a equipe vira a inicial do nome, no mesmo preto dos avatares de
+   pessoa: um quadrado cinza vazio parece imagem que não carregou. */
+.dash-eq-foto--vazia{ background:var(--ink); color:var(--paper); display:grid;
+  place-items:center; font-size:17px; font-weight:600; }
+/* No cartão de quem é MEMBRO a foto entra ao lado do nome da equipe, e não
+   acima: ali o nome é o número do cartão, e separá-los quebraria a leitura. */
+.dash-cartao-eq{ display:flex; align-items:center; gap:12px; margin-top:4px; }
+.dash-cartao-eq .dash-cartao-num{ margin-top:0; }
 .dash-eq-id{ flex:1; min-width:0; }
 .dash-eq-id strong{ display:block; font-size:15.5px; font-weight:600; letter-spacing:-.012em; }
 .dash-eq-id span{ display:block; margin-top:2px; font-size:13.5px; color:var(--ink3); }
