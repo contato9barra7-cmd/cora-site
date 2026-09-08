@@ -1481,7 +1481,50 @@
 .ws-mover { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
 .ws-mover-linha { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; }
 .ws-mover-qtd { flex: 0 1 130px; min-width: 110px; height: 42px; font-size: 14.5px; }
-.ws-mover-quem { flex: 1 1 180px; min-width: 150px; height: 42px; }
+/* O DROPDOWN DO PRODUTO, e nao o <select> nativo. O nativo abre uma lista
+   desenhada pelo sistema, de canto reto e selecao azul, que nao se estiliza: no
+   meio de tres pilulas ele era a unica caixa quadrada da linha.
+   O ajuste aqui e so a forma: pilula de 42px, como os vizinhos. */
+/* A CONFIRMACAO, copiada do globals SO PARA O ARTEFATO: no site ela e o
+   componente `Confirma`, que nasce num portal em document.body.
+   O botao de confirmar aqui e LIMA e nao vermelho: mover credito pede
+   confirmacao porque nao da para desfazer com um clique, mas nao destroi nada.
+   Alarme gasto em acao comum e o que faz o vermelho parar de significar perigo
+   no dia em que significar. */
+.cf-fundo{ position:fixed; inset:0; z-index:10000; background:rgba(20,20,18,.38);
+  display:flex; align-items:center; justify-content:center; backdrop-filter:blur(2px); }
+.cf{ width:100%; max-width:380px; padding:26px 26px 20px; background:var(--paper);
+  border:1px solid var(--line); border-radius:16px; box-shadow:0 14px 50px rgba(0,0,0,.2); }
+.cf-txt{ margin:0 0 20px; font-size:13.5px; line-height:1.5; color:var(--ink); text-align:center; }
+.cf-botoes{ display:flex; gap:9px; justify-content:center; }
+.cf-botoes button{ flex:1; height:36px; padding:0 18px; border-radius:100px;
+  font-family:inherit; font-size:12.5px; cursor:pointer; }
+.cf-cancelar{ border:1px solid var(--line2); background:var(--paper); color:var(--ink2); }
+.cf-ok{ border:0; background:var(--lima); color:#111111; font-weight:600; }
+.cf-ok:hover{ background:var(--lima-esc); }
+
+/* O desenho do DropdownCora, copiado do globals SO PARA O ARTEFATO: no site ele
+   e componente, e a lista dele nasce num portal em document.body, fora de
+   qualquer folha escopada. Estas regras estao no `data-demo`, e por isso nao
+   entram na folha gerada. */
+.cora-dd { position: relative; width: 100%; }
+.cora-dd-btn {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 11px 16px; border-radius: 14px; border: 1px solid var(--line);
+  background: var(--paper); color: var(--ink); font-size: 14.5px; font-family: inherit;
+  cursor: pointer; text-align: left; line-height: 1.35;
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+.cora-dd-btn:hover { border-color: var(--ink3); }
+.cora-dd-mio { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cora-dd-val { font-size: 14.5px; font-weight: 500; color: var(--ink); letter-spacing: -.008em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cora-dd-seta { flex-shrink: 0; color: var(--ink3); }
+
+.ws-mover-quem { flex: 1 1 180px; min-width: 150px; }
+.ws-mover-quem .cora-dd-btn { height: 42px; padding: 0 18px; border-radius: 100px;
+  border-color: var(--line2); font-size: 14.5px; }
+.ws-mover-quem .cora-dd { width: 100%; }
 .ws-mover .ws-btn-sec { flex: none; height: 42px; }
 
 /* ── SOU EU ──
@@ -2535,14 +2578,18 @@ body{ margin:0; background:#F6F6F4; }
                 <div class="ws-disp-tit">Mover crédito para outra pessoa</div>
                 <div class="ws-mover-linha">
                   <input class="ws-input ws-mover-qtd" inputmode="numeric" placeholder="Quanto">
-                  <select class="perfil-select ws-mover-quem">
-                    <option>Para quem</option>
-                    <option>Rafael Souza</option>
-                  </select>
+                  <div class="ws-mover-quem">
+                    <div class="cora-dd">
+                      <button class="cora-dd-btn" type="button">
+                        <span class="cora-dd-mio"><span class="cora-dd-val">Para quem</span></span>
+                        <svg class="cora-dd-seta" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </button>
+                    </div>
+                  </div>
                   <button class="ws-btn-sec">Mover</button>
                 </div>
-                <p class="ws-obs" style="margin-top:8px">Vale para este ciclo. Na renovação,
-                  cada assento volta à cota do plano.</p>
+                <p class="ws-obs" style="margin-top:8px">Esta pessoa tem para ceder: 15.800.
+                  Vale para este ciclo. Na renovação, cada assento volta à cota do plano.</p>
               </div>
 
               <div class="ws-acoes">
@@ -2594,14 +2641,18 @@ body{ margin:0; background:#F6F6F4; }
                 <div class="ws-disp-tit">Mover crédito para outra pessoa</div>
                 <div class="ws-mover-linha">
                   <input class="ws-input ws-mover-qtd" inputmode="numeric" placeholder="Quanto">
-                  <select class="perfil-select ws-mover-quem">
-                    <option>Para quem</option>
-                    <option>Carla Menezes</option>
-                  </select>
+                  <div class="ws-mover-quem">
+                    <div class="cora-dd">
+                      <button class="cora-dd-btn" type="button">
+                        <span class="cora-dd-mio"><span class="cora-dd-val">Para quem</span></span>
+                        <svg class="cora-dd-seta" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </button>
+                    </div>
+                  </div>
                   <button class="ws-btn-sec">Mover</button>
                 </div>
-                <p class="ws-obs" style="margin-top:8px">Vale para este ciclo. Na renovação,
-                  cada assento volta à cota do plano.</p>
+                <p class="ws-obs" style="margin-top:8px">Esta pessoa tem para ceder: 2.600.
+                  Vale para este ciclo. Na renovação, cada assento volta à cota do plano.</p>
               </div>
 
               <div class="ws-acoes">
@@ -2982,6 +3033,19 @@ body{ margin:0; background:#F6F6F4; }
      zoom, igual ao do plugin. Aqui ela aparece para o desenho poder ser
      julgado junto do resto. O quadro é um bloco de cor, porque o recorte de
      verdade desenha num canvas com a imagem que a pessoa escolher. -->
+<!-- A confirmacao de mover credito. No site ela e o componente `Confirma`,
+     o mesmo do plugin, e a frase e montada com os dois nomes e o numero: e o
+     que se confere antes de dizer sim. -->
+<div class="cf-fundo" id="janela-mover" hidden>
+  <div class="cf">
+    <p class="cf-txt">Mover 5.000 de crédito de Carla Menezes para Rafael Souza.</p>
+    <div class="cf-botoes">
+      <button class="cf-cancelar" data-fecha-mover>Cancelar</button>
+      <button class="cf-ok" data-fecha-mover>Mover</button>
+    </div>
+  </div>
+</div>
+
 <div class="foto-overlay" id="janela-foto" hidden>
   <div class="foto-modal">
     <div class="foto-titulo">Foto de perfil</div>
@@ -3269,6 +3333,17 @@ body{ margin:0; background:#F6F6F4; }
       alvo.hidden = !abrindo;
       bt.textContent = abrindo ? 'Fechar' : 'Gerenciar';
     });
+  });
+
+  /* Mover credito pede confirmacao antes de acontecer: e credito ja pago, e
+     para voltar atras o dono tem que mover de novo na direcao contraria, com a
+     pessoa podendo ja ter gastado no meio. */
+  var janelaMover = document.getElementById('janela-mover');
+  document.querySelectorAll('.ws-mover .ws-btn-sec').forEach(function (bt) {
+    bt.addEventListener('click', function () { janelaMover.hidden = false; });
+  });
+  document.querySelectorAll('[data-fecha-mover]').forEach(function (b) {
+    b.addEventListener('click', function () { janelaMover.hidden = true; });
   });
 
   /* Convidar, para dar para ver o que acontece. No site quem envia é o

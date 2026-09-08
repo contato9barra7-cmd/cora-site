@@ -3,6 +3,8 @@
 import { useEffect, useState, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppShell from '../../components/AppShell';
+import DropdownCora from '../../components/DropdownCora';
+import Confirma from '../../components/Confirma';
 import { useIdioma, localeDeIdioma } from '../../lib/i18n';
 import { lerConta, lerEquipe, convidarMembro, removerMembro, atribuirAMim, dispositivosDoMembro, nomearEquipe, reenviarConvite, salvarFotoEquipe, reativarAssento, abrirPortal, moverCredito } from '../../lib/auth';
 
@@ -55,6 +57,7 @@ function WorkspaceConteudo() {
   const [abrindoPortal, setAbrindoPortal] = useState(false);
   const [mover, setMover] = useState({ para: '', quanto: '', erro: '', ok: '' });
   const [movendo, setMovendo] = useState(false);
+  const [confirmaMover, setConfirmaMover] = useState(null);
   const [cobrancaEmDia, setCobrancaEmDia] = useState(true);
   const [salvandoNome, setSalvandoNome] = useState(false);
   const [avisoNome, setAvisoNome] = useState('');
@@ -220,10 +223,34 @@ function WorkspaceConteudo() {
      do plano, e a tela diz isso em vez de deixar a pessoa descobrir sozinha.
      Quem confere o resto (dono, mesma equipe, assentos ativos, e o piso do que
      já foi gasto) é o servidor. */
-  async function moverAgora(deId) {
+  /* Quem pode RECEBER: assento ativo, com plano, e nao a propria pessoa.
+     A mesma lista serve ao dropdown e a checagem, para as duas nunca
+     discordarem sobre quem esta na conversa. */
+  function podemReceber(m) {
+    return membros.filter((o) => o.id !== m.id && o.status === 'ativo' && o.creditos_total != null);
+  }
+
+  /* A CONFIRMACAO EXISTE PORQUE ISTO MEXE EM CREDITO PAGO, e nao da para
+     desfazer com um clique: para voltar atras o dono tem que mover de novo, na
+     direcao contraria, e no meio disso a pessoa pode ja ter gastado. A frase
+     diz os dois nomes e o numero, que e o que se confere antes de dizer sim. */
+  function pedirConfirmacao(m, cede) {
     const quanto = parseInt(String(mover.quanto).replace(/\D/g, ''), 10);
     if (!mover.para) { setMover((x) => ({ ...x, erro: t('ws_mov_escolha') })); return; }
     if (!quanto) { setMover((x) => ({ ...x, erro: t('ws_mov_quanto') })); return; }
+    if (quanto > cede) { setMover((x) => ({ ...x, erro: t('ws_mov_so_tem') + ' ' + cede.toLocaleString(locale) })); return; }
+    const destino = membros.find((o) => String(o.id) === String(mover.para));
+    setConfirmaMover({
+      de: m.id,
+      quanto,
+      texto: t('ws_mov_conf_a') + ' ' + quanto.toLocaleString(locale) + ' '
+        + t('ws_mov_conf_b') + ' ' + (m.nome || m.email) + ' '
+        + t('ws_mov_conf_c') + ' ' + (destino ? (destino.nome || destino.email) : '') + '.',
+    });
+  }
+
+  async function moverAgora(deId, quanto) {
+    setConfirmaMover(null);
     setMovendo(true);
     setMover((x) => ({ ...x, erro: '', ok: '' }));
     try {
@@ -585,7 +612,14 @@ function WorkspaceConteudo() {
                     receber. Assento vazio guarda saldo para quem chegar, e
                     convite pendente ainda não tem conta onde escrever. */}
                 {m.status === 'ativo' && m.creditos_total != null
-                  && membros.filter((o) => o.id !== m.id && o.status === 'ativo' && o.creditos_total != null).length > 0 && (
+                  && podemReceber(m).length > 0 && (() => {
+                  /* O TETO É O QUE ESTA PESSOA TEM PARA CEDER, e não a cota
+                     dela: o que já foi gasto não se move. O campo não deixa
+                     passar disso, e o rótulo diz o número em vez de esperar a
+                     pessoa errar para contar. Um erro do servidor aqui seria
+                     um erro que a tela sabia evitar. */
+                  const cede = Math.max(0, (m.creditos_total || 0) - (m.creditos_usados || 0));
+                  return (
                   <div className="ws-mover">
                     <div className="ws-disp-tit">{t('ws_mov_tit')}</div>
                     <div className="ws-mover-linha">
@@ -594,29 +628,34 @@ function WorkspaceConteudo() {
                         inputMode="numeric"
                         placeholder={t('ws_mov_ph')}
                         value={mover.quanto}
-                        onChange={(e) => setMover((x) => ({ ...x, quanto: e.target.value, erro: '', ok: '' }))}
+                        onChange={(e) => {
+                          // Só dígito entra, e o teto corta na hora de digitar.
+                          const n = e.target.value.replace(/\D/g, '');
+                          const val = n === '' ? '' : String(Math.min(parseInt(n, 10), cede));
+                          setMover((x) => ({ ...x, quanto: val, erro: '', ok: '' }));
+                        }}
                       />
-                      <select
-                        className="perfil-select ws-mover-quem"
-                        value={mover.para}
-                        onChange={(e) => setMover((x) => ({ ...x, para: e.target.value, erro: '', ok: '' }))}
-                      >
-                        <option value="">{t('ws_mov_para')}</option>
-                        {membros
-                          .filter((o) => o.id !== m.id && o.status === 'ativo' && o.creditos_total != null)
-                          .map((o) => (
-                            <option key={o.id} value={o.id}>{o.nome || o.email}</option>
-                          ))}
-                      </select>
-                      <button className="ws-btn-sec" onClick={() => moverAgora(m.id)} disabled={movendo}>
+                      <div className="ws-mover-quem">
+                        <DropdownCora
+                          valor={mover.para}
+                          onEscolher={(v) => setMover((x) => ({ ...x, para: v, erro: '', ok: '' }))}
+                          opcoes={[{ v: '', n: t('ws_mov_para') }].concat(
+                            podemReceber(m).map((o) => ({ v: String(o.id), n: o.nome || o.email }))
+                          )}
+                        />
+                      </div>
+                      <button className="ws-btn-sec" onClick={() => pedirConfirmacao(m, cede)} disabled={movendo}>
                         {movendo ? t('comum_salvando') : t('ws_mov_bt')}
                       </button>
                     </div>
-                    <p className="ws-obs" style={{ marginTop: 8 }}>{t('ws_mov_obs')}</p>
+                    <p className="ws-obs" style={{ marginTop: 8 }}>
+                      {t('ws_mov_tem')} {cede.toLocaleString(locale)}. {t('ws_mov_obs')}
+                    </p>
                     {mover.erro && <p className="ws-erro" style={{ marginTop: 6 }}>{mover.erro}</p>}
                     {mover.ok && <p className="ws-aviso-txt" style={{ marginTop: 6 }}>{mover.ok}</p>}
                   </div>
-                )}
+                  );
+                })()}
 
                 <div className="ws-acoes">
                   {!m.eh_dono && m.status === 'convidado' && (
@@ -721,6 +760,20 @@ function WorkspaceConteudo() {
           </div>
         )}
       </div>
+
+      {/* A confirmação mora aqui, no fim da tela, e não dentro do assento: ela
+          é um modal em portal, e o lugar dela no JSX não é o lugar dela na
+          tela. Perto do botão, ela viajaria junto com o assento a cada
+          recarga da lista. */}
+      {confirmaMover && (
+        <Confirma
+          texto={confirmaMover.texto}
+          ok={t('ws_mov_bt')}
+          perigo={false}
+          aoOk={() => moverAgora(confirmaMover.de, confirmaMover.quanto)}
+          aoCancelar={() => setConfirmaMover(null)}
+        />
+      )}
     </div>
   );
 }

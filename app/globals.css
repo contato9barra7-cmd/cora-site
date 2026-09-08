@@ -1698,7 +1698,14 @@ select.perfil-input {
 .ws-mover { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
 .ws-mover-linha { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; }
 .ws-mover-qtd { flex: 0 1 130px; min-width: 110px; height: 42px; font-size: 15px; }
-.ws-mover-quem { flex: 1 1 180px; min-width: 150px; height: 42px; }
+/* O DROPDOWN DO PRODUTO, e nao o <select> nativo. O nativo abre uma lista
+   desenhada pelo sistema, de canto reto e selecao azul, que nao se estiliza: no
+   meio de tres pilulas ele era a unica caixa quadrada da linha.
+   O ajuste aqui e so a forma: pilula de 42px, como os vizinhos. */
+.ws-mover-quem { flex: 1 1 180px; min-width: 150px; }
+.ws-mover-quem .cora-dd-btn { height: 42px; padding: 0 18px; border-radius: 100px;
+  border-color: var(--line2); font-size: 14.5px; }
+.ws-mover-quem .cora-dd { width: 100%; }
 .ws-mover .ws-btn-sec { flex: none; height: 42px; }
 
 /* ── SOU EU ──
@@ -11069,6 +11076,17 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: background .13s;
 }
 .cf-perigo:hover { background: #D6453D; }
+
+/* O MESMO BOTAO, SEM O ALARME. Mover credito pede confirmacao porque nao da
+   para desfazer com um clique, mas nao destroi nada: vermelho ali seria alarme
+   onde nao ha alarme, e alarme gasto em acao comum e o que faz o vermelho parar
+   de significar perigo no dia em que significar. Lima, o verde da marca. */
+.cf-ok {
+  flex: 1; height: 36px; padding: 0 18px; border: 0; border-radius: 100px;
+  background: var(--lima); color: #111111; font-family: inherit;
+  font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background .13s;
+}
+.cf-ok:hover { background: var(--lima-esc); }
 
 /* ── A barra do crop ── */
 .ps-num {
