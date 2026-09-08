@@ -903,10 +903,6 @@
   margin:14px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6;
   text-wrap:pretty;
 }
-/* A SEGUNDA FRASE INTEIRA NA LINHA DE BAIXO. Deixando as duas correrem, "O
-   comprovante" caia sozinho no fim da primeira linha e o resto da frase ia
-   para a segunda: uma frase partida no meio, com a ponta curta pendurada. */
-.trial-bloqueio-card .blq-pe span{ display:block; }
 
 /* ── a tarja de personificação ── */
 .tarja-personificacao{
@@ -1576,7 +1572,11 @@
 /* 16px, e nao os 14.5 do corpo nem os 17 da escala: e A UNICA EXCECAO dela, e
    e tecnica. Campo com menos de 16px faz o iPhone dar zoom sozinho ao receber
    o foco, e a tela inteira pula. */
-.ws-input { flex: 1; height: 46px; padding: 0 18px; border: 1px solid var(--line2); border-radius: 100px; font-size: 16px; background: var(--paper); color: var(--ink); box-sizing: border-box; }
+/* 14.5px, e nao 16. O 16 era o piso do iOS, mas quem cuida disso e a regra
+   de `@media (pointer: coarse)` do responsivo.css, que forca 16px com
+   `!important` em todo `input` NO TOQUE. No mouse o campo nao precisa dele, e
+   em 16 ele saia maior que o "Sou eu" e o "Convidar" do lado, que sao 14.5. */
+.ws-input { flex: 1; height: 46px; padding: 0 18px; border: 1px solid var(--line2); border-radius: 100px; font-size: 14.5px; background: var(--paper); color: var(--ink); box-sizing: border-box; }
 /* O mesmo foco do campo de Minha conta, aqui porque `.ws-input` e classe do
    globals e nao passa pelo bloco de producao desta folha. */
 .ws-input:focus, .ws-input:focus-visible {
@@ -3203,8 +3203,7 @@ button, input, select, textarea, optgroup{ font-family:var(--fonte); }
           <button class="btn" id="blq-aceitar" disabled>Li e aceito</button>
           <!-- Duas oracoes eram tres linhas num cartao estreito, e a segunda so
                repetia com mais palavras o que a primeira ja dizia. -->
-          <p class="blq-pe">Guardamos a data, o documento e a versão que você aceitou.
-            <span>O comprovante fica em Minha conta.</span></p>
+          <p class="blq-pe">Guardamos a data, o documento e a versão que você aceitou.</p>
           <button class="trial-bloqueio-sair">Sair</button>
         </div>
 

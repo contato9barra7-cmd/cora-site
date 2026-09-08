@@ -783,9 +783,7 @@ export default function AppShell({ children }) {
                           onClick={aceitarDocumentos}>
                     {aceitando ? t('rea_gravando') : t('rea_botao')}
                   </button>
-                  <p className="blq-pe">
-                    {t('rea_pe')} <span>{t('rea_pe2')}</span>
-                  </p>
+                  <p className="blq-pe">{t('rea_pe')}</p>
                   <button className="trial-bloqueio-sair" onClick={logout}>{t('sair')}</button>
                 </div>
               )}

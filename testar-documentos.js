@@ -131,7 +131,7 @@ ok('TextosLegais tem as 12 seções da Política',
 // ── nada de travessão nem de dois pontos-e-vírgula na copy nova ───────────
 secao('a copy nova segue a regra da casa');
 
-const chavesNovas = ['rea_como', 'rea_role', 'rea_doc_lido', 'rea_pe', 'rea_pe2',
+const chavesNovas = ['rea_como', 'rea_role', 'rea_doc_lido', 'rea_pe',
                      'rea_botao', 'rea_p', 'ws_cobranca_p'];
 for (const c of chavesNovas) {
   const vs = valores(c);

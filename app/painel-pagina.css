@@ -556,9 +556,7 @@
    420px, e a terceira fica com uma palavra so. */.pn .trial-bloqueio-card .blq-pe{
   margin:14px 0 0; font-size:12.5px; color:var(--ink3); line-height:1.6;
   text-wrap:pretty;
-}/* A SEGUNDA FRASE INTEIRA NA LINHA DE BAIXO. Deixando as duas correrem, "O
-   comprovante" caia sozinho no fim da primeira linha e o resto da frase ia
-   para a segunda: uma frase partida no meio, com a ponta curta pendurada. */.pn .trial-bloqueio-card .blq-pe span{ display:block; }/* ── a tarja de personificação ── */.pn .tarja-personificacao{
+}/* ── a tarja de personificação ── */.pn .tarja-personificacao{
   position:fixed; top:0; left:0; right:0; z-index:80;
   display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;
   padding:9px 18px; background:var(--turquesa); color:#111111; font-size:13.5px;
