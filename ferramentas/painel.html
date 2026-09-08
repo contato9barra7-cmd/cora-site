@@ -532,6 +532,14 @@
 }
 .dash-eq-cab{ display:flex; align-items:center; gap:14px; padding:20px 22px; }
 .dash-eq-foto{ width:42px; height:42px; border-radius:12px; background:var(--wash2) center/cover; flex:none; }
+/* Sem foto, a equipe vira a inicial do nome, no mesmo preto dos avatares de
+   pessoa: um quadrado cinza vazio parece imagem que não carregou. */
+.dash-eq-foto--vazia{ background:var(--ink); color:var(--paper); display:grid;
+  place-items:center; font-size:17px; font-weight:600; }
+/* No cartão de quem é MEMBRO a foto entra ao lado do nome da equipe, e não
+   acima: ali o nome é o número do cartão, e separá-los quebraria a leitura. */
+.dash-cartao-eq{ display:flex; align-items:center; gap:12px; margin-top:4px; }
+.dash-cartao-eq .dash-cartao-num{ margin-top:0; }
 .dash-eq-id{ flex:1; min-width:0; }
 .dash-eq-id strong{ display:block; font-size:15.5px; font-weight:600; letter-spacing:-.012em; }
 .dash-eq-id span{ display:block; margin-top:2px; font-size:13.5px; color:var(--ink3); }
@@ -1425,6 +1433,18 @@
 .ws-vazio-hint { font-size: 13.5px; color: var(--ink3); }
 .ws-gerenciar { padding: 7px 16px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
 .ws-gerenciar:hover { background: var(--wash2); }
+/* ── QUANDO NÃO SOBRA ASSENTO ──
+   Sem esta linha a lista simplesmente terminava. Quem precisa de mais um lugar
+   ficava numa tela sobre assentos que não dizia como ter outro, e a resposta
+   mora em Assinatura, que é onde ninguém vai procurar estando aqui.
+   Ela aparece só quando lotou: um convite para gastar mais dinheiro todos os
+   dias, com assento sobrando, é outra coisa. */
+.ws-lotado { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 4px; padding: 14px 16px; border: 1px dashed var(--line2); border-radius: 12px; }
+.ws-lotado-txt { flex: 1; min-width: 220px; font-size: 13.5px; color: var(--ink3); }
+.ws-lotado-txt b { display: block; margin-bottom: 2px; font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.ws-lotado-bt { flex: none; padding: 9px 18px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink); border-radius: 100px; font-family: inherit; font-size: 14.5px; cursor: pointer; white-space: nowrap; transition: border-color var(--t), background var(--t); }
+.ws-lotado-bt:hover { border-color: var(--ink); background: var(--wash2); }
+
 /* ── SOU EU ──
    O botão "Atribuir a mim" era preto chapado e ficava no meio da linha de
    apoio, disputando com o Convidar logo acima. Duas ações fortes empilhadas,
@@ -1493,6 +1513,12 @@
 }
 
 /* Assento livre */
+/* Avatar com foto. A imagem vem do perfil de quem ocupa o assento, e o
+   quadrado e o mesmo: quem tem foto aparece de cara, quem nao tem continua
+   com a inicial. */
+.ws-av--foto{ background-size:cover; background-position:center; color:transparent; }
+.dash-eq-av--foto{ background-size:cover; background-position:center; color:transparent; }
+
 .ws-av--livre {
   background: var(--wash);
   border: 1px dashed var(--line2);
@@ -2017,7 +2043,14 @@ body{ margin:0; background:#F6F6F4; }
 
           <div class="dash-cartao" data-so="membro">
             <span class="dash-cartao-rot">Equipe</span>
-            <strong class="dash-cartao-num">Estúdio Fischer</strong>
+            <!-- A FOTO DA EQUIPE, para quem é membro. O dono escolhe uma imagem
+                 em Equipe e ela não aparecia para ninguém além dele: quem entra
+                 por convite via só o nome, e a identidade que a empresa montou
+                 ficava invisível justo para quem ela existe para acolher. -->
+            <div class="dash-cartao-eq">
+              <div class="dash-eq-foto mini-1"></div>
+              <strong class="dash-cartao-num">Estúdio Fischer</strong>
+            </div>
             <div class="dash-cartao-linhas">
               <span>Quem paga é <b>Marilia Fischer</b></span>
               <span>Seus créditos vêm do plano da equipe</span>
@@ -2044,12 +2077,12 @@ body{ margin:0; background:#F6F6F4; }
               <div class="dash-eq-uso"><strong>5.680</strong><span>de 20.000 usados</span></div>
             </div>
             <div class="dash-eq-membro">
-              <span class="dash-eq-av">R</span>
+              <span class="dash-eq-av dash-eq-av--foto mini-3">R</span>
               <div class="dash-eq-quem"><strong>rafa@estudio.com.br</strong></div>
               <div class="dash-eq-uso"><strong>3.240</strong><span>de 20.000 usados</span></div>
             </div>
             <div class="dash-eq-membro">
-              <span class="dash-eq-av">T</span>
+              <span class="dash-eq-av dash-eq-av--foto mini-5">T</span>
               <div class="dash-eq-quem"><strong>tavares@estudio.com.br</strong></div>
               <div class="dash-eq-uso"><strong>1.100</strong><span>de 20.000 usados</span></div>
             </div>
@@ -2303,9 +2336,6 @@ body{ margin:0; background:#F6F6F4; }
           </div>
         </div>
 
-        <div class="conta-card ws-aviso-download">
-          O download do plugin fica na aba <b>Início</b>.
-        </div>
 
         <!-- ── IDENTIDADE ──
              A MESMA GRADE DE MINHA CONTA: rótulo à esquerda, campo à direita,
@@ -2365,7 +2395,7 @@ body{ margin:0; background:#F6F6F4; }
               <!-- A dona da equipe (Marilia, a do avatar no cabecalho) NAO esta
                    nesta lista de proposito: e o estado em que o atalho "Sou eu"
                    existe. Assim que ela ocupa um assento, ele some. -->
-              <span class="ws-av">C</span>
+              <span class="ws-av ws-av--foto mini-3">C</span>
               <div class="disp-nome">
                 carla@estudionorte.com.br
                 <span class="ws-tag ws-tag-ativo">Ativo</span>
@@ -2450,7 +2480,7 @@ body{ margin:0; background:#F6F6F4; }
                depois de o dono reduzir os assentos, e perdeu o acesso. -->
           <div class="ws-slot">
             <div class="ws-slot-linha">
-              <span class="ws-av">A</span>
+              <span class="ws-av ws-av--foto mini-5">A</span>
               <div class="disp-nome">
                 ana@estudionorte.com.br
                 <span class="ws-tag ws-tag-susp">Suspenso</span>
@@ -2533,6 +2563,18 @@ body{ margin:0; background:#F6F6F4; }
             <!-- A frase de aviso aparece UMA vez, no primeiro assento livre.
                  Repetida em cada um, ela deixava de ser aviso e virava
                  padronagem: a pessoa lê a primeira e para de ver as outras. -->
+          </div>
+
+          <!-- No site esta linha aparece SÓ quando não sobra assento nenhum, e
+               os campos de convite somem junto. O botão "Sem assentos" da barra
+               de baixo troca entre os dois estados. -->
+          <div class="ws-lotado" id="ws-lotado" hidden>
+            <div class="ws-lotado-txt">
+              <b>Todos os assentos estão ocupados</b>
+              Para entrar mais gente, muda a quantidade de assentos em Assinatura.
+              A cobrança é ajustada no mesmo ciclo.
+            </div>
+            <button class="ws-lotado-bt">Mudar os assentos</button>
           </div>
         </div>
       </div>
@@ -2873,6 +2915,7 @@ body{ margin:0; background:#F6F6F4; }
     <button data-extra="bloqueio">Bloqueio</button>
     <button data-abre-docs>Documentos mudaram</button>
     <button data-extra="tarja">Tarja</button>
+    <button data-extra="lotado">Sem assentos</button>
   </div>
 </div>
 
@@ -3246,10 +3289,23 @@ body{ margin:0; background:#F6F6F4; }
     if (e.key === 'Escape' && janelaFat && !janelaFat.hidden) janelaFat.hidden = true;
   });
 
-  /* ── a janela de recortar a foto ── */
+  /* ── a janela de recortar a foto ──
+     TODO lápis abre esta janela, e não só o de Minha conta: a foto da equipe
+     usa o mesmo recorte, com o mesmo zoom e o mesmo arrastar. Estava preso a
+     um `id`, então o lápis da Equipe não fazia nada e a tela parecia quebrada.
+     O título troca conforme quem abriu, porque a pessoa precisa saber qual
+     das duas fotos ela está mexendo. */
   var janelaFoto = document.getElementById('janela-foto');
-  var abrirFoto = document.getElementById('abrir-foto');
-  if (abrirFoto) abrirFoto.addEventListener('click', function () { janelaFoto.hidden = false; });
+  var tituloFoto = janelaFoto && janelaFoto.querySelector('.foto-titulo');
+  document.querySelectorAll('.perfil-avatar-editar').forEach(function (bt) {
+    bt.addEventListener('click', function () {
+      if (tituloFoto) {
+        tituloFoto.textContent = bt.closest('.ws-identidade')
+          ? 'Foto da equipe' : 'Foto de perfil';
+      }
+      janelaFoto.hidden = false;
+    });
+  });
   [].forEach.call(document.querySelectorAll('[data-fecha-foto]'), function (b) {
     b.addEventListener('click', function () { janelaFoto.hidden = true; });
   });
@@ -3287,6 +3343,15 @@ body{ margin:0; background:#F6F6F4; }
     if (b.dataset.extra === 'tarja') {
       document.getElementById('tarja').hidden = ligado;
       shell.classList.toggle('com-tarja', !ligado);
+    }
+    /* Equipe lotada: os campos de convite somem e entra a linha que diz onde
+       mudar a quantidade de assentos. No site os dois lados vêm do mesmo
+       número, o de assentos livres. */
+    if (b.dataset.extra === 'lotado') {
+      document.getElementById('ws-lotado').hidden = ligado;
+      document.querySelectorAll('.ws-slot-vazio').forEach(function (el) {
+        el.hidden = !ligado;
+      });
     }
     if (ligado) b.removeAttribute('data-on'); else b.setAttribute('data-on', 'sim');
   });

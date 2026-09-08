@@ -340,7 +340,10 @@
 }.pn .dash-cartao-acao:hover{ border-bottom-color:var(--ink); }/* ── a equipe ── */.pn .dash-eq{
   margin-top:14px; background:var(--paper); border:1px solid var(--line);
   border-radius:var(--r); overflow:hidden;
-}.pn .dash-eq-cab{ display:flex; align-items:center; gap:14px; padding:20px 22px; }.pn .dash-eq-foto{ width:42px; height:42px; border-radius:12px; background:var(--wash2) center/cover; flex:none; }.pn .dash-eq-id{ flex:1; min-width:0; }.pn .dash-eq-id strong{ display:block; font-size:15.5px; font-weight:600; letter-spacing:-.012em; }.pn .dash-eq-id span{ display:block; margin-top:2px; font-size:13.5px; color:var(--ink3); }.pn .dash-eq-btn{
+}.pn .dash-eq-cab{ display:flex; align-items:center; gap:14px; padding:20px 22px; }.pn .dash-eq-foto{ width:42px; height:42px; border-radius:12px; background:var(--wash2) center/cover; flex:none; }/* Sem foto, a equipe vira a inicial do nome, no mesmo preto dos avatares de
+   pessoa: um quadrado cinza vazio parece imagem que não carregou. */.pn .dash-eq-foto--vazia{ background:var(--ink); color:var(--paper); display:grid;
+  place-items:center; font-size:17px; font-weight:600; }/* No cartão de quem é MEMBRO a foto entra ao lado do nome da equipe, e não
+   acima: ali o nome é o número do cartão, e separá-los quebraria a leitura. */.pn .dash-cartao-eq{ display:flex; align-items:center; gap:12px; margin-top:4px; }.pn .dash-cartao-eq .dash-cartao-num{ margin-top:0; }.pn .dash-eq-id{ flex:1; min-width:0; }.pn .dash-eq-id strong{ display:block; font-size:15.5px; font-weight:600; letter-spacing:-.012em; }.pn .dash-eq-id span{ display:block; margin-top:2px; font-size:13.5px; color:var(--ink3); }.pn .dash-eq-btn{
   flex:none; height:40px; padding:0 20px; border-radius:var(--pill);
   border:1px solid var(--line2); background:var(--paper); color:var(--ink);
   font-size:14px; font-weight:600; cursor:pointer;

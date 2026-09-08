@@ -1670,6 +1670,16 @@ select.perfil-input {
 .ws-vazio-hint { font-size: 13.5px; color: var(--ink3); }
 .ws-gerenciar { padding: 7px 16px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); border-radius: 100px; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
 .ws-gerenciar:hover { background: var(--wash2); }
+/* ── QUANDO NAO SOBRA ASSENTO ──
+   Sem esta linha a lista simplesmente terminava. Quem precisa de mais um lugar
+   ficava numa tela sobre assentos que nao dizia como ter outro, e a resposta
+   mora em Assinatura, que e onde ninguem vai procurar estando aqui. */
+.ws-lotado { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 4px; padding: 14px 16px; border: 1px dashed var(--line2); border-radius: 12px; }
+.ws-lotado-txt { flex: 1; min-width: 220px; font-size: 13.5px; color: var(--ink3); }
+.ws-lotado-txt b { display: block; margin-bottom: 2px; font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.ws-lotado-bt { flex: none; padding: 9px 18px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink); border-radius: 100px; font-family: inherit; font-size: 14.5px; cursor: pointer; white-space: nowrap; transition: border-color .17s, background .17s; }
+.ws-lotado-bt:hover { border-color: var(--ink); background: var(--wash2); }
+
 /* ── SOU EU ──
    O botão "Atribuir a mim" era preto chapado e ficava no meio da linha de
    apoio, disputando com o Convidar logo acima. Duas ações fortes empilhadas,

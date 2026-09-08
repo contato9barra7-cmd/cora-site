@@ -324,7 +324,10 @@ function WorkspaceConteudo() {
         </div>
       )}
 
-      <div className="conta-card ws-aviso-download" dangerouslySetInnerHTML={{ __html: t('ws_aviso_download') }} />
+      {/* O AVISO DO DOWNLOAD SAIU. Ele ocupava um cartao inteiro no topo da
+          tela para dizer onde fica um botao que esta no menu, sempre visivel,
+          a dois centimetros dali. Um aviso permanente sobre navegacao e sinal
+          de que a navegacao nao esta clara, e nao a correcao dela. */}
 
       {/* ── IDENTIDADE ──
           A MESMA GRADE DE MINHA CONTA: rótulo à esquerda, campo à direita, uma
@@ -423,7 +426,19 @@ function WorkspaceConteudo() {
         {membros.map((m) => (
           <div key={m.id} className="ws-slot">
             <div className="ws-slot-linha">
-              <span className={'ws-av' + (m.status === 'convidado' ? ' ws-av--pend' : '')}>
+              {/* A FOTO DE QUEM JÁ TEM. A lista mostrava a inicial do e-mail
+                  para todo mundo, mesmo para quem tinha foto no perfil. Numa
+                  equipe onde as pessoas se conhecem, reconhecer pela cara é
+                  mais rápido do que ler cinco endereços parecidos.
+                  Quem não tem foto continua com a inicial, e quem ainda não
+                  aceitou o convite continua com o envelope: ali não há pessoa
+                  para mostrar. */}
+              <span
+                className={'ws-av' + (m.status === 'convidado' ? ' ws-av--pend' : '')}
+                style={m.status !== 'convidado' && m.foto_url
+                  ? { backgroundImage: `url(${m.foto_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' }
+                  : undefined}
+              >
                 {m.status === 'convidado'
                   ? (
                     <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
@@ -432,7 +447,7 @@ function WorkspaceConteudo() {
                       <path d="M3 5.5l7 5 7-5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   )
-                  : (m.email || '?')[0].toUpperCase()}
+                  : m.foto_url ? '' : (m.email || '?')[0].toUpperCase()}
               </span>
               <div className="disp-nome">
                 {m.email}
@@ -565,6 +580,25 @@ function WorkspaceConteudo() {
             )}
           </div>
         ))}
+
+        {/* ── QUANDO NÃO SOBRA ASSENTO ──
+            Sem esta linha a lista simplesmente terminava. A pessoa que precisa
+            de mais um lugar ficava numa tela sobre assentos que não dizia como
+            ter outro, e a resposta mora em Assinatura, que é onde ninguém vai
+            procurar estando aqui.
+            Ela aparece só quando lotou: um convite para gastar mais dinheiro
+            todos os dias, com assento sobrando, é outra coisa. */}
+        {livres === 0 && (
+          <div className="ws-lotado">
+            <div className="ws-lotado-txt">
+              <b>{t('ws_lotado_h')}</b>
+              {t('ws_lotado_p')}
+            </div>
+            <button className="ws-lotado-bt" onClick={() => router.push('/assinatura')}>
+              {t('ws_lotado_bt')}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

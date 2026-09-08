@@ -484,9 +484,20 @@ function ContaConteudo() {
         {ehMembroVis && !ehDono && (
           <div className="dash-cartao">
             <span className="dash-cartao-rot">{t('nav_equipe')}</span>
-            <strong className="dash-cartao-num">
-              {equipeMembro?.nome || t('conta_sua_equipe')}
-            </strong>
+            {/* A FOTO DA EQUIPE, para quem é membro. O dono escolhe uma imagem
+                em Equipe e ela não aparecia para ninguém além dele: quem entra
+                por convite via só o nome, e a identidade que a empresa montou
+                ficava invisível justo para quem ela existe para acolher. */}
+            <div className="dash-cartao-eq">
+              {equipeMembro?.foto
+                ? <div className="dash-eq-foto" style={{ backgroundImage: `url(${equipeMembro.foto})` }} />
+                : <div className="dash-eq-foto dash-eq-foto--vazia">
+                    {(equipeMembro?.nome || 'E').charAt(0).toUpperCase()}
+                  </div>}
+              <strong className="dash-cartao-num">
+                {equipeMembro?.nome || t('conta_sua_equipe')}
+              </strong>
+            </div>
             <div className="dash-cartao-linhas">
               <span>{t('pn_quem_paga')} <b>{equipeMembro?.dono_nome || equipeMembro?.dono_email || '—'}</b></span>
               <span>{t('pn_cred_da_equipe')}</span>
@@ -520,7 +531,18 @@ function ContaConteudo() {
 
             {(equipe.membros || []).filter((m) => m.status === 'ativo').map((m) => (
               <div key={m.id} className="dash-eq-membro">
-                <span className="dash-eq-av">{(m.email || '?')[0].toUpperCase()}</span>
+                {/* A foto de quem tem, a inicial para quem não tem. A mesma
+                    regra da lista de assentos em Equipe: as duas telas mostram
+                    as mesmas pessoas e não podem desenhá-las de jeitos
+                    diferentes. */}
+                <span
+                  className="dash-eq-av"
+                  style={m.foto_url
+                    ? { backgroundImage: `url(${m.foto_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' }
+                    : undefined}
+                >
+                  {m.foto_url ? '' : (m.email || '?')[0].toUpperCase()}
+                </span>
                 <div className="dash-eq-quem">
                   <strong>
                     {m.email}
