@@ -1,0 +1,1326 @@
+<meta charset="utf-8">
+<title>A janela do Cora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     A JANELA DO CORA · a tela onde a pessoa gera (/app)
+
+     O painel à esquerda, o feed à direita. É a última tela do site que ainda
+     estava no molde antigo: o resto do produto já passou pela identidade
+     nova, e ela não.
+
+     O que esta passada resolve, em ordem de tamanho do estrago:
+
+     1. A DENSIDADE SEM ORDEM. Eram 171 declarações em 12,5px e 88 em 11px
+        contra 34 em 14,5px. Quase tudo no mesmo tamanho, e por isso nada em
+        destaque. Aqui cada degrau tem um trabalho:
+             11px    o rótulo do bloco
+             12,5px  a dica sob o campo
+             13,5px  o botão de escolha, na grade densa
+             14,5px  o campo, a ação principal, o texto que se lê
+        O 13,5 na grade é decisão, não descuido: em 14,5 rótulos como
+        "Pós-chuva com reflexos suaves" perdem a ponta para o ellipsis, e um
+        botão que não diz o que faz é pior que um botão pequeno.
+
+     2. A COR QUE FICOU PARA TRÁS. Os cards do Editar tinham oito pastéis
+        (lavanda, âmbar, rosa, azul...) com a tinta escrita no JS. O próprio
+        código já dizia "Provisorias: entram as da marca depois". Entraram: a
+        cor saiu do card e virou ESTADO. Escolhido é lima, e mais nada.
+
+     3. A COR SEM PAPEL DEFINIDO. Lima era ao mesmo tempo o escolhido e a
+        ação, e o painel tem QUINZE escolhas abertas ao mesmo tempo. Quinze
+        manchas de lima numa coluna, e o "Renderizar" some no meio delas. A
+        regra agora é uma frase:
+
+             LIMA é o que voce FAZ.  TURQUESA é o que está ESCOLHIDO.
+
+        A exceção é o fio de 3px: ele continua lima em qualquer lugar, porque
+        é o mesmo fio do menu lateral e diz a mesma coisa, "é aqui que voce
+        está".
+
+     4. A BORDA EM TUDO. Todo botão era pílula branca com fio. Trinta fios
+        numa coluna de 400px viram ruído. Agora a pílula é sólida sobre o
+        papel, e o fio fica para o que de fato é objeto separado.
+
+     Os nomes de classe são os que já estão em produção sempre que a peça
+     sobrevive. Assim a portagem é troca de folha, e não reescrita de
+     componente.
+
+     O primeiro bloco de estilo é o que o gerador lê:
+         python gerar-css-artefato.py cora.html ../app/cora-pagina.css co
+     O segundo, o que leva atributo na tag, é só a moldura desta demonstração
+     e não entra no site.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<style>
+:root{
+  /* ── a identidade nova, a mesma das páginas públicas e do painel ── */
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+
+  /* Lima e turquesa, e mais nada. */
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+
+  /* Cor de marca não é cor de letra: a lima e a turquesa cheias dão 2,8
+     sobre papel, e o mínimo legível é 4,5. Estes três são os tons que
+     passam, e são eles que pintam texto e fundo de pastilha. */
+  --turq-txt:#196C5B; --lima-txt:#256B2A; --turq-bg:#E6F7F3;
+
+  --ok:#1F7A44; --alerta:#C8342A; --alerta-bg:#FCEDEC;
+
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+
+  /* O vidro das pastilhas que ficam EM CIMA da imagem ou da faixa. Não muda
+     no escuro: a imagem por baixo também não. */
+  --vidro:rgba(255,255,255,.82);
+
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+
+  /* ── A ESCALA DE TIPO ── */
+  --t-etiqueta:11px;   /* rótulo de bloco, tag, contagem */
+  --t-apoio2:12.5px;   /* dica sob o campo, data, nota */
+  --t-apoio:13.5px;    /* o botão de escolha, na grade densa */
+  --t-corpo:14.5px;    /* campo, ação principal, texto corrido */
+  --t-titulo:17px;     /* o título de um estado vazio */
+  --t-secao:20px;
+  --t:170ms cubic-bezier(.16,1,.3,1);
+
+  /* ── AS DUAS ALTURAS ──
+     Um controle da grade tem 38. A ação e o campo têm 46, que é a medida do
+     resto do site. Duas alturas, e não sete: era isso que fazia a barra de
+     baixo parecer montada em dias diferentes. */
+  --alt-ctrl:38px;
+  --alt-acao:46px;
+  --painel-w:400px;
+
+  /* A faixa da marca, na geometria da spec (ODD_ODO_DO). */
+  --faixa:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
+/* O escuro. A faixa não muda: ela é a marca, e a marca é a mesma. */
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+  --ok:#7BD3A0; --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.18);
+  --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   A JANELA
+
+   A GEOMETRIA NÃO MORA AQUI. Quem diz que a `.cr-tela` é uma linha, qual a
+   altura dela, quando ela vira coluna e quando o painel encolhe de 400 para
+   340 é o par globals.css + responsivo.css, e essa história já está contada
+   lá com os motivos (a barra de endereço do iPhone, o seletor Criar/Galeria).
+   Escopada em `.co`, qualquer medida repetida aqui GANHARIA daquelas por
+   especificidade, e o celular quebraria sem erro nenhum aparecer.
+
+   Então esta folha pinta, e não mede.
+   ══════════════════════════════════════════════════════════════════════ */
+.cr-tela{
+  background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.cr-tela *,.cr-tela *::before,.cr-tela *::after{ box-sizing:border-box; }
+.cr-tela button,.cr-tela input,.cr-tela textarea{ font-family:inherit; }
+
+/* O foco é turquesa, sempre. Sem isto o navegador desenha o dele, que é
+   âmbar e não é do produto. */
+.cr-tela :focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
+.cr-tela ::selection{ background:var(--lima); color:#111111; }
+
+/* O painel é o papel: é ali que se trabalha. O feed é a bancada, um tom
+   abaixo, porque o que tem que brilhar ali é a imagem. Era o contrário, e as
+   miniaturas ficavam com cara de recorte colado sobre branco. */
+.cr-painel{ background:var(--paper); border-right:1px solid var(--line); }
+.cr-feed{ background:var(--wash); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O TRILHO DAS FERRAMENTAS
+   O sulco é a janela. O trilho, por baixo, desliza. A ativa é a placa que
+   sobe do sulco. O gesto carrega a hierarquia, e por não depender de cor
+   ele sobrevive à troca de paleta.
+   ══════════════════════════════════════════════════════════════════════ */
+.cr-pills{
+  display:flex; align-items:center; gap:6px; padding:10px 14px;
+  min-height:57px;                 /* = .cr-barra, para as duas alinharem */
+  position:sticky; top:0; z-index:20;
+  background:var(--paper); border-bottom:1px solid var(--line);
+}
+.cr-sulco{
+  flex:1; min-width:0; overflow:hidden;
+  border-radius:var(--pill); background:var(--wash2); padding:3px;
+}
+.cr-trilho{
+  display:flex; gap:2px; width:max-content;
+  transition:transform .32s cubic-bezier(.4,0,.2,1);
+}
+.cr-pill{
+  flex:0 0 auto; padding:0 16px; height:32px; border:0; background:transparent;
+  border-radius:var(--pill); color:var(--ink3);
+  font-size:var(--t-apoio); font-weight:500; cursor:pointer;
+  transition:color var(--t), background var(--t);
+}
+.cr-pill:hover:not(:disabled):not(.cr-pill--on){ color:var(--ink2); }
+.cr-pill--on{
+  background:var(--paper); color:var(--ink); font-weight:600;
+  box-shadow:var(--sombra-peq);
+}
+.cr-pill:disabled{ opacity:.45; cursor:default; }
+.cr-pill--trancada{ display:inline-flex; align-items:center; gap:5px; }
+.cr-pill-cad{ display:block; opacity:.7; }
+
+.cr-seta{
+  flex:0 0 26px; width:26px; height:26px; padding:0; border:0;
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; color:var(--ink3); border-radius:50%;
+  cursor:pointer; transition:background var(--t), color var(--t);
+}
+.cr-seta:hover:not(:disabled){ background:var(--wash2); color:var(--ink); }
+/* Sem seta para aquele lado. Ela NÃO some: sumindo, o sulco mudaria de
+   largura e o trilho pularia sozinho a cada passo. */
+.cr-seta--off{ opacity:0; pointer-events:none; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O FORMULÁRIO
+   ══════════════════════════════════════════════════════════════════════ */
+/* Só a respiração: o resto da caixa (flex, rolagem) é do globals. */
+.cr-form{ padding:20px 16px 24px; }
+
+/* O olho: o rótulo pequeno de caixa alta que abre cada bloco. É o mesmo das
+   páginas públicas e do painel. Numa tela sem títulos grandes, é ele que dá
+   o ritmo. */
+.cr-sec{
+  margin:26px 0 10px; display:flex; align-items:baseline; gap:6px;
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.cr-sec:first-child{ margin-top:0; }
+.cr-sec-sub2{ display:block; }
+/* "opcional", "pode escolher vários": anda junto do rótulo, mas sem o peso
+   dele, senão as duas informações competem. */
+.cr-opc{ font-weight:400; letter-spacing:.06em; color:var(--ink3); opacity:.85; }
+
+/* A sub-linha dentro do bloco ("Dia", "Especiais", "Cor"). */
+.cr-grp{
+  margin:14px 0 6px; font-size:var(--t-apoio2); font-weight:500;
+  color:var(--ink3);
+}
+.cr-hint{ margin:8px 0 0; font-size:var(--t-apoio2); color:var(--ink3); line-height:1.5;  text-wrap:pretty; }
+.cr-hint--topo{ margin:0 0 10px; }
+
+/* ── A grade ──
+   Toda linha de botões é uma grade, nunca flex-wrap: com flex cada botão
+   fica do tamanho do próprio texto e a coluna vira colcha de retalhos. */
+.cr-g2{ display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
+.cr-g3{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+
+/* ── O botão de escolha ──
+   Pílula sólida, sem fio. Trinta fios numa coluna de 400px viram ruído, e o
+   fio passa a não querer dizer nada.
+
+   Escolhido é o campo de turquesa: fundo claro, letra --turq-txt e um anel
+   de 1px por dentro. O anel é o que faz o estado se ler. Só o fundo pálido
+   não separava do --wash2 do vizinho. Cheio de turquesa também funcionaria,
+   mas quinze pílulas cheias numa coluna é cor demais para uma tela que já
+   tem imagem em tudo quanto é canto. */
+/* `min-height` e não `height`: medindo, "Pós-chuva com reflexos sutis" pede
+   211px e a coluna dá 176, então ele perdia a ponta para o ellipsis. Um botão
+   que não diz o que faz é pior que um botão que ocupa duas linhas. Como a
+   linha é uma GRADE, o vizinho cresce junto e a fileira continua reta. */
+.cr-b{
+  min-height:var(--alt-ctrl); padding:7px 12px; border:0;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-apoio); font-weight:500; line-height:1.25; cursor:pointer;
+  text-wrap:pretty;
+  transition:background var(--t), color var(--t);
+}
+.cr-b:hover:not(:disabled):not(.cr-b--on){ background:var(--line); color:var(--ink); }
+.cr-b--on{
+  background:var(--turq-bg); color:var(--turq-txt); font-weight:600;
+  box-shadow:inset 0 0 0 1px var(--turquesa-esc);
+}
+.cr-b--on:hover{ box-shadow:inset 0 0 0 1.5px var(--turquesa-esc); }
+.cr-b:disabled{ background:var(--wash); color:var(--ink3); opacity:1; cursor:default; }
+
+/* ── A imagem do modelo ── */
+.cr-drop{
+  width:100%; height:108px; padding:0;
+  border:1px dashed var(--line2); border-radius:var(--r-peq);
+  background:var(--wash); color:var(--ink3);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+  font-size:var(--t-apoio); cursor:pointer;
+  transition:border-color var(--t), color var(--t), background var(--t);
+}
+.cr-drop:hover:not(:disabled){ border-color:var(--ink3); color:var(--ink2); background:var(--wash2); }
+.cr-drop:disabled{ color:var(--ink3); opacity:.6; cursor:default; }
+.cr-base{ position:relative; border-radius:var(--r-peq); border:1px solid var(--line); overflow:hidden; }
+.cr-base img{ display:block; width:100%; }
+.cr-base-x{
+  position:absolute; top:8px; right:8px; width:26px; height:26px; padding:0;
+  border:0; border-radius:50%; background:var(--vidro); color:#111111;
+  backdrop-filter:blur(14px) saturate(150%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:var(--t-corpo); line-height:1; cursor:pointer;
+  transition:background var(--t), color var(--t);
+}
+.cr-base-x:hover{ background:#FFFFFF; color:var(--alerta); }
+
+/* ── A ação larga dentro do formulário ("Ler materiais") ── */
+.cr-b-ler{
+  width:100%; height:var(--alt-acao); border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111;
+  font-size:var(--t-corpo); font-weight:600; cursor:pointer;
+  transition:background var(--t);
+}
+.cr-b-ler:hover:not(:disabled){ background:var(--lima-esc); }
+/* Desligado é COR, e não transparência. O molde antigo apagava o botão com
+   `opacity:.35`, e a 35% o rótulo cai muito abaixo de qualquer piso de
+   contraste: não dá para ler o que o botão faria se estivesse ligado. O
+   `opacity:1` está aqui de propósito, para desfazer aquela regra. */
+.cr-b-ler:disabled{ background:var(--wash2); color:var(--ink3); opacity:1; cursor:default; }
+
+/* A segunda opção da mesma dupla: mesma altura, sem a cor. Ela não é menos
+   importante, é outra coisa. */
+.cr-b--tenho{
+  width:100%; height:var(--alt-acao); margin-bottom:8px; border:0;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-corpo); font-weight:500; cursor:pointer;
+  transition:background var(--t), color var(--t);
+}
+.cr-b--tenho:hover{ background:var(--line); color:var(--ink); }
+
+/* ── Os campos de texto ──
+   Fundo de lavagem e sem fio, como as pílulas. O que marca o campo é o
+   contraste com o papel, e no foco o anel turquesa. */
+.cr-ta{
+  width:100%; min-height:96px; margin-top:8px; padding:12px 14px;
+  border:1px solid transparent; border-radius:var(--r-peq);
+  background:var(--wash); color:var(--ink);
+  font-size:var(--t-corpo); line-height:1.5; resize:vertical; outline:none;
+  transition:background var(--t), border-color var(--t);
+}
+.cr-ta:hover{ border-color:var(--line); }
+.cr-ta:focus{ background:var(--paper); border-color:var(--line2); }
+.cr-ta:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
+.cr-ta::placeholder{ color:var(--ink3); }
+.cr-ta--alta{ min-height:124px; }
+.cr-ta--mat{ min-height:72px; }
+
+/* ── As referências ── */
+.cr-refs{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+.cr-ref{
+  position:relative; aspect-ratio:1; padding:0; overflow:hidden;
+  border:0; border-radius:var(--r-peq); background:var(--wash2);
+}
+.cr-ref img{ display:block; width:100%; height:100%; object-fit:cover; }
+.cr-ref--add{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  color:var(--ink3); cursor:pointer;
+  transition:background var(--t), color var(--t);
+}
+.cr-ref--add:hover{ background:var(--line); color:var(--ink); }
+.cr-ref-mais{ font-size:17px; line-height:1; }
+/* A contagem vive DENTRO do botão: fora dela, era mais uma linha de texto
+   competindo com o rótulo do bloco. */
+.cr-ref-c{ font-size:9.5px; letter-spacing:.06em; }
+.cr-ref-n{
+  position:absolute; left:4px; bottom:4px; padding:1px 6px;
+  border-radius:var(--pill); background:var(--vidro); color:#111111;
+  backdrop-filter:blur(10px) saturate(150%);
+  font-size:9.5px; font-weight:600;
+}
+.cr-ref-x{
+  position:absolute; top:3px; right:3px; width:18px; height:18px; padding:0;
+  border:0; border-radius:50%; background:var(--vidro); color:#111111;
+  backdrop-filter:blur(10px); font-size:11px; line-height:1; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:opacity var(--t);
+}
+.cr-ref:hover .cr-ref-x{ opacity:1; }
+
+/* ── Resetar: ação de texto, não botão ──
+   Sublinhado de lima de 2px é o gesto de "ação dentro de bloco" no resto do
+   site (Ler, Ver tudo, Copiar). Aqui vale o mesmo. */
+/* `width:auto` de propósito: o molde antigo dá 100% ao botão, e o sublinhado
+   de lima atravessava o painel inteiro parecendo a borda de uma caixa. Ele
+   tem que ter a largura das palavras, senão não é sublinhado. */
+.cr-resetar{
+  display:block; width:auto; margin:22px auto 0; padding:2px 0; border:0; background:none;
+  color:var(--ink2); font-size:var(--t-apoio); cursor:pointer;
+  box-shadow:inset 0 -2px 0 var(--lima);
+  transition:color var(--t), box-shadow var(--t);
+}
+.cr-resetar:hover{ color:var(--ink); box-shadow:inset 0 -2px 0 var(--ink); }
+
+.cr-voltar{
+  display:inline-flex; width:auto; align-items:center; gap:6px; margin-bottom:14px;
+  padding:2px 0; border:0; background:none; color:var(--ink2);
+  font-size:var(--t-apoio); cursor:pointer;
+  box-shadow:inset 0 -2px 0 var(--lima);
+  transition:color var(--t), box-shadow var(--t);
+}
+.cr-voltar:hover{ color:var(--ink); box-shadow:inset 0 -2px 0 var(--ink); }
+
+.cr-erro{
+  margin:14px 0 0; padding:10px 14px; border-radius:var(--r-peq);
+  background:var(--alerta-bg); color:var(--alerta); font-size:var(--t-apoio2);
+}
+.cr-painel-vazio{ padding:24px 16px; color:var(--ink3); font-size:var(--t-corpo); line-height:1.6; }
+.cr-painel-vazio p{ margin:0 0 10px; }
+.cr-dica{ font-size:var(--t-apoio2); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   OS CARDS DE MODO (a aba Editar)
+   Tinham oito pastéis, um por modo, com a tinta escrita dentro do JS. Oito
+   cores não são hierarquia, são oito coisas gritando junto. A cor saiu do
+   card e virou ESTADO.
+
+   A `.ed-faixa` continua se chamando faixa, e não é mais uma faixa: virou a
+   pastilha do desenho. O nome fica porque é ele que está no componente, e
+   trocar nome de classe transforma "troca de folha" em "reescrita de JSX".
+   ══════════════════════════════════════════════════════════════════════ */
+.ed-cards{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.ed-card{
+  position:relative; overflow:hidden; display:block; width:100%;
+  padding:14px 12px 12px; text-align:left;
+  border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); cursor:pointer;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.ed-card:hover{ border-color:var(--line2); box-shadow:var(--sombra-peq); }
+/* O fio de lima de 3px na esquerda marca onde a pessoa está. É o mesmo fio do
+   menu lateral e do índice das páginas legais, e quer dizer a mesma coisa. */
+.ed-card--on{ border-color:var(--line2); }
+.ed-card--on::before{
+  content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--lima);
+}
+.ed-faixa{
+  width:34px; height:34px; margin-bottom:10px; border-radius:50%;
+  background:var(--wash2); color:var(--ink2);
+  display:flex; align-items:center; justify-content:center;
+  transition:background var(--t), color var(--t);
+}
+.ed-faixa svg{ width:17px; height:17px; }
+.ed-card--on .ed-faixa{ background:var(--turq-bg); color:var(--turq-txt); }
+.ed-corpo{ display:block; }
+.ed-corpo strong{ display:block; font-size:var(--t-corpo); font-weight:600; color:var(--ink); }
+.ed-corpo span{ display:block; margin-top:4px; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.45;  text-wrap:pretty; }
+/* Modo trancado pelo plano: o cadeado no canto, e o card apagado. */
+.ed-card--travado{ opacity:.55; }
+.ed-cad{ position:absolute; top:12px; right:12px; color:var(--ink3); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   OS DOIS PRIMOS DO CARD DE MODO
+   O Upscale e as Sequências repetem a mesma peça com outro nome de classe, e
+   traziam a mesma herança: azul e coral no Upscale, três pastéis nas
+   sequências. Mesmo desenho, mesma regra.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Upscale: Precisão ou Criativo ──
+   Era azul de um lado e coral do outro, com o fio de 1,5px em volta. Duas
+   cores que não são da marca para dizer "escolhido", quando a tela inteira já
+   diz isso com uma. */
+.up-modo{
+  border:0; background:var(--wash2); color:var(--ink2);
+  transition:background var(--t), color var(--t), box-shadow var(--t);
+}
+.up-modo:hover:not(.up-modo--on){ background:var(--line); color:var(--ink); }
+.up-modo-faixa{ background:transparent; }
+.up-modo-faixa svg{ stroke:currentColor; }
+.up-modo-txt{ color:inherit; font-size:var(--t-apoio); font-weight:500; }
+.up-modo--prec.up-modo--on,
+.up-modo--criat.up-modo--on{
+  border:0; background:var(--turq-bg); color:var(--turq-txt);
+  box-shadow:inset 0 0 0 1px var(--turquesa-esc);
+}
+.up-modo--prec.up-modo--on .up-modo-faixa,
+.up-modo--criat.up-modo--on .up-modo-faixa{ background:transparent; }
+.up-modo--prec.up-modo--on .up-modo-faixa svg,
+.up-modo--criat.up-modo--on .up-modo-faixa svg{ stroke:currentColor; }
+.up-modo--on .up-modo-txt{ font-weight:600; }
+
+/* O vermelho do Upscale era um rosa próprio (#e0405a). Alerta é um só. */
+.up-remover:hover{ background:var(--alerta); }
+.up-erro{ color:var(--alerta); font-size:var(--t-apoio2); }
+.up-mini--danger:hover{ border-color:var(--alerta); color:var(--alerta); }
+
+/* ── As sequências: a mesma pastilha do Editar ── */
+.seq-faixa{
+  background:var(--wash2); color:var(--ink2);
+  transition:background var(--t), color var(--t);
+}
+.seq-faixa svg{ stroke:currentColor; }
+.seq-card:hover .seq-faixa{ background:var(--line); color:var(--ink); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   A BARRA DE BAIXO
+   ══════════════════════════════════════════════════════════════════════ */
+.cr-barra-ger{
+  flex:none; padding:12px 16px 14px;
+  border-top:1px solid var(--line); background:var(--paper);
+}
+.cr-pills-cfg{ display:flex; gap:6px; margin-bottom:10px; }
+.cr-qty{
+  display:flex; align-items:center; gap:2px; flex:none;
+  height:var(--alt-ctrl); padding:0 6px;
+  border-radius:var(--pill); background:var(--wash2);
+}
+.cr-qty button{
+  width:24px; height:24px; padding:0; border:0; border-radius:50%;
+  background:transparent; color:var(--ink2); font-size:var(--t-corpo);
+  line-height:1; cursor:pointer; transition:background var(--t), color var(--t);
+}
+.cr-qty button:hover:not(:disabled){ background:var(--paper); color:var(--ink); }
+.cr-qty button:disabled{ opacity:.35; cursor:default; }
+.cr-qty span{
+  min-width:18px; text-align:center; font-size:var(--t-apoio);
+  font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums;
+}
+.cr-pill-wrap{ flex:1; position:relative; }
+.cr-pill-cfg{
+  width:100%; height:var(--alt-ctrl); padding:0 14px; border:0;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-apoio); font-weight:500; cursor:pointer;
+  transition:background var(--t), color var(--t);
+}
+.cr-pill-cfg:hover{ background:var(--line); color:var(--ink); }
+.cr-pill-cfg--on{ background:var(--line); color:var(--ink); }
+.cr-cfg-seta{ flex:none; color:var(--ink3); transition:transform .18s; }
+.cr-pill-cfg--on .cr-cfg-seta{ transform:rotate(180deg); }
+
+/* O popover sobe: a barra mora no pé do painel, e para baixo não há espaço. */
+.cr-pop{
+  position:absolute; bottom:calc(100% + 8px); left:0; right:0; min-width:250px;
+  padding:10px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); box-shadow:var(--sombra); z-index:20;
+}
+.cr-pop-grade{ display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+.cr-pop-b{
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:7px 2px; border:0; border-radius:10px;
+  background:transparent; color:var(--ink3); font-size:10px; cursor:pointer;
+  transition:background var(--t), color var(--t);
+}
+.cr-pop-b svg{ width:24px; height:24px; }
+.cr-pop-b:hover{ background:var(--wash2); color:var(--ink2); }
+.cr-pop-b--on{
+  background:var(--turq-bg); color:var(--turq-txt); font-weight:600;
+  box-shadow:inset 0 0 0 1px var(--turquesa-esc);
+}
+.cr-pop--res{ min-width:0; display:flex; flex-direction:column; gap:4px; }
+.cr-pop-res{
+  height:34px; border:0; border-radius:var(--pill);
+  background:transparent; color:var(--ink2); font-size:var(--t-apoio); cursor:pointer;
+  transition:background var(--t), color var(--t);
+}
+.cr-pop-res:hover{ background:var(--wash2); color:var(--ink); }
+.cr-pop-res--on{
+  background:var(--turq-bg); color:var(--turq-txt); font-weight:600;
+  box-shadow:inset 0 0 0 1px var(--turquesa-esc);
+}
+
+/* ── A ação principal da tela ── */
+.cr-btn-gerar{
+  width:100%; height:var(--alt-acao); border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111;
+  font-size:var(--t-corpo); font-weight:600; cursor:pointer;
+  transition:background var(--t);
+}
+.cr-btn-gerar:hover:not(:disabled){ background:var(--lima-esc); }
+.cr-btn-gerar:disabled{ background:var(--wash2); color:var(--ink3); opacity:1; cursor:default; }
+
+.cr-custo{
+  margin:8px 0 0; text-align:center;
+  font-size:var(--t-apoio2); color:var(--ink3);
+  text-wrap:pretty;
+}
+/* O que a geração custa é a informação que muda de valor, então ela é a
+   pastilha, e o resto da frase é só o resto da frase. */
+.cr-custo-tag{
+  display:inline-block; padding:1px 9px; border-radius:var(--pill);
+  background:var(--turq-bg); color:var(--turq-txt);
+  font-weight:600; font-variant-numeric:tabular-nums;
+}
+.cr-prog{ margin:8px 0 0; text-align:center; font-size:var(--t-apoio2); color:var(--turq-txt); font-weight:600; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   A BARRA DO FEED
+   ══════════════════════════════════════════════════════════════════════ */
+.cr-barra{
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap; flex:none;
+  padding:10px 20px; min-height:57px;
+  background:var(--paper); border-bottom:1px solid var(--line);
+}
+/* `min-width` e não `width`: quase todo filtro é só um desenho e vira um
+   círculo de 34px, mas o A/B carrega duas letras e precisa crescer. Com
+   largura fixa ele estourava para fora do próprio botão. */
+.cr-fbtn{
+  min-width:34px; height:34px; padding:0 9px; border:0; border-radius:var(--pill);
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  background:transparent; color:var(--ink3); cursor:pointer;
+  font-size:var(--t-apoio2); font-weight:600;
+  transition:background var(--t), color var(--t);
+}
+.cr-fbtn:hover:not(.cr-fbtn--on){ background:var(--wash2); color:var(--ink); }
+.cr-fbtn--on{
+  background:var(--turq-bg); color:var(--turq-txt);
+  box-shadow:inset 0 0 0 1px var(--turquesa-esc);
+}
+.cr-fbtn--fav.cr-fbtn--on svg{ fill:var(--turq-txt); }
+
+/* Os tamanhos e o modo de exibição correm no mesmo sulco do trilho. Repetir
+   o gesto é o que faz a tela parecer uma só.
+
+   E aqui o escolhido NÃO é turquesa: filtro é uma escolha entre coisas
+   (o que aparece), modo de exibição é uma escolha entre jeitos de ver a
+   mesma coisa. A placa que sobe do sulco já diz isso sem cor nenhuma. */
+.cr-tams,.cr-seg-lay{
+  display:flex; gap:2px; padding:3px; border-radius:var(--pill); background:var(--wash2);
+}
+.cr-tam{
+  min-width:28px; height:26px; padding:0 8px; border:0; border-radius:var(--pill);
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; color:var(--ink3);
+  font-size:var(--t-apoio2); font-weight:600; cursor:pointer;
+  transition:background var(--t), color var(--t);
+}
+.cr-tam:hover:not(.cr-tam--on){ color:var(--ink); }
+.cr-tam--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+
+.cr-seg-lay .cr-fbtn{ min-width:30px; height:26px; padding:0 8px; }
+.cr-seg-lay .cr-fbtn--on{
+  background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq);
+}
+
+.cr-busca{ position:relative; display:flex; align-items:center; margin-left:auto; }
+.cr-busca svg{ position:absolute; left:14px; color:var(--ink3); pointer-events:none; }
+.cr-busca input{
+  width:210px; height:var(--alt-ctrl); padding:0 34px 0 38px;
+  border:1px solid transparent; border-radius:var(--pill);
+  background:var(--wash2); color:var(--ink); font-size:var(--t-apoio); outline:none;
+  transition:background var(--t), border-color var(--t), width var(--t);
+}
+.cr-busca input:focus{ background:var(--paper); border-color:var(--line2); }
+.cr-busca input:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
+.cr-busca input::placeholder{ color:var(--ink3); }
+.cr-busca-x{
+  position:absolute; right:12px; border:0; background:none; color:var(--ink3);
+  font-size:var(--t-corpo); line-height:1; cursor:pointer; padding:0;
+}
+.cr-busca-x:hover{ color:var(--ink); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O FEED
+   ══════════════════════════════════════════════════════════════════════ */
+.cr-mes-tit{
+  margin:0; padding:22px 20px 10px; display:flex; align-items:baseline; gap:10px;
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.cr-mes-expira{ font-size:var(--t-apoio2); font-weight:500; letter-spacing:0; text-transform:none; color:var(--alerta); }
+
+.cr-lote{ padding:18px 20px; border-bottom:1px solid var(--line); }
+.cr-lote:last-child{ border-bottom:0; }
+.cr-lote-cab{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.cr-lote-obs{ flex:1; min-width:0; }
+.cr-lote-data{ flex:none; font-size:var(--t-apoio2); color:var(--ink3); }
+
+.cr-tag{
+  flex:none; white-space:nowrap; padding:3px 10px; border:0;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-etiqueta); font-weight:600;
+}
+/* A ferramenta que gerou é o que se procura no feed, então ela é a única
+   pastilha com cor. (Chamava-se `--roxa`. O roxo saiu da marca, e o nome
+   foi junto.) */
+.cr-tag--marca{ background:var(--turq-bg); color:var(--turq-txt); }
+.cr-expira{ margin:0 0 10px; font-size:var(--t-apoio2); color:var(--alerta); }
+
+.cr-cards{ display:flex; flex-wrap:wrap; gap:10px; }
+.cr-card{
+  position:relative; overflow:hidden; padding:0; border:1px solid var(--line);
+  border-radius:var(--r-peq); background:var(--wash2); cursor:pointer;
+  transition:border-color var(--t), box-shadow var(--t), transform var(--t);
+}
+.cr-card:hover{ border-color:var(--line2); box-shadow:var(--sombra-peq); transform:translateY(-1px); }
+.cr-card img{ display:block; width:100%; height:100%; object-fit:cover; }
+/* Selecionado é ANEL, e não borda: a borda mudaria a medida do card e a fila
+   inteira andaria 2px a cada clique. */
+.cr-card--sel{ border-color:var(--turquesa-esc); box-shadow:0 0 0 2px var(--turquesa); }
+.cr-card-acoes{
+  position:absolute; right:8px; bottom:8px; display:flex; gap:6px;
+  opacity:0; transition:opacity var(--t);
+}
+.cr-card:hover .cr-card-acoes{ opacity:1; }
+.cr-mini{
+  width:30px; height:30px; padding:0; border:0; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--vidro); color:#111111; backdrop-filter:blur(14px) saturate(150%);
+  cursor:pointer; transition:background var(--t), color var(--t);
+}
+.cr-mini:hover{ background:#FFFFFF; }
+.cr-mini--on svg{ fill:var(--turq-txt); color:var(--turq-txt); }
+.cr-mini--perigo:hover{ color:var(--alerta); }
+
+/* ── O que está gerando ── */
+.cr-gerando{ padding:18px 20px; border-bottom:1px solid var(--line); }
+.cr-slot{
+  position:relative; overflow:hidden; border-radius:var(--r-peq);
+  background:var(--wash2); display:flex; align-items:center; justify-content:center;
+}
+.cr-slot-base{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:blur(16px); transform:scale(1.1); }
+.cr-slot-n{ position:relative; font-size:var(--t-corpo); font-weight:600; color:var(--ink3); }
+.cr-slot-tag{
+  position:absolute; left:8px; bottom:8px; display:inline-flex; align-items:center; gap:6px;
+  padding:3px 10px; border-radius:var(--pill);
+  background:var(--vidro); color:#111111; backdrop-filter:blur(14px) saturate(150%);
+  font-size:var(--t-etiqueta); font-weight:600;
+}
+.cr-spin{
+  width:11px; height:11px; flex:none; border-radius:50%;
+  border:2px solid rgba(17,17,17,.22); border-top-color:#111111;
+  animation:cr-gira .7s linear infinite;
+}
+@keyframes cr-gira{ to{ transform:rotate(360deg); } }
+.cr-estorno{
+  display:flex; align-items:center; gap:6px; margin:12px 0 0;
+  font-size:var(--t-apoio2); color:var(--ink3);
+}
+
+/* ── Quando não há nada ──
+   A faixa entra aqui porque é o único lugar da janela onde sobra silêncio, e
+   um lugar vazio é onde a marca cabe sem competir com imagem nenhuma. */
+.cr-vazio{ padding:80px 24px; text-align:center; }
+.cr-vazio-faixa{
+  width:132px; height:14px; margin:0 auto 24px; border-radius:var(--pill);
+  background:var(--faixa) repeat-x left center; background-size:112px 100%;
+}
+.cr-vazio h2{ margin:0 0 8px; font-size:var(--t-titulo); font-weight:600; color:var(--ink); }
+.cr-vazio p{ margin:0 auto; max-width:38ch; font-size:var(--t-corpo); color:var(--ink2);  text-wrap:pretty; }
+.cr-msg{ padding:32px 20px; color:var(--ink3); font-size:var(--t-corpo); }
+
+/* ── Voltar ao topo ── */
+.cr-voltar-topo{
+  position:absolute; right:20px; bottom:20px; width:44px; height:44px;
+  border:0; border-radius:50%; background:var(--lima); color:#111111;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  box-shadow:var(--sombra-peq);
+  opacity:0; visibility:hidden; transform:translateY(8px);
+  transition:opacity .28s ease, transform .28s ease, background var(--t), visibility .28s;
+  z-index:20;
+}
+.cr-voltar-topo--on{ opacity:.55; visibility:visible; transform:translateY(0); }
+.cr-voltar-topo--on:hover{ opacity:1; background:var(--lima-esc); }
+
+/* ── A barra da seleção múltipla ── */
+.cr-selbar{
+  position:absolute; left:50%; bottom:24px; transform:translateX(-50%);
+  display:flex; align-items:center; gap:18px; padding:10px 12px 10px 20px;
+  border-radius:var(--pill); background:var(--paper); box-shadow:var(--sombra);
+  z-index:30;
+}
+.cr-selbar-n{ font-size:var(--t-apoio); font-weight:600; color:var(--ink); white-space:nowrap; }
+.cr-selbar-acoes{ display:flex; gap:8px; }
+.cr-selbar-cancelar{
+  height:var(--alt-ctrl); padding:0 16px; border:0; border-radius:var(--pill);
+  background:var(--wash2); color:var(--ink2); font-size:var(--t-apoio); cursor:pointer;
+}
+.cr-selbar-cancelar:hover{ background:var(--line); color:var(--ink); }
+.cr-selbar-baixar{
+  height:var(--alt-ctrl); padding:0 18px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-size:var(--t-apoio); font-weight:600; cursor:pointer;
+}
+.cr-selbar-baixar:hover:not(:disabled){ background:var(--lima-esc); }
+.cr-selbar-baixar:disabled{ background:var(--wash2); color:var(--ink3); opacity:1; cursor:default; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O VISUALIZADOR
+   ══════════════════════════════════════════════════════════════════════ */
+.cr-overlay{
+  position:fixed; inset:0; z-index:120; display:flex; align-items:center; justify-content:center;
+  background:rgba(17,17,17,.72); backdrop-filter:blur(6px);
+}
+.vz-cab{
+  position:absolute; top:0; left:0; right:0; height:60px; z-index:2;
+  display:flex; align-items:center; gap:10px; padding:0 16px;
+  background:linear-gradient(rgba(17,17,17,.55), rgba(17,17,17,0));
+}
+.vz-tag{
+  padding:4px 12px; border-radius:var(--pill);
+  background:var(--vidro); color:#111111; backdrop-filter:blur(14px) saturate(150%);
+  font-size:var(--t-etiqueta); font-weight:600;
+}
+.vz-pos{ margin-left:auto; color:#FFFFFF; font-size:var(--t-apoio); font-variant-numeric:tabular-nums; }
+.vz-x,.vz-nav{
+  width:40px; height:40px; padding:0; border:0; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--vidro); color:#111111; backdrop-filter:blur(14px) saturate(150%);
+  cursor:pointer; transition:background var(--t);
+}
+.vz-x:hover,.vz-nav:hover{ background:#FFFFFF; }
+.vz-acoes{ position:absolute; left:50%; bottom:24px; transform:translateX(-50%); display:flex; gap:8px; z-index:2; }
+.vz-ico{
+  width:44px; height:44px; padding:0; border:0; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--vidro); color:#111111; backdrop-filter:blur(14px) saturate(150%);
+  cursor:pointer; transition:background var(--t), color var(--t);
+}
+.vz-ico:hover{ background:#FFFFFF; }
+.vz-ico--perigo:hover{ color:var(--alerta); }
+/* O handle do split é turquesa: ele é controle, e controle é turquesa. */
+.vz-handle{ background:var(--turquesa-esc); }
+.vz-handle-bola{ background:var(--turquesa-esc); color:#111111; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   A CONFIRMAÇÃO
+   ══════════════════════════════════════════════════════════════════════ */
+.cf{
+  width:min(420px, calc(100vw - 40px)); padding:26px 26px 22px;
+  border-radius:var(--r); background:var(--paper); box-shadow:var(--sombra);
+}
+.cf h3{ margin:0; font-size:var(--t-titulo); font-weight:600; color:var(--ink); }
+.cf p{ margin:8px 0 0; font-size:var(--t-corpo); color:var(--ink2); }
+.cf-acoes{ display:flex; gap:8px; margin-top:22px; }
+.cf-nao,.cf-sim{
+  flex:1; height:var(--alt-acao); border:0; border-radius:var(--pill);
+  font-size:var(--t-corpo); font-weight:600; cursor:pointer;
+  transition:background var(--t), color var(--t);
+}
+.cf-nao{ background:var(--wash2); color:var(--ink2); font-weight:500; }
+.cf-nao:hover{ background:var(--line); color:var(--ink); }
+.cf-sim{ background:var(--alerta); color:#FFFFFF; }
+.cf-sim:hover{ filter:brightness(1.08); }
+
+</style>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     A DEMONSTRAÇÃO. Nada daqui para baixo atravessa para o site: o gerador
+     lê só o primeiro <style>, e o de baixo leva atributo na tag.
+     ══════════════════════════════════════════════════════════════════════ -->
+<style data-demo>
+  /* A geometria da janela vive no globals.css e no responsivo.css do site.
+     Aqui ela entra só para o artefato abrir sozinho no navegador. */
+  .co{ --header-h:60px; }
+  .co .cr-tela{ display:flex; height:calc(100vh - var(--header-h)); overflow:hidden; }
+  .co .cr-painel{ width:400px; flex:none; display:flex; flex-direction:column; overflow:hidden; }
+  .co .cr-feed{ flex:1; min-width:0; display:flex; flex-direction:column; overflow:hidden; position:relative; }
+  .co .cr-form{ flex:1; min-height:0; overflow-y:auto; }
+  .co .cr-lista{ flex:1; min-height:0; overflow-y:auto; }
+  .co .cr-barra-ger{ flex:none; }
+  .co .cr-pills,.co .cr-barra{ flex:none; }
+
+  body{ margin:0; background:var(--wash); font-family:var(--fonte); color:var(--ink); }
+  .moldura{ display:flex; height:100vh; overflow:hidden; }
+
+  /* A casca (menu lateral e cabeçalho) já é do artefato do painel. Aqui ela
+     entra só como contexto: sem ela não dá para julgar a densidade. */
+  .d-side{
+    width:240px; flex:none; background:var(--paper); border-right:1px solid var(--line);
+    display:flex; flex-direction:column;
+  }
+  .d-side-topo{ height:60px; display:flex; align-items:center; padding:0 18px; border-bottom:1px solid var(--line); font-weight:700; letter-spacing:-.02em; }
+  .d-nav{ padding:12px 10px; display:flex; flex-direction:column; gap:2px; }
+  .d-nav a{
+    position:relative; display:flex; align-items:center; gap:10px; padding:10px 12px;
+    border-radius:10px; color:var(--ink2); font-size:14.5px; text-decoration:none;
+  }
+  .d-nav a.ativo{ color:var(--ink); font-weight:600; background:var(--wash); }
+  .d-nav a.ativo::before{ content:""; position:absolute; left:-10px; top:8px; bottom:8px; width:3px; border-radius:0 3px 3px 0; background:var(--lima); }
+  .d-corpo{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .d-header{
+    height:60px; flex:none; display:flex; align-items:center; gap:12px; padding:0 20px;
+    background:var(--paper); border-bottom:1px solid var(--line);
+  }
+  .d-header b{ font-size:14.5px; font-weight:600; }
+  .d-av{
+    margin-left:auto; width:38px; height:38px; border-radius:50%;
+    background:var(--turquesa); color:#111111; display:flex; align-items:center; justify-content:center;
+    font-size:14.5px; font-weight:700;
+  }
+
+  /* As "imagens" são pintadas com gradiente: o artefato abre do disco e não
+     depende de arquivo nenhum ao lado. */
+  .ph{ background:linear-gradient(160deg,#cfd8d2,#8fa39a 45%,#5d6b66); }
+  .ph--b{ background:linear-gradient(160deg,#e6ddd0,#c4ae94 50%,#8a755d); }
+  .ph--c{ background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d); }
+  .ph--d{ background:linear-gradient(200deg,#efe6da,#cbb8a2 55%,#7d6a55); }
+
+  .d-legenda{
+    max-width:1000px; margin:0 auto; padding:56px 24px 0;
+  }
+  .d-legenda .eb{ margin:0; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+  .d-legenda h2{ margin:10px 0 0; font-size:26px; font-weight:500; letter-spacing:-.03em; }
+  .d-legenda p{ margin:10px 0 0; max-width:64ch; color:var(--ink2); font-size:14.5px; line-height:1.6; }
+  .d-quadro{
+    max-width:1000px; margin:22px auto 0; border:1px solid var(--line);
+    border-radius:20px; overflow:hidden; background:var(--paper);
+  }
+  .d-quadro .cr-tela{ height:auto; }
+  /* Sem altura fixa, um filho com flex:1 e rolagem própria colapsa para zero:
+     o quadro nascia em branco. Aqui ele cresce com o conteúdo. */
+  .d-quadro .cr-painel,
+  .d-quadro .cr-feed,
+  .d-quadro .cr-form,
+  .d-quadro .cr-lista{ overflow:visible; flex:0 0 auto; }
+  .d-fim{ height:90px; }
+
+  /* A barra de baixo: tema e estado, para ver a mesma tela por olhos
+     diferentes sem recarregar. */
+  .d-barra{
+    position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:200;
+    display:flex; align-items:center; gap:6px; padding:6px;
+    border-radius:100px; background:#111111; box-shadow:0 12px 34px rgba(0,0,0,.34);
+  }
+  .d-barra button{
+    height:32px; padding:0 14px; border:0; border-radius:100px;
+    background:transparent; color:#B6B5AE; font-family:var(--fonte);
+    font-size:13.5px; font-weight:500; cursor:pointer;
+  }
+  .d-barra button.on{ background:#F2F2EF; color:#111111; font-weight:600; }
+  .d-barra .sep{ width:1px; height:20px; background:rgba(255,255,255,.16); margin:0 4px; }
+</style>
+
+<div class="moldura">
+  <aside class="d-side">
+    <div class="d-side-topo">CORA</div>
+    <nav class="d-nav">
+      <a href="#">Início</a>
+      <a href="#" class="ativo">Cora Render</a>
+      <a href="#">Minha conta</a>
+      <a href="#">Assinatura</a>
+    </nav>
+  </aside>
+
+  <div class="d-corpo">
+    <header class="d-header">
+      <b>Cora Render</b>
+      <span class="d-av">M</span>
+    </header>
+
+    <!-- ══════════════ 1 · a janela ══════════════ -->
+    <div class="co">
+      <div class="cr-tela">
+
+        <!-- ── o painel ── -->
+        <div class="cr-painel">
+          <div class="cr-pills">
+            <button class="cr-seta cr-seta--off" aria-label="Anterior">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="cr-sulco">
+              <div class="cr-trilho">
+                <button class="cr-pill cr-pill--on">Render</button>
+                <button class="cr-pill">Batch</button>
+                <button class="cr-pill">Editar</button>
+                <button class="cr-pill">Planta baixa</button>
+                <button class="cr-pill">Pós-produção</button>
+                <button class="cr-pill">Animação</button>
+                <button class="cr-pill">Upscale</button>
+                <button class="cr-pill">Análises</button>
+              </div>
+            </div>
+            <button class="cr-seta" aria-label="Próxima">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 4l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <div class="cr-form">
+            <p class="cr-sec">Imagem do modelo</p>
+            <div class="cr-base">
+              <div class="ph" style="height:150px"></div>
+              <button class="cr-base-x" aria-label="Tirar a imagem">×</button>
+            </div>
+
+            <p class="cr-sec">Tipo de ambiente</p>
+            <div class="cr-g2">
+              <button class="cr-b cr-b--on">Interno</button>
+              <button class="cr-b">Externo</button>
+            </div>
+
+            <p class="cr-sec">Materiais</p>
+            <button class="cr-b--tenho">Já tenho a análise</button>
+            <button class="cr-b-ler">Ler materiais</button>
+
+            <p class="cr-sec">Iluminação natural</p>
+            <div class="cr-g2">
+              <button class="cr-b cr-b--on">Luz direta</button>
+              <button class="cr-b">Luz difusa</button>
+            </div>
+            <p class="cr-grp">Dia</p>
+            <div class="cr-g2">
+              <button class="cr-b cr-b--on">Dia claro editorial</button>
+              <button class="cr-b">Manhã</button>
+              <button class="cr-b">Meio-dia</button>
+              <button class="cr-b">Tarde</button>
+            </div>
+            <p class="cr-grp">Especiais</p>
+            <div class="cr-g2">
+              <button class="cr-b">Amanhecer</button>
+              <button class="cr-b">Golden hour</button>
+              <button class="cr-b">Blue hour</button>
+            </div>
+            <textarea class="cr-ta cr-ta--mat" placeholder="Opcional: detalhes sobre a iluminação natural..."></textarea>
+
+            <p class="cr-sec">Direção da luz</p>
+            <div class="cr-g2">
+              <button class="cr-b">Frontal</button>
+              <button class="cr-b">Lateral esquerda</button>
+              <button class="cr-b cr-b--on">Lateral direita</button>
+              <button class="cr-b">Pelo fundo</button>
+              <button class="cr-b">Diagonal</button>
+              <button class="cr-b">Zenital</button>
+            </div>
+            <textarea class="cr-ta cr-ta--mat" placeholder="Opcional: descreva como a luz entra no espaço..."></textarea>
+            <p class="cr-hint">Ex.: "luz entra pela porta-janela lateral direita e pelo fundo"</p>
+
+            <p class="cr-sec">Atmosfera <span class="cr-opc">opcional, pode escolher vários</span></p>
+            <div class="cr-g2">
+              <button class="cr-b">Céu azul limpo</button>
+              <button class="cr-b">Nuvens leves</button>
+              <button class="cr-b">Nublado difuso</button>
+              <button class="cr-b">Pós-chuva com reflexos</button>
+            </div>
+
+            <p class="cr-sec">Luz artificial</p>
+            <p class="cr-grp">Cor</p>
+            <div class="cr-g3">
+              <button class="cr-b cr-b--on">Desligada</button>
+              <button class="cr-b">2700K</button>
+              <button class="cr-b">3000K</button>
+              <button class="cr-b">4000K</button>
+              <button class="cr-b">5500K</button>
+              <button class="cr-b">Outro</button>
+            </div>
+
+            <p class="cr-sec">Referências <span class="cr-opc">opcional</span></p>
+            <div class="cr-refs">
+              <div class="cr-ref"><div class="ph ph--b" style="width:100%;height:100%"></div><span class="cr-ref-n">01</span><button class="cr-ref-x" aria-label="Tirar">×</button></div>
+              <div class="cr-ref"><div class="ph ph--c" style="width:100%;height:100%"></div><span class="cr-ref-n">02</span><button class="cr-ref-x" aria-label="Tirar">×</button></div>
+              <button class="cr-ref cr-ref--add"><span class="cr-ref-mais">+</span><span class="cr-ref-c">2/10</span></button>
+            </div>
+            <textarea class="cr-ta" placeholder="Cite @ref01 para usar uma referência..."></textarea>
+            <p class="cr-hint">Use @ref01, @ref02... para dizer onde cada imagem entra.</p>
+
+            <button class="cr-resetar">Resetar configurações</button>
+          </div>
+
+          <div class="cr-barra-ger">
+            <div class="cr-pills-cfg">
+              <div class="cr-qty">
+                <button aria-label="Menos">−</button>
+                <span>2</span>
+                <button aria-label="Mais">+</button>
+              </div>
+              <div class="cr-pill-wrap">
+                <button class="cr-pill-cfg">
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="14" height="10" rx="1.5"/></svg>
+                  4:5
+                  <svg class="cr-cfg-seta" viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+              <div class="cr-pill-wrap">
+                <button class="cr-pill-cfg">
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7V4h3M17 7V4h-3M3 13v3h3M17 13v3h-3"/></svg>
+                  2K
+                  <svg class="cr-cfg-seta" viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+            <button class="cr-btn-gerar">Renderizar</button>
+            <p class="cr-custo">Custa <span class="cr-custo-tag">116 créditos</span> e você tem 11.600</p>
+          </div>
+        </div>
+
+        <!-- ── o feed ── -->
+        <div class="cr-feed">
+          <div class="cr-barra">
+            <button class="cr-fbtn cr-fbtn--on" aria-label="Tudo">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/><rect x="2.5" y="11.5" width="6" height="6" rx="1"/><rect x="11.5" y="11.5" width="6" height="6" rx="1"/></svg>
+            </button>
+            <button class="cr-fbtn" aria-label="Imagens">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/><path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/></svg>
+            </button>
+            <button class="cr-fbtn" aria-label="Vídeos">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5" width="10" height="10" rx="1.5"/><path d="M12.5 8.5l5-2.5v8l-5-2.5" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="cr-fbtn" aria-label="Upscales">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4h5v5M16 4l-5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 16H4v-5M4 16l5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="cr-fbtn cr-fbtn--fav" aria-label="Favoritos">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z" stroke-linejoin="round"/></svg>
+            </button>
+
+            <div class="cr-seg-lay">
+              <button class="cr-fbtn cr-fbtn--on" aria-label="Lista">
+                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h12M4 10h12M4 14h12" stroke-linecap="round"/></svg>
+              </button>
+              <button class="cr-fbtn" aria-label="Grade">
+                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg>
+              </button>
+            </div>
+            <div class="cr-tams">
+              <button class="cr-tam">P</button>
+              <button class="cr-tam">M</button>
+              <button class="cr-tam cr-tam--on">G</button>
+              <button class="cr-tam">GG</button>
+            </div>
+
+            <div class="cr-busca">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="9" r="5.5"/><path d="M13.5 13.5L17 17" stroke-linecap="round"/></svg>
+              <input placeholder="Buscar">
+            </div>
+          </div>
+
+          <div class="cr-lista">
+            <!-- gerando -->
+            <div class="cr-gerando">
+              <div class="cr-lote-cab">
+                <span class="cr-lote-obs"></span>
+                <span class="cr-tag cr-tag--marca">Render</span>
+                <span class="cr-tag">4:5</span>
+                <span class="cr-lote-data">agora</span>
+              </div>
+              <div class="cr-cards">
+                <div class="cr-slot" style="width:176px;height:220px">
+                  <div class="ph cr-slot-base"></div>
+                  <span class="cr-slot-tag"><span class="cr-spin"></span>1 de 2</span>
+                </div>
+                <div class="cr-slot" style="width:176px;height:220px">
+                  <span class="cr-slot-n">2</span>
+                </div>
+              </div>
+              <p class="cr-estorno">
+                <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6.2"/><path d="M8 5.2v3.4" stroke-linecap="round"/><circle cx="8" cy="11" r=".7" fill="currentColor" stroke="none"/></svg>
+                Se alguma falhar, os créditos dela voltam sozinhos.
+              </p>
+            </div>
+
+            <!-- um lote pronto -->
+            <article class="cr-lote">
+              <div class="cr-lote-cab">
+                <span class="cr-lote-obs"></span>
+                <span class="cr-tag cr-tag--marca">Planta baixa</span>
+                <span class="cr-tag">16:9</span>
+                <span class="cr-lote-data">há 2 horas</span>
+              </div>
+              <div class="cr-cards">
+                <div class="cr-card" style="width:260px;height:150px">
+                  <div class="ph ph--b" style="width:100%;height:100%"></div>
+                  <div class="cr-card-acoes">
+                    <button class="cr-mini" aria-label="Favoritar">
+                      <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z" stroke-linejoin="round"/></svg>
+                    </button>
+                    <button class="cr-mini" aria-label="Baixar">
+                      <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5M4 15.5h12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="cr-card cr-card--sel" style="width:260px;height:150px">
+                  <div class="ph ph--d" style="width:100%;height:100%"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- um lote de imagens verticais -->
+            <article class="cr-lote">
+              <div class="cr-lote-cab">
+                <span class="cr-lote-obs"></span>
+                <span class="cr-tag cr-tag--marca">Render</span>
+                <span class="cr-tag">4:5</span>
+                <span class="cr-lote-data">ontem</span>
+              </div>
+              <div class="cr-cards">
+                <div class="cr-card" style="width:176px;height:220px"><div class="ph ph--c" style="width:100%;height:100%"></div></div>
+                <div class="cr-card" style="width:176px;height:220px"><div class="ph" style="width:100%;height:100%"></div></div>
+                <div class="cr-card" style="width:176px;height:220px"><div class="ph ph--b" style="width:100%;height:100%"></div></div>
+              </div>
+            </article>
+          </div>
+
+          <button class="cr-voltar-topo cr-voltar-topo--on" aria-label="Voltar ao topo">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 2 · os cards de modo ══════════════ -->
+<div class="d-legenda">
+  <p class="eb">A aba Editar</p>
+  <h2>Oito modos, uma cor</h2>
+  <p>Cada card tinha o seu pastel, com a tinta escrita dentro do JavaScript, e o
+    próprio código já avisava que eram provisórias. A cor saiu do card e virou
+    estado. O que separa um modo do outro é o desenho e o nome, que é o que a
+    pessoa lê de qualquer jeito.</p>
+</div>
+    <div class="d-quadro">
+      <div class="co">
+        <div class="cr-tela">
+          <div class="cr-painel" style="width:100%;border-right:0">
+            <div class="cr-form">
+              <p class="cr-sec">O que fazer</p>
+              <div class="ed-cards">
+                <button class="ed-card ed-card--on">
+                  <div class="ed-faixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l10-10 3 3-10 10H5v-3z"/></svg></div>
+                  <div class="ed-corpo"><strong>Edição</strong><span>Adicionar, trocar ou remover elementos, mudar cor ou material.</span></div>
+                </button>
+                <button class="ed-card">
+                  <div class="ed-faixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v6h18v-6a3 3 0 00-3-3H6a3 3 0 00-3 3z"/><path d="M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2"/></svg></div>
+                  <div class="ed-corpo"><strong>Ambientação</strong><span>Inserir mobiliário e decoração em um espaço vazio.</span></div>
+                </button>
+                <button class="ed-card">
+                  <div class="ed-faixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6 6L4.5 4.5M19.5 19.5L18 18M6 18l-1.5 1.5M19.5 4.5L18 6"/></svg></div>
+                  <div class="ed-corpo"><strong>Mudar mood</strong><span>Trocar atmosfera e iluminação mantendo o projeto.</span></div>
+                </button>
+                <button class="ed-card">
+                  <div class="ed-faixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="3"/><path d="M5 20v-1a5 5 0 015-5h4a5 5 0 015 5v1"/></svg></div>
+                  <div class="ed-corpo"><strong>Adicionar pessoa</strong><span>Inserir figura humana ou animal com escala e luz coerentes.</span></div>
+                </button>
+                <button class="ed-card">
+                  <div class="ed-faixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></div>
+                  <div class="ed-corpo"><strong>Close-ups</strong><span>Closes, detalhes e novos enquadramentos da mesma imagem.</span></div>
+                </button>
+                <button class="ed-card">
+                  <div class="ed-faixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></div>
+                  <div class="ed-corpo"><strong>Maquete física</strong><span>Transformar o projeto em uma maquete física.</span></div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ 3 · os estados ══════════════ -->
+    <div class="d-legenda">
+  <p class="eb">Quando não há imagem</p>
+  <h2>O feed vazio, e a confirmação</h2>
+  <p>A faixa entra no vazio porque é o único lugar da janela onde sobra silêncio.
+    Em qualquer outro canto ela competiria com a imagem, que é o que a pessoa
+    veio ver.</p>
+</div>
+    <div class="d-quadro">
+      <div class="co">
+        <div class="cr-tela">
+          <div class="cr-feed" style="min-height:380px">
+            <div class="cr-lista">
+              <div class="cr-vazio">
+                <div class="cr-vazio-faixa"></div>
+                <h2>Nada aqui ainda</h2>
+                <p>Suas gerações do plugin e da web aparecem aqui.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-quadro" style="padding:44px; display:flex; justify-content:center; background:var(--wash)">
+      <div class="co">
+        <div class="cr-tela" style="height:auto; background:transparent; overflow:visible">
+          <div class="cf">
+            <h3>Excluir esta geração?</h3>
+            <p>A imagem sai do seu histórico e não dá para trazer de volta.</p>
+            <div class="cf-acoes">
+              <button class="cf-nao">Cancelar</button>
+              <button class="cf-sim">Excluir</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<div class="d-fim"></div>
+
+<div class="d-barra">
+  <button class="on" data-tema="light">Claro</button>
+  <button data-tema="dark">Escuro</button>
+</div>
+
+<script>
+  // A barra troca o tema no elemento raiz, que é onde o `data-theme` mora no
+  // site de verdade. Assim o que se vê aqui é a mesma cascata de lá.
+  document.querySelectorAll('.d-barra [data-tema]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.d-barra [data-tema]').forEach(function (o) { o.classList.remove('on'); });
+      b.classList.add('on');
+      document.documentElement.setAttribute('data-theme', b.dataset.tema);
+    });
+  });
+
+  // O trilho anda por transform, e não por scroll: assim ele trava no começo
+  // de uma pill e nenhum rótulo fica cortado ao meio.
+  (function () {
+    var sulco = document.querySelector('.cr-sulco');
+    var trilho = document.querySelector('.cr-trilho');
+    if (!sulco || !trilho) return;
+    var pos = 0;
+    document.querySelectorAll('.cr-seta').forEach(function (s, i) {
+      s.addEventListener('click', function () {
+        var max = trilho.scrollWidth - sulco.clientWidth + 6;
+        pos = Math.max(0, Math.min(max, pos + (i === 0 ? -120 : 120)));
+        trilho.style.transform = 'translateX(' + (-pos) + 'px)';
+        document.querySelectorAll('.cr-seta')[0].classList.toggle('cr-seta--off', pos <= 0);
+        document.querySelectorAll('.cr-seta')[1].classList.toggle('cr-seta--off', pos >= max);
+      });
+    });
+    document.querySelectorAll('.cr-pill').forEach(function (p) {
+      p.addEventListener('click', function () {
+        document.querySelectorAll('.cr-pill').forEach(function (o) { o.classList.remove('cr-pill--on'); });
+        p.classList.add('cr-pill--on');
+      });
+    });
+  })();
+
+  // Os botões de escolha: clicar troca o escolhido dentro da própria grade.
+  document.querySelectorAll('.cr-g2, .cr-g3').forEach(function (g) {
+    g.addEventListener('click', function (e) {
+      var b = e.target.closest('.cr-b');
+      if (!b) return;
+      g.querySelectorAll('.cr-b').forEach(function (o) { o.classList.remove('cr-b--on'); });
+      b.classList.add('cr-b--on');
+    });
+  });
+
+  document.querySelectorAll('.ed-cards').forEach(function (g) {
+    g.addEventListener('click', function (e) {
+      var c = e.target.closest('.ed-card');
+      if (!c) return;
+      g.querySelectorAll('.ed-card').forEach(function (o) { o.classList.remove('ed-card--on'); });
+      c.classList.add('ed-card--on');
+    });
+  });
+
+  document.querySelectorAll('.cr-tams, .cr-seg-lay').forEach(function (g) {
+    g.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      var cls = b.classList.contains('cr-tam') ? 'cr-tam--on' : 'cr-fbtn--on';
+      g.querySelectorAll('button').forEach(function (o) { o.classList.remove(cls); });
+      b.classList.add(cls);
+    });
+  });
+
+  document.querySelectorAll('.cr-fbtn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.cr-fbtn').forEach(function (o) { o.classList.remove('cr-fbtn--on'); });
+      b.classList.add('cr-fbtn--on');
+    });
+  });
+</script>

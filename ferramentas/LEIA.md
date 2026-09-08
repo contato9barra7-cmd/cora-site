@@ -178,3 +178,30 @@ que o gerador ignora, porque no site ela já chega pelo `painel-pagina.css`.
 Depois de montar, gerar:
 
     python ferramentas/gerar-css-artefato.py ferramentas/admin.html app/admin-pagina.css ad
+
+
+## `cora.html` — a janela do Cora
+
+O artefato da tela `/app`: o painel de ferramentas à esquerda e o feed à
+direita, na identidade nova. Escrito em setembro de 2026, a última tela do site
+que ainda estava no molde antigo.
+
+    python ferramentas/gerar-css-artefato.py ferramentas/cora.html app/cora-pagina.css co
+
+Ele abre direto do disco, e a barra preta no rodapé troca o tema. Abaixo da
+janela vêm os cards de modo do Editar, o feed vazio e a confirmação, para as
+peças que não cabem numa tela só terem onde ser vistas.
+
+**A folha pinta, e não mede.** Altura da janela, quando ela vira coluna, quando
+o painel encolhe de 400 para 340: isso é do `globals.css` e do `responsivo.css`,
+e continua sendo. Escopada em `.co`, qualquer medida repetida aqui ganharia
+daquelas por especificidade, e o celular quebraria sem erro nenhum aparecer. Por
+isso a geometria da demonstração mora no `<style data-demo>`, que não atravessa.
+
+Pela mesma razão o bloco de tokens **não** define `--header-h`: o
+`responsivo.css` o baixa para 48px no celular, e redefinido dentro do escopo
+esse valor ficaria na sombra.
+
+O escopo `.co` envolve tudo que a `AppShell` recebe, e não só a `.cr-tela`: o
+visualizador, o modal de download e a confirmação são irmãos dela, e a folha
+veste os três.

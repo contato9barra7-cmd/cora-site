@@ -267,7 +267,7 @@ export default function TelaPincel({
       // SÓLIDA. A transparência vem do CSS (opacity do canvas) — com rgba()
       // a tinta acumularia a cada passada.
       const cor = getComputedStyle(document.documentElement)
-        .getPropertyValue('--accent').trim() || '#A4A1F3';
+        .getPropertyValue('--turquesa-esc').trim() || '#8FDDCC';
       ctx.globalCompositeOperation =
         ferrRef.current === 'borracha' ? 'destination-out' : 'source-over';
       ctx.strokeStyle = cor;

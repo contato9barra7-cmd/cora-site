@@ -30,8 +30,8 @@ import {
 //
 //  O rótulo do campo de texto é sempre "O que você quer fazer" (`ed_oque` no
 //  plugin) — exceto onde o plugin usa outro.
-//  `cor`   — a faixa do card. Provisorias: entram as da marca depois.
-//  `icone` — o desenho na faixa
+//  `icone` — o desenho na pastilha. A cor saiu: era um pastel por modo, com a
+//            tinta escrita aqui, e a marca tem duas cores. Ver ferramentas/cora.html.
 //  Os campos de texto (nome, desc, campo, ph, rotulo, opcoes, padrao) guardam
 //  CHAVES de tradução — resolvidas com t() no render.
 const MODOS = [
@@ -39,7 +39,6 @@ const MODOS = [
     id: 'edicao',
     nome: 'paineleditar_edicao_nome',
     desc: 'paineleditar_edicao_desc',
-    cor: '#EEEDFE', tinta: '#534AB7',
     icone: 'M5 15l10-10 3 3-10 10H5v-3z M12 6l3 3',
     refs: true,
     campo: 'paineleditar_campo_oque',
@@ -49,7 +48,6 @@ const MODOS = [
     id: 'ambientacao',
     nome: 'paineleditar_ambientacao_nome',
     desc: 'paineleditar_ambientacao_desc',
-    cor: '#E1F5EE', tinta: '#0F6E56',
     icone: 'M3 11v6h18v-6a3 3 0 00-3-3H6a3 3 0 00-3 3z M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2',
     refs: true,
     campo: 'paineleditar_campo_oque',
@@ -59,7 +57,6 @@ const MODOS = [
     id: 'mood',
     nome: 'paineleditar_mood_nome',
     desc: 'paineleditar_mood_desc',
-    cor: '#FAEEDA', tinta: '#854F0B',
     icone: 'M12 3v2 M12 19v2 M5 12H3 M21 12h-2 M6 6l-1.5-1.5 M19.5 19.5L18 18 M6 18l-1.5 1.5 M19.5 4.5L18 6 M12 8a4 4 0 100 8 4 4 0 000-8z',
     refs: false,
     campo: 'paineleditar_mood_campo',
@@ -72,7 +69,6 @@ const MODOS = [
     id: 'pessoa',
     nome: 'paineleditar_pessoa_nome',
     desc: 'paineleditar_pessoa_desc',
-    cor: '#FBEAF0', tinta: '#993556',
     icone: 'M12 4a3 3 0 100 6 3 3 0 000-6z M5 20v-1a5 5 0 015-5h4a5 5 0 015 5v1',
     refs: true,
     campo: 'paineleditar_pessoa_campo',
@@ -88,7 +84,6 @@ const MODOS = [
     id: 'derivadas',
     nome: 'paineleditar_derivadas_nome',
     desc: 'paineleditar_derivadas_desc',
-    cor: '#E6F1FB', tinta: '#185FA5',
     icone: 'M11 5a6 6 0 100 12 6 6 0 000-12z M20 20l-4.5-4.5',
     refs: false,
     campo: 'paineleditar_derivadas_campo',
@@ -99,7 +94,6 @@ const MODOS = [
     id: 'maquete',
     nome: 'paineleditar_maquete_nome',
     desc: 'paineleditar_maquete_desc',
-    cor: '#FAECE7', tinta: '#993C1D',
     icone: 'M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z M12 12l8-4.5 M12 12v9 M12 12L4 7.5',
     refs: false,
     campo: 'paineleditar_maquete_campo',
@@ -118,7 +112,6 @@ const MODOS = [
     id: 'preenchimento',
     nome: 'paineleditar_preenchimento_nome',
     desc: 'paineleditar_preenchimento_desc',
-    cor: '#EAF3DE', tinta: '#3B6D11',
     icone: 'M6 15l7-7 3 3-7 7H6v-3z M4 21h16',
     pincel: true
   },
@@ -126,7 +119,6 @@ const MODOS = [
     id: 'expansao',
     nome: 'paineleditar_expansao_nome',
     desc: 'paineleditar_expansao_desc',
-    cor: '#F1EFE8', tinta: '#5F5E5A',
     icone: 'M8 8H4v4 M16 16h4v-4 M4 8l6 6 M20 16l-6-6 M16 4h4v4 M8 20H4v-4',
     pincel: true
   }
@@ -380,10 +372,12 @@ export default function PainelEditar({
                       </span>
                     )}
 
-                    {/* A faixa: cada modo tem a sua cor. A pessoa aprende a
-                        reconhecer o card pela cor, não só pelo texto. */}
-                    <div className="ed-faixa" style={{ background: mod.cor }}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke={mod.tinta}
+                    {/* A faixa virou a pastilha do desenho, e ela não pinta
+                        mais o modo: eram oito pastéis, um por card, e oito
+                        cores não são hierarquia. O que separa um modo do
+                        outro é o desenho e o nome. */}
+                    <div className="ed-faixa">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                            strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                         <path d={mod.icone} />
                       </svg>

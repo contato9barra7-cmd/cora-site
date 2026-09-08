@@ -1054,6 +1054,7 @@ export default function AppPage() {
   if (ehTelaCheia) {
     return (
       <AppShell>
+      <div className="co">
         <div className="cr-tela">
           <PainelPos
             imagemInicial={imagemDeOutraAba?.para === 'pos' ? imagemDeOutraAba : null}
@@ -1081,12 +1082,14 @@ export default function AppPage() {
             }}
           />
         </div>
+      </div>
       </AppShell>
     );
   }
 
   return (
     <AppShell>
+    <div className="co">
       <div className="cr-tela" data-mob={abaMob}>
 
         {/* ═══ Criar / Galeria — só aparece abaixo de 1024px ═══
@@ -1627,6 +1630,10 @@ export default function AppPage() {
 
             {vazio && (
               <div className="cr-vazio">
+                {/* A faixa entra aqui e em nenhum outro canto da janela: é o
+                    único lugar onde sobra silêncio, e no resto ela competiria
+                    com a imagem, que é o que a pessoa veio ver. */}
+                <div className="cr-vazio-faixa" aria-hidden="true" />
                 <h2>{t('app_nada_aqui')}</h2>
                 <p>
                   {buscaAtiva || filtro !== 'tudo'
@@ -1703,7 +1710,7 @@ export default function AppPage() {
                         removido do feed a pedido. */}
                     <span className="cr-lote-obs" />
 
-                    <span className="cr-tag cr-tag--roxa">
+                    <span className="cr-tag cr-tag--marca">
                       {ROTULO_FERRAMENTA[lote.ferramenta] || lote.ferramenta}
                     </span>
                     {lote.proporcao && <span className="cr-tag">{lote.proporcao}</span>}
@@ -1893,6 +1900,7 @@ export default function AppPage() {
         />
       )}
 
+    </div>
     </AppShell>
   );
 }

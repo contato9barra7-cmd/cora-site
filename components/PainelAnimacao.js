@@ -957,8 +957,8 @@ export default function PainelAnimacao({
           <div className="cr-sec">{t('painelanimacao_ferramentas')}</div>
           <div className="seq-cards">
             <button className="seq-card" onClick={() => { setTlTipo('externo'); setFerramenta('tl-externo'); }}>
-              <span className="seq-faixa" style={{ background: '#E6F1FB' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="#185FA5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V11l7-5 7 5v10"/><path d="M9 21v-6h6v6"/><path d="M2 11l10-7 10 7"/></svg>
+              <span className="seq-faixa">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V11l7-5 7 5v10"/><path d="M9 21v-6h6v6"/><path d="M2 11l10-7 10 7"/></svg>
               </span>
               <span className="seq-corpo">
                 <strong>{t('painelanimacao_tl_externo')}</strong>
@@ -966,8 +966,8 @@ export default function PainelAnimacao({
               </span>
             </button>
             <button className="seq-card" onClick={() => { setTlTipo('interior'); setFerramenta('tl-interior'); }}>
-              <span className="seq-faixa" style={{ background: '#E1F5EE' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="#0F6E56" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M4 21V8h16v13"/><rect x="9" y="13" width="6" height="8"/><path d="M4 8l8-5 8 5"/></svg>
+              <span className="seq-faixa">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M4 21V8h16v13"/><rect x="9" y="13" width="6" height="8"/><path d="M4 8l8-5 8 5"/></svg>
               </span>
               <span className="seq-corpo">
                 <strong>{t('painelanimacao_tl_interiores')}</strong>
@@ -975,8 +975,8 @@ export default function PainelAnimacao({
               </span>
             </button>
             <button className="seq-card" onClick={() => setFerramenta('diretor')}>
-              <span className="seq-faixa" style={{ background: '#FAEEDA' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="#854F0B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/></svg>
+              <span className="seq-faixa">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/></svg>
               </span>
               <span className="seq-corpo">
                 <strong>{t('painelanimacao_diretor_narrativa')}</strong>

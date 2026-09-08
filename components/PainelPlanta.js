@@ -527,14 +527,15 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
 
         {/* ═══ SELETOR DE MODO (2D / 3D) ═══
             Cores e ícones IGUAIS ao plugin (e ao padrão da aba Editar):
-            faixa fraquinha na cor da marca, ícone na cor forte. */}
+            pastilha na lavagem, desenho na cor do texto. A cor aqui é
+            estado, e não etiqueta de categoria. */}
         {modo === null && (
           <>
             <div className="cr-sec">{L.oque_fazer}</div>
             <div className="ed-cards">
               <button className="ed-card" onClick={() => setModo('2d')} disabled={ocupado}>
-                <div className="ed-faixa" style={{ background: '#EEEDFE' }}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#534AB7" strokeWidth="1.6"
+                <div className="ed-faixa">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"
                        strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="1"/>
                     <path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>
@@ -547,8 +548,8 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
               </button>
 
               <button className="ed-card" onClick={() => setModo('3d')} disabled={ocupado}>
-                <div className="ed-faixa" style={{ background: '#E1F5EE' }}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#0F6E56" strokeWidth="1.6"
+                <div className="ed-faixa">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"
                        strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 2l9 5v10l-9 5-9-5V7z"/>
                     <path d="M12 2v20M3 7l9 5 9-5"/>

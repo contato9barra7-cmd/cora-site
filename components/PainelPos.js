@@ -667,8 +667,9 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       // pareceria um defeito; com ela, fica claro que encostou no centro.
       if (guias.length) {
         cx.save();
-        // Cor da marca: roxo no tema claro, verde no escuro (lê a var --accent).
-        cx.strokeStyle = (getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#A4A1F3');
+        // A guia é turquesa: ela é controle, e controle é turquesa. O último
+        // recurso também, para o lavanda do molde antigo não voltar por aqui.
+        cx.strokeStyle = (getComputedStyle(document.documentElement).getPropertyValue('--turquesa-esc').trim() || '#8FDDCC');
         cx.lineWidth = 1 / escala;
         cx.setLineDash([]);
 
