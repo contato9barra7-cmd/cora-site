@@ -1,0 +1,320 @@
+<title>O caminho das aulas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --turq-txt:#196C5B; --turq-bg:#E6F7F3;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --t:.16s ease;
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px; --t-titulo:17px;
+  --alt-ctrl:38px; --alt-acao:46px; --alt-ta:128px;
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --faixa:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83; --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+    --line:#2B2B30; --line2:#3A3A41; --turq-txt:#8FDDCC; --turq-bg:rgba(143,221,204,.16);
+    --sombra-peq:0 2px 8px rgba(0,0,0,.34); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83; --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41; --turq-txt:#8FDDCC; --turq-bg:rgba(143,221,204,.16);
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34); color-scheme:dark;
+}
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--wash); color:var(--ink); font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.5; }
+.pag{ max-width:1320px; margin:0 auto; padding:40px 24px 72px; }
+.cab{ max-width:64ch; margin-bottom:28px; }
+.cab h1{ margin:0 0 8px; font-size:28px; font-weight:600; letter-spacing:-.01em; text-wrap:balance; }
+.cab p{ margin:0; color:var(--ink2); text-wrap:pretty; }
+.cab p + p{ margin-top:8px; }
+h2.sec{ margin:40px 0 4px; font-size:20px; font-weight:600; }
+p.sec-p{ margin:0 0 16px; color:var(--ink2); font-size:var(--t-apoio); max-width:70ch; }
+
+/* a fila de passos: rola de lado */
+.fila{ display:flex; gap:22px; overflow-x:auto; padding:4px 4px 18px; scroll-snap-type:x proximity; }
+.passo{ flex:none; width:400px; scroll-snap-align:start; }
+.passo__cab{ display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; min-height:72px; }
+.passo__n{ flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--ink); color:var(--paper); font-size:var(--t-apoio2); font-weight:600; }
+.passo__cab h3{ margin:1px 0 2px; font-size:var(--t-apoio); font-weight:600; }
+.passo__cab p{ margin:0; color:var(--ink2); font-size:var(--t-apoio2); text-wrap:pretty; }
+
+/* o painel: 400 de largura, 640 de altura, corpo que rola e pé fixo */
+.painel{ width:400px; height:640px; display:flex; flex-direction:column; background:var(--paper); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; }
+.painel__corpo{ flex:1; min-height:0; overflow-y:auto; padding:20px 16px 24px; }
+.painel__pe{ flex:none; padding:12px 16px 14px; border-top:1px solid var(--line); background:var(--paper); }
+
+/* peças da janela */
+.cr-sec{ margin:18px 0 8px; display:flex; align-items:baseline; gap:6px; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+.cr-sec:first-child{ margin-top:0; }
+.cr-opc{ font-weight:600; letter-spacing:.06em; opacity:.75; }
+.cr-voltar{ display:inline-flex; align-items:center; gap:6px; margin-bottom:14px; padding:2px 0; border:0; background:none; color:var(--ink2); font:inherit; font-size:var(--t-apoio); cursor:pointer; }
+.cr-voltar svg{ width:14px; height:14px; stroke:currentColor; }
+.seq-hint{ font-size:var(--t-apoio2); line-height:1.5; color:var(--ink3); margin:6px 0 16px; }
+.cr-drop{ width:100%; height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; border:1px dashed var(--line2); border-radius:var(--r-peq); background:var(--wash); color:var(--ink3); font:inherit; font-size:var(--t-apoio); cursor:pointer; }
+.cr-drop svg{ width:22px; height:22px; stroke:currentColor; }
+.cr-base{ position:relative; border-radius:var(--r-peq); border:1px solid var(--line); overflow:hidden; }
+.cr-base-img{ display:block; width:100%; height:150px; background-size:cover; background-position:center; }
+.cr-base-x{ position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:50%; border:0; background:rgba(17,17,17,.55); color:#fff; font:inherit; font-size:16px; line-height:1; cursor:pointer; backdrop-filter:blur(6px); }
+.cmp{ margin-top:14px; }
+.cmp__rot{ display:block; margin:0 0 6px; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+.cmp__b{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:44px; padding:11px 16px; border:1px solid var(--line); border-radius:14px; background:var(--paper); color:var(--ink); font:inherit; font-size:var(--t-apoio); text-align:left; line-height:1.35; }
+.cmp__seta{ width:15px; height:15px; stroke:var(--ink3); flex:none; }
+.cr-pills-cfg{ display:flex; gap:6px; margin-bottom:10px; }
+.cr-pill-wrap{ flex:0 0 auto; width:118px; }
+.cr-pills-cfg--uma .cr-pill-wrap{ flex:0 0 118px; }
+.cr-pill-cfg{ width:100%; height:var(--alt-ctrl); padding:0 14px; border:0; display:flex; align-items:center; justify-content:center; gap:6px; border-radius:var(--pill); background:var(--wash2); color:var(--ink2); font:inherit; font-size:var(--t-apoio); font-weight:500; }
+.cr-pill-cfg svg{ width:14px; height:14px; stroke:currentColor; }
+.cr-btn-gerar{ position:relative; width:100%; height:var(--alt-acao); border:0; border-radius:var(--pill); background:var(--lima); color:#111111; font:inherit; font-size:var(--t-corpo); font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.cr-btn-gerar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+.cr-btn-gerar > span:first-child{ min-width:0; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cr-btn-gerar .cr-custo-tag{ position:absolute; right:12px; top:50%; transform:translateY(-50%); display:inline-flex; align-items:center; gap:4px; padding:1px 9px; border-radius:var(--pill); background:var(--turq-bg); color:var(--turq-txt); font-size:var(--t-apoio2); font-weight:600; }
+.cr-btn-gerar .cr-custo-tag svg{ width:12px; height:12px; fill:currentColor; }
+.moeda-vis .cr-custo-tag{ opacity:1; }
+.seq-gerar-box{ display:flex; flex-direction:column; gap:12px; }
+.seq-gerar-item{ display:flex; flex-direction:column; gap:6px; }
+.seq-gerar-aviso{ font-size:var(--t-etiqueta); line-height:1.45; color:var(--ink3); margin:0; text-align:center; }
+.seq-passo-box{ display:flex; flex-direction:column; gap:8px; }
+.seq-refazer{ padding:9px 0; border-radius:var(--pill); border:1px solid var(--line2); background:transparent; color:var(--ink2); font:inherit; font-size:var(--t-apoio2); cursor:pointer; }
+.cr-resetar{ display:block; margin:12px auto 0; padding:2px 0; border:0; background:none; color:var(--ink2); font:inherit; font-size:var(--t-apoio2); cursor:pointer; box-shadow:inset 0 -2px 0 var(--lima); }
+.seq-gerando{ margin:8px 0 0; }
+.seq-status{ font-size:11.5px; color:var(--turq-txt); line-height:1.5; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.seq-prog{ height:5px; border-radius:var(--pill); background:var(--wash2); overflow:hidden; margin:4px 0 0; }
+.seq-prog > span{ display:block; height:100%; background:var(--lima); border-radius:var(--pill); }
+.seq-reembolso{ font-size:var(--t-etiqueta); color:var(--ink3); margin:4px 0 0; }
+.cr-hint{ font-size:var(--t-apoio2); color:var(--ink3); margin:6px 0 0; }
+
+/* a grade das etapas: 2 colunas, legenda numerada */
+.seq-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+.seq-cel{ display:flex; flex-direction:column; gap:4px; }
+.seq-slot{ position:relative; aspect-ratio:4/3; border-radius:10px; overflow:hidden; background:var(--wash2); border:1px solid var(--line); }
+.seq-img{ position:absolute; inset:0; background-size:cover; background-position:center; filter:var(--f, none); }
+.seq-slot-load{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+.cr-ger-spin{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line2); border-top-color:var(--turq-txt); animation:gira 1s linear infinite; }
+@keyframes gira{ to{ transform:rotate(360deg); } }
+.seq-slot-acoes{ position:absolute; left:6px; right:6px; bottom:6px; display:flex; gap:4px; justify-content:center; }
+.seq-acao{ width:26px; height:26px; border-radius:50%; border:0; background:rgba(17,17,17,.45); color:#fff; backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; }
+.seq-acao svg{ width:14px; height:14px; stroke:currentColor; fill:none; }
+.seq-cel-cap{ font-size:var(--t-etiqueta); color:var(--ink3); line-height:1.3; }
+.seq-cel-cap b{ color:var(--ink); font-weight:600; margin-right:3px; }
+
+/* tipo de obra (interiores) */
+.seq-modo-int{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.seq-modo-int-btn{ display:flex; flex-direction:column; gap:3px; text-align:left; padding:11px 13px; border-radius:var(--r-peq); border:1px solid var(--line); background:var(--paper); font:inherit; cursor:pointer; }
+.seq-modo-int-btn strong{ font-size:var(--t-apoio2); }
+.seq-modo-int-btn span{ font-size:var(--t-etiqueta); color:var(--ink2); line-height:1.3; }
+.seq-modo-int-btn--on{ border-color:var(--turquesa-esc); background:var(--turq-bg); }
+
+/* cards das ferramentas */
+.ed-cards{ display:grid; grid-template-columns:1fr; grid-auto-rows:1fr; gap:8px; }
+.ed-card{ position:relative; overflow:hidden; display:block; width:100%; padding:24px 12px 12px; text-align:left; border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper); cursor:pointer; font:inherit; color:inherit; }
+.ed-card::after{ content:""; position:absolute; left:0; right:0; top:0; height:10px; background:var(--faixa) repeat-x var(--desl,0) center; background-size:80px 100%; }
+.ed-card:nth-child(2){ --desl:-12px; } .ed-card:nth-child(3){ --desl:-27px; }
+.ed-card--on{ border-color:var(--line2); }
+.ed-card--on::before{ content:""; position:absolute; left:0; top:10px; bottom:0; width:3px; background:var(--lima); }
+.ed-faixa{ width:34px; height:34px; margin-bottom:10px; border-radius:50%; background:var(--wash2); color:var(--ink2); display:flex; align-items:center; justify-content:center; }
+.ed-faixa svg{ width:17px; height:17px; stroke:currentColor; fill:none; }
+.ed-card--on .ed-faixa{ background:var(--turq-bg); color:var(--turq-txt); }
+.ed-corpo strong{ display:block; font-size:var(--t-corpo); font-weight:600; }
+.ed-corpo span{ display:block; margin-top:4px; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.45; }
+.nota{ margin:0 0 10px; padding:8px 10px; border-radius:10px; background:var(--wash2); color:var(--ink2); font-size:var(--t-etiqueta); }
+.rod{ margin-top:36px; max-width:64ch; color:var(--ink2); font-size:var(--t-apoio); }
+.rod p{ margin:0 0 8px; text-wrap:pretty; }
+.rod strong{ color:var(--ink); font-weight:600; }
+
+body{ background:var(--wash); }
+.pag{ max-width:1200px; }
+.cab{ max-width:70ch; }
+.cab h1{ font-size:32px; }
+.selo{ display:inline-block; margin-bottom:12px; padding:4px 12px; border-radius:var(--pill);
+  background:var(--ink); color:var(--paper); font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; }
+h2.cap{ margin:52px 0 6px; font-size:23px; font-weight:600; letter-spacing:-.015em; }
+h2.cap span{ color:var(--ink3); font-weight:500; margin-right:10px; }
+.cap-txt{ margin:0 0 20px; max-width:70ch; color:var(--ink2); line-height:1.65; text-wrap:pretty; }
+h3.sub{ margin:34px 0 4px; font-size:var(--t-titulo); font-weight:600; }
+h3.sub em{ font-style:normal; color:var(--ink3); font-weight:500; }
+p.txt{ margin:0 0 12px; max-width:70ch; color:var(--ink2); line-height:1.65; text-wrap:pretty; }
+p.txt b{ color:var(--ink); font-weight:600; }
+
+/* as cinco versoes do convite */
+.convites{ display:grid; grid-template-columns:repeat(auto-fit,minmax(238px,1fr)); gap:16px; align-items:start; }
+.cv{ border:1px solid var(--line); border-radius:var(--r); background:var(--paper); overflow:hidden; }
+.cv__cab{ padding:14px 16px 10px; }
+.cv__cab h4{ margin:0 0 3px; font-size:var(--t-apoio); font-weight:600; }
+.cv__cab p{ margin:0; font-size:var(--t-etiqueta); color:var(--ink2); line-height:1.5; }
+.cv__vivo{ padding:12px 16px 16px; background:var(--wash); }
+.cv__pe{ padding:9px 16px; border-top:1px solid var(--line); font-size:var(--t-etiqueta); color:var(--ink3); line-height:1.45; }
+
+/* o pe da lateral, onde o convite mora */
+.pe{ width:194px; }
+.pe__topo{ height:1px; background:var(--line); margin:0 6px 10px; }
+
+/* 1 linha */
+.iaA{ display:flex; align-items:center; gap:11px; height:36px; padding:0 10px; border-radius:var(--r-peq);
+  color:var(--ink2); font-size:var(--t-apoio); font-weight:500; }
+.iaA svg{ flex:none; width:17px; height:17px; stroke:var(--ink3); fill:none; stroke-width:1.5; stroke-linejoin:round; }
+.iaA i{ margin-left:auto; }
+.iaA i svg{ width:13px; height:13px; }
+
+/* 2 cartao com a faixa */
+.iaB{ position:relative; overflow:hidden; padding:19px 12px 12px; border:1px solid var(--line);
+  border-radius:var(--r-peq); background:var(--paper); }
+.iaB::after{ content:""; position:absolute; left:0; right:0; top:0; height:8px;
+  background:var(--faixa) repeat-x center; background-size:70px 100%; }
+.iaB b{ display:block; font-size:var(--t-apoio2); font-weight:600; color:var(--ink); }
+.iaB span{ display:block; margin-top:3px; font-size:var(--t-etiqueta); color:var(--ink2); line-height:1.4; }
+.iaB u{ display:inline-flex; align-items:center; gap:5px; margin-top:9px; text-decoration:none;
+  font-size:var(--t-etiqueta); font-weight:600; color:var(--ink); }
+.iaB u svg{ width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:1.8; }
+
+/* 3 faixa escura */
+.iaC{ position:relative; overflow:hidden; padding:14px 13px; border-radius:var(--r-peq); background:var(--ink); }
+.iaC::before{ content:""; position:absolute; left:0; right:0; top:0; height:5px;
+  background:var(--faixa) repeat-x center; background-size:70px 100%; }
+.iaC b{ display:block; margin-top:3px; font-size:var(--t-apoio2); font-weight:600; color:#FFFFFF; }
+.iaC span{ display:block; margin-top:4px; font-size:var(--t-etiqueta); color:rgba(255,255,255,.66); line-height:1.4; }
+.iaC u{ display:inline-flex; align-items:center; gap:5px; margin-top:10px; text-decoration:none;
+  padding:5px 11px; border-radius:var(--pill); background:var(--lima); color:#111111;
+  font-size:var(--t-etiqueta); font-weight:700; }
+.iaC u svg{ width:11px; height:11px; stroke:currentColor; fill:none; stroke-width:2; }
+
+/* 4 selo */
+.iaD{ display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:var(--pill);
+  background:var(--wash2); color:var(--ink2); font-size:var(--t-etiqueta); font-weight:600; }
+.iaD svg{ width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:1.8; }
+
+/* 5 cartao turquesa */
+.iaE{ padding:13px; border-radius:var(--r-peq); background:var(--turq-bg);
+  box-shadow:inset 0 0 0 1px var(--turquesa-esc); }
+.iaE b{ display:flex; align-items:center; gap:7px; font-size:var(--t-apoio2); font-weight:600; color:var(--ink); }
+.iaE b svg{ width:15px; height:15px; stroke:var(--turq-txt); fill:none; stroke-width:1.6; stroke-linejoin:round; }
+.iaE span{ display:block; margin-top:5px; font-size:var(--t-etiqueta); color:var(--ink2); line-height:1.45; }
+.iaE u{ display:inline-flex; align-items:center; gap:5px; margin-top:9px; text-decoration:none;
+  font-size:var(--t-etiqueta); font-weight:700; color:var(--turq-txt); }
+.iaE u svg{ width:11px; height:11px; stroke:currentColor; fill:none; stroke-width:2; }
+
+/* o passo a passo */
+.fila{ display:flex; gap:20px; overflow-x:auto; padding:4px 4px 18px; scroll-snap-type:x proximity; }
+.passo{ flex:none; width:460px; scroll-snap-align:start; }
+.passo__cab{ display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; min-height:78px; }
+.passo__n{ flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center;
+  justify-content:center; background:var(--ink); color:var(--paper); font-size:var(--t-apoio2); font-weight:600; }
+.passo__cab h4{ margin:1px 0 3px; font-size:var(--t-apoio); font-weight:600; }
+.passo__cab p{ margin:0; color:var(--ink2); font-size:var(--t-apoio2); line-height:1.5; text-wrap:pretty; }
+.passo__cab em{ font-style:normal; color:var(--turq-txt); font-weight:600; }
+.quadro{ width:460px; height:340px; border:1px solid var(--line); border-radius:var(--r);
+  background:var(--paper); overflow:hidden; display:flex; }
+.quadro__lat{ flex:none; width:56px; background:var(--paper); border-right:1px solid var(--line);
+  padding:10px 8px; display:flex; flex-direction:column; gap:6px; }
+.quadro__pt{ height:26px; border-radius:8px; background:var(--wash2); }
+.quadro__pt--on{ position:relative; background:var(--wash); }
+.quadro__pt--on::before{ content:""; position:absolute; left:-8px; top:4px; bottom:4px; width:3px; background:var(--lima); }
+.quadro__mio{ flex:1; min-width:0; overflow:hidden; }
+
+/* a tela das aulas */
+.tl{ height:100%; display:flex; flex-direction:column; }
+.tl__cab{ flex:none; padding:13px 16px 11px; border-bottom:1px solid var(--line); }
+.tl__volta{ display:inline-flex; align-items:center; gap:6px; margin-bottom:7px; font-size:var(--t-apoio2); color:var(--ink2); }
+.tl__volta svg{ width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:1.7; }
+.tl__cab h5{ margin:0; font-size:var(--t-corpo); font-weight:600; }
+.tl__cab p{ margin:3px 0 0; font-size:var(--t-etiqueta); color:var(--ink3); }
+.tl__corpo{ flex:1; min-height:0; overflow:hidden; padding:12px 16px 16px; }
+.tl__corpo--zero{ padding:0; display:flex; }
+
+.mods{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.mod{ position:relative; overflow:hidden; padding:18px 11px 11px; border:1px solid var(--line);
+  border-radius:var(--r-peq); background:var(--paper); }
+.mod::after{ content:""; position:absolute; left:0; right:0; top:0; height:8px;
+  background:var(--faixa) repeat-x var(--desl,0) center; background-size:70px 100%; }
+.mod:nth-child(2){ --desl:-12px; } .mod:nth-child(3){ --desl:-27px; }
+.mod:nth-child(4){ --desl:-40px; } .mod:nth-child(5){ --desl:-8px; } .mod:nth-child(6){ --desl:-20px; }
+.mod__n{ font-size:9.5px; font-weight:700; letter-spacing:.1em; color:var(--ink3); }
+.mod strong{ display:block; margin:2px 0 5px; font-size:var(--t-apoio2); font-weight:600; line-height:1.25; }
+.mod em{ font-style:normal; font-size:9.5px; color:var(--ink3); }
+.mod__b{ margin-top:7px; height:3px; border-radius:var(--pill); background:var(--wash2); overflow:hidden; }
+.mod__b i{ display:block; height:100%; background:var(--lima); }
+.mod--on{ box-shadow:inset 0 0 0 1.5px var(--turquesa-esc); }
+
+.lista{ display:flex; flex-direction:column; }
+.lista__a{ position:relative; display:flex; align-items:center; gap:10px; padding:9px 12px;
+  border-bottom:1px solid var(--line); font-size:var(--t-apoio2); color:var(--ink2); }
+.lista__a:last-child{ border-bottom:0; }
+.lista__n{ flex:none; width:22px; height:22px; border-radius:50%; background:var(--wash2);
+  display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:700; color:var(--ink3); }
+.lista__a--fim .lista__n{ background:var(--turq-bg); color:var(--turq-txt); }
+.lista__a--on{ background:var(--wash); color:var(--ink); font-weight:600; }
+.lista__a--on::before{ content:""; position:absolute; left:0; top:6px; bottom:6px; width:3px; background:var(--lima); }
+.lista__t{ flex:1; min-width:0; }
+.lista__d{ flex:none; font-size:9.5px; color:var(--ink3); }
+.lista__breve{ flex:none; padding:1px 7px; border-radius:var(--pill); background:var(--wash2);
+  font-size:9px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink3); }
+
+.idx{ flex:none; width:176px; border-right:1px solid var(--line); padding:11px 0; overflow:hidden; }
+.idx__m{ padding:8px 12px 3px; font-size:9.5px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink3); }
+.idx__a{ position:relative; margin-left:10px; padding:6px 12px; border-left:2px solid var(--line);
+  font-size:11.5px; color:var(--ink2); line-height:1.35; }
+.idx__a--on{ border-left:3px solid var(--lima); color:var(--ink); font-weight:600; }
+.idx__a--fim{ color:var(--ink3); }
+.pal{ flex:1; min-width:0; padding:12px 14px; }
+.pal__v{ position:relative; width:100%; aspect-ratio:16/9; border-radius:10px; color:#FFFFFF;
+  background:linear-gradient(160deg,#1d1d21,#2b2b31); display:flex; align-items:center; justify-content:center; }
+.pal__v svg{ width:34px; height:34px; stroke:currentColor; fill:none; stroke-width:1.2; }
+.pal__m{ margin-top:10px; font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink3); }
+.pal h6{ margin:3px 0 5px; font-size:var(--t-apoio); font-weight:600; }
+.pal p{ margin:0; font-size:11.5px; color:var(--ink2); line-height:1.45; }
+.pal__nav{ display:flex; gap:6px; margin-top:11px; }
+.pal__b{ height:30px; padding:0 12px; border-radius:var(--pill); border:1px solid var(--line2);
+  background:transparent; color:var(--ink2); font-size:11.5px; font-weight:500; display:inline-flex; align-items:center; }
+.pal__b--on{ border:0; background:var(--turquesa); color:#111111; font-weight:600; }
+
+.vazio-v{ display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%;
+  text-align:center; padding:20px; }
+.vazio-v svg{ width:30px; height:30px; stroke:var(--ink3); fill:none; stroke-width:1.4; margin-bottom:10px; }
+.vazio-v p{ margin:0; font-size:var(--t-apoio2); color:var(--ink3); line-height:1.5; }
+.rod{ margin-top:54px; padding-top:20px; border-top:1px solid var(--line2); max-width:70ch; }
+</style>
+<div class="pag">
+  <header class="cab">
+    <span class="selo">Cora Render · proposta</span>
+    <h1>O caminho das aulas</h1>
+    <p>O convite do IA Studio em cinco desenhos, e o caminho inteiro das aulas em três fluxos, clique a clique: o que aparece ao entrar, o que acontece ao clicar num módulo, ao clicar numa aula, e como se volta.</p>
+    <p>Em todos os quadros a faixa cinza da esquerda é a lateral do app, com o fio de lima na aba Aulas. O que está desenhado à direita é o miolo da tela.</p>
+  </header>
+
+  <h2 class="cap"><span>01</span>O convite do IA Studio</h2>
+  <p class="cap-txt">Cinco jeitos, do mais discreto ao mais forte. Todos moram no pé da lateral, separados por um fio do resto da lista.</p>
+  <div class="convites"><div class="cv"><div class="cv__cab"><h4>Linha, como as outras</h4><p>Uma linha de menu igual às demais, só com a seta de link externo no fim.</p></div><div class="cv__vivo"><div class="pe"><div class="pe__topo"></div><div class="iaA"><svg viewBox="0 0 20 20"><path d="M10 2.5l2 4.9 5.3 .4-4 3.5 1.2 5.2L10 13.8l-4.5 2.7 1.2-5.2-4-3.5 5.3-.4z"/></svg>IA Studio<i><svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M11.5 4H16v4.5M16 4l-6.5 6.5"/><path d="M14 11.5V16H4V6h4.5"/></svg></i></div></div></div><div class="cv__pe">A mais discreta. Some no meio da lista, e quem não conhece o IA Studio não descobre.</div></div><div class="cv"><div class="cv__cab"><h4>Cartão com a faixa</h4><p>O mesmo gesto dos cards de ferramenta: a faixa da marca no topo, título, uma linha e o link.</p></div><div class="cv__vivo"><div class="pe"><div class="pe__topo"></div><div class="iaB"><b>IA Studio</b><span>O método por trás da ferramenta.</span><u>Conhecer <svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M11.5 4H16v4.5M16 4l-6.5 6.5"/><path d="M14 11.5V16H4V6h4.5"/></svg></u></div></div></div><div class="cv__pe">Fala a língua da casa sem gritar. É o desenho que a janela já usa para o que abre uma porta.</div></div><div class="cv"><div class="cv__cab"><h4>Faixa escura</h4><p>Inverte o fundo e usa a lima no botão. É a peça mais forte que a lateral comporta.</p></div><div class="cv__vivo"><div class="pe"><div class="pe__topo"></div><div class="iaC"><b>IA Studio</b><span>Do prompt à pós, o método completo.</span><u>Conhecer <svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M11.5 4H16v4.5M16 4l-6.5 6.5"/><path d="M14 11.5V16H4V6h4.5"/></svg></u></div></div></div><div class="cv__pe">Chama de longe. Também é a que mais parece anúncio dentro da própria ferramenta.</div></div><div class="cv"><div class="cv__cab"><h4>Selo pequeno</h4><p>Só o nome e a seta, numa pastilha no pé, sem caixa nem descrição.</p></div><div class="cv__vivo"><div class="pe"><div class="pe__topo"></div><div class="iaD"><svg viewBox="0 0 20 20"><path d="M10 2.5l2 4.9 5.3 .4-4 3.5 1.2 5.2L10 13.8l-4.5 2.7 1.2-5.2-4-3.5 5.3-.4z"/></svg>IA Studio<svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M11.5 4H16v4.5M16 4l-6.5 6.5"/><path d="M14 11.5V16H4V6h4.5"/></svg></div></div></div><div class="cv__pe">Ocupa quase nada. Diz o nome e nada mais: só funciona para quem já sabe o que é.</div></div><div class="cv"><div class="cv__cab"><h4>Cartão turquesa</h4><p>Fundo turquesa suave com o fio da marca. Turquesa é o que abre porta, e este abre uma.</p></div><div class="cv__vivo"><div class="pe"><div class="pe__topo"></div><div class="iaE"><b><svg viewBox="0 0 20 20"><path d="M10 2.5l2 4.9 5.3 .4-4 3.5 1.2 5.2L10 13.8l-4.5 2.7 1.2-5.2-4-3.5 5.3-.4z"/></svg>IA Studio</b><span>O método por trás da ferramenta, do prompt à pós.</span><u>Conhecer <svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M11.5 4H16v4.5M16 4l-6.5 6.5"/><path d="M14 11.5V16H4V6h4.5"/></svg></u></div></div></div><div class="cv__pe">Coerente com a regra da cor, e mais leve que a faixa escura.</div></div></div>
+  <p class="txt" style="margin-top:18px"><b>O que eu escolheria.</b> O 5, o cartão turquesa. A regra da casa diz que turquesa é o que abre uma porta, e esse abre a maior de todas. Ele marca sem inverter o fundo, e não fica com cara de banner dentro da ferramenta. O 2 é o segundo, se tu quiser a faixa da marca em vez da cor.</p>
+
+  <h2 class="cap"><span>02</span>O fluxo que tu descreveu</h2>
+  <p class="cap-txt">Módulos, depois aulas, depois o vídeo. Três níveis, com o voltar no topo de cada um.</p>
+  <div class="fila"><div class="passo"><div class="passo__cab"><span class="passo__n">1</span><div><h4>Clica em Aulas</h4><p>A primeira tela são os módulos, com quanto de cada um já foi visto. Nenhum vídeo ainda: aqui se escolhe por onde ir.</p></div></div><div class="quadro"><div class="quadro__lat"><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt quadro__pt--on"></div><div class="quadro__pt"></div><div class="quadro__pt"></div></div><div class="quadro__mio"><div class="tl__cab"><h5>Aulas</h5><p>7 módulos · 33 aulas</p></div><div class="tl__corpo"><div class="mods"><div class="mod"><span class="mod__n">MÓDULO 00</span><strong>Comecei agora, e aí</strong><em>5 de 5 aulas</em><div class="mod__b"><i style="width:100%"></i></div></div><div class="mod"><span class="mod__n">MÓDULO 01</span><strong>Ferramentas de modelagem</strong><em>3 de 9 aulas</em><div class="mod__b"><i style="width:33%"></i></div></div><div class="mod"><span class="mod__n">MÓDULO 02</span><strong>Preparando a cena pro render</strong><em>0 de 3 aulas</em><div class="mod__b"><i style="width:0%"></i></div></div><div class="mod"><span class="mod__n">MÓDULO 03</span><strong>Gerando imagem com IA</strong><em>0 de 6 aulas</em><div class="mod__b"><i style="width:0%"></i></div></div><div class="mod"><span class="mod__n">MÓDULO 04</span><strong>Editar e pós-produção</strong><em>0 de 6 aulas</em><div class="mod__b"><i style="width:0%"></i></div></div><div class="mod"><span class="mod__n">MÓDULO 05</span><strong>Dando movimento</strong><em>0 de 3 aulas</em><div class="mod__b"><i style="width:0%"></i></div></div></div></div></div></div></div><div class="passo"><div class="passo__cab"><span class="passo__n">2</span><div><h4>Clica num módulo</h4><p>A tela troca para as aulas daquele módulo, numeradas, com a duração. No topo, o voltar para os módulos. As já vistas ficam com o número em turquesa.</p></div></div><div class="quadro"><div class="quadro__lat"><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt quadro__pt--on"></div><div class="quadro__pt"></div><div class="quadro__pt"></div></div><div class="quadro__mio"><div class="tl__cab"><div class="tl__volta"><svg viewBox="0 0 20 20" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-5 6 5 6"/></svg>Todos os módulos</div><h5>Ferramentas de modelagem</h5><p>Módulo 01 · 9 aulas</p></div><div class="tl__corpo tl__corpo--zero"><div style="flex:1;overflow:hidden"><div class="lista"><div class="lista__a lista__a--fim"><span class="lista__n">01</span><span class="lista__t">Tour pelo painel e toolbars</span><span class="lista__d">6 min</span></div><div class="lista__a lista__a--fim"><span class="lista__n">02</span><span class="lista__t">Gerenciando materiais no Cora</span><span class="lista__d">6 min</span></div><div class="lista__a lista__a--fim"><span class="lista__n">03</span><span class="lista__t">Ferramentas de textura</span><span class="lista__d">6 min</span></div><div class="lista__a lista__a--on"><span class="lista__n">04</span><span class="lista__t">Material Resizer</span><span class="lista__d">6 min</span></div><div class="lista__a"><span class="lista__n">05</span><span class="lista__t">Gerenciando blocos no Cora</span><span class="lista__d">6 min</span></div><div class="lista__a"><span class="lista__n">06</span><span class="lista__t">Randomizar elementos</span><span class="lista__d">6 min</span></div><div class="lista__a"><span class="lista__n">07</span><span class="lista__t">Randomizar materiais</span><span class="lista__breve">em breve</span></div></div></div></div></div></div></div><div class="passo"><div class="passo__cab"><span class="passo__n">3</span><div><h4>Clica numa aula</h4><p>O vídeo abre em tela cheia do miolo, com o título e a navegação. O voltar agora leva ao módulo, e não aos módulos.</p></div></div><div class="quadro"><div class="quadro__lat"><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt quadro__pt--on"></div><div class="quadro__pt"></div><div class="quadro__pt"></div></div><div class="quadro__mio"><div class="tl__cab"><div class="tl__volta"><svg viewBox="0 0 20 20" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-5 6 5 6"/></svg>Gerando imagem com IA</div><h5>Batch (render em série)</h5><p>Módulo 03 · aula 3 de 6</p></div><div class="tl__corpo"><div class="pal" style="padding:0"><div class="pal__v"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M8.2 6.8l5 3.2-5 3.2z" fill="currentColor" stroke="none"/></svg></div><div class="pal__m">Módulo 03 · Gerando imagem com IA</div><h6>Batch (render em série)</h6><p>Várias cenas do mesmo projeto com o mesmo acabamento, numa tacada só.</p><div class="pal__nav"><button class="pal__b">‹ Anterior</button><button class="pal__b pal__b--on">Próxima ›</button></div></div></div></div></div></div><div class="passo"><div class="passo__cab"><span class="passo__n">4</span><div><h4>Uma aula sem vídeo</h4><p>Enquanto o Panda não tiver o arquivo, a aula aparece na lista marcada como em breve e não abre. Nada de player quebrado.</p></div></div><div class="quadro"><div class="quadro__lat"><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt quadro__pt--on"></div><div class="quadro__pt"></div><div class="quadro__pt"></div></div><div class="quadro__mio"><div class="tl__cab"><div class="tl__volta"><svg viewBox="0 0 20 20" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-5 6 5 6"/></svg>Todos os módulos</div><h5>Ferramentas de modelagem</h5><p>Módulo 01 · 9 aulas</p></div><div class="tl__corpo tl__corpo--zero"><div style="flex:1;overflow:hidden"><div class="lista"><div class="lista__a lista__a--fim"><span class="lista__n">01</span><span class="lista__t">Tour pelo painel e toolbars</span><span class="lista__d">6 min</span></div><div class="lista__a lista__a--fim"><span class="lista__n">02</span><span class="lista__t">Gerenciando materiais no Cora</span><span class="lista__d">6 min</span></div><div class="lista__a lista__a--fim"><span class="lista__n">03</span><span class="lista__t">Ferramentas de textura</span><span class="lista__d">6 min</span></div><div class="lista__a lista__a--fim"><span class="lista__n">04</span><span class="lista__t">Material Resizer</span><span class="lista__d">6 min</span></div><div class="lista__a lista__a--fim"><span class="lista__n">05</span><span class="lista__t">Gerenciando blocos no Cora</span><span class="lista__breve">em breve</span></div><div class="lista__a lista__a--fim"><span class="lista__n">06</span><span class="lista__t">Randomizar elementos</span><span class="lista__breve">em breve</span></div><div class="lista__a lista__a--fim"><span class="lista__n">07</span><span class="lista__t">Randomizar materiais</span><span class="lista__breve">em breve</span></div></div></div></div></div></div></div></div>
+  <p class="txt"><b>Como se volta.</b> Sempre pelo mesmo botão no alto do miolo, que é o `‹ Voltar` que a janela já usa nas ferramentas. Ele diz para onde leva: "Todos os módulos" no nível da aula, o nome do módulo no nível do vídeo.</p>
+  <p class="txt"><b>O que me incomoda.</b> Rever a aula 20 custa três cliques toda vez, e do vídeo não dá para ver as outras aulas sem sair dele.</p>
+
+  <h2 class="cap"><span>03</span>Sem entrar e sair</h2>
+  <p class="cap-txt">O índice fica sempre à esquerda. Não há capa, não há voltar, porque nunca se saiu de lugar nenhum.</p>
+  <div class="fila"><div class="passo"><div class="passo__cab"><span class="passo__n">1</span><div><h4>Clica em Aulas</h4><p>Não existe tela de capa. O índice já está à esquerda com o módulo corrente aberto, e à direita a aula onde a pessoa parou.</p></div></div><div class="quadro"><div class="quadro__lat"><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt quadro__pt--on"></div><div class="quadro__pt"></div><div class="quadro__pt"></div></div><div class="quadro__mio"><div class="tl__cab"><h5>Aulas</h5><p>33 aulas · você parou na 12</p></div><div class="tl__corpo tl__corpo--zero"><div class="idx"><div class="idx__m">00 · Comecei agora, e aí</div><div class="idx__m">01 · Ferramentas de modelagem</div><div class="idx__m">02 · Preparando a cena pro render</div><div class="idx__m">03 · Gerando imagem com IA</div><div class="idx__a idx__a--fim">Seu primeiro render</div><div class="idx__a idx__a--fim">Histórico e feed</div><div class="idx__a idx__a--on">Batch (render em série)</div><div class="idx__a">Render 360°</div><div class="idx__a">Planta baixa humanizada</div><div class="idx__a">Análises</div><div class="idx__m">04 · Editar e pós-produção</div></div><div class="pal"><div class="pal__v"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M8.2 6.8l5 3.2-5 3.2z" fill="currentColor" stroke="none"/></svg></div><div class="pal__m">Módulo 03 · Gerando imagem com IA</div><h6>Batch (render em série)</h6><p>Várias cenas do mesmo projeto com o mesmo acabamento, numa tacada só.</p><div class="pal__nav"><button class="pal__b">‹ Anterior</button><button class="pal__b pal__b--on">Próxima ›</button></div></div></div></div></div></div><div class="passo"><div class="passo__cab"><span class="passo__n">2</span><div><h4>Clica noutro módulo</h4><p>Ele abre ali mesmo, no índice, e o módulo anterior fecha. O vídeo à direita não muda até ela escolher uma aula.</p></div></div><div class="quadro"><div class="quadro__lat"><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt quadro__pt--on"></div><div class="quadro__pt"></div><div class="quadro__pt"></div></div><div class="quadro__mio"><div class="tl__cab"><h5>Aulas</h5><p>33 aulas · você parou na 12</p></div><div class="tl__corpo tl__corpo--zero"><div class="idx"><div class="idx__m">00 · Comecei agora, e aí</div><div class="idx__m">01 · Ferramentas de modelagem</div><div class="idx__a idx__a--fim">Tour pelo painel e toolbars</div><div class="idx__a idx__a--fim">Gerenciando materiais no Cora</div><div class="idx__a idx__a--fim">Ferramentas de textura</div><div class="idx__a idx__a--fim">Material Resizer</div><div class="idx__a idx__a--fim">Gerenciando blocos no Cora</div><div class="idx__a idx__a--fim">Randomizar elementos</div><div class="idx__a idx__a--fim">Randomizar materiais</div><div class="idx__a idx__a--fim">Distribuir componentes</div><div class="idx__a idx__a--fim">Purge e Otimizar</div><div class="idx__m">02 · Preparando a cena pro render</div></div><div class="pal"><div class="pal__v"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M8.2 6.8l5 3.2-5 3.2z" fill="currentColor" stroke="none"/></svg></div><div class="pal__m">Módulo 03 · Gerando imagem com IA</div><h6>Batch (render em série)</h6><p>Várias cenas do mesmo projeto com o mesmo acabamento, numa tacada só.</p><div class="pal__nav"><button class="pal__b">‹ Anterior</button><button class="pal__b pal__b--on">Próxima ›</button></div></div></div></div></div></div><div class="passo"><div class="passo__cab"><span class="passo__n">3</span><div><h4>Clica numa aula</h4><p>Só o lado direito troca. O índice fica onde estava, e por isso não existe botão de voltar: nunca se saiu de lugar nenhum.</p></div></div><div class="quadro"><div class="quadro__lat"><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt quadro__pt--on"></div><div class="quadro__pt"></div><div class="quadro__pt"></div></div><div class="quadro__mio"><div class="tl__cab"><h5>Aulas</h5><p>33 aulas · você parou na 12</p></div><div class="tl__corpo tl__corpo--zero"><div class="idx"><div class="idx__m">00 · Comecei agora, e aí</div><div class="idx__m">01 · Ferramentas de modelagem</div><div class="idx__a idx__a--fim">Tour pelo painel e toolbars</div><div class="idx__a idx__a--fim">Gerenciando materiais no Cora</div><div class="idx__a idx__a--fim">Ferramentas de textura</div><div class="idx__a idx__a--fim">Material Resizer</div><div class="idx__a idx__a--on">Gerenciando blocos no Cora</div><div class="idx__a">Randomizar elementos</div><div class="idx__a">Randomizar materiais</div><div class="idx__a">Distribuir componentes</div><div class="idx__a">Purge e Otimizar</div><div class="idx__m">02 · Preparando a cena pro render</div></div><div class="pal"><div class="pal__v"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M8.2 6.8l5 3.2-5 3.2z" fill="currentColor" stroke="none"/></svg></div><div class="pal__m">Módulo 03 · Gerando imagem com IA</div><h6>Batch (render em série)</h6><p>Várias cenas do mesmo projeto com o mesmo acabamento, numa tacada só.</p><div class="pal__nav"><button class="pal__b">‹ Anterior</button><button class="pal__b pal__b--on">Próxima ›</button></div></div></div></div></div></div><div class="passo"><div class="passo__cab"><span class="passo__n">4</span><div><h4>Uma aula sem vídeo</h4><p>Mesma regra: a aula fica apagada no índice e o palco explica, sem tirar a pessoa da tela.</p></div></div><div class="quadro"><div class="quadro__lat"><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt quadro__pt--on"></div><div class="quadro__pt"></div><div class="quadro__pt"></div></div><div class="quadro__mio"><div class="tl__cab"><h5>Aulas</h5><p>33 aulas · você parou na 12</p></div><div class="tl__corpo tl__corpo--zero"><div class="idx"><div class="idx__m">00 · Comecei agora, e aí</div><div class="idx__m">01 · Ferramentas de modelagem</div><div class="idx__a idx__a--fim">Tour pelo painel e toolbars</div><div class="idx__a idx__a--fim">Gerenciando materiais no Cora</div><div class="idx__a idx__a--fim">Ferramentas de textura</div><div class="idx__a idx__a--fim">Material Resizer</div><div class="idx__a idx__a--fim">Gerenciando blocos no Cora</div><div class="idx__a idx__a--fim">Randomizar elementos</div><div class="idx__a idx__a--on">Randomizar materiais</div><div class="idx__a">Distribuir componentes</div><div class="idx__a">Purge e Otimizar</div><div class="idx__m">02 · Preparando a cena pro render</div></div><div class="vazio-v"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M8.2 6.8l5 3.2-5 3.2z" fill="currentColor" stroke="none"/></svg><p>O vídeo desta aula ainda não subiu.<br>Ela acende sozinha quando ele entrar.</p></div></div></div></div></div></div>
+  <p class="txt"><b>O que me incomoda.</b> A pessoa chega direto no meio do conteúdo, sem nunca ver o curso inteiro de uma vez. Para quem está começando, isso importa.</p>
+
+  <h2 class="cap"><span>04</span>Os dois juntos</h2>
+  <p class="cap-txt">A capa dos módulos na chegada, e daí em diante o índice sempre à vista. Um voltar só, para a capa.</p>
+  <div class="fila"><div class="passo"><div class="passo__cab"><span class="passo__n">1</span><div><h4>Clica em Aulas</h4><p>A capa mostra os módulos, como no primeiro fluxo: dá a dimensão do curso e mostra o que já foi visto.</p></div></div><div class="quadro"><div class="quadro__lat"><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt quadro__pt--on"></div><div class="quadro__pt"></div><div class="quadro__pt"></div></div><div class="quadro__mio"><div class="tl__cab"><h5>Aulas</h5><p>7 módulos · 33 aulas</p></div><div class="tl__corpo"><div class="mods"><div class="mod"><span class="mod__n">MÓDULO 00</span><strong>Comecei agora, e aí</strong><em>5 de 5 aulas</em><div class="mod__b"><i style="width:100%"></i></div></div><div class="mod mod--on"><span class="mod__n">MÓDULO 01</span><strong>Ferramentas de modelagem</strong><em>3 de 9 aulas</em><div class="mod__b"><i style="width:33%"></i></div></div><div class="mod"><span class="mod__n">MÓDULO 02</span><strong>Preparando a cena pro render</strong><em>0 de 3 aulas</em><div class="mod__b"><i style="width:0%"></i></div></div><div class="mod"><span class="mod__n">MÓDULO 03</span><strong>Gerando imagem com IA</strong><em>0 de 6 aulas</em><div class="mod__b"><i style="width:0%"></i></div></div><div class="mod"><span class="mod__n">MÓDULO 04</span><strong>Editar e pós-produção</strong><em>0 de 6 aulas</em><div class="mod__b"><i style="width:0%"></i></div></div><div class="mod"><span class="mod__n">MÓDULO 05</span><strong>Dando movimento</strong><em>0 de 3 aulas</em><div class="mod__b"><i style="width:0%"></i></div></div></div></div></div></div></div><div class="passo"><div class="passo__cab"><span class="passo__n">2</span><div><h4>Clica num módulo</h4><p>Daqui para a frente é uma tela só: índice à esquerda com o módulo aberto, vídeo à direita. A primeira aula já abre.</p></div></div><div class="quadro"><div class="quadro__lat"><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt quadro__pt--on"></div><div class="quadro__pt"></div><div class="quadro__pt"></div></div><div class="quadro__mio"><div class="tl__cab"><div class="tl__volta"><svg viewBox="0 0 20 20" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-5 6 5 6"/></svg>Todos os módulos</div><h5>Ferramentas de modelagem</h5><p>Módulo 01</p></div><div class="tl__corpo tl__corpo--zero"><div class="idx"><div class="idx__m">00 · Comecei agora, e aí</div><div class="idx__m">01 · Ferramentas de modelagem</div><div class="idx__a idx__a--on">Tour pelo painel e toolbars</div><div class="idx__a">Gerenciando materiais no Cora</div><div class="idx__a">Ferramentas de textura</div><div class="idx__a">Material Resizer</div><div class="idx__a">Gerenciando blocos no Cora</div><div class="idx__a">Randomizar elementos</div><div class="idx__a">Randomizar materiais</div><div class="idx__a">Distribuir componentes</div><div class="idx__a">Purge e Otimizar</div><div class="idx__m">02 · Preparando a cena pro render</div></div><div class="pal"><div class="pal__v"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M8.2 6.8l5 3.2-5 3.2z" fill="currentColor" stroke="none"/></svg></div><div class="pal__m">Módulo 03 · Gerando imagem com IA</div><h6>Batch (render em série)</h6><p>Várias cenas do mesmo projeto com o mesmo acabamento, numa tacada só.</p><div class="pal__nav"><button class="pal__b">‹ Anterior</button><button class="pal__b pal__b--on">Próxima ›</button></div></div></div></div></div></div><div class="passo"><div class="passo__cab"><span class="passo__n">3</span><div><h4>Anda pelas aulas</h4><p>Trocar de aula, ou até de módulo, acontece no índice, sem sair da tela. O voltar da capa continua no topo, para quem quiser a visão geral.</p></div></div><div class="quadro"><div class="quadro__lat"><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt quadro__pt--on"></div><div class="quadro__pt"></div><div class="quadro__pt"></div></div><div class="quadro__mio"><div class="tl__cab"><div class="tl__volta"><svg viewBox="0 0 20 20" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-5 6 5 6"/></svg>Todos os módulos</div><h5>Gerando imagem com IA</h5><p>Módulo 03</p></div><div class="tl__corpo tl__corpo--zero"><div class="idx"><div class="idx__m">00 · Comecei agora, e aí</div><div class="idx__m">01 · Ferramentas de modelagem</div><div class="idx__m">02 · Preparando a cena pro render</div><div class="idx__m">03 · Gerando imagem com IA</div><div class="idx__a idx__a--fim">Seu primeiro render</div><div class="idx__a idx__a--fim">Histórico e feed</div><div class="idx__a idx__a--on">Batch (render em série)</div><div class="idx__a">Render 360°</div><div class="idx__a">Planta baixa humanizada</div><div class="idx__a">Análises</div><div class="idx__m">04 · Editar e pós-produção</div></div><div class="pal"><div class="pal__v"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M8.2 6.8l5 3.2-5 3.2z" fill="currentColor" stroke="none"/></svg></div><div class="pal__m">Módulo 03 · Gerando imagem com IA</div><h6>Batch (render em série)</h6><p>Várias cenas do mesmo projeto com o mesmo acabamento, numa tacada só.</p><div class="pal__nav"><button class="pal__b">‹ Anterior</button><button class="pal__b pal__b--on">Próxima ›</button></div></div></div></div></div></div><div class="passo"><div class="passo__cab"><span class="passo__n">4</span><div><h4>Uma aula sem vídeo</h4><p>Igual ao fluxo B: a aula fica apagada e o palco explica.</p></div></div><div class="quadro"><div class="quadro__lat"><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt"></div><div class="quadro__pt quadro__pt--on"></div><div class="quadro__pt"></div><div class="quadro__pt"></div></div><div class="quadro__mio"><div class="tl__cab"><div class="tl__volta"><svg viewBox="0 0 20 20" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-5 6 5 6"/></svg>Todos os módulos</div><h5>Gerando imagem com IA</h5><p>Módulo 03</p></div><div class="tl__corpo tl__corpo--zero"><div class="idx"><div class="idx__m">00 · Comecei agora, e aí</div><div class="idx__m">01 · Ferramentas de modelagem</div><div class="idx__m">02 · Preparando a cena pro render</div><div class="idx__m">03 · Gerando imagem com IA</div><div class="idx__a idx__a--fim">Seu primeiro render</div><div class="idx__a idx__a--fim">Histórico e feed</div><div class="idx__a idx__a--fim">Batch (render em série)</div><div class="idx__a idx__a--fim">Render 360°</div><div class="idx__a idx__a--on">Planta baixa humanizada</div><div class="idx__a">Análises</div><div class="idx__m">04 · Editar e pós-produção</div></div><div class="vazio-v"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M8.2 6.8l5 3.2-5 3.2z" fill="currentColor" stroke="none"/></svg><p>O vídeo desta aula ainda não subiu.<br>Ela acende sozinha quando ele entrar.</p></div></div></div></div></div></div>
+  <p class="txt"><b>É o que eu faria.</b> A chegada mostra o curso inteiro e o quanto já foi visto, que é o que dá vontade de continuar. Depois disso a pessoa fica numa tela só, trocando de aula e de módulo pelo índice, sem nunca se perder. O voltar existe, é um só, e leva para a visão geral.</p>
+
+  <footer class="rod">
+    <p class="txt"><b>O que vale para os três.</b> A aula sem vídeo aparece marcada como em breve e não abre. O fio de lima marca onde a pessoa está, o tique turquesa marca o que ela já viu, e a barra de lima em cada módulo mostra o quanto falta. Nada disso depende do Panda: é o identificador de cada aula que liga o vídeo, e ele pode entrar um por um.</p>
+    <p class="txt">Me diz o número do convite e a letra do fluxo, e eu levanto a tela com os 33 títulos.</p>
+  </footer>
+</div>
