@@ -30,15 +30,30 @@ import FichaConta from '../../components/FichaConta';
 import PainelAceites from '../../components/PainelAceites';
 import EmailAssinantes from '../../components/EmailAssinantes';
 import { lerConta, atualizarConta } from '../../lib/auth';
+import { contaVista, lerModo, EVENTO_VER_COMO } from '../../lib/verComo';
 import { useIdioma } from '../../lib/i18n';
 
 export default function Gerente() {
   const router = useRouter();
   const { t } = useIdioma();
-  const [conta, setConta] = useState(null);
+  const [contaReal, setConta] = useState(null);
+  const [modoVer, setModoVer] = useState('real');
+  /* ── O "VER COMO GERENTE" PRECISA CHEGAR ATE AQUI ──
+     Sem isto, o admin em modo gerente via a aba "Gerente" no menu e, ao
+     clicar, recebia "voce e admin, va para o Admin". O menu dizia uma coisa e
+     a tela dizia outra, e a unica tela que o modo existe para mostrar era
+     justamente a que ele nao mostrava. */
+  const conta = contaVista(contaReal, modoVer);
   const [carregando, setCarregando] = useState(true);
   const [aba, setAba] = useState('contas');
   const [emailAberto, setEmailAberto] = useState(false);
+
+  useEffect(() => {
+    setModoVer(lerModo());
+    function onVerComo(e) { setModoVer(e.detail || 'real'); }
+    window.addEventListener(EVENTO_VER_COMO, onVerComo);
+    return () => window.removeEventListener(EVENTO_VER_COMO, onVerComo);
+  }, []);
 
   useEffect(() => {
     const c = lerConta();
