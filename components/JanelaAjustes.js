@@ -873,10 +873,15 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
                   </button>
                 )}
 
-                <button className="aj-msk-criar aj-auto-btn" onClick={ajusteAuto}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l2.4 6.6L22 12l-6.6 2.4L13 21l-2.4-6.6L4 12l6.6-2.4z" /></svg>
-                  {t('janelaajustes_auto')}
-                </button>
+                {/* O automático lê a imagem inteira. Dentro de uma máscara a
+                    conversa é sobre a área marcada, e ele não tem o que
+                    fazer ali. */}
+                {mascaraAtiva == null && (
+                  <button className="aj-msk-criar aj-auto-btn" onClick={ajusteAuto}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l2.4 6.6L22 12l-6.6 2.4L13 21l-2.4-6.6L4 12l6.6-2.4z" /></svg>
+                    {t('janelaajustes_auto')}
+                  </button>
+                )}
 
                 <button className="aj-msk-criar" onClick={criarMascara}>
                   <span className="aj-msk-circ" />
@@ -1247,8 +1252,25 @@ function Curva({ pontos, cor, onMudar }) {
   // se vê é exatamente o que acontece com a imagem, e a curva sai suave (spline
   // monotônica), não em segmentos retos.
   const lut = curvaLUT(pontos);
-  const linha = lut
-    .map((y, x) => `${x ? 'L' : 'M'} ${px(x)} ${py(y)}`)
+  // O traço da curva. Ligar os 256 níveis do LUT com retas desenha uma
+  // escada: cada nível é 1/255 da altura, e a 300px isso é mais de um
+  // pixel de degrau. Aqui o LUT é amostrado de 8 em 8 e as amostras são
+  // ligadas por bezier (Catmull-Rom), que passa por todas elas.
+  const amostras = [];
+  for (let x = 0; x < lut.length; x += 8) amostras.push([px(x), py(lut[x])]);
+  const fim = lut.length - 1;
+  if ((fim % 8) !== 0) amostras.push([px(fim), py(lut[fim])]);
+  const n2 = (v) => Math.round(v * 100) / 100;
+  const linha = amostras
+    .map((p, i, a) => {
+      if (!i) return `M ${n2(p[0])} ${n2(p[1])}`;
+      const p0 = a[i - 2] || a[i - 1];
+      const p1 = a[i - 1];
+      const p3 = a[i + 1] || p;
+      const c1x = p1[0] + (p[0] - p0[0]) / 6, c1y = p1[1] + (p[1] - p0[1]) / 6;
+      const c2x = p[0] - (p3[0] - p1[0]) / 6,  c2y = p[1] - (p3[1] - p1[1]) / 6;
+      return `C ${n2(c1x)} ${n2(c1y)}, ${n2(c2x)} ${n2(c2y)}, ${n2(p[0])} ${n2(p[1])}`;
+    })
     .join(' ');
 
   return (

@@ -9625,13 +9625,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   justify-content: center;
   gap: 6px;
 }
-.ps-b:hover:not(:disabled) { border-color: var(--lima-txt); color: var(--lima-txt); }
+.ps-b:hover:not(:disabled) { border-color: var(--turq-txt); color: var(--turq-txt); }
 .ps-b:disabled { opacity: .4; cursor: default; }
 
 .ps-b--on {
-  border-color: var(--lima-txt);
-  color: var(--lima-txt);
-  background: var(--accent-bg);
+  border-color: var(--turq-txt);
+  color: var(--turq-txt);
+  background: var(--turq-bg);
 }
 
 .ps-b--largo {
@@ -9660,13 +9660,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   align-items: center;
   justify-content: center;
 }
-.ps-ic:hover:not(:disabled) { border-color: var(--lima-txt); color: var(--lima-txt); }
+.ps-ic:hover:not(:disabled) { border-color: var(--turq-txt); color: var(--turq-txt); }
 .ps-ic:disabled { opacity: .4; cursor: default; }
 
 .ps-ic--on {
-  border-color: var(--lima-txt);
-  color: var(--lima-txt);
-  background: var(--accent-bg);
+  border-color: var(--turq-txt);
+  color: var(--turq-txt);
+  background: var(--turq-bg);
 }
 
 .ps-ic svg { width: 16px; height: 16px; }
@@ -9758,7 +9758,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer;
   transition: all .15s;
 }
-.ps-zoom:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.ps-zoom:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 
 .ps-vazio {
   display: flex;
@@ -9844,7 +9844,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-family: inherit;
   cursor: pointer;
 }
-.ps-sel:hover { border-color: var(--lima-txt); }
+.ps-sel:hover { border-color: var(--turq-txt); }
 
 /* ── Dropdown da marca (React CoraSelect): popup arredondado, destaque roxo/verde
    da marca, sem o azul do sistema. Igual ao seletor de idioma. ── */
@@ -9855,7 +9855,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink2); font-size: 12.5px; font-family: inherit; padding: 0 14px; height: 34px;
   cursor: pointer; transition: border-color .15s;
 }
-.cora-sel-trigger:hover, .cora-sel-trigger.aberto { border-color: var(--lima-txt); }
+.cora-sel-trigger:hover, .cora-sel-trigger.aberto { border-color: var(--turq-txt); }
 .cora-sel-ico { flex: 0 0 auto; display: flex; align-items: center; color: var(--ink3); }
 .cora-sel-lbl { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
 .cora-sel-arrow { flex: 0 0 auto; display: flex; align-items: center; opacity: .5; transition: transform .15s; }
@@ -9870,7 +9870,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer; white-space: nowrap; transition: background .1s;
 }
 .cora-sel-op:hover, .cora-sel-op.sel {
-  background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--lima-txt);
+  background: var(--turq-bg); color: var(--turq-txt);
 }
 .cora-sel-op.sel { font-weight: 600; }
 .cora-sel-trigger:disabled { opacity: .5; cursor: default; }
@@ -9950,26 +9950,28 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer;
   transition: all .15s;
 }
-.ps-mini:hover:not(:disabled) { background: var(--wash); color: var(--lima-txt); }
+.ps-mini:hover:not(:disabled) { background: var(--wash); color: var(--turq-txt); }
 .ps-mini:disabled { opacity: .35; cursor: default; }
 .ps-mini--perigo:hover:not(:disabled) { color: var(--alerta); }
 .ps-mini svg { width: 15px; height: 15px; }
 
 /* ── A pilha ── */
+/* Juntas: sete linhas com 7px de folga e 16px de canto liam como sete
+   cartões soltos, e uma pilha de camadas é uma pilha. */
 .ps-camadas {
   padding: 0 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 4px;
 }
 
 .ps-cam {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
+  padding: 7px 11px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--paper);
   cursor: pointer;
   transition: all .15s;
@@ -9978,18 +9980,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-cam:hover { border-color: var(--line2); }
 
 .ps-cam--on {
-  border-color: var(--lima-txt);
-  background: var(--accent-bg);
+  border-color: var(--turq-txt);
+  background: var(--turq-bg);
 }
-.ps-cam--on .ps-nome { color: var(--lima-txt); font-weight: 500; }
-.ps-cam--on .ps-olho { color: var(--lima-txt); }
+.ps-cam--on .ps-nome { color: var(--turq-txt); font-weight: 500; }
+.ps-cam--on .ps-olho { color: var(--turq-txt); }
 
 .ps-cam--off { opacity: .45; }
 
 /* Dentro de um grupo: recuada, com o fio do accent ligando ao pai */
 .ps-cam--dentro {
   margin-left: 16px;
-  border-left: 2px solid var(--accent);
+  border-left: 2px solid var(--turquesa);
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -10007,7 +10009,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   align-items: center;
   justify-content: center;
 }
-.ps-olho:hover { color: var(--lima-txt); }
+.ps-olho:hover { color: var(--turq-txt); }
 .ps-olho svg { width: 16px; height: 16px; }
 
 .ps-thumb {
@@ -10022,8 +10024,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* Qual dos dois está escolhido — a imagem ou a máscara. É o que diz onde a
    próxima pincelada vai cair. */
 .ps-thumb--sel {
-  border-color: var(--lima-txt);
-  box-shadow: 0 0 0 2px var(--accent-bg);
+  border-color: var(--turq-txt);
+  box-shadow: 0 0 0 2px var(--turq-bg);
 }
 .ps-thumb--masc { background-color: #000; }
 
@@ -10034,7 +10036,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--lima-txt);
+  color: var(--turq-txt);
 }
 .ps-pasta svg { width: 18px; height: 18px; }
 
@@ -10186,10 +10188,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: all .15s;
 }
 .aj-aba-ic { width: 15px; height: 15px; }
-.aj-aba:hover { color: var(--lima-txt); }
+.aj-aba:hover { color: var(--turq-txt); }
 .aj-aba--on {
-  color: var(--lima-txt);
-  background: var(--accent-bg);
+  color: var(--turq-txt);
+  background: var(--turq-bg);
   font-weight: 600;
 }
 
@@ -10199,11 +10201,14 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   padding: 16px 18px 24px;
 }
 
+/* O par título/Resetar abre cada aba de ajuste, e encostava no fio das abas
+   logo acima. Ele precisa do mesmo ar que tem embaixo. */
 .aj-cab {
   display: flex;
   align-items: baseline;
-  margin-bottom: 14px;
+  margin: 16px 0 14px;
 }
+.aj-cab:first-child { margin-top: 4px; }
 .aj-cab-t {
   flex: 1;
   font-size: 12.5px;
@@ -10215,7 +10220,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .aj-reset {
   border: none;
   background: transparent;
-  color: var(--lima-txt);
+  color: var(--turq-txt);
   font-size: 11px;
   font-family: inherit;
   cursor: pointer;
@@ -10251,7 +10256,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   min-width: 34px;
   text-align: right;
 }
-.aj-sl-v:hover { background: var(--wash); color: var(--lima-txt); }
+.aj-sl-v:hover { background: var(--wash); color: var(--turq-txt); }
 
 .aj-sl input[type="range"] {
   -webkit-appearance: none;
@@ -10367,11 +10372,11 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer;
   transition: all .15s;
 }
-.aj-wb:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.aj-wb:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 .aj-wb--on {
-  border-color: var(--lima-txt);
-  background: var(--accent-bg);
-  color: var(--lima-txt);
+  border-color: var(--turq-txt);
+  background: var(--turq-bg);
+  color: var(--turq-txt);
   font-weight: 500;
 }
 .aj-wb-dica {
@@ -10409,7 +10414,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .aj-antes-btn--on {
   background: var(--accent);
   color: var(--accent-txt);
-  border-color: var(--lima-txt);
+  border-color: var(--turq-txt);
 }
 
 /* O círculo que mostra o tamanho do pincel, seguindo o mouse. */
@@ -10449,7 +10454,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   justify-content: center;
   flex-shrink: 0;
 }
-.aj-msk-box--on { background: var(--accent); border-color: var(--lima-txt); }
+.aj-msk-box--on { background: var(--accent); border-color: var(--turq-txt); }
 
 /* ═══════════ Painel de máscaras ═══════════ */
 .aj-msk {
@@ -10470,7 +10475,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   padding: 0;
   margin-bottom: 10px;
 }
-.aj-msk-voltar:hover { color: var(--lima-txt); }
+.aj-msk-voltar:hover { color: var(--turq-txt); }
 
 .aj-auto-btn { margin-bottom: 8px; }
 .aj-msk-criar {
@@ -10489,7 +10494,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer;
   transition: all .15s;
 }
-.aj-msk-criar:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.aj-msk-criar:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 .aj-msk-circ {
   width: 15px; height: 15px;
   border: 1.6px dashed var(--accent);
@@ -10512,7 +10517,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: background .12s;
 }
 .aj-msk-item:hover { background: var(--wash); }
-.aj-msk-item--on { background: var(--accent-bg); }
+.aj-msk-item--on { background: var(--turq-bg); }
 .aj-msk-thumb {
   width: 26px; height: 26px;
   border-radius: 6px;
@@ -10531,7 +10536,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.aj-msk-item--on .aj-msk-nome { color: var(--lima-txt); font-weight: 500; }
+.aj-msk-item--on .aj-msk-nome { color: var(--turq-txt); font-weight: 500; }
 .aj-msk-olho, .aj-msk-del {
   background: none;
   border: none;
@@ -10542,7 +10547,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   align-items: center;
 }
 .aj-msk-del { font-size: 14.5px; line-height: 1; }
-.aj-msk-olho:hover, .aj-msk-del:hover { color: var(--lima-txt); }
+.aj-msk-olho:hover, .aj-msk-del:hover { color: var(--turq-txt); }
 
 .aj-msk-modo {
   display: flex;
@@ -10562,9 +10567,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: all .15s;
 }
 .aj-msk-modo-b--on {
-  border-color: var(--lima-txt);
-  background: var(--accent-bg);
-  color: var(--lima-txt);
+  border-color: var(--turq-txt);
+  background: var(--turq-bg);
+  color: var(--turq-txt);
   font-weight: 500;
 }
 
@@ -10590,9 +10595,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: all .15s;
 }
 .aj-msk-ferr--on {
-  border-color: var(--lima-txt);
-  background: var(--accent-bg);
-  color: var(--lima-txt);
+  border-color: var(--turq-txt);
+  background: var(--turq-bg);
+  color: var(--turq-txt);
   font-weight: 500;
 }
 
@@ -10648,15 +10653,20 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 /* ── O misturador ── */
+/* Uma fila só, dividindo a largura do painel em partes iguais. Elas eram
+   28px fixos e sobrava um vão à direita, com a última fora de alinhamento
+   com tudo o que vem abaixo. */
 .aj-cores {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   gap: 6px;
   margin-bottom: 16px;
-  flex-wrap: wrap;
 }
 .aj-cor {
-  width: 28px;
-  height: 28px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
   border-radius: 100px;
   border: 2px solid transparent;
   cursor: pointer;
@@ -10706,7 +10716,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border-bottom: 4px solid var(--ink3);
   opacity: .65;
 }
-.ps-tri-btn:hover .ps-tri { border-bottom-color: var(--lima-txt); opacity: 1; }
+.ps-tri-btn:hover .ps-tri { border-bottom-color: var(--turq-txt); opacity: 1; }
 
 /* O véu fecha o flyout ao clicar fora. Sem ele, o menu ficaria preso aberto —
    e um menu que não fecha é pior que um menu que não abre. */
@@ -10746,7 +10756,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: all .12s;
 }
 .ps-fly-it:hover { background: var(--wash); color: var(--ink); }
-.ps-fly-it--on   { background: var(--accent-bg); color: var(--lima-txt); font-weight: 500; }
+.ps-fly-it--on   { background: var(--turq-bg); color: var(--turq-txt); font-weight: 500; }
 .ps-fly-it svg   { width: 15px; height: 15px; flex-shrink: 0; }
 
 /* ── A barra de opções ──
@@ -10810,7 +10820,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .ps-faixa input[type="range"] {
   width: 92px;
-  accent-color: var(--lima-txt);
+  accent-color: var(--turq-txt);
   cursor: pointer;
 }
 
@@ -10849,7 +10859,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-modo:hover { color: var(--ink); }
 .ps-modo--on {
   background: var(--paper);
-  color: var(--lima-txt);
+  color: var(--turq-txt);
   box-shadow: 0 1px 2px rgba(0, 0, 0, .07);
 }
 .ps-modo svg { width: 15px; height: 15px; }
@@ -10865,7 +10875,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   flex-shrink: 0;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06);
 }
-.ps-cor:hover { border-color: var(--lima-txt); }
+.ps-cor:hover { border-color: var(--turq-txt); }
 
 /* ── O overlay ──
    As formiguinhas e o crop vivem num canvas SEPARADO, exatamente por cima do
@@ -11067,7 +11077,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   box-shadow: inset 0 -2px 0 -0.5px var(--accent);
 }
 .ps-cam--dentro-alvo {
-  background: var(--accent-bg);
+  background: var(--turq-bg);
   box-shadow: inset 0 0 0 1.5px var(--accent);
 }
 
@@ -11176,7 +11186,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   outline: none;
   flex: 0 0 auto;
 }
-.ps-num:focus { border-color: var(--lima-txt); }
+.ps-num:focus { border-color: var(--turq-txt); }
 
 /* As setinhas do number são feias e não cabem num campo redondo */
 .ps-num::-webkit-outer-spin-button,
@@ -11198,7 +11208,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer;
   transition: all .13s;
 }
-.ps-troca:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.ps-troca:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 
 /* ── A zona de fuga do grupo ── */
 .ps-fuga {
@@ -11213,9 +11223,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   opacity: .55;
 }
 .ps-fuga--on {
-  border-color: var(--lima-txt);
-  background: var(--accent-bg);
-  color: var(--lima-txt);
+  border-color: var(--turq-txt);
+  background: var(--turq-bg);
+  color: var(--turq-txt);
   opacity: 1;
 }
 
@@ -11237,7 +11247,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-tag {
   font-size: 9.5px;
   line-height: 1.4;
-  color: var(--lima-txt);
+  color: var(--turq-txt);
   white-space: nowrap;
 }
 
@@ -11272,7 +11282,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-caixa input {
   width: 14px;
   height: 14px;
-  accent-color: var(--lima-txt);
+  accent-color: var(--turq-txt);
   cursor: pointer;
   margin: 0;
 }
@@ -11796,13 +11806,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    dos filtros acompanham. É o que faz "a camada e seus filtros" parecerem uma
    coisa só, selecionada junto. */
 .ps-bloco--on .ps-filtros {
-  border-left-color: var(--lima-txt);
+  border-left-color: var(--turq-txt);
 }
 .ps-bloco--on .ps-filtro {
-  color: var(--lima-txt);
+  color: var(--turq-txt);
 }
 .ps-bloco--on .ps-filtro:hover {
-  background: var(--accent-bg);
+  background: var(--turq-bg);
 }
 
 /* O filtro desligado continua ali, apenas mudo. Apagá-lo seria perder a
@@ -12030,7 +12040,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-toast-link {
   border: none;
   background: none;
-  color: var(--lima-txt);
+  color: var(--turq-txt);
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
@@ -12420,7 +12430,7 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
    tamanho dos campos em pílula. */
 .sup-select { margin-bottom: 18px; }
 .sup-select .cora-sel-trigger { height: auto; padding: 12px 20px; font-size: 14.5px; color: var(--ink); border-color: var(--line2); }
-.sup-select .cora-sel-arrow { opacity: .6; color: var(--lima-txt); }
+.sup-select .cora-sel-arrow { opacity: .6; color: var(--turq-txt); }
 .sup-select--erro .cora-sel-trigger { border-color: #c0392b; }
 
 .sup-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -12532,6 +12542,9 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 .coradp--aberto .coradp-btn { border-color: var(--turq-txt); }
 .coradp-ph { color: var(--ink3); }
 .coradp-pop { position: absolute; top: calc(100% + 6px); left: 0; z-index: 200; width: 268px; background: var(--paper); border: 1px solid var(--line2); border-radius: 16px; box-shadow: 0 14px 40px rgba(0,0,0,.2); padding: 12px; }
+/* Desenhado no corpo da página, e não dentro do campo: o painel de filtros
+   rola, e rolagem recorta o que transborda. O `z-index` sobe acima dele. */
+.coradp-pop--fora { z-index: 3000; }
 .coradp-cab { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .coradp-mes { font-size: 12.5px; font-weight: 700; color: var(--ink); text-transform: capitalize; }
 .coradp-nav { width: 28px; height: 28px; border-radius: 8px; border: 0; background: var(--wash2); color: var(--ink2); display: flex; align-items: center; justify-content: center; cursor: pointer; }

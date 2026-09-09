@@ -9,6 +9,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useIdioma } from '../lib/i18n';
 
 function parseISO(s) {
@@ -30,6 +31,9 @@ export default function DatePickerCora({ valor, onEscolher, placeholder }) {
   const DIAS = [t('datepickercora_dia0'), t('datepickercora_dia1'), t('datepickercora_dia2'), t('datepickercora_dia3'), t('datepickercora_dia4'), t('datepickercora_dia5'), t('datepickercora_dia6')];
   const MESES = [t('datepickercora_mes1'), t('datepickercora_mes2'), t('datepickercora_mes3'), t('datepickercora_mes4'), t('datepickercora_mes5'), t('datepickercora_mes6'), t('datepickercora_mes7'), t('datepickercora_mes8'), t('datepickercora_mes9'), t('datepickercora_mes10'), t('datepickercora_mes11'), t('datepickercora_mes12')];
   const [aberto, setAberto] = useState(false);
+  // Onde o calendário vai aparecer, medido do botão. Ele é desenhado fora
+  // daqui: o painel de filtros rola, e rolagem recorta o que transborda.
+  const [pos, setPos] = useState(null);
   const ref = useRef(null);
   const sel = parseISO(valor);
   const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
@@ -65,15 +69,26 @@ export default function DatePickerCora({ valor, onEscolher, placeholder }) {
 
   return (
     <div className={'coradp' + (aberto ? ' coradp--aberto' : '')} ref={ref}>
-      <button type="button" className="coradp-btn" onClick={() => setAberto(a => !a)}>
+      <button
+        type="button"
+        className="coradp-btn"
+        onClick={() => {
+          const r = ref.current && ref.current.getBoundingClientRect();
+          if (r) setPos({ left: r.left, top: r.bottom + 6, largura: r.width });
+          setAberto((v) => !v);
+        }}
+      >
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.7">
           <rect x="3" y="4.5" width="18" height="16" rx="3" /><path d="M3 9h18M8 2.5v4M16 2.5v4" strokeLinecap="round" />
         </svg>
         <span className={sel ? '' : 'coradp-ph'}>{sel ? fmt(sel) : ph}</span>
       </button>
 
-      {aberto && (
-        <div className="coradp-pop">
+      {aberto && pos && typeof document !== 'undefined' && createPortal(
+        <div
+          className="coradp-pop coradp-pop--fora"
+          style={{ position: 'fixed', left: pos.left, top: pos.top, minWidth: pos.largura }}
+        >
           <div className="coradp-cab">
             <button type="button" className="coradp-nav" onClick={mesAnterior} aria-label={t('datepickercora_mes_anterior')}>
               <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M10 4l-4 4 4 4" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -97,7 +112,8 @@ export default function DatePickerCora({ valor, onEscolher, placeholder }) {
           <div className="coradp-pe">
             <button type="button" className="coradp-hoje" onClick={irHoje}>{t('datepickercora_hoje')}</button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

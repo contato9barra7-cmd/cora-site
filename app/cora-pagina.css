@@ -191,13 +191,15 @@
   transition:background var(--t), color var(--t);
 }.co .cr-b--tenho:hover{ background:var(--line); color:var(--ink); }/* ── Os campos de texto ──
    Fundo de lavagem e sem fio, como as pílulas. O que marca o campo é o
-   contraste com o papel, e no foco o anel turquesa. */.co .cr-ta{
+   contraste com o papel, e no foco o anel turquesa. */.co .cr-ta{/* Borda sempre à vista: sobre um cartão branco o fundo `--wash` quase não
+     se separa do papel, e a caixa só existia depois de encostar nela. */
   width:100%; min-height:var(--alt-ta); margin-top:8px; padding:12px 14px;
-  border:1px solid transparent; border-radius:var(--r-peq);
+  
+  border:1px solid var(--line); border-radius:var(--r-peq);
   background:var(--wash); color:var(--ink);
   font-size:var(--t-apoio); line-height:1.5; resize:vertical; outline:none;
   transition:background var(--t), border-color var(--t);
-}.co .cr-ta:hover{ border-color:var(--line); }.co .cr-ta:focus{ background:var(--paper); border-color:var(--line2); }.co .cr-ta:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }.co .cr-ta::placeholder{ color:var(--ink3); }/* A caixa onde a pessoa REVISA a lista inteira de materiais. No meu estudo
+}.co .cr-ta:hover{ border-color:var(--line2); }.co .cr-ta:focus{ background:var(--paper); border-color:var(--line2); }.co .cr-ta:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }.co .cr-ta::placeholder{ color:var(--ink3); }/* A caixa onde a pessoa REVISA a lista inteira de materiais. No meu estudo
    `--mat` era a caixinha curta dos detalhes de luz, e eu portei os 72px para
    cá: virou um quarto do tamanho. Tirar a regra também não resolveu, porque
    `.co .cr-ta` tem especificidade (0,2,0) e esmaga o `.cr-ta--mat` (0,1,0) do
@@ -562,17 +564,17 @@
    Classes próprias, e não `.fic__`: o Batch monta as linhas de cena com
    `.fic__cab`, e aquilo é uma linha de verdade (miniatura, nome, estado). */.co .cmp{ margin-top:14px; }.co .cmp:first-child{ margin-top:0; }.co .cmp__rot{
   display:block; margin:0 0 6px;
-  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.12em;
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em;
   text-transform:uppercase; color:var(--ink3); transition:color var(--t);
 }.co .cmp[data-aberta="sim"] .cmp__rot{ color:var(--ink2); }.co .cmp__b{
   width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding:11px 16px; border:1px solid var(--line); border-radius:14px;
+  min-height:44px; padding:11px 16px; border:1px solid var(--line); border-radius:14px;
   background:var(--paper); color:var(--ink);
-  font-size:var(--t-apoio); font-weight:500; text-align:left; line-height:1.35; cursor:pointer;
+  font-size:var(--t-apoio); font-weight:400; text-align:left; line-height:1.35; cursor:pointer;
   transition:border-color var(--t), box-shadow var(--t);
 }.co .cmp__b:hover{ border-color:var(--ink3); }.co .cmp__b:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }.co .cmp[data-aberta="sim"] .cmp__b{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }.co .cmp__val{
   flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-}.co .cmp__val[data-vazio="sim"]{ color:var(--ink3); font-weight:400; }.co .cmp__seta{ flex:none; color:var(--ink3); transition:transform var(--t); }.co .cmp[data-aberta="sim"] .cmp__seta{ transform:rotate(180deg); }.co .cmp__corpo{ padding:10px 0 2px; }/* Um grupo só de campos não leva o fio de topo: cada campo já se fecha na
+}.co .cmp__val[data-vazio="sim"]{ color:var(--ink3); font-weight:400; }.co .cmp__seta{ flex:none; width:15px; height:15px; color:var(--ink3); transition:transform var(--t); }.co .cmp[data-aberta="sim"] .cmp__seta{ transform:rotate(180deg); }.co .cmp__corpo{ padding:10px 0 2px; }/* Um grupo só de campos não leva o fio de topo: cada campo já se fecha na
    própria caixa, e o fio ali em cima virava a borda de uma caixa maior. */.co .fic:has(> .cmp){ border-top:0; margin-top:20px; }.co .fic--solta:has(> .cmp){ margin-top:16px; }.co .fic:has(> .cmp) + .cr-sec{ margin-top:22px; }.co .fic__l[data-aberta="sim"] .fic__corpo{ display:block; }/* ══════════════════════════════════════════════════════════════════
    A LISTA COM MARCADOR
    Quadrado marca vários, círculo marca uma. É a convenção que todo
