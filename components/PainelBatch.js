@@ -801,9 +801,11 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
               disabled={analisando || todasRefs.length === 0 || marcadas.length === 0}
             >
               <span>{analisando ? t('painelbatch_analisando') : analise ? t('painelbatch_analisar_novo') : t('painelbatch_analisar')}</span>
-              {!analisando && marcadas.length > 0 && (
+              {/* O valor fica SEMPRE à vista, como no "Ler materiais" do Render:
+                  16 por cena, e a soma quando há cenas marcadas. */}
+              {!analisando && (
                 <span className="cr-custo-tag">
-                  <IconeCredito /> {CREDITOS.analiseBatch * marcadas.length}
+                  <IconeCredito /> {CREDITOS.analiseBatch * Math.max(1, marcadas.length)}
                 </span>
               )}
             </button>

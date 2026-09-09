@@ -19,6 +19,7 @@ import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import { creditosMudaram } from '../lib/auth';
 import { listarNarrativas, criarNarrativa, atualizarNarrativa, pegarNarrativa, apagarNarrativa } from '../lib/narrativas';
 import IconeCredito from './IconeCredito';
+import Seta from './Seta';
 import DropdownCora from './DropdownCora';
 import { animarKling, custoAnimacao, custoTimelapseEtapa, custoTimelapseCompleto, custoTimelapsePrimeira, timelapsePrompts, gerarEtapaTimelapse, narrativaOrdem, narrativaRoteiro, CREDITOS } from '../lib/render';
 import { useIdioma } from '../lib/i18n';
@@ -261,7 +262,7 @@ export default function PainelAnimacao({
   // Fecha o popover de resolução do timelapse ao clicar fora.
   useEffect(() => {
     if (!tlPopRes) return;
-    function fora(e) { if (!e.target.closest('.tl-pill-wrap')) setTlPopRes(false); }
+    function fora(e) { if (!e.target.closest('.cr-pill-wrap')) setTlPopRes(false); }
     document.addEventListener('mousedown', fora);
     return () => document.removeEventListener('mousedown', fora);
   }, [tlPopRes]);
@@ -1050,27 +1051,32 @@ export default function PainelAnimacao({
             )}
           </section>
 
-          {/* ── Resolução (pill estilo plugin: pequeno, à esquerda, seta ▲) ── */}
-          <div className="tl-pill-wrap" style={{ marginTop: 14 }}>
-            <button
-              className={'tl-pill' + (tlPopRes ? ' tl-pill--on' : '')}
-              onClick={(e) => { e.stopPropagation(); setTlPopRes((v) => !v); }}
-            >
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-              <span>{tlRes.toUpperCase()}</span>
-              <span className="tl-pill-seta">▲</span>
-            </button>
-            {tlPopRes && (
-              <div className="tl-pill-pop" onClick={(e) => e.stopPropagation()}>
-                {['1k', '2k', '4k'].map((rk) => (
-                  <button
-                    key={rk}
-                    className={'tl-pill-opt' + (tlRes === rk ? ' tl-pill-opt--on' : '')}
-                    onClick={() => { setTlRes(rk); setTlPopRes(false); }}
-                  >{rk.toUpperCase()}</button>
-                ))}
-              </div>
-            )}
+          {/* ── Resolução: a MESMA pílula do Render, e não uma própria. Esta aba
+              tinha um dropdown só dela, e o dono pediu um padrão. */}
+          <div className="cr-pills-cfg" style={{ marginTop: 14 }}>
+            <div className="cr-pill-wrap">
+              <button
+                className={'cr-pill-cfg' + (tlPopRes ? ' cr-pill-cfg--on' : '')}
+                onClick={(e) => { e.stopPropagation(); setTlPopRes((v) => !v); }}
+              >
+                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/>
+                </svg>
+                <span>{tlRes.toUpperCase()}</span>
+                <Seta aberto={tlPopRes} />
+              </button>
+              {tlPopRes && (
+                <div className="cr-pop cr-pop--res" onClick={(e) => e.stopPropagation()}>
+                  {['1k', '2k', '4k'].map((rk) => (
+                    <button
+                      key={rk}
+                      className={'cr-pop-res' + (tlRes === rk ? ' cr-pop-res--on' : '')}
+                      onClick={() => { setTlRes(rk); setTlPopRes(false); }}
+                    >{rk.toUpperCase()}</button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {tlErro && <p className="up-erro">{tlErro}</p>}

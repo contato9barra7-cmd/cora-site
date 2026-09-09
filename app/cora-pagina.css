@@ -341,10 +341,16 @@
   font-size:var(--t-apoio2); color:var(--ink3);
   text-wrap:pretty;
 }/* O que a geração custa é a informação que muda de valor, então ela é a
-   pastilha, e o resto da frase é só o resto da frase. */.co .cr-custo-tag{
-  display:inline-block; padding:1px 9px; border-radius:var(--pill);
+   pastilha, e o resto da frase é só o resto da frase. *//* A tag do custo é UMA só em toda aba que gasta crédito: a moeda e o número,
+   flutuando na borda direita do botão para o rótulo ficar centrado e não se
+   mexer quando ela aparece. A posição fica declarada aqui, e não herdada do
+   globals, para o Render, o Batch, a Planta, a Animação e o Upscale não
+   dependerem de quem chegou antes. */.co .cr-custo-tag{
+  display:inline-flex; align-items:center; gap:4px; padding:1px 9px; border-radius:var(--pill);
   background:var(--turq-bg); color:var(--turq-txt);
-  font-weight:600; font-variant-numeric:tabular-nums;
+  font-size:var(--t-apoio2); font-weight:600; font-variant-numeric:tabular-nums; line-height:1.5;
+}.co .cr-custo-tag svg{ flex:none; width:12px; height:12px; }.co .cr-btn-gerar, .co .cr-b-ler{ position:relative; }.co .cr-btn-gerar .cr-custo-tag, .co .cr-b-ler .cr-custo-tag{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
 }.co .cr-prog{ margin:8px 0 0; text-align:center; font-size:var(--t-apoio2); color:var(--turq-txt); font-weight:600; }/* ══════════════════════════════════════════════════════════════════════
    A BARRA DO FEED
    ══════════════════════════════════════════════════════════════════════ *//* A MESMA altura da barra das abas, fixa nos dois lados: 58px com a borda. O

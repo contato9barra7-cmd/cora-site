@@ -117,8 +117,8 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
 .barra2{ padding:12px 16px 14px; border-top:1px solid var(--line); background:var(--wash); }
 .gerar{ position:relative; width:100%; height:46px; border:0; border-radius:var(--pill); background:var(--lima); color:#111; font-size:14.5px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px; }
 .gerar:disabled{ opacity:.45; }
-.gerar .tag{ position:absolute; right:14px; display:inline-flex; align-items:center; gap:4px; padding:1px 9px; border-radius:var(--pill); background:rgba(17,17,17,.10); font-size:12.5px; }
-.tag__a{ display:inline-grid; place-items:center; width:14px; height:14px; border-radius:50%; background:#111; color:var(--lima); font-size:9px; font-weight:700; }
+.gerar .tag{ position:absolute; right:14px; display:inline-flex; align-items:center; gap:4px; padding:1px 9px; border-radius:var(--pill); background:var(--turq-bg); color:var(--turq-txt); font-size:12.5px; font-weight:600; }
+.tag__a{ flex:none; width:12px; height:12px; }
 .custo{ margin:8px 0 0; text-align:center; font-size:12.5px; color:var(--ink3); }
 .tenho{ width:100%; height:46px; margin-top:8px; border:0; border-radius:var(--pill); background:var(--wash2); color:var(--ink2); font-size:13.5px; font-weight:500; }
 .resetar{ display:block; width:auto; margin:14px auto 16px; padding:2px 0; border:0; background:none; color:var(--ink2); font-size:12.5px; box-shadow:inset 0 -2px 0 var(--lima); }
@@ -141,7 +141,9 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
 .qty{ display:flex; align-items:center; gap:6px; height:38px; padding:0 6px; border-radius:var(--pill); background:var(--wash2); font-size:13.5px; font-weight:600; }
 .qty span{ min-width:16px; text-align:center; }
 .qty i{ width:24px; height:24px; border-radius:50%; background:var(--paper); display:grid; place-items:center; font-style:normal; font-size:14px; color:var(--ink2); }
-.pcfg{ flex:1; height:38px; padding:0 14px; border:1px solid var(--line); border-radius:var(--pill); background:var(--paper); color:var(--ink); font-size:12.5px; font-weight:500; display:flex; align-items:center; justify-content:space-between; }
+.pcfg{ flex:1; height:38px; padding:0 14px; border:0; border-radius:var(--pill); background:var(--wash2); color:var(--ink2); font-size:13.5px; font-weight:500; display:flex; align-items:center; justify-content:center; gap:6px; }
+.pcfg svg{ flex:none; }
+.pcfg i{ font-style:normal; color:var(--ink3); font-size:12px; line-height:1; margin-top:-4px; }
 .fic{ margin-top:8px; border-top:1px solid var(--line); }
 .fl{ border-bottom:1px solid var(--line); }
 .fl__cab{ width:100%; display:flex; align-items:center; gap:10px; padding:10px 2px; border:0; background:none; text-align:left; }
@@ -398,7 +400,7 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
             <label class="cena cena--on"><span class="cena__ck"><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg></span><i class="cena__img" style="background:var(--foto-d)"></i><input class="cena__nome" value="Suíte"><button class="cena__x">×</button></label>
             <button class="add"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-cima"/></svg>Adicionar cenas</button>
           </div>
-          <div class="barra2"><button class="gerar">Analisar cenas <span class="tag"><span class="tag__a">A</span>48</span></button><button class="tenho">Já tenho a análise</button><p class="custo">3 cenas</p><button class="resetar">Resetar configurações</button></div>
+          <div class="barra2"><button class="gerar">Analisar cenas <span class="tag"><svg class="tag__a" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>48</span></button><button class="tenho">Já tenho a análise</button><p class="custo">3 cenas</p><button class="resetar">Resetar configurações</button></div>
         </div>
         <div class="feed">
           <div class="fb" data-chrome="fb"></div>
@@ -466,7 +468,7 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
               <div class="refs"><button class="ref ref--add"><b>+</b><small>0/3</small></button></div>
               <p class="grp">Detalhes</p>
               <textarea class="ta ta--curta" placeholder="Opcional: o que a leitura não pegou..."></textarea>
-              <div class="cfg"><div class="qty"><i>−</i><span>1</span><i>+</i></div><div class="pcfg">4:5 <span>⌄</span></div><div class="pcfg">2K <span>⌄</span></div></div>
+              <div class="cfg"><div class="qty"><i>−</i><span>1</span><i>+</i></div><div class="pcfg"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="5" width="14" height="10" rx="1.5"/><rect x="6" y="2" width="9" height="14" rx="1.5"/></svg>4:5<i>⌄</i></div><div class="pcfg"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/></svg>2K<i>⌄</i></div></div>
             </div>
             <div class="bcena"><div class="bcena__cab"><i style="background:var(--foto-c)"></i><b>Cozinha</b><button class="bcena__x">×</button></div><textarea class="ta ta--mat">Armários superiores e inferiores em bege areia fosco...</textarea></div>
           </div>
@@ -479,7 +481,7 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
     </div></div>
 
     <div class="passo__cab" style="margin-top:28px"><span class="passo__n" style="visibility:hidden"></span><div>
-      <p class="prop"><b>O que eu mudaria</b>Cada cena vira uma linha da ficha, o mesmo gesto do Render: fechada é a miniatura, o nome e o estado. Abre uma por vez. A caixa cresce com o texto, e referências e detalhes ficam em duas linhas dentro dela. As três cenas cabem numa tela, com o botão de gerar à vista.</p>
+      <p class="prop"><b>O que eu mudaria</b>Cada cena vira uma linha da ficha, o mesmo gesto do Render: fechada é a miniatura, o nome e o estado. Abre uma por vez. A caixa de materiais é a mesma do Render, com os 320px, e referências e detalhes ficam em duas linhas dentro dela. Fechadas, as três cenas cabem numa tela, com o botão de gerar à vista.</p>
     </div></div>
     <p class="rot rot--prop">Proposta</p>
     <div class="rolagem"><div class="jan">
@@ -496,9 +498,9 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
               <div class="fl">
                 <button class="fl__cab"><i style="background:var(--foto-b)"></i><b>Sala de estar</b><span class="fl__st">Revisar</span><svg class="fl__seta" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 20 20"><path d="M5 12l5-5 5 5"/></svg></button>
                 <div class="fl__corpo">
-                  <textarea class="ta ta--auto" rows="7">Piso em porcelanato cimentício claro, placas grandes, juntas retas. Paredes em branco quente fosco. Painel de madeira caramelo com veios verticais na parede da TV. Sofá em L estofado bege claro, almofadas bege e terracota. Tapete têxtil envelhecido em tons bege e cinza. Mesa de centro em madeira escura. Cortina translúcida bege, caimento vertical suave.</textarea>
+                  <textarea class="ta ta--mat">Piso em porcelanato cimentício claro, placas grandes, juntas retas. Paredes em branco quente fosco. Painel de madeira caramelo com veios verticais na parede da TV. Sofá em L estofado bege claro, almofadas bege e terracota. Tapete têxtil envelhecido em tons bege e cinza. Mesa de centro em madeira escura. Cortina translúcida bege, caimento vertical suave.</textarea>
                   <div class="acoes2" style="margin-top:8px"><button class="b">Editar</button><button class="b b--conf">Tá bom, aprovar</button></div>
-                  <div class="cfg"><div class="qty"><i>−</i><span>1</span><i>+</i></div><div class="pcfg">4:5 <span>⌄</span></div><div class="pcfg">2K <span>⌄</span></div></div>
+                  <div class="cfg"><div class="qty"><i>−</i><span>1</span><i>+</i></div><div class="pcfg"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="5" width="14" height="10" rx="1.5"/><rect x="6" y="2" width="9" height="14" rx="1.5"/></svg>4:5<i>⌄</i></div><div class="pcfg"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/></svg>2K<i>⌄</i></div></div>
                   <div style="margin-top:10px;border-top:1px solid var(--line)">
                     <button class="fl__cab" style="padding:9px 2px"><b style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3)">Referências desta cena</b><span class="fl__st">nenhuma</span><svg class="fl__seta" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 20 20"><path d="M5 8l5 5 5-5"/></svg></button>
                     <button class="fl__cab" style="padding:9px 2px;border-top:1px solid var(--line)"><b style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3)">Detalhes</b><span class="fl__st">nenhum</span><svg class="fl__seta" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 20 20"><path d="M5 8l5 5 5-5"/></svg></button>
@@ -541,7 +543,7 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
               <div class="fl"><button class="fl__cab"><i style="background:var(--foto-d)"></i><b>Suíte</b><span class="fl__st">Revisar</span><svg class="fl__seta" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 20 20"><path d="M5 8l5 5 5-5"/></svg></button></div>
             </div>
           </div>
-          <div class="barra2"><button class="gerar">Gerar batch <span class="tag"><span class="tag__a">A</span>552</span></button><p class="custo">2 aprovadas · 4 imagens</p><button class="resetar">Resetar configurações</button></div>
+          <div class="barra2"><button class="gerar">Gerar batch <span class="tag"><svg class="tag__a" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>552</span></button><p class="custo">2 aprovadas · 4 imagens</p><button class="resetar">Resetar configurações</button></div>
         </div>
         <div class="feed">
           <div class="fb" data-chrome="fb"></div>
@@ -620,7 +622,7 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
               <div class="fl"><button class="fl__cab"><i style="background:var(--foto-d)"></i><b>Suíte</b><span class="fl__st">Revisar</span><svg class="fl__seta" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 20 20"><path d="M5 8l5 5 5-5"/></svg></button></div>
             </div>
           </div>
-          <div class="barra2"><button class="gerar">Gerar batch <span class="tag"><span class="tag__a">A</span>552</span></button><p class="custo">2 aprovadas · 4 imagens</p><button class="resetar">Resetar configurações</button></div>
+          <div class="barra2"><button class="gerar">Gerar batch <span class="tag"><svg class="tag__a" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>552</span></button><p class="custo">2 aprovadas · 4 imagens</p><button class="resetar">Resetar configurações</button></div>
         </div>
         <div class="feed">
           <div class="fb" data-chrome="fb"></div>

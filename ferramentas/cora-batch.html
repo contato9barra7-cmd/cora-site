@@ -111,8 +111,8 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
 .barra{ padding:12px 16px 14px; border-top:1px solid var(--line); background:var(--wash); }
 .gerar{ position:relative; width:100%; height:46px; border:0; border-radius:var(--pill); background:var(--lima); color:#111; font-size:14.5px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px; }
 .gerar:disabled{ opacity:.45; }
-.gerar .tag{ position:absolute; right:14px; display:inline-flex; align-items:center; gap:4px; padding:1px 9px; border-radius:var(--pill); background:rgba(17,17,17,.10); font-size:12.5px; }
-.tag__a{ display:inline-grid; place-items:center; width:14px; height:14px; border-radius:50%; background:#111; color:var(--lima); font-size:9px; font-weight:700; }
+.gerar .tag{ position:absolute; right:14px; display:inline-flex; align-items:center; gap:4px; padding:1px 9px; border-radius:var(--pill); background:var(--turq-bg); color:var(--turq-txt); font-size:12.5px; font-weight:600; }
+.tag__a{ flex:none; width:12px; height:12px; }
 .custo{ margin:8px 0 0; text-align:center; font-size:12.5px; color:var(--ink3); }
 .tenho{ width:100%; height:46px; margin-top:8px; border:0; border-radius:var(--pill); background:var(--wash2); color:var(--ink2); font-size:13.5px; font-weight:500; }
 .resetar{ display:block; width:auto; margin:14px auto 0; padding:2px 0; border:0; background:none; color:var(--ink2); font-size:12.5px; box-shadow:inset 0 -2px 0 var(--lima); }
@@ -138,7 +138,9 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
 .qty{ display:flex; align-items:center; gap:6px; height:38px; padding:0 6px; border-radius:var(--pill); background:var(--wash2); font-size:13.5px; font-weight:600; }
 .qty span{ min-width:16px; text-align:center; }
 .qty i{ width:24px; height:24px; border-radius:50%; background:var(--paper); display:grid; place-items:center; font-style:normal; font-size:14px; color:var(--ink2); }
-.pcfg{ flex:1; height:38px; padding:0 14px; border:1px solid var(--line); border-radius:var(--pill); background:var(--paper); color:var(--ink); font-size:12.5px; font-weight:500; display:flex; align-items:center; justify-content:space-between; }
+.pcfg{ flex:1; height:38px; padding:0 14px; border:0; border-radius:var(--pill); background:var(--wash2); color:var(--ink2); font-size:13.5px; font-weight:500; display:flex; align-items:center; justify-content:center; gap:6px; }
+.pcfg svg{ flex:none; }
+.pcfg i{ font-style:normal; color:var(--ink3); font-size:12px; line-height:1; margin-top:-4px; }
 
 /* a proposta da fase 2: cada cena é uma linha da ficha */
 .fic{ margin-top:8px; border-top:1px solid var(--line); }
@@ -245,7 +247,7 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
         <button class="add"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5"/><path d="M3.5 14v2a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5v-2"/></svg>Adicionar cenas</button>
       </div>
       <div class="barra">
-        <button class="gerar">Analisar cenas <span class="tag"><span class="tag__a">A</span>48</span></button>
+        <button class="gerar">Analisar cenas <span class="tag"><svg class="tag__a" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>48</span></button>
         <button class="tenho">Já tenho a análise</button>
         <p class="custo">3 cenas</p>
       </div>
@@ -311,7 +313,7 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
               <div class="refs"><button class="ref ref--add"><b>+</b><small>0/3</small></button></div>
               <p class="grp">Detalhes</p>
               <textarea class="ta ta--curta" placeholder="Opcional: o que a leitura não pegou..."></textarea>
-              <div class="cfg"><div class="qty"><i>−</i><span>1</span><i>+</i></div><div class="pcfg">4:5 <span>⌄</span></div><div class="pcfg">2K <span>⌄</span></div></div>
+              <div class="cfg"><div class="qty"><i>−</i><span>1</span><i>+</i></div><div class="pcfg"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="5" width="14" height="10" rx="1.5"/><rect x="6" y="2" width="9" height="14" rx="1.5"/></svg>4:5<i>⌄</i></div><div class="pcfg"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/></svg>2K<i>⌄</i></div></div>
             </div>
             <div class="bcena">
               <div class="bcena__cab"><i style="background:var(--foto-c)"></i><b>Cozinha</b><button class="bcena__x">×</button></div>
@@ -332,9 +334,9 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
               <div class="fl">
                 <button class="fl__cab"><i style="background:var(--foto-b)"></i><b>Sala de estar</b><span class="fl__st">Revisar</span><svg class="fl__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5-5 5 5"/></svg></button>
                 <div class="fl__corpo">
-                  <textarea class="ta ta--auto" rows="7">Piso em porcelanato cimentício claro, placas grandes, juntas retas. Paredes em branco quente fosco. Painel de madeira caramelo com veios verticais na parede da TV. Sofá em L estofado bege claro, almofadas bege e terracota. Tapete têxtil envelhecido em tons bege e cinza. Mesa de centro em madeira escura. Cortina translúcida bege, caimento vertical suave.</textarea>
+                  <textarea class="ta ta--mat">Piso em porcelanato cimentício claro, placas grandes, juntas retas. Paredes em branco quente fosco. Painel de madeira caramelo com veios verticais na parede da TV. Sofá em L estofado bege claro, almofadas bege e terracota. Tapete têxtil envelhecido em tons bege e cinza. Mesa de centro em madeira escura. Cortina translúcida bege, caimento vertical suave.</textarea>
                   <div class="acoes2" style="margin-top:8px"><button class="b">Editar</button><button class="b b--conf">Tá bom, aprovar</button></div>
-                  <div class="cfg"><div class="qty"><i>−</i><span>1</span><i>+</i></div><div class="pcfg">4:5 <span>⌄</span></div><div class="pcfg">2K <span>⌄</span></div></div>
+                  <div class="cfg"><div class="qty"><i>−</i><span>1</span><i>+</i></div><div class="pcfg"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="5" width="14" height="10" rx="1.5"/><rect x="6" y="2" width="9" height="14" rx="1.5"/></svg>4:5<i>⌄</i></div><div class="pcfg"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/></svg>2K<i>⌄</i></div></div>
                   <div class="linha-mini" style="margin-top:10px;border-top:1px solid var(--line)">
                     <button class="fl__cab" style="padding:9px 2px"><b style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3)">Referências desta cena</b><span class="fl__st">nenhuma</span><svg class="fl__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l5 5 5-5"/></svg></button>
                     <button class="fl__cab" style="padding:9px 2px;border-top:1px solid var(--line)"><b style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3)">Detalhes</b><span class="fl__st">nenhum</span><svg class="fl__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l5 5 5-5"/></svg></button>
@@ -359,7 +361,7 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
       <p class="passo__p">É aqui que o Batch fica longo. Cada cena abre um cartão com a caixa de materiais de 320px, dois botões, referências da cena, detalhes e a configuração. <b>Três cenas são uns 1.800px de painel</b>, e a Suíte só existe para quem rola até o fim. Com seis cenas, ninguém vê o botão de gerar sem rolar três telas.</p>
       <div class="prop">
         <p class="olho">O que eu mudaria</p>
-        <p>Cada cena vira uma linha da ficha, o mesmo gesto do Render: fechada é a miniatura, o nome e o estado ("Revisar" ou "Aprovada"). Abre uma por vez. A caixa de materiais cresce com o texto em vez de nascer com 320px, e referências e detalhes ficam em duas linhas dentro dela, fechadas até serem pedidas. Três cenas passam a caber numa tela, e a lista fechada vira o resumo do batch: o que falta aprovar se lê de relance.</p>
+        <p>Cada cena vira uma linha da ficha, o mesmo gesto do Render: fechada é a miniatura, o nome e o estado ("Revisar" ou "Aprovada"). Abre uma por vez. A caixa de materiais cresce com o texto em vez de nascer com 320px, e referências e detalhes ficam em duas linhas dentro dela, fechadas até serem pedidas. Fechadas, as três cenas cabem numa tela, e a lista vira o resumo do batch: o que falta aprovar se lê de relance.</p>
       </div>
       <p class="passo__p" style="margin-top:12px">O "Voltar às cenas" sai da frente e vira o passo 1 do marcador no alto. É o mesmo caminho, com nome de onde se está.</p>
     </div>
@@ -380,7 +382,7 @@ h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; lin
         </div>
       </div>
       <div class="barra">
-        <button class="gerar">Gerar batch <span class="tag"><span class="tag__a">A</span>552</span></button>
+        <button class="gerar">Gerar batch <span class="tag"><svg class="tag__a" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>552</span></button>
         <p class="custo">2 aprovadas · 4 imagens</p>
       </div>
       <button class="resetar">Resetar configurações</button>
