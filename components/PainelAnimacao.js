@@ -239,6 +239,7 @@ export default function PainelAnimacao({
   const narrTrilha = narrDados.trilha || '';
   const narrIdeia = narrDados.ideia || '';
   const narrNarracao = narrDados.narracao || '';
+  const [narracaoCopiada, setNarracaoCopiada] = useState(false);
   const narrSrvId = narrDados.srvId || null;   // id no servidor (salvo p/ continuar/Análises)
   const patchNarr = (patch) => onNav && onNav((atual) => {
     const base = atual || nav || {};
@@ -705,6 +706,14 @@ export default function PainelAnimacao({
     if (narrTrilha) txt += t('painelanimacao_trilha_som') + ': ' + narrTrilha + '\n\n';
     if (narrNarracao) txt += t('painelanimacao_roteiro_falado') + ': ' + narrNarracao + '\n';
     try { navigator.clipboard.writeText(txt); } catch (e) {}
+  }
+
+  // O roteiro falado vai para quem grava a narração: tem o seu copiar.
+  function copiarNarracao() {
+    if (!narrNarracao) return;
+    try { navigator.clipboard.writeText(narrNarracao).catch(() => {}); } catch (e) {}
+    setNarracaoCopiada(true);
+    setTimeout(() => setNarracaoCopiada(false), 1800);
   }
 
   function narrResetar() {
@@ -1198,7 +1207,18 @@ export default function PainelAnimacao({
                   {narrRitmo && <div className="narr-nota"><b>{t('painelanimacao_ritmo')}</b><span>{narrRitmo}</span></div>}
                   {narrTrilha && <div className="narr-nota"><b>{t('painelanimacao_trilha_som')}</b><span>{narrTrilha}</span></div>}
                   {/* O roteiro falado: a narração em off para ler sobre o vídeo. */}
-                  {narrNarracao && <div className="narr-nota"><b>{t('painelanimacao_roteiro_falado')}</b><span>{narrNarracao}</span></div>}
+                  {narrNarracao && (
+                    <div className="narr-nota">
+                      <div className="narr-nota-cab">
+                        <b>{t('painelanimacao_roteiro_falado')}</b>
+                        <button className="vz-prompt-copiar" onClick={copiarNarracao}>
+                          <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="7" y="7" width="9" height="9" rx="1.5"/><path d="M4 13V4.5A1.5 1.5 0 015.5 3H13" strokeLinecap="round"/></svg>
+                          {narracaoCopiada ? t('painelanalises_copiado') : t('painelanimacao_copiar')}
+                        </button>
+                      </div>
+                      <span>{narrNarracao}</span>
+                    </div>
+                  )}
                 </div>
               )}
 
