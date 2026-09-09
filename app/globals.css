@@ -12790,16 +12790,36 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
   padding: 0; border: 0; background: none; font: inherit; color: inherit;
   cursor: pointer;
 }
-/* O sinal cresceu de 16 para 19px e o glifo de 11 para 14: ele e a unica
-   parte da linha que diz "da para clicar", e no tamanho antigo passava por
-   pontuacao. `vertical-align:middle` centra a bolha na altura do texto, e nao
-   na linha de base, que era o que a deixava um fio baixa. */
+/* ── O SINAL E DESENHO, E NAO LETRA ──
+   Era o caractere "+" centrado por `place-items:center`. So que isso centra a
+   CAIXA DE LINHA do glifo, e nao a tinta dele: o "+" de uma fonte de texto
+   mora na altura do eixo matematico, acima do meio da caixa, e o "-" e um
+   hifen, que e curto e mais alto ainda. Resultado: os dois desenhavam tortos
+   dentro da bolha, cada um para um lado.
+
+   Duas barras posicionadas por geometria nao tem esse problema. Elas cruzam
+   exatamente no centro porque e isso que `top:50%; left:50%` com
+   `translate(-50%,-50%)` quer dizer, seja qual for a fonte da pagina.
+
+   A bolha usa o vermelho do proprio numero. Ela deixou de ser um fundinho
+   claro atras de um sinal e virou o sinal inteiro, que e o que faz alguem
+   entender que da para clicar ali. */
 .admin-ac__seta {
-  display: inline-grid; place-items: center; width: 19px; height: 19px;
-  margin-left: 7px; border-radius: 100px; background: #FBE3E0;
-  font-size: 14px; font-weight: 700; line-height: 1; vertical-align: middle;
+  position: relative; display: inline-block; width: 19px; height: 19px;
+  margin-left: 7px; border-radius: 100px; background: #C8342A;
+  vertical-align: middle; font-size: 0;
 }
-.admin-ac__falta--btn:hover .admin-ac__seta { background: #F7CFCA; }
+.admin-ac__seta::before,
+.admin-ac__seta::after {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  background: #FFFFFF; border-radius: 1px;
+  transform: translate(-50%, -50%);
+}
+.admin-ac__seta::before { width: 9px; height: 1.6px; }
+.admin-ac__seta::after  { width: 1.6px; height: 9px; }
+/* Aberto, a barra em pe some e sobra o menos. */
+.admin-ac__seta[data-aberto="sim"]::after { display: none; }
+.admin-ac__falta--btn:hover .admin-ac__seta { background: #A82A22; }
 .admin-pend {
   margin: 0 0 18px; padding: 16px 18px;
   border: 1px solid var(--line); border-radius: 14px; background: var(--paper);

@@ -125,9 +125,10 @@ export default function PainelAceites() {
               <button type="button" className="admin-ac__falta admin-ac__falta--btn"
                       onClick={abrirPendentes}>
                 <strong>{dados.sem_prova}</strong> {t('adm_ac_sem_prova')}
-                <span className="admin-ac__seta" aria-hidden="true">
-                  {pendAberto ? '-' : '+'}
-                </span>
+                {/* Vazio de proposito: o mais e o menos sao duas barras
+                    desenhadas no CSS, e nao letras. Ver `.admin-ac__seta`. */}
+                <span className="admin-ac__seta" aria-hidden="true"
+                      data-aberto={pendAberto ? 'sim' : 'nao'} />
               </button>
             </>
           )}
