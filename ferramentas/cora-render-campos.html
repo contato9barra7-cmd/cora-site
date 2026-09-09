@@ -1,0 +1,432 @@
+<title>Render em campos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   ESTUDO: A ABA RENDER COM A ORGANIZAÇÃO DA PLANTA BAIXA
+   Hoje o Render é ficha: uma linha por escolha, nome à esquerda e valor à
+   direita, e a lista abre por dentro. A Planta baixa é o oposto: o rótulo
+   fica em cima, e embaixo um campo largo com o valor.
+
+   Os dois desenhos existem no site hoje. Este arquivo põe os dois lado a
+   lado, com o mesmo conteúdo, para escolher um. Os tokens e as classes são
+   os do site, copiados, para o estudo abrir sozinho no navegador.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --turq-txt:#196C5B; --lima-txt:#256B2A; --turq-bg:#E6F7F3;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --t:.16s ease;
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px; --t-titulo:17px;
+  --alt-ctrl:38px; --alt-acao:46px;
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+    --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+    --line:#2B2B30; --line2:#3A3A41;
+    --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+    --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+    --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+  --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+  color-scheme:dark;
+}
+
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--wash); color:var(--ink); font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.5; }
+.pag{ max-width:1000px; margin:0 auto; padding:40px 24px 72px; }
+
+.cab{ max-width:62ch; margin-bottom:32px; }
+.cab h1{ margin:0 0 8px; font-size:28px; font-weight:600; letter-spacing:-.01em; text-wrap:balance; }
+.cab p{ margin:0; color:var(--ink2); text-wrap:pretty; }
+.cab p + p{ margin-top:8px; }
+
+.par{ display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:32px 28px; align-items:start; }
+@media (max-width:460px){ .par{ grid-template-columns:1fr; } }
+.lado__cab{ display:flex; gap:11px; align-items:flex-start; margin-bottom:12px; }
+.lado__n{
+  flex:none; width:28px; height:28px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--ink); color:var(--paper); font-size:var(--t-apoio2); font-weight:600;
+}
+.lado__cab h2{ margin:1px 0 3px; font-size:var(--t-titulo); font-weight:600; }
+.lado__cab p{ margin:0; color:var(--ink2); font-size:var(--t-apoio); max-width:40ch; text-wrap:pretty; }
+.lado__tag{
+  display:inline-block; margin-left:8px; padding:1px 8px; border-radius:var(--pill);
+  background:var(--wash2); color:var(--ink3);
+  font-size:var(--t-etiqueta); font-weight:600; letter-spacing:.04em; text-transform:uppercase; vertical-align:2px;
+}
+
+/* ── O painel: 400px, o recuo real, e o pé fixo ── */
+.painel{
+  width:400px; max-width:100%; height:620px; display:flex; flex-direction:column;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r); overflow:hidden;
+}
+.painel__corpo{ flex:1; min-height:0; overflow-y:auto; padding:20px 16px 24px; }
+.painel__pe{
+  flex:none; padding:12px 16px 14px;
+  border-top:1px solid var(--line); background:var(--paper);
+}
+
+/* ── O olho ── */
+.cr-sec{
+  margin:26px 0 10px; display:flex; align-items:baseline; gap:6px;
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.cr-sec:first-child{ margin-top:0; }
+.cr-opc{ font-weight:600; letter-spacing:.06em; opacity:.75; }
+
+/* ── A imagem do modelo ── */
+.cr-drop{
+  width:100%; height:120px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:7px;
+  border:1px dashed var(--line2); border-radius:var(--r-peq);
+  background:var(--wash); color:var(--ink3);
+  font:inherit; font-size:var(--t-apoio); cursor:pointer;
+  transition:border-color var(--t), color var(--t);
+}
+.cr-drop:hover{ border-color:var(--turquesa-esc); color:var(--turq-txt); }
+
+/* ── Os botões de materiais ── */
+.cr-mat-acoes{ display:grid; gap:8px; }
+.cr-b{
+  width:100%; height:var(--alt-ctrl); padding:0 14px; border:0;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font:inherit; font-size:var(--t-apoio2); font-weight:500; cursor:pointer;
+  transition:background var(--t), color var(--t);
+}
+.cr-b:hover{ background:var(--line); color:var(--ink); }
+
+/* ══════════ LADO 1 · A FICHA (o Render de hoje) ══════════ */
+.fic{ border-top:1px solid var(--line); }
+.fic__l{ border-bottom:1px solid var(--line); }
+.fic__cab{
+  width:100%; display:flex; align-items:center; gap:10px;
+  padding:13px 2px; border:0; background:none; color:inherit;
+  font:inherit; text-align:left; cursor:pointer;
+}
+.fic__nome{
+  flex:1; min-width:0; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}
+.fic__val{
+  flex:none; max-width:52%; font-size:var(--t-apoio); color:var(--ink);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.fic__val[data-vazio="sim"]{ color:var(--ink3); }
+.fic__seta{ flex:none; color:var(--ink3); transition:transform .18s; }
+.fic__l[data-aberta="sim"] .fic__seta{ transform:rotate(180deg); }
+.fic__corpo{ padding:0 0 14px; }
+.lista{ display:grid; gap:1px; }
+.lista__i{
+  display:flex; align-items:center; gap:9px; width:100%;
+  padding:9px 10px; border:0; border-radius:9px; background:none;
+  color:var(--ink2); font:inherit; font-size:var(--t-apoio); text-align:left; cursor:pointer;
+  transition:background var(--t), color var(--t);
+}
+.lista__i:hover{ background:var(--wash); color:var(--ink); }
+.lista__m{
+  flex:none; width:16px; height:16px; border-radius:50%;
+  border:1px solid var(--line2); background:var(--paper);
+  display:flex; align-items:center; justify-content:center;
+}
+.lista__i--on{ color:var(--ink); }
+.lista__i--on .lista__m{ border-color:var(--turquesa-esc); background:var(--turquesa); }
+
+/* ══════════ LADO 2 · OS CAMPOS (a Planta baixa) ══════════ */
+/* O rótulo em cima, o campo largo embaixo. O respiro entre um campo e o
+   próximo é 14px, e não os 26px que o `.cr-sec` dá na Planta baixa: com
+   nove campos seguidos aquilo virava uma coluna de ar. */
+.campo{ margin-top:14px; }
+.campo:first-child{ margin-top:0; }
+.campo__rot{
+  display:block; margin:0 0 6px;
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.dd{ position:relative; width:100%; }
+.dd__b{
+  width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 14px; border-radius:var(--r-peq); border:1px solid var(--line);
+  background:var(--paper); color:var(--ink);
+  font:inherit; font-size:var(--t-apoio); text-align:left; line-height:1.35; cursor:pointer;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.dd__b:hover{ border-color:var(--ink3); }
+.dd--aberto .dd__b{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+.dd__seta{ flex:none; color:var(--ink3); transition:transform .18s; }
+.dd--aberto .dd__seta{ transform:rotate(180deg); }
+.dd__lista{
+  position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:10;
+  padding:6px; border-radius:14px; border:1px solid var(--line);
+  background:var(--paper); box-shadow:var(--sombra);
+  max-height:240px; overflow-y:auto;
+}
+.dd__o{
+  display:flex; align-items:center; gap:9px; width:100%;
+  padding:9px 10px; border:0; border-radius:9px; background:none;
+  color:var(--ink2); font:inherit; font-size:var(--t-apoio); text-align:left; cursor:pointer;
+}
+.dd__o:hover{ background:var(--wash); color:var(--ink); }
+.dd__o--on{ color:var(--ink); }
+.dd__m{
+  flex:none; width:16px; height:16px; border-radius:50%;
+  border:1px solid var(--line2); background:var(--paper);
+}
+.dd__o--on .dd__m{ border-color:var(--turquesa-esc); background:var(--turquesa); }
+
+/* ── A caixa de texto, igual nos dois lados ── */
+.cr-ta{
+  width:100%; min-height:96px; margin-top:8px; padding:12px 14px;
+  border:1px solid transparent; border-radius:var(--r-peq);
+  background:var(--wash); color:var(--ink);
+  font:inherit; font-size:var(--t-apoio); line-height:1.5; resize:vertical; outline:none;
+}
+.campo .cr-ta{ margin-top:0; }
+.cr-ta::placeholder{ color:var(--ink3); }
+.cr-ta--curta{ min-height:72px; }
+
+/* ── A barra de gerar, igual nos dois lados ── */
+.cr-pills-cfg{ display:flex; gap:6px; margin-bottom:10px; }
+.cr-qty{
+  flex:none; display:flex; align-items:center; gap:2px; height:var(--alt-ctrl);
+  padding:0 6px; border-radius:var(--pill); background:var(--wash2); color:var(--ink);
+}
+.cr-qty button{
+  width:26px; height:26px; border:0; border-radius:50%; background:none;
+  color:var(--ink2); font:inherit; font-size:var(--t-corpo); cursor:pointer;
+}
+.cr-qty span{ min-width:18px; text-align:center; font-size:var(--t-apoio); font-weight:600; }
+.cr-pill-wrap{ flex:1 1 0; min-width:0; }
+.cr-pill-cfg{
+  width:100%; height:var(--alt-ctrl); padding:0 14px; border:0;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font:inherit; font-size:var(--t-apoio); font-weight:500; cursor:pointer;
+}
+.cr-btn-gerar{
+  position:relative; width:100%; height:var(--alt-acao); border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font:inherit; font-size:var(--t-corpo); font-weight:600; cursor:pointer;
+}
+.cr-btn-gerar:hover{ background:var(--lima-esc); }
+.cr-custo-tag{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  display:inline-flex; align-items:center; gap:4px; padding:1px 9px;
+  border-radius:var(--pill); background:var(--turq-bg); color:var(--turq-txt);
+  font-size:var(--t-apoio2); font-weight:600;
+}
+.cr-resetar{
+  display:block; margin:12px auto 0; padding:2px 0; border:0; background:none;
+  color:var(--ink2); font:inherit; font-size:var(--t-apoio2); cursor:pointer;
+  box-shadow:inset 0 -2px 0 var(--lima);
+}
+
+.rod{ margin-top:40px; max-width:62ch; color:var(--ink2); font-size:var(--t-apoio); }
+.rod p{ margin:0 0 8px; text-wrap:pretty; }
+.rod strong{ color:var(--ink); font-weight:600; }
+
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+
+<div class="pag">
+  <header class="cab">
+    <h1>O Render em campos</h1>
+    <p>À esquerda a ficha de hoje: uma linha por escolha, nome à esquerda e valor à direita, e a lista abre por dentro da linha. À direita a organização da Planta baixa: o rótulo em cima, o campo largo embaixo.</p>
+    <p>Mesmo conteúdo nos dois, mesma barra de gerar, mesma altura de painel. Os dropdowns abrem de verdade, dá para clicar.</p>
+  </header>
+
+  <div class="par">
+    <section class="lado">
+      <div class="lado__cab">
+        <span class="lado__n">1</span>
+        <div><h2>Ficha<span class="lado__tag">hoje</span></h2>
+        <p>Nove escolhas em nove linhas de fio a fio. Fechadas, elas cabem quase todas na tela de uma vez.</p></div>
+      </div>
+      <div class="painel" id="ladoFicha"></div>
+    </section>
+
+    <section class="lado">
+      <div class="lado__cab">
+        <span class="lado__n">2</span>
+        <div><h2>Campos<span class="lado__tag">planta baixa</span></h2>
+        <p>Rótulo em cima, campo largo embaixo, com 14px entre um e o próximo. A lista abre por cima, sem empurrar o que está abaixo.</p></div>
+      </div>
+      <div class="painel" id="ladoCampos"></div>
+    </section>
+  </div>
+
+  <footer class="rod">
+    <p><strong>O que muda de verdade.</strong> A ficha ocupa 48px por escolha, o campo ocupa 82px. Com as nove do Render, a ficha cabe numa tela e os campos pedem rolagem. Em troca, o campo mostra o rótulo e o valor no mesmo tamanho de letra, e a ficha escreve o rótulo em maiúscula pequena.</p>
+    <p><strong>Onde cada um já vive.</strong> A ficha é o Render, o Batch e agora o Editar. Os campos são a Planta baixa, que tem catorze escolhas e nasceu do plugin. Adotar um dos dois em toda a janela é o ponto: hoje a pessoa troca de aba e troca de gramática.</p>
+  </footer>
+</div>
+
+<script>
+// Os campos reais da aba Render, com os valores que ela abre.
+const CAMPOS = [
+  { chave:'ilum',   rot:'Iluminação natural',        val:'Luz direta',          opcoes:['Luz direta','Luz difusa','Sem luz natural'] },
+  { chave:'hora',   rot:'Hora do dia',               val:'Dia claro editorial', opcoes:['Manhã','Dia claro editorial','Fim de tarde','Golden hour','Noite'] },
+  { chave:'dir',    rot:'Direção da luz',            val:'Lateral direita',     opcoes:['Frontal','Lateral direita','Lateral esquerda','Contraluz','Zenital'] },
+  { chave:'atm',    rot:'Atmosfera / clima',         val:'Nuvens leves',        opcoes:['Céu limpo','Nuvens leves','Encoberto','Chuva','Neblina'] },
+  { chave:'detn',   rot:'Detalhes da luz natural',   texto:'Ex: sombra de folhagem na parede do fundo, luz batendo no piso…' },
+  { chave:'art',    rot:'Luz artificial',            val:'2700K',               opcoes:['Desligada','2700K','3000K','4000K','Outro'] },
+  { chave:'int',    rot:'Intensidade',               val:'Média',               opcoes:['Baixa','Média','Intensa'] },
+  { chave:'deta',   rot:'Detalhes da luz artificial', texto:'Ex: fita de LED na sanca, arandelas acesas nos dois lados…' },
+  { chave:'ent',    rot:'Entorno',                   val:'3 escolhidos',        opcoes:['Vegetação','Vizinhança urbana','Montanha','Mar','Piscina'] }
+];
+
+const SETA = '<svg class="fic__seta" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>';
+const SETA_DD = '<svg class="dd__seta" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>';
+
+const TOPO = `
+  <p class="cr-sec">Imagem do modelo</p>
+  <button class="cr-drop">
+    <svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4">
+      <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/>
+      <path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>
+    </svg>
+    <span>Escolher imagem</span>
+  </button>`;
+
+const MATERIAIS = `
+  <p class="cr-sec">Materiais</p>
+  <div class="cr-mat-acoes">
+    <button class="cr-b">Já tenho a análise</button>
+    <button class="cr-b">Ler materiais</button>
+  </div>`;
+
+const PE = `
+  <div class="cr-pills-cfg">
+    <div class="cr-qty"><button aria-label="Menos">−</button><span>1</span><button aria-label="Mais">+</button></div>
+    <div class="cr-pill-wrap"><button class="cr-pill-cfg">4:5</button></div>
+    <div class="cr-pill-wrap"><button class="cr-pill-cfg">2K</button></div>
+  </div>
+  <button class="cr-btn-gerar">Renderizar<span class="cr-custo-tag">142</span></button>
+  <button class="cr-resetar">Resetar configurações</button>`;
+
+// ── lado 1: a ficha ──
+function ficha(){
+  const linhas = CAMPOS.map((c) => {
+    if (c.texto) {
+      return `<div class="fic__l" data-aberta="nao" data-chave="${c.chave}">
+        <button class="fic__cab"><span class="fic__nome">${c.rot}</span><span class="fic__val" data-vazio="sim"></span>${SETA}</button>
+        <div class="fic__corpo" hidden><textarea class="cr-ta cr-ta--curta" placeholder="${c.texto}"></textarea></div>
+      </div>`;
+    }
+    return `<div class="fic__l" data-aberta="nao" data-chave="${c.chave}">
+      <button class="fic__cab"><span class="fic__nome">${c.rot}</span><span class="fic__val" data-vazio="nao">${c.val}</span>${SETA}</button>
+      <div class="fic__corpo" hidden><div class="lista">${c.opcoes.map((o) => `
+        <button class="lista__i${o === c.val ? ' lista__i--on' : ''}"><span class="lista__m"></span>${o}</button>`).join('')}</div></div>
+    </div>`;
+  }).join('');
+
+  return `<div class="painel__corpo">${TOPO}
+    <div class="fic" style="margin-top:22px"><div class="fic__l" data-aberta="nao" data-chave="tipo">
+      <button class="fic__cab"><span class="fic__nome">Tipo de ambiente</span><span class="fic__val" data-vazio="nao">Interno</span>${SETA}</button>
+      <div class="fic__corpo" hidden><div class="lista">
+        <button class="lista__i lista__i--on"><span class="lista__m"></span>Interno</button>
+        <button class="lista__i"><span class="lista__m"></span>Externo</button>
+      </div></div>
+    </div></div>
+    ${MATERIAIS}
+    <div class="fic" style="margin-top:22px">${linhas}</div>
+  </div><div class="painel__pe">${PE}</div>`;
+}
+
+// ── lado 2: os campos ──
+function campos(){
+  const blocos = [{ chave:'tipo', rot:'Tipo de ambiente', val:'Interno', opcoes:['Interno','Externo'] }]
+    .concat(CAMPOS).map((c) => {
+      if (c.texto) {
+        return `<div class="campo"><span class="campo__rot">${c.rot}</span>
+          <textarea class="cr-ta cr-ta--curta" placeholder="${c.texto}"></textarea></div>`;
+      }
+      return `<div class="campo"><span class="campo__rot">${c.rot}</span>
+        <div class="dd" data-chave="${c.chave}">
+          <button class="dd__b"><span>${c.val}</span>${SETA_DD}</button>
+          <div class="dd__lista" hidden>${c.opcoes.map((o) => `
+            <button class="dd__o${o === c.val ? ' dd__o--on' : ''}"><span class="dd__m"></span>${o}</button>`).join('')}</div>
+        </div></div>`;
+    });
+
+  const tipo = blocos.shift();
+  return `<div class="painel__corpo">${TOPO}
+    <div style="margin-top:20px">${tipo}</div>
+    ${MATERIAIS}
+    <div style="margin-top:20px">${blocos.join('')}</div>
+  </div><div class="painel__pe">${PE}</div>`;
+}
+
+document.getElementById('ladoFicha').innerHTML = ficha();
+document.getElementById('ladoCampos').innerHTML = campos();
+
+// ── os dois abrem de verdade ──
+document.addEventListener('click', (e) => {
+  const cab = e.target.closest('.fic__cab');
+  if (cab) {
+    const l = cab.parentElement;
+    const abrindo = l.dataset.aberta === 'nao';
+    l.closest('.painel').querySelectorAll('.fic__l').forEach((o) => {
+      o.dataset.aberta = 'nao';
+      o.querySelector('.fic__corpo').hidden = true;
+    });
+    if (abrindo) { l.dataset.aberta = 'sim'; l.querySelector('.fic__corpo').hidden = false; }
+    return;
+  }
+  const item = e.target.closest('.lista__i');
+  if (item) {
+    const l = item.closest('.fic__l');
+    l.querySelectorAll('.lista__i').forEach((o) => o.classList.remove('lista__i--on'));
+    item.classList.add('lista__i--on');
+    const v = l.querySelector('.fic__val');
+    v.textContent = item.textContent.trim();
+    v.dataset.vazio = 'nao';
+    l.dataset.aberta = 'nao';
+    l.querySelector('.fic__corpo').hidden = true;
+    return;
+  }
+  const b = e.target.closest('.dd__b');
+  if (b) {
+    const dd = b.parentElement;
+    const abrindo = !dd.classList.contains('dd--aberto');
+    document.querySelectorAll('.dd').forEach((o) => {
+      o.classList.remove('dd--aberto');
+      o.querySelector('.dd__lista').hidden = true;
+    });
+    if (abrindo) { dd.classList.add('dd--aberto'); dd.querySelector('.dd__lista').hidden = false; }
+    return;
+  }
+  const op = e.target.closest('.dd__o');
+  if (op) {
+    const dd = op.closest('.dd');
+    dd.querySelectorAll('.dd__o').forEach((o) => o.classList.remove('dd__o--on'));
+    op.classList.add('dd__o--on');
+    dd.querySelector('.dd__b span').textContent = op.textContent.trim();
+    dd.classList.remove('dd--aberto');
+    dd.querySelector('.dd__lista').hidden = true;
+    return;
+  }
+  document.querySelectorAll('.dd--aberto').forEach((o) => {
+    o.classList.remove('dd--aberto');
+    o.querySelector('.dd__lista').hidden = true;
+  });
+});
+</script>
