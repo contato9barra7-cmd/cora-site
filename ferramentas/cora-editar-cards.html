@@ -22,6 +22,9 @@
   --t:.16s ease;
   --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px; --t-titulo:17px; --t-secao:20px;
   --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  /* A faixa da Minha conta: lima com as esferas turquesa. No escuro inverte. */
+  --faixa:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --faixa-esc:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23ADECDF%22%2F%3E%3Cg%20fill%3D%22%23C4FBA7%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -42,6 +45,7 @@
   --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
   --osso:#2A2A2F;
   --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+  --faixa:var(--faixa-esc);
   color-scheme:dark;
 }
 
@@ -129,15 +133,16 @@ body{ margin:0; background:var(--wash); color:var(--ink); font-family:var(--font
 .o2 .esf{ gap:2px; }
 .o2 .ed-card--on .cel--osso::before{ background:var(--turq-bg); }
 
-/* ════════════ 3 · A faixa no alto ════════════ */
-.o3 .ed-card{ padding-top:22px; }
-.o3 .ed-marca{ position:absolute; left:0; right:0; top:0; height:8px; }
-.o3 .esf{ grid-template-columns:repeat(12,1fr); gap:0; height:8px; }
-.o3 .cel{ aspect-ratio:auto; height:8px; }
-.o3 .cel::before{ inset:0; }
-.o3 .cel--c::before{ border-radius:0; }
-.o3 .cel--s::before{ clip-path:none; border-radius:0; }
-.o3 .ed-card--on::before{ top:8px; }
+/* ════════════ 3 · A faixa no alto ════════════
+   A faixa da Minha conta, em 10px: as esferas têm a altura da faixa, como lá.
+   Cada card começa a faixa num ponto diferente (`--desl`), e é só isso que
+   muda de um modo para o outro. */
+.o3 .ed-card{ padding-top:24px; }
+.o3 .ed-marca{
+  position:absolute; left:0; right:0; top:0; height:10px;
+  background:var(--faixa) repeat-x var(--desl, 0) center; background-size:80px 100%;
+}
+.o3 .ed-card--on::before{ top:10px; }
 
 /* ════════════ 4 · Só o símbolo ════════════ */
 .o4 .ed-marca{
@@ -229,7 +234,7 @@ const OPCOES = [
   { cls:'o2', tag:'esferas', nome:'As esferas no lugar do desenho',
     p:'A pastilha com o desenho sai, e o arranjo de esferas vira a identidade do modo. Quem carrega o sentido é o nome. É a mais marca de todas, e a menos didática.' },
   { cls:'o3', tag:'esferas', nome:'A faixa no alto',
-    p:'Uma faixa de 8px corre o topo de cada card, como a do "Nada aqui" do feed, e cada modo tem uma sequência de lima e turquesa. O desenho segue na pastilha.' },
+    p:'A faixa da Minha conta corre o topo de cada card, em 10px: lima com as esferas turquesa. Cada modo começa a faixa num ponto diferente. No escuro ela inverte, turquesa com as esferas lima. O desenho segue na pastilha.' },
   { cls:'o4', tag:'símbolo', nome:'Só o símbolo',
     p:'Sem esferas. As duas meias-luas do logo ficam grandes no canto de baixo, na cor do papel apagado, e cada card gira o símbolo de um jeito. No card aberto ele fica turquesa claro.' },
   { cls:'o5', tag:'esferas + símbolo', nome:'O símbolo nas duas cores',
@@ -260,16 +265,19 @@ function simbolo(m, duasCores){
 
 function marca(op, m){
   if (op.cls === 'o1' || op.cls === 'o2') return esferas(m.esf);
-  if (op.cls === 'o3') return faixa(m.faixa);
   if (op.cls === 'o4') return simbolo(m, false);
   if (op.cls === 'o5') return simbolo(m, true);
   return '';
 }
 
-function card(op, m, on){
+// Na 3 a faixa é fundo, e o que muda por modo é onde ela começa.
+const DESL = [0, 12, 27, 42, 57, 70, 20, 50];
+
+function card(op, m, on, k){
   const titulo = op.cls === 'o5' ? svgIco(m.ico) + m.nome : m.nome;
+  const estilo = op.cls === 'o3' ? ` style="--desl:-${DESL[k]}px"` : '';
   return `<button type="button" class="ed-card${on ? ' ed-card--on' : ''}">
-    <div class="ed-marca">${marca(op, m)}</div>
+    <div class="ed-marca"${estilo}>${marca(op, m)}</div>
     <div class="ed-faixa">${svgIco(m.ico)}</div>
     <div class="ed-corpo"><strong>${titulo}</strong><span>${m.desc}</span></div>
   </button>`;
@@ -283,7 +291,7 @@ document.getElementById('ops').innerHTML = OPCOES.map((op, i) => `
     </div>
     <div class="painel">
       <p class="cr-sec">O que fazer</p>
-      <div class="ed-cards">${MODOS.map((m, k) => card(op, m, k === 0)).join('')}</div>
+      <div class="ed-cards">${MODOS.map((m, k) => card(op, m, k === 0, k)).join('')}</div>
     </div>
   </section>`).join('');
 </script>

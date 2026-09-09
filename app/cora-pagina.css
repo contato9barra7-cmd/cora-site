@@ -388,7 +388,9 @@
   display:flex; align-items:center; gap:6px; flex-wrap:nowrap; flex:none;
   padding:0 20px; height:58px; min-height:0;
   background:var(--paper); border-bottom:1px solid var(--line);
-}.co .cr-fbtns{ flex:none; }.co .cr-barra-dir{ flex:1 1 auto; min-width:0; display:flex; align-items:center; gap:6px; justify-content:flex-end; }/* `min-width` e não `width`: quase todo filtro é só um desenho e vira um
+}.co .cr-fbtns{ flex:none; }/* Esquerda: o que aparece (os filtros). Direita: o que se faz com o que
+   aparece, em três grupos, cada um com um respiro a mais entre eles:
+   comparar e selecionar · lista/grade e tamanhos · filtros e busca. */.co .cr-barra-dir{ margin-left:auto; flex:0 1 auto; min-width:0; display:flex; align-items:center; gap:6px; justify-content:flex-end; }.co .cr-barra-dir > .cr-seg-lay, .co .cr-barra-dir > .cr-ft-wrap{ margin-left:6px; }/* `min-width` e não `width`: quase todo filtro é só um desenho e vira um
    círculo de 34px, mas o A/B carrega duas letras e precisa crescer. Com
    largura fixa ele estourava para fora do próprio botão. */.co .cr-fbtn{
   min-width:34px; height:34px; padding:0 9px; border:0; border-radius:var(--pill);
@@ -414,7 +416,13 @@
   transition:background var(--t), color var(--t);
 }.co .cr-tam:hover:not(.cr-tam--on){ color:var(--ink); }.co .cr-tam--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }.co .cr-seg-lay .cr-fbtn{ min-width:30px; height:26px; padding:0 8px; }.co .cr-seg-lay .cr-fbtn--on{
   background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq);
-}.co .cr-busca{ position:relative; display:flex; align-items:center; flex:1 1 120px; min-width:0; max-width:230px; margin-left:auto; }.co .cr-busca svg{ position:absolute; left:14px; color:var(--ink3); pointer-events:none; }.co .cr-busca input{
+}/* O form é só a caixa do input: sem altura, fundo, recuo nem raio próprios,
+   que o globals dá a ele numa segunda `.cr-busca` e apareciam por trás da
+   pílula do input como uma segunda pílula. Quem encolhe na barra estreita
+   é ela, até 90px. */.co .cr-busca{
+  position:relative; display:flex; align-items:center; width:230px; flex:0 1 230px; min-width:90px;
+  margin:0; padding:0; height:auto; gap:0; border-radius:0; background:transparent; color:inherit;
+}.co .cr-busca svg{ position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--ink3); pointer-events:none; }.co .cr-busca input{
   width:100%; min-width:90px; height:var(--alt-ctrl); padding:0 34px 0 38px;
   border:1px solid transparent; border-radius:var(--pill);
   background:var(--wash2); color:var(--ink); font-size:var(--t-apoio); outline:none;
