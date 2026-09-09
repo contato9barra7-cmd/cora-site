@@ -757,11 +757,17 @@
    item onde a pessoa está.
    ══════════════════════════════════════════════════════════════════════ */.pn .perfil-wrap{ display:grid; grid-template-columns:1fr; gap:clamp(24px,3vw,44px); align-items:start; }
 @media (min-width:1000px){.pn .perfil-wrap{ grid-template-columns:198px minmax(0,1fr); }}.pn .perfil-idx{ display:none; position:sticky; top:calc(var(--header-h) + 34px); }
-@media (min-width:1000px){.pn .perfil-idx{ display:grid; gap:1px; }}.pn .perfil-idx a{
-  display:block; padding:7px 14px; border-left:2px solid var(--line);
+@media (min-width:1000px){.pn .perfil-idx{ display:grid; gap:2px; }}/* O mesmo risco do índice do Suporte, e por isso as mesmas quatro medidas:
+   fio de 2px que vira 3px de lima em quem está aberto, 8/14 de respiro, 2px
+   entre um e outro, e canto ZERO. O globals dá 7px de canto a este link, e
+   um canto redondo arredonda a ponta do fio: o risco saía com a ponta
+   abaulada aqui e reta no Suporte, que é o mesmo desenho. Onde houver este
+   padrão, a linha é reta. E o hover não pinta fundo, senão o bloco quadrado
+   aparece atrás do texto. */.pn .perfil-idx a{
+  display:block; padding:8px 14px; border-radius:0; border-left:2px solid var(--line);
   font-size:13.5px; line-height:1.45; color:var(--ink2);
   transition:color var(--t), border-color var(--t);
-}.pn .perfil-idx a:hover{ color:var(--ink); border-left-color:var(--ink3); }.pn .perfil-idx a[data-aqui="sim"]{
+}.pn .perfil-idx a:hover{ background:transparent; color:var(--ink); border-left-color:var(--ink3); }.pn .perfil-idx a[data-aqui="sim"]{
   color:var(--ink); font-weight:600; border-left-color:var(--lima); border-left-width:3px;
 }.pn .perfil-idx a.perfil-idx--perigo{ color:var(--alerta); }.pn .perfil-col{ display:grid; gap:14px; min-width:0; }.pn .perfil-sec{
   background:var(--paper); border:1px solid var(--line); border-radius:var(--r); padding:24px 26px;

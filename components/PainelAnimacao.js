@@ -817,7 +817,7 @@ export default function PainelAnimacao({
       <section className="up-bloco">
         <div className="cr-sec">{t('painelanimacao_animacao')}</div>
         <label className="up-lbl">{t('painelanimacao_modelo')}</label>
-        <DropdownCora valor={modelo} opcoes={[{ v: '', n: t('painelanimacao_escolher_modelo') }, ...MODELOS]} onEscolher={setModelo} />
+        <DropdownCora caixinha valor={modelo} opcoes={[{ v: '', n: t('painelanimacao_escolher_modelo') }, ...MODELOS]} onEscolher={setModelo} />
       </section>
 
       {/* ── Imagem inicial e final ── */}

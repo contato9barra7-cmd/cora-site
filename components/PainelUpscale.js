@@ -220,7 +220,7 @@ export default function PainelUpscale({
       <section className="up-bloco">
         <div className="cr-sec">{t('painelupscale_preset')}</div>
         <div className="up-preset-row">
-          <DropdownCora
+          <DropdownCora caixinha
             valor={presetAtual}
             opcoes={[{ v: '', n: t('painelupscale_personalizado') }, ...Object.keys(presets).map((n) => ({ v: n, n }))]}
             onEscolher={aplicarPreset}
@@ -246,7 +246,7 @@ export default function PainelUpscale({
       {modo === 'precision' && (
         <section className="up-bloco">
           <label className="up-lbl">{t('painelupscale_lbl_modelo')} <Ajuda texto={t('painelupscale_ajuda_model')} /></label>
-          <DropdownCora valor={st.flavor} opcoes={FLAVORS} onEscolher={(v) => campo('flavor', v)} />
+          <DropdownCora caixinha valor={st.flavor} opcoes={FLAVORS} onEscolher={(v) => campo('flavor', v)} />
 
           <div className="up-slider">
             <label>{t('painelupscale_lbl_nitidez')} <Ajuda texto={t('painelupscale_ajuda_sharpness')} /></label>
@@ -265,7 +265,7 @@ export default function PainelUpscale({
       {modo === 'creative' && (
         <section className="up-bloco">
           <label className="up-lbl">{t('painelupscale_lbl_otimizado')} <Ajuda texto={t('painelupscale_ajuda_otimizado')} /></label>
-          <DropdownCora valor={st.optimized_for} opcoes={OTIMIZADO} onEscolher={(v) => campo('optimized_for', v)} />
+          <DropdownCora caixinha valor={st.optimized_for} opcoes={OTIMIZADO} onEscolher={(v) => campo('optimized_for', v)} />
 
           <div className="up-slider">
             <label>{t('painelupscale_lbl_criatividade')} <Ajuda texto={t('painelupscale_ajuda_criatividade')} /></label>
@@ -289,7 +289,7 @@ export default function PainelUpscale({
           </div>
 
           <label className="up-lbl">{t('painelupscale_lbl_motor')} <Ajuda texto={t('painelupscale_ajuda_engine')} /></label>
-          <DropdownCora valor={st.engine} opcoes={ENGINES} onEscolher={(v) => campo('engine', v)} />
+          <DropdownCora caixinha valor={st.engine} opcoes={ENGINES} onEscolher={(v) => campo('engine', v)} />
 
           <label className="up-lbl">{t('painelupscale_lbl_descricao')}</label>
           <textarea

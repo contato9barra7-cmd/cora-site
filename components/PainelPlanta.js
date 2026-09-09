@@ -613,7 +613,7 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
         {plantaModo === 'iso' && (
           <>
             <div className="cr-sec">{L.tipo_leitura}</div>
-            <DropdownCora
+            <DropdownCora caixinha
               valor={plantaLeitura}
               opcoes={OPC_LEITURA}
               onEscolher={setPlantaLeitura}
@@ -623,7 +623,7 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
 
         {/* ── Nível de realismo ── */}
         <div className="cr-sec">{L.realismo}</div>
-        <DropdownCora valor={realismo} opcoes={OPC_REALISMO} onEscolher={setRealismo} />
+        <DropdownCora caixinha valor={realismo} opcoes={OPC_REALISMO} onEscolher={setRealismo} />
 
         {/* ── Mood (multi dropdown, igual ao plugin) ── */}
         <div className="cr-sec">{L.mood}</div>
@@ -635,15 +635,15 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
 
         {/* ── Iluminação — sombras ── */}
         <div className="cr-sec">{L.ilum_sombras}</div>
-        <DropdownCora valor={sombras} opcoes={OPC_SOMBRAS} onEscolher={setSombras} />
+        <DropdownCora caixinha valor={sombras} opcoes={OPC_SOMBRAS} onEscolher={setSombras} />
 
         {/* ── Iluminação — origem ── */}
         <div className="cr-sec">{L.ilum_origem}</div>
-        <DropdownCora valor={origem} opcoes={OPC_ORIGEM} onEscolher={setOrigem} />
+        <DropdownCora caixinha valor={origem} opcoes={OPC_ORIGEM} onEscolher={setOrigem} />
 
         {/* ── Espessura paredes — cor ── */}
         <div className="cr-sec">{L.par_cor}</div>
-        <DropdownCora valor={parCor} opcoes={OPC_PARCOR} onEscolher={setParCor} />
+        <DropdownCora caixinha valor={parCor} opcoes={OPC_PARCOR} onEscolher={setParCor} />
 
         {/* ── Espessura paredes — tratamento (multi dropdown) ── */}
         <div className="cr-sec">{L.par_trat}</div>
@@ -651,11 +651,11 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
 
         {/* ── Vegetação ── */}
         <div className="cr-sec">{L.vegetacao}</div>
-        <DropdownCora valor={veg} opcoes={OPC_VEG} onEscolher={setVeg} />
+        <DropdownCora caixinha valor={veg} opcoes={OPC_VEG} onEscolher={setVeg} />
 
         {/* ── Fundo ── */}
         <div className="cr-sec">{L.fundo}</div>
-        <DropdownCora valor={fundo} opcoes={OPC_FUNDO} onEscolher={setFundo} />
+        <DropdownCora caixinha valor={fundo} opcoes={OPC_FUNDO} onEscolher={setFundo} />
 
         {/* ── Piso por zona (opcional) — caixinha igual ao plugin ── */}
         <div className="cr-sec">{L.piso_titulo} <span className="cr-opc">{L.opcional}</span></div>
@@ -678,7 +678,7 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
             />
 
             <div className="pl-sub">{L.piso_intima}</div>
-            <DropdownCora valor={pisoIntima} opcoes={OPC_PISO_INTIMA} onEscolher={setPisoIntima} />
+            <DropdownCora caixinha valor={pisoIntima} opcoes={OPC_PISO_INTIMA} onEscolher={setPisoIntima} />
             {pisoIntima === 'dif' && (
               <textarea
                 className="cr-ta"
