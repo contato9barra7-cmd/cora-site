@@ -12809,19 +12809,32 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
    A bolha usa o vermelho do proprio numero. Ela deixou de ser um fundinho
    claro atras de um sinal e virou o sinal inteiro, que e o que faz alguem
    entender que da para clicar ali. */
+/* ── TUDO EM PIXEL INTEIRO ──
+   A primeira versao usava bolha de 19px com barras de 9 por 1,6. Duas contas
+   erradas ali: 19 e impar, entao o centro cai em 9,5 e as barras nascem em
+   meio pixel; e 1,6 nao existe na tela, entao cada barra virava duas linhas
+   de cinza claro em vez de uma branca. O cruzamento saia grosso e borrado.
+
+   16 com barras de 8 por 2 fecha em inteiro dos dois lados: o centro e 8, a
+   barra deitada vai de 4 a 12 e a em pe de 7 a 9. Sem meio pixel, sem
+   antialias, e a cruz sai limpa.
+
+   E 16 e o tamanho que combina com um texto de 13,5px. 19 com fundo cheio
+   pesava mais que a frase que ele acompanha, e o sinal e o acessorio, nao o
+   assunto. */
 .admin-ac__seta {
-  position: relative; display: inline-block; width: 19px; height: 19px;
+  position: relative; display: inline-block; width: 16px; height: 16px;
   margin-left: 7px; border-radius: 100px; background: #C8342A;
   vertical-align: middle; font-size: 0;
 }
 .admin-ac__seta::before,
 .admin-ac__seta::after {
   content: ''; position: absolute; top: 50%; left: 50%;
-  background: #FFFFFF; border-radius: 1px;
+  background: #FFFFFF;
   transform: translate(-50%, -50%);
 }
-.admin-ac__seta::before { width: 9px; height: 1.6px; }
-.admin-ac__seta::after  { width: 1.6px; height: 9px; }
+.admin-ac__seta::before { width: 8px; height: 2px; }
+.admin-ac__seta::after  { width: 2px; height: 8px; }
 /* Aberto, a barra em pe some e sobra o menos. */
 .admin-ac__seta[data-aberto="sim"]::after { display: none; }
 .admin-ac__falta--btn:hover .admin-ac__seta { background: #A82A22; }
