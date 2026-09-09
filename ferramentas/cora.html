@@ -462,7 +462,7 @@
    ══════════════════════════════════════════════════════════════════════ */
 .ed-cards{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
 /* As ferramentas das Sequências: os mesmos cards, numa coluna só. */
-.ed-cards--coluna{ grid-template-columns:1fr; }
+.ed-cards--coluna{ grid-template-columns:1fr; grid-auto-rows:1fr; }
 .ed-card{
   position:relative; overflow:hidden; display:block; width:100%;
   padding:24px 12px 12px; text-align:left;
@@ -579,6 +579,12 @@
 /* Dois jeitos de gerar na mesma barra (timelapse): um em cima do outro, cada
    um com a sua linha de apoio, sem a margem que tinham dentro do formulário. */
 .cr-barra-ger .seq-gerar-box{ margin-top:0; gap:12px; }
+/* Uma pílula só na barra (a resolução do timelapse): na largura do Render,
+   encostada à esquerda, sem esticar. */
+.cr-pills-cfg--uma .cr-pill-wrap{ flex:0 0 118px; }
+/* O rótulo do botão de ação nunca quebra em duas linhas: se não cabe, corta
+   com reticências. A frase inteira mora no formulário. */
+.cr-btn-gerar > span:first-child{ min-width:0; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .cr-barra-ger .seq-passo-box{ margin-top:0; }
 .cr-barra-ger .seq-gerar-aviso{ text-align:center; }
 /* O Resetar mora na barra, depois do botão: é a última coisa que se faz. */

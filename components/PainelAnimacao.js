@@ -230,13 +230,15 @@ export default function PainelAnimacao({
 
   // ── Diretor de Narrativa ──
   // Persistidos via nav (sobrevivem à troca de aba), igual ao timelapse.
-  const narrDados = (nav && nav.narr) || { imagens: [], ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '' };
+  const narrDados = (nav && nav.narr) || { imagens: [], ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '', ideia: '' };
   const narrImagens = narrDados.imagens || [];   // [{ n, base64 }]
   const narrOrdem = narrDados.ordem || [];        // ordem atual dos números
   const narrConfirmado = !!narrDados.confirmado;
   const narrTakes = narrDados.takes;              // null antes de gerar
   const narrRitmo = narrDados.ritmo || '';
   const narrTrilha = narrDados.trilha || '';
+  const narrIdeia = narrDados.ideia || '';
+  const [ideiaCopiada, setIdeiaCopiada] = useState(false);
   const narrSrvId = narrDados.srvId || null;   // id no servidor (salvo p/ continuar/Análises)
   const patchNarr = (patch) => onNav && onNav((atual) => {
     const base = atual || nav || {};
@@ -561,7 +563,7 @@ export default function PainelAnimacao({
   function narrRemover(n) {
     const filtradas = narrImagens.filter((im) => im.n !== n).map((im, i) => ({ ...im, n: i + 1 }));
     // remover imagem invalida a ordem/roteiro já gerados
-    patchNarr({ imagens: filtradas, ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '' });
+    patchNarr({ imagens: filtradas, ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '', ideia: '' });
   }
 
   function narrUpload(ev) {
@@ -660,9 +662,9 @@ export default function PainelAnimacao({
     try {
       const naOrdem = narrOrdem.map((n) => narrImagens.find((im) => im.n === n)).filter(Boolean);
       const r = await narrativaRoteiro(naOrdem.map((im) => ({ n: im.n, base64: im.base64 })), 'pt');
-      patchNarr({ confirmado: true, takes: r.takes, ritmo: r.ritmo, trilha: r.trilha });
+      patchNarr({ confirmado: true, takes: r.takes, ritmo: r.ritmo, trilha: r.trilha, ideia: r.ideia || '', ideia: r.ideia || '' });
       // Roteiro pronto → marca finalizada no servidor (sai do "não finalizado").
-      if (narrSrvId) { try { await atualizarNarrativa(narrSrvId, { ordem: narrOrdem, takes: r.takes, ritmo: r.ritmo, trilha: r.trilha, finalizado: true }); } catch (e) {} }
+      if (narrSrvId) { try { await atualizarNarrativa(narrSrvId, { ordem: narrOrdem, takes: r.takes, ritmo: r.ritmo, trilha: r.trilha, ideia: r.ideia || '', ideia: r.ideia || '', finalizado: true }); } catch (e) {} }
       recarregarNarrRascunhos();
     } catch (e) {
       setNarrErro(t('painelanimacao_erro_gerar_roteiro') + ' ' + (e.message || ''));
@@ -691,6 +693,7 @@ export default function PainelAnimacao({
   function narrCopiarTudo() {
     if (!narrTakes) return;
     let txt = t('painelanimacao_txt_roteiro_titulo') + '\n\n';
+    if (narrIdeia) txt += t('painelanimacao_ideia_roteiro') + ': ' + narrIdeia + '\n\n';
     narrTakes.forEach((tk) => {
       txt += `Take ${tk.n_take} — ${tk.momento || ''}\n`;
       txt += t('painelanimacao_camera') + ' ' + (tk.camera || '') + '\n';
@@ -701,6 +704,13 @@ export default function PainelAnimacao({
     if (narrRitmo) txt += t('painelanimacao_ritmo') + ': ' + narrRitmo + '\n\n';
     if (narrTrilha) txt += t('painelanimacao_trilha_som') + ': ' + narrTrilha + '\n';
     try { navigator.clipboard.writeText(txt); } catch (e) {}
+  }
+
+  function copiarIdeia() {
+    if (!narrIdeia) return;
+    try { navigator.clipboard.writeText(narrIdeia); } catch (e) {}
+    setIdeiaCopiada(true);
+    setTimeout(() => setIdeiaCopiada(false), 1800);
   }
 
   function narrResetar() {
@@ -774,25 +784,25 @@ export default function PainelAnimacao({
     <>
     <div className="up-painel">
 
-      {/* ── Seletor Animação / Sequências (fixo no topo) ── */}
-      <div className="anim-seletor">
+      {/* ── Seletor Animação / Sequências: o sulco, o mesmo gesto do trilho
+          e do P/M/G/GG do feed. A escolhida é a placa que sobe, e só o
+          desenho dela fica turquesa. ── */}
+      <div className="anim-sul" role="tablist">
         <button
-          className={'anim-sel-btn' + (secao === 'animacao' ? ' anim-sel-btn--on anim-sel-btn--anim-on' : '')}
+          type="button" role="tab" aria-selected={secao === 'animacao'}
+          className={'anim-sul__b' + (secao === 'animacao' ? ' anim-sul__b--on' : '')}
           onClick={() => setSecao('animacao')}
         >
-          <span className="anim-sel-faixa anim-sel-faixa--anim">
-            <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          </span>
-          <span className="anim-sel-txt">{t('painelanimacao_animacao')}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          {t('painelanimacao_animacao')}
         </button>
         <button
-          className={'anim-sel-btn' + (secao === 'sequencias' ? ' anim-sel-btn--on anim-sel-btn--seq-on' : '')}
+          type="button" role="tab" aria-selected={secao === 'sequencias'}
+          className={'anim-sul__b' + (secao === 'sequencias' ? ' anim-sul__b--on' : '')}
           onClick={() => setSecao('sequencias')}
         >
-          <span className="anim-sel-faixa anim-sel-faixa--seq">
-            <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
-          </span>
-          <span className="anim-sel-txt">{t('painelanimacao_sequencias')}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+          {t('painelanimacao_sequencias')}
         </button>
       </div>
 
@@ -1020,34 +1030,6 @@ export default function PainelAnimacao({
             )}
           </section>
 
-          {/* ── Resolução: a MESMA pílula do Render, e não uma própria. Esta aba
-              tinha um dropdown só dela, e o dono pediu um padrão. */}
-          <div className="cr-pills-cfg" style={{ marginTop: 14 }}>
-            <div className="cr-pill-wrap">
-              <button
-                className={'cr-pill-cfg' + (tlPopRes ? ' cr-pill-cfg--on' : '')}
-                onClick={(e) => { e.stopPropagation(); setTlPopRes((v) => !v); }}
-              >
-                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/>
-                </svg>
-                <span>{tlRes.toUpperCase()}</span>
-                <Seta aberto={tlPopRes} />
-              </button>
-              {tlPopRes && (
-                <div className="cr-pop cr-pop--res" onClick={(e) => e.stopPropagation()}>
-                  {['1k', '2k', '4k'].map((rk) => (
-                    <button
-                      key={rk}
-                      className={'cr-pop-res' + (tlRes === rk ? ' cr-pop-res--on' : '')}
-                      onClick={() => { setTlRes(rk); setTlPopRes(false); }}
-                    >{rk.toUpperCase()}</button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
           {tlErro && <p className="up-erro">{tlErro}</p>}
 
           {/* ── Progresso + aviso de reembolso ── */}
@@ -1074,10 +1056,10 @@ export default function PainelAnimacao({
                         <img src={`data:image/png;base64,${img}`} alt={titulo} onClick={() => setTlVer(pos)} />
                         <div className="seq-slot-acoes">
                           <button className="seq-acao" data-tip={t('painelanimacao_imagem_inicial')} aria-label={t('painelanimacao_imagem_inicial')} onClick={(e) => { e.stopPropagation(); tlParaInicio(pos); }}>
-                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="M4 15l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M7.5 5v14" strokeLinecap="round"/><circle cx="12" cy="10" r="1.1"/><path d="M10 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           </button>
                           <button className="seq-acao" data-tip={t('painelanimacao_imagem_final')} aria-label={t('painelanimacao_imagem_final')} onClick={(e) => { e.stopPropagation(); tlParaFim(pos); }}>
-                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="1.5"/><path d="M4 17l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 12 3.5)"/></svg>
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M16.5 5v14" strokeLinecap="round"/><circle cx="8" cy="10" r="1.1"/><path d="M5.5 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           </button>
                           <button className="seq-acao" data-tip={t('painelanimacao_pos_producao')} aria-label={t('painelanimacao_pos_producao')} onClick={(e) => { e.stopPropagation(); tlParaPos(pos); }}>
                             <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 5h8M3 10h13M3 15h6" strokeLinecap="round"/><circle cx="14.5" cy="5" r="1.7"/><circle cx="11" cy="15" r="1.7"/></svg>
@@ -1174,6 +1156,24 @@ export default function PainelAnimacao({
                 <div className="cr-sec" style={{ margin: 0 }}>{t('painelanimacao_roteiro_direcao')}</div>
                 <button className="narr-copiar" onClick={narrCopiarTudo}>{t('painelanimacao_copiar_tudo')}</button>
               </div>
+
+              {/* A ideia do roteiro em cima de tudo: é o parágrafo que a pessoa
+                  lê primeiro e leva para o cliente, com o copiar do prompt. */}
+              {narrIdeia && (
+                <div className="narr-ideia">
+                  <div className="narr-ideia-cab">
+                    <span className="narr-ideia-tit">{t('painelanimacao_ideia_roteiro')}</span>
+                    <button className="vz-prompt-copiar" onClick={copiarIdeia}>
+                      <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
+                        <rect x="7" y="7" width="9" height="9" rx="1.5"/>
+                        <path d="M4 13V4.5A1.5 1.5 0 015.5 3H13" strokeLinecap="round"/>
+                      </svg>
+                      {ideiaCopiada ? t('painelanalises_copiado') : t('painelanimacao_copiar')}
+                    </button>
+                  </div>
+                  <p className="narr-ideia-txt">{narrIdeia}</p>
+                </div>
+              )}
 
               <div className="narr-takes">
                 {narrTakes.map((tk) => (
@@ -1374,7 +1374,34 @@ export default function PainelAnimacao({
           rodando, o estado; no fim, o resetar. ── */}
       {secao === 'sequencias' && (ferramenta === 'tl-externo' || ferramenta === 'tl-interior') && (
         <div className="cr-barra-ger">
-          {!tlRodando && tlEtapas.length === 0 && (
+          {!tlRodando && tlEtapas.length === 0 && (<>
+            {/* A resolução mora na barra, em cima dos botões, como no Render. */}
+          <div className="cr-pills-cfg cr-pills-cfg--uma">
+            <div className="cr-pill-wrap">
+              <button
+                className={'cr-pill-cfg' + (tlPopRes ? ' cr-pill-cfg--on' : '')}
+                onClick={(e) => { e.stopPropagation(); setTlPopRes((v) => !v); }}
+              >
+                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/>
+                </svg>
+                <span>{tlRes.toUpperCase()}</span>
+                <Seta aberto={tlPopRes} />
+              </button>
+              {tlPopRes && (
+                <div className="cr-pop cr-pop--res" onClick={(e) => e.stopPropagation()}>
+                  {['1k', '2k', '4k'].map((rk) => (
+                    <button
+                      key={rk}
+                      className={'cr-pop-res' + (tlRes === rk ? ' cr-pop-res--on' : '')}
+                      onClick={() => { setTlRes(rk); setTlPopRes(false); }}
+                    >{rk.toUpperCase()}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
             <div className="seq-gerar-box">
               <div className="seq-gerar-item">
                 <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('completo')} disabled={!tlBase}>
@@ -1391,7 +1418,7 @@ export default function PainelAnimacao({
                 <p className="seq-gerar-aviso">{t('painelanimacao_uma_a_uma_aviso')}</p>
               </div>
             </div>
-          )}
+          </>)}
           {tlModo === 'passo' && !tlRodando && tlPasso > 0 && tlPasso < tlEtapas.length && (
             <div className="seq-passo-box">
               <button className="cr-btn-gerar seq-gerar-fino" onClick={gerarProxima}>
@@ -1413,8 +1440,10 @@ export default function PainelAnimacao({
       {/* ── Diretor de Narrativa: idem. Analisar, confirmar, e o resetar. ── */}
       {secao === 'sequencias' && ferramenta === 'diretor' && (
         <div className="cr-barra-ger">
+          {/* Rótulo curto: a frase inteira do estado mora no formulário, ao
+              lado da barra de progresso. Aqui ela quebrava em duas linhas. */}
           {!narrConfirmado && narrRodando && (
-            <button className="cr-btn-gerar" disabled><span>{narrStatus || t('painelanimacao_gerando')}</span></button>
+            <button className="cr-btn-gerar" disabled><span>{narrOrdem.length === 0 ? t('painelanimacao_st_curto_analisando') : t('painelanimacao_st_curto_roteiro')}</span></button>
           )}
           {!narrConfirmado && !narrRodando && (
             narrOrdem.length === 0 ? (

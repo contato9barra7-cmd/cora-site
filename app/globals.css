@@ -6633,59 +6633,20 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 /* ── Seletor Animação / Sequências (topo da aba) ── */
-.anim-seletor {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
+/* O seletor Animação / Sequências: o sulco. O mesmo gesto do trilho e do
+   P/M/G/GG do feed. A escolhida é a placa que sobe, e só o desenho dela fica
+   turquesa (a turquesa de verdade, não a de texto, que lê como verde). */
+.anim-sul { display: flex; gap: 2px; padding: 3px; border-radius: 100px; background: var(--wash2); margin-bottom: 20px; }
+.anim-sul__b {
+  flex: 1; min-width: 0; height: 38px; padding: 0 10px; border: 0; border-radius: 100px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: transparent; color: var(--ink3); font-family: inherit; font-size: 13.5px; font-weight: 600;
+  cursor: pointer; transition: color .16s ease, background .16s ease, box-shadow .16s ease;
 }
-.anim-sel-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 0;
-  overflow: hidden;
-  border: 0.5px solid var(--line2);
-  border-radius: 100px;
-  background: var(--paper);
-  text-align: left;
-  cursor: pointer;
-  font-family: inherit;
-  transition: border-color .15s, background .15s;
-}
-.anim-sel-faixa {
-  width: 42px;
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 100px 0 0 100px;
-  flex-shrink: 0;
-}
-.anim-sel-faixa svg { width: 18px; height: 18px; }
-
-/* Inativo: bloco da esquerda na versão clarinha, ícone na cor forte. */
-.anim-sel-faixa--anim { background: var(--wash); }
-.anim-sel-faixa--anim svg { stroke: var(--ink3); }
-.anim-sel-faixa--seq  { background: var(--wash); }
-.anim-sel-faixa--seq svg { stroke: var(--ink3); }
-
-/* Ativo: película fraquinha na cor + borda forte + bloco na cor cheia. */
-.anim-sel-btn--on { border-width: 1.5px; }
-/* Escolhido é turquesa, nos dois lados: o laranja das Sequências não é de
-   nenhuma das duas cores da marca. O desenho fica em tinta sobre a faixa
-   turquesa, porque branco sobre turquesa clara some. */
-.anim-sel-btn--on { border-color: var(--turquesa-esc); background: var(--turq-bg); }
-.anim-sel-btn--on .anim-sel-faixa { background: var(--turquesa); }
-.anim-sel-btn--on .anim-sel-faixa svg { stroke: #111111; }
-
-.anim-sel-btn:hover:not(.anim-sel-btn--on) { border-color: var(--line); }
-.anim-sel-txt {
-  font-size: 12.5px;
-  font-weight: 500;
-  color: #111;
-  padding: 11px 0;
-}
+.anim-sul__b svg { width: 18px; height: 18px; flex: none; }
+.anim-sul__b:hover:not(.anim-sul__b--on) { color: var(--ink); }
+.anim-sul__b--on { background: var(--paper); color: var(--ink); box-shadow: 0 2px 8px rgba(17,17,17,.07); }
+.anim-sul__b--on svg { color: var(--turquesa-esc); }
 :root[data-theme="dark"] .anim-sel-txt { color: var(--ink); }
 
 /* ── Cards de sequência (espelham os do Editar) ── */
@@ -6773,6 +6734,12 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border: 0.5px solid var(--border-strong, #b4b2a9); background: transparent; cursor: pointer;
 }
 .narr-copiar:hover { background: var(--surface-1, #f1efe8); }
+/* A ideia do roteiro, em cima dos takes, com o botão de copiar do prompt. */
+.narr-ideia { margin-top: 10px; padding: 12px 13px 13px; border-radius: 12px; background: var(--wash); }
+.narr-ideia-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.narr-ideia-tit { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink3); }
+.narr-ideia .vz-prompt-copiar { padding: 6px 12px; font-size: 12px; }
+.narr-ideia-txt { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink); }
 .narr-takes { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
 .narr-take {
   border: 0.5px solid var(--border, #d3d1c7); border-radius: 12px;
@@ -6879,7 +6846,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-size: 12.5px;
   color: var(--turq-txt);
   line-height: 1.5;
-  margin: 4px 0 0;
+  margin: 0;
 }
 .seq-gerando { margin: 8px 0 0; }
 .seq-reembolso { font-size: 11px; color: var(--ink3); margin: 4px 0 0; }
@@ -6938,7 +6905,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .seq-cel-cap { font-size: 10px; line-height: 1.3; color: var(--ink3); padding: 0 1px; }
 .seq-cel-cap b { color: var(--ink2); font-weight: 600; }
 /* barra de progresso */
-.seq-prog { height: 5px; border-radius: 100px; background: var(--wash); overflow: hidden; margin: 8px 0 0; }
+/* Colada no estado: os dois são uma coisa só, o que está acontecendo. */
+.seq-prog { height: 5px; border-radius: 100px; background: var(--wash); overflow: hidden; margin: 4px 0 0; }
 .seq-prog > span { display: block; height: 100%; background: var(--accent); border-radius: 100px; transition: width .3s; }
 /* controles do modo uma a uma */
 .seq-passo-box { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
