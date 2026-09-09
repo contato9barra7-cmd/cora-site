@@ -792,10 +792,10 @@ export default function PainelAnimacao({
       {/* ── Seletor Animação / Sequências: o sulco, o mesmo gesto do trilho
           e do P/M/G/GG do feed. A escolhida é a placa que sobe, e só o
           desenho dela fica turquesa. ── */}
-      <div className="anim-sul" role="tablist">
+      <div className="cr-sul cr-sul--topo" role="tablist">
         <button
           type="button" role="tab" aria-selected={secao === 'animacao'}
-          className={'anim-sul__b' + (secao === 'animacao' ? ' anim-sul__b--on' : '')}
+          className={'cr-sul__b' + (secao === 'animacao' ? ' cr-sul__b--on' : '')}
           onClick={() => setSecao('animacao')}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -803,7 +803,7 @@ export default function PainelAnimacao({
         </button>
         <button
           type="button" role="tab" aria-selected={secao === 'sequencias'}
-          className={'anim-sul__b' + (secao === 'sequencias' ? ' anim-sul__b--on' : '')}
+          className={'cr-sul__b' + (secao === 'sequencias' ? ' cr-sul__b--on' : '')}
           onClick={() => setSecao('sequencias')}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>

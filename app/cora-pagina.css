@@ -307,16 +307,33 @@
    O Upscale e as Sequências repetem a mesma peça com outro nome de classe, e
    traziam a mesma herança: azul e coral no Upscale, três pastéis nas
    sequências. Mesmo desenho, mesma regra.
-   ══════════════════════════════════════════════════════════════════════ *//* ── Upscale: Precisão ou Criativo ──
-   Era azul de um lado e coral do outro, com o fio de 1,5px em volta. Duas
-   cores que não são da marca para dizer "escolhido", quando a tela inteira já
-   diz isso com uma. */.co .up-modo{
-  border:0; background:var(--wash2); color:var(--ink2);
-  transition:background var(--t), color var(--t), box-shadow var(--t);
-}.co .up-modo:hover:not(.up-modo--on){ background:var(--line); color:var(--ink); }.co .up-modo-faixa{ background:transparent; }.co .up-modo-faixa svg{ stroke:currentColor; }.co .up-modo-txt{ color:inherit; font-size:var(--t-apoio); font-weight:500; }.co .up-modo--prec.up-modo--on, .co .up-modo--criat.up-modo--on{
-  border:0; background:var(--turq-bg); color:var(--turq-txt);
-  box-shadow:inset 0 0 0 1px var(--turquesa-esc);
-}.co .up-modo--prec.up-modo--on .up-modo-faixa, .co .up-modo--criat.up-modo--on .up-modo-faixa{ background:transparent; }.co .up-modo--prec.up-modo--on .up-modo-faixa svg, .co .up-modo--criat.up-modo--on .up-modo-faixa svg{ stroke:currentColor; }.co .up-modo--on .up-modo-txt{ font-weight:600; }/* O vermelho do Upscale era um rosa próprio (#e0405a). Alerta é um só. */.co .up-remover:hover{ background:var(--alerta); }.co .up-erro{ color:var(--alerta); font-size:var(--t-apoio2); }.co .up-mini--danger:hover{ border-color:var(--alerta); color:var(--alerta); }/* ── As sequências: a mesma pastilha do Editar ── */.co .seq-faixa{
+   ══════════════════════════════════════════════════════════════════════ *//* ── O SULCO ──
+   Uma escolha entre poucos JEITOS de ver ou fazer a mesma coisa: as placas
+   moram num sulco e a escolhida sobe. É o gesto do trilho e do P/M/G/GG do
+   feed, agora com um nome só para a janela inteira: o seletor Animação /
+   Sequências, o modo do Upscale e o fator de escala usam esta.
+
+   Aqui o escolhido NÃO leva fundo turquesa. A regra é a mesma do P/M/G/GG:
+   escolha entre COISAS (qual, o que aparece) leva a cor; escolha entre JEITOS
+   de fazer a mesma coisa não precisa dela, porque a placa que sobe já diz.
+   Só o desenho da escolhida fica turquesa, para a fila não ficar sem marca
+   nenhuma de marca. */.co .cr-sul{ display:flex; gap:2px; padding:3px; border-radius:var(--pill); background:var(--wash2); }.co .cr-sul__b{
+  flex:1; min-width:0; height:var(--alt-ctrl); padding:0 10px; border:0; border-radius:var(--pill);
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  background:transparent; color:var(--ink3); font:inherit; font-size:var(--t-apoio); font-weight:600;
+  cursor:pointer; transition:color var(--t), background var(--t), box-shadow var(--t);
+}.co .cr-sul__b svg{ flex:none; width:18px; height:18px; stroke:currentColor; fill:none; }.co .cr-sul__b:hover:not(.cr-sul__b--on){ color:var(--ink); }.co .cr-sul__b--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }.co .cr-sul__b--on svg{ color:var(--turquesa-esc); }/* Números (2x, 4x): sem desenho, e os dígitos na mesma largura. */.co .cr-sul--num .cr-sul__b{ gap:0; font-variant-numeric:tabular-nums; }/* No alto de uma aba ela respira embaixo. Dentro de um formulário, o rótulo
+   do campo já dá o respiro de cima e ela não precisa de nada. */.co .cr-sul--topo{ margin-bottom:20px; }/* A linha que explica a placa escolhida, logo abaixo dela. */.co .cr-sul-nota{ margin:8px 0 0; font-size:var(--t-apoio2); line-height:1.5; color:var(--ink3); }/* ── Análises: os dois filtros lado a lado ──
+   Cada um é o campo da janela, e o campo dá 14px de respiro em cima para
+   separar um do outro quando eles descem em coluna. Numa fila de dois isso
+   vira um degrau: o da esquerda nasce mais alto que o da direita. O respiro
+   passa a ser da fila, e os campos começam os dois na mesma linha. */.co .an-filtros{ display:grid; grid-template-columns:1fr 1fr; gap:8px; align-items:start; margin-top:10px; }.co .an-filtros .cmp{ margin-top:0; }/* ── Análises: os dois botões da linha aberta ──
+   Do mesmo tamanho, começando e terminando na linha da caixa, e o lixo
+   fechando a fila. Nada nesta aba gasta crédito: nenhum botão dela é lima.
+   Levar a análise para o Render abre uma porta, e porta é turquesa. */.co .an-acoes{ display:flex; align-items:center; gap:8px; margin-top:10px; }.co .an-acoes .cr-b, .co .an-acoes .cr-b-conf{
+  flex:1 1 0; min-width:0; height:var(--alt-ctrl); min-height:0; padding:0 12px;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}.co .an-acoes .cr-b-conf{ background:var(--turquesa); color:#111111; }.co .an-acoes .cr-b-conf:hover{ background:var(--turquesa-esc); }.co .an-acoes .an-lixo{ flex:none; width:var(--alt-ctrl); height:var(--alt-ctrl); }/* O vermelho do Upscale era um rosa próprio (#e0405a). Alerta é um só. */.co .up-remover:hover{ background:var(--alerta); }.co .up-erro{ color:var(--alerta); font-size:var(--t-apoio2); }.co .up-mini--danger:hover{ border-color:var(--alerta); color:var(--alerta); }/* ── As sequências: a mesma pastilha do Editar ── */.co .seq-faixa{
   background:var(--wash2); color:var(--ink2);
   transition:background var(--t), color var(--t);
 }.co .seq-faixa svg{ stroke:currentColor; }.co .seq-card:hover .seq-faixa{ background:var(--line); color:var(--ink); }/* ══════════════════════════════════════════════════════════════════════
@@ -351,8 +368,8 @@
   box-shadow:inset 0 -1px 0 var(--line2); transition:color var(--t), box-shadow var(--t);
 }.co .bc__tirar:hover{ color:var(--alerta); box-shadow:inset 0 -1px 0 var(--alerta); }/* Na Animação e no Upscale o embrulho é o `up-painel`, e não o `cr-form`: a
    mesma respiração do Render (20/16/24), para os rótulos nascerem na mesma
-   coluna em toda aba. E a pílula de resolução, sozinha na linha, tem a largura
-   de uma pílula do Render, e não a linha inteira. */.co .up-painel{ padding:20px 16px 24px; }.co .up-painel .cr-pills-cfg .cr-pill-wrap{ flex:0 0 auto; width:118px; }.co .cr-qty{
+   coluna em toda aba. */.co .up-painel{ padding:20px 16px 24px; }/* Uma pílula sozinha na barra não é a fila do Render, é um pedaço dela. Onde
+   sobrou uma só, ela tem a largura de uma pílula e não a da linha. */.co .cr-pills-cfg--uma .cr-pill-wrap{ flex:0 0 118px; }.co .cr-qty{
   display:flex; align-items:center; gap:2px; flex:none;
   height:var(--alt-ctrl); padding:0 6px;
   border-radius:var(--pill); background:var(--wash2);

@@ -177,49 +177,97 @@ export default function PainelUpscale({
     <>
     <div className="up-painel">
 
-      {/* ── A imagem ── */}
+      {/* ── A imagem, e a conta do tamanho colada nela ──
+          A conta morava no pé do formulário, longe da imagem e longe da
+          escala. Ela é a consequência das duas: fica aqui, e muda junto. */}
       <section className="up-bloco">
         <div className="cr-sec">{t('painelupscale_sec_imagem_base')}</div>
 
-        <div className="cr-refs up-refs">
-          {base ? (
-            <div className="cr-ref">
-              <img src={'data:image/png;base64,' + base.base64} alt="" />
-              <button className="cr-ref-x" onClick={() => setBase(null)} aria-label={t('painelupscale_aria_remover')}>×</button>
-            </div>
-          ) : (
-            <button className="cr-ref cr-ref--add" onClick={() => setPicker(true)}>
-              <span className="cr-ref-mais">+</span>
-            </button>
-          )}
-        </div>
+        {base ? (
+          <div className="cr-base">
+            <img src={'data:image/png;base64,' + base.base64} alt="" />
+            <button
+              className="cr-base-x"
+              onClick={() => setBase(null)}
+              data-tip={t('painelupscale_aria_remover')}
+              aria-label={t('painelupscale_aria_remover')}
+            >×</button>
+          </div>
+        ) : (
+          <button className="cr-drop" onClick={() => setPicker(true)}>
+            <svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/>
+              <path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>
+            </svg>
+            <span>{t('painelupscale_escolher_imagem')}</span>
+          </button>
+        )}
 
-        {base && base.w > 0 && <p className="cr-hint">{base.w} × {base.h} px</p>}
+        {base && base.w > 0 && (
+          <p className="up-dim">
+            {base.w} × {base.h}
+            <span className="up-dim-seta">→</span>
+            <b>{base.w * st.scale} × {base.h * st.scale}</b> px
+          </p>
+        )}
       </section>
 
-      {/* ── Modo ── */}
+      {/* ── Fator de escala ──
+          Quatro degraus, no sulco do P/M/G/GG do feed. Ele morava na barra do
+          pé, na pílula do Render, e a barra do Render existe porque aquele
+          formulário é longo e as três pílulas são de saída. Aqui a escala é a
+          decisão central da ferramenta, e o formulário é curto. */}
+      <section className="up-bloco">
+        <div className="cr-sec">{t('painelupscale_sec_escala')}</div>
+        <div className="cr-sul cr-sul--num">
+          {[2, 4, 8, 16].map((s) => (
+            <button
+              key={s}
+              className={'cr-sul__b' + (st.scale === s ? ' cr-sul__b--on' : '')}
+              onClick={() => campo('scale', s)}
+            >{s}x</button>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Modo ──
+          Precisão e Criativo são dois JEITOS de ampliar a mesma imagem, e não
+          duas coisas: por isso o sulco, e não o card com a pastilha, que na
+          janela é o que abre uma ferramenta. A linha embaixo explica o modo
+          escolhido, e troca junto com ele. */}
       <section className="up-bloco">
         <div className="cr-sec">{t('painelupscale_sec_upscale')}</div>
-        <div className="up-modo-row">
-          <button className={'up-modo up-modo--prec' + (modo === 'precision' ? ' up-modo--on' : '')} onClick={() => setModo('precision')}>
-            <span className="up-modo-faixa">
-              <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg>
-            </span>
-            <span className="up-modo-txt">{t('painelupscale_modo_precisao')}</span>
+        <div className="cr-sul">
+          <button
+            className={'cr-sul__b' + (modo === 'precision' ? ' cr-sul__b--on' : '')}
+            onClick={() => setModo('precision')}
+          >
+            <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.7" strokeLinecap="round">
+              <circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/>
+              <path d="M12 1.5v2M12 20.5v2M1.5 12h2M20.5 12h2"/>
+            </svg>
+            {t('painelupscale_modo_precisao')}
           </button>
-          <button className={'up-modo up-modo--criat' + (modo === 'creative' ? ' up-modo--on' : '')} onClick={() => setModo('creative')}>
-            <span className="up-modo-faixa">
-              <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z"/></svg>
-            </span>
-            <span className="up-modo-txt">{t('painelupscale_modo_criativo')}</span>
+          <button
+            className={'cr-sul__b' + (modo === 'creative' ? ' cr-sul__b--on' : '')}
+            onClick={() => setModo('creative')}
+          >
+            <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/>
+              <path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z"/>
+            </svg>
+            {t('painelupscale_modo_criativo')}
           </button>
         </div>
+        <p className="cr-sul-nota">
+          {modo === 'precision' ? t('painelupscale_nota_precisao') : t('painelupscale_nota_criativo')}
+        </p>
       </section>
 
       {/* ── Presets ── */}
       <section className="up-bloco">
         <div className="cr-sec">{t('painelupscale_preset')}</div>
-        <div className="up-preset-row">
+        <div className="up-preset">
           <DropdownCora caixinha
             valor={presetAtual}
             opcoes={[{ v: '', n: t('painelupscale_personalizado') }, ...Object.keys(presets).map((n) => ({ v: n, n }))]}
@@ -232,31 +280,29 @@ export default function PainelUpscale({
         </div>
       </section>
 
-      {/* ── Fator de escala ── */}
-      <section className="up-bloco">
-        <div className="cr-sec">{t('painelupscale_sec_escala')}</div>
-        <div className="up-scale-row">
-          {[2, 4, 8, 16].map((s) => (
-            <button key={s} className={'up-scale' + (st.scale === s ? ' up-scale--on' : '')} onClick={() => campo('scale', s)}>{s}x</button>
-          ))}
-        </div>
-      </section>
-
       {/* ── Campos do modo Precisão ── */}
       {modo === 'precision' && (
         <section className="up-bloco">
-          <label className="up-lbl">{t('painelupscale_lbl_modelo')} <Ajuda texto={t('painelupscale_ajuda_model')} /></label>
+          <div className="cr-sec">{t('painelupscale_lbl_modelo')} <Ajuda texto={t('painelupscale_ajuda_model')} /></div>
           <DropdownCora caixinha valor={st.flavor} opcoes={FLAVORS} onEscolher={(v) => campo('flavor', v)} />
 
-          <div className="up-slider">
-            <label>{t('painelupscale_lbl_nitidez')} <Ajuda texto={t('painelupscale_ajuda_sharpness')} /></label>
-            <input type="range" min="0" max="100" value={st.sharpen} onChange={(e) => campo('sharpen', +e.target.value)} />
-            <span>{st.sharpen}%</span>
+          <div className="up-sl">
+            <div className="up-sl-cab">
+              <span className="up-sl-rot">{t('painelupscale_lbl_nitidez')} <Ajuda texto={t('painelupscale_ajuda_sharpness')} /></span>
+              <span className="up-sl-val">{st.sharpen}%</span>
+            </div>
+            <div className="up-slider">
+              <input type="range" min="0" max="100" value={st.sharpen} onChange={(e) => campo('sharpen', +e.target.value)} />
+            </div>
           </div>
-          <div className="up-slider">
-            <label>{t('painelupscale_lbl_grao')} <Ajuda texto={t('painelupscale_ajuda_grain')} /></label>
-            <input type="range" min="0" max="100" value={st.smart_grain} onChange={(e) => campo('smart_grain', +e.target.value)} />
-            <span>{st.smart_grain}%</span>
+          <div className="up-sl">
+            <div className="up-sl-cab">
+              <span className="up-sl-rot">{t('painelupscale_lbl_grao')} <Ajuda texto={t('painelupscale_ajuda_grain')} /></span>
+              <span className="up-sl-val">{st.smart_grain}%</span>
+            </div>
+            <div className="up-slider">
+              <input type="range" min="0" max="100" value={st.smart_grain} onChange={(e) => campo('smart_grain', +e.target.value)} />
+            </div>
           </div>
         </section>
       )}
@@ -264,34 +310,50 @@ export default function PainelUpscale({
       {/* ── Campos do modo Criativo ── */}
       {modo === 'creative' && (
         <section className="up-bloco">
-          <label className="up-lbl">{t('painelupscale_lbl_otimizado')} <Ajuda texto={t('painelupscale_ajuda_otimizado')} /></label>
+          <div className="cr-sec">{t('painelupscale_lbl_otimizado')} <Ajuda texto={t('painelupscale_ajuda_otimizado')} /></div>
           <DropdownCora caixinha valor={st.optimized_for} opcoes={OTIMIZADO} onEscolher={(v) => campo('optimized_for', v)} />
 
-          <div className="up-slider">
-            <label>{t('painelupscale_lbl_criatividade')} <Ajuda texto={t('painelupscale_ajuda_criatividade')} /></label>
-            <input type="range" min="-10" max="10" value={st.creativity} onChange={(e) => campo('creativity', +e.target.value)} />
-            <span>{st.creativity}</span>
+          <div className="up-sl">
+            <div className="up-sl-cab">
+              <span className="up-sl-rot">{t('painelupscale_lbl_criatividade')} <Ajuda texto={t('painelupscale_ajuda_criatividade')} /></span>
+              <span className="up-sl-val">{st.creativity}</span>
+            </div>
+            <div className="up-slider">
+              <input type="range" min="-10" max="10" value={st.creativity} onChange={(e) => campo('creativity', +e.target.value)} />
+            </div>
           </div>
-          <div className="up-slider">
-            <label>HDR <Ajuda texto={t('painelupscale_ajuda_hdr')} /></label>
-            <input type="range" min="-10" max="10" value={st.hdr} onChange={(e) => campo('hdr', +e.target.value)} />
-            <span>{st.hdr}</span>
+          <div className="up-sl">
+            <div className="up-sl-cab">
+              <span className="up-sl-rot">HDR <Ajuda texto={t('painelupscale_ajuda_hdr')} /></span>
+              <span className="up-sl-val">{st.hdr}</span>
+            </div>
+            <div className="up-slider">
+              <input type="range" min="-10" max="10" value={st.hdr} onChange={(e) => campo('hdr', +e.target.value)} />
+            </div>
           </div>
-          <div className="up-slider">
-            <label>{t('painelupscale_lbl_semelhanca')} <Ajuda texto={t('painelupscale_ajuda_semelhanca')} /></label>
-            <input type="range" min="-10" max="10" value={st.resemblance} onChange={(e) => campo('resemblance', +e.target.value)} />
-            <span>{st.resemblance}</span>
+          <div className="up-sl">
+            <div className="up-sl-cab">
+              <span className="up-sl-rot">{t('painelupscale_lbl_semelhanca')} <Ajuda texto={t('painelupscale_ajuda_semelhanca')} /></span>
+              <span className="up-sl-val">{st.resemblance}</span>
+            </div>
+            <div className="up-slider">
+              <input type="range" min="-10" max="10" value={st.resemblance} onChange={(e) => campo('resemblance', +e.target.value)} />
+            </div>
           </div>
-          <div className="up-slider">
-            <label>{t('painelupscale_lbl_fractalidade')} <Ajuda texto={t('painelupscale_ajuda_fractalidade')} /></label>
-            <input type="range" min="-10" max="10" value={st.fractality} onChange={(e) => campo('fractality', +e.target.value)} />
-            <span>{st.fractality}</span>
+          <div className="up-sl">
+            <div className="up-sl-cab">
+              <span className="up-sl-rot">{t('painelupscale_lbl_fractalidade')} <Ajuda texto={t('painelupscale_ajuda_fractalidade')} /></span>
+              <span className="up-sl-val">{st.fractality}</span>
+            </div>
+            <div className="up-slider">
+              <input type="range" min="-10" max="10" value={st.fractality} onChange={(e) => campo('fractality', +e.target.value)} />
+            </div>
           </div>
 
-          <label className="up-lbl">{t('painelupscale_lbl_motor')} <Ajuda texto={t('painelupscale_ajuda_engine')} /></label>
+          <div className="cr-sec">{t('painelupscale_lbl_motor')} <Ajuda texto={t('painelupscale_ajuda_engine')} /></div>
           <DropdownCora caixinha valor={st.engine} opcoes={ENGINES} onEscolher={(v) => campo('engine', v)} />
 
-          <label className="up-lbl">{t('painelupscale_lbl_descricao')}</label>
+          <div className="cr-sec">{t('painelupscale_lbl_descricao')}</div>
           <textarea
             className="cr-ta"
             value={st.prompt}
@@ -303,12 +365,6 @@ export default function PainelUpscale({
       )}
 
       {erro && <p className="up-erro">{erro}</p>}
-
-      {base && base.w > 0 && (
-        <p className="up-dimensoes">
-          {base.w} × {base.h} <span className="up-dim-seta">→</span> <strong>{base.w * st.scale} × {base.h * st.scale}</strong> px
-        </p>
-      )}
 
     </div>
 

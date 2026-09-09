@@ -15,7 +15,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
-import CoraSelect from './CoraSelect';
+import { Linha, Lista, ItemLista } from './CoraFicha';
 import { listarLeituras, apagarLeitura, bytesDaLeitura, refsDaLeitura } from '../lib/leituras';
 import { bytesDaGeracao } from '../lib/geracoes';
 import { useIdioma, localeDeIdioma, tOpt } from '../lib/i18n';
@@ -42,40 +42,22 @@ function quando(iso, t, idioma) {
   return d.toLocaleDateString(localeDeIdioma(idioma), { day: '2-digit', month: 'short' });
 }
 
-// Um dropdown. O rótulo fica sempre à vista ("Origem", "Aba") e o valor
-// escolhido ao lado — assim a pessoa não precisa abrir para lembrar o que
-// aquele campo filtra.
-function Escolha({ rotulo, valor, opcoes, onMudar, aberto, onAbrir }) {
+// Um filtro é o campo da janela: rótulo em cima, caixa larga embaixo, e o
+// cartão com a lista de opção padrão. O mesmo do Render, do Editar e da
+// Planta baixa. Esta aba tinha um dropdown só dela.
+function Filtro({ rotulo, valor, opcoes, onMudar, aberto, onAbrir }) {
   const atual = opcoes.find((o) => o.v === valor) || opcoes[0];
 
   return (
-    <div className="an-esc">
-      <button className={'an-esc-b' + (aberto ? ' an-esc-b--on' : '')} onClick={onAbrir}>
-        <span className="an-esc-rot">{rotulo}</span>
-        <span className="an-esc-val">{atual.r}</span>
-        <svg
-          className={'an-esc-seta' + (aberto ? ' an-esc-seta--on' : '')}
-          viewBox="0 0 20 20" width="12" height="12"
-          fill="none" stroke="currentColor" strokeWidth="1.6"
-        >
-          <path d="M6 8l4 4 4-4" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-
-      {aberto && (
-        <div className="an-esc-menu">
-          {opcoes.map((o) => (
-            <button
-              key={o.v}
-              className={'an-esc-op' + (o.v === valor ? ' an-esc-op--on' : '')}
-              onClick={() => { onMudar(o.v); onAbrir(); }}
-            >
-              {o.r}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+    <Linha nome={rotulo} valor={atual.r} aberta={aberto} aoAbrir={onAbrir}>
+      <Lista uma>
+        {opcoes.map((o) => (
+          <ItemLista key={o.v} marcada={o.v === valor} onClick={() => onMudar(o.v)}>
+            {o.r}
+          </ItemLista>
+        ))}
+      </Lista>
+    </Linha>
   );
 }
 
@@ -161,13 +143,9 @@ export default function PainelAnalises({ onUsar }) {
     return () => { vivo = false; };
   }, []);
 
-  // Fecha o dropdown ao clicar fora
-  useEffect(() => {
-    if (!menuAberto) return;
-    const fora = (e) => { if (!e.target.closest('.an-esc')) setMenuAberto(null); };
-    document.addEventListener('mousedown', fora);
-    return () => document.removeEventListener('mousedown', fora);
-  }, [menuAberto]);
+  // Fechar ao clicar fora é do próprio campo: o cartão dele nasce num portal,
+  // no fim do documento, e quem sabe onde ele está é o componente. Aqui havia
+  // um segundo ouvinte que fechava pelo seletor do dropdown antigo.
 
   const filtrados = itens
     .filter((i) => plataforma === 'todas' || (i.plataforma || 'web') === plataforma)
@@ -212,18 +190,22 @@ export default function PainelAnalises({ onUsar }) {
         {t('painelanalises_intro')}
       </p>
 
-      <input
-        className="an-busca"
-        type="text"
-        value={busca}
-        onChange={(e) => setBusca(e.target.value)}
-        placeholder={t('painelanalises_ph_busca')}
-        spellCheck={false}
-      />
+      <div className="an-busca">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+          <circle cx="9" cy="9" r="5.5"/><path d="M13.2 13.2L17 17" strokeLinecap="round"/>
+        </svg>
+        <input
+          type="text"
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          placeholder={t('painelanalises_ph_busca')}
+          spellCheck={false}
+        />
+      </div>
 
       {/* Dois dropdowns: DE ONDE veio a leitura, e QUAL aba a gerou. */}
       <div className="an-filtros">
-        <Escolha
+        <Filtro
           rotulo={t('painelanalises_rot_origem')}
           valor={plataforma}
           onMudar={setPlataforma}
@@ -236,7 +218,7 @@ export default function PainelAnalises({ onUsar }) {
           ]}
         />
 
-        <Escolha
+        <Filtro
           rotulo={t('painelanalises_rot_aba')}
           valor={filtro}
           onMudar={setFiltro}
@@ -312,25 +294,31 @@ export default function PainelAnalises({ onUsar }) {
 
               {expandida && (
                 <div className="an-corpo">
-                  {multi && (
-                    <>
-                      <div className="an-vers-label">{t('painelanalises_versao')}</div>
-                      <CoraSelect
-                        className="an-vers-cora"
-                        value={String(atual.id)}
-                        onChange={(id) => setVersaoSel((s) => ({ ...s, [k]: id }))}
-                        options={versoes.map((v, idx) => {
-                          const ehOrig = idx === versoes.length - 1;   // a mais antiga
-                          return {
-                            value: String(v.id),
-                            label: (ehOrig ? t('painelanalises_original') : t('painelanalises_editada'))
-                              + ' · ' + origemLbl(v.origem)
-                              + ' · ' + quando(v.criadoEm, t, idioma)
-                          };
-                        })}
-                      />
-                    </>
-                  )}
+                  {multi && (() => {
+                    const rotuloVersao = (v, idx) =>
+                      (idx === versoes.length - 1 ? t('painelanalises_original') : t('painelanalises_editada'))
+                      + ' · ' + origemLbl(v.origem)
+                      + ' · ' + quando(v.criadoEm, t, idioma);
+                    const iAtual = versoes.findIndex((v) => String(v.id) === String(atual.id));
+                    return (
+                      <Linha
+                        nome={t('painelanalises_versao')}
+                        valor={rotuloVersao(atual, iAtual)}
+                        aberta={menuAberto === 'versao:' + k}
+                        aoAbrir={() => setMenuAberto(menuAberto === 'versao:' + k ? null : 'versao:' + k)}
+                      >
+                        <Lista uma>
+                          {versoes.map((v, idx) => (
+                            <ItemLista
+                              key={v.id}
+                              marcada={String(v.id) === String(atual.id)}
+                              onClick={() => setVersaoSel((s) => ({ ...s, [k]: String(v.id) }))}
+                            >{rotuloVersao(v, idx)}</ItemLista>
+                          ))}
+                        </Lista>
+                      </Linha>
+                    );
+                  })()}
 
                   <div className="an-materiais">{atual.materiais}</div>
 

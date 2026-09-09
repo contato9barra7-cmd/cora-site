@@ -5819,21 +5819,30 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    parecidos, e ninguém saberia qual é qual.
    ═══════════════════════════════════════════════════════════ */
 
-.an-busca {
+/* O buscar é a caixa da janela: 44 de altura, canto de 14, recuo de 16, e a
+   lupa por dentro à esquerda. Era uma pílula de 36 com outra letra. */
+.an-busca { position: relative; margin-top: 14px; }
+.an-busca input {
   width: 100%;
-  height: 36px;
-  padding: 0 14px;
-  margin-bottom: 10px;
-  border: 1px solid var(--line2);
-  border-radius: 100px;
-  background: var(--wash);
+  min-height: 44px;
+  padding: 11px 16px 11px 42px;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
   color: var(--ink);
   font-size: 13.5px;
   font-family: inherit;
   outline: none;
 }
-
-.an-busca:focus { border-color: var(--lima-txt); }
+.an-busca input::placeholder { color: var(--ink3); }
+.an-busca input:focus { border-color: var(--turquesa-esc); box-shadow: 0 0 0 3px var(--turq-bg); }
+.an-busca > svg {
+  position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+  width: 16px; height: 16px; stroke: var(--ink3); fill: none; pointer-events: none;
+}
+/* A grade dos dois filtros mora na folha da janela: lá ela ganha do respiro
+   que o próprio campo dá, que aqui viraria um degrau entre um e outro. */
 
 
 
@@ -5846,7 +5855,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 .an-item:hover { border-color: var(--line2); }
-.an-item--on   { border-color: var(--lima-txt); }
+.an-item--on   { border-color: var(--turquesa-esc); }
 
 .an-cab {
   width: 100%;
@@ -5865,10 +5874,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .an-thumb {
   flex-shrink: 0;
-  width: 52px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   object-fit: cover;
-  border-radius: 7px;
+  border-radius: 10px;
   background: var(--wash2);
 }
 
@@ -5885,16 +5894,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .an-topo {
   display: flex;
   align-items: center;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
+/* O título fica com a linha inteira, e as etiquetas descem juntas para a
+   linha seguinte. Ele dividia a linha com até três delas: o nome saía cortado
+   por reticências numas linhas e as etiquetas quebravam no meio noutras. */
 .an-tit {
+  flex: 1 1 100%;
   font-size: 13.5px;
   font-weight: 600;
   color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .an-tag {
@@ -5908,19 +5919,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 /* Tag "N versões" e o seletor de versões (mesma imagem = várias leituras) */
-.an-tag--vers { background: var(--accent-bg); color: var(--lima-txt); font-weight: 600; }
-.an-vers-label { font-size: 10px; color: var(--ink3); text-transform: uppercase; letter-spacing: .05em; margin: 10px 0 5px; }
-.an-vers-sel {
-  width: 100%;
-  margin-bottom: 8px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--line2);
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 12.5px;
-  cursor: pointer;
-}
+.an-tag--vers { background: var(--turq-bg); color: var(--turq-txt); font-weight: 600; }
+
+
 
 .an-quando {
   font-size: 11px;
@@ -5967,17 +5968,22 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .an-acoes {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
+  margin-top: 10px;
 }
 
+/* Do mesmo tamanho, começando e terminando na linha da caixa. */
 .an-acoes .cr-b,
-.an-acoes .cr-b-conf { flex: 1; }
+.an-acoes .cr-b-conf { flex: 1 1 0; min-width: 0; height: 38px; }
+/* Nada nesta aba gasta crédito, e por isso nenhum botão dela é lima. Levar a
+   análise para o Render abre uma porta, e porta é turquesa. */
+.an-acoes .cr-b-conf { background: var(--turquesa); color: #111111; }
 
 .an-lixo {
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   border: 1px solid var(--line2);
   border-radius: 50%;
   background: transparent;
@@ -6060,93 +6066,32 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    filtra — e vê de relance como a lista está filtrada.
    ═══════════════════════════════════════════════════════════ */
 
-.an-filtros {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-}
+/* O .an-filtros de agora é a grade de dois campos, lá em cima, junto do
+   buscar. Este era a fila do dropdown próprio da aba, que saiu. */
 
-.an-esc {
-  position: relative;
-  flex: 1;
-}
 
-.an-esc-b {
-  width: 100%;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 12px 0 14px;
-  border: 1px solid var(--line2);
-  border-radius: 100px;
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 13.5px;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color .15s;
-}
 
-.an-esc-b:hover     { border-color: var(--ink3); }
-.an-esc-b--on       { border-color: var(--lima-txt); }
+
+
+
+
 
 /* O rótulo é a legenda do campo: discreto, mas sempre presente */
-.an-esc-rot {
-  color: var(--ink3);
-  font-size: 12.5px;
-}
 
-.an-esc-val {
-  flex: 1;
-  text-align: left;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
-.an-esc-seta {
-  flex-shrink: 0;
-  color: var(--ink3);
-  transition: transform .18s;
-}
 
-.an-esc-seta--on { transform: rotate(180deg); }
 
-.an-esc-menu {
-  position: absolute;
-  top: calc(100% + 5px);
-  left: 0;
-  right: 0;
-  z-index: 20;
-  padding: 5px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--paper);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .13);
-}
 
-.an-esc-op {
-  width: 100%;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--ink2);
-  font-size: 13.5px;
-  font-family: inherit;
-  text-align: left;
-  cursor: pointer;
-}
 
-.an-esc-op:hover { background: var(--wash); }
 
-.an-esc-op--on {
-  background: var(--accent-bg);
-  color: var(--ink);
-  font-weight: 500;
-}
+
+
+
+
+
+
+
+
 
 /* ═══════════════════════════════════════════════════════════
    Detalhes da geração
@@ -6647,20 +6592,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 /* ── Seletor Animação / Sequências (topo da aba) ── */
-/* O seletor Animação / Sequências: o sulco. O mesmo gesto do trilho e do
-   P/M/G/GG do feed. A escolhida é a placa que sobe, e só o desenho dela fica
-   turquesa (a turquesa de verdade, não a de texto, que lê como verde). */
-.anim-sul { display: flex; gap: 2px; padding: 3px; border-radius: 100px; background: var(--wash2); margin-bottom: 20px; }
-.anim-sul__b {
+/* O sulco mora na folha da janela (`.cr-sul`), que é onde a identidade dele
+   foi escrita. Aqui fica só o desenho de base, para ele não nascer sem forma
+   caso a folha escopada não tenha carregado. */
+.cr-sul { display: flex; gap: 2px; padding: 3px; border-radius: 100px; background: var(--wash2); }
+.cr-sul__b {
   flex: 1; min-width: 0; height: 38px; padding: 0 10px; border: 0; border-radius: 100px;
   display: flex; align-items: center; justify-content: center; gap: 8px;
   background: transparent; color: var(--ink3); font-family: inherit; font-size: 13.5px; font-weight: 600;
-  cursor: pointer; transition: color .16s ease, background .16s ease, box-shadow .16s ease;
+  cursor: pointer;
 }
-.anim-sul__b svg { width: 18px; height: 18px; flex: none; }
-.anim-sul__b:hover:not(.anim-sul__b--on) { color: var(--ink); }
-.anim-sul__b--on { background: var(--paper); color: var(--ink); box-shadow: 0 2px 8px rgba(17,17,17,.07); }
-.anim-sul__b--on svg { color: var(--turquesa-esc); }
+.cr-sul__b--on { background: var(--paper); color: var(--ink); box-shadow: 0 2px 8px rgba(17,17,17,.07); }
+.cr-sul--topo { margin-bottom: 20px; }
 :root[data-theme="dark"] .anim-sel-txt { color: var(--ink); }
 
 /* ── Cards de sequência (espelham os do Editar) ── */
@@ -12086,46 +12029,19 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .up-remover:hover { background: #e0405a; }
 
-/* Modo Precisão / Criativo */
-.up-modo-row { display: flex; gap: 8px; }
-.up-modo {
-  flex: 1; display: flex; align-items: center; gap: 11px; padding: 0;
-  overflow: hidden; border-radius: 100px; border: 0.5px solid var(--line2);
-  background: var(--paper); cursor: pointer; font-family: inherit;
-  transition: border-color .15s, background .15s;
+/* A conta do tamanho, colada na imagem: é a consequência do fator de escala,
+   e as duas moram na mesma altura do olho. */
+.up-dim {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  margin: 10px 0 0; font-size: 12.5px; color: var(--ink2);
+  font-variant-numeric: tabular-nums;
 }
-.up-modo-faixa {
-  width: 42px; align-self: stretch; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 100px 0 0 100px;
-  background: var(--wash);
-}
-.up-modo-faixa svg { width: 18px; height: 18px; stroke: var(--ink3); }
-.up-modo-txt { font-size: 12.5px; font-weight: 500; color: var(--ink); padding: 10px 0; }
-.up-modo:hover:not(.up-modo--on) { border-color: var(--line); }
-/* Precisão = azul · Criativo = coral (só quando selecionado) */
-.up-modo--prec.up-modo--on  { border: 1.5px solid #378ADD; background: rgba(55,138,221,.14); }
-.up-modo--prec.up-modo--on .up-modo-faixa { background: #378ADD; }
-.up-modo--prec.up-modo--on .up-modo-faixa svg { stroke: #fff; }
-.up-modo--criat.up-modo--on { border: 1.5px solid #D85A30; background: rgba(216,90,48,.13); }
-.up-modo--criat.up-modo--on .up-modo-faixa { background: #D85A30; }
-.up-modo--criat.up-modo--on .up-modo-faixa svg { stroke: #fff; }
+.up-dim b { color: var(--ink); font-weight: 600; }
+.up-dim-seta { color: var(--turq-txt); font-weight: 700; }
 
-/* Fator de escala */
-.up-scale-row { display: flex; gap: 8px; }
-.up-scale {
-  flex: 1; padding: 9px 0; border-radius: 100px; border: 1px solid var(--line2);
-  background: transparent; color: var(--ink2); font-size: 12.5px; font-weight: 600;
-  cursor: pointer; font-family: inherit; transition: all .15s;
-}
-.up-scale:hover { border-color: var(--lima-txt); }
-.up-scale--on { background: var(--accent); color: var(--accent-txt, #111); border-color: var(--lima-txt); }
-
-/* Rótulos e selects (semicírculo, como o resto do site) */
-.up-lbl {
-  display: flex; align-items: center; gap: 6px; font-size: 12.5px;
-  font-weight: 600; color: var(--ink2); margin: 14px 0 7px;
-}
+/* Preset: a caixa do campo, e ao lado salvar e apagar na mesma altura dela */
+.up-preset { display: flex; gap: 6px; align-items: stretch; }
+.up-preset > .cora-dd { flex: 1; min-width: 0; }
 .up-select {
   width: 100%; padding: 10px 14px; border-radius: 100px; border: 1px solid var(--line2);
   background: var(--wash); color: var(--ink); font-size: 12.5px; font-family: inherit;
@@ -12260,20 +12176,32 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .pl-inp:focus { border-color: var(--lima-txt); outline: none; }
 .pl-inp::placeholder { color: var(--ink3); }
 
-/* Sliders */
-.up-slider { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px; margin: 12px 0; }
-.up-slider label { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink2); }
+/* Sliders: o rótulo em caixa alta como todo rótulo da janela, o valor à
+   direita na mesma linha dele, e o miolo turquesa como o dos pincéis. */
+.up-sl { margin-top: 16px; }
+.up-sl-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
+.up-sl-rot {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink3);
+}
+.up-sl-val { font-size: 12.5px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.up-slider { display: block; margin: 0; }
 .up-slider input[type=range] {
   -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
   border-radius: 100px; background: var(--line2); outline: none;
 }
+/* O miolo turquesa, o mesmo dos sliders do pincel: aqui era o --accent, que
+   no tema claro é a lima, e lima na janela é o que executa e gasta crédito. */
 .up-slider input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
-  background: var(--accent); cursor: pointer; border: 2px solid var(--paper);
+  -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%;
+  background: var(--turquesa); cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--turquesa-esc), 0 2px 8px rgba(17,17,17,.07);
 }
 .up-slider input[type=range]::-moz-range-thumb {
-  width: 14px; height: 14px; border-radius: 50%; background: var(--accent);
-  cursor: pointer; border: 2px solid var(--paper);
+  width: 15px; height: 15px; border-radius: 50%; background: var(--turquesa);
+  cursor: pointer; border: 0;
+  box-shadow: inset 0 0 0 1px var(--turquesa-esc), 0 2px 8px rgba(17,17,17,.07);
 }
 .up-slider > span { font-size: 12.5px; color: var(--ink3); min-width: 34px; text-align: right; }
 
@@ -12305,11 +12233,12 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .up-preset-row { display: flex; gap: 6px; align-items: center; }
 .up-preset-row .up-select { flex: 1; }
 .up-mini {
-  width: 38px; height: 38px; flex-shrink: 0; border-radius: 50%;
-  border: 1px solid var(--line2); background: var(--wash); color: var(--ink2);
+  width: 44px; height: auto; flex-shrink: 0; border-radius: 14px;
+  border: 1px solid var(--line); background: var(--paper); color: var(--ink2);
   font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: border-color .15s, color .15s;
 }
-.up-mini:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.up-mini:hover:not(:disabled) { border-color: var(--turquesa-esc); color: var(--turq-txt); }
 .up-mini--danger:hover { border-color: #e0405a; color: #e0405a; }
 .up-mini:disabled { opacity: .4; cursor: default; }
 

@@ -215,27 +215,30 @@
 .app-nav-sub a{
   position:relative; display:flex; align-items:center; gap:9px;
   height:34px; padding:0 12px 0 40px; border-radius:var(--r-peq);
-  color:var(--ink3); font-size:13.5px; letter-spacing:-.004em;
+  color:var(--ink3); font-size:var(--t-apoio2); letter-spacing:-.003em;
   white-space:nowrap; transition:background-color var(--t), color var(--t);
 }
 .app-nav-sub a:hover{ background:var(--wash2); color:var(--ink); }
 .app-nav-sub a.ativo{ color:var(--ink); font-weight:600; }
 .app-nav-sub a.ativo::before{
   content:""; position:absolute; left:22px; top:50%; transform:translateY(-50%);
-  width:2px; height:14px; border-radius:2px; background:var(--lima);
+  width:2px; height:14px; border-radius:0; background:var(--lima);
 }
 .app-nav-sub b{
-  margin-left:auto; font-weight:500; font-size:12.5px; color:var(--ink3);
+  margin-left:auto; font-weight:500; font-size:11.5px; color:var(--ink3);
   font-variant-numeric:tabular-nums;
 }
 /* Com o menu recolhido o submenu some junto com os rótulos: um item de 34px
    sem texto não diz nada, e três deles viram três riscos. */
 .app-shell.recolhido .app-nav-sub{ display:none; }
 
+/* 14,5 é o tamanho do CORPO do texto, e a lateral não é corpo de texto: é
+   navegação, que se lê de relance e não linha a linha. Um degrau abaixo, no
+   13,5 de apoio, e o submenu um degrau abaixo dele. */
 .app-nav-item{
   position:relative; display:flex; align-items:center; gap:12px;
   height:40px; padding:0 12px; border-radius:var(--r-peq);
-  color:var(--ink2); font-size:14.5px; font-weight:500; letter-spacing:-.005em;
+  color:var(--ink2); font-size:var(--t-apoio); font-weight:500; letter-spacing:-.004em;
   white-space:nowrap; transition:background-color var(--t), color var(--t);
 }
 .app-nav-ic{ flex:none; display:flex; color:var(--ink3); transition:color var(--t); }
@@ -247,7 +250,7 @@
 .app-nav-item.ativo .app-nav-ic{ color:var(--ink); }
 .app-nav-item.ativo::before{
   content:""; position:absolute; left:0; top:50%; transform:translateY(-50%);
-  width:3px; height:18px; border-radius:2px; background:var(--lima);
+  width:3px; height:18px; border-radius:0; background:var(--lima);
 }
 /* Recolhido, o item vira um QUADRADO de 40 por 40, e não uma faixa da largura
    do trilho: é a forma do avatar, do anel e do quadrado do Criar. */
@@ -268,8 +271,8 @@
 .criar__b{
   display:flex; align-items:center; gap:12px; width:100%;
   height:40px; padding:0 2px; border:0; border-radius:var(--r-peq);
-  background:transparent; color:var(--ink); font-size:14.5px; font-weight:600;
-  letter-spacing:-.005em; white-space:nowrap; cursor:pointer; text-align:left;
+  background:transparent; color:var(--ink); font-size:var(--t-apoio); font-weight:600;
+  letter-spacing:-.004em; white-space:nowrap; cursor:pointer; text-align:left;
   transition:background-color var(--t);
 }
 /* Sem fundo cinza no botão: o quadrado turquesa JÁ é o botão. O hover
