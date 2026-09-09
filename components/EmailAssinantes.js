@@ -15,7 +15,7 @@ const PUBLICOS_ASSIN = [
   { v: 'todos', k: 'emailassinantes_pub_todos_cad' },
   { v: 'alunos', k: 'emailassinantes_pub_alunos_prompt' },
 ];
-/* ── O "MODO CURSO" SAIU (09/09/2026) ──
+/* ── O "MODO CURSO" SAIU (08/09/2026) ──
    Este componente sabia mandar e-mail para os alunos dos Promptadores, com o
    logo e o publico deles. Nunca foi ligado aqui: o admin do Cora sempre o
    chamou sem `curso`, entao o ramo inteiro era codigo morto.
