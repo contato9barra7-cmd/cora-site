@@ -99,6 +99,15 @@ export default function Admin() {
                 abas: ['aceites', 'novidades', 'auditoria'], primeira: 'aceites' },
   };
 
+  /* ── QUEM TEM LISTAGEM, POR INCLUSAO ──
+     A barra de busca e a tabela de baixo perguntavam o contrario: elas
+     listavam as abas que NAO tinham lista, e qualquer aba nova nascia com a
+     tabela de contas embaixo. Foi o que aconteceu com a Auditoria: ela abria
+     com a busca e a lista de assinantes coladas no rodape, vindas de outra
+     tela. Por inclusao, a aba nova nasce limpa e quem quiser lista pede. */
+  const ABAS_COM_LISTA = ['pagantes', 'trial', 'convidados', 'cancelados',
+                          'faturas', 'compras'];
+
   /* Trocou de tela, a aba vai para a primeira dela. Sem isto, sair de Contas
      em "cancelados" e entrar em Dinheiro deixava as duas filas sem nenhuma
      aba acesa, e a tela ficava em branco. */
@@ -994,8 +1003,7 @@ export default function Admin() {
           Escondida por estilo em vez de condicional para nao mexer no
           aninhamento do JSX que segue abaixo. */}
       <div className="adm-barra"
-           style={['ficha', 'resumo', 'aceites', 'novidades'].includes(aba)
-             ? { display: 'none' } : undefined}>
+           style={ABAS_COM_LISTA.includes(aba) ? undefined : { display: 'none' }}>
         <div className="adm-busca">
           <svg viewBox="0 0 20 20" width="15" height="15" fill="none"
                stroke="currentColor" strokeWidth="1.6">
@@ -1209,7 +1217,7 @@ export default function Admin() {
       {/* A ficha e uma tela inteira, nao uma listagem: nao entra neste ternario.
           Sem o `null` explicito ela caia no ELSE e a tabela geral de contas
           aparecia solta embaixo da ficha aberta. */}
-      {['ficha', 'resumo', 'aceites', 'novidades'].includes(aba) ? null : aba === 'faturas' ? (
+      {!ABAS_COM_LISTA.includes(aba) ? null : aba === 'faturas' ? (
         <div className="conta-card adm-card">
           {/* O aviso aparece quando o Stripe não respondeu. Sem ele a tela
               mostraria só as recargas e daria a entender que não houve fatura
