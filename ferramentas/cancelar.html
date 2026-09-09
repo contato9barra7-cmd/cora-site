@@ -254,7 +254,9 @@
   content:""; position:absolute; left:0; top:50%; transform:translateY(-50%);
   width:3px; height:18px; border-radius:2px; background:var(--lima);
 }
-.app-shell.recolhido .app-nav-item{ justify-content:center; padding:0 9px; }
+/* Recolhido, o item vira um QUADRADO de 40 por 40, e não uma faixa da largura
+   do trilho: é a forma do avatar, do anel e do quadrado do Criar. */
+.app-shell.recolhido .app-nav-item{ width:40px; margin:0 auto; padding:0; justify-content:center; }
 .app-shell.recolhido .app-nav-lbl{ display:none; }
 
 /* ── O botão de criar ──
@@ -270,15 +272,19 @@
 .criar{ position:relative; margin:0 0 6px; }
 .criar__b{
   display:flex; align-items:center; gap:12px; width:100%;
-  height:40px; padding:0 8px; border:0; border-radius:var(--r-peq);
+  height:40px; padding:0 2px; border:0; border-radius:var(--r-peq);
   background:transparent; color:var(--ink); font-size:14.5px; font-weight:600;
   letter-spacing:-.005em; white-space:nowrap; cursor:pointer; text-align:left;
   transition:background-color var(--t);
 }
-.criar__b:hover, .criar__b--on{ background:var(--wash2); }
+/* Sem fundo cinza no botão: o quadrado turquesa JÁ é o botão. O hover
+   escurece o próprio quadrado. */
+/* O quadrado tem a MESMA medida do quadrado cinza do item ativo (40 por 40,
+   canto de 12): recolhido, os dois ficam um em cima do outro e são a mesma
+   forma, uma turquesa e uma cinza. */
 .criar__q{
   flex:none; display:flex; align-items:center; justify-content:center;
-  width:28px; height:28px; border-radius:9px;
+  width:40px; height:40px; border-radius:var(--r-peq);
   background:var(--turquesa); color:var(--turq-txt);
   transition:background var(--t);
 }
@@ -1728,7 +1734,7 @@
     background:none; color:var(--ink3); font-size:20px; line-height:1; cursor:pointer;
   }
   .app-side-fechar:hover{ background:var(--wash2); color:var(--ink); }
-  .app-shell.recolhido .app-nav-item{ justify-content:flex-start; padding:0 12px; }
+  .app-shell.recolhido .app-nav-item{ width:auto; margin:0; justify-content:flex-start; padding:0 12px; }
   .app-shell.recolhido .app-nav-lbl{ display:block; }
   /* Na gaveta a lista não flutua para fora da tela: abre embaixo do botão,
      na largura da própria gaveta. */

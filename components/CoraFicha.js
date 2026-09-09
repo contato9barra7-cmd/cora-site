@@ -87,7 +87,7 @@ export const QUALIDADE = {
 const SALA = <rect className="pl-sala" x="37" y="16" width="26" height="12" rx="1.5" />;
 export const PLANTA = {
   'Frontal':          <>{SALA}<path className="pl-luz" d="M50 9.5v4.5M50 14l-2.2-2.2M50 14l2.2-2.2" /></>,
-  'Lateral esquerda': <>{SALA}<path className="pl-luz" d="M28.5 22h6.5M35 22l-2.2-2.2M35 22l2.2 2.2" /></>,
+  'Lateral esquerda': <>{SALA}<path className="pl-luz" d="M28.5 22h6.5M35 22l-2.2-2.2M35 22l-2.2 2.2" /></>,
   'Lateral direita':  <>{SALA}<path className="pl-luz" d="M71.5 22H65M65 22l2.2-2.2M65 22l2.2 2.2" /></>,
   'Pelo fundo':       <>{SALA}<path className="pl-luz" d="M50 34.5V30M50 30l-2.2 2.2M50 30l2.2 2.2" /></>,
   'Diagonal':         <>{SALA}<path className="pl-luz" d="M68.5 12.5l-4 4M64.5 16.5l3.1-.3M64.5 16.5l.3-3.1" /></>,

@@ -1,0 +1,198 @@
+<title>Nada aqui ainda</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   NADA AQUI AINDA · quatro jeitos de dizer
+
+   O estado vazio do feed hoje: a faixa da marca, o título, o apoio, com
+   80px de padding em cima e 24px entre a faixa e o título. O dono gosta e
+   acha que dá para melhorar: frases mais juntas, talvez centrado no espaço.
+
+   Cada quadro abaixo é o feed em tamanho real, na largura que ele tem com
+   o painel aberto (a área útil fica em torno de 860px, e o quadro tem
+   metade disso). O que muda entre os quatro é só a composição.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --turquesa:#ADECDF; --turq-bg:#E6F7F3; --turq-txt:#196C5B; --lima-txt:#256B2A;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --faixa:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41; --turq-bg:rgba(143,221,204,.16); --turq-txt:#8FDDCC; --lima-txt:#C4FBA7;
+}}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41; --turq-bg:rgba(143,221,204,.16); --turq-txt:#8FDDCC; --lima-txt:#C4FBA7;
+}
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--fonte); font-size:14.5px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+
+.env{ max-width:1160px; margin:0 auto; padding:56px 28px 80px; }
+.cab{ max-width:60ch; margin-bottom:36px; }
+.olho{ margin:0 0 10px; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; line-height:1.15; text-wrap:balance; }
+.cab p{ margin:0; color:var(--ink2); text-wrap:pretty; }
+
+.grade{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:28px 24px; }
+@media (max-width:860px){ .grade{ grid-template-columns:1fr; } }
+
+.op{ display:flex; flex-direction:column; gap:12px; min-width:0; }
+.op__cab{ display:flex; align-items:baseline; gap:10px; }
+.op__n{
+  flex:none; width:26px; height:26px; border-radius:8px; display:grid; place-items:center;
+  background:var(--wash2); color:var(--ink); font-size:12.5px; font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+.op__t{ margin:0; font-size:14.5px; font-weight:600; }
+.op__p{ margin:0; font-size:12.5px; color:var(--ink2); line-height:1.5; text-wrap:pretty; }
+.op__rec{
+  margin-left:auto; padding:2px 9px; border-radius:var(--pill);
+  background:var(--turq-bg); color:var(--turq-txt); font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+}
+
+/* ── o feed, em tamanho real ── */
+.feed{
+  position:relative; height:420px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--wash); overflow:hidden;
+}
+.feed__barra{
+  height:46px; display:flex; align-items:center; gap:8px; padding:0 14px;
+  background:var(--paper); border-bottom:1px solid var(--line);
+}
+.feed__ico{ width:26px; height:26px; border-radius:50%; background:var(--wash2); }
+.feed__ico--on{ background:var(--turq-bg); box-shadow:inset 0 0 0 1px var(--turquesa); }
+.feed__busca{ margin-left:auto; width:150px; height:26px; border-radius:var(--pill); background:var(--wash2); }
+.feed__corpo{ position:absolute; inset:47px 0 0; }
+
+/* ── o estado vazio: a base que os quatro dividem ── */
+.vz{ text-align:center; padding:0 24px; }
+.vz__faixa{
+  width:132px; height:14px; margin:0 auto; border-radius:var(--pill);
+  background:var(--faixa) repeat-x left center; background-size:112px 100%;
+}
+.vz h2{ margin:0; font-size:17px; font-weight:600; color:var(--ink); }
+.vz p{ margin:0 auto; max-width:38ch; font-size:14.5px; color:var(--ink2); text-wrap:pretty; }
+
+/* 1 · como está, mais junto: 80px de cima viram 72, a faixa fica a 14px do
+   título e o título a 4px do apoio. */
+.vz--1{ padding-top:72px; }
+.vz--1 .vz__faixa{ margin-bottom:14px; }
+.vz--1 h2{ margin-bottom:4px; }
+
+/* 2 · a mesma composição, centrada no espaço. O bloco inteiro senta no meio
+   da área do feed, e não num terço fixo de cima. */
+.vz--2{ position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; }
+.vz--2 .vz__faixa{ margin-bottom:14px; }
+.vz--2 h2{ margin-bottom:4px; }
+
+/* 3 · a faixa entre o título e o apoio, mais curta, e o bloco centrado. Ela
+   vira o fio que separa o que é título do que é explicação. */
+.vz--3{ position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; }
+.vz--3 .vz__faixa{ width:64px; height:8px; margin:12px auto 12px; }
+
+/* 4 · uma frase só: o título abre o parágrafo em negrito e o apoio segue na
+   mesma linha. Faixa em cima, bloco centrado, o mais quieto dos quatro. */
+.vz--4{ position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; }
+.vz--4 .vz__faixa{ margin-bottom:16px; }
+.vz--4 p{ max-width:44ch; font-size:14.5px; color:var(--ink2); }
+.vz--4 p b{ font-weight:600; color:var(--ink); }
+
+.pe{ margin-top:44px; padding-top:20px; border-top:1px solid var(--line); max-width:64ch; }
+.pe p{ margin:0 0 8px; font-size:12.5px; color:var(--ink2); }
+</style>
+
+<div class="env">
+  <header class="cab">
+    <p class="olho">O feed do Cora · estado vazio</p>
+    <h1>Nada aqui ainda, quatro jeitos de dizer</h1>
+    <p>Cada quadro é o feed em tamanho real, com a barra em cima. O que muda entre os quatro é só a composição: onde o bloco senta, o que a faixa faz e a distância entre as duas frases.</p>
+  </header>
+
+  <div class="grade">
+
+    <section class="op">
+      <div class="op__cab">
+        <span class="op__n">1</span>
+        <h2 class="op__t">Como está, mais junto</h2>
+      </div>
+      <p class="op__p">A mesma posição de hoje, no terço de cima. A faixa chega a 14px do título e o título a 4px do apoio, em vez de 24 e 8. Muda pouco, e é o que muda menos a tela.</p>
+      <div class="feed">
+        <div class="feed__barra"><span class="feed__ico feed__ico--on"></span><span class="feed__ico"></span><span class="feed__ico"></span><span class="feed__ico"></span><span class="feed__busca"></span></div>
+        <div class="feed__corpo">
+          <div class="vz vz--1">
+            <div class="vz__faixa"></div>
+            <h2>Nada aqui ainda</h2>
+            <p>Nenhuma geração corresponde a esse filtro.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="op">
+      <div class="op__cab">
+        <span class="op__n">2</span>
+        <h2 class="op__t">Junto, e centrado no espaço</h2>
+        <span class="op__rec">a minha</span>
+      </div>
+      <p class="op__p">O mesmo bloco da 1, mas sentado no meio da área do feed. Num feed alto o terço de cima deixa dois terços de nada embaixo, e o vazio parece erro. No meio, ele parece descanso.</p>
+      <div class="feed">
+        <div class="feed__barra"><span class="feed__ico feed__ico--on"></span><span class="feed__ico"></span><span class="feed__ico"></span><span class="feed__ico"></span><span class="feed__busca"></span></div>
+        <div class="feed__corpo">
+          <div class="vz vz--2">
+            <div class="vz__faixa"></div>
+            <h2>Nada aqui ainda</h2>
+            <p>Nenhuma geração corresponde a esse filtro.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="op">
+      <div class="op__cab">
+        <span class="op__n">3</span>
+        <h2 class="op__t">A faixa entre as frases</h2>
+      </div>
+      <p class="op__p">A faixa desce e encolhe: vira o fio que separa o título da explicação. O bloco fica centrado. Ela deixa de ser bandeira e passa a ser pontuação.</p>
+      <div class="feed">
+        <div class="feed__barra"><span class="feed__ico feed__ico--on"></span><span class="feed__ico"></span><span class="feed__ico"></span><span class="feed__ico"></span><span class="feed__busca"></span></div>
+        <div class="feed__corpo">
+          <div class="vz vz--3">
+            <h2>Nada aqui ainda</h2>
+            <div class="vz__faixa"></div>
+            <p>Nenhuma geração corresponde a esse filtro.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="op">
+      <div class="op__cab">
+        <span class="op__n">4</span>
+        <h2 class="op__t">Uma frase só</h2>
+      </div>
+      <p class="op__p">O título abre o parágrafo em negrito e o apoio segue na mesma linha. Faixa em cima, bloco centrado. É o mais quieto: não tem hierarquia de título, tem uma frase.</p>
+      <div class="feed">
+        <div class="feed__barra"><span class="feed__ico feed__ico--on"></span><span class="feed__ico"></span><span class="feed__ico"></span><span class="feed__ico"></span><span class="feed__busca"></span></div>
+        <div class="feed__corpo">
+          <div class="vz vz--4">
+            <div class="vz__faixa"></div>
+            <p><b>Nada aqui ainda.</b> Nenhuma geração corresponde a esse filtro.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="pe">
+    <p>As três frases do feed usam o mesmo bloco: "Suas gerações do plugin e da web aparecem aqui", "Nenhuma geração corresponde a esse filtro" e a da busca sem resultado. A escolha vale para as três.</p>
+    <p>Centrar (2, 3 e 4) pede uma linha de CSS a mais no feed: a lista passa a ter altura mínima da área visível, e o bloco senta no meio dela. Hoje ela só cresce com o conteúdo.</p>
+  </footer>
+</div>

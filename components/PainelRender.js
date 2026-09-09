@@ -25,6 +25,7 @@ import {
   Linha, Amostra, Lista, ItemLista, Sulco, resumir,
   CEU, QUALIDADE, PLANTA, KELVIN
 } from './CoraFicha';
+import PickerCor, { COR_OUTRA_INICIAL, notaPt } from './PickerCor';
 import {
   gerarRender, lerMateriais, custoRender, CREDITOS,
   TIPOS, PROPORCOES, LUZ_TIPOS, MOODS, DIRECOES, ATMOSFERAS,
@@ -71,6 +72,10 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   const [descLuz, setDescLuz]   = useState('');
 
   const [corLuz, setCorLuz]               = useState('Desligada');
+  // A cor do "Outro": temperatura em Kelvin ou cor livre. Só vale quando
+  // `corLuz` é 'Outro', mas fica guardada mesmo quando a pessoa troca para
+  // 2700K e volta, para não perder o tom que ela já tinha achado.
+  const [corOutra, setCorOutra]           = useState(COR_OUTRA_INICIAL);
   const [intensidade, setIntensidade]     = useState('Média');
   const [detArtificial, setDetArtificial] = useState('');
 
@@ -119,6 +124,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       if (r.atmosferaOutra) setAtmosferaOutra(r.atmosferaOutra);
       if (r.descLuz)     setDescLuz(r.descLuz);
       if (r.corLuz)      setCorLuz(r.corLuz);
+      if (r.corOutra)    setCorOutra(r.corOutra);
       if (r.intensidade) setIntensidade(r.intensidade);
       if (r.detArtificial) setDetArtificial(r.detArtificial);
       if (r.tagsEntorno) setTagsEntorno(r.tagsEntorno);
@@ -147,14 +153,14 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
     const id = setTimeout(() => salvarRascunho('render', {
       imagem, previa, tipo, proporcao, resolucao, quantidade,
       materiais, matEstado, luzTipo, mood, detNatural,
-      direcoes, descLuz, corLuz, intensidade, detArtificial,
+      direcoes, descLuz, corLuz, corOutra, intensidade, detArtificial,
       tagsEntorno, entorno, refTexto, atmosfera, atmosferaOutra,
       refs: refs.map((r) => ({ base64: r.base64 }))   // só o base64 (a prévia é reconstruída)
     }), 500);
     return () => clearTimeout(id);
   }, [restaurado, imagem, previa, tipo, proporcao, resolucao, quantidade,
       materiais, matEstado, luzTipo, mood, detNatural, direcoes, descLuz,
-      corLuz, intensidade, detArtificial, tagsEntorno, entorno, refTexto, atmosfera, atmosferaOutra, refs]);
+      corLuz, corOutra, intensidade, detArtificial, tagsEntorno, entorno, refTexto, atmosfera, atmosferaOutra, refs]);
 
   // Alguém mandou uma imagem de outra aba? Carrega.
   useEffect(() => {
@@ -304,9 +310,14 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       ? `${mood} (${luzTipo}). Detalhes: ${detNatural.trim()}`
       : `${mood} (${luzTipo})`;
 
+    // "Outro" não é cor nenhuma para o promptador: vai a temperatura com a
+    // nota ("4200K, branco neutro") ou a cor livre com o hex.
+    const corFinal = corLuz !== 'Outro' ? corLuz
+      : corOutra.modo === 'colorida' ? `luz colorida ${corOutra.hex}`
+      : `${corOutra.rotulo}, ${notaPt(corOutra.notaChave)}`;
     const luzArtFinal = corLuz === 'Desligada'
       ? 'Desligada'
-      : `${corLuz}, intensidade ${intensidade}${detArtificial.trim() ? `. Detalhes: ${detArtificial.trim()}` : ''}`;
+      : `${corFinal}, intensidade ${intensidade}${detArtificial.trim() ? `. Detalhes: ${detArtificial.trim()}` : ''}`;
 
     const entornoFinal = [tagsEntorno.join(', '), entorno.trim()]
       .filter(Boolean).join('. ');
@@ -607,33 +618,6 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
             </div>
           </Linha>
 
-          {/* O texto livre da luz mora numa linha só, e não aberto no meio das
-              escolhas. Os dois campos continuam sendo dois (`detNatural` e
-              `descLuz`, que é como o servidor recebe), e quem nunca escreve
-              nada não vê nenhum dos dois. */}
-          <Linha
-            nome={t('painelrender_detalhes_luz_natural')}
-            aberta={linhaAberta === 'detalhes'} aoAbrir={abre('detalhes')}
-          >
-            <p className="fic__grp">{t('painelrender_sobre_natural')}</p>
-            <textarea
-              className="cr-ta ta--curta"
-              placeholder={t('painelrender_ph_det_natural')}
-              value={detNatural}
-              onChange={(e) => setDetNatural(e.target.value)}
-              spellCheck={false}
-            />
-            <p className="fic__grp">{t('painelrender_sobre_direcao')}</p>
-            <textarea
-              className="cr-ta ta--curta"
-              placeholder={t('painelrender_ph_desc_luz')}
-              value={descLuz}
-              onChange={(e) => setDescLuz(e.target.value)}
-              spellCheck={false}
-            />
-            <p className="cr-hint">{t('painelrender_hint_desc_luz')}</p>
-          </Linha>
-
           {/* Atmosfera: lista longa e secundária, e dá para marcar várias. O
               marcador quadrado diz isso sozinho. */}
           <Linha
@@ -661,11 +645,39 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
             />
           </Linha>
 
+          {/* O texto livre da luz mora numa linha só, e não aberto no meio das
+              escolhas. Os dois campos continuam sendo dois (`detNatural` e
+              `descLuz`, que é como o servidor recebe), e quem nunca escreve
+              nada não vê nenhum dos dois. */}
+          <Linha
+            nome={t('painelrender_detalhes_luz_natural')}
+            aberta={linhaAberta === 'detalhes'} aoAbrir={abre('detalhes')}
+          >
+            <p className="fic__grp">{t('painelrender_sobre_natural')}</p>
+            <textarea
+              className="cr-ta ta--curta"
+              placeholder={t('painelrender_ph_det_natural')}
+              value={detNatural}
+              onChange={(e) => setDetNatural(e.target.value)}
+              spellCheck={false}
+            />
+            <p className="fic__grp">{t('painelrender_sobre_direcao')}</p>
+            <textarea
+              className="cr-ta ta--curta"
+              placeholder={t('painelrender_ph_desc_luz')}
+              value={descLuz}
+              onChange={(e) => setDescLuz(e.target.value)}
+              spellCheck={false}
+            />
+            <p className="cr-hint">{t('painelrender_hint_desc_luz')}</p>
+          </Linha>
+
+
           {/* Luz artificial: 2700K não quer dizer nada até virar uma bolinha
               alaranjada ao lado do número. */}
           <Linha
             nome={t('painelrender_luz_artificial')}
-            valor={tOpt(corLuz)}
+            valor={corLuz === 'Outro' ? corOutra.rotulo : tOpt(corLuz)}
             aberta={linhaAberta === 'artificial'} aoAbrir={abre('artificial')}
           >
             <div className="kel">
@@ -684,6 +696,9 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               ))}
             </div>
 
+            {/* O seletor só existe com "Outro" marcado. Sem ele, "Outro" era
+                uma palavra que ia para o prompt sem cor nenhuma dentro. */}
+            {corLuz === 'Outro' && <PickerCor valor={corOutra} onMudar={setCorOutra} />}
           </Linha>
 
           {/* Intensidade e detalhes moravam DENTRO da linha da luz artificial,
