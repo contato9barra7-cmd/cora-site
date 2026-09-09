@@ -102,13 +102,13 @@ function motivoDoAcesso(a, conta) {
     /* O reaceite primeiro: ele e o unico bloqueio que nao aparece em nenhum
        outro campo da ficha, entao e o que mais some sem esta linha. */
     if (a.precisa_aceitar) {
-      return { texto: 'BLOQUEADO — falta aceitar os documentos novos', cor: '#C8342A' };
+      return { texto: 'BLOQUEADO: falta aceitar os documentos novos', cor: '#C8342A' };
     }
-    if (a.equipe_suspenso) return { texto: 'BLOQUEADO — suspenso pela equipe (excedente de assentos)', cor: '#C8342A' };
-    if (a.eh_trial && a.trial_expirado) return { texto: 'BLOQUEADO — teste de 7 dias terminou', cor: '#C8342A' };
-    if (a.status === 'inativo') return { texto: 'BLOQUEADO — pagamento falhou', cor: '#C8342A' };
-    if (a.status === 'expirado') return { texto: 'BLOQUEADO — período pago venceu', cor: '#C8342A' };
-    return { texto: `BLOQUEADO — ${a.status || 'sem plano ativo'}`, cor: '#C8342A' };
+    if (a.equipe_suspenso) return { texto: 'BLOQUEADO: suspenso pela equipe (excedente de assentos)', cor: '#C8342A' };
+    if (a.eh_trial && a.trial_expirado) return { texto: 'BLOQUEADO: teste de 7 dias terminou', cor: '#C8342A' };
+    if (a.status === 'inativo') return { texto: 'BLOQUEADO: pagamento falhou', cor: '#C8342A' };
+    if (a.status === 'expirado') return { texto: 'BLOQUEADO: período pago venceu', cor: '#C8342A' };
+    return { texto: `BLOQUEADO: ${a.status || 'sem plano ativo'}`, cor: '#C8342A' };
   }
 
   /* Passou daqui, ela gera. O que muda e QUANTO.
