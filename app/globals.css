@@ -12724,11 +12724,14 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 .admin-ac__busca:focus { outline: 0; border-color: var(--ink); }
 
 .admin-ac .admin-tabela th,
-.admin-ac .admin-tabela td {
+.admin-ac .admin-tabela td,
+.admin-aud .admin-tabela th,
+.admin-aud .admin-tabela td {
   padding: 10px 12px; text-align: left; vertical-align: top;
   border-bottom: 1px solid var(--line);
 }
-.admin-ac .admin-tabela th {
+.admin-ac .admin-tabela th,
+.admin-aud .admin-tabela th {
   font-size: 11px; font-weight: 600; letter-spacing: .04em;
   text-transform: uppercase; color: var(--ink3);
 }
@@ -12747,6 +12750,56 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
   white-space: nowrap; cursor: pointer;
 }
 .admin-ac-ver:hover { border-color: var(--ink); }
+
+/* ══════════════════════════════════════════════════════════
+   AUDITORIA (aba Auditoria do admin e do gerente)
+
+   Duas varreduras que olham a base inteira. Elas nao acusam: debito sem
+   estorno e o normal de uma geracao que deu certo, e duas recargas iguais
+   podem ser duas compras de verdade.
+
+   E por isso que a EXPLICACAO tem tamanho de texto, e nao de legenda: ela
+   precisa ser lida antes da lista, ou alguem devolve credito de uma venda
+   boa. Ela e a unica parte desta tela que nao pode ser pulada.
+   ══════════════════════════════════════════════════════════ */
+.admin-aud-wrap { display: grid; gap: 18px; }
+.admin-aud__topo {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px; margin-bottom: 16px;
+}
+.admin-aud__txt { min-width: 0; max-width: 66ch; }
+.admin-aud__titulo { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+.admin-aud__explica {
+  margin: 6px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--ink2);
+}
+/* Largura fixa: o dropdown muda de rotulo ("24 horas" e "30 dias" tem larguras
+   diferentes), e sem isto a linha do titulo dava um pulo a cada troca. */
+.admin-aud__periodo { flex: none; width: 140px; }
+.admin-aud__resumo { margin: 0 0 12px; font-size: 13.5px; color: var(--ink2); }
+.admin-aud__resumo strong { color: var(--ink); font-weight: 600; }
+.admin-aud__estado { margin: 0; font-size: 13.5px; color: var(--ink3); }
+.admin-aud__quem { font-size: 13px; word-break: break-word; }
+/* O e-mail e o caminho para a ficha, que e onde a resposta esta. Ele parece
+   texto ate o ponteiro chegar: uma tabela cheia de links azuis competiria com
+   os numeros, que sao o que a pessoa veio ler. */
+.admin-aud__quem--liga {
+  padding: 0; border: 0; background: none; color: var(--ink);
+  font-family: inherit; font-size: 13px; text-align: left; cursor: pointer;
+  border-bottom: 1px solid transparent;
+}
+.admin-aud__quem--liga:hover { border-bottom-color: var(--ink); }
+.admin-aud__rota { font-size: 12.5px; color: var(--ink3); }
+/* A referencia e um id longo e ninguem le ela inteira: ela serve para casar
+   com o log quando alguem for conferir um caso. Cortada, com o valor inteiro
+   no `title`. */
+.admin-aud__ref {
+  display: block; max-width: 170px; font-size: 11px; color: var(--ink3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .admin-aud__periodo { width: 100%; }
+}
 
 /* A janela do texto. Fundo escuro por trás, e o documento numa folha branca
    com rolagem própria: são 7 KB, e ler isso na página inteira empurraria a

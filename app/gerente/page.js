@@ -9,7 +9,8 @@
 //
 //  ── O QUE ELA TEM ──
 //  Achar uma pessoa e ver a ficha dela por inteiro, a prova de aceite dos
-//  documentos, e escrever para os clientes. É o trabalho de atendimento.
+//  documentos, as duas varreduras de auditoria, e escrever para os clientes.
+//  É o trabalho de atendimento.
 //
 //  ── O QUE ELA NÃO TEM, E POR QUÊ ──
 //  A tela Dinheiro e as listas de faturamento (é a empresa inteira, não uma
@@ -29,6 +30,7 @@ import AppShell from '../../components/AppShell';
 import FichaConta from '../../components/FichaConta';
 import PainelAceites from '../../components/PainelAceites';
 import EmailAssinantes from '../../components/EmailAssinantes';
+import AdminAuditoria from '../../components/AdminAuditoria';
 import { lerConta, atualizarConta } from '../../lib/auth';
 import { contaVista, lerModo, EVENTO_VER_COMO } from '../../lib/verComo';
 import { useIdioma } from '../../lib/i18n';
@@ -47,6 +49,15 @@ export default function Gerente() {
   const [carregando, setCarregando] = useState(true);
   const [aba, setAba] = useState('contas');
   const [emailAberto, setEmailAberto] = useState(false);
+  /* A auditoria manda para a ficha, e a ficha e a aba Contas. O `seq` e o que
+     faz a ficha reabrir quando o clique cai na MESMA conta duas vezes: sem
+     ele, o efeito la dentro ve o mesmo id e nao faz nada. */
+  const [fichaAbrir, setFichaAbrir] = useState(null);
+
+  function abrirNaFicha(contaId) {
+    setFichaAbrir({ id: contaId, seq: Date.now() });
+    setAba('contas');
+  }
 
   useEffect(() => {
     setModoVer(lerModo());
@@ -120,7 +131,9 @@ export default function Gerente() {
               <p className="conta-cabeca__email">
                 {aba === 'contas'
                   ? 'Ache a pessoa e veja a conta dela por inteiro.'
-                  : 'A prova de quem aceitou o que, e quando.'}
+                  : aba === 'aceites'
+                    ? 'A prova de quem aceitou o que, e quando.'
+                    : 'O que o crédito fez, na base inteira.'}
               </p>
             </div>
           </div>
@@ -136,21 +149,29 @@ export default function Gerente() {
           </div>
         </div>
 
-        {/* Duas abas, e não sete. O gerente tem dois assuntos: as pessoas e a
-            prova do aceite. Uma fila de abas com metade delas ausente pareceria
-            uma tela quebrada. */}
+        {/* Três abas, e não sete. O gerente tem três assuntos: as pessoas, a
+            prova do aceite e o que o crédito fez. Uma fila de abas com metade
+            delas ausente pareceria uma tela quebrada. */}
         <div className="adm-abas" role="tablist">
           <button className={'adm-aba' + (aba === 'contas' ? ' ativa' : '')}
                   onClick={() => setAba('contas')}>Contas</button>
           <button className={'adm-aba' + (aba === 'aceites' ? ' ativa' : '')}
                   onClick={() => setAba('aceites')}>Aceites</button>
+          {/* Leitura, e só. As duas varreduras não mexem em crédito nem em
+              dinheiro, e por isso cabem aqui: elas mostram o que conferir, e
+              quem conserta continua sendo o admin. */}
+          <button className={'adm-aba' + (aba === 'auditoria' ? ' ativa' : '')}
+                  onClick={() => setAba('auditoria')}>Auditoria</button>
         </div>
 
         {/* A ficha traz a própria busca e a própria lista: ela é a tela de
             "achar uma pessoa e ver tudo dela". `papel` só desliga o menu de
             ações, que é o que o gerente não tem. */}
-        {aba === 'contas' && <FichaConta papel="gerente" />}
+        {aba === 'contas' && <FichaConta papel="gerente" abrirConta={fichaAbrir} />}
         {aba === 'aceites' && <div style={{ marginTop: 18 }}><PainelAceites /></div>}
+        {aba === 'auditoria' && (
+          <div style={{ marginTop: 18 }}><AdminAuditoria onAbrirConta={abrirNaFicha} /></div>
+        )}
       </div>
 
       {emailAberto && <EmailAssinantes onClose={() => setEmailAberto(false)} />}

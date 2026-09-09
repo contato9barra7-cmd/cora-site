@@ -12,6 +12,7 @@ import { lerConta, adminListarAssinantes, adminDadosFiscais, adminCompras, admin
 import PainelAceites from '../../components/PainelAceites';
 import AdminDinheiro from '../../components/AdminDinheiro';
 import PainelNovidades from '../../components/PainelNovidades';
+import AdminAuditoria from '../../components/AdminAuditoria';
 import { usarTelaAdmin, irParaTelaAdmin } from '../../lib/telaAdmin';
 
 
@@ -95,7 +96,7 @@ export default function Admin() {
                 abas: ['pagantes', 'trial', 'convidados', 'cancelados', 'ficha'],
                 primeira: 'pagantes' },
     registros:{ olho: 'Admin · Registros', titulo: 'O que ficou gravado',
-                abas: ['aceites', 'novidades'], primeira: 'aceites' },
+                abas: ['aceites', 'novidades', 'auditoria'], primeira: 'aceites' },
   };
 
   /* Trocou de tela, a aba vai para a primeira dela. Sem isto, sair de Contas
@@ -646,7 +647,11 @@ export default function Admin() {
               {telaAdm === 'contas'
                 ? <>{totalContas} {t('adm_contas')}, {pagos} {t('adm_medida_pago')} {t('adm_e')} {totalTrial} {t('adm_medida_teste')}.</>
                 : telaAdm === 'registros'
-                  ? 'A prova de quem aceitou o que, e quando.'
+                  ? (aba === 'auditoria'
+                      ? 'O que o crédito fez, na base inteira.'
+                      : aba === 'novidades'
+                        ? 'Para quantas pessoas dá para escrever.'
+                        : 'A prova de quem aceitou o que, e quando.')
                   : 'Assinatura e recarga, com a taxa que o Stripe reteve.'}
             </p>
           </div>
@@ -910,6 +915,11 @@ export default function Admin() {
                   onClick={() => setAba('novidades')}>
             {t('adm_nov_coluna')} <b>{assinantes.filter((c) => c.newsletter !== false).length}</b>
           </button>
+          {/* As duas varreduras que olham a base inteira. Ficam aqui, e nao em
+              Dinheiro, porque nao falam de faturamento: falam do que a tabela
+              `transacoes` guardou. */}
+          <button className={'adm-aba' + (aba === 'auditoria' ? ' ativa' : '')}
+                  onClick={() => setAba('auditoria')}>Auditoria</button>
         </div>
       )}
 
@@ -929,6 +939,19 @@ export default function Admin() {
 
       {aba === 'novidades' && (
         <div style={{ marginTop: 18 }}><PainelNovidades contas={assinantes} /></div>
+      )}
+
+      {/* Da varredura para a ficha: a lista diz QUEM conferir, e o Extrato da
+          ficha diz o que aconteceu com aquele credito. Sem esse caminho a
+          pessoa copiava o e-mail e ia buscar a mao. */}
+      {aba === 'auditoria' && (
+        <div style={{ marginTop: 18 }}>
+          <AdminAuditoria onAbrirConta={(id) => {
+            setFichaAbrir({ id, seq: Date.now() });
+            irParaTelaAdmin('contas');
+            setAba('ficha');
+          }} />
+        </div>
       )}
 
       {/* A barra de filtro/busca e das LISTAGENS. Na ficha ela nao se aplica —

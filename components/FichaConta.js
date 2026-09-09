@@ -20,7 +20,7 @@ import { useState, useEffect } from 'react';
 import { adminGeracoesDaConta } from '../lib/geracoes';
 import DropdownCora from './DropdownCora';
 import {
-  adminBuscarContas, adminFichaDaConta, adminExtratoDaConta, adminCreditar,
+  adminBuscarContas, adminFichaDaConta, adminExtratoDaConta, adminAuditoriaConsistencia, adminCreditar,
   adminMudarPlano, adminCancelar, adminDeletarConta, adminPersonificar, adminGerente, adminTirarAdmin, adminCreditosReais,
 } from '../lib/auth';
 
@@ -247,6 +247,11 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
   const [imagensErro, setImagensErro] = useState('');
   const [extratoErro, setExtratoErro] = useState('');
   const [extratoCarregando, setExtratoCarregando] = useState(false);
+  /* A conferencia de saldo. Ela responde uma pergunta que o extrato NAO
+     responde: o `creditos_usados` do plano bate com a soma dos lancamentos?
+     Diferenca quer dizer credito mexido por fora do fluxo normal, e mora aqui
+     porque a conta ja esta aberta. A rota pede e-mail, e ele esta na ficha. */
+  const [saldoConfere, setSaldoConfere] = useState(null);
 
   // ── Ações ──
   // `acao` é qual painel de confirmação está aberto. Só um por vez: duas
@@ -302,7 +307,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
     setErro(''); setAviso(''); setCarregando(true); fecharAcao();
     // O extrato é da conta anterior: sem esta limpeza, trocar de conta com a
     // aba Extrato aberta mostraria as transações de outra pessoa por um instante.
-    setExtrato(null); setExtratoErro('');
+    setExtrato(null); setExtratoErro(''); setSaldoConfere(null);
     setImagens(null); setImagensDe(null); setImagensErro('');
     try {
       setFicha(await adminFichaDaConta(id));
@@ -325,6 +330,19 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
     return () => { vivo = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aba, extratoDias, ficha?.conta?.id]);
+
+  /* A conferencia nao depende do periodo: ela soma a vida inteira da conta.
+     Um erro aqui nao mostra nada, porque ela e um extra da aba, e nao a aba. */
+  useEffect(() => {
+    if (aba !== 'extrato' || !ficha?.conta?.email) return;
+    if (saldoConfere && saldoConfere.email === ficha.conta.email) return;
+    let vivo = true;
+    adminAuditoriaConsistencia(ficha.conta.email)
+      .then((r) => { if (vivo) setSaldoConfere(r); })
+      .catch(() => { if (vivo) setSaldoConfere(null); });
+    return () => { vivo = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aba, ficha?.conta?.email]);
 
   /* As imagens chegam quando a aba abre, e só. Elas NÃO vêm junto da ficha:
      abrir a ficha de alguém é rotina do suporte, e ver o arquivo de imagens
@@ -1218,6 +1236,19 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
                   </span>
                 )}
               </div>
+              {saldoConfere && (
+                <p style={{ fontSize: 12.5, color: saldoConfere.divergencia === 0 ? 'var(--ink3)' : '#B7791F', marginBottom: 10 }}>
+                  {saldoConfere.divergencia === 0
+                    ? 'O usado do plano bate com a soma dos lançamentos.'
+                    : <>
+                        O plano marca <b>{num(saldoConfere.plano_creditos_usados)}</b> usados
+                        {' e os lançamentos somam '}<b>{num(saldoConfere.transacoes_liquido)}</b>.
+                        {' '}Gasto de recarga não entra no usado do plano, e crédito dado pelo
+                        admin também não, então a diferença pode estar certa.
+                      </>}
+                </p>
+              )}
+
               {!extrato.pedidos_ok && (
                 <p style={{ fontSize: 12, color: '#B7791F', marginBottom: 10 }}>
                   Sem os pedidos do servidor de geração neste ambiente, a Situação

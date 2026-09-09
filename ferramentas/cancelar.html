@@ -1128,7 +1128,17 @@
      nasciam no topo, e o nome ficava alto. */
   align-self:end;
 }
-.conta-cabeca__email{ margin:2px 0 0; align-self:start; font-size:14.5px; color:var(--ink2); line-height:1.5; }
+/* ── A MARGEM NEGATIVA NAO E TRUQUE, E CONTA ──
+   O nome tem 30px com entrelinha 1,08, e o apoio 14,5px com 1,5. Cada caixa
+   carrega meia entrelinha de sobra, e as duas se somam no meio: com
+   `margin:2px` o vao medido entre a tinta de um e a do outro dava 11,56px,
+   metade da altura do proprio nome, e o par lia como duas coisas em vez de
+   uma. Os -3px comem essa sobra e deixam 6,5px.
+
+   Ela nao muda o tamanho do bloco: a foto ocupa as duas linhas com 56px
+   fixos, entao o espaco que sai daqui volta distribuido nas duas, e o nome
+   com o apoio continuam centrados nela. */
+.conta-cabeca__email{ margin:-3px 0 0; align-self:start; font-size:14.5px; color:var(--ink2); line-height:1.5; }
 /* ── QUANDO NAO HA FOTO, O APOIO SOBE PARA O MEIO ──
    O `align-self:start` de cima foi pensado para o caso COM foto: la o nome e
    o apoio ficam em linhas diferentes e se encontram no meio dela.
