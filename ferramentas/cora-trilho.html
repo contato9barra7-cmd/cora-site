@@ -1,0 +1,232 @@
+<title>Quatro jeitos de trocar de ferramenta</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   O TRILHO DAS FERRAMENTAS · quatro jeitos
+
+   Hoje o topo do painel é um trilho de pílulas com o nome de cada
+   ferramenta. São oito, cabem quatro, e as outras ficam atrás de uma seta.
+   O dono pensa em ícones com o nome no tooltip, como a barra do V-Ray.
+
+   Cada quadro abaixo é o painel em tamanho real (400px), com o começo do
+   formulário embaixo para dar contexto. O que muda é só o trilho.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --turquesa:#ADECDF; --turq-bg:#E6F7F3; --turq-txt:#196C5B; --lima-txt:#256B2A;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41; --turq-bg:rgba(143,221,204,.16); --turq-txt:#8FDDCC; --lima-txt:#C4FBA7;
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+}}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41; --turq-bg:rgba(143,221,204,.16); --turq-txt:#8FDDCC; --lima-txt:#C4FBA7;
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+}
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--fonte); font-size:14.5px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+button{ font:inherit; }
+
+.env{ max-width:1160px; margin:0 auto; padding:56px 28px 80px; }
+.cab{ max-width:62ch; margin-bottom:40px; }
+.olho{ margin:0 0 10px; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; line-height:1.15; text-wrap:balance; }
+.cab p{ margin:0; color:var(--ink2); text-wrap:pretty; }
+
+.grade{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:36px 28px; }
+@media (max-width:900px){ .grade{ grid-template-columns:1fr; } }
+.op{ display:flex; flex-direction:column; gap:12px; min-width:0; }
+.op__cab{ display:flex; align-items:baseline; gap:10px; }
+.op__n{ flex:none; width:26px; height:26px; border-radius:8px; display:grid; place-items:center; background:var(--wash2); font-size:12.5px; font-weight:600; }
+.op__t{ margin:0; font-size:14.5px; font-weight:600; }
+.op__p{ margin:0; font-size:12.5px; color:var(--ink2); line-height:1.5; text-wrap:pretty; }
+.op__p b{ font-weight:600; color:var(--ink); }
+.op__rec{ margin-left:auto; padding:2px 9px; border-radius:var(--pill); background:var(--turq-bg); color:var(--turq-txt); font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+
+/* ── o painel, em tamanho real ── */
+.pn{
+  width:400px; max-width:100%; height:300px; margin:0 auto; overflow:hidden; position:relative;
+  border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper);
+}
+.pn::after{ content:""; position:absolute; left:0; right:0; bottom:0; height:90px; background:linear-gradient(rgba(255,255,255,0), var(--paper)); pointer-events:none; }
+.pn__form{ padding:20px 16px; opacity:.7; }
+.sec{ margin:0 0 10px; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+.sec + .sec{ margin-top:22px; }
+.drop{ height:76px; border:1px dashed var(--line2); border-radius:var(--r-peq); background:var(--wash); display:grid; place-items:center; color:var(--ink3); font-size:13.5px; }
+.linha{ display:flex; align-items:center; justify-content:space-between; height:44px; border-bottom:1px solid var(--line); font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }
+.linha span{ font-size:12.5px; font-weight:500; letter-spacing:0; text-transform:none; color:var(--ink); }
+
+/* 1 · as pílulas de hoje */
+.pills{ display:flex; align-items:center; gap:6px; padding:10px 14px; min-height:57px; border-bottom:1px solid var(--line); background:var(--paper); }
+.seta{ flex:0 0 26px; width:26px; height:26px; border:0; border-radius:50%; background:transparent; color:var(--ink3); display:grid; place-items:center; }
+.seta--off{ opacity:0; }
+.sulco{ flex:1; min-width:0; overflow:hidden; border-radius:var(--pill); background:var(--wash2); padding:3px; }
+.trilho{ display:flex; gap:2px; width:max-content; }
+.pill{ flex:0 0 auto; padding:0 16px; height:32px; border:0; background:transparent; border-radius:var(--pill); color:var(--ink3); font-size:13.5px; font-weight:500; white-space:nowrap; }
+.pill--on{ background:var(--paper); color:var(--ink); font-weight:600; box-shadow:var(--sombra-peq); }
+
+/* 2 · só ícones, com tooltip */
+.icos{ display:flex; gap:2px; width:100%; justify-content:space-between; }
+.ico{ position:relative; flex:1; height:32px; border:0; border-radius:var(--pill); background:transparent; color:var(--ink3); display:grid; place-items:center; }
+.ico svg{ width:18px; height:18px; }
+.ico--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+.ico--hover{ color:var(--ink); }
+.tip{
+  position:absolute; top:calc(100% + 8px); left:50%; transform:translateX(-50%);
+  padding:5px 9px; border-radius:8px; background:var(--ink); color:var(--paper);
+  font-size:11.5px; font-weight:600; white-space:nowrap; z-index:3;
+}
+.tip::before{ content:""; position:absolute; bottom:100%; left:50%; margin-left:-4px; border:4px solid transparent; border-bottom-color:var(--ink); }
+.tip--esq{ left:0; transform:none; }
+.tip--esq::before{ left:16px; }
+
+/* 3 · ícones, e o ativo abre com o nome */
+.ico--nome{ flex:0 0 auto; display:flex; align-items:center; gap:7px; padding:0 14px 0 10px; font-size:13px; font-weight:600; }
+
+/* 4 · trilho vertical à esquerda */
+.pn--vert{ display:flex; }
+.vert{ flex:none; width:46px; padding:10px 0; border-right:1px solid var(--line); display:flex; flex-direction:column; align-items:center; gap:2px; background:var(--paper); }
+.vico{ position:relative; width:36px; height:36px; border:0; border-radius:10px; background:transparent; color:var(--ink3); display:grid; place-items:center; }
+.vico svg{ width:18px; height:18px; }
+.vico--on{ background:var(--wash2); color:var(--ink); }
+.vico--on::before{ content:""; position:absolute; left:-5px; top:9px; bottom:9px; width:3px; border-radius:2px; background:var(--lima); }
+.vico--hover{ color:var(--ink); }
+.vtip{ position:absolute; left:calc(100% + 10px); top:50%; transform:translateY(-50%); padding:5px 9px; border-radius:8px; background:var(--ink); color:var(--paper); font-size:11.5px; font-weight:600; white-space:nowrap; z-index:3; }
+.vtip::before{ content:""; position:absolute; right:100%; top:50%; margin-top:-4px; border:4px solid transparent; border-right-color:var(--ink); }
+.pn--vert .pn__form{ flex:1; min-width:0; }
+.titulo{ margin:0 0 18px; font-size:17px; font-weight:600; color:var(--ink); }
+
+.pe{ margin-top:48px; padding-top:20px; border-top:1px solid var(--line); max-width:64ch; }
+.pe p{ margin:0 0 8px; font-size:12.5px; color:var(--ink2); }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-render" viewBox="0 0 24 24"><path d="M3.5 5.5h17v13h-17z M3.5 14l5-4.5 4 3.5 3-2.5 5 4"/></symbol>
+  <symbol id="i-batch" viewBox="0 0 24 24"><path d="M7 3.5h13.5V17 M3.5 7h13.5v13.5H3.5z"/></symbol>
+  <symbol id="i-editar" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z M14.5 5.5l4 4"/></symbol>
+  <symbol id="i-planta" viewBox="0 0 24 24"><path d="M3.5 3.5h17v17h-17z M3.5 10h8 M11.5 10v10.5 M11.5 6h9"/></symbol>
+  <symbol id="i-pos" viewBox="0 0 24 24"><path d="M4 6h16 M4 12h11 M4 18h7"/></symbol>
+  <symbol id="i-anim" viewBox="0 0 24 24"><path d="M3.5 5.5h17v13h-17z M8 5.5v13 M16 5.5v13 M3.5 12h17"/></symbol>
+  <symbol id="i-upscale" viewBox="0 0 24 24"><path d="M5 10.5V5h5.5 M19 13.5V19h-5.5 M5 5l5.5 5.5 M19 19l-5.5-5.5"/></symbol>
+  <symbol id="i-analises" viewBox="0 0 24 24"><path d="M4 20V10 M10 20V4 M16 20v-7 M22 20H2"/></symbol>
+</svg>
+
+<div class="env">
+  <header class="cab">
+    <p class="olho">O painel do Cora · o trilho das ferramentas</p>
+    <h1>Quatro jeitos de trocar de ferramenta</h1>
+    <p>São oito ferramentas e o topo do painel tem 400px. Hoje cabem quatro nomes e as outras ficam atrás da seta. Os quatro quadros abaixo são o painel em tamanho real, e os ícones são os mesmos da lista do "Criar", para o desenho ensinar o nome uma vez só.</p>
+  </header>
+
+  <div class="grade">
+
+    <!-- ═══ 1 ═══ -->
+    <section class="op">
+      <div class="op__cab"><span class="op__n">1</span><h2 class="op__t">As pílulas de hoje</h2></div>
+      <p class="op__p">O nome está sempre à vista, e por isso ninguém precisa aprender ícone nenhum. O custo é a seta: quatro ferramentas ficam escondidas, e "Upscale" e "Análises" só existem para quem rola o trilho.</p>
+      <div class="pn">
+        <div class="pills">
+          <button class="seta seta--off" aria-hidden="true"></button>
+          <div class="sulco"><div class="trilho">
+            <button class="pill pill--on">Render</button><button class="pill">Batch</button><button class="pill">Editar</button><button class="pill">Planta baixa</button><button class="pill">Pós-produção</button>
+          </div></div>
+          <button class="seta" aria-label="Mais abas"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l5 6-5 6"/></svg></button>
+        </div>
+        <div class="pn__form">
+          <p class="sec">Imagem do modelo</p>
+          <div class="drop">Escolher imagem</div>
+          <div class="linha" style="margin-top:14px">Tipo de ambiente <span>Interno</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ 2 ═══ -->
+    <section class="op">
+      <div class="op__cab"><span class="op__n">2</span><h2 class="op__t">Só ícones, com o nome no tooltip</h2></div>
+      <p class="op__p">A barra do V-Ray. As oito cabem no mesmo sulco, sem seta, e o nome aparece no hover. O que se paga: quem chegou agora não sabe qual é qual até passar o mouse em cada um, e no celular não existe hover. A lista do "Criar" ajuda, porque mostra o ícone com o nome ao lado.</p>
+      <div class="pn">
+        <div class="pills">
+          <div class="sulco"><div class="icos">
+            <button class="ico ico--on" aria-label="Render"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-render"/></svg></button>
+            <button class="ico ico--hover" aria-label="Batch"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-batch"/></svg><span class="tip">Batch</span></button>
+            <button class="ico" aria-label="Editar"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-editar"/></svg></button>
+            <button class="ico" aria-label="Planta baixa"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-planta"/></svg></button>
+            <button class="ico" aria-label="Pós-produção"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-pos"/></svg></button>
+            <button class="ico" aria-label="Animação"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-anim"/></svg></button>
+            <button class="ico" aria-label="Upscale"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upscale"/></svg></button>
+            <button class="ico" aria-label="Análises"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-analises"/></svg></button>
+          </div></div>
+        </div>
+        <div class="pn__form">
+          <p class="sec">Imagem do modelo</p>
+          <div class="drop">Escolher imagem</div>
+          <div class="linha" style="margin-top:14px">Tipo de ambiente <span>Interno</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ 3 ═══ -->
+    <section class="op">
+      <div class="op__cab"><span class="op__n">3</span><h2 class="op__t">Ícones, e o ativo abre com o nome</h2><span class="op__rec">a minha</span></div>
+      <p class="op__p">As oito cabem, sem seta e sem tooltip obrigatório: o nome de <b>onde a pessoa está</b> fica sempre escrito, dentro da pílula branca. Os outros sete são só ícone, e o hover diz o nome. É o meio-termo entre 1 e 2, e no celular continua legível porque o ativo sempre tem texto.</p>
+      <div class="pn">
+        <div class="pills">
+          <div class="sulco"><div class="icos">
+            <button class="ico ico--on ico--nome"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-render"/></svg>Render</button>
+            <button class="ico" aria-label="Batch"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-batch"/></svg></button>
+            <button class="ico" aria-label="Editar"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-editar"/></svg></button>
+            <button class="ico" aria-label="Planta baixa"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-planta"/></svg></button>
+            <button class="ico" aria-label="Pós-produção"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-pos"/></svg></button>
+            <button class="ico" aria-label="Animação"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-anim"/></svg></button>
+            <button class="ico" aria-label="Upscale"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upscale"/></svg></button>
+            <button class="ico" aria-label="Análises"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-analises"/></svg></button>
+          </div></div>
+        </div>
+        <div class="pn__form">
+          <p class="sec">Imagem do modelo</p>
+          <div class="drop">Escolher imagem</div>
+          <div class="linha" style="margin-top:14px">Tipo de ambiente <span>Interno</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ 4 ═══ -->
+    <section class="op">
+      <div class="op__cab"><span class="op__n">4</span><h2 class="op__t">Trilho vertical, na borda do painel</h2></div>
+      <p class="op__p">Uma coluna de 46px encostada na esquerda, com os oito ícones em pé e o fio de lima marcando onde a pessoa está, o mesmo gesto do menu lateral. O topo do painel fica livre e o nome da ferramenta vira o título do formulário. O que se paga: o formulário perde 46px de largura, e a ficha já é justa.</p>
+      <div class="pn pn--vert">
+        <div class="vert">
+          <button class="vico vico--on" aria-label="Render"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-render"/></svg></button>
+          <button class="vico vico--hover" aria-label="Batch"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-batch"/></svg><span class="vtip">Batch</span></button>
+          <button class="vico" aria-label="Editar"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-editar"/></svg></button>
+          <button class="vico" aria-label="Planta baixa"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-planta"/></svg></button>
+          <button class="vico" aria-label="Pós-produção"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-pos"/></svg></button>
+          <button class="vico" aria-label="Animação"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-anim"/></svg></button>
+          <button class="vico" aria-label="Upscale"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upscale"/></svg></button>
+          <button class="vico" aria-label="Análises"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-analises"/></svg></button>
+        </div>
+        <div class="pn__form">
+          <p class="titulo">Render</p>
+          <p class="sec">Imagem do modelo</p>
+          <div class="drop">Escolher imagem</div>
+          <div class="linha" style="margin-top:14px">Tipo de ambiente <span>Interno</span></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="pe">
+    <p>Nas quatro, a ferramenta trancada pelo plano continua com o cadeado e o clique abre o aviso de plano, como hoje. E nas quatro o "Criar" da lateral continua sendo a porta com nome e descrição, para quem chegou agora.</p>
+    <p>Se for a 2 ou a 4, vale ter o nome da ferramenta escrito em algum lugar fixo da tela, porque tooltip não existe no celular. Na 3 e na 1 ele já está.</p>
+  </footer>
+</div>

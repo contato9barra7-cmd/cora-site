@@ -1,0 +1,427 @@
+<title>O Batch, passo a passo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   O BATCH, PASSO A PASSO
+
+   O que o Batch resolve: você tem um render aprovado e N capturas do mesmo
+   projeto, e quer as N no mesmo estilo. A IA cruza cada captura com as
+   referências, lê os materiais de cada uma, você revisa e aprova, e só as
+   aprovadas geram (e só elas custam).
+
+   Cada quadro é o painel em tamanho real (400px), no estado em que ele
+   fica naquele passo, como está HOJE no site. Onde eu mudaria alguma
+   coisa, o quadro seguinte mostra a proposta.
+
+   As imagens são placeholders: o estudo é da sequência, e não das fotos.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D; --turquesa:#ADECDF; --turquesa-esc:#8FDDCC; --turq-bg:#E6F7F3; --turq-txt:#196C5B; --lima-txt:#256B2A;
+  --ok:#1F7A44; --alerta:#C8342A;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --foto-a:linear-gradient(160deg,#d9cbb6,#b79b7a 55%,#6f5a44);
+  --foto-b:linear-gradient(160deg,#cfd6d3,#8fa39c 55%,#4b5c57);
+  --foto-c:linear-gradient(160deg,#e3d8c4,#c2a98a 50%,#8a6f55);
+  --foto-d:linear-gradient(160deg,#d6dbe0,#9aa6b0 55%,#55606a);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41; --turq-bg:rgba(143,221,204,.16); --turq-txt:#8FDDCC; --lima-txt:#C4FBA7;
+  --ok:#7BD3A0; --alerta:#F0A9A3; --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+}}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41; --turq-bg:rgba(143,221,204,.16); --turq-txt:#8FDDCC; --lima-txt:#C4FBA7;
+  --ok:#7BD3A0; --alerta:#F0A9A3; --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+}
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--fonte); font-size:14.5px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+button, input, textarea{ font:inherit; }
+
+.env{ max-width:1160px; margin:0 auto; padding:56px 28px 80px; }
+.cab{ max-width:62ch; margin-bottom:44px; }
+.olho{ margin:0 0 10px; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+h1{ margin:0 0 12px; font-size:26px; font-weight:500; letter-spacing:-.02em; line-height:1.15; text-wrap:balance; }
+.cab p{ margin:0 0 8px; color:var(--ink2); text-wrap:pretty; }
+
+/* ── um passo: o painel à esquerda, a leitura à direita ── */
+.passo{ display:grid; grid-template-columns:400px minmax(0,1fr); gap:32px; align-items:start; padding:36px 0; border-top:1px solid var(--line); }
+@media (max-width:820px){ .passo{ grid-template-columns:1fr; } }
+.passo__txt{ position:sticky; top:24px; max-width:52ch; }
+.passo__n{ display:inline-grid; place-items:center; width:28px; height:28px; border-radius:9px; background:var(--wash2); font-size:12.5px; font-weight:600; margin-bottom:12px; }
+.passo__t{ margin:0 0 10px; font-size:20px; font-weight:500; letter-spacing:-.015em; line-height:1.2; text-wrap:balance; }
+.passo__p{ margin:0 0 10px; font-size:13.5px; color:var(--ink2); text-wrap:pretty; }
+.passo__p b{ font-weight:600; color:var(--ink); }
+.prop{ margin-top:16px; padding:14px 16px; border-radius:var(--r-peq); background:var(--turq-bg); }
+.prop .olho{ color:var(--turq-txt); margin-bottom:6px; }
+.prop p{ margin:0; font-size:13.5px; color:var(--ink); text-wrap:pretty; }
+.par{ display:grid; gap:16px; }
+.rot{ margin:0 0 8px; font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
+.rot--prop{ color:var(--turq-txt); }
+
+/* ── o painel ── */
+.pn{ width:400px; max-width:100%; border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper); overflow:hidden; display:flex; flex-direction:column; }
+.pn--alto{ max-height:760px; position:relative; }
+.pn--alto::after{ content:""; position:absolute; left:0; right:0; bottom:0; height:80px; background:linear-gradient(rgba(255,255,255,0), var(--paper)); pointer-events:none; }
+.pills{ display:flex; align-items:center; gap:6px; padding:10px 14px; min-height:57px; border-bottom:1px solid var(--line); }
+.seta{ flex:0 0 26px; width:26px; height:26px; border:0; border-radius:50%; background:transparent; color:var(--ink3); display:grid; place-items:center; }
+.seta--off{ opacity:0; }
+.sulco{ flex:1; min-width:0; overflow:hidden; border-radius:var(--pill); background:var(--wash2); padding:3px; }
+.trilho{ display:flex; gap:2px; width:max-content; }
+.pill{ flex:0 0 auto; padding:0 16px; height:32px; border:0; background:transparent; border-radius:var(--pill); color:var(--ink3); font-size:13.5px; font-weight:500; white-space:nowrap; }
+.pill--on{ background:var(--paper); color:var(--ink); font-weight:600; box-shadow:var(--sombra-peq); }
+.form{ padding:20px 16px 24px; }
+.sec{ margin:0 0 10px; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+.sec--dep{ margin-top:26px; }
+.hint{ margin:0 0 10px; font-size:12.5px; color:var(--ink3); line-height:1.5; text-wrap:pretty; }
+.hint--ok{ color:var(--lima-txt); }
+
+/* referências */
+.refs{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+.ref{ position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; border:1px solid var(--line); background:var(--wash2); }
+.ref--foto{ background:var(--foto-a); }
+.ref--add{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:var(--ink3); background:transparent; border:1px dashed var(--line2); }
+.ref--add b{ font-size:17px; font-weight:400; line-height:1; }
+.ref--add small{ font-size:11px; }
+.ref__x{ position:absolute; top:4px; right:4px; width:18px; height:18px; border:0; border-radius:50%; background:rgba(17,17,17,.7); color:#fff; font-size:12px; line-height:18px; padding:0; }
+.ref__selo{ position:absolute; left:4px; bottom:4px; width:16px; height:16px; border-radius:50%; background:var(--lima); color:#111; display:grid; place-items:center; }
+
+/* cenas */
+.acoes2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+.b{ min-height:38px; padding:0 12px; border:0; border-radius:var(--pill); background:var(--wash2); color:var(--ink2); font-size:12.5px; font-weight:500; }
+.b--on{ background:var(--turq-bg); color:var(--turq-txt); box-shadow:inset 0 0 0 1px var(--turquesa); }
+.b--conf{ background:var(--lima); color:#111; font-weight:600; }
+.cena{ display:flex; align-items:center; gap:10px; padding:8px; margin-bottom:6px; border:1px solid var(--line); border-radius:10px; background:var(--paper); }
+.cena--on{ border-color:var(--turquesa-esc); background:var(--turq-bg); }
+.cena__ck{ flex:none; width:18px; height:18px; border-radius:6px; box-shadow:inset 0 0 0 1px var(--line2); background:var(--paper); display:grid; place-items:center; color:#111; }
+.cena--on .cena__ck{ background:var(--turquesa); box-shadow:inset 0 0 0 1px var(--turquesa-esc); }
+.cena__img{ flex:none; width:44px; height:34px; border-radius:6px; }
+.cena__nome{ flex:1; min-width:0; border:0; background:transparent; font-size:13.5px; color:var(--ink); padding:0; }
+.cena__x{ flex:none; border:0; background:transparent; color:var(--ink3); font-size:16px; padding:0 4px; }
+.add{ width:100%; height:44px; margin-top:4px; display:flex; align-items:center; justify-content:center; gap:8px; border:1px dashed var(--line2); border-radius:var(--r-peq); background:var(--wash); color:var(--ink3); font-size:13px; }
+
+/* barra de baixo */
+.barra{ padding:12px 16px 14px; border-top:1px solid var(--line); background:var(--wash); }
+.gerar{ position:relative; width:100%; height:46px; border:0; border-radius:var(--pill); background:var(--lima); color:#111; font-size:14.5px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px; }
+.gerar:disabled{ opacity:.45; }
+.gerar .tag{ position:absolute; right:14px; display:inline-flex; align-items:center; gap:4px; padding:1px 9px; border-radius:var(--pill); background:rgba(17,17,17,.10); font-size:12.5px; }
+.tag__a{ display:inline-grid; place-items:center; width:14px; height:14px; border-radius:50%; background:#111; color:var(--lima); font-size:9px; font-weight:700; }
+.custo{ margin:8px 0 0; text-align:center; font-size:12.5px; color:var(--ink3); }
+.tenho{ width:100%; height:46px; margin-top:8px; border:0; border-radius:var(--pill); background:var(--wash2); color:var(--ink2); font-size:13.5px; font-weight:500; }
+.resetar{ display:block; width:auto; margin:14px auto 0; padding:2px 0; border:0; background:none; color:var(--ink2); font-size:12.5px; box-shadow:inset 0 -2px 0 var(--lima); }
+.lendo{ display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:10px; font-size:12.5px; color:var(--ink2); }
+.spin{ width:14px; height:14px; border-radius:50%; border:2px solid var(--line2); border-top-color:var(--ink); animation:gira 1s linear infinite; }
+@keyframes gira{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion: reduce){ .spin{ animation:none; } }
+
+/* fase 2 */
+.voltar{ display:inline-flex; align-items:center; gap:6px; margin-bottom:14px; padding:2px 0; border:0; background:none; color:var(--ink2); font-size:13.5px; box-shadow:inset 0 -2px 0 var(--lima); }
+.bcena{ margin-bottom:12px; padding:12px; border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper); }
+.bcena--ok{ border-color:var(--turquesa-esc); }
+.bcena__cab{ display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:13.5px; font-weight:600; }
+.bcena__cab i{ flex:none; width:38px; height:30px; border-radius:6px; }
+.bcena__cab b{ flex:1; font-weight:600; }
+.bcena__x{ border:0; background:none; color:var(--ink3); font-size:16px; }
+.ta{ width:100%; padding:12px 14px; border:1px solid transparent; border-radius:var(--r-peq); background:var(--wash); color:var(--ink); font-size:13.5px; line-height:1.6; resize:vertical; }
+.ta--mat{ min-height:320px; }
+.ta--curta{ min-height:96px; }
+.ta--auto{ min-height:0; }
+.grp{ margin:12px 0 6px; font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }
+.cfg{ display:flex; gap:6px; margin-top:12px; }
+.qty{ display:flex; align-items:center; gap:6px; height:38px; padding:0 6px; border-radius:var(--pill); background:var(--wash2); font-size:13.5px; font-weight:600; }
+.qty span{ min-width:16px; text-align:center; }
+.qty i{ width:24px; height:24px; border-radius:50%; background:var(--paper); display:grid; place-items:center; font-style:normal; font-size:14px; color:var(--ink2); }
+.pcfg{ flex:1; height:38px; padding:0 14px; border:1px solid var(--line); border-radius:var(--pill); background:var(--paper); color:var(--ink); font-size:12.5px; font-weight:500; display:flex; align-items:center; justify-content:space-between; }
+
+/* a proposta da fase 2: cada cena é uma linha da ficha */
+.fic{ margin-top:8px; border-top:1px solid var(--line); }
+.fl{ border-bottom:1px solid var(--line); }
+.fl__cab{ width:100%; display:flex; align-items:center; gap:10px; padding:10px 2px; border:0; background:none; text-align:left; }
+.fl__cab i{ flex:none; width:34px; height:26px; border-radius:6px; }
+.fl__cab b{ flex:1; min-width:0; font-size:13.5px; font-weight:600; color:var(--ink); }
+.fl__st{ flex:none; font-size:12.5px; color:var(--ink3); }
+.fl__st--ok{ color:var(--turq-txt); display:inline-flex; align-items:center; gap:5px; }
+.fl__st--ok::before{ content:""; width:14px; height:14px; border-radius:50%; background:var(--turquesa); box-shadow:inset 0 0 0 1px var(--turquesa-esc); }
+.fl__seta{ flex:none; color:var(--ink3); }
+.fl__corpo{ padding:2px 2px 14px; }
+.passos2{ display:flex; align-items:center; gap:8px; margin:0 0 14px; font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }
+.passos2 b{ color:var(--ink); }
+.passos2 i{ flex:1; height:1px; background:var(--line); }
+
+.pe{ margin-top:48px; padding-top:20px; border-top:1px solid var(--line); max-width:64ch; }
+.pe p{ margin:0 0 8px; font-size:12.5px; color:var(--ink2); }
+</style>
+
+<div class="env">
+  <header class="cab">
+    <p class="olho">O painel do Cora · a aba Batch</p>
+    <h1>O Batch, passo a passo</h1>
+    <p>Você tem um render aprovado e várias capturas do mesmo projeto, e quer todas no mesmo estilo. O Batch cruza cada captura com as referências, lê os materiais de cada uma, você revisa e aprova, e só as aprovadas geram. Só elas custam.</p>
+    <p>Cada quadro é o painel em tamanho real, no estado em que ele fica naquele passo, como está hoje. Onde eu mudaria alguma coisa, aparece um segundo quadro com a proposta. As imagens são placeholders.</p>
+  </header>
+
+  <!-- ═══ 1 ═══ -->
+  <section class="passo">
+    <div class="pn">
+      <div class="pills"><button class="seta seta--off"></button><div class="sulco"><div class="trilho"><button class="pill">Render</button><button class="pill pill--on">Batch</button><button class="pill">Editar</button><button class="pill">Planta baixa</button></div></div><button class="seta"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l5 6-5 6"/></svg></button></div>
+      <div class="form">
+        <p class="sec">Renders de referência</p>
+        <p class="hint">As imagens aprovadas do seu histórico entram aqui automaticamente. Elas definem o estilo.</p>
+        <div class="refs"><button class="ref ref--add"><b>+</b><small>0/10</small></button></div>
+        <p class="sec sec--dep">Cenas do projeto</p>
+        <p class="hint">Suba as capturas que quer renderizar no mesmo estilo das referências.</p>
+        <button class="add"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5"/><path d="M3.5 14v2a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5v-2"/></svg>Adicionar cenas</button>
+      </div>
+      <div class="barra">
+        <button class="gerar" disabled>Analisar cenas</button>
+        <p class="custo">Marque as cenas que quer analisar</p>
+      </div>
+      <button class="resetar">Resetar configurações</button>
+    </div>
+    <div class="passo__txt">
+      <span class="passo__n">1</span>
+      <h2 class="passo__t">A pessoa chega</h2>
+      <p class="passo__p">Duas seções vazias e um botão apagado. As referências entram sozinhas quando existe uma imagem aprovada no feed, e nada aqui diz isso a quem nunca aprovou uma. A pessoa lê "entram automaticamente", olha o 0/10 e não sabe de onde viria.</p>
+      <div class="prop">
+        <p class="olho">O que eu mudaria</p>
+        <p>Quando não há referência nenhuma, o hint diz o gesto: "Aprove um render no feed com o ✓ e ele entra aqui. Ou suba um no +". E o Batch é uma sequência de dois passos, então ele se apresenta como tal: um marcador "1 Cenas · 2 Verificação" no alto, como no quadro do passo 5.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 2 ═══ -->
+  <section class="passo">
+    <div class="pn">
+      <div class="pills"><button class="seta seta--off"></button><div class="sulco"><div class="trilho"><button class="pill">Render</button><button class="pill pill--on">Batch</button><button class="pill">Editar</button><button class="pill">Planta baixa</button></div></div><button class="seta"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l5 6-5 6"/></svg></button></div>
+      <div class="form">
+        <p class="sec">Renders de referência</p>
+        <p class="hint">As imagens aprovadas do seu histórico entram aqui automaticamente. Elas definem o estilo.</p>
+        <div class="refs">
+          <div class="ref ref--foto"><button class="ref__x">×</button><span class="ref__selo"><svg viewBox="0 0 16 16" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg></span></div>
+          <button class="ref ref--add"><b>+</b><small>1/10</small></button>
+        </div>
+        <p class="sec sec--dep">Cenas do projeto</p>
+        <p class="hint">Suba as capturas que quer renderizar no mesmo estilo das referências.</p>
+        <button class="add"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5"/><path d="M3.5 14v2a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5v-2"/></svg>Adicionar cenas</button>
+      </div>
+      <div class="barra">
+        <button class="gerar" disabled>Analisar cenas</button>
+        <p class="custo">Marque as cenas que quer analisar</p>
+      </div>
+      <button class="resetar">Resetar configurações</button>
+    </div>
+    <div class="passo__txt">
+      <span class="passo__n">2</span>
+      <h2 class="passo__t">Uma referência entra sozinha</h2>
+      <p class="passo__p">A pessoa aprovou um render no feed (o ✓ do card) e ele apareceu aqui com o selo de lima no canto: "veio das suas imagens aprovadas". O X tira daqui e desaprova lá, para as duas telas não se contradizerem. Dá para somar até dez, subindo pelo +.</p>
+      <p class="passo__p">Isso está certo e fica como está. O selo é o que diz de onde a imagem veio, sem frase.</p>
+    </div>
+  </section>
+
+  <!-- ═══ 3 ═══ -->
+  <section class="passo">
+    <div class="pn">
+      <div class="pills"><button class="seta seta--off"></button><div class="sulco"><div class="trilho"><button class="pill">Render</button><button class="pill pill--on">Batch</button><button class="pill">Editar</button><button class="pill">Planta baixa</button></div></div><button class="seta"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l5 6-5 6"/></svg></button></div>
+      <div class="form">
+        <p class="sec">Renders de referência</p>
+        <p class="hint">As imagens aprovadas do seu histórico entram aqui automaticamente. Elas definem o estilo.</p>
+        <div class="refs">
+          <div class="ref ref--foto"><button class="ref__x">×</button><span class="ref__selo"><svg viewBox="0 0 16 16" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg></span></div>
+          <button class="ref ref--add"><b>+</b><small>1/10</small></button>
+        </div>
+        <p class="sec sec--dep">Cenas do projeto</p>
+        <p class="hint">Suba as capturas que quer renderizar no mesmo estilo das referências.</p>
+        <div class="acoes2"><button class="b">Selecionar todas</button><button class="b">Desmarcar todas</button></div>
+        <label class="cena cena--on"><span class="cena__ck"><svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg></span><i class="cena__img" style="background:var(--foto-b)"></i><input class="cena__nome" value="Sala de estar"><button class="cena__x">×</button></label>
+        <label class="cena cena--on"><span class="cena__ck"><svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg></span><i class="cena__img" style="background:var(--foto-c)"></i><input class="cena__nome" value="Cozinha"><button class="cena__x">×</button></label>
+        <label class="cena cena--on"><span class="cena__ck"><svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg></span><i class="cena__img" style="background:var(--foto-d)"></i><input class="cena__nome" value="Suíte"><button class="cena__x">×</button></label>
+        <button class="add"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5"/><path d="M3.5 14v2a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5v-2"/></svg>Adicionar cenas</button>
+      </div>
+      <div class="barra">
+        <button class="gerar">Analisar cenas <span class="tag"><span class="tag__a">A</span>48</span></button>
+        <button class="tenho">Já tenho a análise</button>
+        <p class="custo">3 cenas</p>
+      </div>
+      <button class="resetar">Resetar configurações</button>
+    </div>
+    <div class="passo__txt">
+      <span class="passo__n">3</span>
+      <h2 class="passo__t">Três cenas sobem</h2>
+      <p class="passo__p">Cada captura vira uma linha com marcação, miniatura, o nome (editável no lugar) e o X. Marcar é dizer "esta entra na análise". O botão acende e mostra o custo no hover: <b>16 créditos por cena</b>, 48 pelas três. "Já tenho a análise" é para quem leu esses materiais antes (no plugin ou na aba Análises) e não quer pagar de novo.</p>
+      <div class="prop">
+        <p class="olho">O que eu mudaria</p>
+        <p>"Selecionar todas" e "Desmarcar todas" são duas pílulas com a mesma forma dos botões de ação, para uma coisa que quase nunca se faz. Viram uma ação de texto no canto do rótulo da seção: "Marcar todas", que alterna. E o nome editável ganha um traço de sublinhado no hover, porque hoje nada diz que dá para renomear.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 4 ═══ -->
+  <section class="passo">
+    <div class="pn">
+      <div class="pills"><button class="seta seta--off"></button><div class="sulco"><div class="trilho"><button class="pill">Render</button><button class="pill pill--on">Batch</button><button class="pill">Editar</button><button class="pill">Planta baixa</button></div></div><button class="seta"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l5 6-5 6"/></svg></button></div>
+      <div class="form">
+        <p class="sec">Renders de referência</p>
+        <div class="refs">
+          <div class="ref ref--foto"><span class="ref__selo"><svg viewBox="0 0 16 16" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg></span></div>
+          <button class="ref ref--add"><b>+</b><small>1/10</small></button>
+        </div>
+        <p class="sec sec--dep">Cenas do projeto</p>
+        <label class="cena cena--on"><span class="cena__ck"><svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg></span><i class="cena__img" style="background:var(--foto-b)"></i><input class="cena__nome" value="Sala de estar"></label>
+        <label class="cena cena--on"><span class="cena__ck"><svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg></span><i class="cena__img" style="background:var(--foto-c)"></i><input class="cena__nome" value="Cozinha"></label>
+        <label class="cena cena--on"><span class="cena__ck"><svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg></span><i class="cena__img" style="background:var(--foto-d)"></i><input class="cena__nome" value="Suíte"></label>
+      </div>
+      <div class="barra">
+        <div class="lendo"><span class="spin"></span><span>Lendo os materiais de 3 cenas...</span></div>
+        <button class="gerar" disabled>Analisando...</button>
+        <p class="custo">3 cenas</p>
+      </div>
+      <button class="resetar" disabled style="opacity:.45">Resetar configurações</button>
+    </div>
+    <div class="passo__txt">
+      <span class="passo__n">4</span>
+      <h2 class="passo__t">A leitura roda</h2>
+      <p class="passo__p">O aviso fica no painel, junto do botão que a pessoa apertou, e não no feed. Enquanto lê, o Resetar trava (a análise está custando crédito) e o resto do site continua livre: a leitura produz texto e roda em paralelo a uma geração em andamento.</p>
+      <p class="passo__p">Fica como está. O único cuidado é o tempo: com 5 ou 6 cenas o "Lendo..." demora, e o spinner sozinho não diz quanto. Se o servidor devolver o progresso por cena, o texto vira "Lendo a 2ª de 6 cenas". Se não devolver, fica assim, e não se inventa barra de progresso.</p>
+    </div>
+  </section>
+
+  <!-- ═══ 5 ═══ -->
+  <section class="passo">
+    <div class="par">
+      <div>
+        <p class="rot">Hoje</p>
+        <div class="pn pn--alto">
+          <div class="pills"><button class="seta seta--off"></button><div class="sulco"><div class="trilho"><button class="pill">Render</button><button class="pill pill--on">Batch</button><button class="pill">Editar</button><button class="pill">Planta baixa</button></div></div><button class="seta"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l5 6-5 6"/></svg></button></div>
+          <div class="form">
+            <button class="voltar"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-5 6 5 6"/></svg>Voltar às cenas</button>
+            <p class="sec">Verificação de materiais por cena</p>
+            <p class="hint">A IA cruzou cada cena com as referências. Revise, ajuste e aprove. Só as aprovadas entram no batch.</p>
+            <div class="bcena">
+              <div class="bcena__cab"><i style="background:var(--foto-b)"></i><b>Sala de estar</b><button class="bcena__x">×</button></div>
+              <textarea class="ta ta--mat">Piso em porcelanato cimentício claro, placas grandes, juntas retas. Paredes em branco quente fosco. Painel de madeira caramelo com veios verticais na parede da TV. Sofá em L estofado bege claro, almofadas bege e terracota. Tapete têxtil envelhecido em tons bege e cinza. Mesa de centro em madeira escura. Cortina translúcida bege, caimento vertical suave.</textarea>
+              <div class="acoes2" style="margin-top:8px"><button class="b">Editar</button><button class="b b--conf">Tá bom, aprovar</button></div>
+              <p class="grp">Referências desta cena (opcional)</p>
+              <div class="refs"><button class="ref ref--add"><b>+</b><small>0/3</small></button></div>
+              <p class="grp">Detalhes</p>
+              <textarea class="ta ta--curta" placeholder="Opcional: o que a leitura não pegou..."></textarea>
+              <div class="cfg"><div class="qty"><i>−</i><span>1</span><i>+</i></div><div class="pcfg">4:5 <span>⌄</span></div><div class="pcfg">2K <span>⌄</span></div></div>
+            </div>
+            <div class="bcena">
+              <div class="bcena__cab"><i style="background:var(--foto-c)"></i><b>Cozinha</b><button class="bcena__x">×</button></div>
+              <textarea class="ta ta--mat">Armários superiores e inferiores em bege areia fosco, frentes planas sem puxadores. Bancada em pedra clara levemente granulada. Cuba em aço inox, cooktop vitrocerâmico preto.</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="rot rot--prop">Proposta</p>
+        <div class="pn">
+          <div class="pills"><button class="seta seta--off"></button><div class="sulco"><div class="trilho"><button class="pill">Render</button><button class="pill pill--on">Batch</button><button class="pill">Editar</button><button class="pill">Planta baixa</button></div></div><button class="seta"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l5 6-5 6"/></svg></button></div>
+          <div class="form">
+            <p class="passos2"><span>1 Cenas</span><i></i><b>2 Verificação</b></p>
+            <p class="sec">Verificação por cena</p>
+            <p class="hint">A IA cruzou cada cena com as referências. Abra uma, revise e aprove. Só as aprovadas entram no batch.</p>
+            <div class="fic">
+              <div class="fl">
+                <button class="fl__cab"><i style="background:var(--foto-b)"></i><b>Sala de estar</b><span class="fl__st">Revisar</span><svg class="fl__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5-5 5 5"/></svg></button>
+                <div class="fl__corpo">
+                  <textarea class="ta ta--auto" rows="7">Piso em porcelanato cimentício claro, placas grandes, juntas retas. Paredes em branco quente fosco. Painel de madeira caramelo com veios verticais na parede da TV. Sofá em L estofado bege claro, almofadas bege e terracota. Tapete têxtil envelhecido em tons bege e cinza. Mesa de centro em madeira escura. Cortina translúcida bege, caimento vertical suave.</textarea>
+                  <div class="acoes2" style="margin-top:8px"><button class="b">Editar</button><button class="b b--conf">Tá bom, aprovar</button></div>
+                  <div class="cfg"><div class="qty"><i>−</i><span>1</span><i>+</i></div><div class="pcfg">4:5 <span>⌄</span></div><div class="pcfg">2K <span>⌄</span></div></div>
+                  <div class="linha-mini" style="margin-top:10px;border-top:1px solid var(--line)">
+                    <button class="fl__cab" style="padding:9px 2px"><b style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3)">Referências desta cena</b><span class="fl__st">nenhuma</span><svg class="fl__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l5 5 5-5"/></svg></button>
+                    <button class="fl__cab" style="padding:9px 2px;border-top:1px solid var(--line)"><b style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3)">Detalhes</b><span class="fl__st">nenhum</span><svg class="fl__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l5 5 5-5"/></svg></button>
+                  </div>
+                </div>
+              </div>
+              <div class="fl"><button class="fl__cab"><i style="background:var(--foto-c)"></i><b>Cozinha</b><span class="fl__st">Revisar</span><svg class="fl__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l5 5 5-5"/></svg></button></div>
+              <div class="fl"><button class="fl__cab"><i style="background:var(--foto-d)"></i><b>Suíte</b><span class="fl__st">Revisar</span><svg class="fl__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l5 5 5-5"/></svg></button></div>
+            </div>
+          </div>
+          <div class="barra">
+            <button class="gerar" disabled>Gerar batch</button>
+            <p class="custo">Aprove as cenas que quer gerar</p>
+          </div>
+          <button class="resetar">Resetar configurações</button>
+        </div>
+      </div>
+    </div>
+    <div class="passo__txt">
+      <span class="passo__n">5</span>
+      <h2 class="passo__t">A verificação, cena por cena</h2>
+      <p class="passo__p">É aqui que o Batch fica longo. Cada cena abre um cartão com a caixa de materiais de 320px, dois botões, referências da cena, detalhes e a configuração. <b>Três cenas são uns 1.800px de painel</b>, e a Suíte só existe para quem rola até o fim. Com seis cenas, ninguém vê o botão de gerar sem rolar três telas.</p>
+      <div class="prop">
+        <p class="olho">O que eu mudaria</p>
+        <p>Cada cena vira uma linha da ficha, o mesmo gesto do Render: fechada é a miniatura, o nome e o estado ("Revisar" ou "Aprovada"). Abre uma por vez. A caixa de materiais cresce com o texto em vez de nascer com 320px, e referências e detalhes ficam em duas linhas dentro dela, fechadas até serem pedidas. Três cenas passam a caber numa tela, e a lista fechada vira o resumo do batch: o que falta aprovar se lê de relance.</p>
+      </div>
+      <p class="passo__p" style="margin-top:12px">O "Voltar às cenas" sai da frente e vira o passo 1 do marcador no alto. É o mesmo caminho, com nome de onde se está.</p>
+    </div>
+  </section>
+
+  <!-- ═══ 6 ═══ -->
+  <section class="passo">
+    <div class="pn">
+      <div class="pills"><button class="seta seta--off"></button><div class="sulco"><div class="trilho"><button class="pill">Render</button><button class="pill pill--on">Batch</button><button class="pill">Editar</button><button class="pill">Planta baixa</button></div></div><button class="seta"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l5 6-5 6"/></svg></button></div>
+      <div class="form">
+        <p class="passos2"><span>1 Cenas</span><i></i><b>2 Verificação</b></p>
+        <p class="sec">Verificação por cena</p>
+        <p class="hint hint--ok">2 de 3 aprovadas. A Suíte fica de fora até ser aprovada.</p>
+        <div class="fic">
+          <div class="fl"><button class="fl__cab"><i style="background:var(--foto-b)"></i><b>Sala de estar</b><span class="fl__st fl__st--ok">Aprovada · 2 imagens</span><svg class="fl__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l5 5 5-5"/></svg></button></div>
+          <div class="fl"><button class="fl__cab"><i style="background:var(--foto-c)"></i><b>Cozinha</b><span class="fl__st fl__st--ok">Aprovada · 2 imagens</span><svg class="fl__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l5 5 5-5"/></svg></button></div>
+          <div class="fl"><button class="fl__cab"><i style="background:var(--foto-d)"></i><b>Suíte</b><span class="fl__st">Revisar</span><svg class="fl__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l5 5 5-5"/></svg></button></div>
+        </div>
+      </div>
+      <div class="barra">
+        <button class="gerar">Gerar batch <span class="tag"><span class="tag__a">A</span>552</span></button>
+        <p class="custo">2 aprovadas · 4 imagens</p>
+      </div>
+      <button class="resetar">Resetar configurações</button>
+    </div>
+    <div class="passo__txt">
+      <span class="passo__n">6</span>
+      <h2 class="passo__t">Duas aprovadas, pronto para gerar</h2>
+      <p class="passo__p">Aprovar é concordar com a leitura, e não com a resolução: a quantidade e o tamanho de cada cena continuam abertos depois de aprovada. A soma na barra é a real, cena a cena. Duas cenas com duas imagens em 2K: <b>2 × (8 + 134 + 134) = 552</b>. A Suíte não custa nada enquanto não for aprovada.</p>
+      <p class="passo__p">Na proposta, a lista fechada é o resumo: dá para ver o que entra e o que falta sem abrir nada. A linha de apoio do rótulo diz o mesmo em palavras, e ela só aparece quando existe cena de fora.</p>
+    </div>
+  </section>
+
+  <!-- ═══ 7 ═══ -->
+  <section class="passo">
+    <div class="pn">
+      <div class="pills"><button class="seta seta--off"></button><div class="sulco"><div class="trilho"><button class="pill">Render</button><button class="pill pill--on">Batch</button><button class="pill">Editar</button><button class="pill">Planta baixa</button></div></div><button class="seta"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l5 6-5 6"/></svg></button></div>
+      <div class="form">
+        <p class="passos2"><span>1 Cenas</span><i></i><b>2 Verificação</b></p>
+        <p class="sec">Verificação por cena</p>
+        <div class="fic">
+          <div class="fl"><button class="fl__cab"><i style="background:var(--foto-b)"></i><b>Sala de estar</b><span class="fl__st fl__st--ok">Gerando</span></button></div>
+          <div class="fl"><button class="fl__cab"><i style="background:var(--foto-c)"></i><b>Cozinha</b><span class="fl__st">Na fila</span></button></div>
+          <div class="fl"><button class="fl__cab"><i style="background:var(--foto-d)"></i><b>Suíte</b><span class="fl__st">Revisar</span></button></div>
+        </div>
+      </div>
+      <div class="barra">
+        <button class="gerar" disabled>Gerando...</button>
+        <p class="custo">1 na fila</p>
+      </div>
+      <button class="resetar" disabled style="opacity:.45">Resetar configurações</button>
+    </div>
+    <div class="passo__txt">
+      <span class="passo__n">7</span>
+      <h2 class="passo__t">Gerando, e as imagens caem no feed</h2>
+      <p class="passo__p">O lote nasce no feed como slots com a captura desfocada e o contador em cima, um bloco por cena, e cada imagem substitui o slot quando chega. A pessoa pode trocar de aba e montar o próximo trabalho: o painel não prende ninguém.</p>
+      <p class="passo__p">Na proposta, a lista fechada acompanha: "Gerando", "Na fila", e a que ficou de fora segue "Revisar". Quando termina, o estado volta a "Aprovada" e o botão volta a "Gerar batch", para repetir só as que a pessoa quiser.</p>
+    </div>
+  </section>
+
+  <footer class="pe">
+    <p>Resumo do que eu mudaria, do maior para o menor: a verificação vira ficha (passo 5), o marcador "1 Cenas · 2 Verificação" no alto (passos 5 a 7), o hint das referências vazias diz o gesto de aprovar no feed (passo 1), e "Selecionar todas" vira uma ação de texto (passo 3). O resto do fluxo está certo e fica como está.</p>
+    <p>Os números de crédito são os de hoje: 16 por cena analisada, e por cena gerada 8 do prompt mais 134 por imagem em 1K ou 2K, ou 231 em 4K.</p>
+  </footer>
+</div>
