@@ -91,32 +91,35 @@
    O sulco é a janela. O trilho, por baixo, desliza. A ativa é a placa que
    sobe do sulco. O gesto carrega a hierarquia, e por não depender de cor
    ele sobrevive à troca de paleta.
-   ══════════════════════════════════════════════════════════════════════ */.co .cr-pills{/* = .cr-barra, para as duas alinharem */
-  display:flex; align-items:center; gap:6px; padding:10px 14px;
-  min-height:57px;                 
-  position:sticky; top:0; z-index:20;
+   ══════════════════════════════════════════════════════════════════════ *//* ── O trilho das ferramentas ──
+   Eram pílulas com nome: cabiam quatro e as outras ficavam atrás de uma seta.
+   Agora as oito cabem. Cada ferramenta é o ícone (o mesmo da lista do Criar)
+   e a ATIVA abre com o nome dentro da pílula branca: o nome de onde a pessoa
+   está fica sempre escrito, e os outros sete dizem o nome no hover. Opção 3
+   do estudo `ferramentas/cora-trilho.html`, escolhida pelo dono. Sem seta e
+   sem trilho que anda, e o `Trilho.js` perdeu a rolagem junto.
+
+   As sete fechadas dividem o que sobra (`flex:1`), com piso de 30px, e a
+   ativa tem a largura do próprio nome. Com "Pós-produção" aberta, que é o
+   nome mais longo, as oito ainda cabem nos 366px do sulco. */.co .cr-pills{
+  display:flex; align-items:center; padding:10px 14px;
+  width:100%; align-self:stretch; flex:none;
+  min-height:57px; position:sticky; top:0; z-index:20;
   background:var(--paper); border-bottom:1px solid var(--line);
-}.co .cr-sulco{
-  flex:1; min-width:0; overflow:hidden;
-  border-radius:var(--pill); background:var(--wash2); padding:3px;
-}.co .cr-trilho{
-  display:flex; gap:2px; width:max-content;
-  transition:transform .32s cubic-bezier(.4,0,.2,1);
-}.co .cr-pill{
-  flex:0 0 auto; padding:0 16px; height:32px; border:0; background:transparent;
-  border-radius:var(--pill); color:var(--ink3);
-  font-size:var(--t-apoio); font-weight:500; cursor:pointer;
+}.co .cr-sulco{ flex:1; min-width:0; border-radius:var(--pill); background:var(--wash2); padding:3px; overflow:visible; }.co .cr-sulco .cr-trilho{ display:flex; gap:2px; width:100%; transform:none; transition:none; background:transparent; padding:0; }.co .cr-pill{
+  position:relative; flex:1 1 0; min-width:30px; height:32px; padding:0; border:0;
+  border-radius:var(--pill); background:transparent; color:var(--ink3);
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  font-size:var(--t-apoio2); font-weight:600; white-space:nowrap; cursor:pointer;
   transition:color var(--t), background var(--t);
-}.co .cr-pill:hover:not(:disabled):not(.cr-pill--on){ color:var(--ink2); }.co .cr-pill--on{
-  background:var(--paper); color:var(--ink); font-weight:600;
-  box-shadow:var(--sombra-peq);
-}.co .cr-pill:disabled{ opacity:.45; cursor:default; }.co .cr-pill--trancada{ display:inline-flex; align-items:center; gap:5px; }.co .cr-pill-cad{ display:block; opacity:.7; }/* `.cr-seta` NÃO ENTRA AQUI.
-   O nome serve a duas coisas: o botão redondo que anda com o trilho
-   (`Trilho.js`) e o chevron dos dropdowns (`Seta.js`), que é um `<svg>`. O
-   globals já vive com essa colisão e resolveu à mão. A minha versão só
-   repetia a primeira regra e, de brinde, tomava o `transition:transform` do
-   chevron, que parou de girar animado. Repetir regra do globals é risco puro
-   e ganho zero. *//* ══════════════════════════════════════════════════════════════════════
+}.co .cr-pill > svg{ flex:none; width:18px; height:18px; }.co .cr-pill:hover:not(:disabled):not(.cr-pill--on){ color:var(--ink); }.co .cr-pill--on{ flex:0 0 auto; padding:0 12px 0 9px; background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }.co .cr-pill:disabled{ opacity:.45; cursor:default; }.co .cr-pill__nome{ display:none; }.co .cr-pill--on .cr-pill__nome{ display:inline; }/* O cadeado do plano: um selo no canto do ícone, e ao lado do nome quando a
+   trancada é a ativa. */.co .cr-pill-cad{ position:absolute; top:3px; right:3px; width:11px; height:11px; opacity:.8; }.co .cr-pill--on .cr-pill-cad{ position:static; width:13px; height:13px; }/* O tooltip DESCE: em cima do trilho está o cabeçalho, e não há para onde
+   subir. Ele só existe nas fechadas, porque a ativa já tem o nome escrito. */.co .cr-pill[data-tip]:hover::after{
+  top:calc(100% + 9px); bottom:auto; left:50%; right:auto; transform:translateX(-50%);
+  margin:0; padding:5px 9px; border-radius:8px; background:var(--ink); color:var(--paper);
+  font-size:var(--t-etiqueta); font-weight:600; letter-spacing:0; text-transform:none;
+  white-space:nowrap; z-index:30;
+}.co .cr-pill[data-tip]:hover::before{ display:none; }/* ══════════════════════════════════════════════════════════════════════
    O FORMULÁRIO
    ══════════════════════════════════════════════════════════════════════ *//* Só a respiração: o resto da caixa (flex, rolagem) é do globals. */.co .cr-form{ padding:20px 16px 24px; }/* O olho: o rótulo pequeno de caixa alta que abre cada bloco. É o mesmo das
    páginas públicas e do painel. Numa tela sem títulos grandes, é ele que dá
