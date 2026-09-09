@@ -157,11 +157,14 @@ function ContaConteudo() {
                     : !!equipeMembro;
   const ehPago = conta.plano && conta.plano !== 'free';
   const ilimitadoReal = conta.ilimitado === true || conta.creditos_total === -1;
-  const mostrarIlimitado = modo === 'real' ? ilimitadoReal : false;
+  /* O gerente gera sem gastar, entao a tela dele mostra "Ilimitado" no lugar
+     do numero. Os outros modos de demonstracao usam o credito de mentira. */
+  const mostrarIlimitado = modo === 'real' ? ilimitadoReal : modo === 'gerente';
 
   // "Plano Free" para quem está no teste é o nome do que ela NÃO tem. O que
   // ela tem é o teste, e é isso que o olho do herói diz.
   const nomePlano = (ehAdminVis && ilimitadoReal) ? 'Admin'
+    : modo === 'gerente' ? 'Gerente'
     : ehDono ? `Teams (${NOME_PLANO[conta.equipe_plano] || conta.equipe_plano || 'Pro'})`
     : ehMembroVis ? `${NOME_PLANO[conta.plano] || conta.plano} (${t('conta_equipe_tag').toLowerCase()})`
     : (conta.eh_trial === true) ? t('pn_teste_gratis')
@@ -282,7 +285,8 @@ function ContaConteudo() {
               { v: 'real',   n: t('conta_vc_real') },
               { v: 'normal', n: t('conta_vc_normal') },
               { v: 'dono',   n: t('conta_vc_dono') },
-              { v: 'membro', n: t('conta_vc_membro') }
+              { v: 'membro', n: t('conta_vc_membro') },
+              { v: 'gerente', n: 'Gerente' }
             ].map((o) => (
               <button
                 key={o.v}

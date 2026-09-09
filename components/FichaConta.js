@@ -212,7 +212,19 @@ function Linha({ rotulo, children }) {
 // `abrirConta` ({ id, seq }) vem das tabelas do painel: elas viraram lista, e
 // clicar numa linha traz para cá. O `seq` existe porque clicar DUAS vezes na
 // mesma conta precisa reabrir — só o id não mudaria e o efeito não dispararia.
-export default function FichaConta({ abrirConta }) {
+/* `papel` decide o que o MENU oferece, e nada mais: a ficha inteira e leitura,
+   e leitura e o trabalho do gerente. O que muda sao as acoes.
+
+   O gerente fica com "Ver como o cliente" e mais nada. As outras mexem em
+   dinheiro (plano, creditar, cancelar) ou em quem e quem (papel, deletar), e
+   as duas familias sao do admin.
+
+   ISTO E DESENHO, E NAO TRANCA. Quem tranca e o servidor, na tabela
+   `ROTAS_DO_GERENTE` do cora-auth. Esconder o botao existe para a tela nao
+   oferecer o que vai ser recusado: botao que existe e recusa ensina a pessoa
+   a tentar. */
+export default function FichaConta({ abrirConta, papel = 'admin' }) {
+  const ehPainelDeAdmin = papel !== 'gerente';
   const [busca, setBusca] = useState('');
   const [contas, setContas] = useState([]);
   const [ficha, setFicha] = useState(null);
@@ -673,6 +685,7 @@ export default function FichaConta({ abrirConta }) {
           Ver como o cliente
         </button>
 
+        {ehPainelDeAdmin && (
         <div className="ficha-mais-wrap">
           <button
             className="ficha-btn-mais"
@@ -750,6 +763,7 @@ export default function FichaConta({ abrirConta }) {
             </div>
           )}
         </div>
+        )}
       </div>
 
       {aviso && <div className="ficha-aviso" style={{ marginBottom: 16 }}>{aviso}</div>}

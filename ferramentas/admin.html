@@ -2335,6 +2335,21 @@
   align-self:end;
 }
 .conta-cabeca__email{ margin:2px 0 0; align-self:start; font-size:14.5px; color:var(--ink2); line-height:1.5; }
+/* ── QUANDO NAO HA FOTO, O APOIO SOBE PARA O MEIO ──
+   O `align-self:start` de cima foi pensado para o caso COM foto: la o nome e
+   o apoio ficam em linhas diferentes e se encontram no meio dela.
+
+   Sem foto a grade muda de forma: o nome cai na coluna 1 e o apoio na 2, os
+   dois na MESMA linha. Ai o `start` encosta o apoio no topo de uma linha que
+   tem a altura de um titulo de 30px, e ele fica pendurado no alto, longe da
+   base do nome. E o que se via em Admin, Dinheiro.
+
+   `:has()` porque a diferenca e ESTRUTURAL, e nao de tela: quem decide e a
+   existencia da foto, e nao a pagina. Assim vale para qualquer cabecalho sem
+   foto que apareca depois, sem ninguem lembrar de por uma classe. */
+.conta-cabeca:not(:has(.conta-cabeca__foto)) .conta-cabeca__email{
+  align-self:center; margin-top:0;
+}
 
 /* ══════════════════════════════════════════════════════════════════════
    MINHA CONTA

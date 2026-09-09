@@ -252,10 +252,18 @@ export default function AppShell({ children }) {
     { href: '/workspace', rotulo: t('nav_equipe'), icone: Icone.equipe, admin: false, soDono: true },
     { href: '/assinatura', rotulo: t('nav_assinatura'), icone: Icone.assinatura, admin: false, soPagante: true },
     { href: '/admin', rotulo: 'Admin', icone: Icone.admin, admin: true },
+    /* A tela do gerente. MESMO ICONE do Admin, de proposito: os dois nunca
+       aparecem no mesmo menu (quem e admin ve o dele, quem e gerente ve o
+       seu), entao repetir nao confunde ninguem, e o escudo diz a mesma coisa
+       nos dois casos — area com chave. */
+    { href: '/gerente', rotulo: 'Gerente', icone: Icone.admin, gerente: true },
   ];
 
   /* O menu esconde o que nao se aplica a esta conta. */
   const itens = TODOS_ITENS.filter(i => (!i.admin || (conta && conta.is_admin))
+    /* `&& !is_admin`: quem e admin ja tem a tela maior, e as duas no mesmo
+       menu seriam duas portas para o mesmo lugar, uma delas menor. */
+    && (!i.gerente || (conta && conta.gerente === true && !conta.is_admin))
     && (!i.soDono || (conta && conta.eh_dono_equipe))
     && (!i.soPagante || !(conta && conta.eh_membro_equipe)));
 
