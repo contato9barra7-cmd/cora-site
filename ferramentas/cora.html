@@ -509,6 +509,12 @@
   border-top:1px solid var(--line); background:var(--paper);
 }
 .cr-pills-cfg{ display:flex; gap:6px; margin-bottom:10px; }
+/* Na Animação e no Upscale o embrulho é o `up-painel`, e não o `cr-form`: a
+   mesma respiração do Render (20/16/24), para os rótulos nascerem na mesma
+   coluna em toda aba. E a pílula de resolução, sozinha na linha, tem a largura
+   de uma pílula do Render, e não a linha inteira. */
+.up-painel{ padding:20px 16px 24px; }
+.up-painel .cr-pills-cfg .cr-pill-wrap{ flex:0 0 auto; width:118px; }
 .cr-qty{
   display:flex; align-items:center; gap:2px; flex:none;
   height:var(--alt-ctrl); padding:0 6px;
