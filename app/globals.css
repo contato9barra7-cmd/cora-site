@@ -12755,6 +12755,12 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
   white-space: nowrap; cursor: pointer;
 }
 .admin-ac-ver:hover { border-color: var(--ink); }
+/* Os dois botoes da linha ficavam colados e presos a esquerda da celula, e a
+   celula e a ultima da tabela: o olho ja esta indo para a direita quando
+   chega neles. Alinhados a direita eles formam uma coluna com o "Avisar" da
+   lista de cima, que e a mesma acao no mesmo lugar. */
+.admin-ac .admin-tabela td:last-child { text-align: right; white-space: nowrap; }
+.admin-ac-ver + .admin-ac-ver { margin-left: 8px; }
 
 /* ══════════════════════════════════════════════════════
    QUEM AINDA DEVE O ACEITE (dentro da aba Aceites)
@@ -12771,11 +12777,16 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
   padding: 0; border: 0; background: none; font: inherit; color: inherit;
   cursor: pointer;
 }
+/* O sinal cresceu de 16 para 19px e o glifo de 11 para 14: ele e a unica
+   parte da linha que diz "da para clicar", e no tamanho antigo passava por
+   pontuacao. `vertical-align:middle` centra a bolha na altura do texto, e nao
+   na linha de base, que era o que a deixava um fio baixa. */
 .admin-ac__seta {
-  display: inline-grid; place-items: center; width: 16px; height: 16px;
-  margin-left: 6px; border-radius: 100px; background: #FDF2F1;
-  font-size: 11px; font-weight: 600; vertical-align: -2px;
+  display: inline-grid; place-items: center; width: 19px; height: 19px;
+  margin-left: 7px; border-radius: 100px; background: #FBE3E0;
+  font-size: 14px; font-weight: 700; line-height: 1; vertical-align: middle;
 }
+.admin-ac__falta--btn:hover .admin-ac__seta { background: #F7CFCA; }
 .admin-pend {
   margin: 0 0 18px; padding: 16px 18px;
   border: 1px solid var(--line); border-radius: 14px; background: var(--paper);
@@ -12784,7 +12795,11 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 14px; margin-bottom: 14px;
 }
-.admin-pend__diz { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--ink2); max-width: 62ch; }
+/* Sem teto de largura: com 62ch a frase quebrava e sobrava "aceitarem."
+   sozinho na segunda linha, que e a quebra feia que a gente persegue nos
+   e-mails. Quem limita aqui e a propria fila flex, e ela so quebra quando a
+   tela estreita de verdade. */
+.admin-pend__diz { margin: 0; min-width: 0; font-size: 13.5px; line-height: 1.5; color: var(--ink2); }
 .admin-pend__diz strong { color: var(--ink); font-weight: 600; }
 .admin-pend__erro { margin: 0 0 12px; font-size: 13px; color: #C8342A; }
 .admin-pend__feito { margin: 0 0 12px; font-size: 13px; color: #1F7A44; }
