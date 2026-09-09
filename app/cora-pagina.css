@@ -60,7 +60,8 @@
 
   
   --faixa:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
-}/* O escuro. A faixa não muda: ela é a marca, e a marca é a mesma. */[data-theme="dark"] .co{
+}/* O escuro. A faixa inverte: onde é lima fica turquesa, onde é turquesa
+   fica lima. Foi o dono quem pediu, olhando os cards do Editar. */[data-theme="dark"] .co{
   --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
   --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
   --line:#2B2B30; --line2:#3A3A41;
@@ -68,6 +69,7 @@
   --ok:#7BD3A0; --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.18);
   --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
   --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+  --faixa:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23ADECDF%22%2F%3E%3Cg%20fill%3D%22%23C4FBA7%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
 }/* ══════════════════════════════════════════════════════════════════════
    A JANELA
 
@@ -263,20 +265,28 @@
    trocar nome de classe transforma "troca de folha" em "reescrita de JSX".
    ══════════════════════════════════════════════════════════════════════ */.co .ed-cards{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }.co .ed-card{
   position:relative; overflow:hidden; display:block; width:100%;
-  padding:14px 12px 12px; text-align:left;
+  padding:24px 12px 12px; text-align:left;
   border:1px solid var(--line); border-radius:var(--r-peq);
   background:var(--paper); cursor:pointer;
   transition:border-color var(--t), box-shadow var(--t);
 }.co .ed-card:hover{ border-color:var(--line2); box-shadow:var(--sombra-peq); }/* O fio de lima de 3px na esquerda marca onde a pessoa está. É o mesmo fio do
    menu lateral e do índice das páginas legais, e quer dizer a mesma coisa. */.co .ed-card--on{ border-color:var(--line2); }.co .ed-card--on::before{
-  content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--lima);
-}.co .ed-faixa{
+  content:""; position:absolute; left:0; top:10px; bottom:0; width:3px; background:var(--lima);
+}/* A faixa da marca corre o alto de cada card, em 10px, a mesma da Minha
+   conta: as esferas têm a altura da faixa. O que muda de um modo para o
+   outro é onde a faixa começa (`--desl`), e é só isso: a cor continua sendo
+   estado, e a marca entra como textura. O `overflow:hidden` do card é o que
+   faz a faixa seguir o raio dos cantos. */.co .ed-card::after{
+  content:""; position:absolute; left:0; right:0; top:0; height:10px;
+  background:var(--faixa) repeat-x var(--desl,0) center; background-size:80px 100%;
+  pointer-events:none;
+}.co .ed-cards > .ed-card:nth-child(2){ --desl:-12px; }.co .ed-cards > .ed-card:nth-child(3){ --desl:-27px; }.co .ed-cards > .ed-card:nth-child(4){ --desl:-42px; }.co .ed-cards > .ed-card:nth-child(5){ --desl:-57px; }.co .ed-cards > .ed-card:nth-child(6){ --desl:-70px; }.co .ed-cards > .ed-card:nth-child(7){ --desl:-20px; }.co .ed-cards > .ed-card:nth-child(8){ --desl:-50px; }.co .ed-faixa{
   width:34px; height:34px; margin-bottom:10px; border-radius:50%;
   background:var(--wash2); color:var(--ink2);
   display:flex; align-items:center; justify-content:center;
   transition:background var(--t), color var(--t);
 }.co .ed-faixa svg{ width:17px; height:17px; }.co .ed-card--on .ed-faixa{ background:var(--turq-bg); color:var(--turq-txt); }/* O padding agora é do card, e não do corpo. Sem zerar aqui, o do globals
-   (11px 12px 13px) se soma ao meu e o texto fica com 25px de recuo. */.co .ed-corpo{ display:block; padding:0; }.co .ed-corpo strong{ display:block; font-size:var(--t-corpo); font-weight:600; color:var(--ink); }.co .ed-corpo span{ display:block; margin-top:4px; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.45;  text-wrap:pretty; }/* Modo trancado pelo plano: o cadeado no canto, e o card apagado. */.co .ed-card--travado{ opacity:.55; }.co .ed-cad{ position:absolute; top:12px; right:12px; color:var(--ink3); }/* ══════════════════════════════════════════════════════════════════════
+   (11px 12px 13px) se soma ao meu e o texto fica com 25px de recuo. */.co .ed-corpo{ display:block; padding:0; }.co .ed-corpo strong{ display:block; font-size:var(--t-corpo); font-weight:600; color:var(--ink); }.co .ed-corpo span{ display:block; margin-top:4px; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.45;  text-wrap:pretty; }/* Modo trancado pelo plano: o cadeado no canto, e o card apagado. */.co .ed-card--travado{ opacity:.55; }.co .ed-cad{ position:absolute; top:20px; right:12px; color:var(--ink3); }/* ══════════════════════════════════════════════════════════════════════
    OS DOIS PRIMOS DO CARD DE MODO
    O Upscale e as Sequências repetem a mesma peça com outro nome de classe, e
    traziam a mesma herança: azul e coral no Upscale, três pastéis nas
