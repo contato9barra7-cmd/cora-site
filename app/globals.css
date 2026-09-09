@@ -12786,8 +12786,13 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
    ponteiro e um sinal de mais. Um numero que muda de aparencia ao virar
    clicavel some do lugar onde a pessoa ja aprendeu a olhar.
    ══════════════════════════════════════════════════════ */
+/* SEM `color: inherit` aqui. O reset de botao costuma levar a cor junto, e
+   aqui isso apagava o vermelho do `.admin-ac__falta`: a frase inteira voltava
+   para o cinza e so o <strong> do numero ficava vermelho. O vermelho e do
+   conteudo, e nao do estado do elemento, entao ele nao pode sair porque o
+   <span> virou <button>. */
 .admin-ac__falta--btn {
-  padding: 0; border: 0; background: none; font: inherit; color: inherit;
+  padding: 0; border: 0; background: none; font: inherit;
   cursor: pointer;
 }
 /* ── O SINAL E DESENHO, E NAO LETRA ──
