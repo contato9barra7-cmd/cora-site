@@ -1338,11 +1338,11 @@ export default function PainelAnimacao({
             <footer className="vz-acoes">
               <button className="vz-ico" data-tip={t('painelanimacao_imagem_inicial')} aria-label={t('painelanimacao_enviar_inicial')}
                 onClick={() => { onEnviarBase64 && onEnviarBase64('animacao', tlImgs[tlVer], 'inicio'); setTlVer(null); }}>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="M4 15l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M7.5 5v14" strokeLinecap="round"/><circle cx="12" cy="10" r="1.1"/><path d="M10 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
               <button className="vz-ico" data-tip={t('painelanimacao_imagem_final')} aria-label={t('painelanimacao_enviar_final')}
                 onClick={() => { onEnviarBase64 && onEnviarBase64('animacao', tlImgs[tlVer], 'fim'); setTlVer(null); }}>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="1.5"/><path d="M4 17l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 12 3.5)"/></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M16.5 5v14" strokeLinecap="round"/><circle cx="8" cy="10" r="1.1"/><path d="M5.5 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
               <button className="vz-ico" data-tip={t('painelanimacao_pos_producao')} aria-label={t('painelanimacao_enviar_pos')}
                 onClick={() => { onEnviarBase64 && onEnviarBase64('pos', tlImgs[tlVer], null, { pos: tlVer }); setTlVer(null); }}>

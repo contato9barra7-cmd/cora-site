@@ -26,6 +26,7 @@ import PainelPincel from '../../components/PainelPincel';
 import PainelAnalises from '../../components/PainelAnalises';
 import PainelPos from '../../components/PainelPos';
 import Trilho from '../../components/Trilho';
+import BotaoCriar from '../../components/BotaoCriar';
 import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
 import Card, { proporcaoCss } from '../../components/Card';
@@ -1119,6 +1120,16 @@ export default function AppPage() {
           {/* Sem `disabled={ocupado}`: a geração roda no servidor, e não há
               razão para prender a pessoa aqui. Ela pode trocar de aba e
               preparar o próximo trabalho enquanto este sai. */}
+          {/* Duas portas para a mesma coisa, e de propósito: o botão mostra o
+              que cada ferramenta faz para quem chegou agora, o trilho é o
+              atalho de quem já sabe o nome do que quer. */}
+          <BotaoCriar
+            abas={ABAS.map((a) => ({ ...a, rotulo: tOpt(a.rotulo) }))}
+            ativa={ferramenta}
+            onTrocar={trocarAba}
+            bloqueadas={abasBloqueadas}
+          />
+
           <Trilho
             abas={ABAS.map((a) => ({ ...a, rotulo: tOpt(a.rotulo) }))}
             ativa={ferramenta}

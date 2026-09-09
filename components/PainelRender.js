@@ -435,16 +435,27 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           </button>
         )}
 
-        {/* ── Tipo de ambiente ── */}
-        <div className="cr-sec">{t('painelrender_tipo_ambiente')}</div>
-        <div className="cr-g3" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-          {TIPOS.map((tp) => (
-            <button
-              key={tp.val}
-              className={'cr-b' + (tipo === tp.val ? ' cr-b--on' : '')}
-              onClick={() => setTipo(tp.val)}
-            >{tOpt(tp.rotulo)}</button>
-          ))}
+        {/* ── Ambiente ──
+            Era um par de pílulas soltas, com a mesma forma dos botões de ação
+            da barra. Virou linha da ficha, como todo o resto do painel: o
+            nome à esquerda, o valor de agora à direita. Círculo no marcador,
+            porque aqui só dá para escolher um. */}
+        <div className="fic fic--solta">
+          <Linha
+            nome={t('painelrender_tipo_ambiente')}
+            valor={tOpt((TIPOS.find((x) => x.val === tipo) || {}).rotulo)}
+            aberta={linhaAberta === 'ambiente'} aoAbrir={abre('ambiente')}
+          >
+            <Lista uma>
+              {TIPOS.map((tp) => (
+                <ItemLista
+                  key={tp.val}
+                  marcada={tipo === tp.val}
+                  onClick={() => setTipo(tp.val)}
+                >{tOpt(tp.rotulo)}</ItemLista>
+              ))}
+            </Lista>
+          </Linha>
         </div>
 
         {/* ── Materiais ── */}
@@ -460,24 +471,25 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           </button>
         )}
 
-        {matEstado !== 'revisar' && (
-          <button
-            className="cr-b-ler"
-            onClick={lerMat}
-            disabled={matEstado === 'lendo' || !imagem || ocupado}
-          >
-            <span>
-              {matEstado === 'lendo' ? t('painelrender_lendo_imagem')
-                : matEstado === 'confirmado' ? t('painelrender_ler_materiais_denovo')
-                : t('painelrender_ler_materiais')}
+        {/* O botão de ler fica SEMPRE. Ele sumia no estado 'revisar', e aí quem
+            clicava em "já tenho a leitura" ficava preso: campo vazio e nenhuma
+            porta de volta para a leitura de verdade. */}
+        <button
+          className="cr-b-ler"
+          onClick={lerMat}
+          disabled={matEstado === 'lendo' || !imagem || ocupado}
+        >
+          <span>
+            {matEstado === 'lendo' ? t('painelrender_lendo_imagem')
+              : matEstado === 'confirmado' ? t('painelrender_ler_materiais_denovo')
+              : t('painelrender_ler_materiais')}
+          </span>
+          {matEstado !== 'lendo' && (
+            <span className="cr-custo-tag">
+              <IconeCredito /> {CREDITOS.materiais}
             </span>
-            {matEstado !== 'lendo' && (
-              <span className="cr-custo-tag">
-                <IconeCredito /> {CREDITOS.materiais}
-              </span>
-            )}
-          </button>
-        )}
+          )}
+        </button>
 
         {(matEstado === 'revisar' || matEstado === 'confirmado') && (
           <>

@@ -238,7 +238,7 @@
 .cr-b{
   min-height:var(--alt-ctrl); padding:7px 12px; border:0;
   border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
-  font-size:var(--t-apoio); font-weight:500; line-height:1.25; cursor:pointer;
+  font-size:var(--t-apoio2); font-weight:500; line-height:1.25; cursor:pointer;
   text-wrap:pretty;
   transition:background var(--t), color var(--t);
 }
@@ -304,18 +304,20 @@
   width:100%; min-height:96px; margin-top:8px; padding:12px 14px;
   border:1px solid transparent; border-radius:var(--r-peq);
   background:var(--wash); color:var(--ink);
-  font-size:var(--t-corpo); line-height:1.5; resize:vertical; outline:none;
+  font-size:var(--t-apoio); line-height:1.5; resize:vertical; outline:none;
   transition:background var(--t), border-color var(--t);
 }
 .cr-ta:hover{ border-color:var(--line); }
 .cr-ta:focus{ background:var(--paper); border-color:var(--line2); }
 .cr-ta:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
 .cr-ta::placeholder{ color:var(--ink3); }
-/* `.cr-ta--mat` NÃO ENTRA AQUI. No meu estudo esse nome era a caixinha curta
-   dos detalhes de luz; no app ele é a caixa onde a pessoa REVISA a lista
-   inteira de materiais do projeto, e o globals lhe dá 320px justamente para
-   dar para ver o conjunto de uma vez. A minha regra encolhia ela para 72px, um
-   quarto. A caixa curta da ficha tem nome próprio, `ta--curta`. */
+/* A caixa onde a pessoa REVISA a lista inteira de materiais. No meu estudo
+   `--mat` era a caixinha curta dos detalhes de luz, e eu portei os 72px para
+   cá: virou um quarto do tamanho. Tirar a regra também não resolveu, porque
+   `.co .cr-ta` tem especificidade (0,2,0) e esmaga o `.cr-ta--mat` (0,1,0) do
+   globals. Ela precisa existir aqui, com o valor de lá. A caixa curta da ficha
+   tem nome próprio, `ta--curta`. */
+.cr-ta--mat{ min-height:320px; max-height:60vh; line-height:1.6; resize:vertical; }
 
 /* ── As referências ── */
 .cr-refs{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
@@ -366,11 +368,11 @@
   flex:none; display:block; width:auto; height:auto;
   margin:0 auto 16px; padding:2px 0;
   border:0; border-radius:0; background:none;
-  color:var(--ink3); font-size:var(--t-apoio2); cursor:pointer;
-  box-shadow:inset 0 -1px 0 var(--line2);
+  color:var(--ink2); font-size:var(--t-apoio2); cursor:pointer;
+  box-shadow:inset 0 -2px 0 var(--lima);
   transition:color var(--t), box-shadow var(--t);
 }
-.cr-resetar:hover:not(:disabled){ color:var(--ink2); box-shadow:inset 0 -1px 0 var(--ink3); }
+.cr-resetar:hover:not(:disabled){ color:var(--ink); box-shadow:inset 0 -2px 0 var(--lima-esc); }
 .cr-resetar:disabled{ opacity:.45; cursor:default; }
 
 .cr-voltar{
@@ -713,6 +715,499 @@
    `vz-zoom`, `vz-modos`, `vz-envia-rot`, e por aí). Ele volta para cá quando
    eu tiver lido o componente inteiro, e não antes.
    ══════════════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════════════
+   A FICHA DO PAINEL
+   Vem do estudo `ferramentas/cora-render.html`. Ela já tinha entrado
+   aqui uma vez e saiu por engano: o script que tirou o bloco do
+   visualizador cortou por marca de comentário, e a ficha estava no meio
+   do intervalo. Sem ela, `Linha` e `Amostra` renderizam como botão nu, e
+   os dois spans do cabeçalho ficam grudados ("Iluminação NaturalLuz
+   direta"). Foi o que o dono viu na tela.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════════
+   A FICHA · a espinha do painel
+   ══════════════════════════════════════════════════════════════════ */
+.fic{ margin-top:26px; border-top:1px solid var(--line); }
+/* O Ambiente vive num pedaço solto da ficha, acima do Materiais. O corte é
+   informação: dali para cima é O QUE ENTRA na leitura, dali para baixo é como
+   a imagem vai ficar. */
+.fic--solta{ margin-top:18px; }
+.fic__l{ border-bottom:1px solid var(--line); }
+.fic__cab{
+  width:100%; display:flex; align-items:center; gap:12px; padding:11px 2px;
+  border:0; background:none; text-align:left;
+}
+/* Oito linhas empilhadas somam: o que é confortável numa vira pesado em oito.
+   O rótulo perdeu um pouco do espacejamento e o valor desceu um degrau. */
+.fic__nome{
+  flex:none; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--ink3); transition:color var(--t);
+}
+.fic__l[data-aberta="sim"] .fic__nome{ color:var(--ink2); }
+.fic__val{
+  flex:1; min-width:0; text-align:right; font-size:var(--t-apoio2);
+  color:var(--ink); font-weight:500;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  transition:color var(--t);
+}
+.fic__val[data-vazio="sim"]{ color:var(--ink3); font-weight:400; }
+.fic__cab:hover .fic__val{ color:var(--turq-txt); }
+.fic__seta{ flex:none; color:var(--ink3); transition:transform var(--t); }
+.fic__l[data-aberta="sim"] .fic__seta{ transform:rotate(180deg); }
+/* Etiqueta, e não frase: no tamanho do corpo ela ficava igual ao texto do
+   campo logo abaixo, e as duas coisas pareciam a mesma. */
+.fic__grp{
+  margin:16px 0 7px; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+}
+.fic__grp:first-child{ margin-top:0; }
+.fic__corpo{ display:none; padding:2px 0 16px; }
+.fic__l[data-aberta="sim"] .fic__corpo{ display:block; }
+
+/* ══════════════════════════════════════════════════════════════════
+   A LISTA COM MARCADOR
+   Quadrado marca vários, círculo marca uma. É a convenção que todo
+   mundo já leu em papel, e ela diz sozinha quantas dá para escolher,
+   sem precisar de uma frase embaixo explicando.
+   ══════════════════════════════════════════════════════════════════ */
+.lista{ display:flex; flex-direction:column; }
+.lista__b{
+  display:flex; align-items:center; gap:11px; width:100%; padding:8px 10px;
+  border:0; border-radius:9px; background:none; text-align:left;
+  font-size:var(--t-apoio); color:var(--ink2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.lista__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink); }
+.lista__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.lista__m{
+  flex:none; width:17px; height:17px; border-radius:5px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--wash2); color:transparent;
+  box-shadow:inset 0 0 0 1px var(--line2);
+  transition:background var(--t), color var(--t), box-shadow var(--t);
+}
+.lista--uma .lista__m{ border-radius:50%; }
+.lista__b[aria-checked="true"] .lista__m{
+  background:var(--turquesa); color:#111111; box-shadow:inset 0 0 0 1px var(--turquesa-esc);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   O SULCO · só para escolher a família dentro do grupo
+   ══════════════════════════════════════════════════════════════════ */
+.sul{ display:flex; gap:2px; padding:3px; border-radius:var(--pill); background:var(--wash2); }
+.sul__b{
+  flex:1; min-width:0; height:28px; padding:0 6px; border:0; border-radius:var(--pill);
+  background:transparent; color:var(--ink3);
+  font-size:var(--t-apoio2); font-weight:600;
+  transition:color var(--t), background var(--t), box-shadow var(--t);
+}
+.sul__b:hover[aria-checked="false"]{ color:var(--ink); }
+.sul__b[aria-checked="true"]{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+
+/* ══════════════════════════════════════════════════════════════════
+   AS AMOSTRAS DE LUZ
+   Nenhum desenho. A direção não é uma seta apontando, é o lado claro
+   da amostra. "Luz direta" tem a borda de sombra dura e "luz difusa"
+   não tem borda nenhuma. O gradiente é a coisa, e não o desenho dela.
+   ══════════════════════════════════════════════════════════════════ */
+.am{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.am--3{ grid-template-columns:repeat(3,1fr); }
+.am__b{
+  padding:0; border:1px solid var(--line); border-radius:10px;
+  background:var(--paper); overflow:hidden; text-align:center;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.am__b:hover{ border-color:var(--line2); box-shadow:var(--sombra-peq); }
+.am__b[aria-checked="true"]{ border-color:var(--turquesa-esc); box-shadow:0 0 0 1px var(--turquesa-esc); }
+/* `height:100%` no SVG é o que prende o desenho à caixa. Sem ela ele assume a
+   proporção do viewBox, fica mais alto que o cinza e escorrega para baixo do
+   centro, e nenhum ajuste no tamanho do desenho conserta isso. */
+.am__q{ display:block; height:46px; position:relative; overflow:hidden; }
+.am__q svg{ display:block; width:100%; height:100%; }
+/* A marca da escolha fica SOBRE a amostra, e não ao lado: a amostra ocupa a
+   largura toda, e um marcador fora dela pediria uma coluna que não existe.
+
+   É um CHECK, e não um disco cheio. O disco tapava um pedaço da amostra
+   justo no canto claro, e ainda parecia um botão de rádio que não era.
+   A sombra embaixo do traço é o que faz ele sobreviver tanto sobre a
+   amostra de meio-dia quanto sobre a de noite escura. */
+.am__ok{
+  position:absolute; right:5px; top:5px; opacity:0;
+  color:var(--turquesa-esc);
+  filter:drop-shadow(0 1px 2px rgba(17,17,17,.55));
+  transition:opacity var(--t);
+}
+.am__b[aria-checked="true"] .am__ok{ opacity:1; }
+.am__n{
+  display:block; padding:6px 6px 7px; font-size:var(--t-etiqueta);
+  color:var(--ink2); font-weight:500; line-height:1.25; text-wrap:pretty;
+}
+.am__b[aria-checked="true"] .am__n{ color:var(--ink); font-weight:600; }
+
+
+/* A planta da direção da luz: a sala vista de cima e por onde a luz entra.
+   Voltou depois de eu ter trocado por gradiente: seis amostras bege quase
+   iguais não separavam "frontal" de "lateral esquerda", e a seta separa sem
+   precisar comparar uma com a outra. */
+/* O desenho é referência, e não ilustração: ele só precisa dizer de que
+   lado a luz entra, e para isso não precisa do tamanho de uma amostra de
+   céu, onde a cor é a informação inteira. */
+.am__b--planta .am__q{ height:42px; background:var(--wash); }
+.pl-sala{ fill:none; stroke:var(--ink3); stroke-width:1.5; }
+.pl-luz{ fill:none; stroke:var(--ink2); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.am__b[aria-checked="true"] .pl-luz{ stroke:var(--turq-txt); }
+.am__b--planta .am__ok{ color:var(--turq-txt); filter:none; }
+
+/* ── a bolinha de temperatura de cor ── */
+.kel{ display:grid; grid-template-columns:repeat(2,1fr); gap:2px 12px; }
+.kel__b{
+  display:flex; align-items:center; gap:10px; padding:8px 6px;
+  border:0; border-radius:9px; background:none; text-align:left;
+  font-size:var(--t-apoio); color:var(--ink2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.kel__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink); }
+.kel__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.kel__q{
+  flex:none; width:16px; height:16px; border-radius:50%;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.14);
+  transition:box-shadow var(--t);
+}
+.kel__b[aria-checked="true"] .kel__q{ box-shadow:0 0 0 2px var(--turquesa-esc); }
+
+/* ══════════════════════════════════════════════════════════════════
+   O SELETOR DE COR DO "OUTRO"
+
+   Duas abas, porque são dois problemas diferentes. BRANCO é escolher
+   a temperatura de uma luminária, e ali a régua de Kelvin é o
+   controle certo: o gradiente dela É a escala, e a pessoa arrasta até
+   a cor sem precisar saber que 2700 é amarelo.
+
+   COLORIDA é fita de LED, neon, luz de festa. Ali não existe Kelvin
+   nenhum, e o que serve é o quadro de cor de sempre: a régua de matiz
+   escolhe a família, e o quadro escolhe quanto de cor e quanto de luz.
+
+   O hex fica embaixo dos dois e vale para os dois, porque quem já tem
+   o código da fita não quer caçar o tom no quadro.
+   ══════════════════════════════════════════════════════════════════ */
+.cor{ margin-top:14px; padding:14px; border-radius:var(--r-peq); background:var(--wash); }
+.cor[hidden]{ display:none; }
+
+.cor__topo{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.cor__bola{
+  flex:none; width:32px; height:32px; border-radius:50%;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.14);
+}
+.cor__k{ font-size:var(--t-corpo); font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
+.cor__k small{ font-weight:500; color:var(--ink3); }
+
+.cor__abas{ display:flex; gap:2px; padding:3px; margin-bottom:12px; border-radius:var(--pill); background:var(--wash2); }
+.cor__aba{
+  flex:1; height:28px; border:0; border-radius:var(--pill);
+  background:transparent; color:var(--ink3); font-size:var(--t-apoio2); font-weight:600;
+  transition:color var(--t), background var(--t), box-shadow var(--t);
+}
+.cor__aba:hover[aria-checked="false"]{ color:var(--ink); }
+.cor__aba[aria-checked="true"]{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+
+.cor__painel[hidden]{ display:none; }
+
+/* a régua, usada pelo Kelvin e pelo matiz */
+.cor__regua{
+  -webkit-appearance:none; appearance:none; width:100%; height:14px;
+  border-radius:var(--pill); outline:none; cursor:pointer;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.10);
+}
+.cor__regua--k{ background:linear-gradient(90deg,#ff9c3f,#ffbe6b 22%,#ffd9a8 42%,#f4ead9 58%,#e4ecf7 76%,#cfe0ff); }
+.cor__regua--h{ background:linear-gradient(90deg,#f00,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00); }
+.cor__regua::-webkit-slider-thumb{
+  -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+  background:var(--paper); box-shadow:0 1px 4px rgba(17,17,17,.34), inset 0 0 0 1px rgba(17,17,17,.14);
+}
+.cor__regua::-moz-range-thumb{
+  width:20px; height:20px; border:0; border-radius:50%;
+  background:var(--paper); box-shadow:0 1px 4px rgba(17,17,17,.34), inset 0 0 0 1px rgba(17,17,17,.14);
+}
+.cor__pes{ display:flex; justify-content:space-between; margin:6px 2px 0; font-size:11px; color:var(--ink3); }
+
+/* o quadro: branco na horizontal, preto na vertical, sobre o matiz */
+.cor__quadro{
+  position:relative; width:100%; height:104px; margin-bottom:12px;
+  border-radius:10px; cursor:crosshair; touch-action:none;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.10);
+}
+.cor__quadro::before,.cor__quadro::after{
+  content:""; position:absolute; inset:0; border-radius:inherit;
+}
+.cor__quadro::before{ background:linear-gradient(90deg,#fff,rgba(255,255,255,0)); }
+.cor__quadro::after{ background:linear-gradient(0deg,#000,rgba(0,0,0,0)); }
+.cor__alvo{
+  position:absolute; z-index:2; width:16px; height:16px; margin:-8px 0 0 -8px;
+  border-radius:50%; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.45);
+  pointer-events:none;
+}
+
+.cor__hex{ display:flex; align-items:center; gap:8px; margin-top:14px; }
+.cor__rot{ flex:none; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
+.cor__campo{
+  flex:1; min-width:0; height:var(--alt-ctrl); padding:0 14px;
+  border:1px solid transparent; border-radius:var(--pill);
+  background:var(--paper); color:var(--ink);
+  font-family:var(--mono); font-size:var(--t-apoio); text-transform:uppercase; outline:none;
+  transition:border-color var(--t);
+}
+.cor__campo:hover{ border-color:var(--line); }
+.cor__campo:focus{ border-color:var(--line2); }
+
+/* ── o campo de texto, dentro da linha aberta ── */
+/* 12,5px: o que a pessoa digita não disputa peso com o rótulo do botão que
+   ela vai clicar depois, e este painel é denso por natureza. */
+.ta{
+  width:100%; min-height:84px; margin-top:12px; padding:11px 13px;
+  border:1px solid transparent; border-radius:var(--r-peq);
+  background:var(--wash); color:var(--ink);
+  font-size:var(--t-apoio2); line-height:1.55; resize:vertical; outline:none;
+  transition:background var(--t), border-color var(--t);
+}
+.ta:hover{ border-color:var(--line); }
+.ta:focus{ background:var(--paper); border-color:var(--line2); }
+.ta::placeholder{ color:var(--ink3); }
+/* Duas caixas na mesma linha aberta pedem cada uma mais baixa, senão a
+   linha fica com o dobro da altura de todas as outras. */
+.ta--curta{ min-height:70px; margin-top:0; }
+
+/* ── referências ── */
+.refs{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+.ref{
+  position:relative; aspect-ratio:1; padding:0; overflow:hidden;
+  border:0; border-radius:10px; background:var(--wash2);
+}
+.ref--a{ background:linear-gradient(160deg,#e6ddd0,#c4ae94 50%,#8a755d); }
+.ref--b{ background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d); }
+.ref__n{
+  position:absolute; left:4px; bottom:4px; padding:1px 6px;
+  border-radius:var(--pill); background:rgba(255,255,255,.82); color:#111111;
+  backdrop-filter:blur(10px); font-size:9.5px; font-weight:600;
+}
+.ref--add{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+  color:var(--ink3); transition:background var(--t), color var(--t);
+}
+.ref--add:hover{ background:var(--line); color:var(--ink); }
+.ref__mais{ font-size:17px; line-height:1; }
+.ref__c{ font-size:9.5px; letter-spacing:.06em; }
+
+/* Resetar desceu para baixo do Renderizar e perdeu o sublinhado de lima.
+   Ele desfaz o trabalho da pessoa, e ação que desfaz não disputa atenção
+   com a ação que faz. Fica de texto quieto, no lugar onde o olho já está. */
+.resetar{
+  display:block; width:auto; margin:10px auto 0; padding:2px 0;
+  border:0; background:none; color:var(--ink3); font-size:var(--t-etiqueta);
+  transition:color var(--t);
+}
+.resetar{ box-shadow:inset 0 -1px 0 var(--line2); }
+.resetar:hover{ color:var(--ink2); box-shadow:inset 0 -1px 0 var(--ink3); }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   O PAINEL DE FILTROS
+   O `Filtros.js` foi reescrito no padrão do dropdown do admin e o CSS ficou
+   para trás: as classes `ft__*` não existiam em folha nenhuma, e o painel
+   abria como uma pilha de botões nus. Um campo por filtro, rótulo pequeno
+   em cima e valor embaixo, e só um aberto por vez.
+   ══════════════════════════════════════════════════════════════════════ */
+/* A caixa perde o padding: cabeçalho e pé têm fio próprio e precisam encostar
+   nas bordas. O corpo é quem respira. */
+.ft{ width:340px; padding:0; border-radius:var(--r); overflow:hidden; }
+.ft__cab{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:14px 16px; border-bottom:1px solid var(--line);
+}
+.ft__cab h3{
+  margin:0; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.ft-limpar-t{
+  flex:none; padding:2px 0; border:0; background:none;
+  color:var(--ink3); font-size:var(--t-apoio2); cursor:pointer;
+  transition:color var(--t);
+}
+.ft-limpar-t:hover:not(:disabled){ color:var(--alerta); }
+.ft-limpar-t:disabled{ opacity:.4; cursor:default; }
+
+/* A rolagem fica no corpo, e não na caixa: o "Ver N resultados" tem que
+   continuar à vista mesmo com os cinco campos empilhados. */
+.ft__corpo{
+  display:flex; flex-direction:column; gap:8px;
+  padding:14px 16px; max-height:min(56vh, 420px); overflow-y:auto;
+}
+.adm-pop__g{ min-width:0; }
+
+/* A lista aberta não flutua aqui: ela EMPURRA os campos de baixo. Um popover
+   dentro de um popover se perde na borda da janela. */
+.ft__corpo .cora-dd-lista{
+  position:static; margin-top:6px; max-height:200px; overflow-y:auto;
+  border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--wash); padding:4px; box-shadow:none;
+}
+/* `justify-content:flex-start` de propósito: o `.cora-dd-opt` do globals nasce
+   com `space-between`, porque lá o marcador fica na ponta oposta ao rótulo.
+   Aqui o marcador vem ANTES do texto, e sem isto o nome era jogado para a
+   borda direita, longe da caixinha que ele marca. */
+.ft__corpo .cora-dd-opt{
+  display:flex; justify-content:flex-start; align-items:center; gap:10px; width:100%;
+  padding:7px 9px; border:0; border-radius:8px; background:none; text-align:left;
+  font-size:var(--t-apoio2); color:var(--ink2); font-weight:500; cursor:pointer;
+  transition:background var(--t), color var(--t);
+}
+.ft__corpo .cora-dd-opt:hover{ background:var(--paper); color:var(--ink); }
+.ft__corpo .cora-dd-opt--sel{ color:var(--ink); font-weight:600; }
+
+/* Quadrado marca vários, círculo marca uma. A mesma convenção da ficha, e ela
+   diz sozinha quantas dá para escolher. */
+.cora-dd-m{
+  flex:none; display:flex; align-items:center; justify-content:center;
+  width:16px; height:16px; border-radius:5px;
+  background:var(--paper); color:transparent;
+  box-shadow:inset 0 0 0 1px var(--line2);
+  transition:background var(--t), color var(--t), box-shadow var(--t);
+}
+.cora-dd--uma .cora-dd-m{ border-radius:50%; }
+.cora-dd-opt--sel .cora-dd-m{
+  background:var(--turquesa); color:#111111;
+  box-shadow:inset 0 0 0 1px var(--turquesa-esc);
+}
+
+.ft__pe{
+  display:flex; align-items:center; gap:10px;
+  padding:12px 16px; border-top:1px solid var(--line); background:var(--wash);
+}
+.ft__conta{ flex:1; min-width:0; font-size:var(--t-apoio2); color:var(--ink3); }
+.ft-ver{
+  flex:none; height:var(--alt-ctrl); padding:0 16px; border:0;
+  border-radius:var(--pill); background:var(--lima); color:#111111;
+  font-size:var(--t-apoio2); font-weight:600; cursor:pointer;
+  transition:background var(--t);
+}
+.ft-ver:hover{ background:var(--lima-esc); }
+.ft-datas{ display:flex; align-items:center; gap:8px; padding:2px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O COMPARADOR, O CORAÇÃO E A JANELA DO PROMPT
+   As classes daqui foram conferidas no `Visualizador.js` antes de escrever:
+   `vz-handle`, `vz-handle-bola`, `vz-ico--fav` e `vz-prompt-janela` são as
+   que o componente usa mesmo.
+   ══════════════════════════════════════════════════════════════════════ */
+/* O comparador é o MESMO da home: linha branca de 2px e bola branca, as duas
+   com sombra para sobreviver sobre imagem clara e sobre imagem escura. Estava
+   lima, e aí o divisor competia com a imagem que está sendo comparada. */
+.vz-handle{ width:2px; background:var(--paper); box-shadow:0 0 12px rgba(0,0,0,.4); }
+.vz-handle-bola{
+  width:32px; height:32px;
+  background:var(--paper); color:var(--ink);
+  box-shadow:0 4px 20px rgba(0,0,0,.35);
+}
+
+/* Favoritada: quem fica turquesa é o CORAÇÃO, e não o anel em volta dele. O
+   anel é a forma do botão, e forma de botão não muda com o estado: dez botões
+   iguais e um com anel colorido viram dois desenhos na mesma barra. */
+.vz-ico--fav{ border-color:var(--line2); background:transparent; color:var(--turq-txt); }
+.vz-ico--fav:hover{ border-color:var(--turquesa-esc); color:var(--turq-txt); }
+.cr-ca--fav{ color:var(--turquesa); }
+.cr-card-fav{ color:var(--turq-txt); }
+
+/* A janela do prompt cabe DENTRO da janela do preview, e por isso é menor nos
+   dois eixos: o preview tem 1120px por 82vh, com teto de 860px. */
+.vz-prompt-janela{ max-width:660px; max-height:70vh; }
+.vz-prompt-corpo{ font-size:var(--t-apoio2); }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   O BOTÃO DE CRIAR
+   Fica acima do trilho e abre a lista do que dá para gerar, cada uma com
+   desenho e uma linha do que faz. Turquesa, e não lima: ele não gasta
+   crédito e não marca escolha, ele abre a porta. Lima segue sendo dos
+   botões que executam, e dois limas na mesma coluna disputariam o olhar.
+   ══════════════════════════════════════════════════════════════════════ */
+.criar{ position:relative; padding:12px 14px 0; }
+.criar__b{
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  width:100%; height:var(--alt-ctrl); padding:0 14px; border:0;
+  border-radius:var(--pill); background:var(--turquesa); color:var(--turq-txt);
+  font-size:var(--t-apoio); font-weight:600; cursor:pointer;
+  transition:background var(--t), color var(--t);
+}
+.criar__b:hover, .criar__b--on{ background:var(--turquesa-esc); color:#0F4A3E; }
+
+/* A lista FLUTUA sobre o painel: empurrando, ela jogaria o formulário inteiro
+   para baixo a cada abertura, e o trilho sairia de vista. */
+.criar__lista{
+  position:absolute; z-index:40; left:14px; right:14px; top:calc(100% + 6px);
+  padding:6px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); box-shadow:var(--sombra);
+  max-height:min(60vh, 460px); overflow-y:auto;
+}
+.criar__it{
+  display:flex; align-items:flex-start; gap:11px; width:100%;
+  padding:9px 10px; border:0; border-radius:9px; background:none; text-align:left;
+  cursor:pointer; transition:background var(--t);
+}
+.criar__it:hover:not(:disabled){ background:var(--wash); }
+.criar__it:disabled{ opacity:.45; cursor:default; }
+
+/* O fio de lima de 3px na esquerda quer dizer "você está aqui". É o mesmo do
+   menu lateral e do índice das páginas legais. */
+.criar__it[aria-current="true"]{ position:relative; background:var(--wash); }
+.criar__it[aria-current="true"]::before{
+  content:""; position:absolute; left:0; top:6px; bottom:6px;
+  width:3px; border-radius:2px; background:var(--lima);
+}
+.criar__ico{
+  flex:none; display:flex; align-items:center; justify-content:center;
+  width:30px; height:30px; border-radius:50%;
+  background:var(--wash2); color:var(--ink2);
+  transition:background var(--t), color var(--t);
+}
+.criar__ico svg{ width:16px; height:16px; }
+.criar__it[aria-current="true"] .criar__ico{ background:var(--turq-bg); color:var(--turq-txt); }
+.criar__txt{ flex:1; min-width:0; }
+.criar__txt strong{
+  display:block; font-size:var(--t-apoio); font-weight:600; color:var(--ink);
+}
+.criar__txt span{
+  display:block; margin-top:2px; font-size:var(--t-etiqueta);
+  color:var(--ink3); line-height:1.4; text-wrap:pretty;
+}
+.criar__cad{ flex:none; margin-top:2px; color:var(--ink3); }
+
+/* A linha do Ambiente mora sozinha, fora da ficha grande. Sem fio embaixo:
+   a seção de Materiais que vem depois já tem o rótulo dela para separar. */
+.fic--solta{ margin:0 0 4px; border:0; }
+.fic--solta .fic__l:last-child{ border-bottom:0; }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   OS MODIFICADORES QUE A MINHA REGRA BASE ESMAGAVA
+
+   `.co .cr-hint` tem especificidade (0,2,0) e ganha de `.cr-hint--erro`
+   (0,1,0) do globals. Toda vez que a minha regra base declara uma
+   propriedade que um modificador de lá também declara, o modificador para de
+   valer em silêncio: o aviso vermelho virava cinza, o "+" das referências
+   ganhava fundo, a pill larga encolhia.
+
+   Ou a base não declara a propriedade, ou o modificador vem junto. Aqui vem
+   junto, com o valor que o globals já tinha.
+   ══════════════════════════════════════════════════════════════════════ */
+.cr-hint--erro{ color:var(--alerta); }
+.cr-hint--ok{ color:var(--lima-txt); }
+.cr-b--voltar{ color:var(--lima-txt); font-size:var(--t-apoio); }
+.cr-pill-cfg--larga{ width:100%; justify-content:flex-start; }
+.cr-ref--add{ background:transparent; }
+.cr-ta--alta{ min-height:120px; }
+.cr-tag--roxa{ color:var(--turq-txt); }
+.ed-card--travado{ cursor:default; }
 
 /* ══════════════════════════════════════════════════════════════════════
    A CONFIRMAÇÃO
