@@ -17,6 +17,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
+import { adminGeracoesDaConta } from '../lib/geracoes';
 import DropdownCora from './DropdownCora';
 import {
   adminBuscarContas, adminFichaDaConta, adminExtratoDaConta, adminCreditar,
@@ -197,6 +198,14 @@ export default function FichaConta({ abrirConta }) {
   // maioria das visitas ao painel nunca olha. Trocar o período recarrega.
   const [extrato, setExtrato] = useState(null);
   const [extratoDias, setExtratoDias] = useState(90);
+  /* As imagens da pessoa. `imagensDe` guarda de QUAL conta elas são: sem isso,
+     trocar de conta com a aba aberta mostraria as imagens da anterior por um
+     instante, e nesta aba isso não é um piscar feio, é mostrar o trabalho de
+     um cliente na ficha de outro. */
+  const [imagens, setImagens] = useState(null);
+  const [imagensDe, setImagensDe] = useState(null);
+  const [imagensCarregando, setImagensCarregando] = useState(false);
+  const [imagensErro, setImagensErro] = useState('');
   const [extratoErro, setExtratoErro] = useState('');
   const [extratoCarregando, setExtratoCarregando] = useState(false);
 
@@ -255,6 +264,7 @@ export default function FichaConta({ abrirConta }) {
     // O extrato é da conta anterior: sem esta limpeza, trocar de conta com a
     // aba Extrato aberta mostraria as transações de outra pessoa por um instante.
     setExtrato(null); setExtratoErro('');
+    setImagens(null); setImagensDe(null); setImagensErro('');
     try {
       setFicha(await adminFichaDaConta(id));
       setAba('resumo');
@@ -276,6 +286,37 @@ export default function FichaConta({ abrirConta }) {
     return () => { vivo = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aba, extratoDias, ficha?.conta?.id]);
+
+  /* As imagens chegam quando a aba abre, e só. Elas NÃO vêm junto da ficha:
+     abrir a ficha de alguém é rotina do suporte, e ver o arquivo de imagens
+     dela não é. Carregar sob demanda é o que mantém as duas coisas separadas,
+     e é o que faz o registro de acesso significar alguma coisa: ele marca
+     quem foi olhar, e não quem abriu uma ficha. */
+  useEffect(() => {
+    if (aba !== 'imagens' || !ficha?.conta?.id) return;
+    if (imagens && imagensDe === ficha.conta.id) return;
+    let vivo = true;
+    setImagensCarregando(true); setImagensErro('');
+    adminGeracoesDaConta(ficha.conta.id)
+      .then((lotes) => {
+        if (!vivo) return;
+        /* Os lotes viram uma fila de imagens: na ficha o que importa é o que
+           a pessoa fez, e não como as variações foram agrupadas. A data vem
+           do lote, porque é dele. */
+        const fila = [];
+        (lotes || []).forEach((lote) => {
+          (lote.itens || []).forEach((item) => {
+            if (item.url) fila.push({ id: item.id, url: item.url, quando: lote.criadoEm });
+          });
+        });
+        setImagens(fila);
+        setImagensDe(ficha.conta.id);
+      })
+      .catch((e) => { if (vivo) setImagensErro(e.message); })
+      .finally(() => { if (vivo) setImagensCarregando(false); });
+    return () => { vivo = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aba, ficha?.conta?.id]);
 
   // Recarrega a ficha depois de agir. Não é enfeite: é o que faz a consequência
   // aparecer na hora — o evento novo na aba Logs, o plano novo no cabeçalho.
@@ -1133,12 +1174,45 @@ export default function FichaConta({ abrirConta }) {
       )}
 
       {aba === 'imagens' && (
-        <p style={{ color: 'var(--ink3)', paddingBottom: 24 }}>
-          As imagens ficam no bucket do servidor de geração, que tem banco e
-          credenciais próprios, e a aba precisa de uma rota administrativa lá.
-          Fase 1.5. Quando entrar, abrir esta aba vai gravar um evento com quem
-          abriu e quando.
-        </p>
+        <div className="conta-card adm-card">
+          {/* O AVISO VEM PRIMEIRO, e não no rodapé.
+              Isto é o arquivo de trabalho de um cliente, e muitas vezes o
+              trabalho dos clientes DELE. Dizer que o acesso ficou registrado
+              depois que a pessoa já olhou não avisa nada: avisa depois. */}
+          <p className="adm-fotos__aviso">
+            Estas são as imagens de <b>{ficha.conta.email}</b>. Abrir esta aba
+            ficou registrado nos eventos da conta, com o seu nome e a hora.
+          </p>
+
+          {imagensCarregando && <p className="conta-p">Carregando as imagens…</p>}
+          {imagensErro && <p className="adm-fotos__erro">{imagensErro}</p>}
+
+          {!imagensCarregando && !imagensErro && imagens && imagens.length === 0 && (
+            <p className="adm-vazio">Esta conta ainda não gerou nenhuma imagem.</p>
+          )}
+
+          {!imagensCarregando && !imagensErro && imagens && imagens.length > 0 && (
+            <>
+              <div className="adm-fotos">
+                {imagens.map((im) => (
+                  /* Abre em aba nova, e não numa janela de zoom aqui dentro:
+                     a URL do R2 já vale por 6h e o navegador mostra imagem
+                     melhor do que qualquer visor que eu escrevesse. */
+                  <a key={im.id} className="adm-foto" href={im.url}
+                     target="_blank" rel="noopener noreferrer"
+                     title={im.quando ? data(im.quando, true) : undefined}>
+                    <img src={im.url} alt="" loading="lazy" />
+                  </a>
+                ))}
+              </div>
+              <p className="adm-total adm-total--nota">
+                As {imagens.length} mais recentes. As imagens abrem por link
+                assinado, que vale algumas horas: copiar o endereço não serve
+                para guardar.
+              </p>
+            </>
+          )}
+        </div>
       )}
     </div>
   );

@@ -1134,3 +1134,38 @@
 @media (max-width:520px){
   .cal{ left:auto; right:0; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   AS IMAGENS DA CONTA, NA FICHA
+
+   Uma grade que se ajusta sozinha (`auto-fill`): a ficha vive num cartão
+   cuja largura muda com a janela, e um número fixo de colunas ou deixaria
+   miniatura de selo no monitor grande ou obrigaria a rolar de lado no
+   pequeno.
+
+   `aspect-ratio: 4/3` com `object-fit: cover` é o mesmo quadro da esteira
+   do painel. As gerações saem em proporções diferentes, e sem um quadro
+   comum a grade vira um mosaico irregular — que é bonito num portfólio e
+   ruim num lugar onde se procura uma imagem específica.
+   ══════════════════════════════════════════════════════════════════════ */
+.adm-fotos__aviso{
+  margin:0 0 18px; padding:12px 15px;
+  background:var(--wash); border:1px solid var(--line); border-radius:var(--r-peq);
+  font-size:13.5px; color:var(--ink2); line-height:1.6; text-wrap:pretty;
+}
+.adm-fotos__aviso b{ color:var(--ink); font-weight:600; }
+.adm-fotos__erro{
+  margin:0; padding:12px 15px; border-radius:var(--r-peq);
+  background:var(--alerta-bg); color:var(--alerta); font-size:13.5px;
+}
+.adm-fotos{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(148px, 1fr)); gap:10px;
+}
+.adm-foto{ display:block; }
+.adm-foto img{
+  display:block; width:100%; aspect-ratio:4/3; object-fit:cover;
+  border-radius:var(--r-peq); border:1px solid var(--line);
+  background:var(--wash2);
+  transition:border-color var(--t), transform var(--t);
+}
+.adm-foto:hover img{ border-color:var(--line2); transform:translateY(-2px); }
