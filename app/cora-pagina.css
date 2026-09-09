@@ -102,9 +102,9 @@
    As sete fechadas dividem o que sobra (`flex:1`), com piso de 30px, e a
    ativa tem a largura do próprio nome. Com "Pós-produção" aberta, que é o
    nome mais longo, as oito ainda cabem nos 366px do sulco. */.co .cr-pills{
-  display:flex; align-items:center; padding:10px 14px;
+  display:flex; align-items:center; padding:0 14px;
   width:100%; align-self:stretch; flex:none;
-  min-height:57px; position:sticky; top:0; z-index:20;
+  height:58px; min-height:0; position:sticky; top:0; z-index:20;
   background:var(--paper); border-bottom:1px solid var(--line);
 }.co .cr-sulco{ flex:1; min-width:0; border-radius:var(--pill); background:var(--wash2); padding:3px; overflow:visible; }.co .cr-sulco .cr-trilho{ display:flex; gap:2px; width:100%; transform:none; transition:none; background:transparent; padding:0; }.co .cr-pill{
   position:relative; flex:1 1 0; min-width:30px; height:32px; padding:0; border:0;
@@ -347,11 +347,17 @@
   font-weight:600; font-variant-numeric:tabular-nums;
 }.co .cr-prog{ margin:8px 0 0; text-align:center; font-size:var(--t-apoio2); color:var(--turq-txt); font-weight:600; }/* ══════════════════════════════════════════════════════════════════════
    A BARRA DO FEED
-   ══════════════════════════════════════════════════════════════════════ */.co .cr-barra{
-  display:flex; align-items:center; gap:6px; flex-wrap:wrap; flex:none;
-  padding:10px 20px; min-height:57px;
+   ══════════════════════════════════════════════════════════════════════ *//* A MESMA altura da barra das abas, fixa nos dois lados: 58px com a borda. O
+   fio de baixo das duas tem que ser um só, e ele só é um só se nenhuma das
+   duas puder crescer. Por isso esta NÃO quebra linha: com o feed estreito
+   ela virava duas linhas (95px) e o fio descia só de um lado. Quem cede é
+   a busca, que encolhe até 90px, e no limite a barra rola de lado, sem
+   barra de rolagem à vista. */.co .cr-barra{
+  display:flex; align-items:center; gap:6px; flex-wrap:nowrap; flex:none;
+  padding:0 20px; height:58px; min-height:0;
+  overflow-x:auto; overflow-y:hidden; scrollbar-width:none;
   background:var(--paper); border-bottom:1px solid var(--line);
-}/* `min-width` e não `width`: quase todo filtro é só um desenho e vira um
+}.co .cr-barra::-webkit-scrollbar{ display:none; }.co .cr-fbtns{ flex:none; }.co .cr-barra-dir{ flex:1 1 auto; min-width:0; display:flex; align-items:center; gap:6px; justify-content:flex-end; }/* `min-width` e não `width`: quase todo filtro é só um desenho e vira um
    círculo de 34px, mas o A/B carrega duas letras e precisa crescer. Com
    largura fixa ele estourava para fora do próprio botão. */.co .cr-fbtn{
   min-width:34px; height:34px; padding:0 9px; border:0; border-radius:var(--pill);
@@ -377,8 +383,8 @@
   transition:background var(--t), color var(--t);
 }.co .cr-tam:hover:not(.cr-tam--on){ color:var(--ink); }.co .cr-tam--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }.co .cr-seg-lay .cr-fbtn{ min-width:30px; height:26px; padding:0 8px; }.co .cr-seg-lay .cr-fbtn--on{
   background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq);
-}.co .cr-busca{ position:relative; display:flex; align-items:center; margin-left:auto; }.co .cr-busca svg{ position:absolute; left:14px; color:var(--ink3); pointer-events:none; }.co .cr-busca input{
-  width:210px; height:var(--alt-ctrl); padding:0 34px 0 38px;
+}.co .cr-busca{ position:relative; display:flex; align-items:center; flex:1 1 120px; min-width:0; max-width:230px; margin-left:auto; }.co .cr-busca svg{ position:absolute; left:14px; color:var(--ink3); pointer-events:none; }.co .cr-busca input{
+  width:100%; min-width:90px; height:var(--alt-ctrl); padding:0 34px 0 38px;
   border:1px solid transparent; border-radius:var(--pill);
   background:var(--wash2); color:var(--ink); font-size:var(--t-apoio); outline:none;
   transition:background var(--t), border-color var(--t), width var(--t);
