@@ -241,32 +241,17 @@ export function Lista({ uma, children }) {
 export function ItemLista({ marcada, onClick, children }) {
   const { uma } = useContext(CtxLista);
   const { fechar } = useContext(CtxCampo);
-  if (uma) {
-    return (
-      <div
-        className={'cora-dd-opt' + (marcada ? ' cora-dd-opt--sel' : '')}
-        role="option"
-        aria-selected={!!marcada}
-        tabIndex={0}
-        onClick={() => { onClick(); fechar(); }}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); fechar(); } }}
-      >
-        <span>{children}</span>
-        <svg className="cora-dd-tique" viewBox="0 0 16 16" fill="none"
-             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="m3 8.5 3.5 3.5L13 5" />
-        </svg>
-      </div>
-    );
-  }
+  // A mesma opção nas duas: caixinha à esquerda, texto à direita. O que muda
+  // é só que a escolha única fecha o cartão depois de escolher.
+  const escolher = uma ? () => { onClick(); fechar(); } : onClick;
   return (
     <div
-      className={'cora-dd-opt cora-dd-opt--multi' + (marcada ? ' cora-dd-opt--sel' : '')}
+      className={'cora-dd-opt cora-dd-opt--multi' + (uma ? ' cora-dd-opt--uma' : '') + (marcada ? ' cora-dd-opt--sel' : '')}
       role="option"
       aria-selected={!!marcada}
       tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
+      onClick={escolher}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escolher(); } }}
     >
       <span className="cora-dd-check" aria-hidden="true">
         {marcada && (

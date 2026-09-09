@@ -77,6 +77,16 @@ export default function CoraSelect({ value, options, onChange, icon, className, 
               className={'cora-sel-op' + (o.value === value ? ' sel' : '')}
               onClick={() => { onChange(o.value); setAberto(false); }}
             >
+              {/* A mesma opção do resto da janela: caixinha à esquerda, texto
+                  à direita. A Pós não é outro produto. */}
+              <span className="cora-dd-check" aria-hidden="true">
+                {o.value === value && (
+                  <svg viewBox="0 0 16 16" width="10" height="10" fill="none"
+                       stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="2,8 6,12 14,4" />
+                  </svg>
+                )}
+              </span>
               {o.label}
             </div>
           ))}

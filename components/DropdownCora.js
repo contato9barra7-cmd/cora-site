@@ -92,18 +92,22 @@ export default function DropdownCora({ valor, opcoes, onEscolher, rotulo }) {
           {opcoes.map((o) => (
             <div
               key={o.v}
-              className={'cora-dd-opt' + (o.v === valor ? ' cora-dd-opt--sel' : '')}
+              className={'cora-dd-opt cora-dd-opt--multi cora-dd-opt--uma' + (o.v === valor ? ' cora-dd-opt--sel' : '')}
               role="option"
               aria-selected={o.v === valor}
               onClick={() => { onEscolher(o.v); setAberto(false); }}
             >
-              <span>{o.n}</span>
-              {/* O tique diz o mesmo que a cor. Cor sozinha some para quem não
-                  distingue bem as duas. */}
-              <svg className="cora-dd-tique" viewBox="0 0 16 16" fill="none"
-                   stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m3 8.5 3.5 3.5L13 5" />
-              </svg>
+              {/* A caixinha diz o mesmo que a cor, e fica à esquerda como no
+                  dropdown de várias: a opção é UMA em todo lugar. */}
+              <span className="cora-dd-check" aria-hidden="true">
+                {o.v === valor && (
+                  <svg viewBox="0 0 16 16" width="10" height="10" fill="none"
+                       stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="2,8 6,12 14,4" />
+                  </svg>
+                )}
+              </span>
+              {o.n}
             </div>
           ))}
         </div>,

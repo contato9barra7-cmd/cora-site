@@ -380,7 +380,16 @@
 /* Lado a lado: são dois caminhos para a mesma coisa, e um debaixo do outro
    eles liam como dois passos. Sozinho, um deles ocupa a linha toda. */
 .cr-mat-acoes{ margin-top:8px; display:flex; gap:8px; }
-.cr-mat-acoes > .cr-b, .cr-mat-acoes > .cr-b-conf, .cr-mat-acoes > .cr-b-ler{ flex:1 1 0; min-width:0; }
+/* `margin:0` de propósito: o globals dá 10px em cima ao "Já tenho a análise"
+   para o caso empilhado, e na dupla isso descia um botão e não o outro. */
+.cr-mat-acoes{ align-items:center; }
+.cr-mat-acoes > .cr-b, .cr-mat-acoes > .cr-b-conf, .cr-mat-acoes > .cr-b-ler{ flex:1 1 0; min-width:0; margin:0; }
+/* Na dupla o botão tem 175px, e a moeda ancorada à direita passava por cima
+   do texto no hover. Ela entra na linha, depois do texto, e fica à vista
+   sempre: aparecer só no hover empurraria o texto na hora de clicar. */
+.cr-mat-acoes .cr-b-ler .cr-custo-tag{
+  position:static; transform:none; margin-left:6px; opacity:1;
+}
 /* Os três da caixa de materiais na mesma altura e na mesma letra: o de ler
    não é `.cr-b` e ficava 8px mais alto que o vizinho. */
 .cr-mat-acoes .cr-b, .cr-mat-acoes .cr-b-conf, .cr-mat-acoes .cr-b-ler{

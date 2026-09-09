@@ -1174,9 +1174,18 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
 // ═══════════════════════════════════════════════════════════
 const L = 260;   // o lado do quadrado
 
-function Curva({ pontos, cor, onMudar }) {
+function Curva({ pontos: pontosPai, cor, onMudar }) {
   const ref = useRef(null);
   const arrastando = useRef(null);
+  // Durante o arrasto o traço segue o cursor por aqui, na hora. O pai só
+  // recebe a mudança uma vez por quadro, e ele ainda espera 40ms para
+  // redesenhar a imagem: sem isto o nó ficava atrás do cursor.
+  const [local, setLocal] = useState(null);
+  const pontos = local || pontosPai;
+  const pontosRef = useRef(pontos);
+  pontosRef.current = pontos;
+  const quadroRef = useRef(null);
+  const pendenteRef = useRef(null);
 
   // Da tela para o valor: o Y é invertido porque em SVG ele cresce para baixo,
   // e numa curva tonal ele cresce para cima.
@@ -1208,12 +1217,20 @@ function Curva({ pontos, cor, onMudar }) {
   }
 
   useEffect(() => {
+    const entregar = (novo) => {
+      pendenteRef.current = novo;
+      if (quadroRef.current != null) return;
+      quadroRef.current = requestAnimationFrame(() => {
+        quadroRef.current = null;
+        if (pendenteRef.current) onMudar(pendenteRef.current);
+      });
+    };
     const mover = (e) => {
       const i = arrastando.current;
       if (i == null || !ref.current) return;
 
       const v = paraValor(e);
-      const novo = [...pontos];
+      const novo = [...pontosRef.current];
 
       // As pontas só sobem e descem: mover o x delas deixaria a curva sem
       // definição fora do intervalo.
@@ -1226,18 +1243,28 @@ function Curva({ pontos, cor, onMudar }) {
       // índice guardado passava a apontar para OUTRO ponto: o cursor "pulava"
       // de nó no meio do arraste. Reancora no objeto que se está movendo.
       arrastando.current = novo.indexOf(movido);
-      onMudar(novo);
+      setLocal(novo);
+      entregar(novo);
     };
 
-    const soltar = () => { arrastando.current = null; };
+    const soltar = () => {
+      if (arrastando.current == null) return;
+      arrastando.current = null;
+      // O último ponto vai já, sem esperar o quadro, e o traço volta a
+      // seguir o pai.
+      if (quadroRef.current != null) { cancelAnimationFrame(quadroRef.current); quadroRef.current = null; }
+      if (pendenteRef.current) { onMudar(pendenteRef.current); pendenteRef.current = null; }
+      setLocal(null);
+    };
 
     window.addEventListener('mousemove', mover);
     window.addEventListener('mouseup', soltar);
     return () => {
       window.removeEventListener('mousemove', mover);
       window.removeEventListener('mouseup', soltar);
+      if (quadroRef.current != null) cancelAnimationFrame(quadroRef.current);
     };
-  }, [pontos, onMudar]);
+  }, [onMudar]);
 
   function remover(e, i) {
     e.stopPropagation();

@@ -653,7 +653,10 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               escolhas. Os dois campos continuam sendo dois (`detNatural` e
               `descLuz`, que é como o servidor recebe), e quem nunca escreve
               nada não vê nenhum dos dois. */}
+          {/* `inline`: é caixa de texto, e abre por dentro do painel. Um
+              cartão flutuante é para escolher; para escrever, não. */}
           <Linha
+            inline
             nome={t('painelrender_detalhes_luz_natural')}
             aberta={linhaAberta === 'detalhes'} aoAbrir={abre('detalhes')}
           >
@@ -728,6 +731,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               </Linha>
 
               <Linha
+                inline
                 nome={t('painelrender_detalhes_luz_artificial')}
                 aberta={linhaAberta === 'detalhesArt'} aoAbrir={abre('detalhesArt')}
               >
