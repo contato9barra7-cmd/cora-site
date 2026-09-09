@@ -750,17 +750,6 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
           </>
         )}
 
-        {/* Recomeçar. Pede confirmação: a análise custou créditos. */}
-        {/* Travado durante a geração: resetar no meio deixaria o `gerar`
-            rodando com cenas que já não existem. */}
-        <button
-          className="cr-resetar"
-          onClick={() => setConfirmarReset(true)}
-          disabled={ocupado || analisando}
-        >
-          {t('painelbatch_resetar_cfg')}
-        </button>
-
         {confirmarReset && (
           <div className="cr-overlay cr-overlay--alto" onClick={() => setConfirmarReset(false)}>
             <div className="cf" onClick={(e) => e.stopPropagation()}>
@@ -862,6 +851,18 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
           </>
         )}
       </div>
+
+      {/* Recomeçar do zero, depois da barra e não antes dela. Pede
+          confirmação: a análise custou créditos. Travado durante a geração,
+          porque resetar no meio deixaria o `gerar` rodando com cenas que já
+          não existem. */}
+      <button
+        className="cr-resetar"
+        onClick={() => setConfirmarReset(true)}
+        disabled={ocupado || analisando}
+      >
+        {t('painelbatch_resetar_cfg')}
+      </button>
 
       <PickerImagem
         aberto={picker !== null}

@@ -785,16 +785,6 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           return <p className="cr-hint">{t('painelrender_hint_usar_arroba')}</p>;
         })()}
 
-        {/* Recomeçar do zero. Pede confirmação: os materiais lidos custaram
-            créditos, e apagá-los sem querer é perder dinheiro. */}
-        <button
-          className="cr-resetar"
-          onClick={() => setConfirmarReset(true)}
-          disabled={ocupado}
-        >
-          {t('painelrender_resetar_config')}
-        </button>
-
         {confirmarReset && (
           <div className="cr-overlay cr-overlay--alto" onClick={() => setConfirmarReset(false)}>
             <div className="cf" onClick={(e) => e.stopPropagation()}>
@@ -923,6 +913,18 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           </p>
         )}
       </div>
+
+      {/* Recomeçar do zero, depois da barra e não antes dela. Recomeçar é a
+          última coisa que se faz, e estava no meio da tela. Pede confirmação: os
+          materiais lidos custaram créditos, e apagá-los sem querer é perder
+          dinheiro. */}
+      <button
+        className="cr-resetar"
+        onClick={() => setConfirmarReset(true)}
+        disabled={ocupado}
+      >
+        {t('painelrender_resetar_config')}
+      </button>
 
       <PickerImagem
         aberto={picker !== null}
