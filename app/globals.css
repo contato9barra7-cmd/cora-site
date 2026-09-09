@@ -5109,20 +5109,34 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    (escolher o lado da comparação).
    ═══════════════════════════════════════════════════════════ */
 
+/* Centrada na imagem, e não presa à direita: num card largo ela ficava
+   encostada num canto, e num estreito a borda do card (que corta) comia os
+   botões da esquerda. Centrada, ela nasce do meio da imagem em qualquer
+   largura. Quando os sete botões não cabem numa linha, a fila quebra em duas
+   — também centradas — em vez de sumir por baixo do corte. */
 .cr-card-acoes {
   position: absolute;
   top: 8px;
-  right: 8px;
+  left: 50%;
   z-index: 4;
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  /* max-content, senão o encaixe automático de uma caixa absoluta erra por
+     causa das margens do risco divisor e o último botão cai sozinho para a
+     segunda fila mesmo sobrando espaço. */
+  width: max-content;
+  max-width: calc(100% - 16px);
   gap: 3px;
   padding: 4px;
-  border-radius: 100px;
+  /* 18 é metade da altura de uma linha (27 do botão + 8 do respiro): dá a
+     pílula exata com uma fila, e um retângulo de canto macio com duas. */
+  border-radius: 18px;
   background: rgba(20, 20, 22, .72);
   backdrop-filter: blur(6px);
   opacity: 0;
-  transform: translateY(-3px);
+  transform: translate(-50%, -3px);
   transition: opacity .14s, transform .14s;
   pointer-events: none;
 }
@@ -5130,7 +5144,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .cr-card:hover .cr-card-acoes,
 .cr-card:focus-within .cr-card-acoes {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate(-50%, 0);
   pointer-events: auto;
 }
 
