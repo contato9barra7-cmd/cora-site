@@ -968,6 +968,335 @@
 .ft-ver:hover{ background:var(--lima-esc); }
 
 /* ══════════════════════════════════════════════════════════════════════
+   A FICHA DO PAINEL
+   Vem do estudo `ferramentas/cora-render.html`, aprovado em 08/09. O
+   painel tinha 44 botões de escolha e 384px de caixa de texto abertas o
+   tempo todo, num formulário de 2515px. A ficha troca isso por uma linha
+   por ajuste, e a regra que segura tudo é uma só: fechado é tipografia e
+   fio, e a cor só aparece no grupo que está sendo escolhido agora.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════════
+   A FICHA · a espinha do painel
+   ══════════════════════════════════════════════════════════════════ */
+.fic{ margin-top:26px; border-top:1px solid var(--line); }
+/* O Ambiente vive num pedaço solto da ficha, acima do Materiais. O corte é
+   informação: dali para cima é O QUE ENTRA na leitura, dali para baixo é como
+   a imagem vai ficar. */
+.fic--solta{ margin-top:18px; }
+.fic__l{ border-bottom:1px solid var(--line); }
+.fic__cab{
+  width:100%; display:flex; align-items:center; gap:12px; padding:11px 2px;
+  border:0; background:none; text-align:left;
+}
+/* Oito linhas empilhadas somam: o que é confortável numa vira pesado em oito.
+   O rótulo perdeu um pouco do espacejamento e o valor desceu um degrau. */
+.fic__nome{
+  flex:none; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--ink3); transition:color var(--t);
+}
+.fic__l[data-aberta="sim"] .fic__nome{ color:var(--ink2); }
+.fic__val{
+  flex:1; min-width:0; text-align:right; font-size:var(--t-apoio);
+  color:var(--ink); font-weight:500;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  transition:color var(--t);
+}
+.fic__val[data-vazio="sim"]{ color:var(--ink3); font-weight:400; }
+.fic__cab:hover .fic__val{ color:var(--turq-txt); }
+.fic__seta{ flex:none; color:var(--ink3); transition:transform var(--t); }
+.fic__l[data-aberta="sim"] .fic__seta{ transform:rotate(180deg); }
+/* Etiqueta, e não frase: no tamanho do corpo ela ficava igual ao texto do
+   campo logo abaixo, e as duas coisas pareciam a mesma. */
+.fic__grp{
+  margin:16px 0 7px; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+}
+.fic__grp:first-child{ margin-top:0; }
+.fic__corpo{ display:none; padding:2px 0 16px; }
+.fic__l[data-aberta="sim"] .fic__corpo{ display:block; }
+
+/* ══════════════════════════════════════════════════════════════════
+   A LISTA COM MARCADOR
+   Quadrado marca vários, círculo marca uma. É a convenção que todo
+   mundo já leu em papel, e ela diz sozinha quantas dá para escolher,
+   sem precisar de uma frase embaixo explicando.
+   ══════════════════════════════════════════════════════════════════ */
+.lista{ display:flex; flex-direction:column; }
+.lista__b{
+  display:flex; align-items:center; gap:11px; width:100%; padding:8px 10px;
+  border:0; border-radius:9px; background:none; text-align:left;
+  font-size:var(--t-corpo); color:var(--ink2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.lista__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink); }
+.lista__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.lista__m{
+  flex:none; width:17px; height:17px; border-radius:5px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--wash2); color:transparent;
+  box-shadow:inset 0 0 0 1px var(--line2);
+  transition:background var(--t), color var(--t), box-shadow var(--t);
+}
+.lista--uma .lista__m{ border-radius:50%; }
+.lista__b[aria-checked="true"] .lista__m{
+  background:var(--turquesa); color:#111111; box-shadow:inset 0 0 0 1px var(--turquesa-esc);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   O SULCO · só para escolher a família dentro do grupo
+   ══════════════════════════════════════════════════════════════════ */
+.sul{ display:flex; gap:2px; padding:3px; border-radius:var(--pill); background:var(--wash2); }
+.sul__b{
+  flex:1; min-width:0; height:28px; padding:0 6px; border:0; border-radius:var(--pill);
+  background:transparent; color:var(--ink3);
+  font-size:var(--t-apoio2); font-weight:600;
+  transition:color var(--t), background var(--t), box-shadow var(--t);
+}
+.sul__b:hover[aria-checked="false"]{ color:var(--ink); }
+.sul__b[aria-checked="true"]{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+
+/* ══════════════════════════════════════════════════════════════════
+   AS AMOSTRAS DE LUZ
+   Nenhum desenho. A direção não é uma seta apontando, é o lado claro
+   da amostra. "Luz direta" tem a borda de sombra dura e "luz difusa"
+   não tem borda nenhuma. O gradiente é a coisa, e não o desenho dela.
+   ══════════════════════════════════════════════════════════════════ */
+.am{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.am--3{ grid-template-columns:repeat(3,1fr); }
+.am__b{
+  padding:0; border:1px solid var(--line); border-radius:10px;
+  background:var(--paper); overflow:hidden; text-align:center;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.am__b:hover{ border-color:var(--line2); box-shadow:var(--sombra-peq); }
+.am__b[aria-checked="true"]{ border-color:var(--turquesa-esc); box-shadow:0 0 0 1px var(--turquesa-esc); }
+/* `height:100%` no SVG é o que prende o desenho à caixa. Sem ela ele assume a
+   proporção do viewBox, fica mais alto que o cinza e escorrega para baixo do
+   centro, e nenhum ajuste no tamanho do desenho conserta isso. */
+.am__q{ display:block; height:46px; position:relative; overflow:hidden; }
+.am__q svg{ display:block; width:100%; height:100%; }
+/* A marca da escolha fica SOBRE a amostra, e não ao lado: a amostra ocupa a
+   largura toda, e um marcador fora dela pediria uma coluna que não existe.
+
+   É um CHECK, e não um disco cheio. O disco tapava um pedaço da amostra
+   justo no canto claro, e ainda parecia um botão de rádio que não era.
+   A sombra embaixo do traço é o que faz ele sobreviver tanto sobre a
+   amostra de meio-dia quanto sobre a de noite escura. */
+.am__ok{
+  position:absolute; right:5px; top:5px; opacity:0;
+  color:var(--turquesa-esc);
+  filter:drop-shadow(0 1px 2px rgba(17,17,17,.55));
+  transition:opacity var(--t);
+}
+.am__b[aria-checked="true"] .am__ok{ opacity:1; }
+.am__n{
+  display:block; padding:6px 6px 7px; font-size:var(--t-apoio2);
+  color:var(--ink2); font-weight:500; line-height:1.25; text-wrap:pretty;
+}
+.am__b[aria-checked="true"] .am__n{ color:var(--ink); font-weight:600; }
+
+
+/* A planta da direção da luz: a sala vista de cima e por onde a luz entra.
+   Voltou depois de eu ter trocado por gradiente: seis amostras bege quase
+   iguais não separavam "frontal" de "lateral esquerda", e a seta separa sem
+   precisar comparar uma com a outra. */
+/* O desenho é referência, e não ilustração: ele só precisa dizer de que
+   lado a luz entra, e para isso não precisa do tamanho de uma amostra de
+   céu, onde a cor é a informação inteira. */
+.am__b--planta .am__q{ height:42px; background:var(--wash); }
+.pl-sala{ fill:none; stroke:var(--ink3); stroke-width:1.5; }
+.pl-luz{ fill:none; stroke:var(--ink2); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.am__b[aria-checked="true"] .pl-luz{ stroke:var(--turq-txt); }
+.am__b--planta .am__ok{ color:var(--turq-txt); filter:none; }
+
+/* ── a bolinha de temperatura de cor ── */
+.kel{ display:grid; grid-template-columns:repeat(2,1fr); gap:2px 12px; }
+.kel__b{
+  display:flex; align-items:center; gap:10px; padding:8px 6px;
+  border:0; border-radius:9px; background:none; text-align:left;
+  font-size:var(--t-corpo); color:var(--ink2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.kel__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink); }
+.kel__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.kel__q{
+  flex:none; width:16px; height:16px; border-radius:50%;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.14);
+  transition:box-shadow var(--t);
+}
+.kel__b[aria-checked="true"] .kel__q{ box-shadow:0 0 0 2px var(--turquesa-esc); }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   O SELETOR DE COR DO "OUTRO"
+
+   Duas abas, porque são dois problemas diferentes. BRANCO é escolher
+   a temperatura de uma luminária, e ali a régua de Kelvin é o
+   controle certo: o gradiente dela É a escala, e a pessoa arrasta até
+   a cor sem precisar saber que 2700 é amarelo.
+
+   COLORIDA é fita de LED, neon, luz de festa. Ali não existe Kelvin
+   nenhum, e o que serve é o quadro de cor de sempre: a régua de matiz
+   escolhe a família, e o quadro escolhe quanto de cor e quanto de luz.
+
+   O hex fica embaixo dos dois e vale para os dois, porque quem já tem
+   o código da fita não quer caçar o tom no quadro.
+   ══════════════════════════════════════════════════════════════════ */
+.cor{ margin-top:14px; padding:14px; border-radius:var(--r-peq); background:var(--wash); }
+.cor[hidden]{ display:none; }
+
+.cor__topo{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.cor__bola{
+  flex:none; width:32px; height:32px; border-radius:50%;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.14);
+}
+.cor__k{ font-size:var(--t-corpo); font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
+.cor__k small{ font-weight:500; color:var(--ink3); }
+
+.cor__abas{ display:flex; gap:2px; padding:3px; margin-bottom:12px; border-radius:var(--pill); background:var(--wash2); }
+.cor__aba{
+  flex:1; height:28px; border:0; border-radius:var(--pill);
+  background:transparent; color:var(--ink3); font-size:var(--t-apoio2); font-weight:600;
+  transition:color var(--t), background var(--t), box-shadow var(--t);
+}
+.cor__aba:hover[aria-checked="false"]{ color:var(--ink); }
+.cor__aba[aria-checked="true"]{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+
+.cor__painel[hidden]{ display:none; }
+
+/* a régua, usada pelo Kelvin e pelo matiz */
+.cor__regua{
+  -webkit-appearance:none; appearance:none; width:100%; height:14px;
+  border-radius:var(--pill); outline:none; cursor:pointer;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.10);
+}
+.cor__regua--k{ background:linear-gradient(90deg,#ff9c3f,#ffbe6b 22%,#ffd9a8 42%,#f4ead9 58%,#e4ecf7 76%,#cfe0ff); }
+.cor__regua--h{ background:linear-gradient(90deg,#f00,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00); }
+.cor__regua::-webkit-slider-thumb{
+  -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+  background:var(--paper); box-shadow:0 1px 4px rgba(17,17,17,.34), inset 0 0 0 1px rgba(17,17,17,.14);
+}
+.cor__regua::-moz-range-thumb{
+  width:20px; height:20px; border:0; border-radius:50%;
+  background:var(--paper); box-shadow:0 1px 4px rgba(17,17,17,.34), inset 0 0 0 1px rgba(17,17,17,.14);
+}
+.cor__pes{ display:flex; justify-content:space-between; margin:6px 2px 0; font-size:11px; color:var(--ink3); }
+
+/* o quadro: branco na horizontal, preto na vertical, sobre o matiz */
+.cor__quadro{
+  position:relative; width:100%; height:104px; margin-bottom:12px;
+  border-radius:10px; cursor:crosshair; touch-action:none;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.10);
+}
+.cor__quadro::before,.cor__quadro::after{
+  content:""; position:absolute; inset:0; border-radius:inherit;
+}
+.cor__quadro::before{ background:linear-gradient(90deg,#fff,rgba(255,255,255,0)); }
+.cor__quadro::after{ background:linear-gradient(0deg,#000,rgba(0,0,0,0)); }
+.cor__alvo{
+  position:absolute; z-index:2; width:16px; height:16px; margin:-8px 0 0 -8px;
+  border-radius:50%; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.45);
+  pointer-events:none;
+}
+
+.cor__hex{ display:flex; align-items:center; gap:8px; margin-top:14px; }
+.cor__rot{ flex:none; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
+.cor__campo{
+  flex:1; min-width:0; height:var(--alt-ctrl); padding:0 14px;
+  border:1px solid transparent; border-radius:var(--pill);
+  background:var(--paper); color:var(--ink);
+  font-family:var(--mono); font-size:var(--t-apoio); text-transform:uppercase; outline:none;
+  transition:border-color var(--t);
+}
+.cor__campo:hover{ border-color:var(--line); }
+.cor__campo:focus{ border-color:var(--line2); }
+
+/* ══════════════════════════════════════════════════════════════════
+   O SELETOR DE COR DO "OUTRO"
+
+   Duas abas, porque são dois problemas diferentes. BRANCO é escolher
+   a temperatura de uma luminária, e ali a régua de Kelvin é o
+   controle certo: o gradiente dela É a escala, e a pessoa arrasta até
+   a cor sem precisar saber que 2700 é amarelo.
+
+   COLORIDA é fita de LED, neon, luz de festa. Ali não existe Kelvin
+   nenhum, e o que serve é o quadro de cor de sempre: a régua de matiz
+   escolhe a família, e o quadro escolhe quanto de cor e quanto de luz.
+
+   O hex fica embaixo dos dois e vale para os dois, porque quem já tem
+   o código da fita não quer caçar o tom no quadro.
+   ══════════════════════════════════════════════════════════════════ */
+.cor{ margin-top:14px; padding:14px; border-radius:var(--r-peq); background:var(--wash); }
+.cor[hidden]{ display:none; }
+
+.cor__topo{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.cor__bola{
+  flex:none; width:32px; height:32px; border-radius:50%;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.14);
+}
+.cor__k{ font-size:var(--t-corpo); font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
+.cor__k small{ font-weight:500; color:var(--ink3); }
+
+.cor__abas{ display:flex; gap:2px; padding:3px; margin-bottom:12px; border-radius:var(--pill); background:var(--wash2); }
+.cor__aba{
+  flex:1; height:28px; border:0; border-radius:var(--pill);
+  background:transparent; color:var(--ink3); font-size:var(--t-apoio2); font-weight:600;
+  transition:color var(--t), background var(--t), box-shadow var(--t);
+}
+.cor__aba:hover[aria-checked="false"]{ color:var(--ink); }
+.cor__aba[aria-checked="true"]{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+
+.cor__painel[hidden]{ display:none; }
+
+/* a régua, usada pelo Kelvin e pelo matiz */
+.cor__regua{
+  -webkit-appearance:none; appearance:none; width:100%; height:14px;
+  border-radius:var(--pill); outline:none; cursor:pointer;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.10);
+}
+.cor__regua--k{ background:linear-gradient(90deg,#ff9c3f,#ffbe6b 22%,#ffd9a8 42%,#f4ead9 58%,#e4ecf7 76%,#cfe0ff); }
+.cor__regua--h{ background:linear-gradient(90deg,#f00,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00); }
+.cor__regua::-webkit-slider-thumb{
+  -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+  background:var(--paper); box-shadow:0 1px 4px rgba(17,17,17,.34), inset 0 0 0 1px rgba(17,17,17,.14);
+}
+.cor__regua::-moz-range-thumb{
+  width:20px; height:20px; border:0; border-radius:50%;
+  background:var(--paper); box-shadow:0 1px 4px rgba(17,17,17,.34), inset 0 0 0 1px rgba(17,17,17,.14);
+}
+.cor__pes{ display:flex; justify-content:space-between; margin:6px 2px 0; font-size:11px; color:var(--ink3); }
+
+/* o quadro: branco na horizontal, preto na vertical, sobre o matiz */
+.cor__quadro{
+  position:relative; width:100%; height:104px; margin-bottom:12px;
+  border-radius:10px; cursor:crosshair; touch-action:none;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.10);
+}
+.cor__quadro::before,.cor__quadro::after{
+  content:""; position:absolute; inset:0; border-radius:inherit;
+}
+.cor__quadro::before{ background:linear-gradient(90deg,#fff,rgba(255,255,255,0)); }
+.cor__quadro::after{ background:linear-gradient(0deg,#000,rgba(0,0,0,0)); }
+.cor__alvo{
+  position:absolute; z-index:2; width:16px; height:16px; margin:-8px 0 0 -8px;
+  border-radius:50%; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.45);
+  pointer-events:none;
+}
+
+.cor__hex{ display:flex; align-items:center; gap:8px; margin-top:14px; }
+.cor__rot{ flex:none; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
+.cor__campo{
+  flex:1; min-width:0; height:var(--alt-ctrl); padding:0 14px;
+  border:1px solid transparent; border-radius:var(--pill);
+  background:var(--paper); color:var(--ink);
+  font-family:var(--mono); font-size:var(--t-apoio); text-transform:uppercase; outline:none;
+  transition:border-color var(--t);
+}
+.cor__campo:hover{ border-color:var(--line); }
+.cor__campo:focus{ border-color:var(--line2); }
+
+/* ══════════════════════════════════════════════════════════════════════
    A CONFIRMAÇÃO
    ══════════════════════════════════════════════════════════════════════ */
 .cf{

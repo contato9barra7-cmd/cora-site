@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════
-//  Filtros — o painel que abre pelo ícone de ajustes
+//  Filtros, o painel que abre pelo ícone de ajustes
 //
 //  Data, ferramenta, proporção, resolução e propriedades. Os filtros
 //  rápidos (Tudo / Imagens / Vídeos / Upscales / Favoritos) continuam nos

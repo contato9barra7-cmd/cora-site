@@ -22,6 +22,10 @@ import CampoRefs from './CampoRefs';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import { useIdioma, localeDeIdioma, tOpt } from '../lib/i18n';
 import {
+  Linha, Amostra, Lista, ItemLista, Sulco, resumir,
+  CEU, QUALIDADE, PLANTA, KELVIN
+} from './CoraFicha';
+import {
   gerarRender, lerMateriais, custoRender, CREDITOS,
   TIPOS, PROPORCOES, LUZ_TIPOS, MOODS, DIRECOES, ATMOSFERAS,
   CORES_LUZ, INTENSIDADES, ENTORNOS, RESOLUCOES, MAX_REFS
@@ -33,6 +37,14 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
   // ── Imagem base ──
   const [imagem, setImagem] = useState(null);
   const [previa, setPrevia] = useState(null);
+
+  // ── A ficha ──
+  // Uma linha aberta por vez, de propósito: é o que mantém o painel curto.
+  // `familiaHora` é qual das quatro famílias de mood está à mostra dentro da
+  // linha da Hora do dia, e ela nasce na família do mood que está valendo.
+  const [linhaAberta, setLinhaAberta] = useState(null);
+  const [familiaHora, setFamiliaHora] = useState(MOODS[0].grupo);
+  const abre = (nome) => () => setLinhaAberta((a) => (a === nome ? null : nome));
 
   // Picker: 'base' | 'ref' | null — sabe onde guardar o que for escolhido
   const [picker, setPicker] = useState(null);
@@ -504,137 +516,215 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
           </>
         )}
 
-        {/* ── Iluminação Natural ── */}
-        <div className="cr-sec">{t('painelrender_iluminacao_natural')}</div>
-        <div className="cr-g2">
-          {LUZ_TIPOS.map((l) => (
-            <button
-              key={l.val}
-              className={'cr-b' + (luzTipo === l.val ? ' cr-b--on' : '')}
-              onClick={() => setLuzTipo(l.val)}
-            >{tOpt(l.rotulo)}</button>
-          ))}
-        </div>
+        {/* ══ A FICHA ══
+            Uma linha por ajuste: o nome à esquerda, o valor de agora à
+            direita. Fechada, ela é tipografia e fio; aberta, ela mostra a cor
+            do grupo que está sendo escolhido. Era uma pilha de 44 botões
+            sempre à vista, e nenhum deles em destaque. */}
+        <div className="fic">
 
-        {MOODS.map((g) => (
-          <div key={g.grupo}>
-            <div className="cr-grp">{tOpt(g.grupo)}</div>
-            <div className="cr-g2">
-              {g.itens.map((m) => (
-                <button
+          {/* Qualidade da luz: a diferença entre direta e difusa é a borda da
+              sombra, e ela se desenha. */}
+          <Linha
+            nome={t('painelrender_iluminacao_natural')}
+            valor={tOpt((LUZ_TIPOS.find((l) => l.val === luzTipo) || {}).rotulo)}
+            aberta={linhaAberta === 'luz'} aoAbrir={abre('luz')}
+          >
+            <div className="am">
+              {LUZ_TIPOS.map((l) => (
+                <Amostra
+                  key={l.val}
+                  fundo={QUALIDADE[l.val]}
+                  marcada={luzTipo === l.val}
+                  onClick={() => setLuzTipo(l.val)}
+                >{tOpt(l.rotulo)}</Amostra>
+              ))}
+            </div>
+          </Linha>
+
+          {/* Hora do dia: quinze opções em quatro famílias. A família anda no
+              sulco, e a hora é a cor do céu. */}
+          <Linha
+            nome={t('painelrender_hora_dia')}
+            valor={tOpt(mood)}
+            aberta={linhaAberta === 'hora'}
+            /* Abrir leva o sulco para a família do mood que está valendo. Sem
+               isto, um rascunho salvo em "Golden hour" abria em "Dia" e a
+               amostra escolhida ficava fora da tela. */
+            aoAbrir={() => {
+              const g = MOODS.find((x) => x.itens.includes(mood));
+              if (g) setFamiliaHora(g.grupo);
+              setLinhaAberta((x) => (x === 'hora' ? null : 'hora'));
+            }}
+          >
+            <Sulco
+              rotulo={t('painelrender_hora_dia')}
+              opcoes={MOODS.map((g) => ({ val: g.grupo, rotulo: tOpt(g.grupo) }))}
+              atual={familiaHora}
+              onEscolher={setFamiliaHora}
+            />
+            <div className="am" style={{ marginTop: 8 }}>
+              {(MOODS.find((g) => g.grupo === familiaHora) || MOODS[0]).itens.map((m) => (
+                <Amostra
                   key={m}
-                  className={'cr-b' + (mood === m ? ' cr-b--on' : '')}
+                  fundo={CEU[m]}
+                  marcada={mood === m}
                   onClick={() => setMood(m)}
-                >{tOpt(m)}</button>
+                >{tOpt(m)}</Amostra>
               ))}
             </div>
-          </div>
-        ))}
+          </Linha>
 
-        <textarea
-          className="cr-ta"
-          placeholder={t('painelrender_ph_det_natural')}
-          value={detNatural}
-          onChange={(e) => setDetNatural(e.target.value)}
-          spellCheck={false}
-        />
-
-        {/* ── Direção da Luz ── */}
-        <div className="cr-sec">{t('painelrender_direcao_luz')}</div>
-        <div className="cr-g2">
-          {DIRECOES.map((d) => (
-            <button
-              key={d}
-              className={'cr-b' + (direcoes.includes(d) ? ' cr-b--on' : '')}
-              onClick={() => toggle(direcoes, setDirecoes, d)}
-            >{tOpt(d)}</button>
-          ))}
-        </div>
-        <textarea
-          className="cr-ta"
-          placeholder={t('painelrender_ph_desc_luz')}
-          value={descLuz}
-          onChange={(e) => setDescLuz(e.target.value)}
-          spellCheck={false}
-        />
-        <p className="cr-hint">{t('painelrender_hint_desc_luz')}</p>
-
-        {/* ── Atmosfera / Clima (multi-seleção) ── */}
-        <div className="cr-sec">{t('painelrender_atmosfera')} <span className="cr-opc">{t('painelrender_atmosfera_opc')}</span></div>
-        <div className="cr-g2">
-          {ATMOSFERAS.map((a) => (
-            <button
-              key={a}
-              className={'cr-b' + (atmosfera.includes(a) ? ' cr-b--on' : '')}
-              onClick={() => toggle(atmosfera, setAtmosfera, a)}
-            >{tOpt(a)}</button>
-          ))}
-        </div>
-        <input
-          className="cr-ta"
-          style={{ minHeight: 0, height: 42 }}
-          placeholder={t('painelrender_ph_atmosfera_outra')}
-          value={atmosferaOutra}
-          onChange={(e) => setAtmosferaOutra(e.target.value)}
-          spellCheck={false}
-        />
-
-        {/* ── Luz Artificial ── */}
-        <div className="cr-sec">{t('painelrender_luz_artificial')}</div>
-        <div className="cr-grp">{t('painelrender_cor')}</div>
-        <div className="cr-g3">
-          {CORES_LUZ.map((c) => (
-            <button
-              key={c}
-              className={'cr-b' + (corLuz === c ? ' cr-b--on' : '')}
-              onClick={() => setCorLuz(c)}
-            >{tOpt(c)}</button>
-          ))}
-        </div>
-
-        {corLuz !== 'Desligada' && (
-          <>
-            <div className="cr-grp">{t('painelrender_intensidade')}</div>
-            <div className="cr-g3">
-              {INTENSIDADES.map((i) => (
-                <button
-                  key={i}
-                  className={'cr-b' + (intensidade === i ? ' cr-b--on' : '')}
-                  onClick={() => setIntensidade(i)}
-                >{tOpt(i)}</button>
+          {/* Direção da luz: aceita mais de uma, porque a luz de um projeto
+              entra por mais de um lugar. */}
+          <Linha
+            nome={t('painelrender_direcao_luz')}
+            valor={resumir(direcoes, t('painelrender_escolhidas'), tOpt)}
+            vazio={t('painelrender_nenhuma')}
+            aberta={linhaAberta === 'direcao'} aoAbrir={abre('direcao')}
+          >
+            <div className="am am--3">
+              {DIRECOES.map((d) => (
+                <Amostra
+                  key={d}
+                  planta={PLANTA[d]}
+                  marcada={direcoes.includes(d)}
+                  onClick={() => toggle(direcoes, setDirecoes, d)}
+                >{tOpt(d)}</Amostra>
               ))}
             </div>
+          </Linha>
+
+          {/* O texto livre da luz mora numa linha só, e não aberto no meio das
+              escolhas. Os dois campos continuam sendo dois (`detNatural` e
+              `descLuz`, que é como o servidor recebe), e quem nunca escreve
+              nada não vê nenhum dos dois. */}
+          <Linha
+            nome={t('painelrender_detalhes_luz')}
+            valor={(detNatural || descLuz || '').slice(0, 40)}
+            vazio={t('painelrender_nenhum')}
+            aberta={linhaAberta === 'detalhes'} aoAbrir={abre('detalhes')}
+          >
+            <p className="fic__grp">{t('painelrender_sobre_natural')}</p>
             <textarea
-              className="cr-ta"
-              placeholder={t('painelrender_ph_det_artificial')}
-              value={detArtificial}
-              onChange={(e) => setDetArtificial(e.target.value)}
+              className="cr-ta ta--curta"
+              placeholder={t('painelrender_ph_det_natural')}
+              value={detNatural}
+              onChange={(e) => setDetNatural(e.target.value)}
               spellCheck={false}
             />
-          </>
-        )}
+            <p className="fic__grp">{t('painelrender_sobre_direcao')}</p>
+            <textarea
+              className="cr-ta ta--curta"
+              placeholder={t('painelrender_ph_desc_luz')}
+              value={descLuz}
+              onChange={(e) => setDescLuz(e.target.value)}
+              spellCheck={false}
+            />
+            <p className="cr-hint">{t('painelrender_hint_desc_luz')}</p>
+          </Linha>
 
-        {/* ── Entorno ── */}
-        <div className="cr-sec">{t('painelrender_entorno')} <span className="cr-opc">{t('painelrender_opcional')}</span></div>
-        <div className="cr-g2">
-          {ENTORNOS.map((e) => (
-            <button
-              key={e}
-              className={'cr-b' + (tagsEntorno.includes(e) ? ' cr-b--on' : '')}
-              onClick={() => toggle(tagsEntorno, setTagsEntorno, e)}
-            >{tOpt(e)}</button>
-          ))}
+          {/* Atmosfera: lista longa e secundária, e dá para marcar várias. O
+              marcador quadrado diz isso sozinho. */}
+          <Linha
+            nome={t('painelrender_atmosfera')}
+            valor={resumir(atmosfera, t('painelrender_escolhidas'), tOpt)}
+            vazio={t('painelrender_nenhuma')}
+            aberta={linhaAberta === 'atmosfera'} aoAbrir={abre('atmosfera')}
+          >
+            <Lista>
+              {ATMOSFERAS.map((a) => (
+                <ItemLista
+                  key={a}
+                  marcada={atmosfera.includes(a)}
+                  onClick={() => toggle(atmosfera, setAtmosfera, a)}
+                >{tOpt(a)}</ItemLista>
+              ))}
+            </Lista>
+            <input
+              className="cr-ta ta--curta"
+              style={{ minHeight: 0, height: 42 }}
+              placeholder={t('painelrender_ph_atmosfera_outra')}
+              value={atmosferaOutra}
+              onChange={(e) => setAtmosferaOutra(e.target.value)}
+              spellCheck={false}
+            />
+          </Linha>
+
+          {/* Luz artificial: 2700K não quer dizer nada até virar uma bolinha
+              alaranjada ao lado do número. */}
+          <Linha
+            nome={t('painelrender_luz_artificial')}
+            valor={tOpt(corLuz)}
+            aberta={linhaAberta === 'artificial'} aoAbrir={abre('artificial')}
+          >
+            <div className="kel">
+              {CORES_LUZ.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  className="kel__b"
+                  aria-checked={corLuz === c}
+                  role="radio"
+                  onClick={() => setCorLuz(c)}
+                >
+                  <span className="kel__q" style={{ background: KELVIN[c] || 'var(--wash2)' }} />
+                  {tOpt(c)}
+                </button>
+              ))}
+            </div>
+
+            {corLuz !== 'Desligada' && (
+              <>
+                <p className="fic__grp">{t('painelrender_intensidade')}</p>
+                <Lista uma>
+                  {INTENSIDADES.map((i) => (
+                    <ItemLista
+                      key={i}
+                      marcada={intensidade === i}
+                      onClick={() => setIntensidade(i)}
+                    >{tOpt(i)}</ItemLista>
+                  ))}
+                </Lista>
+                <p className="fic__grp">{t('painelrender_sobre_artificial')}</p>
+                <textarea
+                  className="cr-ta ta--curta"
+                  placeholder={t('painelrender_ph_det_artificial')}
+                  value={detArtificial}
+                  onChange={(e) => setDetArtificial(e.target.value)}
+                  spellCheck={false}
+                />
+              </>
+            )}
+          </Linha>
+
+          {/* Entorno: aceita vários, e o campo de texto para o que não está na
+              lista mora dentro da linha. */}
+          <Linha
+            nome={t('painelrender_entorno')}
+            valor={resumir(tagsEntorno, t('painelrender_escolhidos'), tOpt)}
+            vazio={t('painelrender_nenhum')}
+            aberta={linhaAberta === 'entorno'} aoAbrir={abre('entorno')}
+          >
+            <Lista>
+              {ENTORNOS.map((e) => (
+                <ItemLista
+                  key={e}
+                  marcada={tagsEntorno.includes(e)}
+                  onClick={() => toggle(tagsEntorno, setTagsEntorno, e)}
+                >{tOpt(e)}</ItemLista>
+              ))}
+            </Lista>
+            <textarea
+              className="cr-ta ta--curta"
+              placeholder={t('painelrender_ph_entorno')}
+              value={entorno}
+              onChange={(e) => setEntorno(e.target.value)}
+              spellCheck={false}
+            />
+            <p className="cr-hint">{t('painelrender_hint_entorno')}</p>
+          </Linha>
         </div>
-        <textarea
-          className="cr-ta"
-          placeholder={t('painelrender_ph_entorno')}
-          value={entorno}
-          onChange={(e) => setEntorno(e.target.value)}
-          spellCheck={false}
-        />
-        <p className="cr-hint">
-          {t('painelrender_hint_entorno')}
-        </p>
 
         {/* ── Referências (abrem o mesmo picker) ── */}
         <div className="cr-sec">{t('painelrender_referencias')} <span className="cr-opc">{t('painelrender_opcional')}</span></div>
