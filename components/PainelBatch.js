@@ -30,6 +30,7 @@ import { useState, useEffect, useRef } from 'react';
 import PickerImagem from './PickerImagem';
 import CampoRefs from './CampoRefs';
 import IconeCredito from './IconeCredito';
+import { Linha } from './CoraFicha';
 import { salvarRascunho, lerRascunho, limparRascunho } from '../lib/rascunho';
 import { bytesDaGeracao } from '../lib/geracoes';
 import { salvarLeitura } from '../lib/leituras';
@@ -65,6 +66,10 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
   // A fase 2 aparece quando há análise. Mas a pessoa pode VOLTAR à fase 1
   // sem perder nada: `verFase1` manda na tela; `analise` continua guardada.
   const [verFase1, setFase1] = useState(false);
+  // A verificação é uma ficha: uma cena aberta por vez, e dentro dela a
+  // sub-linha das referências, fechada até ser pedida.
+  const [cenaAberta, setCenaAberta] = useState(0);
+  const [refsAbertas, setRefsAbertas] = useState(false);
   const fase = (analise && !verFase1) ? 2 : 1;
 
   // ── As aprovadas entram (e saem) sozinhas ──
@@ -474,6 +479,8 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
         {/* ═══ FASE 1 ═══ */}
         {fase === 1 && (
           <>
+            <Passos atual={1} temAnalise={!!analise} aoIr={() => setFase1(false)} t={t} />
+
             <div className="cr-sec">{t('painelbatch_sec_refs')}</div>
             <p className="cr-hint cr-hint--topo">
               {t('painelbatch_hint_refs')}
@@ -594,159 +601,197 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
         {/* ═══ FASE 2 ═══ */}
         {fase === 2 && (
           <>
-            {/* Voltar não apaga a análise: ela continua guardada (custou
-                créditos). Serve para trocar as cenas ou as referências e
-                analisar de novo — ou só para conferir o que foi enviado. */}
-            <button className="cr-voltar" onClick={() => setFase1(true)}>
-              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
-                <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {t('painelbatch_voltar_cenas')}
-            </button>
+            {/* ══ A VERIFICAÇÃO, EM FICHA ══
+                Cada cena era um cartão inteiro aberto: a caixa de 320px, dois
+                botões, as referências e a configuração. Três cenas davam uns
+                1.800px de painel, e o botão de gerar só existia para quem
+                rolava três telas. Agora cada cena é uma linha da ficha, o mesmo
+                gesto do Render: fechada é a miniatura, o nome e o estado. Abre
+                uma por vez, e a lista fechada vira o resumo do batch.
+
+                O "Voltar às cenas" virou o passo 1 do marcador: é o mesmo
+                caminho, com o nome de onde se está. Voltar não apaga a análise
+                (ela custou créditos). */}
+            <Passos atual={2} temAnalise aoIr={() => setFase1(true)} t={t} />
 
             <div className="cr-sec">{t('painelbatch_sec_verif')}</div>
-            <p className="cr-hint cr-hint--topo">
-              {t('painelbatch_hint_verif')}
+            <p className={'cr-hint cr-hint--topo' + (cenasAprovadas.length ? ' cr-hint--ok' : '')}>
+              {cenasAprovadas.length
+                ? `${cenasAprovadas.length} ${t('painelbatch_de')} ${analise.length} ${cenasAprovadas.length === 1 ? t('painelbatch_aprovada_min') : t('painelbatch_aprovadas_min')}`
+                : t('painelbatch_hint_verif')}
             </p>
 
-            {analise.map((c, i) => (
-              <div
-                // key posicional fazia o React reaproveitar instâncias ao
-                // remover uma cena do meio: o estado transitório do CfgCena
-                // (popover aberto, foco) "pulava" para a cena seguinte. O
-                // cenaId é o id estável da cena; o índice fica só para a
-                // entrada rara sem cena (leitura sem imagem).
-                key={c.cenaId || 'sem-cena-' + i}
-                className={'cr-bcena' + (c.aprovada ? ' cr-bcena--ok' : '')}
-              >
-                <div className="cr-bcena-cab">
-                  {c.previa && <img src={c.previa} alt="" />}
-                  <span>{c.nome}</span>
-
-                  {/* Sem isto, uma cena que não presta obriga a refazer a
-                      análise inteira — e a análise custou créditos. */}
-                  <button
-                    className="cr-bcena-x"
-                    onClick={() => setAnalise((a) => {
-                      const resto = a.filter((_, j) => j !== i);
-                      // Tirar a última deixaria uma fase 2 vazia — volta às cenas.
-                      if (!resto.length) setFase1(true);
-                      return resto;
-                    })}
-                    data-tip={t('painelbatch_tirar_tip')}
-                    aria-label={t('painelbatch_tirar_cena') + ' ' + c.nome}
+            <div className="fic">
+              {analise.map((c, i) => {
+                const aberta = cenaAberta === i;
+                const nRefs = (c.detalhes || []).length;
+                return (
+                  <div
+                    // key posicional fazia o React reaproveitar instâncias ao
+                    // remover uma cena do meio: o estado transitório do CfgCena
+                    // (popover aberto, foco) "pulava" para a cena seguinte. O
+                    // cenaId é o id estável da cena; o índice fica só para a
+                    // entrada rara sem cena (leitura sem imagem).
+                    key={c.cenaId || 'sem-cena-' + i}
+                    className="fic__l"
+                    data-aberta={aberta ? 'sim' : 'nao'}
                   >
-                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
-                         stroke="currentColor" strokeWidth="1.6">
-                      <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round"/>
-                    </svg>
-                  </button>
-                </div>
+                    <button
+                      type="button"
+                      className="fic__cab bc__cab"
+                      onClick={() => { setCenaAberta(aberta ? null : i); setRefsAbertas(false); }}
+                      aria-expanded={aberta}
+                    >
+                      {c.previa ? <img className="bc__mini" src={c.previa} alt="" /> : <span className="bc__mini" />}
+                      <span className="bc__nome">{c.nome}</span>
+                      <span className={'bc__st' + (c.aprovada ? ' bc__st--ok' : '')}>
+                        {c.aprovada
+                          ? `${t('painelbatch_aprovada')} · ${c.cfg.qtd} ${c.cfg.qtd === 1 ? t('painelbatch_imagem') : t('painelbatch_imagens')}`
+                          : t('painelbatch_revisar')}
+                      </span>
+                      <svg className="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none"
+                           stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                        <path d="M5 8l5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
 
-                <textarea
-                  className="cr-ta cr-ta--mat"
-                  value={c.materiais}
-                  onChange={(e) => setAnalise((a) => a.map((x, j) => (
-                    j === i ? { ...x, materiais: e.target.value } : x
-                  )))}
-                  readOnly={c.aprovada}
-                  spellCheck={false}
-                />
-
-                {/* Editar e Aprovar dizem respeito ao TEXTO logo acima — ficam
-                    colados nele. */}
-                <div className="cr-g2 cr-bcena-acoes">
-                  <button
-                    className="cr-b"
-                    onClick={() => setAnalise((a) => a.map((x, j) => (
-                      j === i ? { ...x, aprovada: false } : x
-                    )))}
-                    disabled={!c.aprovada}
-                  >{t('painelbatch_editar')}</button>
-
-                  <button
-                    className={c.aprovada ? 'cr-b cr-b--on' : 'cr-b-conf'}
-                    onClick={() => {
-                      // Aprovou com o texto EDITADO? Salva uma versão nova na
-                      // aba Análises, agrupada no card da leitura original
-                      // (mesma chaveImagem). Sem recobrar: é só o texto.
-                      const aprovando = !c.aprovada;
-                      if (aprovando && c.chaveImagem &&
-                          (c.materiais || '').trim() !== (c._materiaisOriginais || '').trim()) {
-                        salvarLeitura({
-                          origem: 'batch',
-                          titulo: c.nome,
-                          materiais: c.materiais,
-                          chaveImagem: c.chaveImagem
-                        }).catch(() => {});
-                      }
-                      setAnalise((a) => a.map((x, j) => (
-                        j === i
-                          ? {
-                              ...x,
-                              aprovada: aprovando,
-                              // evita salvar de novo se aprovar/desaprovar sem mexer
-                              _materiaisOriginais: aprovando ? x.materiais : x._materiaisOriginais
-                            }
-                          : x
-                      )));
-                    }}
-                  >
-                    {c.aprovada ? '✓ ' + t('painelbatch_aprovada') : t('painelbatch_aprovar')}
-                  </button>
-                </div>
-
-                {/* Referência específica desta cena (ex.: um tipo de planta).
-                    Fica logo abaixo do texto e ACIMA da config (igual ao plugin).
-                    Vira @det no prompt — só desta cena, não do projeto todo. */}
-                <div className="cr-bcena-refs">
-                  <div className="cr-bcena-refs-lbl">Referências desta cena (opcional)</div>
-                  <div className="cr-refs">
-                    {(c.detalhes || []).map((d, di) => (
-                      <div key={di} className="cr-ref">
-                        <img src={d.previa} alt="" />
-                        <button
-                          className="cr-ref-x"
-                          onClick={() => setAnalise((a) => a.map((x, j) => (
-                            j === i ? { ...x, detalhes: (x.detalhes || []).filter((_, k) => k !== di) } : x
+                    {aberta && (
+                      <div className="fic__corpo">
+                        <textarea
+                          className="cr-ta cr-ta--mat"
+                          value={c.materiais}
+                          onChange={(e) => setAnalise((a) => a.map((x, j) => (
+                            j === i ? { ...x, materiais: e.target.value } : x
                           )))}
-                          aria-label="Remover referência"
-                        >×</button>
-                        {/* O nome em cima, como nas refs do Render — pra citar por @det. */}
-                        <span className="cr-ref-n">@det{String(di + 1).padStart(2, '0')}</span>
+                          readOnly={c.aprovada}
+                          spellCheck={false}
+                        />
+
+                        {/* Editar e Aprovar dizem respeito ao TEXTO logo acima: ficam
+                            colados nele. Aprovar fecha esta cena e abre a próxima
+                            por revisar, que é o que a pessoa faria em seguida. */}
+                        <div className="cr-g2 cr-bcena-acoes">
+                          <button
+                            className="cr-b"
+                            onClick={() => setAnalise((a) => a.map((x, j) => (
+                              j === i ? { ...x, aprovada: false } : x
+                            )))}
+                            disabled={!c.aprovada}
+                          >{t('painelbatch_editar')}</button>
+
+                          <button
+                            className={c.aprovada ? 'cr-b cr-b--on' : 'cr-b-conf'}
+                            onClick={() => {
+                              // Aprovou com o texto EDITADO? Salva uma versão nova na
+                              // aba Análises, agrupada no card da leitura original
+                              // (mesma chaveImagem). Sem recobrar: é só o texto.
+                              const aprovando = !c.aprovada;
+                              if (aprovando && c.chaveImagem &&
+                                  (c.materiais || '').trim() !== (c._materiaisOriginais || '').trim()) {
+                                salvarLeitura({
+                                  origem: 'batch',
+                                  titulo: c.nome,
+                                  materiais: c.materiais,
+                                  chaveImagem: c.chaveImagem
+                                }).catch(() => {});
+                              }
+                              setAnalise((a) => a.map((x, j) => (
+                                j === i
+                                  ? {
+                                      ...x,
+                                      aprovada: aprovando,
+                                      // evita salvar de novo se aprovar/desaprovar sem mexer
+                                      _materiaisOriginais: aprovando ? x.materiais : x._materiaisOriginais
+                                    }
+                                  : x
+                              )));
+                              if (aprovando) {
+                                const prox = analise.findIndex((x, j) => j > i && !x.aprovada);
+                                setCenaAberta(prox >= 0 ? prox : null);
+                                setRefsAbertas(false);
+                              }
+                            }}
+                          >
+                            {c.aprovada ? '✓ ' + t('painelbatch_aprovada') : t('painelbatch_aprovar')}
+                          </button>
+                        </div>
+
+                        {/* A config é de outra natureza: vai embaixo. E NÃO trava ao
+                            aprovar: aprovar é concordar com a leitura, não com a
+                            resolução ou a quantidade. */}
+                        <CfgCena
+                          cfg={c.cfg}
+                          onMudar={(campo, v) => mudarCfg(i, campo, v)}
+                          travado={ocupado}
+                        />
+
+                        {/* Referência específica desta cena (ex.: um tipo de planta).
+                            Vira @det no prompt, só desta cena, não do projeto todo.
+                            Mora numa sub-linha fechada: quase ninguém usa, e aberta
+                            ela dobrava a altura de toda cena. */}
+                        <div className="fic bc__sub">
+                          <Linha
+                            nome={t('painelbatch_refs_cena')}
+                            valor={nRefs ? `${nRefs} ${nRefs === 1 ? t('painelbatch_imagem') : t('painelbatch_imagens')}` : ''}
+                            vazio={t('painelbatch_nenhuma')}
+                            aberta={refsAbertas}
+                            aoAbrir={() => setRefsAbertas((v) => !v)}
+                          >
+                            <div className="cr-refs">
+                              {(c.detalhes || []).map((d, di) => (
+                                <div key={di} className="cr-ref">
+                                  <img src={d.previa} alt="" />
+                                  <button
+                                    className="cr-ref-x"
+                                    onClick={() => setAnalise((a) => a.map((x, j) => (
+                                      j === i ? { ...x, detalhes: (x.detalhes || []).filter((_, k) => k !== di) } : x
+                                    )))}
+                                    aria-label={t('painelbatch_rem_ref')}
+                                  >×</button>
+                                  {/* O nome em cima, como nas refs do Render, para citar por @det. */}
+                                  <span className="cr-ref-n">@det{String(di + 1).padStart(2, '0')}</span>
+                                </div>
+                              ))}
+                              {nRefs < 10 && (
+                                <button className="cr-ref cr-ref--add" onClick={() => setPicker('det:' + i)}>
+                                  <span className="cr-ref-mais">+</span>
+                                  <span className="cr-ref-c">{nRefs}/10</span>
+                                </button>
+                              )}
+                            </div>
+                            {/* Digitar @ abre a lista e insere @det01, @det02, amarrado à imagem certa. */}
+                            <CampoRefs
+                              className="cr-ta cr-bcena-det-txt"
+                              valor={c.detalheTexto || ''}
+                              onMudar={(v) => setAnalise((a) => a.map((x, j) => (
+                                j === i ? { ...x, detalheTexto: v } : x
+                              )))}
+                              refs={c.detalhes || []}
+                              prefixo="det"
+                              placeholder={t('painelbatch_ph_refs_cena')}
+                            />
+                          </Linha>
+                        </div>
+
+                        {/* Sem isto, uma cena que não presta obriga a refazer a
+                            análise inteira, e a análise custou créditos. */}
+                        <button
+                          type="button"
+                          className="bc__tirar"
+                          onClick={() => setAnalise((a) => {
+                            const resto = a.filter((_, j) => j !== i);
+                            // Tirar a última deixaria uma fase 2 vazia: volta às cenas.
+                            if (!resto.length) setFase1(true);
+                            setCenaAberta(null);
+                            return resto;
+                          })}
+                        >{t('painelbatch_tirar_tip')}</button>
                       </div>
-                    ))}
-                    {(c.detalhes || []).length < 10 && (
-                      <button className="cr-ref cr-ref--add" onClick={() => setPicker('det:' + i)}>
-                        <span className="cr-ref-mais">+</span>
-                        <span className="cr-ref-c">{(c.detalhes || []).length}/10</span>
-                      </button>
                     )}
                   </div>
-                  {/* Descrição das refs desta cena. Digitar @ abre a lista (autocomplete)
-                      e insere @det01, @det02… amarrado à imagem certa. */}
-                  <CampoRefs
-                    className="cr-ta cr-bcena-det-txt"
-                    valor={c.detalheTexto || ''}
-                    onMudar={(v) => setAnalise((a) => a.map((x, j) => (
-                      j === i ? { ...x, detalheTexto: v } : x
-                    )))}
-                    refs={c.detalhes || []}
-                    prefixo="det"
-                    placeholder="Descreva cada referência: @det01 luminária pendente dourada, @det02 tipo de planta…"
-                  />
-                </div>
-
-                {/* A config é de outra natureza — vai embaixo. E NÃO trava ao
-                    aprovar: aprovar é concordar com a leitura, não com a
-                    resolução ou a quantidade. */}
-                <CfgCena
-                  cfg={c.cfg}
-                  onMudar={(campo, v) => mudarCfg(i, campo, v)}
-                  travado={ocupado}
-                />
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </>
         )}
 
@@ -875,6 +920,29 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
         titulo={picker === 'ref' ? t('painelbatch_add_ref') : (typeof picker === 'string' && picker.startsWith('det:')) ? 'Referência desta cena' : t('painelbatch_add_cena')}
       />
     </>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Passos: o marcador "1 Cenas · 2 Verificação"
+//  O Batch é uma sequência de dois passos e se apresenta como tal. O passo
+//  que não é o atual é um botão, e o 2 só abre quando já existe análise.
+// ═══════════════════════════════════════════════════════════
+function Passos({ atual, temAnalise, aoIr, t }) {
+  const passo = (n, rotulo) => (
+    <button
+      type="button"
+      aria-current={atual === n ? 'step' : undefined}
+      disabled={atual === n || (n === 2 && !temAnalise)}
+      onClick={() => aoIr(n)}
+    >{n} {rotulo}</button>
+  );
+  return (
+    <div className="fic__passos">
+      {passo(1, t('painelbatch_passo_cenas'))}
+      <i />
+      {passo(2, t('painelbatch_passo_verif'))}
+    </div>
   );
 }
 
