@@ -1134,21 +1134,29 @@
    fixos, entao o espaco que sai daqui volta distribuido nas duas, e o nome
    com o apoio continuam centrados nela. */
 .conta-cabeca__email{ margin:-3px 0 0; align-self:start; font-size:14.5px; color:var(--ink2); line-height:1.5; }
-/* ── QUANDO NAO HA FOTO, O APOIO SOBE PARA O MEIO ──
-   O `align-self:start` de cima foi pensado para o caso COM foto: la o nome e
-   o apoio ficam em linhas diferentes e se encontram no meio dela.
-
+/* ── QUANDO NAO HA FOTO, OS DOIS SENTAM NA MESMA LINHA DE BASE ──
    Sem foto a grade muda de forma: o nome cai na coluna 1 e o apoio na 2, os
-   dois na MESMA linha. Ai o `start` encosta o apoio no topo de uma linha que
-   tem a altura de um titulo de 30px, e ele fica pendurado no alto, longe da
-   base do nome. E o que se via em Admin, Dinheiro.
+   dois na MESMA linha do grid. E ai a pergunta deixa de ser "onde fica a
+   caixa" e passa a ser "onde fica o texto".
+
+   Ja foi `center`, e centrado ele estava: caixa contra caixa dava 0,01px de
+   diferenca, e o centro de massa da tinta dava 0,97px. So que centrado nao e
+   o que o olho pede quando uma palavra de 14,5px anda ao lado de um titulo de
+   30px. O que amarra os dois e a linha de base, que e a mesma coisa que a
+   gente chama de "alinhar por baixo" em texto.
+
+   `baseline` nos DOIS, e nao so no apoio: o nome herda `align-self:end` da
+   regra de cima, que existe para o caso COM foto. Trocar so um deixaria cada
+   um obedecendo a uma regra diferente na mesma linha.
 
    `:has()` porque a diferenca e ESTRUTURAL, e nao de tela: quem decide e a
    existencia da foto, e nao a pagina. Assim vale para qualquer cabecalho sem
    foto que apareca depois, sem ninguem lembrar de por uma classe. */
+.conta-cabeca:not(:has(.conta-cabeca__foto)) .conta-cabeca__nome,
 .conta-cabeca:not(:has(.conta-cabeca__foto)) .conta-cabeca__email{
-  align-self:center; margin-top:0;
+  align-self:baseline;
 }
+.conta-cabeca:not(:has(.conta-cabeca__foto)) .conta-cabeca__email{ margin-top:0; }
 
 /* ══════════════════════════════════════════════════════════════════════
    MINHA CONTA
