@@ -111,7 +111,7 @@
 }/* O que rola é o corpo, não o painel: assim a barra de rolagem nasce embaixo
    do trilho, e não atrás dele. O trilho fica parado, como a barra do feed
    fica parada sobre a lista. O `z-index` do trilho é para o tooltip das
-   pills, que desce sobre o corpo. */.co .cr-painel{ overflow:hidden; }.co .cr-painel-corpo{ flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; }.co .cr-sulco{ flex:1; min-width:0; border-radius:var(--pill); background:var(--wash2); padding:3px; overflow:visible; }.co .cr-sulco .cr-trilho{ display:flex; gap:2px; width:100%; transform:none; transition:none; background:transparent; padding:0; }.co .cr-pill{
+   pills, que desce sobre o corpo. */.co .cr-painel{ overflow:hidden; }.co .cr-painel-corpo{ flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; }.co .cr-sulco{ flex:1; min-width:0; border-radius:var(--pill); background:var(--wash2); padding:3px; overflow:visible; }.co .cr-sulco .cr-trilho{ display:flex; gap:2px; width:100%; transform:none; transition:none; background:transparent; padding:0; }.co .cr-pill{
   position:relative; flex:1 1 0; min-width:30px; height:32px; padding:0; border:0;
   border-radius:var(--pill); background:transparent; color:var(--ink3);
   display:flex; align-items:center; justify-content:center; gap:6px;
@@ -309,11 +309,14 @@
    Cada aba é uma coluna que preenche o corpo do painel: o formulário ocupa
    o que sobra e a barra de gerar fica presa no fim, no mesmo lugar em toda
    aba, com o formulário rolando por baixo dela. É o espelho do feed, que
-   tem a barra parada em cima e a lista rolando embaixo. */.co .cr-aba{ display:flex; flex-direction:column; flex:1 0 auto; }/* O `hidden` é do navegador e perde para qualquer `display` de autor: sem
-   esta linha as quatro abas montadas apareceriam ao mesmo tempo. */.co .cr-aba[hidden]{ display:none; }.co .cr-aba > .cr-form, .co .cr-aba > .up-painel{ flex:1 0 auto; }.co .cr-barra-ger{
+   tem a barra parada em cima e a lista rolando embaixo. */.co .cr-aba{ display:flex; flex-direction:column; flex:1; min-height:0; }/* O `hidden` é do navegador e perde para qualquer `display` de autor: sem
+   esta linha as quatro abas montadas apareceriam ao mesmo tempo. */.co .cr-aba[hidden]{ display:none; }/* Quem rola é o formulário, e não o painel inteiro: assim a barra de
+   rolagem termina no fio da barra de gerar, em vez de correr por trás
+   dela. Mesma coisa que o trilho faz em cima. */.co .cr-aba > .cr-form, .co .cr-aba > .up-painel, .co .cr-aba.cr-painel-vazio{
+  flex:1; min-height:0; overflow-y:auto;
+}.co .cr-barra-ger{
   flex:none; padding:12px 16px 14px;
   border-top:1px solid var(--line); background:var(--paper);
-  position:sticky; bottom:0; z-index:5;
 }/* O Resetar mora na barra, depois do botão: é a última coisa que se faz. */.co .cr-barra-ger .cr-resetar{ margin:12px auto 0; }.co .cr-barra-ger .up-gerar{ margin-top:0; }.co .cr-pills-cfg{ display:flex; gap:6px; margin-bottom:10px; }/* ── A verificação do Batch, em ficha ──
    O marcador dos dois passos, a linha de cada cena (miniatura, nome, estado)
    e a sub-linha das referências. As peças de dentro (caixa, botões,

@@ -175,7 +175,7 @@
    fica parada sobre a lista. O `z-index` do trilho é para o tooltip das
    pills, que desce sobre o corpo. */
 .cr-painel{ overflow:hidden; }
-.cr-painel-corpo{ flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; }
+.cr-painel-corpo{ flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; }
 .cr-sulco{ flex:1; min-width:0; border-radius:var(--pill); background:var(--wash2); padding:3px; overflow:visible; }
 .cr-sulco .cr-trilho{ display:flex; gap:2px; width:100%; transform:none; transition:none; background:transparent; padding:0; }
 .cr-pill{
@@ -535,15 +535,19 @@
    o que sobra e a barra de gerar fica presa no fim, no mesmo lugar em toda
    aba, com o formulário rolando por baixo dela. É o espelho do feed, que
    tem a barra parada em cima e a lista rolando embaixo. */
-.cr-aba{ display:flex; flex-direction:column; flex:1 0 auto; }
+.cr-aba{ display:flex; flex-direction:column; flex:1; min-height:0; }
 /* O `hidden` é do navegador e perde para qualquer `display` de autor: sem
    esta linha as quatro abas montadas apareceriam ao mesmo tempo. */
 .cr-aba[hidden]{ display:none; }
-.cr-aba > .cr-form, .cr-aba > .up-painel{ flex:1 0 auto; }
+/* Quem rola é o formulário, e não o painel inteiro: assim a barra de
+   rolagem termina no fio da barra de gerar, em vez de correr por trás
+   dela. Mesma coisa que o trilho faz em cima. */
+.cr-aba > .cr-form, .cr-aba > .up-painel, .cr-aba.cr-painel-vazio{
+  flex:1; min-height:0; overflow-y:auto;
+}
 .cr-barra-ger{
   flex:none; padding:12px 16px 14px;
   border-top:1px solid var(--line); background:var(--paper);
-  position:sticky; bottom:0; z-index:5;
 }
 /* O Resetar mora na barra, depois do botão: é a última coisa que se faz. */
 .cr-barra-ger .cr-resetar{ margin:12px auto 0; }
