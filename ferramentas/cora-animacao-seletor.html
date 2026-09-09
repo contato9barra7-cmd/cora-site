@@ -1,0 +1,189 @@
+<title>Animação e Sequências</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   ESTUDO: O SELETOR ANIMAÇÃO / SEQUÊNCIAS, E OS CARDS DAS FERRAMENTAS
+   Quatro jeitos de escolher entre a animação simples e as sequências, no
+   alto da aba. Em todos, escolhido é lima e turquesa, as duas cores da marca,
+   e nunca o laranja. Embaixo, os cards das ferramentas no padrão do Editar.
+   Tokens copiados da janela (cora.html) para o estudo abrir sozinho.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --turq-txt:#196C5B; --turq-bg:#E6F7F3;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --t:.16s ease;
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px; --t-titulo:17px;
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --faixa:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+    --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+    --line:#2B2B30; --line2:#3A3A41; --turq-txt:#8FDDCC; --turq-bg:rgba(143,221,204,.16);
+    --sombra-peq:0 2px 8px rgba(0,0,0,.34); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41; --turq-txt:#8FDDCC; --turq-bg:rgba(143,221,204,.16);
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34); color-scheme:dark;
+}
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--wash); color:var(--ink); font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.5; }
+.pag{ max-width:1000px; margin:0 auto; padding:40px 24px 72px; }
+.cab{ max-width:62ch; margin-bottom:32px; }
+.cab h1{ margin:0 0 8px; font-size:28px; font-weight:600; letter-spacing:-.01em; text-wrap:balance; }
+.cab p{ margin:0; color:var(--ink2); text-wrap:pretty; }
+.cab p + p{ margin-top:8px; }
+h2.sec{ margin:44px 0 16px; font-size:var(--t-secao, 20px); font-weight:600; }
+
+.ops{ display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:32px 28px; }
+.op__cab{ display:flex; gap:11px; align-items:flex-start; margin-bottom:12px; }
+.op__n{ flex:none; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--ink); color:var(--paper); font-size:var(--t-apoio2); font-weight:600; }
+.op__cab h3{ margin:1px 0 3px; font-size:var(--t-titulo); font-weight:600; }
+.op__cab p{ margin:0; color:var(--ink2); font-size:var(--t-apoio); max-width:42ch; text-wrap:pretty; }
+.par{ display:grid; gap:10px; }
+.painel{ width:400px; max-width:100%; padding:20px 16px 18px; background:var(--paper); border:1px solid var(--line); border-radius:var(--r); }
+.painel + .painel{ margin-top:0; }
+.cr-sec{ margin:18px 0 10px; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+.cr-sec:first-child{ margin-top:0; }
+.legenda{ margin:8px 0 0; font-size:var(--t-apoio2); color:var(--ink3); }
+
+/* os dois desenhos do seletor */
+.ico{ width:18px; height:18px; flex:none; }
+
+/* ═══ 1 · O sulco (o mesmo do trilho e do P/M/G/GG) ═══ */
+.sul{ display:flex; gap:2px; padding:3px; border-radius:var(--pill); background:var(--wash2); }
+.sul__b{ flex:1; min-width:0; height:38px; padding:0 10px; border:0; border-radius:var(--pill); display:flex; align-items:center; justify-content:center; gap:8px; background:transparent; color:var(--ink3); font:inherit; font-size:var(--t-apoio); font-weight:600; cursor:pointer; }
+.sul__b svg{ stroke:currentColor; }
+.sul__b--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+.sul__b--on svg{ stroke:var(--turq-txt); }
+
+/* ═══ 2 · As duas pílulas com faixa (o que está no site hoje) ═══ */
+.pil{ display:flex; gap:8px; }
+.pil__b{ flex:1; display:flex; align-items:center; gap:11px; padding:0; overflow:hidden; border:1px solid var(--line2); border-radius:var(--pill); background:var(--paper); text-align:left; cursor:pointer; font:inherit; }
+.pil__f{ width:42px; align-self:stretch; display:flex; align-items:center; justify-content:center; background:var(--wash); flex:none; }
+.pil__f svg{ stroke:var(--ink3); }
+.pil__t{ font-size:var(--t-apoio2); font-weight:500; color:var(--ink); padding:11px 0; }
+.pil__b--on{ border-color:var(--turquesa-esc); background:var(--turq-bg); }
+.pil__b--on .pil__f{ background:var(--turquesa); }
+.pil__b--on .pil__f svg{ stroke:#111111; }
+
+/* ═══ 3 · Abas com o fio de lima ═══ */
+.abas{ display:flex; border-bottom:1px solid var(--line); }
+.abas__b{ flex:1; position:relative; display:flex; align-items:center; justify-content:center; gap:8px; height:42px; border:0; background:none; color:var(--ink3); font:inherit; font-size:var(--t-apoio); font-weight:600; cursor:pointer; }
+.abas__b svg{ stroke:currentColor; }
+.abas__b--on{ color:var(--ink); }
+.abas__b--on svg{ stroke:var(--turq-txt); }
+.abas__b--on::after{ content:""; position:absolute; left:0; right:0; bottom:-1px; height:3px; background:var(--lima); border-radius:3px 3px 0 0; }
+
+/* ═══ 4 · Dois cards, com a faixa da marca ═══ */
+.dois{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.ed-card{ position:relative; overflow:hidden; display:block; width:100%; padding:24px 12px 12px; text-align:left; border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper); cursor:pointer; font:inherit; color:inherit; transition:border-color var(--t), box-shadow var(--t); }
+.ed-card::after{ content:""; position:absolute; left:0; right:0; top:0; height:10px; background:var(--faixa) repeat-x var(--desl,0) center; background-size:80px 100%; pointer-events:none; }
+.ed-card:hover, .ed-card--hover{ border-color:var(--line2); box-shadow:var(--sombra-peq); }
+.ed-card--on{ border-color:var(--line2); }
+.ed-card--on::before{ content:""; position:absolute; left:0; top:10px; bottom:0; width:3px; background:var(--lima); }
+.ed-faixa{ width:34px; height:34px; margin-bottom:10px; border-radius:50%; background:var(--wash2); color:var(--ink2); display:flex; align-items:center; justify-content:center; }
+.ed-faixa svg{ width:17px; height:17px; stroke:currentColor; }
+.ed-card--on .ed-faixa{ background:var(--turq-bg); color:var(--turq-txt); }
+.ed-corpo strong{ display:block; font-size:var(--t-corpo); font-weight:600; color:var(--ink); }
+.ed-corpo span{ display:block; margin-top:4px; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.45; text-wrap:pretty; }
+.dois .ed-card{ padding-bottom:14px; }
+.dois .ed-corpo strong{ font-size:var(--t-apoio); }
+
+/* os cards das ferramentas, numa coluna */
+.col{ display:grid; grid-template-columns:1fr; gap:8px; }
+.col .ed-card:nth-child(2){ --desl:-12px; } .col .ed-card:nth-child(3){ --desl:-27px; }
+.estado{ display:inline-block; margin-left:8px; padding:1px 8px; border-radius:var(--pill); background:var(--wash2); color:var(--ink3); font-size:var(--t-etiqueta); font-weight:600; letter-spacing:.04em; text-transform:uppercase; vertical-align:2px; }
+
+.rod{ margin-top:40px; max-width:62ch; color:var(--ink2); font-size:var(--t-apoio); }
+.rod p{ margin:0 0 8px; text-wrap:pretty; }
+.rod strong{ color:var(--ink); font-weight:600; }
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-seq" viewBox="0 0 24 24"><path d="M3 12h4l3-9 4 18 3-9h4" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><g fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V11l7-5 7 5v10"/><path d="M9 21v-6h6v6"/><path d="M2 11l10-7 10 7"/></g></symbol>
+  <symbol id="i-int" viewBox="0 0 24 24"><g fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M4 21V8h16v13"/><rect x="9" y="13" width="6" height="8"/><path d="M4 8l8-5 8 5"/></g></symbol>
+  <symbol id="i-dir" viewBox="0 0 24 24"><g fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/></g></symbol>
+</defs></svg>
+
+<div class="pag">
+  <header class="cab">
+    <h1>Animação e Sequências</h1>
+    <p>Quatro jeitos de escolher, no alto da aba, entre a animação simples e as sequências. Cada opção aparece nos dois estados, Animação escolhida e Sequências escolhida. Em todas, escolhido é lima e turquesa, as duas cores da marca. O laranja saiu.</p>
+    <p>Embaixo, os cards das três ferramentas no padrão do Editar, com o hover sem o verde de sistema. Esses já estão no site.</p>
+  </header>
+
+  <div class="ops">
+    <section>
+      <div class="op__cab"><span class="op__n">1</span><div><h3>O sulco</h3><p>O mesmo gesto do trilho e do P/M/G/GG do feed: um sulco, e a escolhida é a placa que sobe. O desenho da escolhida fica turquesa. É o mais parecido com o resto da janela.</p></div></div>
+      <div class="par">
+        <div class="painel"><div class="sul"><button class="sul__b sul__b--on"><svg class="ico"><use href="#i-play"/></svg>Animação</button><button class="sul__b"><svg class="ico"><use href="#i-seq"/></svg>Sequências</button></div></div>
+        <div class="painel"><div class="sul"><button class="sul__b"><svg class="ico"><use href="#i-play"/></svg>Animação</button><button class="sul__b sul__b--on"><svg class="ico"><use href="#i-seq"/></svg>Sequências</button></div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="op__cab"><span class="op__n">2</span><div><h3>As duas pílulas</h3><p>O desenho de hoje, com a cor certa: a faixa do desenho fica turquesa cheia, o corpo turquesa clara, e o traço em tinta. Sem branco sobre turquesa, que some.</p></div></div>
+      <div class="par">
+        <div class="painel"><div class="pil"><button class="pil__b pil__b--on"><span class="pil__f"><svg class="ico"><use href="#i-play"/></svg></span><span class="pil__t">Animação</span></button><button class="pil__b"><span class="pil__f"><svg class="ico"><use href="#i-seq"/></svg></span><span class="pil__t">Sequências</span></button></div></div>
+        <div class="painel"><div class="pil"><button class="pil__b"><span class="pil__f"><svg class="ico"><use href="#i-play"/></svg></span><span class="pil__t">Animação</span></button><button class="pil__b pil__b--on"><span class="pil__f"><svg class="ico"><use href="#i-seq"/></svg></span><span class="pil__t">Sequências</span></button></div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="op__cab"><span class="op__n">3</span><div><h3>Abas com o fio de lima</h3><p>Duas abas de texto sobre um fio, e a escolhida leva embaixo o mesmo fio de lima de 3px que diz "você está aqui" no menu da esquerda e nos cards. O desenho da escolhida, turquesa. Lima e turquesa no mesmo lugar.</p></div></div>
+      <div class="par">
+        <div class="painel"><div class="abas"><button class="abas__b abas__b--on"><svg class="ico"><use href="#i-play"/></svg>Animação</button><button class="abas__b"><svg class="ico"><use href="#i-seq"/></svg>Sequências</button></div></div>
+        <div class="painel"><div class="abas"><button class="abas__b"><svg class="ico"><use href="#i-play"/></svg>Animação</button><button class="abas__b abas__b--on"><svg class="ico"><use href="#i-seq"/></svg>Sequências</button></div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="op__cab"><span class="op__n">4</span><div><h3>Dois cards</h3><p>Os mesmos cards do Editar, lado a lado: a faixa da marca no alto, a pastilha do desenho, e o fio de lima na escolhida. A aba inteira passa a falar uma língua só, do seletor às ferramentas.</p></div></div>
+      <div class="par">
+        <div class="painel"><div class="dois"><button class="ed-card ed-card--on"><div class="ed-faixa"><svg><use href="#i-play"/></svg></div><div class="ed-corpo"><strong>Animação</strong></div></button><button class="ed-card" style="--desl:-40px"><div class="ed-faixa"><svg><use href="#i-seq"/></svg></div><div class="ed-corpo"><strong>Sequências</strong></div></button></div></div>
+        <div class="painel"><div class="dois"><button class="ed-card"><div class="ed-faixa"><svg><use href="#i-play"/></svg></div><div class="ed-corpo"><strong>Animação</strong></div></button><button class="ed-card ed-card--on" style="--desl:-40px"><div class="ed-faixa"><svg><use href="#i-seq"/></svg></div><div class="ed-corpo"><strong>Sequências</strong></div></button></div></div>
+      </div>
+    </section>
+  </div>
+
+  <h2 class="sec">As ferramentas, no padrão do Editar</h2>
+  <div class="ops">
+    <section>
+      <div class="op__cab"><div><h3>Em repouso<span class="estado">como no site</span></h3><p>Faixa da marca, pastilha cinza com o desenho, nome e uma linha. Cada card começa a faixa num ponto diferente.</p></div></div>
+      <div class="painel"><p class="cr-sec">Ferramentas</p><div class="col">
+        <button class="ed-card"><div class="ed-faixa"><svg><use href="#i-ext"/></svg></div><div class="ed-corpo"><strong>Timelapse Externo</strong><span>Gera a sequência de construção (do terreno à obra pronta) a partir de um render externo.</span></div></button>
+        <button class="ed-card"><div class="ed-faixa"><svg><use href="#i-int"/></svg></div><div class="ed-corpo"><strong>Timelapse Interiores</strong><span>Sequência de construção de um ambiente interno.</span></div></button>
+        <button class="ed-card"><div class="ed-faixa"><svg><use href="#i-dir"/></svg></div><div class="ed-corpo"><strong>Diretor de Narrativa</strong><span>Cria uma sequência de cenas com direção cinematográfica.</span></div></button>
+      </div></div>
+    </section>
+    <section>
+      <div class="op__cab"><div><h3>Com a mão em cima, e escolhido</h3><p>O hover é a borda um tom mais escura e uma sombra leve, sem verde. O escolhido leva o fio de lima na esquerda e a pastilha turquesa clara.</p></div></div>
+      <div class="painel"><p class="cr-sec">Ferramentas</p><div class="col">
+        <button class="ed-card ed-card--hover"><div class="ed-faixa"><svg><use href="#i-ext"/></svg></div><div class="ed-corpo"><strong>Timelapse Externo <span class="estado">hover</span></strong><span>Gera a sequência de construção (do terreno à obra pronta) a partir de um render externo.</span></div></button>
+        <button class="ed-card ed-card--on"><div class="ed-faixa"><svg><use href="#i-int"/></svg></div><div class="ed-corpo"><strong>Timelapse Interiores <span class="estado">escolhido</span></strong><span>Sequência de construção de um ambiente interno.</span></div></button>
+        <button class="ed-card"><div class="ed-faixa"><svg><use href="#i-dir"/></svg></div><div class="ed-corpo"><strong>Diretor de Narrativa</strong><span>Cria uma sequência de cenas com direção cinematográfica.</span></div></button>
+      </div></div>
+    </section>
+  </div>
+
+  <footer class="rod">
+    <p><strong>O que pesa.</strong> A 1 e a 3 são as mais leves e as mais parecidas com o resto da janela, o sulco do feed e o fio do menu. A 2 é o que está no site, só com a cor certa. A 4 é a mais pesada e a mais coerente com as ferramentas logo abaixo, que já são cards.</p>
+    <p><strong>O que não muda.</strong> Escolhido é turquesa, e o fio de lima é "você está aqui". Nenhuma das quatro pinta com uma cor própria.</p>
+  </footer>
+</div>
