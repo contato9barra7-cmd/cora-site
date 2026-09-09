@@ -15,6 +15,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
+import RodapeLegal from '../../components/RodapeLegal';
 import PainelRender from '../../components/PainelRender';
 import PainelBatch from '../../components/PainelBatch';
 import PainelEditar from '../../components/PainelEditar';
@@ -1801,6 +1802,10 @@ export default function AppPage() {
                 </article>
               );
             })}
+
+            {/* O rodapé fecha a galeria, e só quando há galeria: embaixo do
+                "Nada aqui ainda" ele viraria a única coisa escrita na tela. */}
+            {!carregando && !vazio && <RodapeLegal noFeed />}
 
           </div>
           </>

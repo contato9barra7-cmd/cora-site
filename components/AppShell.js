@@ -737,7 +737,10 @@ export default function AppShell({ children }) {
       {/* CONTEÚDO */}
       <main className="app-main">
         <div className="app-main-conteudo">{children}</div>
-        <RodapeLegal />
+        {/* A Prancheta tem o seu, no fim da lista do feed: ali ele é o fim
+            de uma galeria, e não uma faixa atravessada embaixo das duas
+            colunas, fora da vista e brigando com a barra de gerar. */}
+        {!pathname.startsWith('/app') && <RodapeLegal />}
       </main>
 
       {/* Contador do trial (enquanto ativo). Escondido nas abas de Promptadores:

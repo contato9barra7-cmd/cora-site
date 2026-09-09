@@ -849,6 +849,19 @@
 .cr-vazio p{ margin:0; max-width:38ch; font-size:var(--t-corpo); color:var(--ink2); text-wrap:pretty; }
 .cr-msg{ padding:32px 20px; color:var(--ink3); font-size:var(--t-corpo); }
 
+/* ── O rodapé da galeria ──
+   O mesmo rodapé do resto do painel, no fim da lista. O fio não atravessa a
+   tela: ele para no recuo das imagens, e o texto fica um tom mais claro que
+   o do resto. Ele fecha a galeria, não abre uma segunda superfície. */
+.rodape-legal--feed{
+  margin:44px 0 0; padding:26px 0 34px;
+  border-top:1px solid var(--line);
+  font-size:var(--t-apoio2); color:var(--ink3); opacity:.75;
+  transition:opacity var(--t);
+}
+.rodape-legal--feed:hover{ opacity:1; }
+.rodape-legal--feed .rl-sep{ margin:0 6px; }
+
 /* ── Voltar ao topo ── */
 .cr-voltar-topo{
   position:absolute; right:20px; bottom:20px; width:44px; height:44px;
