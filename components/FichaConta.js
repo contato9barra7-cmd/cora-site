@@ -85,12 +85,24 @@ function fraseDoProblema(p) {
   return f;
 }
 
-function motivoDoAcesso(a) {
+function motivoDoAcesso(a, conta) {
   if (!a) return { texto: 'sem plano', cor: '#8E8E88' };
   // Preto, e nao roxo: o roxo saiu da marca em 06/09/2026, e cor que ficou
   // para tras e a que mais denuncia uma tela que nao foi revisada. Admin nao
   // e alerta nem confirmacao, entao ele nao pede cor de sinal.
-  if (a.ilimitado) return { texto: 'Admin, acesso ilimitado', cor: '#111111' };
+  /* "Admin, acesso ilimitado" era o texto fixo aqui, e ele nasceu quando o
+     admin era o unico jeito de ter credito sem limite. Com o gerente, esse
+     rotulo passou a chamar de admin quem nao e: a mesma classe de erro que
+     este arquivo acabou de consertar em outro lugar, e o tipo de coisa que
+     leva alguem a procurar a aba Admin na conta de outra pessoa. */
+  if (a.ilimitado) {
+    return {
+      texto: conta?.is_admin ? 'Admin, acesso ilimitado'
+        : conta?.gerente ? 'Gerente, gera sem gastar crédito'
+        : 'Acesso ilimitado',
+      cor: '#111111',
+    };
+  }
   if (a.pode_gerar) return { texto: 'Pode gerar normalmente', cor: '#1F7A44' };
   if (a.equipe_suspenso) return { texto: 'BLOQUEADO — suspenso pela equipe (excedente de assentos)', cor: '#C8342A' };
   if (a.eh_trial && a.trial_expirado) return { texto: 'BLOQUEADO — teste de 7 dias terminou', cor: '#C8342A' };
@@ -404,7 +416,7 @@ export default function FichaConta({ abrirConta }) {
 
   const a = ficha?.acesso;
   const consumo = consumoDaConta(ficha);
-  const motivo = motivoDoAcesso(a);
+  const motivo = motivoDoAcesso(a, ficha?.conta);
   /* O cartao e o problema vem prontos do servidor, da MESMA funcao que monta
      a tela da propria pessoa. Duplicar a leitura aqui faria as duas darem
      versoes diferentes do mesmo cartao, e a divergencia so apareceria numa
