@@ -225,6 +225,7 @@ export default function PainelAnimacao({
   const [audio, setAudio]     = useState(false);
   const [picker, setPicker]   = useState(null);    // 'inicio' | 'fim' | null
   const [pop, setPop]         = useState(null);     // 'dur' | 'res' | null
+  const [qtd, setQtd]         = useState(1);        // quantos vídeos de uma vez (1 a 10)
   const [erro, setErro]       = useState('');
 
   // ── Diretor de Narrativa ──
@@ -254,7 +255,7 @@ export default function PainelAnimacao({
   // Fecha os popovers de opção ao clicar fora deles.
   useEffect(() => {
     if (!pop) return;
-    function fora(e) { if (!e.target.closest('.anim-pill-wrap')) setPop(null); }
+    function fora(e) { if (!e.target.closest('.cr-pill-wrap')) setPop(null); }
     document.addEventListener('mousedown', fora);
     return () => document.removeEventListener('mousedown', fora);
   }, [pop]);
@@ -350,26 +351,32 @@ export default function PainelAnimacao({
 
     const iniB64 = inicio.base64;
     const prop = proporcaoMaisProximaTL(inicio.w, inicio.h);
-    const ativoId = onIniciar ? onIniciar('data:image/png;base64,' + iniB64, prop) : null;
+    const cfg = {
+      modelo,
+      modeloLabel: (MODELOS.find((m) => m.v === modelo) || {}).n,
+      imagemInicio: iniB64,
+      imagemFim: fim ? fim.base64 : '',
+      duracao,
+      resolucao,
+      descricao,
+      timelapse,
+      audio: temAudio && audio
+    };
 
-    try {
-      const r = await animarKling({
-        modelo,
-        modeloLabel: (MODELOS.find((m) => m.v === modelo) || {}).n,
-        imagemInicio: iniB64,
-        imagemFim: fim ? fim.base64 : '',
-        duracao,
-        resolucao,
-        descricao,
-        timelapse,
-        audio: temAudio && audio
-      });
-      if (!r.url) setErro(t('painelanimacao_erro_gerar_anim'));
-    } catch (e) {
-      setErro(e.message);
-    } finally {
-      onTerminar && onTerminar(ativoId);
-    }
+    // Até dez de uma vez, cada uma com o seu slot no feed. Rodam juntas:
+    // quem enfileira é o servidor, e esperar uma acabar para pedir a outra
+    // seria só espera. Uma falhar não derruba as outras.
+    await Promise.all(Array.from({ length: qtd }, async () => {
+      const ativoId = onIniciar ? onIniciar('data:image/png;base64,' + iniB64, prop) : null;
+      try {
+        const r = await animarKling(cfg);
+        if (!r.url) setErro(t('painelanimacao_erro_gerar_anim'));
+      } catch (e) {
+        setErro(e.message);
+      } finally {
+        onTerminar && onTerminar(ativoId);
+      }
+    }));
   }
 
   // ── Timelapse Externo ──
@@ -862,8 +869,7 @@ export default function PainelAnimacao({
         <section className="up-bloco">
           <div className="cr-sec">{t('painelanimacao_descricao_opcional')}</div>
           <textarea
-            className="up-textarea"
-            rows={4}
+            className="cr-ta"
             maxLength={2500}
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
@@ -874,46 +880,19 @@ export default function PainelAnimacao({
         </section>
       )}
 
-      {/* ── Opções ── */}
-      <section className="up-bloco">
-        <div className="cr-sec">{t('painelanimacao_opcoes')}</div>
-        <div className="anim-pills">
-          <div className="anim-pill-wrap">
-            <button className="anim-pill" onClick={() => setPop(pop === 'dur' ? null : 'dur')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" strokeLinecap="round"/></svg>
-              <span>{duracao}s</span>
-            </button>
-            {pop === 'dur' && (
-              <div className="anim-pop">
-                {(DURACOES[modelo] || ['5']).map((d) => (
-                  <button key={d} className={d === duracao ? 'sel' : ''} onClick={() => { setDuracao(d); setPop(null); }}>{d}s</button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="anim-pill-wrap">
-            <button className="anim-pill" onClick={() => setPop(pop === 'res' ? null : 'res')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
-              <span>{resolucao}</span>
-            </button>
-            {pop === 'res' && (
-              <div className="anim-pop">
-                {(RESOLUCOES[modelo] || ['720p']).map((r) => (
-                  <button key={r} className={r === resolucao ? 'sel' : ''} onClick={() => { setResolucao(r); setPop(null); }}>{r}</button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {temAudio && (
+      {/* ── Áudio: a única opção que fica no formulário. Duração e resolução
+          moram na barra de gerar, ao lado da quantidade, como no Render. ── */}
+      {temAudio && (
+        <section className="up-bloco">
+          <div className="cr-sec">{t('painelanimacao_opcoes')}</div>
+          <div className="anim-pills">
             <button className={'anim-pill' + (audio ? ' anim-pill--on' : '')} onClick={() => setAudio(!audio)}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 5L6 9H2v6h4l5 4V5z"/>{audio && <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" strokeLinecap="round"/>}</svg>
               <span>{audio ? t('painelanimacao_audio_on') : t('painelanimacao_audio_off')}</span>
             </button>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {erro && <p className="up-erro">{erro}</p>}
 
@@ -953,33 +932,30 @@ export default function PainelAnimacao({
       {secao === 'sequencias' && !ferramenta && (
         <section className="up-bloco">
           <div className="cr-sec">{t('painelanimacao_ferramentas')}</div>
-          <div className="seq-cards">
-            <button className="seq-card" onClick={() => { setTlTipo('externo'); setFerramenta('tl-externo'); }}>
-              <span className="seq-faixa">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V11l7-5 7 5v10"/><path d="M9 21v-6h6v6"/><path d="M2 11l10-7 10 7"/></svg>
-              </span>
-              <span className="seq-corpo">
+          {/* Os mesmos cards do Editar, com a faixa da marca, a pastilha do
+              desenho e o fio de lima de "você está aqui": uma ferramenta é
+              uma ferramenta, aqui ou lá. */}
+          <div className="ed-cards ed-cards--coluna">
+            <button className="ed-card" onClick={() => { setTlTipo('externo'); setFerramenta('tl-externo'); }}>
+              <div className="ed-faixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V11l7-5 7 5v10"/><path d="M9 21v-6h6v6"/><path d="M2 11l10-7 10 7"/></svg></div>
+              <div className="ed-corpo">
                 <strong>{t('painelanimacao_tl_externo')}</strong>
                 <span>{t('painelanimacao_tl_externo_desc')}</span>
-              </span>
+              </div>
             </button>
-            <button className="seq-card" onClick={() => { setTlTipo('interior'); setFerramenta('tl-interior'); }}>
-              <span className="seq-faixa">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M4 21V8h16v13"/><rect x="9" y="13" width="6" height="8"/><path d="M4 8l8-5 8 5"/></svg>
-              </span>
-              <span className="seq-corpo">
+            <button className="ed-card" onClick={() => { setTlTipo('interior'); setFerramenta('tl-interior'); }}>
+              <div className="ed-faixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M4 21V8h16v13"/><rect x="9" y="13" width="6" height="8"/><path d="M4 8l8-5 8 5"/></svg></div>
+              <div className="ed-corpo">
                 <strong>{t('painelanimacao_tl_interiores')}</strong>
                 <span>{t('painelanimacao_tl_interiores_desc')}</span>
-              </span>
+              </div>
             </button>
-            <button className="seq-card" onClick={() => setFerramenta('diretor')}>
-              <span className="seq-faixa">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/></svg>
-              </span>
-              <span className="seq-corpo">
+            <button className="ed-card" onClick={() => setFerramenta('diretor')}>
+              <div className="ed-faixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/></svg></div>
+              <div className="ed-corpo">
                 <strong>{t('painelanimacao_diretor_narrativa')}</strong>
                 <span>{t('painelanimacao_diretor_desc')}</span>
-              </span>
+              </div>
             </button>
           </div>
         </section>
@@ -1074,26 +1050,6 @@ export default function PainelAnimacao({
 
           {tlErro && <p className="up-erro">{tlErro}</p>}
 
-          {/* ── Dois modos de gerar (só antes de começar uma sequência) ── */}
-          {!tlRodando && tlEtapas.length === 0 && (
-            <div className="seq-gerar-box">
-              <div className="seq-gerar-item">
-                <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('completo')} disabled={!tlBase}>
-                  <span>{t('painelanimacao_gerar_completa')}</span>
-                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseCompleto(tlRes, tlNEtapas)}</span>}
-                </button>
-                <p className="seq-gerar-aviso">{t('painelanimacao_completa_aviso')}</p>
-              </div>
-              <div className="seq-gerar-item">
-                <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('passo')} disabled={!tlBase}>
-                  <span>{t('painelanimacao_gerar_uma_a_uma')}</span>
-                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapsePrimeira(tlRes)}</span>}
-                </button>
-                <p className="seq-gerar-aviso">{t('painelanimacao_uma_a_uma_aviso')}</p>
-              </div>
-            </div>
-          )}
-
           {/* ── Progresso + aviso de reembolso ── */}
           {(tlRodando || (tlStatus && tlEtapas.length > 0)) && (
             <div className="seq-gerando">
@@ -1102,17 +1058,6 @@ export default function PainelAnimacao({
                 <div className="seq-prog"><span style={{ width: (tlEtapas.length ? Math.round((tlPasso / tlEtapas.length) * 100) : 0) + '%' }} /></div>
               )}
               {tlRodando && <p className="seq-reembolso">{t('painelanimacao_reembolso')}</p>}
-            </div>
-          )}
-
-          {/* ── Controles do modo uma a uma ── */}
-          {tlModo === 'passo' && !tlRodando && tlPasso > 0 && tlPasso < tlEtapas.length && (
-            <div className="seq-passo-box">
-              <button className="cr-btn-gerar seq-gerar-fino" onClick={gerarProxima}>
-                <span>{t('painelanimacao_gerar_proxima')} ({tlPasso + 1}/{tlEtapas.length})</span>
-                <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}</span>
-              </button>
-              <button className="seq-refazer" onClick={refazerEtapa}>{t('painelanimacao_refazer_etapa')}</button>
             </div>
           )}
 
@@ -1154,11 +1099,6 @@ export default function PainelAnimacao({
             </div>
           )}
 
-          {tlEtapas.length > 0 && !tlRodando && (
-            <div className="seq-reset-box">
-              <button className="seq-reset" onClick={resetarTimelapse}>{t('painelanimacao_resetar_outra')}</button>
-            </div>
-          )}
         </>
       )}
 
@@ -1224,26 +1164,6 @@ export default function PainelAnimacao({
                 <div className="seq-gerando"><p className="seq-status">{narrStatus}</p><div className="seq-prog"><span style={{ width: '60%' }} /></div></div>
               )}
 
-              {!narrRodando && (
-                <div className="seq-gerar-box" style={{ marginTop: 10 }}>
-                  {narrOrdem.length === 0 ? (
-                    <button className="cr-btn-gerar seq-gerar-fino" onClick={narrAnalisarOrdem} disabled={narrImagens.length < 2}>
-                      <span>{t('painelanimacao_analisar_ordem')}</span>
-                      <span className="cr-custo-tag"><IconeCredito /> {CREDITOS.narrativa}</span>
-                    </button>
-                  ) : (
-                    <button className="cr-btn-gerar seq-gerar-fino" onClick={narrGerarRoteiro}>
-                      <span>{t('painelanimacao_confirmar_ordem')}</span>
-                      <span className="cr-custo-tag"><IconeCredito /> {CREDITOS.narrativa}</span>
-                    </button>
-                  )}
-                </div>
-              )}
-              {narrImagens.length > 0 && !narrRodando && (
-                <div className="seq-reset-box">
-                  <button className="seq-reset" onClick={narrResetar}>{t('painelanimacao_resetar_tudo')}</button>
-                </div>
-              )}
             </section>
           )}
 
@@ -1292,9 +1212,6 @@ export default function PainelAnimacao({
                 </div>
               )}
 
-              <div className="seq-reset-box">
-                <button className="seq-reset" onClick={narrResetar}>{t('painelanimacao_resetar_outro')}</button>
-              </div>
             </>
           )}
         </>
@@ -1398,16 +1315,126 @@ export default function PainelAnimacao({
       />
     </div>
 
-      {/* ── Gerar: no pé do painel, como no Render. Só a animação simples
-          tem barra: nas sequências cada etapa tem o seu botão no lugar. ── */}
+      {/* ── Gerar: no pé do painel, como no Render, com a quantidade, a
+          duração e a resolução alinhadas em cima do botão. ── */}
       {secao === 'animacao' && (
         <div className="cr-barra-ger">
+          <div className="cr-pills-cfg">
+            <div className="cr-qty">
+              <button onClick={() => setQtd((q) => Math.max(1, q - 1))} aria-label={t('painelrender_menos_uma')}>−</button>
+              <span>{qtd}</span>
+              <button onClick={() => setQtd((q) => Math.min(10, q + 1))} aria-label={t('painelrender_mais_uma')}>+</button>
+            </div>
+            <div className="cr-pill-wrap">
+              <button
+                className={'cr-pill-cfg' + (pop === 'dur' ? ' cr-pill-cfg--on' : '')}
+                onClick={(e) => { e.stopPropagation(); setPop(pop === 'dur' ? null : 'dur'); }}
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" strokeLinecap="round"/></svg>
+                <span>{duracao}s</span>
+                <Seta aberto={pop === 'dur'} />
+              </button>
+              {pop === 'dur' && (
+                <div className="cr-pop cr-pop--res" onClick={(e) => e.stopPropagation()}>
+                  {(DURACOES[modelo] || ['5']).map((d) => (
+                    <button key={d} className={'cr-pop-res' + (d === duracao ? ' cr-pop-res--on' : '')} onClick={() => { setDuracao(d); setPop(null); }}>{d}s</button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="cr-pill-wrap">
+              <button
+                className={'cr-pill-cfg' + (pop === 'res' ? ' cr-pill-cfg--on' : '')}
+                onClick={(e) => { e.stopPropagation(); setPop(pop === 'res' ? null : 'res'); }}
+              >
+                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/></svg>
+                <span>{resolucao}</span>
+                <Seta aberto={pop === 'res'} />
+              </button>
+              {pop === 'res' && (
+                <div className="cr-pop cr-pop--res" onClick={(e) => e.stopPropagation()}>
+                  {(RESOLUCOES[modelo] || ['720p']).map((r) => (
+                    <button key={r} className={'cr-pop-res' + (r === resolucao ? ' cr-pop-res--on' : '')} onClick={() => { setResolucao(r); setPop(null); }}>{r}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
           <button className="cr-btn-gerar up-gerar" onClick={gerar} disabled={!inicio || !modelo}>
             <span>{t('painelanimacao_gerar_animacao')}</span>
             {inicio && modelo && custo > 0 && (
-              <span className="cr-custo-tag"><IconeCredito /> {custo}</span>
+              <span className="cr-custo-tag"><IconeCredito /> {custo * qtd}</span>
             )}
           </button>
+        </div>
+      )}
+
+      {/* ── Timelapse: os botões no pé do painel, como em toda aba. Antes de
+          começar, os dois jeitos de gerar; no passo a passo, a próxima etapa;
+          rodando, o estado; no fim, o resetar. ── */}
+      {secao === 'sequencias' && (ferramenta === 'tl-externo' || ferramenta === 'tl-interior') && (
+        <div className="cr-barra-ger">
+          {!tlRodando && tlEtapas.length === 0 && (
+            <div className="seq-gerar-box">
+              <div className="seq-gerar-item">
+                <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('completo')} disabled={!tlBase}>
+                  <span>{t('painelanimacao_gerar_completa')}</span>
+                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseCompleto(tlRes, tlNEtapas)}</span>}
+                </button>
+                <p className="seq-gerar-aviso">{t('painelanimacao_completa_aviso')}</p>
+              </div>
+              <div className="seq-gerar-item">
+                <button className="cr-btn-gerar seq-gerar-fino" onClick={() => rodarTimelapse('passo')} disabled={!tlBase}>
+                  <span>{t('painelanimacao_gerar_uma_a_uma')}</span>
+                  {tlBase && <span className="cr-custo-tag"><IconeCredito /> {custoTimelapsePrimeira(tlRes)}</span>}
+                </button>
+                <p className="seq-gerar-aviso">{t('painelanimacao_uma_a_uma_aviso')}</p>
+              </div>
+            </div>
+          )}
+          {tlModo === 'passo' && !tlRodando && tlPasso > 0 && tlPasso < tlEtapas.length && (
+            <div className="seq-passo-box">
+              <button className="cr-btn-gerar seq-gerar-fino" onClick={gerarProxima}>
+                <span>{t('painelanimacao_gerar_proxima')} ({tlPasso + 1}/{tlEtapas.length})</span>
+                <span className="cr-custo-tag"><IconeCredito /> {custoTimelapseEtapa(tlRes)}</span>
+              </button>
+              <button className="seq-refazer" onClick={refazerEtapa}>{t('painelanimacao_refazer_etapa')}</button>
+            </div>
+          )}
+          {tlRodando && (
+            <button className="cr-btn-gerar" disabled><span>{tlStatus || t('painelanimacao_gerando')}</span></button>
+          )}
+          {tlEtapas.length > 0 && !tlRodando && (
+            <button className="cr-resetar" onClick={resetarTimelapse}>{t('painelanimacao_resetar_outra')}</button>
+          )}
+        </div>
+      )}
+
+      {/* ── Diretor de Narrativa: idem. Analisar, confirmar, e o resetar. ── */}
+      {secao === 'sequencias' && ferramenta === 'diretor' && (
+        <div className="cr-barra-ger">
+          {!narrConfirmado && narrRodando && (
+            <button className="cr-btn-gerar" disabled><span>{narrStatus || t('painelanimacao_gerando')}</span></button>
+          )}
+          {!narrConfirmado && !narrRodando && (
+            narrOrdem.length === 0 ? (
+              <button className="cr-btn-gerar" onClick={narrAnalisarOrdem} disabled={narrImagens.length < 2}>
+                <span>{t('painelanimacao_analisar_ordem')}</span>
+                <span className="cr-custo-tag"><IconeCredito /> {CREDITOS.narrativa}</span>
+              </button>
+            ) : (
+              <button className="cr-btn-gerar" onClick={narrGerarRoteiro}>
+                <span>{t('painelanimacao_confirmar_ordem')}</span>
+                <span className="cr-custo-tag"><IconeCredito /> {CREDITOS.narrativa}</span>
+              </button>
+            )
+          )}
+          {!narrConfirmado && narrImagens.length > 0 && !narrRodando && (
+            <button className="cr-resetar" onClick={narrResetar}>{t('painelanimacao_resetar_tudo')}</button>
+          )}
+          {narrConfirmado && narrTakes && (
+            <button className="cr-resetar" onClick={narrResetar}>{t('painelanimacao_resetar_outro')}</button>
+          )}
         </div>
       )}
     </>

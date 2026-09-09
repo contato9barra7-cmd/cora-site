@@ -293,8 +293,7 @@ export default function PainelUpscale({
 
           <label className="up-lbl">{t('painelupscale_lbl_descricao')}</label>
           <textarea
-            className="up-textarea"
-            rows={2}
+            className="cr-ta"
             value={st.prompt}
             onChange={(e) => campo('prompt', e.target.value)}
             placeholder={t('painelupscale_ph_descricao')}

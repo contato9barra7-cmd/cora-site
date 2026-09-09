@@ -461,6 +461,8 @@
    trocar nome de classe transforma "troca de folha" em "reescrita de JSX".
    ══════════════════════════════════════════════════════════════════════ */
 .ed-cards{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+/* As ferramentas das Sequências: os mesmos cards, numa coluna só. */
+.ed-cards--coluna{ grid-template-columns:1fr; }
 .ed-card{
   position:relative; overflow:hidden; display:block; width:100%;
   padding:24px 12px 12px; text-align:left;
@@ -574,6 +576,11 @@
   flex:none; padding:12px 16px 14px;
   border-top:1px solid var(--line); background:var(--paper);
 }
+/* Dois jeitos de gerar na mesma barra (timelapse): um em cima do outro, cada
+   um com a sua linha de apoio, sem a margem que tinham dentro do formulário. */
+.cr-barra-ger .seq-gerar-box{ margin-top:0; gap:12px; }
+.cr-barra-ger .seq-passo-box{ margin-top:0; }
+.cr-barra-ger .seq-gerar-aviso{ text-align:center; }
 /* O Resetar mora na barra, depois do botão: é a última coisa que se faz. */
 .cr-barra-ger .cr-resetar{ margin:12px auto 0; }
 .cr-barra-ger .up-gerar{ margin-top:0; }

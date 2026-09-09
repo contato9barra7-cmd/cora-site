@@ -6252,10 +6252,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink3); cursor: pointer; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 8px; padding: 0;
 }
-.anim-card:hover { border-color: var(--lima-txt); color: var(--ink2); }
+.anim-card:hover { border-color: var(--turq-txt); color: var(--ink2); }
 .anim-card svg { width: 26px; height: 26px; }
 .anim-card-lbl { font-size: 11px; font-weight: 500; }
-.anim-card--obrig .anim-card-lbl::after { content: ' *'; color: var(--lima-txt); }
+.anim-card--obrig .anim-card-lbl::after { content: ' *'; color: var(--turq-txt); }
 .anim-card--img { border-style: solid; }
 .anim-card--img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 11px; }
 .anim-card-x {
@@ -6270,7 +6270,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: var(--paper); color: var(--ink2); display: flex; align-items: center;
   justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.15);
 }
-.anim-seta:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.anim-seta:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 .anim-seta svg { width: 18px; height: 18px; }
 
 .anim-check { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink); cursor: pointer; font-weight: 500; }
@@ -6293,9 +6293,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border: 1px solid var(--line2); background: var(--wash); color: var(--ink2);
   font-size: 12.5px; font-family: inherit; cursor: pointer; white-space: nowrap;
 }
-.anim-pill:hover { border-color: var(--lima-txt); }
+.anim-pill:hover { border-color: var(--turq-txt); }
 .anim-pill svg { width: 14px; height: 14px; opacity: .8; }
-.anim-pill--on { border-color: var(--lima-txt); color: var(--lima-txt); }
+.anim-pill--on { border-color: var(--turq-txt); color: var(--turq-txt); }
 .anim-pop {
   position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 30;
   background: var(--paper); border: 1px solid var(--line2); border-radius: 12px;
@@ -6306,8 +6306,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: transparent; border: none; color: var(--ink2); font-family: inherit;
   font-size: 12.5px; padding: 8px 12px; border-radius: 9px; cursor: pointer; text-align: left; white-space: nowrap;
 }
-.anim-pop button:hover { background: var(--accent-bg); color: var(--lima-txt); }
-.anim-pop button.sel { background: var(--accent-bg); color: var(--lima-txt); font-weight: 600; }
+.anim-pop button:hover { background: var(--turq-bg); color: var(--turq-txt); }
+.anim-pop button.sel { background: var(--turq-bg); color: var(--turq-txt); font-weight: 600; }
 
 /* Capa "gerando" sobre o slot (upscale, animação) */
 .cr-ger-capa {
@@ -6672,12 +6672,12 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 /* Ativo: película fraquinha na cor + borda forte + bloco na cor cheia. */
 .anim-sel-btn--on { border-width: 1.5px; }
-.anim-sel-btn--anim-on { border-color: var(--turq-txt); background: rgba(143,221,204,.20); }
-.anim-sel-btn--anim-on .anim-sel-faixa--anim { background: var(--roxo); }
-.anim-sel-btn--anim-on .anim-sel-faixa--anim svg { stroke: #fff; }
-.anim-sel-btn--seq-on { border-color: #F0997B; background: rgba(240,153,123,.14); }
-.anim-sel-btn--seq-on .anim-sel-faixa--seq { background: #F0997B; }
-.anim-sel-btn--seq-on .anim-sel-faixa--seq svg { stroke: #fff; }
+/* Escolhido é turquesa, nos dois lados: o laranja das Sequências não é de
+   nenhuma das duas cores da marca. O desenho fica em tinta sobre a faixa
+   turquesa, porque branco sobre turquesa clara some. */
+.anim-sel-btn--on { border-color: var(--turquesa-esc); background: var(--turq-bg); }
+.anim-sel-btn--on .anim-sel-faixa { background: var(--turquesa); }
+.anim-sel-btn--on .anim-sel-faixa svg { stroke: #111111; }
 
 .anim-sel-btn:hover:not(.anim-sel-btn--on) { border-color: var(--line); }
 .anim-sel-txt {
@@ -6764,7 +6764,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   grid-column: 1 / -1; aspect-ratio: auto; height: 88px; padding: 0; gap: 6px;
   border: 1px dashed var(--line2); border-radius: 12px; background: var(--wash); color: var(--ink3);
 }
-.narr-add--full:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.narr-add--full:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 .narr-add--full .narr-add-txt { font-size: 12.5px; }
 
 .narr-roteiro-cab { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
@@ -6843,7 +6843,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: border-color .15s, transform .15s;
   font-family: inherit;
 }
-.seq-card:hover { border-color: var(--lima-txt); transform: translateY(-1px); }
+.seq-card:hover { border-color: var(--turq-txt); transform: translateY(-1px); }
 .seq-faixa {
   width: 100%;
   height: 54px;
@@ -6877,14 +6877,14 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .seq-status {
   font-size: 12.5px;
-  color: var(--lima-txt);
+  color: var(--turq-txt);
   line-height: 1.5;
   margin: 4px 0 0;
 }
 .seq-gerando { margin: 8px 0 0; }
 .seq-reembolso { font-size: 11px; color: var(--ink3); margin: 4px 0 0; }
 .seq-slot--clic { padding: 0; border: 0.5px solid var(--line2); cursor: pointer; font-family: inherit; }
-.seq-slot--clic:hover { border-color: var(--lima-txt); }
+.seq-slot--clic:hover { border-color: var(--turq-txt); }
 /* popover PNG/JPEG no visualizador do timelapse */
 .vz-pill-wrap { position: relative; display: inline-flex; }
 .vz-fmt-pop {
@@ -6946,14 +6946,14 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   padding: 9px 0; border-radius: 100px; border: 1px solid var(--line2);
   background: transparent; color: var(--ink2); font-size: 12.5px; font-family: inherit; cursor: pointer;
 }
-.seq-refazer:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.seq-refazer:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 .seq-reset-box { margin-top: 16px; text-align: right; }
 .seq-reset {
   background: transparent; border: none; padding: 0; cursor: pointer;
   color: var(--ink3); font-size: 11px; font-weight: 600; font-family: inherit;
   text-decoration: underline; text-underline-offset: 2px;
 }
-.seq-reset:hover { color: var(--lima-txt); }
+.seq-reset:hover { color: var(--turq-txt); }
 .seq-slot {
   position: relative;
   aspect-ratio: 1;
@@ -12332,7 +12332,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border: 1px solid var(--line2); background: var(--wash); color: var(--ink);
   font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 54px;
 }
-.up-textarea:focus { outline: none; border-color: var(--lima-txt); }
+.up-textarea:focus { outline: none; border-color: var(--turq-txt); }
 
 /* Modal de salvar preset (central) */
 .up-modal-fundo {
