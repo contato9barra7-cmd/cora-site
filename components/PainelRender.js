@@ -612,7 +612,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               `descLuz`, que é como o servidor recebe), e quem nunca escreve
               nada não vê nenhum dos dois. */}
           <Linha
-            nome={t('painelrender_detalhes_luz')}
+            nome={t('painelrender_detalhes_luz_natural')}
             aberta={linhaAberta === 'detalhes'} aoAbrir={abre('detalhes')}
           >
             <p className="fic__grp">{t('painelrender_sobre_natural')}</p>
@@ -684,9 +684,19 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               ))}
             </div>
 
-            {corLuz !== 'Desligada' && (
-              <>
-                <p className="fic__grp">{t('painelrender_intensidade')}</p>
+          </Linha>
+
+          {/* Intensidade e detalhes moravam DENTRO da linha da luz artificial,
+              em grupos com rótulo pequeno. Cada assunto virou linha própria,
+              como todo o resto da ficha. As duas só existem com a luz ligada:
+              intensidade de uma lâmpada apagada não é pergunta. */}
+          {corLuz !== 'Desligada' && (
+            <>
+              <Linha
+                nome={t('painelrender_intensidade')}
+                valor={tOpt(intensidade)}
+                aberta={linhaAberta === 'intensidade'} aoAbrir={abre('intensidade')}
+              >
                 <Lista uma>
                   {INTENSIDADES.map((i) => (
                     <ItemLista
@@ -696,7 +706,12 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
                     >{tOpt(i)}</ItemLista>
                   ))}
                 </Lista>
-                <p className="fic__grp">{t('painelrender_sobre_artificial')}</p>
+              </Linha>
+
+              <Linha
+                nome={t('painelrender_detalhes_luz_artificial')}
+                aberta={linhaAberta === 'detalhesArt'} aoAbrir={abre('detalhesArt')}
+              >
                 <textarea
                   className="cr-ta ta--curta"
                   placeholder={t('painelrender_ph_det_artificial')}
@@ -704,9 +719,9 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
                   onChange={(e) => setDetArtificial(e.target.value)}
                   spellCheck={false}
                 />
-              </>
-            )}
-          </Linha>
+              </Linha>
+            </>
+          )}
 
           {/* Entorno: aceita vários, e o campo de texto para o que não está na
               lista mora dentro da linha. */}
