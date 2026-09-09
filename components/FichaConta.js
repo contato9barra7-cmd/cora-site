@@ -21,7 +21,7 @@ import { adminGeracoesDaConta } from '../lib/geracoes';
 import DropdownCora from './DropdownCora';
 import {
   adminBuscarContas, adminFichaDaConta, adminExtratoDaConta, adminCreditar,
-  adminMudarPlano, adminCancelar, adminDeletarConta, adminPersonificar, adminGerente,
+  adminMudarPlano, adminCancelar, adminDeletarConta, adminPersonificar, adminGerente, adminTirarAdmin, adminCreditosReais,
 } from '../lib/auth';
 
 const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
@@ -354,6 +354,15 @@ export default function FichaConta({ abrirConta }) {
         // qualquer estado que sobrasse em memória seria do admin anterior.
         window.location.href = '/conta';
         return;
+      } else if (acao === 'tirar-admin') {
+        await adminTirarAdmin(conta.id);
+        setAviso('Não é mais admin: a aba some e as rotas de admin recusam.');
+      } else if (acao === 'creditos-reais') {
+        const ligar = !ficha.conta.creditos_reais;
+        await adminCreditosReais(conta.id, ligar);
+        setAviso(ligar
+          ? 'Agora esta conta gasta crédito de verdade.'
+          : 'Esta conta voltou a não gastar crédito.');
       } else if (acao === 'gerente') {
         const virar = !ficha.conta.gerente;
         await adminGerente(conta.id, virar);
@@ -669,6 +678,18 @@ export default function FichaConta({ abrirConta }) {
               <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('gerente'); }}>
                 {ficha.conta.gerente ? 'Tirar de gerente' : 'Tornar gerente'}
               </button>
+              {/* Só aparece quando há o que tirar. Um item permanente que não
+                  faz nada na maioria das fichas vira um item que ninguém lê. */}
+              {ficha.conta.is_admin && (
+                <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('tirar-admin'); }}>
+                  Tirar o admin
+                </button>
+              )}
+              <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('creditos-reais'); }}>
+                {ficha.conta.creditos_reais
+                  ? 'Voltar a não gastar crédito'
+                  : 'Fazer gastar crédito de verdade'}
+              </button>
               {/* Fica acima da divisória: cancelar tira o plano, mas dá para
                   devolvê-lo. Abaixo da linha só entra o que não tem volta. */}
               {a?.plano !== 'free' && (
@@ -747,6 +768,42 @@ export default function FichaConta({ abrirConta }) {
             </>
           )}
 
+          {acao === 'tirar-admin' && (
+            <>
+              <p className="ficha-confirma-t">Tirar o admin de <b>{ficha.conta.email}</b></p>
+              <p className="ficha-confirma-p">
+                A aba Admin some do menu dela, e as rotas de admin passam a
+                recusar. O resto da conta continua igual.
+                <br />
+                <b>Não existe o botão que devolve.</b> Dar admin pela tela seria
+                o botão mais perigoso do produto, então conceder continua sendo
+                uma decisão no banco.
+              </p>
+            </>
+          )}
+
+          {acao === 'creditos-reais' && (
+            <>
+              <p className="ficha-confirma-t">
+                {ficha.conta.creditos_reais
+                  ? 'Voltar a não gastar crédito' : 'Fazer gastar crédito de verdade'}
+                {' '}em <b>{ficha.conta.email}</b>
+              </p>
+              <p className="ficha-confirma-p">
+                {ficha.conta.creditos_reais ? (
+                  <>Hoje esta conta gasta crédito mesmo sendo admin ou gerente.
+                    Desligando, ela volta a não gastar, que é o que o papel dela
+                    promete.</>
+                ) : (
+                  <>Ela passa a gastar crédito de verdade, mesmo sendo admin ou
+                    gerente. Serve para testar a cobrança por dentro, e
+                    <b> cancela o "sem limite" do papel</b> enquanto estiver
+                    ligada.</>
+                )}
+              </p>
+            </>
+          )}
+
           {acao === 'gerente' && (
             <>
               <p className="ficha-confirma-t">
@@ -757,11 +814,23 @@ export default function FichaConta({ abrirConta }) {
                 {ficha.conta.gerente ? (
                   <>Volta a consumir crédito do plano dela, como qualquer conta.</>
                 ) : (
-                  <>Passa a gerar <b>sem consumir crédito</b>, e continua <b>sem acesso
-                    ao admin</b>: o menu dela não ganha esta aba, e as rotas daqui
-                    seguem recusando. Dá para desfazer por este mesmo caminho.</>
+                  <>Passa a gerar <b>sem consumir crédito</b>. Dá para desfazer
+                    por este mesmo caminho.</>
                 )}
               </p>
+              {/* O AVISO QUE FALTAVA. `creditos_reais` cancela o "sem limite"
+                  do papel, e ela não aparecia em lugar nenhum: uma conta foi
+                  promovida, não ganhou nada, e recebeu um e-mail dizendo que
+                  tinha ganhado. Promover com ela ligada é prometer o que não
+                  vai acontecer. */}
+              {!ficha.conta.gerente && ficha.conta.creditos_reais && (
+                <p className="ficha-confirma-p" style={{ color: '#C8342A' }}>
+                  <b>Esta conta está marcada para gastar crédito de verdade.</b>{' '}
+                  Enquanto isso valer, ser gerente não muda nada para ela, e o
+                  e-mail vai avisar de um benefício que ela não recebeu.
+                  Desligue a marca antes, no mesmo menu.
+                </p>
+              )}
             </>
           )}
 
@@ -843,6 +912,25 @@ export default function FichaConta({ abrirConta }) {
       {aba === 'resumo' && (
         <div className="conta-card adm-card">
           <Linha rotulo="Plano">{NOME_PLANO[a?.plano] || a?.plano} · {a?.status}</Linha>
+          {/* ── O PAPEL E A CHAVE QUE O CANCELA ──
+              Estas duas linhas nasceram de um defeito real: uma conta foi
+              promovida a gerente, não ganhou nada, e recebeu um e-mail dizendo
+              que tinha ganhado. A causa era `creditos_reais`, ligada no banco,
+              que cancela o "sem limite" dos dois papéis e não aparecia em tela
+              nenhuma. Chave que muda o comportamento do produto e não se vê é
+              chave que engana quem responde pelo produto. */}
+          <Linha rotulo="Papel">
+            {ficha.conta.is_admin ? 'admin'
+              : ficha.conta.gerente ? 'gerente'
+              : 'conta comum'}
+          </Linha>
+          {ficha.conta.creditos_reais && (
+            <Linha rotulo="Gasta crédito de verdade">
+              <b style={{ color: '#C8342A' }}>sim</b>
+              {(ficha.conta.is_admin || ficha.conta.gerente)
+                && ' · isto cancela o sem limite do papel acima'}
+            </Linha>
+          )}
           {/* `-1` e o codigo de ilimitado no servidor, e ele nao pode aparecer
               como se fosse um saldo negativo. */}
           <Linha rotulo="Créditos do plano">
