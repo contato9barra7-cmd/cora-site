@@ -85,16 +85,36 @@ function fraseDoProblema(p) {
   return f;
 }
 
+/* ── POR QUE ESTA CONTA PODE, OU NAO PODE, GERAR ──
+   O BLOQUEIO VEM PRIMEIRO, e essa ordem e o conserto de um defeito real: o
+   cartao pegava a COR de `pode_gerar` e o TEXTO de `ilimitado`, e os dois
+   discordavam. Uma conta de gerente parada no reaceite aparecia com o ✕
+   vermelho de bloqueada e a frase "gera sem gastar credito" do lado. Cada
+   metade dizia uma coisa.
+
+   Agora nada que nao pode gerar recebe um rotulo dizendo que gera, por mais
+   ilimitada que a conta seja. E o motivo vem junto: "BLOQUEADO" sozinho manda
+   quem esta atendendo procurar em quatro abas. */
 function motivoDoAcesso(a, conta) {
   if (!a) return { texto: 'sem plano', cor: '#8E8E88' };
-  // Preto, e nao roxo: o roxo saiu da marca em 06/09/2026, e cor que ficou
-  // para tras e a que mais denuncia uma tela que nao foi revisada. Admin nao
-  // e alerta nem confirmacao, entao ele nao pede cor de sinal.
-  /* "Admin, acesso ilimitado" era o texto fixo aqui, e ele nasceu quando o
-     admin era o unico jeito de ter credito sem limite. Com o gerente, esse
-     rotulo passou a chamar de admin quem nao e: a mesma classe de erro que
-     este arquivo acabou de consertar em outro lugar, e o tipo de coisa que
-     leva alguem a procurar a aba Admin na conta de outra pessoa. */
+
+  if (!a.pode_gerar) {
+    /* O reaceite primeiro: ele e o unico bloqueio que nao aparece em nenhum
+       outro campo da ficha, entao e o que mais some sem esta linha. */
+    if (a.precisa_aceitar) {
+      return { texto: 'BLOQUEADO — falta aceitar os documentos novos', cor: '#C8342A' };
+    }
+    if (a.equipe_suspenso) return { texto: 'BLOQUEADO — suspenso pela equipe (excedente de assentos)', cor: '#C8342A' };
+    if (a.eh_trial && a.trial_expirado) return { texto: 'BLOQUEADO — teste de 7 dias terminou', cor: '#C8342A' };
+    if (a.status === 'inativo') return { texto: 'BLOQUEADO — pagamento falhou', cor: '#C8342A' };
+    if (a.status === 'expirado') return { texto: 'BLOQUEADO — período pago venceu', cor: '#C8342A' };
+    return { texto: `BLOQUEADO — ${a.status || 'sem plano ativo'}`, cor: '#C8342A' };
+  }
+
+  /* Passou daqui, ela gera. O que muda e QUANTO.
+     "Admin, acesso ilimitado" era o texto fixo, e ele nasceu quando admin era
+     o unico jeito de ter credito sem limite. Com o gerente, esse rotulo
+     passou a chamar de admin quem nao e. */
   if (a.ilimitado) {
     return {
       texto: conta?.is_admin ? 'Admin, acesso ilimitado'
@@ -103,12 +123,7 @@ function motivoDoAcesso(a, conta) {
       cor: '#111111',
     };
   }
-  if (a.pode_gerar) return { texto: 'Pode gerar normalmente', cor: '#1F7A44' };
-  if (a.equipe_suspenso) return { texto: 'BLOQUEADO — suspenso pela equipe (excedente de assentos)', cor: '#C8342A' };
-  if (a.eh_trial && a.trial_expirado) return { texto: 'BLOQUEADO — teste de 7 dias terminou', cor: '#C8342A' };
-  if (a.status === 'inativo') return { texto: 'BLOQUEADO — pagamento falhou', cor: '#C8342A' };
-  if (a.status === 'expirado') return { texto: 'BLOQUEADO — período pago venceu', cor: '#C8342A' };
-  return { texto: `BLOQUEADO — ${a.status || 'sem plano ativo'}`, cor: '#C8342A' };
+  return { texto: 'Pode gerar normalmente', cor: '#1F7A44' };
 }
 
 // ── Quanto já foi consumido, para decidir reembolso ──
