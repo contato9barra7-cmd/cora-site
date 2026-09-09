@@ -613,8 +613,6 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               nada não vê nenhum dos dois. */}
           <Linha
             nome={t('painelrender_detalhes_luz')}
-            valor={(detNatural || descLuz || '').slice(0, 40)}
-            vazio={t('painelrender_nenhum')}
             aberta={linhaAberta === 'detalhes'} aoAbrir={abre('detalhes')}
           >
             <p className="fic__grp">{t('painelrender_sobre_natural')}</p>

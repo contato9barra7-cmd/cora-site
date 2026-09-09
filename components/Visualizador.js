@@ -377,8 +377,11 @@ export default function Visualizador({
 
               <div className="vz-handle" style={{ left: corte + '%' }}>
                 <span className="vz-handle-bola">
-                  <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M8.5 6l-3 4 3 4M11.5 6l3 4-3 4" strokeLinecap="round" strokeLinejoin="round"/>
+                  {/* O mesmo desenho da home: seta dupla com haste. Eram dois chevrons
+                      soltos, e o dono viu a diferença de um para o outro. */}
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                       strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M9 7 4 12l5 5M15 7l5 5-5 5M4 12h16" />
                   </svg>
                 </span>
               </div>
@@ -555,14 +558,14 @@ export default function Visualizador({
             <>
               <button className="vz-ico" onClick={() => onEnviarPara('tl-inicio', item)}
                       data-tip={t('visualizador_imagem_inicial')} aria-label={t('visualizador_usar_imagem_inicial')}>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="M4 15l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M7.5 5v14" strokeLinecap="round"/><circle cx="12" cy="10" r="1.1"/><path d="M10 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
               <button className="vz-ico" onClick={() => onEnviarPara('tl-fim', item)}
                       data-tip={t('visualizador_imagem_final')} aria-label={t('visualizador_usar_imagem_final')}>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="1.5"/><path d="M4 17l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 12 3.5)"/>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M16.5 5v14" strokeLinecap="round"/><circle cx="8" cy="10" r="1.1"/><path d="M5.5 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
               <button className="vz-ico" onClick={() => onEnviarPara('pos', item)}
@@ -576,14 +579,14 @@ export default function Visualizador({
             <>
               <button className="vz-ico" onClick={() => onEnviarPara('tl-inicio', item)}
                       data-tip={t('visualizador_anim_inicial')} aria-label={t('visualizador_usar_anim_inicial')}>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="M4 15l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M7.5 5v14" strokeLinecap="round"/><circle cx="12" cy="10" r="1.1"/><path d="M10 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
               <button className="vz-ico" onClick={() => onEnviarPara('tl-fim', item)}
                       data-tip={t('visualizador_anim_final')} aria-label={t('visualizador_usar_anim_final')}>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="1.5"/><path d="M4 17l4-3 4 3 3-2 5 4"/><path d="M12 2v3m0 0l-1.5-1.5M12 5l1.5-1.5" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 12 3.5)"/>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M16.5 5v14" strokeLinecap="round"/><circle cx="8" cy="10" r="1.1"/><path d="M5.5 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
               <button className="vz-ico" onClick={() => onEnviarPara('posproducao', item)}

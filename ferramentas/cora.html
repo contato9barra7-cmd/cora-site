@@ -213,7 +213,7 @@
   margin:14px 0 6px; font-size:var(--t-apoio2); font-weight:500;
   color:var(--ink3);
 }
-.cr-hint{ margin:8px 0 0; font-size:var(--t-apoio2); color:var(--ink3); line-height:1.5;  text-wrap:pretty; }
+.cr-hint{ margin:8px 0 0; font-size:var(--t-apoio2); color:var(--ink3); line-height:1.5; white-space:pre-line; text-wrap:pretty; }
 .cr-hint--topo{ margin:0 0 10px; }
 
 /* ── A grade ──
@@ -350,6 +350,20 @@
   opacity:0; transition:opacity var(--t);
 }
 .cr-ref:hover .cr-ref-x{ opacity:1; }
+
+/* ── Editar e Seguir assim: um par, com a mesma medida ──
+   O `.cr-b` cresce por `min-height` e o `.cr-b-conf` do globals tinha 34px
+   fixos: um saía mais baixo que o outro, e com letra de outro tamanho. */
+.cr-mat-acoes{ margin-top:8px; }
+.cr-mat-acoes .cr-b, .cr-mat-acoes .cr-b-conf{
+  height:var(--alt-ctrl); min-height:0; padding:0 12px;
+  font-size:var(--t-apoio2); line-height:1;
+}
+.cr-b-conf{
+  border:0; border-radius:var(--pill); background:var(--lima); color:#111111;
+  font-weight:600; cursor:pointer; transition:background var(--t);
+}
+.cr-b-conf:hover{ background:var(--lima-esc); opacity:1; }
 
 /* ── Resetar: ação de texto, e a última da coluna ──
    Era uma pílula contornada de 34px ocupando a largura toda, com a mesma
@@ -974,9 +988,9 @@
 .ta:hover{ border-color:var(--line); }
 .ta:focus{ background:var(--paper); border-color:var(--line2); }
 .ta::placeholder{ color:var(--ink3); }
-/* Duas caixas na mesma linha aberta pedem cada uma mais baixa, senão a
-   linha fica com o dobro da altura de todas as outras. */
-.ta--curta{ min-height:70px; margin-top:0; }
+/* A mesma altura da caixa de referência: eram 70px, e quem escreve dois
+   parágrafos sobre a luz não cabia. */
+.ta--curta{ min-height:96px; margin-top:0; }
 
 /* ── referências ── */
 .refs{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
@@ -1105,7 +1119,7 @@
    lima, e aí o divisor competia com a imagem que está sendo comparada. */
 .vz-handle{ width:2px; background:var(--paper); box-shadow:0 0 12px rgba(0,0,0,.4); }
 .vz-handle-bola{
-  width:32px; height:32px;
+  width:48px; height:48px;
   background:var(--paper); color:var(--ink);
   box-shadow:0 4px 20px rgba(0,0,0,.35);
 }
@@ -1113,10 +1127,15 @@
 /* Favoritada: quem fica turquesa é o CORAÇÃO, e não o anel em volta dele. O
    anel é a forma do botão, e forma de botão não muda com o estado: dez botões
    iguais e um com anel colorido viram dois desenhos na mesma barra. */
-.vz-ico--fav{ border-color:var(--line2); background:transparent; color:var(--turq-txt); }
-.vz-ico--fav:hover{ border-color:var(--turquesa-esc); color:var(--turq-txt); }
+.vz-ico--fav{ border-color:var(--line2); background:transparent; color:var(--turquesa-esc); }
+.vz-ico--fav:hover{ border-color:var(--line2); color:var(--turquesa-esc); }
 .cr-ca--fav{ color:var(--turquesa); }
-.cr-card-fav{ color:var(--turq-txt); }
+.cr-card-fav{ color:var(--turquesa); }
+
+/* Aprovada: o disco de lima, e nada de anel em volta. A borda toma a cor do
+   fundo para sumir sem mudar a medida do botão. */
+.vz-ico--ok{ border-color:var(--lima); background:var(--lima); color:#111111; }
+.vz-ico--ok:hover{ border-color:var(--lima-esc); background:var(--lima-esc); color:#111111; }
 
 /* A janela do prompt cabe DENTRO da janela do preview, e por isso é menor nos
    dois eixos: o preview tem 1120px por 82vh, com teto de 860px. */
@@ -1182,10 +1201,12 @@
 }
 .criar__cad{ flex:none; margin-top:2px; color:var(--ink3); }
 
-/* A linha do Ambiente mora sozinha, fora da ficha grande. Sem fio embaixo:
-   a seção de Materiais que vem depois já tem o rótulo dela para separar. */
-.fic--solta{ margin:0 0 4px; border:0; }
+/* A linha do Ambiente mora sozinha, fora da ficha grande. Ela respira em
+   cima (estava colada no picker da imagem) e encosta no rótulo de Materiais
+   embaixo: o `.cr-sec` nasce com 26px de margem, e aqui sobrava. */
+.fic--solta{ margin:14px 0 0; border:0; }
 .fic--solta .fic__l:last-child{ border-bottom:0; }
+.fic--solta + .cr-sec{ margin-top:10px; }
 
 
 /* ══════════════════════════════════════════════════════════════════════

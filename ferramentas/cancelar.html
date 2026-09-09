@@ -1057,8 +1057,13 @@
      uma margem aqui empurrava so o texto e desalinhava os dois de novo. */
   margin:0; font-size:clamp(24px,3vw,30px); font-weight:500;
   letter-spacing:-.032em; line-height:1.08;
+  /* A foto toma as linhas 2 e 3, e cada uma fica com metade dos 56px dela. O
+     nome desce até o fim da linha 2 e o apoio sobe até o início da 3: os dois
+     se encontram no meio da foto, e o par fica centrado com ela. Antes os dois
+     nasciam no topo, e o nome ficava alto. */
+  align-self:end;
 }
-.conta-cabeca__email{ margin:6px 0 0; font-size:14.5px; color:var(--ink2); line-height:1.5; }
+.conta-cabeca__email{ margin:2px 0 0; align-self:start; font-size:14.5px; color:var(--ink2); line-height:1.5; }
 
 /* ══════════════════════════════════════════════════════════════════════
    MINHA CONTA
