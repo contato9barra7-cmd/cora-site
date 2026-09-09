@@ -1331,7 +1331,20 @@
 .vz-ico--fav{ border-color:var(--line2); background:transparent; color:var(--turquesa-esc); }
 .vz-ico--fav:hover{ border-color:var(--line2); color:var(--turquesa-esc); }
 .cr-ca--fav{ color:var(--turquesa); }
-.cr-card-fav{ color:var(--turquesa); }
+/* O coração de favorito sobre a imagem: a pastilha de vidro que o dono
+   escolheu no estudo (cora-favorito.html). Um disco escuro translúcido com
+   o fundo desfocado, e o coração turquesa em cima. Sobre foto clara ele
+   é nítido, sobre foto escura é discreto, e em nenhuma põe um branco
+   chapado por cima da imagem. O selo de aprovada mora no canto oposto. */
+.cr-card-fav{
+  top:8px; right:8px; width:26px; height:26px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(17,17,17,.45);
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+  color:var(--turquesa); filter:none;
+}
+.cr-card-fav svg{ width:14px; height:14px; }
 
 /* Aprovada: o disco de lima, e nada de anel em volta. A borda toma a cor do
    fundo para sumir sem mudar a medida do botão. */
