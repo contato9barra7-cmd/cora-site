@@ -23,6 +23,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useIdioma } from '../lib/i18n';
+import DatePickerCora from './DatePickerCora';
 
 const FERRAMENTAS = [
   { val: 'render',   rotulo: 'Render' },
@@ -175,16 +176,18 @@ export default function Filtros({ aberto, valor, onMudar, onLimpar, onFechar, qu
             rotulo={t('filtros_periodo')} valor={periodo} vazio={t('filtros_qualquer')}
             uma aberto={campoAberto === 'periodo'} aoAbrir={abre('periodo')}
           >
+            {/* O calendário é o do site, e não o do sistema: aquele abre em
+                azul, de canto reto, e não é desta janela. */}
             <div className="ft-datas">
-              <input
-                type="date" aria-label={t('filtros_de')}
-                value={valor.de || ''}
-                onChange={(e) => onMudar({ ...valor, de: e.target.value })}
+              <DatePickerCora
+                valor={valor.de || ''}
+                onEscolher={(v) => onMudar({ ...valor, de: v })}
+                placeholder={t('filtros_de')}
               />
-              <input
-                type="date" aria-label={t('filtros_ate')}
-                value={valor.ate || ''}
-                onChange={(e) => onMudar({ ...valor, ate: e.target.value })}
+              <DatePickerCora
+                valor={valor.ate || ''}
+                onEscolher={(v) => onMudar({ ...valor, ate: v })}
+                placeholder={t('filtros_ate')}
               />
             </div>
           </Campo>

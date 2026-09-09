@@ -991,9 +991,9 @@ export default function AppPage() {
       window.dispatchEvent(new CustomEvent('cora:sem-acesso', { detail: { recurso: rot } }));
       return;
     }
-    // Sair da aba fecha o pincel: ele toma o feed inteiro, e ficar preso
-    // nele depois de pedir outra ferramenta não é o que ninguém quis.
-    setPincel(null);
+    // O pincel NÃO é apagado: ele fica guardado, e some da tela enquanto a
+    // pessoa está noutra ferramenta. Voltando ao Editar, a foto e o que já
+    // foi pintado estão onde ficaram.
     setFerramenta(id);
   }
 
@@ -1312,8 +1312,9 @@ export default function AppPage() {
         {/* ═══ Feed ═══ */}
         <section className="cr-feed">
 
-          {/* O pincel toma o feed. Ao sair, tudo volta — com o resultado. */}
-          {pincel ? (
+          {/* O pincel toma o feed, e só enquanto o Editar é a aba da vez:
+              noutra ferramenta o feed volta, e o pincel espera. */}
+          {pincel && ferramenta === 'editar' ? (
             <TelaPincel
               modo={pincel.modo}
               base={pincel.base}

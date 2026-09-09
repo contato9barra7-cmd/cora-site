@@ -489,9 +489,10 @@ export default function PainelEditar({
                 refs={refs}
               />
             ) : (
+              // Sem `rows`: a altura de toda caixa do app vem da folha, no
+              // `--alt-ta`. Com `rows` cada tela saía com uma altura.
               <textarea
                 className="cr-ta ed-ta"
-                rows={5}
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
                 placeholder={t(m.ph)}

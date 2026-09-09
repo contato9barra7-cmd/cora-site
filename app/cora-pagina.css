@@ -20,7 +20,8 @@
      no escuro: a imagem por baixo também não. *//* ── A ESCALA DE TIPO ── *//* rótulo de bloco, tag, contagem *//* dica sob o campo, data, nota *//* o botão de escolha, na grade densa *//* campo, ação principal, texto corrido *//* o título de um estado vazio *//* ── AS DUAS ALTURAS ──
      Um controle da grade tem 38. A ação e o campo têm 46, que é a medida do
      resto do site. Duas alturas, e não sete: era isso que fazia a barra de
-     baixo parecer montada em dias diferentes. *//* A faixa da marca, na geometria da spec (ODD_ODO_DO). */
+     baixo parecer montada em dias diferentes. *//* A altura de toda caixa de texto do app. Era o `rows` de cada componente
+     que decidia, e cada tela saía com uma altura. *//* A faixa da marca, na geometria da spec (ODD_ODO_DO). */
   
   --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
   --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
@@ -55,6 +56,8 @@
 
   
   --alt-ctrl:38px;
+  
+  --alt-ta:128px;
   --alt-acao:46px;
   --painel-w:400px;
 
@@ -189,7 +192,7 @@
 }.co .cr-b--tenho:hover{ background:var(--line); color:var(--ink); }/* ── Os campos de texto ──
    Fundo de lavagem e sem fio, como as pílulas. O que marca o campo é o
    contraste com o papel, e no foco o anel turquesa. */.co .cr-ta{
-  width:100%; min-height:96px; margin-top:8px; padding:12px 14px;
+  width:100%; min-height:var(--alt-ta); margin-top:8px; padding:12px 14px;
   border:1px solid transparent; border-radius:var(--r-peq);
   background:var(--wash); color:var(--ink);
   font-size:var(--t-apoio); line-height:1.5; resize:vertical; outline:none;
@@ -220,7 +223,8 @@
   opacity:0; transition:opacity var(--t);
 }.co .cr-ref:hover .cr-ref-x{ opacity:1; }/* ── Editar e Seguir assim: um par, com a mesma medida ──
    O `.cr-b` cresce por `min-height` e o `.cr-b-conf` do globals tinha 34px
-   fixos: um saía mais baixo que o outro, e com letra de outro tamanho. */.co .cr-mat-acoes{ margin-top:8px; }.co .cr-mat-acoes .cr-b, .co .cr-mat-acoes .cr-b-conf{
+   fixos: um saía mais baixo que o outro, e com letra de outro tamanho. *//* Lado a lado: são dois caminhos para a mesma coisa, e um debaixo do outro
+   eles liam como dois passos. Sozinho, um deles ocupa a linha toda. */.co .cr-mat-acoes{ margin-top:8px; display:flex; gap:8px; }.co .cr-mat-acoes > *{ flex:1 1 0; min-width:0; }.co .cr-mat-acoes .cr-b, .co .cr-mat-acoes .cr-b-conf{
   height:var(--alt-ctrl); min-height:0; padding:0 12px;
   font-size:var(--t-apoio2); line-height:1;
 }.co .cr-b-conf{
@@ -489,17 +493,18 @@
    com galeria cheia ou vazia. Sem fundo próprio e sem fio de ponta a ponta,
    que juntos desenhavam uma caixa branca no pé da tela. Sobra um fio curto
    no meio e uma linha de texto, tudo num tom só. */.co .rodape-legal--feed{
-  flex:none; margin:0; padding:26px 24px 30px;
-  position:relative; border-top:0; background:transparent;
+  flex:none; margin:0; padding:13px 24px 14px;
+  border-top:1px solid var(--line); background:transparent;
   display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:22px;
   font-size:var(--t-apoio2); color:var(--ink3);
-}.co .rodape-legal--feed::before{
-  content:""; position:absolute; top:0; left:50%; transform:translateX(-50%);
-  width:min(620px, calc(100% - 48px)); height:1px; background:var(--line);
 }/* Um tom só: o ponto separador e os links tinham cada um a sua opacidade, e
    a linha saía manchada. O respiro entre os links faz o trabalho do ponto. */.co .rodape-legal--feed .rl-sep{ display:none; }.co .rodape-legal--feed .rl-link{ color:inherit; opacity:1; }.co .rodape-legal--feed .rl-link:hover{ color:var(--ink2); text-decoration:none; }/* O corpo do feed: a barra fica em cima, o rodapé embaixo, e isto no meio.
    A seta de voltar ao topo mora aqui, e não no feed inteiro, para ela parar
-   em cima do rodapé em vez de pousar sobre ele. */.co .cr-feed-corpo{ position:relative; flex:1; min-height:0; display:flex; flex-direction:column; }/* ── Voltar ao topo ── */.co .cr-voltar-topo{
+   em cima do rodapé em vez de pousar sobre ele. */.co .cr-feed-corpo{ position:relative; flex:1; min-height:0; display:flex; flex-direction:column; }/* ── A PLANTA BAIXA NO COMPASSO DO RENDER ──
+   Lá o rótulo é um `.cr-sec` solto acima do dropdown, e o `.cr-sec` nasceu
+   para abrir SEÇÃO, com 26px em cima. Numa fila de catorze campos aquilo
+   vira uma coluna de ar. Aqui ele volta a ser o rótulo de um campo, com o
+   mesmo respiro do `.cmp`. */.co .cr-sec:has(+ .cora-dd), .co .cr-sec:has(+ .cr-g2), .co .cr-sec:has(+ .pl-optbox){ margin:14px 0 6px; }.co .cr-voltar + .cr-sec{ margin-top:10px; }/* O piso por zona, na mesma conta. */.co .pl-zona{ margin-top:10px; padding-top:6px; }.co .pl-sub{ margin:10px 0 5px; }.co .pl-sub + .cr-ta{ margin-top:0; }/* ── Voltar ao topo ── */.co .cr-voltar-topo{
   position:absolute; right:20px; bottom:20px; width:44px; height:44px;
   border:0; border-radius:50%; background:var(--lima); color:#111111;
   display:flex; align-items:center; justify-content:center; cursor:pointer;
@@ -561,7 +566,7 @@
   text-transform:uppercase; color:var(--ink3); transition:color var(--t);
 }.co .cmp[data-aberta="sim"] .cmp__rot{ color:var(--ink2); }.co .cmp__b{
   width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding:10px 14px; border:1px solid var(--line); border-radius:var(--r-peq);
+  padding:11px 16px; border:1px solid var(--line); border-radius:14px;
   background:var(--paper); color:var(--ink);
   font-size:var(--t-apoio); font-weight:500; text-align:left; line-height:1.35; cursor:pointer;
   transition:border-color var(--t), box-shadow var(--t);
@@ -687,7 +692,7 @@
   font-size:var(--t-apoio2); line-height:1.55; resize:vertical; outline:none;
   transition:background var(--t), border-color var(--t);
 }.co .ta:hover{ border-color:var(--line); }.co .ta:focus{ background:var(--paper); border-color:var(--line2); }.co .ta::placeholder{ color:var(--ink3); }/* A mesma altura da caixa de referência: eram 70px, e quem escreve dois
-   parágrafos sobre a luz não cabia. */.co .ta--curta{ min-height:96px; margin-top:0; }/* ── referências ── */.co .refs{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }.co .ref{
+   parágrafos sobre a luz não cabia. */.co .ta--curta{ margin-top:0; }/* ── referências ── */.co .refs{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }.co .ref{
   position:relative; aspect-ratio:1; padding:0; overflow:hidden;
   border:0; border-radius:10px; background:var(--wash2);
 }.co .ref--a{ background:linear-gradient(160deg,#e6ddd0,#c4ae94 50%,#8a755d); }.co .ref--b{ background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d); }.co .ref__n{
@@ -784,9 +789,9 @@
    Ou a base não declara a propriedade, ou o modificador vem junto. Aqui vem
    junto, com o valor que o globals já tinha.
    ══════════════════════════════════════════════════════════════════════ */.co .cr-hint--erro{ color:var(--alerta); }.co .cr-hint--ok{ color:var(--lima-txt); }.co .cr-b--voltar{ color:var(--lima-txt); font-size:var(--t-apoio); }.co .cr-pill-cfg--larga{ width:100%; justify-content:flex-start; }/* O `+` das referências tem o MESMO tracejado da imagem principal (`.cr-drop`):
-   é a mesma ação, escolher uma foto, e a mesma linha diz isso. */.co .cr-ref--add{ background:transparent; border:1px dashed var(--line2); }.co .cr-ta--alta{ min-height:120px; }/* A caixa de todo modo do Editar tem a mesma altura, a do Mudar mood. Dois
+   é a mesma ação, escolher uma foto, e a mesma linha diz isso. */.co .cr-ref--add{ background:transparent; border:1px dashed var(--line2); }/* A caixa de todo modo do Editar tem a mesma altura, a do Mudar mood. Dois
    pesos a puxavam para baixo: `.co .cr-ta` esmagava o `.ed-ta` do globals, e
-   nos modos com referências o `.cref textarea` (92px) entrava por cima. */.co .ed-ta, .co .cref .ed-ta{ min-height:104px; }.co .cr-tag--roxa{ color:var(--turq-txt); }.co .ed-card--travado{ cursor:default; }/* ══════════════════════════════════════════════════════════════════════
+   nos modos com referências o `.cref textarea` (92px) entrava por cima. *//* Nos modos com referência o `.cref textarea` (92px) entrava por cima. */.co .cref .cr-ta{ min-height:var(--alt-ta); }.co .cr-tag--roxa{ color:var(--turq-txt); }.co .ed-card--travado{ cursor:default; }/* ══════════════════════════════════════════════════════════════════════
    A CONFIRMAÇÃO
    ══════════════════════════════════════════════════════════════════════ */.co .cf{
   width:min(420px, calc(100vw - 40px)); padding:26px 26px 22px;
