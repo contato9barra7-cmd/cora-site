@@ -6736,9 +6736,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .narr-copiar:hover { background: var(--surface-1, #f1efe8); }
 /* A ideia do roteiro, em cima dos takes, com o botão de copiar do prompt. */
 .narr-ideia { margin-top: 10px; padding: 12px 13px 13px; border-radius: 12px; background: var(--wash); }
-.narr-ideia-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
-.narr-ideia-tit { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink3); }
-.narr-ideia .vz-prompt-copiar { padding: 6px 12px; font-size: 12px; }
+.narr-ideia-tit { display: block; margin-bottom: 6px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink3); }
 .narr-ideia-txt { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink); }
 .narr-takes { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
 .narr-take {
@@ -6763,9 +6761,11 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
 }
 .narr-take-anim:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
-.narr-notas { display: flex; gap: 8px; margin-top: 10px; }
+/* Uma nota por linha, como no estudo: o roteiro falado é um parágrafo
+   inteiro e não cabe numa coluna estreita ao lado das outras duas. */
+.narr-notas { display: grid; gap: 6px; margin-top: 10px; }
 .narr-nota {
-  flex: 1; background: var(--surface-1, #f1efe8); border-radius: 8px; padding: 9px 12px;
+  background: var(--surface-1, #f1efe8); border-radius: 10px; padding: 9px 12px;
   font-size: 12.5px; color: var(--text-2, #666); display: flex; flex-direction: column; gap: 3px;
 }
 .narr-nota b { font-weight: 500; color: var(--text, #2c2c2a); font-size: 12.5px; }
@@ -6842,11 +6842,14 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink3);
   margin: 6px 0 16px;
 }
+/* Uma linha só, com letra menor: a frase do estado quebrava em duas em cima
+   da barra de progresso. O que não couber corta com reticências. */
 .seq-status {
-  font-size: 12.5px;
+  font-size: 11.5px;
   color: var(--turq-txt);
   line-height: 1.5;
   margin: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .seq-gerando { margin: 8px 0 0; }
 .seq-reembolso { font-size: 11px; color: var(--ink3); margin: 4px 0 0; }

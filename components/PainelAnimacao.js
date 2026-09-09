@@ -230,7 +230,7 @@ export default function PainelAnimacao({
 
   // ── Diretor de Narrativa ──
   // Persistidos via nav (sobrevivem à troca de aba), igual ao timelapse.
-  const narrDados = (nav && nav.narr) || { imagens: [], ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '', ideia: '' };
+  const narrDados = (nav && nav.narr) || { imagens: [], ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '', ideia: '', narracao: '' };
   const narrImagens = narrDados.imagens || [];   // [{ n, base64 }]
   const narrOrdem = narrDados.ordem || [];        // ordem atual dos números
   const narrConfirmado = !!narrDados.confirmado;
@@ -238,7 +238,7 @@ export default function PainelAnimacao({
   const narrRitmo = narrDados.ritmo || '';
   const narrTrilha = narrDados.trilha || '';
   const narrIdeia = narrDados.ideia || '';
-  const [ideiaCopiada, setIdeiaCopiada] = useState(false);
+  const narrNarracao = narrDados.narracao || '';
   const narrSrvId = narrDados.srvId || null;   // id no servidor (salvo p/ continuar/Análises)
   const patchNarr = (patch) => onNav && onNav((atual) => {
     const base = atual || nav || {};
@@ -563,7 +563,7 @@ export default function PainelAnimacao({
   function narrRemover(n) {
     const filtradas = narrImagens.filter((im) => im.n !== n).map((im, i) => ({ ...im, n: i + 1 }));
     // remover imagem invalida a ordem/roteiro já gerados
-    patchNarr({ imagens: filtradas, ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '', ideia: '' });
+    patchNarr({ imagens: filtradas, ordem: [], confirmado: false, takes: null, ritmo: '', trilha: '', ideia: '', narracao: '' });
   }
 
   function narrUpload(ev) {
@@ -662,9 +662,9 @@ export default function PainelAnimacao({
     try {
       const naOrdem = narrOrdem.map((n) => narrImagens.find((im) => im.n === n)).filter(Boolean);
       const r = await narrativaRoteiro(naOrdem.map((im) => ({ n: im.n, base64: im.base64 })), 'pt');
-      patchNarr({ confirmado: true, takes: r.takes, ritmo: r.ritmo, trilha: r.trilha, ideia: r.ideia || '', ideia: r.ideia || '' });
+      patchNarr({ confirmado: true, takes: r.takes, ritmo: r.ritmo, trilha: r.trilha, ideia: r.ideia || '', narracao: r.narracao || '' });
       // Roteiro pronto → marca finalizada no servidor (sai do "não finalizado").
-      if (narrSrvId) { try { await atualizarNarrativa(narrSrvId, { ordem: narrOrdem, takes: r.takes, ritmo: r.ritmo, trilha: r.trilha, ideia: r.ideia || '', ideia: r.ideia || '', finalizado: true }); } catch (e) {} }
+      if (narrSrvId) { try { await atualizarNarrativa(narrSrvId, { ordem: narrOrdem, takes: r.takes, ritmo: r.ritmo, trilha: r.trilha, ideia: r.ideia || '', narracao: r.narracao || '', finalizado: true }); } catch (e) {} }
       recarregarNarrRascunhos();
     } catch (e) {
       setNarrErro(t('painelanimacao_erro_gerar_roteiro') + ' ' + (e.message || ''));
@@ -702,15 +702,9 @@ export default function PainelAnimacao({
       txt += '\n';
     });
     if (narrRitmo) txt += t('painelanimacao_ritmo') + ': ' + narrRitmo + '\n\n';
-    if (narrTrilha) txt += t('painelanimacao_trilha_som') + ': ' + narrTrilha + '\n';
+    if (narrTrilha) txt += t('painelanimacao_trilha_som') + ': ' + narrTrilha + '\n\n';
+    if (narrNarracao) txt += t('painelanimacao_roteiro_falado') + ': ' + narrNarracao + '\n';
     try { navigator.clipboard.writeText(txt); } catch (e) {}
-  }
-
-  function copiarIdeia() {
-    if (!narrIdeia) return;
-    try { navigator.clipboard.writeText(narrIdeia); } catch (e) {}
-    setIdeiaCopiada(true);
-    setTimeout(() => setIdeiaCopiada(false), 1800);
   }
 
   function narrResetar() {
@@ -739,6 +733,8 @@ export default function PainelAnimacao({
         takes: n.takes || null,
         ritmo: n.ritmo || '',
         trilha: n.trilha || '',
+        ideia: n.ideia || '',
+        narracao: n.narracao || '',
         srvId: n.id
       });
       setFerramenta('diretor');
@@ -1158,19 +1154,11 @@ export default function PainelAnimacao({
               </div>
 
               {/* A ideia do roteiro em cima de tudo: é o parágrafo que a pessoa
-                  lê primeiro e leva para o cliente, com o copiar do prompt. */}
+                  lê primeiro e leva para o cliente. Sem copiar próprio: o
+                  "Copiar tudo" do cabeçalho já leva ela junto. */}
               {narrIdeia && (
                 <div className="narr-ideia">
-                  <div className="narr-ideia-cab">
-                    <span className="narr-ideia-tit">{t('painelanimacao_ideia_roteiro')}</span>
-                    <button className="vz-prompt-copiar" onClick={copiarIdeia}>
-                      <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
-                        <rect x="7" y="7" width="9" height="9" rx="1.5"/>
-                        <path d="M4 13V4.5A1.5 1.5 0 015.5 3H13" strokeLinecap="round"/>
-                      </svg>
-                      {ideiaCopiada ? t('painelanalises_copiado') : t('painelanimacao_copiar')}
-                    </button>
-                  </div>
+                  <span className="narr-ideia-tit">{t('painelanimacao_ideia_roteiro')}</span>
                   <p className="narr-ideia-txt">{narrIdeia}</p>
                 </div>
               )}
@@ -1205,10 +1193,12 @@ export default function PainelAnimacao({
                 ))}
               </div>
 
-              {(narrRitmo || narrTrilha) && (
+              {(narrRitmo || narrTrilha || narrNarracao) && (
                 <div className="narr-notas">
                   {narrRitmo && <div className="narr-nota"><b>{t('painelanimacao_ritmo')}</b><span>{narrRitmo}</span></div>}
                   {narrTrilha && <div className="narr-nota"><b>{t('painelanimacao_trilha_som')}</b><span>{narrTrilha}</span></div>}
+                  {/* O roteiro falado: a narração em off para ler sobre o vídeo. */}
+                  {narrNarracao && <div className="narr-nota"><b>{t('painelanimacao_roteiro_falado')}</b><span>{narrNarracao}</span></div>}
                 </div>
               )}
 
