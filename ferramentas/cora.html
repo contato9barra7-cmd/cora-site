@@ -838,17 +838,30 @@
 .cr-msg{ padding:32px 20px; color:var(--ink3); font-size:var(--t-corpo); }
 
 /* ── O rodapé da galeria ──
-   Preso no pé da coluna do feed, fora da lista que rola: ele está sempre
-   ali, com galeria cheia ou vazia. Fino e num tom mais claro que o resto,
-   porque é o fim da tela e não uma segunda superfície. */
+   Preso no pé da coluna do feed, fora da lista que rola: está sempre ali,
+   com galeria cheia ou vazia. Sem fundo próprio e sem fio de ponta a ponta,
+   que juntos desenhavam uma caixa branca no pé da tela. Sobra um fio curto
+   no meio e uma linha de texto, tudo num tom só. */
 .rodape-legal--feed{
-  flex:none; margin:0; padding:16px 24px;
-  border-top:1px solid var(--line); background:var(--paper);
-  font-size:var(--t-apoio2); color:var(--ink3); opacity:.7;
-  transition:opacity var(--t);
+  flex:none; margin:0; padding:26px 24px 30px;
+  position:relative; border-top:0; background:transparent;
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:22px;
+  font-size:var(--t-apoio2); color:var(--ink3);
 }
-.rodape-legal--feed:hover{ opacity:1; }
-.rodape-legal--feed .rl-sep{ margin:0 6px; }
+.rodape-legal--feed::before{
+  content:""; position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:min(620px, calc(100% - 48px)); height:1px; background:var(--line);
+}
+/* Um tom só: o ponto separador e os links tinham cada um a sua opacidade, e
+   a linha saía manchada. O respiro entre os links faz o trabalho do ponto. */
+.rodape-legal--feed .rl-sep{ display:none; }
+.rodape-legal--feed .rl-link{ color:inherit; opacity:1; }
+.rodape-legal--feed .rl-link:hover{ color:var(--ink2); text-decoration:none; }
+
+/* O corpo do feed: a barra fica em cima, o rodapé embaixo, e isto no meio.
+   A seta de voltar ao topo mora aqui, e não no feed inteiro, para ela parar
+   em cima do rodapé em vez de pousar sobre ele. */
+.cr-feed-corpo{ position:relative; flex:1; min-height:0; display:flex; flex-direction:column; }
 
 /* ── Voltar ao topo ── */
 .cr-voltar-topo{
@@ -927,6 +940,45 @@
 }
 .fic__grp:first-child{ margin-top:0; }
 .fic__corpo{ display:none; padding:2px 0 16px; }
+
+/* ── O CAMPO ──
+   O rótulo em cima e a caixa larga embaixo, que é o desenho da Planta baixa.
+   Era linha de ficha, com o nome à esquerda e o valor à direita: as duas
+   gramáticas conviviam na mesma janela, e a pessoa trocava de aba e trocava
+   de leitura. O que abre por dentro é o mesmo de antes.
+
+   Classes próprias, e não `.fic__`: o Batch monta as linhas de cena com
+   `.fic__cab`, e aquilo é uma linha de verdade (miniatura, nome, estado). */
+.cmp{ margin-top:14px; }
+.cmp:first-child{ margin-top:0; }
+.cmp__rot{
+  display:block; margin:0 0 6px;
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink3); transition:color var(--t);
+}
+.cmp[data-aberta="sim"] .cmp__rot{ color:var(--ink2); }
+.cmp__b{
+  width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 14px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); color:var(--ink);
+  font-size:var(--t-apoio); font-weight:500; text-align:left; line-height:1.35; cursor:pointer;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.cmp__b:hover{ border-color:var(--ink3); }
+.cmp__b:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
+.cmp[data-aberta="sim"] .cmp__b{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+.cmp__val{
+  flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.cmp__val[data-vazio="sim"]{ color:var(--ink3); font-weight:400; }
+.cmp__seta{ flex:none; color:var(--ink3); transition:transform var(--t); }
+.cmp[data-aberta="sim"] .cmp__seta{ transform:rotate(180deg); }
+.cmp__corpo{ padding:10px 0 2px; }
+/* Um grupo só de campos não leva o fio de topo: cada campo já se fecha na
+   própria caixa, e o fio ali em cima virava a borda de uma caixa maior. */
+.fic:has(> .cmp){ border-top:0; margin-top:20px; }
+.fic--solta:has(> .cmp){ margin-top:16px; }
+.fic:has(> .cmp) + .cr-sec{ margin-top:22px; }
 .fic__l[data-aberta="sim"] .fic__corpo{ display:block; }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -1320,10 +1372,10 @@
    é a mesma ação, escolher uma foto, e a mesma linha diz isso. */
 .cr-ref--add{ background:transparent; border:1px dashed var(--line2); }
 .cr-ta--alta{ min-height:120px; }
-/* A caixa de todo modo do Editar tem a mesma altura. O `.ed-ta` do globals
-   existe, mas `.co .cr-ta` o esmagava, e a altura acabava sendo a que o
-   conteúdo desse em cada card. */
-.ed-ta{ min-height:104px; }
+/* A caixa de todo modo do Editar tem a mesma altura, a do Mudar mood. Dois
+   pesos a puxavam para baixo: `.co .cr-ta` esmagava o `.ed-ta` do globals, e
+   nos modos com referências o `.cref textarea` (92px) entrava por cima. */
+.ed-ta, .cref .ed-ta{ min-height:104px; }
 .cr-tag--roxa{ color:var(--turq-txt); }
 .ed-card--travado{ cursor:default; }
 

@@ -1498,6 +1498,7 @@ export default function AppPage() {
             </div>
           )}
 
+          <div className="cr-feed-corpo">
           <div className="cr-lista" ref={listaRef} onScroll={aoRolarLista}>
 
             {erro && <div className="cr-erro">{erro}</div>}
@@ -1809,7 +1810,8 @@ export default function AppPage() {
           </div>
 
           {/* A seta de voltar ao topo é da lista, e só dela: com o pincel
-              aberto ela pairava sobre a imagem sem ter o que rolar. */}
+              aberto ela pairava sobre a imagem sem ter o que rolar. Mora no
+              corpo do feed, então ela para em cima do rodapé. */}
           <button
             className={'cr-voltar-topo' + (mostrarTopo ? ' cr-voltar-topo--on' : '')}
             onClick={voltarAoTopo}
@@ -1819,6 +1821,7 @@ export default function AppPage() {
               <path d="M12 19V5M5 12l7-7 7 7" />
             </svg>
           </button>
+          </div>
           </>
           )}
 

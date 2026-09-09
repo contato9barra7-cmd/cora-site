@@ -27,7 +27,7 @@
 // ═══════════════════════════════════════════════════════════
 
 const SETA = (
-  <svg className="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none"
+  <svg className="cmp__seta" viewBox="0 0 20 20" width="13" height="13" fill="none"
        stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
     <path d="M5 8l5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
@@ -114,13 +114,13 @@ export const KELVIN = {
 // ═══════════════════════════════════════════════════════════
 export function Linha({ nome, valor, vazio, aberta, aoAbrir, children }) {
   return (
-    <div className="fic__l" data-aberta={aberta ? 'sim' : 'nao'}>
-      <button type="button" className="fic__cab" onClick={aoAbrir} aria-expanded={aberta}>
-        <span className="fic__nome">{nome}</span>
-        <span className="fic__val" data-vazio={valor ? 'nao' : 'sim'}>{valor || vazio}</span>
+    <div className="cmp" data-aberta={aberta ? 'sim' : 'nao'}>
+      <span className="cmp__rot">{nome}</span>
+      <button type="button" className="cmp__b" onClick={aoAbrir} aria-expanded={aberta}>
+        <span className="cmp__val" data-vazio={valor ? 'nao' : 'sim'}>{valor || vazio}</span>
         {SETA}
       </button>
-      {aberta && <div className="fic__corpo">{children}</div>}
+      {aberta && <div className="cmp__corpo">{children}</div>}
     </div>
   );
 }
