@@ -407,14 +407,15 @@
 .cr-resetar:hover:not(:disabled){ color:var(--ink); box-shadow:inset 0 -2px 0 var(--lima-esc); }
 .cr-resetar:disabled{ opacity:.45; cursor:default; }
 
+/* Sem risco embaixo: o sublinhado de lima é do Resetar, que é uma ação de
+   texto. O Voltar é navegação, e a seta já diz o que ele faz. */
 .cr-voltar{
   display:inline-flex; width:auto; align-items:center; gap:6px; margin-bottom:14px;
   padding:2px 0; border:0; background:none; color:var(--ink2);
-  font-size:var(--t-apoio); cursor:pointer;
-  box-shadow:inset 0 -2px 0 var(--lima);
-  transition:color var(--t), box-shadow var(--t);
+  font-size:var(--t-apoio); cursor:pointer; box-shadow:none;
+  transition:color var(--t);
 }
-.cr-voltar:hover{ color:var(--ink); box-shadow:inset 0 -2px 0 var(--ink); }
+.cr-voltar:hover{ color:var(--ink); box-shadow:none; }
 
 .cr-erro{
   margin:14px 0 0; padding:10px 14px; border-radius:var(--r-peq);
@@ -605,6 +606,16 @@
 .cr-pill-cfg--on{ background:var(--line); color:var(--ink); }
 .cr-cfg-seta{ flex:none; color:var(--ink3); transition:transform .18s; }
 .cr-pill-cfg--on .cr-cfg-seta{ transform:rotate(180deg); }
+/* No site a seta é o `Seta.js`, de classe `cr-seta`, e o globals veste essa
+   classe com a seta do trilho antigo: 26px, redonda, fundo no hover. Aqui
+   ela volta ao desenho da `.cr-cfg-seta`, em todas as abas de uma vez. */
+.cr-pill-cfg .cr-seta{
+  flex:none; width:13px; height:13px; padding:0; border:0; border-radius:0;
+  background:transparent; color:var(--ink3); transition:transform .18s;
+}
+.cr-pill-cfg .cr-seta:hover{ background:transparent; }
+.cr-pill-cfg:hover .cr-seta, .cr-pill-cfg--on .cr-seta{ color:var(--ink); }
+.cr-pill-cfg .cr-seta--on{ transform:rotate(180deg); }
 
 /* O popover sobe: a barra mora no pé do painel, e para baixo não há espaço. */
 .cr-pop{

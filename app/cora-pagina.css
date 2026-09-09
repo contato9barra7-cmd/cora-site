@@ -245,13 +245,13 @@
   color:var(--ink2); font-size:var(--t-apoio2); cursor:pointer;
   box-shadow:inset 0 -2px 0 var(--lima);
   transition:color var(--t), box-shadow var(--t);
-}.co .cr-resetar:hover:not(:disabled){ color:var(--ink); box-shadow:inset 0 -2px 0 var(--lima-esc); }.co .cr-resetar:disabled{ opacity:.45; cursor:default; }.co .cr-voltar{
+}.co .cr-resetar:hover:not(:disabled){ color:var(--ink); box-shadow:inset 0 -2px 0 var(--lima-esc); }.co .cr-resetar:disabled{ opacity:.45; cursor:default; }/* Sem risco embaixo: o sublinhado de lima é do Resetar, que é uma ação de
+   texto. O Voltar é navegação, e a seta já diz o que ele faz. */.co .cr-voltar{
   display:inline-flex; width:auto; align-items:center; gap:6px; margin-bottom:14px;
   padding:2px 0; border:0; background:none; color:var(--ink2);
-  font-size:var(--t-apoio); cursor:pointer;
-  box-shadow:inset 0 -2px 0 var(--lima);
-  transition:color var(--t), box-shadow var(--t);
-}.co .cr-voltar:hover{ color:var(--ink); box-shadow:inset 0 -2px 0 var(--ink); }.co .cr-erro{
+  font-size:var(--t-apoio); cursor:pointer; box-shadow:none;
+  transition:color var(--t);
+}.co .cr-voltar:hover{ color:var(--ink); box-shadow:none; }.co .cr-erro{
   margin:14px 0 0; padding:10px 14px; border-radius:var(--r-peq);
   background:var(--alerta-bg); color:var(--alerta); font-size:var(--t-apoio2);
 }.co .cr-painel-vazio{ padding:24px 16px; color:var(--ink3); font-size:var(--t-corpo); line-height:1.6; }.co .cr-painel-vazio p{ margin:0 0 10px; }.co .cr-dica{ font-size:var(--t-apoio2); }/* ══════════════════════════════════════════════════════════════════════
@@ -347,7 +347,12 @@
   border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
   font-size:var(--t-apoio); font-weight:500; cursor:pointer;
   transition:background var(--t), color var(--t);
-}.co .cr-pill-cfg:hover{ background:var(--line); color:var(--ink); }.co .cr-pill-cfg--on{ background:var(--line); color:var(--ink); }.co .cr-cfg-seta{ flex:none; color:var(--ink3); transition:transform .18s; }.co .cr-pill-cfg--on .cr-cfg-seta{ transform:rotate(180deg); }/* O popover sobe: a barra mora no pé do painel, e para baixo não há espaço. */.co .cr-pop{
+}.co .cr-pill-cfg:hover{ background:var(--line); color:var(--ink); }.co .cr-pill-cfg--on{ background:var(--line); color:var(--ink); }.co .cr-cfg-seta{ flex:none; color:var(--ink3); transition:transform .18s; }.co .cr-pill-cfg--on .cr-cfg-seta{ transform:rotate(180deg); }/* No site a seta é o `Seta.js`, de classe `cr-seta`, e o globals veste essa
+   classe com a seta do trilho antigo: 26px, redonda, fundo no hover. Aqui
+   ela volta ao desenho da `.cr-cfg-seta`, em todas as abas de uma vez. */.co .cr-pill-cfg .cr-seta{
+  flex:none; width:13px; height:13px; padding:0; border:0; border-radius:0;
+  background:transparent; color:var(--ink3); transition:transform .18s;
+}.co .cr-pill-cfg .cr-seta:hover{ background:transparent; }.co .cr-pill-cfg:hover .cr-seta, .co .cr-pill-cfg--on .cr-seta{ color:var(--ink); }.co .cr-pill-cfg .cr-seta--on{ transform:rotate(180deg); }/* O popover sobe: a barra mora no pé do painel, e para baixo não há espaço. */.co .cr-pop{
   position:absolute; bottom:calc(100% + 8px); left:0; right:0; min-width:250px;
   padding:10px; border:1px solid var(--line); border-radius:var(--r-peq);
   background:var(--paper); box-shadow:var(--sombra); z-index:20;
