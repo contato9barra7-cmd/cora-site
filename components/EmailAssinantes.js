@@ -6,7 +6,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useEffect, useState } from 'react';
-import { adminContarPublicos, adminEnviarEmail, adminContarPublicosPromptador, adminEnviarEmailPromptador } from '../lib/auth';
+import { adminContarPublicos, adminEnviarEmail } from '../lib/auth';
 import { useIdioma } from '../lib/i18n';
 import DropdownCora from './DropdownCora';
 
@@ -15,24 +15,20 @@ const PUBLICOS_ASSIN = [
   { v: 'todos', k: 'emailassinantes_pub_todos_cad' },
   { v: 'alunos', k: 'emailassinantes_pub_alunos_prompt' },
 ];
-const PUBLICOS_CURSO = [
-  { v: 'ativos', k: 'emailassinantes_pub_alunos_ativo' },
-  { v: 'vencidos', k: 'emailassinantes_pub_alunos_vencido' },
-  { v: 'todos', k: 'emailassinantes_pub_todos_alunos' },
-];
-// Logos (versão branca) no R2 público — usados na prévia, igual ao e-mail enviado.
-const R2_ASSETS = 'https://pub-aa535595a631449683ed641002707fa4.r2.dev';
-const LOGOS_CURSO = {
-  ia_studio: `${R2_ASSETS}/Logo%20IA%20Studio%20Branco.png`,
-  prompthub: `${R2_ASSETS}/Logo%20PromptHub%20Branco.png`,
-};
+/* ── O "MODO CURSO" SAIU (09/09/2026) ──
+   Este componente sabia mandar e-mail para os alunos dos Promptadores, com o
+   logo e o publico deles. Nunca foi ligado aqui: o admin do Cora sempre o
+   chamou sem `curso`, entao o ramo inteiro era codigo morto.
 
-// Modo curso: passe `curso` ('ia_studio'|'prompthub') e `cursoLabel`. Aí o e-mail
-// sai como 9barra7 e o público são os alunos daquele curso.
-export default function EmailAssinantes({ onClose, curso, cursoLabel }) {
+   E morto de um jeito ruim: quem lesse o arquivo concluiria que o Cora manda
+   e-mail para os alunos, e passaria a procurar o botao. Os Promptadores tem
+   site proprio (`cora-promptadores`), e e de la que esse e-mail sai.
+
+   As ROTAS no cora-auth continuam de pe, e de proposito: e aquele site que as
+   chama. Apagar la derrubaria o produto que vende para os alunos. */
+export default function EmailAssinantes({ onClose }) {
   const { t } = useIdioma();
-  const modoCurso = !!curso;
-  const PUBLICOS = modoCurso ? PUBLICOS_CURSO : PUBLICOS_ASSIN;
+  const PUBLICOS = PUBLICOS_ASSIN;
   const [publico, setPublico] = useState('ativos');
   const [assunto, setAssunto] = useState('');
   const [titulo, setTitulo] = useState('');
@@ -46,9 +42,9 @@ export default function EmailAssinantes({ onClose, curso, cursoLabel }) {
   const [erro, setErro] = useState('');
 
   useEffect(() => {
-    const fn = modoCurso ? () => adminContarPublicosPromptador(curso) : adminContarPublicos;
+    const fn = adminContarPublicos;
     fn().then(setContagens).catch(() => {});
-  }, [modoCurso, curso]);
+  }, []);
 
   const qtd = contagens ? (contagens[publico] ?? 0) : null;
 
@@ -62,9 +58,7 @@ export default function EmailAssinantes({ onClose, curso, cursoLabel }) {
         publico, assunto: assunto.trim(), titulo: titulo.trim(), mensagem: mensagem.trim(),
         botao_texto: botaoTexto.trim(), botao_link: botaoLink.trim(),
       };
-      const r = modoCurso
-        ? await adminEnviarEmailPromptador({ ...payload, curso })
-        : await adminEnviarEmail(payload);
+      const r = await adminEnviarEmail(payload);
       setResultado(r);
     } catch (e) {
       setErro(e.message);
@@ -87,8 +81,8 @@ export default function EmailAssinantes({ onClose, curso, cursoLabel }) {
         ) : vista === 'compor' ? (
           <>
             <div className="ea-mh">
-              <h3>{modoCurso ? `${t('emailassinantes_titulo_alunos')}${cursoLabel ? ' · ' + cursoLabel : ''}` : t('emailassinantes_titulo_assin')}</h3>
-              <p>{modoCurso ? t('emailassinantes_sub_alunos') : t('emailassinantes_sub_assin')}</p>
+              <h3>{t('emailassinantes_titulo_assin')}</h3>
+              <p>{t('emailassinantes_sub_assin')}</p>
             </div>
             <div className="ea-mb">
               <div className="ea-fld">
@@ -134,9 +128,7 @@ export default function EmailAssinantes({ onClose, curso, cursoLabel }) {
             <div className="ea-assunto">{t('emailassinantes_assunto')}: <b>{assunto || t('emailassinantes_sem_assunto')}</b></div>
             <div className="ea-mb">
               <div className="ea-prev">
-                <div className="ea-prev-top">{modoCurso && LOGOS_CURSO[curso]
-                  ? <img src={LOGOS_CURSO[curso]} alt="9barra7 Academy" style={{ height: 30, width: 'auto', display: 'block' }} />
-                  : (modoCurso ? '9barra7 Academy' : 'Cora Render')}</div>
+                <div className="ea-prev-top">Cora Render</div>
                 <div className="ea-prev-body">
                   {titulo && <h4>{titulo}</h4>}
                   <p>{mensagem.split('\n').map((linha, i) => <span key={i}>{linha}<br /></span>)}</p>
