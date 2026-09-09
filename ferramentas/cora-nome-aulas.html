@@ -1,0 +1,214 @@
+<title>O nome da aba</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --turq-txt:#196C5B; --turq-bg:#E6F7F3;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --t:.16s ease;
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px; --t-titulo:17px;
+  --alt-ctrl:38px; --alt-acao:46px; --alt-ta:128px;
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --faixa:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83; --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+    --line:#2B2B30; --line2:#3A3A41; --turq-txt:#8FDDCC; --turq-bg:rgba(143,221,204,.16);
+    --sombra-peq:0 2px 8px rgba(0,0,0,.34); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83; --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41; --turq-txt:#8FDDCC; --turq-bg:rgba(143,221,204,.16);
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34); color-scheme:dark;
+}
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--wash); color:var(--ink); font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.5; }
+.pag{ max-width:1320px; margin:0 auto; padding:40px 24px 72px; }
+.cab{ max-width:64ch; margin-bottom:28px; }
+.cab h1{ margin:0 0 8px; font-size:28px; font-weight:600; letter-spacing:-.01em; text-wrap:balance; }
+.cab p{ margin:0; color:var(--ink2); text-wrap:pretty; }
+.cab p + p{ margin-top:8px; }
+h2.sec{ margin:40px 0 4px; font-size:20px; font-weight:600; }
+p.sec-p{ margin:0 0 16px; color:var(--ink2); font-size:var(--t-apoio); max-width:70ch; }
+
+/* a fila de passos: rola de lado */
+.fila{ display:flex; gap:22px; overflow-x:auto; padding:4px 4px 18px; scroll-snap-type:x proximity; }
+.passo{ flex:none; width:400px; scroll-snap-align:start; }
+.passo__cab{ display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; min-height:72px; }
+.passo__n{ flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--ink); color:var(--paper); font-size:var(--t-apoio2); font-weight:600; }
+.passo__cab h3{ margin:1px 0 2px; font-size:var(--t-apoio); font-weight:600; }
+.passo__cab p{ margin:0; color:var(--ink2); font-size:var(--t-apoio2); text-wrap:pretty; }
+
+/* o painel: 400 de largura, 640 de altura, corpo que rola e pé fixo */
+.painel{ width:400px; height:640px; display:flex; flex-direction:column; background:var(--paper); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; }
+.painel__corpo{ flex:1; min-height:0; overflow-y:auto; padding:20px 16px 24px; }
+.painel__pe{ flex:none; padding:12px 16px 14px; border-top:1px solid var(--line); background:var(--paper); }
+
+/* peças da janela */
+.cr-sec{ margin:18px 0 8px; display:flex; align-items:baseline; gap:6px; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+.cr-sec:first-child{ margin-top:0; }
+.cr-opc{ font-weight:600; letter-spacing:.06em; opacity:.75; }
+.cr-voltar{ display:inline-flex; align-items:center; gap:6px; margin-bottom:14px; padding:2px 0; border:0; background:none; color:var(--ink2); font:inherit; font-size:var(--t-apoio); cursor:pointer; }
+.cr-voltar svg{ width:14px; height:14px; stroke:currentColor; }
+.seq-hint{ font-size:var(--t-apoio2); line-height:1.5; color:var(--ink3); margin:6px 0 16px; }
+.cr-drop{ width:100%; height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; border:1px dashed var(--line2); border-radius:var(--r-peq); background:var(--wash); color:var(--ink3); font:inherit; font-size:var(--t-apoio); cursor:pointer; }
+.cr-drop svg{ width:22px; height:22px; stroke:currentColor; }
+.cr-base{ position:relative; border-radius:var(--r-peq); border:1px solid var(--line); overflow:hidden; }
+.cr-base-img{ display:block; width:100%; height:150px; background-size:cover; background-position:center; }
+.cr-base-x{ position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:50%; border:0; background:rgba(17,17,17,.55); color:#fff; font:inherit; font-size:16px; line-height:1; cursor:pointer; backdrop-filter:blur(6px); }
+.cmp{ margin-top:14px; }
+.cmp__rot{ display:block; margin:0 0 6px; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+.cmp__b{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:44px; padding:11px 16px; border:1px solid var(--line); border-radius:14px; background:var(--paper); color:var(--ink); font:inherit; font-size:var(--t-apoio); text-align:left; line-height:1.35; }
+.cmp__seta{ width:15px; height:15px; stroke:var(--ink3); flex:none; }
+.cr-pills-cfg{ display:flex; gap:6px; margin-bottom:10px; }
+.cr-pill-wrap{ flex:0 0 auto; width:118px; }
+.cr-pills-cfg--uma .cr-pill-wrap{ flex:0 0 118px; }
+.cr-pill-cfg{ width:100%; height:var(--alt-ctrl); padding:0 14px; border:0; display:flex; align-items:center; justify-content:center; gap:6px; border-radius:var(--pill); background:var(--wash2); color:var(--ink2); font:inherit; font-size:var(--t-apoio); font-weight:500; }
+.cr-pill-cfg svg{ width:14px; height:14px; stroke:currentColor; }
+.cr-btn-gerar{ position:relative; width:100%; height:var(--alt-acao); border:0; border-radius:var(--pill); background:var(--lima); color:#111111; font:inherit; font-size:var(--t-corpo); font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.cr-btn-gerar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+.cr-btn-gerar > span:first-child{ min-width:0; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cr-btn-gerar .cr-custo-tag{ position:absolute; right:12px; top:50%; transform:translateY(-50%); display:inline-flex; align-items:center; gap:4px; padding:1px 9px; border-radius:var(--pill); background:var(--turq-bg); color:var(--turq-txt); font-size:var(--t-apoio2); font-weight:600; }
+.cr-btn-gerar .cr-custo-tag svg{ width:12px; height:12px; fill:currentColor; }
+.moeda-vis .cr-custo-tag{ opacity:1; }
+.seq-gerar-box{ display:flex; flex-direction:column; gap:12px; }
+.seq-gerar-item{ display:flex; flex-direction:column; gap:6px; }
+.seq-gerar-aviso{ font-size:var(--t-etiqueta); line-height:1.45; color:var(--ink3); margin:0; text-align:center; }
+.seq-passo-box{ display:flex; flex-direction:column; gap:8px; }
+.seq-refazer{ padding:9px 0; border-radius:var(--pill); border:1px solid var(--line2); background:transparent; color:var(--ink2); font:inherit; font-size:var(--t-apoio2); cursor:pointer; }
+.cr-resetar{ display:block; margin:12px auto 0; padding:2px 0; border:0; background:none; color:var(--ink2); font:inherit; font-size:var(--t-apoio2); cursor:pointer; box-shadow:inset 0 -2px 0 var(--lima); }
+.seq-gerando{ margin:8px 0 0; }
+.seq-status{ font-size:11.5px; color:var(--turq-txt); line-height:1.5; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.seq-prog{ height:5px; border-radius:var(--pill); background:var(--wash2); overflow:hidden; margin:4px 0 0; }
+.seq-prog > span{ display:block; height:100%; background:var(--lima); border-radius:var(--pill); }
+.seq-reembolso{ font-size:var(--t-etiqueta); color:var(--ink3); margin:4px 0 0; }
+.cr-hint{ font-size:var(--t-apoio2); color:var(--ink3); margin:6px 0 0; }
+
+/* a grade das etapas: 2 colunas, legenda numerada */
+.seq-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+.seq-cel{ display:flex; flex-direction:column; gap:4px; }
+.seq-slot{ position:relative; aspect-ratio:4/3; border-radius:10px; overflow:hidden; background:var(--wash2); border:1px solid var(--line); }
+.seq-img{ position:absolute; inset:0; background-size:cover; background-position:center; filter:var(--f, none); }
+.seq-slot-load{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+.cr-ger-spin{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line2); border-top-color:var(--turq-txt); animation:gira 1s linear infinite; }
+@keyframes gira{ to{ transform:rotate(360deg); } }
+.seq-slot-acoes{ position:absolute; left:6px; right:6px; bottom:6px; display:flex; gap:4px; justify-content:center; }
+.seq-acao{ width:26px; height:26px; border-radius:50%; border:0; background:rgba(17,17,17,.45); color:#fff; backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; }
+.seq-acao svg{ width:14px; height:14px; stroke:currentColor; fill:none; }
+.seq-cel-cap{ font-size:var(--t-etiqueta); color:var(--ink3); line-height:1.3; }
+.seq-cel-cap b{ color:var(--ink); font-weight:600; margin-right:3px; }
+
+/* tipo de obra (interiores) */
+.seq-modo-int{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.seq-modo-int-btn{ display:flex; flex-direction:column; gap:3px; text-align:left; padding:11px 13px; border-radius:var(--r-peq); border:1px solid var(--line); background:var(--paper); font:inherit; cursor:pointer; }
+.seq-modo-int-btn strong{ font-size:var(--t-apoio2); }
+.seq-modo-int-btn span{ font-size:var(--t-etiqueta); color:var(--ink2); line-height:1.3; }
+.seq-modo-int-btn--on{ border-color:var(--turquesa-esc); background:var(--turq-bg); }
+
+/* cards das ferramentas */
+.ed-cards{ display:grid; grid-template-columns:1fr; grid-auto-rows:1fr; gap:8px; }
+.ed-card{ position:relative; overflow:hidden; display:block; width:100%; padding:24px 12px 12px; text-align:left; border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper); cursor:pointer; font:inherit; color:inherit; }
+.ed-card::after{ content:""; position:absolute; left:0; right:0; top:0; height:10px; background:var(--faixa) repeat-x var(--desl,0) center; background-size:80px 100%; }
+.ed-card:nth-child(2){ --desl:-12px; } .ed-card:nth-child(3){ --desl:-27px; }
+.ed-card--on{ border-color:var(--line2); }
+.ed-card--on::before{ content:""; position:absolute; left:0; top:10px; bottom:0; width:3px; background:var(--lima); }
+.ed-faixa{ width:34px; height:34px; margin-bottom:10px; border-radius:50%; background:var(--wash2); color:var(--ink2); display:flex; align-items:center; justify-content:center; }
+.ed-faixa svg{ width:17px; height:17px; stroke:currentColor; fill:none; }
+.ed-card--on .ed-faixa{ background:var(--turq-bg); color:var(--turq-txt); }
+.ed-corpo strong{ display:block; font-size:var(--t-corpo); font-weight:600; }
+.ed-corpo span{ display:block; margin-top:4px; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.45; }
+.nota{ margin:0 0 10px; padding:8px 10px; border-radius:10px; background:var(--wash2); color:var(--ink2); font-size:var(--t-etiqueta); }
+.rod{ margin-top:36px; max-width:64ch; color:var(--ink2); font-size:var(--t-apoio); }
+.rod p{ margin:0 0 8px; text-wrap:pretty; }
+.rod strong{ color:var(--ink); font-weight:600; }
+
+body{ background:var(--wash); }
+.pag{ max-width:1180px; }
+.cab{ max-width:70ch; }
+.cab h1{ font-size:32px; }
+.selo{ display:inline-block; margin-bottom:12px; padding:4px 12px; border-radius:var(--pill);
+  background:var(--ink); color:var(--paper); font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; }
+h2.cap{ margin:48px 0 6px; font-size:23px; font-weight:600; letter-spacing:-.015em; }
+h2.cap span{ color:var(--ink3); font-weight:500; margin-right:10px; }
+.cap-txt{ margin:0 0 20px; max-width:70ch; color:var(--ink2); line-height:1.65; text-wrap:pretty; }
+p.txt{ margin:0 0 12px; max-width:70ch; color:var(--ink2); line-height:1.65; text-wrap:pretty; }
+p.txt b{ color:var(--ink); font-weight:600; }
+
+.nomes{ display:grid; grid-template-columns:repeat(auto-fit,minmax(212px,1fr)); gap:14px; align-items:start; }
+.nm{ border:1px solid var(--line); border-radius:var(--r); background:var(--paper); overflow:hidden; }
+.nm--top{ box-shadow:0 0 0 2px var(--turquesa-esc); border-color:transparent; }
+.nm--nao{ opacity:.72; }
+.nm__vivo{ padding:14px 14px 4px; display:flex; justify-content:center; background:var(--wash); }
+.nm__cab{ padding:12px 15px 4px; }
+.nm__cab h4{ margin:0; font-size:var(--t-corpo); font-weight:600; display:flex; align-items:center; gap:7px; }
+.nm__marca{ padding:1px 8px; border-radius:var(--pill); background:var(--turq-bg); color:var(--turq-txt);
+  font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+.nm__idi{ padding:2px 15px 10px; font-size:var(--t-etiqueta); color:var(--ink3); font-variant-numeric:tabular-nums; }
+.nm__pe{ padding:10px 15px 13px; border-top:1px solid var(--line); font-size:var(--t-etiqueta);
+  color:var(--ink2); line-height:1.5; }
+
+.latC{ width:190px; border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper);
+  padding:11px 9px; display:flex; flex-direction:column; gap:2px; }
+.latC__criar{ display:flex; align-items:center; gap:10px; height:36px; padding:0 2px; margin-bottom:6px;
+  font-size:var(--t-apoio2); font-weight:600; color:var(--ink); }
+.latC__q{ width:28px; height:28px; border-radius:9px; background:var(--turquesa); display:flex;
+  align-items:center; justify-content:center; }
+.latC__q svg{ width:15px; height:15px; stroke:#111; fill:none; stroke-width:1.8; }
+.latC__it{ position:relative; display:flex; align-items:center; gap:10px; height:31px; padding:0 9px;
+  border-radius:10px; color:var(--ink2); font-size:var(--t-apoio2); font-weight:500; }
+.latC__it svg{ flex:none; width:15px; height:15px; stroke:var(--ink3); fill:none; stroke-width:1.5; stroke-linejoin:round; }
+.latC__it--on{ background:var(--wash2); color:var(--ink); font-weight:600; }
+.latC__it--on::before{ content:""; position:absolute; left:0; top:50%; transform:translateY(-50%);
+  width:3px; height:15px; background:var(--lima); }
+.latC__it--on svg{ stroke:var(--ink); }
+.latC__it--novo{ box-shadow:inset 0 0 0 1.5px var(--turquesa-esc); }
+.latC__div{ height:1px; background:var(--line); margin:8px 7px; }
+.latC__corta{ overflow:hidden; }
+.latC__corta .latC__it{ white-space:nowrap; }
+
+/* recolhida: so o desenho */
+.mini{ width:52px; border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper);
+  padding:9px 7px; display:flex; flex-direction:column; gap:3px; align-items:center; }
+.mini__q{ width:28px; height:28px; border-radius:9px; background:var(--turquesa); display:flex;
+  align-items:center; justify-content:center; margin-bottom:4px; }
+.mini__q svg{ width:15px; height:15px; stroke:#111; fill:none; stroke-width:1.8; }
+.mini__b{ width:32px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; }
+.mini__b svg{ width:15px; height:15px; stroke:var(--ink3); fill:none; stroke-width:1.5; stroke-linejoin:round; }
+.mini__b--novo{ box-shadow:inset 0 0 0 1.5px var(--turquesa-esc); }
+.par{ display:flex; gap:10px; align-items:flex-start; justify-content:center; }
+.rod{ margin-top:50px; padding-top:20px; border-top:1px solid var(--line2); max-width:70ch; }
+</style>
+<div class="pag">
+  <header class="cab">
+    <span class="selo">Cora Render · nome</span>
+    <h1>O nome da aba</h1>
+    <p>Oito nomes, cada um desenhado na lateral, no lugar e no tamanho de verdade. Embaixo de cada um, como ele fica nos três idiomas, porque a aba é traduzida como todo o resto da janela.</p>
+  </header>
+
+  <h2 class="cap"><span>01</span>Os oito, no lugar</h2>
+  <p class="cap-txt">Os três de baixo eu descartaria, e explico o porquê em cada um.</p>
+  <div class="nomes"><div class="nm nm--top"><div class="nm__vivo"><div class="latC latC__corta"><div class="latC__criar"><span class="latC__q"><svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"/></svg></span>Criar</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>Início</div><div class="latC__it latC__it--on"><svg viewBox="0 0 20 20"><path d="M10 2.5l7 3.8v7.4l-7 3.8-7-3.8V6.3z"/><path d="M3 6.3l7 3.8 7-3.8M10 10.1V17"/></svg>Prancheta</div><div class="latC__div"></div><div class="latC__it"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.5 17c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg>Minha conta</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/></svg>Assinatura</div><div class="latC__div"></div><div class="latC__it latC__it--novo"><svg viewBox="0 0 20 20"><path d="M3 5.5h6a2 2 0 012 2V17a2.5 2.5 0 00-2-1.2H3z"/><path d="M17 5.5h-6a2 2 0 00-2 2V17a2.5 2.5 0 012-1.2h5z"/></svg>Aulas</div></div></div><div class="nm__cab"><h4>Aulas <span class="nm__marca">a minha escolha</span></h4></div><div class="nm__idi">Lessons · Lecciones</div><div class="nm__pe">A palavra que a Marília usa na narração o tempo todo. Curta, cabe recolhida, e diz o que tem lá.</div></div><div class="nm"><div class="nm__vivo"><div class="latC latC__corta"><div class="latC__criar"><span class="latC__q"><svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"/></svg></span>Criar</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>Início</div><div class="latC__it latC__it--on"><svg viewBox="0 0 20 20"><path d="M10 2.5l7 3.8v7.4l-7 3.8-7-3.8V6.3z"/><path d="M3 6.3l7 3.8 7-3.8M10 10.1V17"/></svg>Prancheta</div><div class="latC__div"></div><div class="latC__it"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.5 17c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg>Minha conta</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/></svg>Assinatura</div><div class="latC__div"></div><div class="latC__it latC__it--novo"><svg viewBox="0 0 20 20"><path d="M3 5.5h6a2 2 0 012 2V17a2.5 2.5 0 00-2-1.2H3z"/><path d="M17 5.5h-6a2 2 0 00-2 2V17a2.5 2.5 0 012-1.2h5z"/></svg>Curso</div></div></div><div class="nm__cab"><h4>Curso</h4></div><div class="nm__idi">Course · Curso</div><div class="nm__pe">Diz que existe uma ordem e um fim. Mais firme que Aulas, e igualmente curto. O risco é soar como compromisso: boa parte do uso é consulta, não maratona.</div></div><div class="nm"><div class="nm__vivo"><div class="latC latC__corta"><div class="latC__criar"><span class="latC__q"><svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"/></svg></span>Criar</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>Início</div><div class="latC__it latC__it--on"><svg viewBox="0 0 20 20"><path d="M10 2.5l7 3.8v7.4l-7 3.8-7-3.8V6.3z"/><path d="M3 6.3l7 3.8 7-3.8M10 10.1V17"/></svg>Prancheta</div><div class="latC__div"></div><div class="latC__it"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.5 17c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg>Minha conta</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/></svg>Assinatura</div><div class="latC__div"></div><div class="latC__it latC__it--novo"><svg viewBox="0 0 20 20"><path d="M3 5.5h6a2 2 0 012 2V17a2.5 2.5 0 00-2-1.2H3z"/><path d="M17 5.5h-6a2 2 0 00-2 2V17a2.5 2.5 0 012-1.2h5z"/></svg>Aprender</div></div></div><div class="nm__cab"><h4>Aprender</h4></div><div class="nm__idi">Learn · Aprender</div><div class="nm__pe">Verbo, como o Criar logo acima. Serve se um dia entrar mais coisa além de vídeo: manual, atalhos, exemplos.</div></div><div class="nm"><div class="nm__vivo"><div class="latC latC__corta"><div class="latC__criar"><span class="latC__q"><svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"/></svg></span>Criar</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>Início</div><div class="latC__it latC__it--on"><svg viewBox="0 0 20 20"><path d="M10 2.5l7 3.8v7.4l-7 3.8-7-3.8V6.3z"/><path d="M3 6.3l7 3.8 7-3.8M10 10.1V17"/></svg>Prancheta</div><div class="latC__div"></div><div class="latC__it"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.5 17c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg>Minha conta</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/></svg>Assinatura</div><div class="latC__div"></div><div class="latC__it latC__it--novo"><svg viewBox="0 0 20 20"><path d="M3 5.5h6a2 2 0 012 2V17a2.5 2.5 0 00-2-1.2H3z"/><path d="M17 5.5h-6a2 2 0 00-2 2V17a2.5 2.5 0 012-1.2h5z"/></svg>Passo a passo</div></div></div><div class="nm__cab"><h4>Passo a passo</h4></div><div class="nm__idi">Step by step · Paso a paso</div><div class="nm__pe">Descreve o formato com honestidade. Três palavras, e a lateral recolhida fica só com o desenho.</div></div><div class="nm"><div class="nm__vivo"><div class="latC latC__corta"><div class="latC__criar"><span class="latC__q"><svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"/></svg></span>Criar</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>Início</div><div class="latC__it latC__it--on"><svg viewBox="0 0 20 20"><path d="M10 2.5l7 3.8v7.4l-7 3.8-7-3.8V6.3z"/><path d="M3 6.3l7 3.8 7-3.8M10 10.1V17"/></svg>Prancheta</div><div class="latC__div"></div><div class="latC__it"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.5 17c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg>Minha conta</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/></svg>Assinatura</div><div class="latC__div"></div><div class="latC__it latC__it--novo"><svg viewBox="0 0 20 20"><path d="M3 5.5h6a2 2 0 012 2V17a2.5 2.5 0 00-2-1.2H3z"/><path d="M17 5.5h-6a2 2 0 00-2 2V17a2.5 2.5 0 012-1.2h5z"/></svg>Cora na prática</div></div></div><div class="nm__cab"><h4>Cora na prática</h4></div><div class="nm__idi">Cora in practice · Cora en la práctica</div><div class="nm__pe">Editorial, tem a voz da casa. Longo para uma linha de menu, e repete o nome do produto dentro do próprio produto.</div></div><div class="nm nm--nao"><div class="nm__vivo"><div class="latC latC__corta"><div class="latC__criar"><span class="latC__q"><svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"/></svg></span>Criar</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>Início</div><div class="latC__it latC__it--on"><svg viewBox="0 0 20 20"><path d="M10 2.5l7 3.8v7.4l-7 3.8-7-3.8V6.3z"/><path d="M3 6.3l7 3.8 7-3.8M10 10.1V17"/></svg>Prancheta</div><div class="latC__div"></div><div class="latC__it"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.5 17c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg>Minha conta</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/></svg>Assinatura</div><div class="latC__div"></div><div class="latC__it latC__it--novo"><svg viewBox="0 0 20 20"><path d="M3 5.5h6a2 2 0 012 2V17a2.5 2.5 0 00-2-1.2H3z"/><path d="M17 5.5h-6a2 2 0 00-2 2V17a2.5 2.5 0 012-1.2h5z"/></svg>Escola do Cora</div></div></div><div class="nm__cab"><h4>Escola do Cora</h4></div><div class="nm__idi">Cora School · Escuela de Cora</div><div class="nm__pe">Quente, mas grande demais para 33 aulas, e concorre com a 9barra7 Academy, que é a escola de verdade.</div></div><div class="nm nm--nao"><div class="nm__vivo"><div class="latC latC__corta"><div class="latC__criar"><span class="latC__q"><svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"/></svg></span>Criar</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>Início</div><div class="latC__it latC__it--on"><svg viewBox="0 0 20 20"><path d="M10 2.5l7 3.8v7.4l-7 3.8-7-3.8V6.3z"/><path d="M3 6.3l7 3.8 7-3.8M10 10.1V17"/></svg>Prancheta</div><div class="latC__div"></div><div class="latC__it"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.5 17c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg>Minha conta</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/></svg>Assinatura</div><div class="latC__div"></div><div class="latC__it latC__it--novo"><svg viewBox="0 0 20 20"><path d="M3 5.5h6a2 2 0 012 2V17a2.5 2.5 0 00-2-1.2H3z"/><path d="M17 5.5h-6a2 2 0 00-2 2V17a2.5 2.5 0 012-1.2h5z"/></svg>EAD do Cora</div></div></div><div class="nm__cab"><h4>EAD do Cora</h4></div><div class="nm__idi">(não existe fora do Brasil)</div><div class="nm__pe">É a tua ideia, e eu não iria por ela. EAD é palavra de universidade e de portal de treinamento corporativo, o oposto do jeito da casa. E não atravessa a fronteira: em inglês e espanhol não existe equivalente, e a aba ficaria em português nos três idiomas.</div></div><div class="nm nm--nao"><div class="nm__vivo"><div class="latC latC__corta"><div class="latC__criar"><span class="latC__q"><svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"/></svg></span>Criar</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>Início</div><div class="latC__it latC__it--on"><svg viewBox="0 0 20 20"><path d="M10 2.5l7 3.8v7.4l-7 3.8-7-3.8V6.3z"/><path d="M3 6.3l7 3.8 7-3.8M10 10.1V17"/></svg>Prancheta</div><div class="latC__div"></div><div class="latC__it"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.5 17c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg>Minha conta</div><div class="latC__it"><svg viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/></svg>Assinatura</div><div class="latC__div"></div><div class="latC__it latC__it--novo"><svg viewBox="0 0 20 20"><path d="M3 5.5h6a2 2 0 012 2V17a2.5 2.5 0 00-2-1.2H3z"/><path d="M17 5.5h-6a2 2 0 00-2 2V17a2.5 2.5 0 012-1.2h5z"/></svg>Comece aqui</div></div></div><div class="nm__cab"><h4>Comece aqui</h4></div><div class="nm__idi">Start here · Empieza aquí</div><div class="nm__pe">Perfeito no primeiro dia, errado no centésimo: quem volta para rever a aula 20 não está começando nada.</div></div></div>
+
+  <h2 class="cap"><span>02</span>Sobre o EAD</h2>
+  <p class="txt">Tu perguntou se fica feio. Feio não é a palavra: o problema é que ele <b>não é desta casa</b>. EAD é vocabulário de universidade e de portal de treinamento corporativo, e a voz do Cora é a de alguém sentando do teu lado para mostrar como faz. É o mesmo motivo pelo qual a janela não diz "central de ajuda" nem "onboarding".</p>
+  <p class="txt">E tem um problema prático que os outros não têm: <b>EAD não existe em inglês nem em espanhol</b>. Toda aba da janela é traduzida, e essa ficaria em português nos três idiomas, sozinha no meio de Início, Prancheta e Minha conta traduzidos.</p>
+
+  <h2 class="cap"><span>03</span>Quando o menu recolhe</h2>
+  <p class="cap-txt">Com a lateral fechada sobra só o desenho, e o nome vira o balão do hover. Aí o tamanho da palavra não pesa mais, mas a clareza dela sim: o balão é a única coisa que explica o ícone.</p>
+  <div class="par"><div class="mini"><span class="mini__q"><svg viewBox="0 0 20 20" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"/></svg></span><span class="mini__b"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg></span><span class="mini__b"><svg viewBox="0 0 20 20"><path d="M10 2.5l7 3.8v7.4l-7 3.8-7-3.8V6.3z"/><path d="M3 6.3l7 3.8 7-3.8M10 10.1V17"/></svg></span><span class="mini__b"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.5 17c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg></span><span class="mini__b mini__b--novo"><svg viewBox="0 0 20 20"><path d="M3 5.5h6a2 2 0 012 2V17a2.5 2.5 0 00-2-1.2H3z"/><path d="M17 5.5h-6a2 2 0 00-2 2V17a2.5 2.5 0 012-1.2h5z"/></svg></span></div></div>
+
+  <footer class="rod">
+    <p class="txt"><b>O que eu faria.</b> <b>Aulas</b>. É a palavra que tu já usa falando com o teu aluno, atravessa os três idiomas sem esforço, e não promete nem mais nem menos do que tem lá dentro. Se tu quiser algo com mais peso de percurso, <b>Curso</b> é a segunda, e é a única outra que eu defenderia.</p>
+    <p class="txt">Com o nome escolhido eu levanto a tela: convite 2 na lateral, fluxo de entrar e voltar, as capas dos sete módulos e os 33 títulos.</p>
+  </footer>
+</div>
