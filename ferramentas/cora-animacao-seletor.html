@@ -67,7 +67,7 @@ h2.sec{ margin:44px 0 16px; font-size:var(--t-secao, 20px); font-weight:600; }
 .sul__b{ flex:1; min-width:0; height:38px; padding:0 10px; border:0; border-radius:var(--pill); display:flex; align-items:center; justify-content:center; gap:8px; background:transparent; color:var(--ink3); font:inherit; font-size:var(--t-apoio); font-weight:600; cursor:pointer; }
 .sul__b svg{ stroke:currentColor; }
 .sul__b--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
-.sul__b--on svg{ stroke:var(--turq-txt); }
+.sul__b--on svg{ stroke:var(--turquesa-esc); }
 
 /* ═══ 2 · As duas pílulas com faixa (o que está no site hoje) ═══ */
 .pil{ display:flex; gap:8px; }
@@ -84,7 +84,7 @@ h2.sec{ margin:44px 0 16px; font-size:var(--t-secao, 20px); font-weight:600; }
 .abas__b{ flex:1; position:relative; display:flex; align-items:center; justify-content:center; gap:8px; height:42px; border:0; background:none; color:var(--ink3); font:inherit; font-size:var(--t-apoio); font-weight:600; cursor:pointer; }
 .abas__b svg{ stroke:currentColor; }
 .abas__b--on{ color:var(--ink); }
-.abas__b--on svg{ stroke:var(--turq-txt); }
+.abas__b--on svg{ stroke:var(--turquesa-esc); }
 .abas__b--on::after{ content:""; position:absolute; left:0; right:0; bottom:-1px; height:3px; background:var(--lima); border-radius:3px 3px 0 0; }
 
 /* ═══ 4 · Dois cards, com a faixa da marca ═══ */
@@ -103,7 +103,7 @@ h2.sec{ margin:44px 0 16px; font-size:var(--t-secao, 20px); font-weight:600; }
 .dois .ed-corpo strong{ font-size:var(--t-apoio); }
 
 /* os cards das ferramentas, numa coluna */
-.col{ display:grid; grid-template-columns:1fr; gap:8px; }
+.col{ display:grid; grid-template-columns:1fr; grid-auto-rows:1fr; gap:8px; }
 .col .ed-card:nth-child(2){ --desl:-12px; } .col .ed-card:nth-child(3){ --desl:-27px; }
 .estado{ display:inline-block; margin-left:8px; padding:1px 8px; border-radius:var(--pill); background:var(--wash2); color:var(--ink3); font-size:var(--t-etiqueta); font-weight:600; letter-spacing:.04em; text-transform:uppercase; vertical-align:2px; }
 
@@ -130,7 +130,7 @@ h2.sec{ margin:44px 0 16px; font-size:var(--t-secao, 20px); font-weight:600; }
 
   <div class="ops">
     <section>
-      <div class="op__cab"><span class="op__n">1</span><div><h3>O sulco</h3><p>O mesmo gesto do trilho e do P/M/G/GG do feed: um sulco, e a escolhida é a placa que sobe. O desenho da escolhida fica turquesa. É o mais parecido com o resto da janela.</p></div></div>
+      <div class="op__cab"><span class="op__n">1</span><div><h3>O sulco</h3><p>O mesmo gesto do trilho e do P/M/G/GG do feed: um sulco, e a escolhida é a placa que sobe. O desenho da escolhida fica na turquesa da marca, a mesma do coração. É o que está no site.</p></div></div>
       <div class="par">
         <div class="painel"><div class="sul"><button class="sul__b sul__b--on"><svg class="ico"><use href="#i-play"/></svg>Animação</button><button class="sul__b"><svg class="ico"><use href="#i-seq"/></svg>Sequências</button></div></div>
         <div class="painel"><div class="sul"><button class="sul__b"><svg class="ico"><use href="#i-play"/></svg>Animação</button><button class="sul__b sul__b--on"><svg class="ico"><use href="#i-seq"/></svg>Sequências</button></div></div>
@@ -173,10 +173,10 @@ h2.sec{ margin:44px 0 16px; font-size:var(--t-secao, 20px); font-weight:600; }
       </div></div>
     </section>
     <section>
-      <div class="op__cab"><div><h3>Com a mão em cima, e escolhido</h3><p>O hover é a borda um tom mais escura e uma sombra leve, sem verde. O escolhido leva o fio de lima na esquerda e a pastilha turquesa clara.</p></div></div>
+      <div class="op__cab"><div><h3>Com a mão em cima</h3><p>O hover é a borda um tom mais escura e uma sombra leve, sem verde. Não há estado de escolhido: clicar já abre a ferramenta. Os três têm a mesma altura.</p></div></div>
       <div class="painel"><p class="cr-sec">Ferramentas</p><div class="col">
         <button class="ed-card ed-card--hover"><div class="ed-faixa"><svg><use href="#i-ext"/></svg></div><div class="ed-corpo"><strong>Timelapse Externo <span class="estado">hover</span></strong><span>Gera a sequência de construção (do terreno à obra pronta) a partir de um render externo.</span></div></button>
-        <button class="ed-card ed-card--on"><div class="ed-faixa"><svg><use href="#i-int"/></svg></div><div class="ed-corpo"><strong>Timelapse Interiores <span class="estado">escolhido</span></strong><span>Sequência de construção de um ambiente interno.</span></div></button>
+        <button class="ed-card"><div class="ed-faixa"><svg><use href="#i-int"/></svg></div><div class="ed-corpo"><strong>Timelapse Interiores</strong><span>Sequência de construção de um ambiente interno.</span></div></button>
         <button class="ed-card"><div class="ed-faixa"><svg><use href="#i-dir"/></svg></div><div class="ed-corpo"><strong>Diretor de Narrativa</strong><span>Cria uma sequência de cenas com direção cinematográfica.</span></div></button>
       </div></div>
     </section>
@@ -184,6 +184,6 @@ h2.sec{ margin:44px 0 16px; font-size:var(--t-secao, 20px); font-weight:600; }
 
   <footer class="rod">
     <p><strong>O que pesa.</strong> A 1 e a 3 são as mais leves e as mais parecidas com o resto da janela, o sulco do feed e o fio do menu. A 2 é o que está no site, só com a cor certa. A 4 é a mais pesada e a mais coerente com as ferramentas logo abaixo, que já são cards.</p>
-    <p><strong>O que não muda.</strong> Escolhido é turquesa, e o fio de lima é "você está aqui". Nenhuma das quatro pinta com uma cor própria.</p>
+    <p><strong>O que não muda.</strong> Escolhido é turquesa, e o fio de lima é "você está aqui". Nenhuma das quatro pinta com uma cor própria. A 1 foi a que ficou no site.</p>
   </footer>
 </div>
