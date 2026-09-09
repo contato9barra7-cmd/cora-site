@@ -568,8 +568,21 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
           o desenho do produto mudava. */}
       <div className="conta-card adm-card" style={{ marginTop: 0 }}>
         <div className="conta-cabeca" style={{ marginBottom: 0 }}>
-          <div className="conta-cabeca__foto">
-            {(ficha.conta.nome || ficha.conta.email || '?').trim().charAt(0).toUpperCase()}
+          {/* A foto de verdade, e nao a inicial. Quem atende reconhece o
+              cliente pela cara antes de ler o e-mail, e a ficha desenha a mesma
+              cabeca das telas da propria pessoa. `color:transparent` esconde a
+              letra que fica atras: se a imagem nao carregar, a inicial nao
+              volta sozinha, e a bolha vazia e melhor que uma letra em cima de
+              meia foto. */}
+          <div
+            className="conta-cabeca__foto"
+            style={ficha.conta.foto_url
+              ? { backgroundImage: `url(${ficha.conta.foto_url})`, color: 'transparent' }
+              : undefined}
+          >
+            {ficha.conta.foto_url
+              ? ''
+              : (ficha.conta.nome || ficha.conta.email || '?').trim().charAt(0).toUpperCase()}
           </div>
           <div className="conta-cabeca__txt">
             <p className="eyebrow">Conta #{ficha.conta.id}</p>

@@ -12754,6 +12754,53 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 }
 .admin-ac-ver:hover { border-color: var(--ink); }
 
+/* ══════════════════════════════════════════════════════
+   QUEM AINDA DEVE O ACEITE (dentro da aba Aceites)
+
+   O numero vermelho "N contas sem prova de aceite" era so um numero: para
+   agir sobre ele alguem teria que abrir o banco. Agora ele abre esta lista, e
+   daqui sai o e-mail que avisa a pessoa de que o texto mudou.
+
+   Ele vira BOTAO sem virar botao: mesma cor, mesmo tamanho, so ganha o
+   ponteiro e um sinal de mais. Um numero que muda de aparencia ao virar
+   clicavel some do lugar onde a pessoa ja aprendeu a olhar.
+   ══════════════════════════════════════════════════════ */
+.admin-ac__falta--btn {
+  padding: 0; border: 0; background: none; font: inherit; color: inherit;
+  cursor: pointer;
+}
+.admin-ac__seta {
+  display: inline-grid; place-items: center; width: 16px; height: 16px;
+  margin-left: 6px; border-radius: 100px; background: #FDF2F1;
+  font-size: 11px; font-weight: 600; vertical-align: -2px;
+}
+.admin-pend {
+  margin: 0 0 18px; padding: 16px 18px;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--paper);
+}
+.admin-pend__topo {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 14px; margin-bottom: 14px;
+}
+.admin-pend__diz { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--ink2); max-width: 62ch; }
+.admin-pend__diz strong { color: var(--ink); font-weight: 600; }
+.admin-pend__erro { margin: 0 0 12px; font-size: 13px; color: #C8342A; }
+.admin-pend__feito { margin: 0 0 12px; font-size: 13px; color: #1F7A44; }
+/* Uma linha por pessoa: quem, em que pe esta, e o botao. A coluna do meio tem
+   largura propria para os "parou na versao X" ficarem alinhados entre si. */
+.admin-pend__linha {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 0; border-top: 1px solid var(--line);
+}
+.admin-pend__quem { flex: 1; min-width: 0; }
+.admin-pend__estado { flex: none; width: 190px; font-size: 12.5px; color: var(--ink3); }
+.admin-pend__avisado { margin-top: 2px; font-size: 11px; color: var(--ink3); }
+
+@media (max-width: 700px) {
+  .admin-pend__linha { flex-wrap: wrap; }
+  .admin-pend__estado { width: auto; }
+}
+
 /* ══════════════════════════════════════════════════════════
    AUDITORIA (aba Auditoria do admin e do gerente)
 

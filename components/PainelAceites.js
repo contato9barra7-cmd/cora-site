@@ -24,7 +24,9 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useState } from 'react';
-import { adminAceites, adminAceiteTexto } from '../lib/auth';
+import { adminAceites, adminAceiteTexto,
+         adminReaceitePendentes, adminReaceiteAvisar } from '../lib/auth';
+import Confirma from './Confirma';
 import ComprovanteAceite from './ComprovanteAceite';
 import { useIdioma } from '../lib/i18n';
 
@@ -44,6 +46,41 @@ export default function PainelAceites() {
   const [busca, setBusca] = useState('');
   const [aberto, setAberto] = useState(null);
   const [comprovante, setComprovante] = useState(null);   // o texto que está sendo lido
+
+  /* ── QUEM AINDA DEVE O ACEITE ──
+     A trava é silenciosa: a pessoa só descobre no dia em que tenta gerar.
+     Esta lista abre debaixo do número vermelho, e o aviso sai daqui. */
+  const [pend, setPend] = useState(null);
+  const [pendErro, setPendErro] = useState('');
+  const [pendAberto, setPendAberto] = useState(false);
+  const [enviando, setEnviando] = useState(null);   // id da conta, ou 'todos'
+  const [feito, setFeito] = useState('');
+  const [confirmarTodos, setConfirmarTodos] = useState(false);
+
+  async function abrirPendentes() {
+    setPendAberto((v) => !v);
+    if (pend) return;
+    try { setPend(await adminReaceitePendentes()); }
+    catch (e) { setPendErro(e.message); }
+  }
+
+  async function avisar(alvo) {
+    setEnviando(alvo === 'todos' ? 'todos' : alvo);
+    setPendErro(''); setFeito('');
+    try {
+      const r = await adminReaceiteAvisar(
+        alvo === 'todos' ? { todos: true } : { contaId: alvo });
+      setFeito(r.enviados === 1 ? '1 aviso enviado.' : `${r.enviados} avisos enviados.`);
+      /* Relê em vez de mexer na lista na mão: o servidor grava a data do
+         aviso, e é ela que a linha mostra. */
+      setPend(await adminReaceitePendentes());
+    } catch (e) {
+      setPendErro(e.message);
+    } finally {
+      setEnviando(null);
+      setConfirmarTodos(false);
+    }
+  }
 
   useEffect(() => {
     adminAceites().then(setDados).catch((e) => setErro(e.message));
@@ -81,9 +118,17 @@ export default function PainelAceites() {
               {/* Fica em vermelho de propósito. É o número de pessoas de quem
                   a gente não consegue provar o aceite, e ele só some quando
                   chegar a zero. */}
-              <span className="admin-ac__falta">
+              {/* Virou botão. O número já dizia quantas pessoas estavam sem
+                  prova, e não havia nada a fazer com ele: para agir, alguém
+                  teria que abrir o banco. Agora ele abre a lista, e de lá sai
+                  o aviso. */}
+              <button type="button" className="admin-ac__falta admin-ac__falta--btn"
+                      onClick={abrirPendentes}>
                 <strong>{dados.sem_prova}</strong> {t('adm_ac_sem_prova')}
-              </span>
+                <span className="admin-ac__seta" aria-hidden="true">
+                  {pendAberto ? '-' : '+'}
+                </span>
+              </button>
             </>
           )}
         </div>
@@ -94,6 +139,68 @@ export default function PainelAceites() {
           placeholder={t('adm_ac_buscar')}
         />
       </div>
+
+      {pendAberto && (
+        <div className="admin-pend">
+          {pendErro && <p className="admin-pend__erro">{pendErro}</p>}
+          {feito && <p className="admin-pend__feito">{feito}</p>}
+          {!pend && !pendErro && <p className="admin-aud__estado">Procurando…</p>}
+
+          {pend && (
+            <>
+              <div className="admin-pend__topo">
+                <p className="admin-pend__diz">
+                  {pend.total === 0
+                    ? 'Ninguém está devendo aceite da versão no ar.'
+                    : <>
+                        <strong>{pend.total}</strong>
+                        {pend.total === 1 ? ' conta ainda não aceitou' : ' contas ainda não aceitaram'}
+                        {' a versão '}<strong>{pend.versao_no_ar}</strong>.
+                        {' A geração delas fica parada até aceitarem.'}
+                      </>}
+                </p>
+                {pend.total > 0 && (
+                  <button className="as-btn-cta" disabled={enviando === 'todos'}
+                          onClick={() => setConfirmarTodos(true)}>
+                    {enviando === 'todos' ? 'Enviando…' : `Avisar as ${pend.total}`}
+                  </button>
+                )}
+              </div>
+
+              {pend.pendentes.map((c) => (
+                <div key={c.id} className="admin-pend__linha">
+                  <div className="admin-pend__quem">
+                    <div className="admin-ac-nome">{c.nome || 'sem nome'}</div>
+                    <div className="admin-ac-email">{c.email}</div>
+                  </div>
+                  <div className="admin-pend__estado">
+                    {c.nunca_aceitou
+                      ? 'nunca aceitou nada'
+                      : <>parou na versão {c.ultima_versao}</>}
+                    {c.avisado_em && <div className="admin-pend__avisado">
+                      avisada em {quando(c.avisado_em)}
+                    </div>}
+                  </div>
+                  <button className="admin-ac-ver" disabled={enviando === c.id}
+                          onClick={() => avisar(c.id)}>
+                    {enviando === c.id ? 'Enviando…' : c.avisado_em ? 'Avisar de novo' : 'Avisar'}
+                  </button>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      )}
+
+      {confirmarTodos && (
+        <Confirma
+          perigo={false}
+          ok="Enviar"
+          texto={`Mandar o aviso dos documentos novos para ${pend?.total} pessoa(s). Cada uma recebe um e-mail agora.`}
+          aoOk={() => avisar('todos')}
+          aoCancelar={() => setConfirmarTodos(false)}
+        />
+      )}
 
       {lista.length === 0 ? (
         <p className="admin-vazio">{t('adm_ac_nenhum')}</p>
