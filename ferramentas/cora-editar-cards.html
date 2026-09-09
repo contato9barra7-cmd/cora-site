@@ -1,0 +1,289 @@
+<title>Cards do Editar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   ESTUDO: OS CARDS DA ABA EDITAR
+   Seis jeitos de pôr (ou não pôr) a marca nos oito modos. Os tokens são os
+   da janela do Cora (cora.html), copiados, para o estudo abrir sozinho.
+   Nada daqui atravessa para o site: escolhida uma opção, ela vai para o
+   cora.html e o gerador faz o resto.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --turq-txt:#196C5B; --lima-txt:#256B2A; --turq-bg:#E6F7F3;
+  --osso:#F4F4F4;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --t:.16s ease;
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px; --t-titulo:17px; --t-secao:20px;
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+    --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+    --line:#2B2B30; --line2:#3A3A41;
+    --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+    --osso:#2A2A2F;
+    --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+  --osso:#2A2A2F;
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+  color-scheme:dark;
+}
+
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--wash); color:var(--ink); font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.5; }
+.pag{ max-width:940px; margin:0 auto; padding:40px 24px 72px; }
+
+/* ── o cabeçalho do estudo ── */
+.cab{ max-width:60ch; margin-bottom:36px; }
+.cab h1{ margin:0 0 8px; font-size:28px; font-weight:600; letter-spacing:-.01em; text-wrap:balance; }
+.cab p{ margin:0; color:var(--ink2); text-wrap:pretty; }
+.cab p + p{ margin-top:8px; }
+
+/* ── as opções ── */
+.ops{ display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:36px 28px; }
+@media (max-width:460px){ .ops{ grid-template-columns:1fr; } }
+.op__cab{ display:flex; gap:12px; align-items:flex-start; margin-bottom:12px; }
+.op__n{
+  flex:none; width:30px; height:30px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--ink); color:var(--paper); font-size:var(--t-apoio); font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+.op__cab h2{ margin:2px 0 3px; font-size:var(--t-titulo); font-weight:600; }
+.op__cab p{ margin:0; color:var(--ink2); font-size:var(--t-apoio); text-wrap:pretty; max-width:44ch; }
+.op__tag{ display:inline-block; margin-left:8px; padding:1px 8px; border-radius:var(--pill); background:var(--wash2); color:var(--ink3); font-size:var(--t-etiqueta); font-weight:600; letter-spacing:.04em; text-transform:uppercase; vertical-align:2px; }
+
+/* ── o painel de mentira: 400px, com o recuo real ── */
+.painel{
+  width:400px; max-width:100%; padding:18px 16px 20px;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+}
+.cr-sec{
+  margin:0 0 10px; font-size:var(--t-etiqueta); font-weight:600; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink3);
+}
+
+/* ── o card, como está hoje no site ── */
+.ed-cards{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.ed-card{
+  position:relative; overflow:hidden; display:block; width:100%;
+  padding:14px 12px 12px; text-align:left; font:inherit; color:inherit;
+  border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); cursor:pointer;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.ed-card:hover{ border-color:var(--line2); box-shadow:var(--sombra-peq); }
+.ed-card:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
+.ed-card--on{ border-color:var(--line2); }
+.ed-card--on::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--lima); }
+.ed-faixa{
+  width:34px; height:34px; margin-bottom:10px; border-radius:50%;
+  background:var(--wash2); color:var(--ink2);
+  display:flex; align-items:center; justify-content:center;
+  transition:background var(--t), color var(--t);
+}
+.ed-faixa svg{ width:17px; height:17px; }
+.ed-card--on .ed-faixa{ background:var(--turq-bg); color:var(--turq-txt); }
+.ed-corpo{ display:block; padding:0; }
+.ed-corpo strong{ display:block; font-size:var(--t-corpo); font-weight:600; color:var(--ink); }
+.ed-corpo span{ display:block; margin-top:4px; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.45; text-wrap:pretty; }
+
+/* ── as esferas: as mesmas células da grade da marca ── */
+.esf{ display:grid; grid-template-columns:repeat(2,1fr); gap:1px; }
+.cel{ position:relative; aspect-ratio:1; --giro:0deg; }
+.cel::before{ content:""; position:absolute; inset:0; transform:rotate(var(--giro)); transform-origin:center; }
+.cel--c::before{ border-radius:50%; }
+.cel--s::before{ inset:0; clip-path:inset(0 0 50% 0); border-radius:50%; }
+.cel--lima::before{ background:var(--lima); }
+.cel--turq::before{ background:var(--turquesa); }
+.cel--osso::before{ background:var(--wash2); }
+.cel--g1{ --giro:90deg; } .cel--g2{ --giro:180deg; } .cel--g3{ --giro:270deg; }
+.cel--v::before{ display:none; }
+
+/* ── o símbolo: as duas meias-luas da marca ── */
+.simb{ display:block; }
+
+/* ════════════ 1 · Carimbo no canto ════════════ */
+.o1 .ed-marca{ position:absolute; top:10px; right:10px; width:22px; }
+.o1 .esf{ gap:1px; }
+
+/* ════════════ 2 · As esferas no lugar do desenho ════════════ */
+.o2 .ed-faixa{ display:none; }
+.o2 .ed-marca{ width:34px; margin-bottom:10px; }
+.o2 .esf{ gap:2px; }
+.o2 .ed-card--on .cel--osso::before{ background:var(--turq-bg); }
+
+/* ════════════ 3 · A faixa no alto ════════════ */
+.o3 .ed-card{ padding-top:22px; }
+.o3 .ed-marca{ position:absolute; left:0; right:0; top:0; height:8px; }
+.o3 .esf{ grid-template-columns:repeat(12,1fr); gap:0; height:8px; }
+.o3 .cel{ aspect-ratio:auto; height:8px; }
+.o3 .cel::before{ inset:0; }
+.o3 .cel--c::before{ border-radius:0; }
+.o3 .cel--s::before{ clip-path:none; border-radius:0; }
+.o3 .ed-card--on::before{ top:8px; }
+
+/* ════════════ 4 · Só o símbolo ════════════ */
+.o4 .ed-marca{
+  position:absolute; right:-10px; bottom:-12px; width:62px; height:62px;
+  color:var(--wash2); transition:color var(--t);
+}
+.o4 .ed-card:hover .ed-marca{ color:var(--line); }
+.o4 .ed-card--on .ed-marca{ color:var(--turq-bg); }
+.o4 .ed-corpo{ position:relative; }
+
+/* ════════════ 5 · O símbolo nas duas cores ════════════ */
+.o5 .ed-faixa{ display:none; }
+.o5 .ed-marca{ width:34px; height:34px; margin-bottom:10px; }
+.o5 .simb{ width:34px; height:34px; }
+.o5 .ed-corpo strong{ display:flex; align-items:center; gap:6px; }
+.o5 .ed-corpo strong svg{ width:14px; height:14px; color:var(--ink3); flex:none; }
+
+/* ════════════ 6 · Sem marca ════════════ */
+.o6 .ed-faixa{ width:auto; height:auto; margin-bottom:12px; border-radius:0; background:transparent; color:var(--ink2); justify-content:flex-start; }
+.o6 .ed-faixa svg{ width:22px; height:22px; }
+.o6 .ed-card--on .ed-faixa{ background:transparent; color:var(--turq-txt); }
+.o6 .ed-marca{ display:none; }
+
+/* ── o rodapé ── */
+.rod{ margin-top:44px; max-width:60ch; color:var(--ink2); font-size:var(--t-apoio); }
+.rod p{ margin:0 0 8px; text-wrap:pretty; }
+
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- As duas meias-luas do logo: a de cima puxada para a direita, a de
+         baixo para a esquerda, se tocando no meio. -->
+    <symbol id="marca" viewBox="0 0 40 40">
+      <path class="m1" d="M12 14a12 12 0 0 1 24 0z"/>
+      <path class="m2" d="M4 26a12 12 0 0 0 24 0z"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="pag">
+  <header class="cab">
+    <h1>Os cards do Editar</h1>
+    <p>Seis jeitos de tratar os oito modos. Em todos, o card de Edição está aberto, para comparar o estado escolhido: o fio de lima na esquerda segue sendo o "você está aqui" em todas as opções.</p>
+    <p>As esferas são as células da grade da marca (as das telas de conta), em lima e turquesa. O símbolo é o das duas meias-luas do logo.</p>
+  </header>
+
+  <div class="ops" id="ops"></div>
+
+  <footer class="rod">
+    <p>O que muda de um card para o outro, em cada opção: na 1, 2 e 3 é o arranjo das esferas. Na 4 e na 5 é o giro do símbolo. Na 6 é só o desenho e o nome, como já é hoje.</p>
+    <p>Nenhuma delas pinta o modo com uma cor própria: a cor continua sendo estado, e a marca entra como textura.</p>
+  </footer>
+</div>
+
+<script>
+// Os oito modos, com o mesmo desenho do PainelEditar.js.
+const MODOS = [
+  { nome:'Edição', desc:'Adicionar, trocar ou remover elementos, mudar cor ou material.',
+    ico:'M5 15l10-10 3 3-10 10H5v-3z M12 6l3 3',
+    esf:['c lima','s turq g1','v','c turq'], faixa:'LLTTLLLTTLLT', giro:0 },
+  { nome:'Ambientação', desc:'Inserir mobiliário e decoração em um espaço vazio.',
+    ico:'M3 11v6h18v-6a3 3 0 00-3-3H6a3 3 0 00-3 3z M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2',
+    esf:['s lima','c turq','c lima','v'], faixa:'TLLTLLTLLTLL', giro:90 },
+  { nome:'Mudar mood', desc:'Trocar atmosfera e iluminação mantendo o projeto.',
+    ico:'M12 3v2 M12 19v2 M5 12H3 M21 12h-2 M6 6l-1.5-1.5 M19.5 19.5L18 18 M6 18l-1.5 1.5 M19.5 4.5L18 6 M12 8a4 4 0 100 8 4 4 0 000-8z',
+    esf:['c turq','v','s lima g3','c lima'], faixa:'LLLLTTLLLLTT', giro:180 },
+  { nome:'Adicionar pessoa/animal', desc:'Inserir figura humana ou animal com escala e luz coerentes.',
+    ico:'M12 4a3 3 0 100 6 3 3 0 000-6z M5 20v-1a5 5 0 015-5h4a5 5 0 015 5v1',
+    esf:['v','c lima','s turq g2','s lima'], faixa:'TLTLTLTLTLTL', giro:270 },
+  { nome:'Close-ups', desc:'Closes, detalhes e novos enquadramentos da mesma imagem.',
+    ico:'M11 5a6 6 0 100 12 6 6 0 000-12z M20 20l-4.5-4.5',
+    esf:['s turq','s turq g2','c lima','v'], faixa:'LLLTLLLTLLLT', giro:0, espelho:true },
+  { nome:'Maquete física', desc:'Transformar o projeto em uma maquete física.',
+    ico:'M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z M12 12l8-4.5 M12 12v9 M12 12L4 7.5',
+    esf:['c lima','c osso','v','s turq g1'], faixa:'TTLLTTLLTTLL', giro:90, espelho:true },
+  { nome:'Preenchimento generativo', desc:'Corrigir falhas e remover objetos com precisão na área marcada.',
+    ico:'M6 15l7-7 3 3-7 7H6v-3z M4 21h16',
+    esf:['s lima g2','v','c turq','c osso'], faixa:'LTTLLLTTLLLT', giro:180, espelho:true },
+  { nome:'Expansão generativa', desc:'Esticar a imagem para fora e mudar a proporção.',
+    ico:'M8 8H4v4 M16 16h4v-4 M4 8l6 6 M20 16l-6-6 M16 4h4v4 M8 20H4v-4',
+    esf:['v','s turq g3','c lima','s lima g1'], faixa:'TLLLTLLLTLLL', giro:270, espelho:true }
+];
+
+const OPCOES = [
+  { cls:'o1', tag:'esferas', nome:'Carimbo no canto',
+    p:'O desenho fica onde está. As esferas entram pequenas no canto de cima, quatro células, e cada modo tem um arranjo. Marca discreta, card igual ao de hoje.' },
+  { cls:'o2', tag:'esferas', nome:'As esferas no lugar do desenho',
+    p:'A pastilha com o desenho sai, e o arranjo de esferas vira a identidade do modo. Quem carrega o sentido é o nome. É a mais marca de todas, e a menos didática.' },
+  { cls:'o3', tag:'esferas', nome:'A faixa no alto',
+    p:'Uma faixa de 8px corre o topo de cada card, como a do "Nada aqui" do feed, e cada modo tem uma sequência de lima e turquesa. O desenho segue na pastilha.' },
+  { cls:'o4', tag:'símbolo', nome:'Só o símbolo',
+    p:'Sem esferas. As duas meias-luas do logo ficam grandes no canto de baixo, na cor do papel apagado, e cada card gira o símbolo de um jeito. No card aberto ele fica turquesa claro.' },
+  { cls:'o5', tag:'esferas + símbolo', nome:'O símbolo nas duas cores',
+    p:'O símbolo substitui a pastilha, com uma meia-lua lima e outra turquesa, e o giro muda por modo. O desenho do modo encolhe e vai para o lado do nome.' },
+  { cls:'o6', tag:'sem marca', nome:'Sem marca',
+    p:'Nem esfera nem símbolo. A pastilha cinza sai também, e sobra o desenho em 22px sobre o nome, que fica turquesa no card aberto. É a mais limpa, e a mais parecida com qualquer outra ferramenta.' }
+];
+
+const svgIco = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+
+function esferas(lista){
+  return '<div class="esf">' + lista.map((c) => {
+    const p = c.split(' ');
+    const cls = ['cel', 'cel--' + p[0]].concat(p.slice(1).map((x) => 'cel--' + x)).join(' ');
+    return `<span class="${cls}"></span>`;
+  }).join('') + '</div>';
+}
+function faixa(seq){
+  return '<div class="esf">' + [...seq].map((ch) => `<span class="cel cel--c cel--${ch === 'L' ? 'lima' : 'turq'}"></span>`).join('') + '</div>';
+}
+function simbolo(m, duasCores){
+  const t = `rotate(${m.giro}deg)${m.espelho ? ' scaleX(-1)' : ''}`;
+  const fill = duasCores
+    ? `<path d="M12 14a12 12 0 0 1 24 0z" fill="var(--lima)"/><path d="M4 26a12 12 0 0 0 24 0z" fill="var(--turquesa)"/>`
+    : `<use href="#marca" fill="currentColor"/>`;
+  return `<svg class="simb" viewBox="0 0 40 40" style="transform:${t}" aria-hidden="true">${fill}</svg>`;
+}
+
+function marca(op, m){
+  if (op.cls === 'o1' || op.cls === 'o2') return esferas(m.esf);
+  if (op.cls === 'o3') return faixa(m.faixa);
+  if (op.cls === 'o4') return simbolo(m, false);
+  if (op.cls === 'o5') return simbolo(m, true);
+  return '';
+}
+
+function card(op, m, on){
+  const titulo = op.cls === 'o5' ? svgIco(m.ico) + m.nome : m.nome;
+  return `<button type="button" class="ed-card${on ? ' ed-card--on' : ''}">
+    <div class="ed-marca">${marca(op, m)}</div>
+    <div class="ed-faixa">${svgIco(m.ico)}</div>
+    <div class="ed-corpo"><strong>${titulo}</strong><span>${m.desc}</span></div>
+  </button>`;
+}
+
+document.getElementById('ops').innerHTML = OPCOES.map((op, i) => `
+  <section class="op ${op.cls}">
+    <div class="op__cab">
+      <span class="op__n">${i + 1}</span>
+      <div><h2>${op.nome}<span class="op__tag">${op.tag}</span></h2><p>${op.p}</p></div>
+    </div>
+    <div class="painel">
+      <p class="cr-sec">O que fazer</p>
+      <div class="ed-cards">${MODOS.map((m, k) => card(op, m, k === 0)).join('')}</div>
+    </div>
+  </section>`).join('');
+</script>

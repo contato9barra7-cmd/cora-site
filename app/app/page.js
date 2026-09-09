@@ -1145,6 +1145,9 @@ export default function AppPage() {
             bloqueadas={abasBloqueadas}
           />
 
+          {/* O corpo é o que rola. O trilho fica fora dele, parado, e a barra
+              de rolagem nasce abaixo do trilho, não atrás dele. */}
+          <div className="cr-painel-corpo">
           {/* ── Os painéis ficam MONTADOS, escondidos ──
               Renderizar só o da aba ativa desmontava os outros — e o React
               leva o estado junto: a imagem que a pessoa subiu, o texto que
@@ -1295,6 +1298,7 @@ export default function AppPage() {
               <p>{t('app_aba_prefixo')}{ferramenta}{t('app_aba_sufixo')}</p>
             </div>
           )}
+          </div>
         </aside>
 
         {/* ═══ Feed ═══ */}

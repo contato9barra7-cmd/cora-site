@@ -165,9 +165,15 @@
 .cr-pills{
   display:flex; align-items:center; padding:0 14px;
   width:100%; align-self:stretch; flex:none;
-  height:58px; min-height:0; position:sticky; top:0; z-index:20;
+  height:58px; min-height:0; position:relative; z-index:20;
   background:var(--paper); border-bottom:1px solid var(--line);
 }
+/* O que rola é o corpo, não o painel: assim a barra de rolagem nasce embaixo
+   do trilho, e não atrás dele. O trilho fica parado, como a barra do feed
+   fica parada sobre a lista. O `z-index` do trilho é para o tooltip das
+   pills, que desce sobre o corpo. */
+.cr-painel{ overflow:hidden; }
+.cr-painel-corpo{ flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; }
 .cr-sulco{ flex:1; min-width:0; border-radius:var(--pill); background:var(--wash2); padding:3px; overflow:visible; }
 .cr-sulco .cr-trilho{ display:flex; gap:2px; width:100%; transform:none; transition:none; background:transparent; padding:0; }
 .cr-pill{
@@ -653,15 +659,14 @@
    fio de baixo das duas tem que ser um só, e ele só é um só se nenhuma das
    duas puder crescer. Por isso esta NÃO quebra linha: com o feed estreito
    ela virava duas linhas (95px) e o fio descia só de um lado. Quem cede é
-   a busca, que encolhe até 90px, e no limite a barra rola de lado, sem
-   barra de rolagem à vista. */
+   a busca, que encolhe até 90px. E a barra NÃO rola de lado: `overflow-x`
+   recorta nos dois eixos, e o tooltip dos filtros, que desce, morria
+   cortado. No limite ela passa da borda, e o feed é quem corta. */
 .cr-barra{
   display:flex; align-items:center; gap:6px; flex-wrap:nowrap; flex:none;
   padding:0 20px; height:58px; min-height:0;
-  overflow-x:auto; overflow-y:hidden; scrollbar-width:none;
   background:var(--paper); border-bottom:1px solid var(--line);
 }
-.cr-barra::-webkit-scrollbar{ display:none; }
 .cr-fbtns{ flex:none; }
 .cr-barra-dir{ flex:1 1 auto; min-width:0; display:flex; align-items:center; gap:6px; justify-content:flex-end; }
 /* `min-width` e não `width`: quase todo filtro é só um desenho e vira um
@@ -1292,7 +1297,6 @@
   .co .cr-tela{ display:flex; height:calc(100vh - var(--header-h)); overflow:hidden; }
   .co .cr-painel{ width:400px; flex:none; display:flex; flex-direction:column; overflow:hidden; }
   .co .cr-feed{ flex:1; min-width:0; display:flex; flex-direction:column; overflow:hidden; position:relative; }
-  .co .cr-form{ flex:1; min-height:0; overflow-y:auto; }
   .co .cr-lista{ flex:1; min-height:0; overflow-y:auto; }
   .co .cr-barra-ger{ flex:none; }
   .co .cr-pills,.co .cr-barra{ flex:none; }
@@ -1412,6 +1416,7 @@
             </button>
           </div>
 
+          <div class="cr-painel-corpo">
           <div class="cr-form">
             <p class="cr-sec">Imagem do modelo</p>
             <div class="cr-base">
@@ -1516,6 +1521,7 @@
             </div>
             <button class="cr-btn-gerar">Renderizar</button>
             <p class="cr-custo">Custa <span class="cr-custo-tag">116 créditos</span> e você tem 11.600</p>
+          </div>
           </div>
         </div>
 
