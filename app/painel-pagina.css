@@ -1049,7 +1049,8 @@
   font-size:13.5px; font-weight:600; color:var(--ink);
   border-bottom:2px solid var(--lima); line-height:1.4;
   transition:border-color var(--t);
-}.pn .fat-ver:hover{ border-bottom-color:var(--ink); }.pn .fat-vazio{ margin-top:16px; font-size:13.5px; color:var(--ink3); }/* ══════════════════════════════════════════════════════════════════════
+}.pn .fat-ver:hover{ border-bottom-color:var(--ink); }/* A última coluna alinha à direita, e o link com ela: ele é o fim da linha, e
+   encostado à esquerda de uma coluna larga ele flutuava no meio do vão. */.pn .adm-fim{ text-align:right; }.pn .adm-fim .fat-ver{ display:inline-block; }.pn .fat-vazio{ margin-top:16px; font-size:13.5px; color:var(--ink3); }/* ══════════════════════════════════════════════════════════════════════
    A FATURA ABERTA
    A mesma casca do e-mail: faixa no alto, marca, cartão de 520. Quem recebe
    um recibo por e-mail e depois abre este aqui tem que reconhecer os dois

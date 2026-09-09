@@ -1240,7 +1240,7 @@ export default function Admin() {
                     <th>{t('adm_h_compra')}</th>
                     <th>{t('adm_status')}</th>
                     <th>{t('adm_h_valor')}</th>
-                    <th>{t('adm_h_documento')}</th>
+                    <th className="adm-fim">{t('adm_h_documento')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1270,7 +1270,7 @@ export default function Admin() {
                         </span>
                       </td>
                       <td>{fmtValor(f.total_centavos, f.moeda)}</td>
-                      <td>
+                      <td className="adm-fim">
                         {f.pdf
                           ? <a className="fat-ver" href={f.pdf} target="_blank" rel="noopener noreferrer">{t('adm_fat_abrir')}</a>
                           : '—'}

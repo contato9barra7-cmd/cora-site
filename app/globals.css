@@ -5919,7 +5919,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 /* Tag "N versões" e o seletor de versões (mesma imagem = várias leituras) */
-.an-tag--vers { background: var(--turq-bg); color: var(--turq-txt); font-weight: 600; }
+.an-tag--vers { background: var(--wash2); color: var(--ink2); font-weight: 600; }
 
 
 
@@ -6040,22 +6040,24 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 
-/* A etiqueta do plugin: distingue sem gritar */
+/* De onde veio a leitura. As duas aparecem sempre, para ninguém precisar
+   deduzir pela ausência da outra.
+
+   O plugin vinha em lima e a web em cinza: uma colorida e a outra não, o que
+   lê como "o plugin é o caso especial". Elas não são caso e exceção, são as
+   DUAS metades do produto, e a marca tem exatamente duas cores. Cada metade
+   fica com uma. Aqui a cor não diz ação, diz procedência, e é o único par da
+   linha que carrega cor: por isso a etiqueta de versões voltou ao neutro, ou
+   três etiquetas coloridas seguidas diriam três coisas diferentes com o
+   mesmo alfabeto. */
 .an-tag--plugin {
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  background: color-mix(in srgb, var(--lima) 40%, transparent);
   color: var(--ink2);
 }
 
-/* De onde veio a leitura. As duas aparecem sempre — assim a pessoa não
-   precisa deduzir pela ausência da outra. */
 .an-tag--web {
-  background: var(--wash2);
-  color: var(--ink3);
-}
-
-.an-tag--plugin {
-  background: color-mix(in srgb, var(--accent) 20%, transparent);
-  color: var(--ink2);
+  background: var(--turq-bg);
+  color: var(--turq-txt);
 }
 
 /* ═══════════════════════════════════════════════════════════
