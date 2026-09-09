@@ -1,0 +1,2115 @@
+<meta charset="utf-8">
+<title>O painel do Render</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     O PAINEL DO RENDER · a mistura, com a aba inteira
+
+     A regra, e é uma só:
+
+         FECHADO É TIPOGRAFIA E FIO.
+         A COR SÓ APARECE NO GRUPO QUE ESTÁ SENDO ESCOLHIDO AGORA.
+
+     Cada linha abre no formato que a escolha pede:
+
+       ESCOLHA VISUAL     → a amostra de luz
+       LISTA DE PALAVRAS  → lista com marcador (quadrado marca vários,
+                            círculo marca uma)
+       FAMÍLIA DO GRUPO   → sulco, o gesto que as abas e o P/M/G/GG já usam
+
+     ── O DESENHO SAIU ──
+     A primeira versão tinha diagramas: a sala vista de cima com uma seta, um
+     solzinho com a sombra. Ficaram com cara de clip-art, e clip-art numa
+     ferramenta de imagem é o pior lugar possível para ele estar.
+
+     Agora tudo que é visual é AMOSTRA DE LUZ, feita de gradiente. A direção
+     não é uma seta apontando: é o lado claro da amostra. "Luz direta" tem a
+     borda de sombra dura, "Luz difusa" não tem borda nenhuma. É a mesma
+     língua das amostras de céu, e é a coisa em vez do desenho da coisa.
+
+     ── O QUE MUDOU DEPOIS DA PRIMEIRA PASSADA ──
+     · Direção da luz aceita mais de uma. A luz de um projeto entra por mais
+       de um lugar, e obrigar a escolher um era mentira sobre a cena.
+     · Atmosfera e Entorno viraram lista com marcador. Soltas, as palavras não
+       tinham onde se apoiar e a coluna virava sopa de letras.
+     · A linha NÃO FECHA ao escolher. Trocar de mood é o que mais se faz
+       testando, e fechar a cada troca cobrava um clique por tentativa.
+
+     ISTO É UM ESTUDO. Não rodar o gerar-css-artefato.py aqui: quem gera o
+     app/cora-pagina.css é o cora.html, e é para lá que isto vai depois de
+     aprovado.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --turq-txt:#196C5B; --lima-txt:#256B2A; --turq-bg:#E6F7F3;
+  --alerta:#C8342A; --alerta-bg:#FCEDEC;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px;
+  --t-titulo:17px; --t-secao:20px; --t-tela:26px;
+  --alt-ctrl:38px; --alt-acao:46px;
+  --t:170ms cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+  --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.16);
+  --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+  color-scheme:dark;
+}
+
+
+/* A barra de rolagem pelos tokens: no claro ela é o cinza da linha, no escuro
+   ela vira o cinza escuro sozinha. `color-scheme` no raiz não alcança o campo
+   que tem fundo próprio, e ali a barra saía branca em cima do preto. */
+html{ color-scheme:light; }
+:root[data-theme="dark"]{ color-scheme:dark; }
+*{ scrollbar-width:thin; scrollbar-color:var(--line2) transparent; }
+::-webkit-scrollbar{ width:11px; height:11px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{
+  background:var(--line2); border-radius:100px;
+  border:3px solid transparent; background-clip:content-box;
+}
+::-webkit-scrollbar-thumb:hover{ background:var(--ink3); background-clip:content-box; }
+::-webkit-scrollbar-corner{ background:transparent; }
+
+*,*::before,*::after{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,textarea{ font-family:inherit; }
+button{ cursor:pointer; }
+:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
+::selection{ background:var(--lima); color:#111111; }
+
+/* ══ a página do estudo ══ */
+.topo{ max-width:980px; margin:0 auto; padding:52px 24px 0; }
+.eb{ margin:0; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+h1{ margin:12px 0 0; font-size:clamp(28px,4vw,38px); font-weight:500; letter-spacing:-.033em; line-height:1.1; text-wrap:balance; }
+.lead{ margin:16px 0 0; max-width:60ch; font-size:16px; color:var(--ink2); text-wrap:pretty; }
+.lead b{ color:var(--ink); font-weight:600; }
+
+.regra{
+  margin:22px 0 0; max-width:60ch; padding:16px 20px;
+  border-left:3px solid var(--lima); border-radius:0 var(--r-peq) var(--r-peq) 0;
+  background:var(--paper);
+}
+.regra p{ margin:0; font-size:16px; color:var(--ink); text-wrap:pretty; }
+.regra p + p{ margin-top:8px; font-size:var(--t-apoio); color:var(--ink2); }
+
+.palco{
+  display:grid; gap:36px; align-items:start;
+  max-width:980px; margin:44px auto 0; padding:0 24px 60px;
+  grid-template-columns:1fr;
+}
+@media (min-width:880px){ .palco{ grid-template-columns:400px 1fr; } }
+
+.notas h2{ margin:0 0 4px; font-size:var(--t-secao); font-weight:500; letter-spacing:-.02em; }
+.notas h2:not(:first-child){ margin-top:30px; }
+.notas p{ margin:0 0 10px; font-size:var(--t-apoio); color:var(--ink2); text-wrap:pretty; }
+.notas p b{ color:var(--ink); font-weight:600; }
+.mapa{ margin:14px 0 0; width:100%; border-collapse:collapse; font-size:var(--t-apoio2); }
+.mapa th{
+  text-align:left; padding:0 12px 7px 0; border-bottom:1px solid var(--line);
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.mapa td{ padding:8px 12px 8px 0; border-bottom:1px solid var(--line); color:var(--ink2); vertical-align:top; }
+.mapa td:first-child{ color:var(--ink); font-weight:500; }
+.medida{
+  display:flex; gap:8px; margin:16px 0 0;
+  font-family:var(--mono); font-size:var(--t-apoio2); color:var(--ink3);
+}
+.medida b{ color:var(--ink); font-weight:500; }
+
+/* ══════════════════════════════════════════════════════════════════
+   O PAINEL · 400px, a largura de verdade. Aqui inteiro e sem rolagem,
+   para dar para ver a espinha de uma vez. Na janela ele rola.
+   ══════════════════════════════════════════════════════════════════ */
+.painel{
+  position:relative;
+  width:100%; max-width:400px; padding:20px 16px 0;
+  border:1px solid var(--line); border-radius:var(--r);
+  background:var(--paper);
+}
+.sec{
+  margin:26px 0 10px; display:flex; align-items:baseline; gap:6px;
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.sec:first-child{ margin-top:0; }
+.sec span{ font-weight:400; letter-spacing:.06em; opacity:.85; }
+.hint{ margin:10px 0 0; font-size:var(--t-apoio2); color:var(--ink3); line-height:1.5; text-wrap:pretty; }
+
+/* ── a imagem do modelo ── */
+.base{ position:relative; border-radius:var(--r-peq); overflow:hidden; }
+.base__img{ height:132px; background:linear-gradient(160deg,#cfd8d2,#8fa39a 45%,#5d6b66); }
+.base__x{
+  position:absolute; top:8px; right:8px; width:26px; height:26px; padding:0;
+  border:0; border-radius:50%; background:rgba(255,255,255,.82); color:#111111;
+  backdrop-filter:blur(14px) saturate(150%);
+  display:flex; align-items:center; justify-content:center; font-size:var(--t-corpo); line-height:1;
+}
+
+/* ── as duas ações dos materiais ── */
+.acao{
+  width:100%; height:var(--alt-acao); border:0; border-radius:var(--pill);
+  font-size:var(--t-apoio); font-weight:600;
+  transition:background var(--t), color var(--t);
+}
+.acao--lima{ background:var(--lima); color:#111111; }
+.acao--lima:hover{ background:var(--lima-esc); }
+.acao--quieta{ background:var(--wash2); color:var(--ink2); font-weight:500; margin-bottom:8px; }
+.acao--quieta:hover{ background:var(--line); color:var(--ink); }
+
+/* ══════════════════════════════════════════════════════════════════
+   A FICHA · a espinha do painel
+   ══════════════════════════════════════════════════════════════════ */
+.fic{ margin-top:26px; border-top:1px solid var(--line); }
+/* O Ambiente vive num pedaço solto da ficha, acima do Materiais. O corte é
+   informação: dali para cima é O QUE ENTRA na leitura, dali para baixo é como
+   a imagem vai ficar. */
+.fic--solta{ margin-top:18px; }
+.fic__l{ border-bottom:1px solid var(--line); }
+.fic__cab{
+  width:100%; display:flex; align-items:center; gap:12px; padding:11px 2px;
+  border:0; background:none; text-align:left;
+}
+/* Oito linhas empilhadas somam: o que é confortável numa vira pesado em oito.
+   O rótulo perdeu um pouco do espacejamento e o valor desceu um degrau. */
+.fic__nome{
+  flex:none; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--ink3); transition:color var(--t);
+}
+.fic__l[data-aberta="sim"] .fic__nome{ color:var(--ink2); }
+.fic__val{
+  flex:1; min-width:0; text-align:right; font-size:var(--t-apoio);
+  color:var(--ink); font-weight:500;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  transition:color var(--t);
+}
+.fic__val[data-vazio="sim"]{ color:var(--ink3); font-weight:400; }
+.fic__cab:hover .fic__val{ color:var(--turq-txt); }
+.fic__seta{ flex:none; color:var(--ink3); transition:transform var(--t); }
+.fic__l[data-aberta="sim"] .fic__seta{ transform:rotate(180deg); }
+/* Etiqueta, e não frase: no tamanho do corpo ela ficava igual ao texto do
+   campo logo abaixo, e as duas coisas pareciam a mesma. */
+.fic__grp{
+  margin:16px 0 7px; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+}
+.fic__grp:first-child{ margin-top:0; }
+.fic__corpo{ display:none; padding:2px 0 16px; }
+.fic__l[data-aberta="sim"] .fic__corpo{ display:block; }
+
+/* ══════════════════════════════════════════════════════════════════
+   A LISTA COM MARCADOR
+   Quadrado marca vários, círculo marca uma. É a convenção que todo
+   mundo já leu em papel, e ela diz sozinha quantas dá para escolher,
+   sem precisar de uma frase embaixo explicando.
+   ══════════════════════════════════════════════════════════════════ */
+.lista{ display:flex; flex-direction:column; }
+.lista__b{
+  display:flex; align-items:center; gap:11px; width:100%; padding:8px 10px;
+  border:0; border-radius:9px; background:none; text-align:left;
+  font-size:var(--t-corpo); color:var(--ink2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.lista__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink); }
+.lista__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.lista__m{
+  flex:none; width:17px; height:17px; border-radius:5px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--wash2); color:transparent;
+  box-shadow:inset 0 0 0 1px var(--line2);
+  transition:background var(--t), color var(--t), box-shadow var(--t);
+}
+.lista--uma .lista__m{ border-radius:50%; }
+.lista__b[aria-checked="true"] .lista__m{
+  background:var(--turquesa); color:#111111; box-shadow:inset 0 0 0 1px var(--turquesa-esc);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   O SULCO · só para escolher a família dentro do grupo
+   ══════════════════════════════════════════════════════════════════ */
+.sul{ display:flex; gap:2px; padding:3px; border-radius:var(--pill); background:var(--wash2); }
+.sul__b{
+  flex:1; min-width:0; height:28px; padding:0 6px; border:0; border-radius:var(--pill);
+  background:transparent; color:var(--ink3);
+  font-size:var(--t-apoio2); font-weight:600;
+  transition:color var(--t), background var(--t), box-shadow var(--t);
+}
+.sul__b:hover[aria-checked="false"]{ color:var(--ink); }
+.sul__b[aria-checked="true"]{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+
+/* ══════════════════════════════════════════════════════════════════
+   AS AMOSTRAS DE LUZ
+   Nenhum desenho. A direção não é uma seta apontando, é o lado claro
+   da amostra. "Luz direta" tem a borda de sombra dura e "luz difusa"
+   não tem borda nenhuma. O gradiente é a coisa, e não o desenho dela.
+   ══════════════════════════════════════════════════════════════════ */
+.am{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.am--3{ grid-template-columns:repeat(3,1fr); }
+.am__b{
+  padding:0; border:1px solid var(--line); border-radius:10px;
+  background:var(--paper); overflow:hidden; text-align:center;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.am__b:hover{ border-color:var(--line2); box-shadow:var(--sombra-peq); }
+.am__b[aria-checked="true"]{ border-color:var(--turquesa-esc); box-shadow:0 0 0 1px var(--turquesa-esc); }
+/* `height:100%` no SVG é o que prende o desenho à caixa. Sem ela ele assume a
+   proporção do viewBox, fica mais alto que o cinza e escorrega para baixo do
+   centro, e nenhum ajuste no tamanho do desenho conserta isso. */
+.am__q{ display:block; height:46px; position:relative; overflow:hidden; }
+.am__q svg{ display:block; width:100%; height:100%; }
+/* A marca da escolha fica SOBRE a amostra, e não ao lado: a amostra ocupa a
+   largura toda, e um marcador fora dela pediria uma coluna que não existe.
+
+   É um CHECK, e não um disco cheio. O disco tapava um pedaço da amostra
+   justo no canto claro, e ainda parecia um botão de rádio que não era.
+   A sombra embaixo do traço é o que faz ele sobreviver tanto sobre a
+   amostra de meio-dia quanto sobre a de noite escura. */
+.am__ok{
+  position:absolute; right:5px; top:5px; opacity:0;
+  color:var(--turquesa-esc);
+  filter:drop-shadow(0 1px 2px rgba(17,17,17,.55));
+  transition:opacity var(--t);
+}
+.am__b[aria-checked="true"] .am__ok{ opacity:1; }
+.am__n{
+  display:block; padding:6px 6px 7px; font-size:var(--t-apoio2);
+  color:var(--ink2); font-weight:500; line-height:1.25; text-wrap:pretty;
+}
+.am__b[aria-checked="true"] .am__n{ color:var(--ink); font-weight:600; }
+
+
+/* A planta da direção da luz: a sala vista de cima e por onde a luz entra.
+   Voltou depois de eu ter trocado por gradiente: seis amostras bege quase
+   iguais não separavam "frontal" de "lateral esquerda", e a seta separa sem
+   precisar comparar uma com a outra. */
+/* O desenho é referência, e não ilustração: ele só precisa dizer de que
+   lado a luz entra, e para isso não precisa do tamanho de uma amostra de
+   céu, onde a cor é a informação inteira. */
+.am__b--planta .am__q{ height:42px; background:var(--wash); }
+.pl-sala{ fill:none; stroke:var(--ink3); stroke-width:1.5; }
+.pl-luz{ fill:none; stroke:var(--ink2); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.am__b[aria-checked="true"] .pl-luz{ stroke:var(--turq-txt); }
+.am__b--planta .am__ok{ color:var(--turq-txt); filter:none; }
+
+/* ── a bolinha de temperatura de cor ── */
+.kel{ display:grid; grid-template-columns:repeat(2,1fr); gap:2px 12px; }
+.kel__b{
+  display:flex; align-items:center; gap:10px; padding:8px 6px;
+  border:0; border-radius:9px; background:none; text-align:left;
+  font-size:var(--t-corpo); color:var(--ink2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.kel__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink); }
+.kel__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.kel__q{
+  flex:none; width:16px; height:16px; border-radius:50%;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.14);
+  transition:box-shadow var(--t);
+}
+.kel__b[aria-checked="true"] .kel__q{ box-shadow:0 0 0 2px var(--turquesa-esc); }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   O SELETOR DE COR DO "OUTRO"
+
+   Duas abas, porque são dois problemas diferentes. BRANCO é escolher
+   a temperatura de uma luminária, e ali a régua de Kelvin é o
+   controle certo: o gradiente dela É a escala, e a pessoa arrasta até
+   a cor sem precisar saber que 2700 é amarelo.
+
+   COLORIDA é fita de LED, neon, luz de festa. Ali não existe Kelvin
+   nenhum, e o que serve é o quadro de cor de sempre: a régua de matiz
+   escolhe a família, e o quadro escolhe quanto de cor e quanto de luz.
+
+   O hex fica embaixo dos dois e vale para os dois, porque quem já tem
+   o código da fita não quer caçar o tom no quadro.
+   ══════════════════════════════════════════════════════════════════ */
+.cor{ margin-top:14px; padding:14px; border-radius:var(--r-peq); background:var(--wash); }
+.cor[hidden]{ display:none; }
+
+.cor__topo{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.cor__bola{
+  flex:none; width:32px; height:32px; border-radius:50%;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.14);
+}
+.cor__k{ font-size:var(--t-corpo); font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
+.cor__k small{ font-weight:500; color:var(--ink3); }
+
+.cor__abas{ display:flex; gap:2px; padding:3px; margin-bottom:12px; border-radius:var(--pill); background:var(--wash2); }
+.cor__aba{
+  flex:1; height:28px; border:0; border-radius:var(--pill);
+  background:transparent; color:var(--ink3); font-size:var(--t-apoio2); font-weight:600;
+  transition:color var(--t), background var(--t), box-shadow var(--t);
+}
+.cor__aba:hover[aria-checked="false"]{ color:var(--ink); }
+.cor__aba[aria-checked="true"]{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+
+.cor__painel[hidden]{ display:none; }
+
+/* a régua, usada pelo Kelvin e pelo matiz */
+.cor__regua{
+  -webkit-appearance:none; appearance:none; width:100%; height:14px;
+  border-radius:var(--pill); outline:none; cursor:pointer;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.10);
+}
+.cor__regua--k{ background:linear-gradient(90deg,#ff9c3f,#ffbe6b 22%,#ffd9a8 42%,#f4ead9 58%,#e4ecf7 76%,#cfe0ff); }
+.cor__regua--h{ background:linear-gradient(90deg,#f00,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00); }
+.cor__regua::-webkit-slider-thumb{
+  -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+  background:var(--paper); box-shadow:0 1px 4px rgba(17,17,17,.34), inset 0 0 0 1px rgba(17,17,17,.14);
+}
+.cor__regua::-moz-range-thumb{
+  width:20px; height:20px; border:0; border-radius:50%;
+  background:var(--paper); box-shadow:0 1px 4px rgba(17,17,17,.34), inset 0 0 0 1px rgba(17,17,17,.14);
+}
+.cor__pes{ display:flex; justify-content:space-between; margin:6px 2px 0; font-size:11px; color:var(--ink3); }
+
+/* o quadro: branco na horizontal, preto na vertical, sobre o matiz */
+.cor__quadro{
+  position:relative; width:100%; height:104px; margin-bottom:12px;
+  border-radius:10px; cursor:crosshair; touch-action:none;
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.10);
+}
+.cor__quadro::before,.cor__quadro::after{
+  content:""; position:absolute; inset:0; border-radius:inherit;
+}
+.cor__quadro::before{ background:linear-gradient(90deg,#fff,rgba(255,255,255,0)); }
+.cor__quadro::after{ background:linear-gradient(0deg,#000,rgba(0,0,0,0)); }
+.cor__alvo{
+  position:absolute; z-index:2; width:16px; height:16px; margin:-8px 0 0 -8px;
+  border-radius:50%; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.45);
+  pointer-events:none;
+}
+
+.cor__hex{ display:flex; align-items:center; gap:8px; margin-top:14px; }
+.cor__rot{ flex:none; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
+.cor__campo{
+  flex:1; min-width:0; height:var(--alt-ctrl); padding:0 14px;
+  border:1px solid transparent; border-radius:var(--pill);
+  background:var(--paper); color:var(--ink);
+  font-family:var(--mono); font-size:var(--t-apoio); text-transform:uppercase; outline:none;
+  transition:border-color var(--t);
+}
+.cor__campo:hover{ border-color:var(--line); }
+.cor__campo:focus{ border-color:var(--line2); }
+
+/* ── o campo de texto, dentro da linha aberta ── */
+/* 12,5px: o que a pessoa digita não disputa peso com o rótulo do botão que
+   ela vai clicar depois, e este painel é denso por natureza. */
+.ta{
+  width:100%; min-height:84px; margin-top:12px; padding:11px 13px;
+  border:1px solid transparent; border-radius:var(--r-peq);
+  background:var(--wash); color:var(--ink);
+  font-size:var(--t-apoio2); line-height:1.55; resize:vertical; outline:none;
+  transition:background var(--t), border-color var(--t);
+}
+.ta:hover{ border-color:var(--line); }
+.ta:focus{ background:var(--paper); border-color:var(--line2); }
+.ta::placeholder{ color:var(--ink3); }
+/* Duas caixas na mesma linha aberta pedem cada uma mais baixa, senão a
+   linha fica com o dobro da altura de todas as outras. */
+.ta--curta{ min-height:70px; margin-top:0; }
+
+/* ── referências ── */
+.refs{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+.ref{
+  position:relative; aspect-ratio:1; padding:0; overflow:hidden;
+  border:0; border-radius:10px; background:var(--wash2);
+}
+.ref--a{ background:linear-gradient(160deg,#e6ddd0,#c4ae94 50%,#8a755d); }
+.ref--b{ background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d); }
+.ref__n{
+  position:absolute; left:4px; bottom:4px; padding:1px 6px;
+  border-radius:var(--pill); background:rgba(255,255,255,.82); color:#111111;
+  backdrop-filter:blur(10px); font-size:9.5px; font-weight:600;
+}
+.ref--add{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+  color:var(--ink3); transition:background var(--t), color var(--t);
+}
+.ref--add:hover{ background:var(--line); color:var(--ink); }
+.ref__mais{ font-size:17px; line-height:1; }
+.ref__c{ font-size:9.5px; letter-spacing:.06em; }
+
+/* Resetar desceu para baixo do Renderizar e perdeu o sublinhado de lima.
+   Ele desfaz o trabalho da pessoa, e ação que desfaz não disputa atenção
+   com a ação que faz. Fica de texto quieto, no lugar onde o olho já está. */
+.resetar{
+  display:block; width:auto; margin:10px auto 0; padding:2px 0;
+  border:0; background:none; color:var(--ink3); font-size:var(--t-etiqueta);
+  transition:color var(--t);
+}
+.resetar{ box-shadow:inset 0 -1px 0 var(--line2); }
+.resetar:hover{ color:var(--ink2); box-shadow:inset 0 -1px 0 var(--ink3); }
+
+/* ══════════════════════════════════════════════════════════════════
+   A BARRA DE BAIXO
+   ══════════════════════════════════════════════════════════════════ */
+.barra-ger{
+  margin:22px -16px 0; padding:12px 16px 14px;
+  border-top:1px solid var(--line); background:var(--paper);
+  border-radius:0 0 var(--r) var(--r);
+}
+.cfg{ display:flex; gap:6px; margin-bottom:10px; }
+.qty{
+  display:flex; align-items:center; gap:2px; flex:none;
+  height:var(--alt-ctrl); padding:0 6px; border-radius:var(--pill); background:var(--wash2);
+}
+.qty button{
+  width:24px; height:24px; padding:0; border:0; border-radius:50%;
+  background:transparent; color:var(--ink2); font-size:var(--t-corpo); line-height:1;
+}
+.qty button:hover{ background:var(--paper); color:var(--ink); }
+.qty span{ min-width:18px; text-align:center; font-size:var(--t-apoio); font-weight:600; font-variant-numeric:tabular-nums; }
+
+.cfg__wrap{ flex:1; position:relative; min-width:0; }
+.cfg__b{
+  width:100%; height:var(--alt-ctrl); padding:0 14px; border:0;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-apoio); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.cfg__b:hover, .cfg__b[aria-expanded="true"]{ background:var(--line); color:var(--ink); }
+.cfg__seta{ flex:none; color:var(--ink3); transition:transform var(--t); }
+.cfg__b[aria-expanded="true"] .cfg__seta{ transform:rotate(180deg); }
+
+/* O popover SOBE: a barra mora no pé do painel, e para baixo não há espaço. */
+.pop{
+  position:absolute; bottom:calc(100% + 8px); left:0; right:0;
+  padding:10px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); box-shadow:var(--sombra); z-index:30;
+}
+.pop[hidden]{ display:none; }
+.pop--ratio{ min-width:268px; left:auto; right:0; }
+
+/* A proporção não é ícone de proporção, É a proporção: o bloquinho tem a
+   forma que a imagem vai ter. Desenhar um retângulo com traço para
+   representar um retângulo era desenhar a coisa ao lado da coisa. */
+.rt{ display:grid; grid-template-columns:repeat(4,1fr); gap:4px; }
+.rt__b{
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  padding:8px 2px 7px; border:0; border-radius:9px; background:none;
+  color:var(--ink3); font-size:var(--t-apoio2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.rt__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink2); }
+.rt__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.rt__q{
+  display:block; background:var(--line2); border-radius:2px;
+  transition:background var(--t);
+}
+.rt__b[aria-checked="true"] .rt__q{ background:var(--turquesa-esc); box-shadow:0 0 0 1px var(--turq-txt); }
+.rt__cx{ height:26px; display:flex; align-items:center; justify-content:center; }
+
+.rs{ display:flex; flex-direction:column; gap:2px; }
+.rs__b{
+  display:flex; align-items:center; gap:10px; padding:9px 10px;
+  border:0; border-radius:9px; background:none; text-align:left;
+  font-size:var(--t-corpo); color:var(--ink2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.rs__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink); }
+.rs__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.rs__m{
+  flex:none; width:17px; height:17px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--wash2); color:transparent; box-shadow:inset 0 0 0 1px var(--line2);
+  transition:background var(--t), color var(--t), box-shadow var(--t);
+}
+.rs__b[aria-checked="true"] .rs__m{
+  background:var(--turquesa); color:#111111; box-shadow:inset 0 0 0 1px var(--turquesa-esc);
+}
+
+/* A moeda é a que JÁ EXISTE no site: pastilha ancorada na borda direita,
+   invisível em repouso e visível no hover. Eu tinha trocado ela por uma
+   frase permanente embaixo do botão, que nunca existiu em produção. Ficou
+   como está lá. */
+.gerar{
+  position:relative; width:100%; height:var(--alt-acao); border:0;
+  border-radius:var(--pill); background:var(--lima); color:#111111;
+  font-size:var(--t-corpo); font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+  transition:background var(--t);
+}
+.gerar:hover:not(:disabled){ background:var(--lima-esc); }
+/* Travado, o botão DIZ o motivo em vez de ficar mudo com uma frase explicando
+   embaixo. Uma linha a menos na barra, e a resposta no lugar onde a pergunta
+   nasce, que é o próprio botão. */
+.gerar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+.gerar:disabled .cr-custo-tag{ display:none; }
+/* O losango é o símbolo de crédito do produto, e ele é o MESMO no plugin
+   (`M12 2l10 10-10 10L2 12z`, copiado de lá). Trocar o desenho aqui obriga a
+   trocar lá também, senão o mesmo número passa a ter dois símbolos. */
+.cr-custo-tag{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  display:inline-flex; align-items:center; gap:5px; padding:4px 10px;
+  border-radius:var(--pill); background:rgba(0,0,0,.14);
+  font-size:11px; font-weight:600; line-height:1; white-space:nowrap;
+  font-variant-numeric:tabular-nums; pointer-events:none;
+  opacity:0; transition:opacity .15s ease;
+}
+.gerar:hover .cr-custo-tag, .gerar:focus-visible .cr-custo-tag,
+.acao:hover .cr-custo-tag, .acao:focus-visible .cr-custo-tag{ opacity:1; }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   AS TRÊS OPÇÕES DA PROPORÇÃO
+   O bloquinho é sempre a forma de verdade. O que muda entre as três é
+   COMO as onze ficam organizadas: por nada, pela forma, ou por onde a
+   imagem vai parar.
+   ══════════════════════════════════════════════════════════════════ */
+.prop{ max-width:1060px; margin:0 auto; padding:0 24px 110px; }
+.prop h2{ margin:0 0 6px; font-size:var(--t-tela); font-weight:500; letter-spacing:-.028em; }
+.prop > p{ margin:0 0 26px; max-width:64ch; color:var(--ink2); text-wrap:pretty; }
+.prop__grade{ display:grid; gap:26px; grid-template-columns:1fr; align-items:start; }
+@media (min-width:860px){ .prop__grade{ grid-template-columns:repeat(3,1fr); } }
+.prop__op h3{ margin:0 0 3px; font-size:var(--t-titulo); font-weight:600; }
+.prop__op > p{ margin:0 0 12px; font-size:var(--t-apoio2); color:var(--ink2); text-wrap:pretty; }
+.prop__cx{
+  padding:12px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); box-shadow:var(--sombra-peq);
+}
+.prop__fam{
+  margin:14px 0 6px; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+}
+.prop__fam:first-child{ margin-top:0; }
+.prop__fila{ display:flex; flex-wrap:wrap; gap:3px; }
+.prop__fila .rt__b{ flex:0 0 auto; min-width:50px; }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   OS QUATRO ÍCONES DO CRÉDITO
+   O comportamento é o mesmo nos quatro, e é o que já existe: parado
+   só "Renderizar", no hover a moeda entra na borda direita. O que
+   muda é só o desenho dentro da pastilha.
+   ══════════════════════════════════════════════════════════════════ */
+.ico{ max-width:1060px; margin:0 auto; padding:0 24px 30px; }
+.ico h2{ margin:0 0 6px; font-size:var(--t-tela); font-weight:500; letter-spacing:-.028em; }
+.ico > p{ margin:0 0 26px; max-width:64ch; color:var(--ink2); text-wrap:pretty; }
+.ico__grade{ display:grid; gap:22px; grid-template-columns:1fr; align-items:start; }
+@media (min-width:760px){ .ico__grade{ grid-template-columns:repeat(2,1fr); } }
+@media (min-width:1040px){ .ico__grade{ grid-template-columns:repeat(4,1fr); } }
+.ico__op h3{ margin:0 0 3px; font-size:var(--t-titulo); font-weight:600; }
+.ico__op p{ margin:0 0 12px; font-size:var(--t-apoio2); color:var(--ink2); text-wrap:pretty; }
+.ico__op .gerar{ max-width:none; }
+.ico__nota{
+  margin:10px 0 0; padding-left:15px; position:relative;
+  font-size:var(--t-apoio2); color:var(--ink3); text-wrap:pretty;
+}
+.ico__nota::before{
+  content:""; position:absolute; left:0; top:.55em; width:5px; height:5px;
+  border-radius:50%; background:var(--line2);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   OS CINCO ESTADOS DA LEITURA DE MATERIAIS
+   O bloco Materiais é a única parte do painel que tem vida própria:
+   ele passa por quatro estados no código (`vazio`, `lendo`,
+   `revisar`, `confirmado`) e cada um mostra uma coisa diferente. O
+   quinto aqui não existe ainda, e é a proposta para o defeito do
+   ambiente trocado.
+   ══════════════════════════════════════════════════════════════════ */
+.est{ max-width:1160px; margin:0 auto; padding:0 24px 40px; }
+.est h2{ margin:0 0 6px; font-size:var(--t-tela); font-weight:500; letter-spacing:-.028em; }
+.est > p{ margin:0 0 26px; max-width:66ch; color:var(--ink2); text-wrap:pretty; }
+.est__grade{ display:grid; gap:24px; grid-template-columns:1fr; align-items:start; }
+@media (min-width:720px){ .est__grade{ grid-template-columns:repeat(2,1fr); } }
+@media (min-width:1080px){ .est__grade{ grid-template-columns:repeat(3,1fr); } }
+.est__op h3{ margin:0 0 2px; font-size:var(--t-titulo); font-weight:600; }
+.est__cod{
+  display:inline-block; margin:0 0 8px; padding:1px 8px; border-radius:var(--pill);
+  background:var(--wash2); color:var(--ink3);
+  font-family:var(--mono); font-size:11px;
+}
+.est__cod--novo{ background:var(--turq-bg); color:var(--turq-txt); }
+.est__op > p{ margin:0 0 12px; font-size:var(--t-apoio2); color:var(--ink2); text-wrap:pretty; }
+.est__cx{
+  padding:16px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper);
+}
+
+/* A leitura confirmada é papel de leitura, e não campo de digitação. A caixa
+   é ALTA de propósito: a análise tem seis linhas ou mais, e ler três por vez
+   dentro de uma rolagem de 96px é pior que não mostrar. */
+/* 11px é o degrau de baixo da escala, e aqui ele é o certo: a análise foi
+   escrita pela máquina e a pessoa passa o olho para conferir, não lê como
+   quem lê um parágrafo. Em troca a caixa mostra a leitura INTEIRA, que é o
+   que faltava: seis linhas dentro de uma rolagem de três é pior que nada. */
+.mat__ta{
+  width:100%; min-height:464px; padding:14px 16px;
+  border:1px solid transparent; border-radius:var(--r-peq);
+  background:var(--wash); color:var(--ink);
+  font-size:var(--t-etiqueta); line-height:1.65; resize:vertical; outline:none;
+  transition:background var(--t), border-color var(--t);
+}
+.mat__ta:hover{ border-color:var(--line); }
+.mat__ta:focus{ background:var(--paper); border-color:var(--line2); }
+.mat__ta[readonly]{ color:var(--ink2); resize:none; }
+.mat__ta[readonly]:hover{ border-color:transparent; }
+
+/* ── o pé da leitura ──
+   Já foi pastilha mais link centrado mais botão largo (três tratamentos para
+   três coisas), e depois dois links sublinhados lado a lado (baratos, com o
+   losango espremido entre o texto e o número). Agora o estado é uma etiqueta,
+   e as ações são as pílulas do resto do painel. Nada aqui inventa forma nova. */
+.mat__estado{
+  display:flex; align-items:center; gap:5px; margin:12px 0 0;
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--turq-txt);
+}
+.mat__pe{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px; }
+.mat__acao{
+  position:relative; display:flex; align-items:center; justify-content:center;
+  height:var(--alt-ctrl); padding:0 12px; border:0;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-apoio); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.mat__acao:hover{ background:var(--line); color:var(--ink); }
+
+/* ── a moeda que cabe num botão estreito ──
+   Três exigências que parecem brigar: só no hover, sem encostar no texto, e
+   com o texto no centro. O que resolve é RESERVAR a largura da moeda DOS DOIS
+   LADOS. O rótulo passa a ser centrado no botão inteiro (e não no que sobrou),
+   a moeda ocupa a reserva da direita sem nunca alcançar o texto, e nada muda
+   de lugar quando ela entra.
+
+   O Renderizar já faz isso sem declarar: com 368px de largura o rótulo
+   centrado nunca chega perto da direita. Num botão de 176px o que lá é sobra
+   aqui tem que ser reserva. */
+.mat__acao--custa{ padding:0 46px; }
+.mat__moeda{
+  position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  display:inline-flex; align-items:center; gap:4px;
+  padding:2px 8px; border-radius:var(--pill);
+  background:rgba(17,17,17,.09); color:var(--ink2);
+  font-size:var(--t-etiqueta); font-weight:600; font-variant-numeric:tabular-nums;
+  pointer-events:none; opacity:0; transition:opacity .15s ease;
+}
+.mat__acao:hover .mat__moeda,
+.mat__acao:focus-visible .mat__moeda{ opacity:1; }
+
+.mat__dica{ display:block; margin:12px 0 8px; font-size:var(--t-apoio2); color:var(--ink3); }
+.mat__ok{
+  width:100%; height:var(--alt-ctrl); border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-size:var(--t-apoio); font-weight:600;
+  transition:background var(--t);
+}
+.mat__ok:hover{ background:var(--lima-esc); }
+
+/* ── o aviso do ambiente trocado ──
+   No padrão do `.login-erro` do painel: o bloco inteiro tingido de
+   `--alerta-bg`, a frase em cima dele, sem fio na esquerda e sem triângulo.
+   O fio vermelho sobre fundo claro é o desenho de aviso que toda ferramenta
+   faz igual, e este site já tinha resolvido isso de outro jeito. */
+.mat__aviso{
+  margin-top:12px; padding:14px 16px;
+  border-radius:var(--r-peq); background:var(--alerta-bg);
+}
+.mat__aviso p{ margin:0; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.55; text-wrap:pretty; }
+.mat__aviso b{ color:var(--alerta); font-weight:600; }
+/* A mesma reserva dos dois lados do botão estreito. O losango volta à cor da
+   letra: vermelho ali era eu confundindo o aviso com o preço. O aviso já está
+   dito pelo bloco tingido em volta, e o preço é o mesmo preço de sempre. */
+.mat__aviso-b{
+  position:relative; display:flex; align-items:center; justify-content:center;
+  width:100%; margin-top:12px; height:36px; padding:0 46px;
+  border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-size:var(--t-apoio2); font-weight:600;
+  transition:background var(--t);
+}
+.mat__aviso-b:hover{ background:var(--lima-esc); }
+.mat__aviso-b .mat__moeda{ background:rgba(17,17,17,.14); color:#111111; }
+
+.mat__spin{
+  width:13px; height:13px; flex:none; border-radius:50%;
+  border:2px solid rgba(17,17,17,.20); border-top-color:#111111;
+  animation:mat-gira .7s linear infinite;
+}
+@keyframes mat-gira{ to{ transform:rotate(360deg); } }
+.acao--lendo{ display:flex; align-items:center; justify-content:center; gap:9px; background:var(--wash2); color:var(--ink3); }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   O PICKER DA IMAGEM
+   Todo card que escolhe imagem abre este mesmo picker: a imagem base,
+   as referências, a imagem do Editar. Uma peça, quatro origens.
+
+   O menu da esquerda usa o fio de lima de 3px, que é o mesmo do menu
+   lateral do site e quer dizer a mesma coisa. A miniatura escolhida
+   usa o anel de turquesa e o check, que é a língua das amostras.
+   Nada aqui inventa gesto novo.
+   ══════════════════════════════════════════════════════════════════ */
+.pk-palco{
+  position:relative; display:flex; align-items:center; justify-content:center;
+  padding:34px 24px; border-radius:var(--r);
+  background:rgba(17,17,17,.72);
+}
+/* O picker é uma janela de trabalho dentro de outra janela de trabalho, e
+   não uma página: tudo nele desceu um degrau da escala, porque o que manda
+   ali é a imagem, e o resto é moldura. */
+.pk{
+  display:flex; width:100%; max-width:880px; height:540px; overflow:hidden;
+  border-radius:var(--r); background:var(--paper); box-shadow:var(--sombra);
+}
+
+/* ── o menu das origens ── */
+.pk-lado{
+  flex:none; width:172px; padding:14px 10px;
+  border-right:1px solid var(--line); background:var(--wash);
+  display:flex; flex-direction:column; gap:2px;
+}
+.pk-origem{
+  position:relative; display:flex; align-items:center; gap:9px;
+  height:34px; padding:0 11px; border:0; border-radius:9px;
+  background:none; color:var(--ink2); font-size:var(--t-apoio2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.pk-origem:hover{ background:var(--wash2); color:var(--ink); }
+.pk-origem svg{ flex:none; }
+.pk-origem--on{ background:var(--paper); color:var(--ink); font-weight:600; box-shadow:var(--sombra-peq); }
+.pk-origem--on::before{
+  content:""; position:absolute; left:-10px; top:8px; bottom:8px; width:3px;
+  border-radius:0 3px 3px 0; background:var(--lima);
+}
+.pk-conta{
+  margin-left:auto; font-size:var(--t-etiqueta); font-weight:600;
+  color:var(--ink3); font-variant-numeric:tabular-nums;
+}
+
+/* ── o lado direito ── */
+.pk-main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.pk-cab{
+  flex:none; display:flex; align-items:center; gap:12px;
+  padding:14px 18px; border-bottom:1px solid var(--line);
+}
+.pk-titulo{ font-size:var(--t-corpo); font-weight:600; color:var(--ink); }
+.pk-busca{ position:relative; display:flex; align-items:center; margin-left:auto; }
+.pk-busca svg{ position:absolute; left:13px; color:var(--ink3); pointer-events:none; }
+.pk-busca input{
+  width:180px; height:32px; padding:0 13px 0 32px;
+  border:1px solid transparent; border-radius:var(--pill);
+  background:var(--wash2); color:var(--ink); font-size:var(--t-etiqueta); outline:none;
+  transition:background var(--t), border-color var(--t);
+}
+.pk-busca input:focus{ background:var(--paper); border-color:var(--line2); }
+.pk-busca input::placeholder{ color:var(--ink3); }
+.pk-x{
+  flex:none; width:32px; height:32px; padding:0; border:0; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; color:var(--ink3);
+  transition:background var(--t), color var(--t);
+}
+.pk-x:hover{ background:var(--wash2); color:var(--ink); }
+
+.pk-corpo{ flex:1; min-height:0; overflow-y:auto; padding:18px; }
+.pk-painel[hidden]{ display:none; }
+
+/* ── enviar ── */
+.pk-drop{
+  width:100%; height:100%; min-height:280px; padding:24px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  border:1.5px dashed var(--line2); border-radius:var(--r-peq);
+  background:var(--wash); color:var(--ink3); text-align:center;
+  transition:border-color var(--t), background var(--t), color var(--t);
+}
+.pk-drop:hover{ border-color:var(--ink3); background:var(--wash2); }
+.pk-drop--on{ border-color:var(--turquesa-esc); background:var(--turq-bg); color:var(--turq-txt); }
+.pk-drop-ico{ margin-bottom:8px; color:var(--ink3); }
+.pk-drop-t{ font-size:var(--t-corpo); font-weight:600; color:var(--ink); }
+.pk-drop-s{ font-size:var(--t-apoio2); }
+.pk-drop-b{
+  margin-top:14px; height:34px; padding:0 16px; border:0;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-apoio2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.pk-drop:hover .pk-drop-b{ background:var(--paper); color:var(--ink); }
+
+/* ── a grade ──
+   Agrupada por mês, porque é assim que a pessoa lembra: "aquele render
+   de junho". O rótulo do mês é a mesma etiqueta de 11px do resto. */
+.pk-mes + .pk-mes{ margin-top:22px; }
+.pk-mes h3{
+  margin:0 0 10px; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}
+.pk-grade{ display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); gap:8px; }
+.pk-item{
+  position:relative; aspect-ratio:1; padding:0; overflow:hidden;
+  border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--wash2);
+  transition:border-color var(--t), box-shadow var(--t), transform var(--t);
+}
+.pk-item:hover{ border-color:var(--line2); box-shadow:var(--sombra-peq); transform:translateY(-1px); }
+.pk-item--on{ border-color:var(--turquesa-esc); box-shadow:0 0 0 2px var(--turquesa); }
+.pk-item i{ display:block; width:100%; height:100%; }
+.pk-visto{
+  position:absolute; right:6px; top:6px; opacity:0;
+  color:var(--turquesa-esc); filter:drop-shadow(0 1px 2px rgba(17,17,17,.55));
+  transition:opacity var(--t);
+}
+.pk-item--on .pk-visto{ opacity:1; }
+/* O coração do favorito: pastilha de vidro, que é como toda marca sobre
+   imagem funciona no resto da janela. */
+.pk-fav{
+  position:absolute; left:6px; bottom:6px; width:22px; height:22px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:50%; background:rgba(255,255,255,.82); color:#111111;
+  backdrop-filter:blur(10px) saturate(150%);
+}
+
+/* ── o pé ── */
+.pk-ok{
+  flex:none; display:flex; align-items:center; gap:12px;
+  padding:12px 18px; border-top:1px solid var(--line); background:var(--paper);
+}
+.pk-ok-mini{
+  flex:none; width:38px; height:38px; border-radius:10px; overflow:hidden;
+  border:1px solid var(--line);
+}
+.pk-ok-mini i{ display:block; width:100%; height:100%; }
+.pk-ok-txt{ min-width:0; display:flex; flex-direction:column; }
+.pk-ok-txt strong{ font-size:var(--t-apoio2); font-weight:600; color:var(--ink); }
+.pk-ok-txt span{ font-size:var(--t-etiqueta); color:var(--ink3); }
+.pk-ok-outra{
+  margin-left:auto; height:34px; padding:0 15px; border:0;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-apoio2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.pk-ok-outra:hover{ background:var(--line); color:var(--ink); }
+.pk-ok-btn{
+  height:34px; padding:0 18px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-size:var(--t-apoio2); font-weight:600;
+  transition:background var(--t);
+}
+.pk-ok-btn:hover:not(:disabled){ background:var(--lima-esc); }
+.pk-ok-btn:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+
+.pk-vazio{ padding:60px 20px; text-align:center; color:var(--ink3); font-size:var(--t-apoio2); }
+
+
+/* ── a tira das escolhidas ──
+   Só existe quando o picker está pedindo VÁRIAS (as referências). Ela fica
+   grudada no topo da rolagem: com dez escolhidas espalhadas por três meses,
+   sem a tira a pessoa perde a conta do que já marcou. */
+.pk-multi-tira{
+  position:sticky; top:-18px; z-index:2;
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  margin:-18px -18px 16px; padding:12px 18px;
+  border-bottom:1px solid var(--line); background:var(--paper);
+}
+.pk-multi-tira[hidden]{ display:none; }
+.pk-multi-rot{
+  flex:none; margin-right:2px; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink3);
+}
+.pk-multi-mini{
+  position:relative; width:36px; height:36px; padding:0; overflow:hidden;
+  border:1px solid var(--line); border-radius:9px; background:var(--wash2);
+}
+.pk-multi-mini i{ display:block; width:100%; height:100%; }
+.pk-multi-x{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  background:rgba(17,17,17,.52); color:#FFFFFF; font-size:var(--t-corpo); line-height:1;
+  opacity:0; transition:opacity var(--t);
+}
+.pk-multi-mini:hover .pk-multi-x{ opacity:1; }
+.pk-multi-vazia{ font-size:var(--t-apoio2); color:var(--ink3); }
+
+/* o seletor do estudo, para ver os dois modos na mesma janela */
+.pk-modo{
+  display:flex; gap:2px; padding:3px; margin:0 auto 18px; width:max-content;
+  border-radius:var(--pill); background:rgba(255,255,255,.14);
+}
+.pk-modo button{
+  height:30px; padding:0 16px; border:0; border-radius:var(--pill);
+  background:transparent; color:rgba(255,255,255,.66);
+  font-size:var(--t-apoio2); font-weight:600;
+}
+.pk-modo button[aria-checked="true"]{ background:#F2F2EF; color:#111111; }
+
+/* ══ a barra de tema ══ */
+.tema{
+  position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:200;
+  display:flex; gap:4px; padding:5px; border-radius:var(--pill);
+  background:#111111; box-shadow:0 12px 34px rgba(0,0,0,.34);
+}
+.tema button{
+  height:32px; padding:0 15px; border:0; border-radius:var(--pill);
+  background:transparent; color:#B6B5AE; font-size:var(--t-apoio); font-weight:500;
+}
+.tema button.on{ background:#F2F2EF; color:#111111; font-weight:600; }
+</style>
+
+<div class="topo">
+  <p class="eb">Cora Render · a aba Render</p>
+  <h1>A ficha, e a amostra de luz</h1>
+  <p class="lead">A aba inteira, do jeito que ficaria. <b>Clica nas linhas e na
+    barra de baixo</b>, que tudo abre.</p>
+  <div class="regra">
+    <p><b>Fechado é tipografia e fio. A cor só aparece no grupo que está sendo
+      escolhido agora.</b></p>
+    <p>Os desenhos saíram. A direção da luz não é mais uma seta apontando para
+      uma sala vista de cima: é o lado claro da amostra. A coisa, e não o
+      desenho da coisa.</p>
+  </div>
+</div>
+
+<div class="palco">
+
+  <!-- ══════════ o painel ══════════ -->
+  <div class="painel" id="painel">
+
+    <p class="sec">Imagem do modelo</p>
+    <div class="base">
+      <div class="base__img"></div>
+      <button class="base__x" aria-label="Tirar a imagem">×</button>
+    </div>
+
+    <!-- O ambiente vem ANTES do Materiais, e não é ordem estética: o
+         `lerMateriais(imagem, tipo)` manda o tipo para o servidor, e é ele que
+         decide qual promptador roda na leitura. Lido como interno, um projeto
+         externo volta com a análise errada, e refazer custa 16 créditos. -->
+    <div class="fic fic--solta">
+      <div class="fic__l" data-aberta="nao">
+        <button class="fic__cab">
+          <span class="fic__nome">Ambiente</span>
+          <span class="fic__val">Interno</span>
+          <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="fic__corpo">
+          <div class="lista lista--uma" data-grupo>
+            <button class="lista__b" aria-checked="true"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Interno</button>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Externo</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="sec">Materiais</p>
+    <div id="mat" data-estado="vazio">
+
+      <div class="mat__passo" data-em="vazio">
+        <button class="acao acao--quieta" data-mat="tenho">Já tenho a análise</button>
+        <button class="acao acao--lima" data-mat="ler" style="position:relative">
+          Ler materiais
+          <span class="cr-custo-tag"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>16</span>
+        </button>
+      </div>
+
+      <div class="mat__passo" data-em="lendo" hidden>
+        <button class="acao acao--lendo" disabled><span class="mat__spin"></span>Lendo a imagem...</button>
+      </div>
+
+      <div class="mat__passo" data-em="revisar" hidden>
+        <textarea class="mat__ta" id="mat-texto" placeholder="Cole aqui a análise que você já tem..."></textarea>
+        <span class="mat__dica">Materiais identificados, edite se precisar</span>
+        <button class="mat__ok" data-mat="confirmar">Tá bom, seguir assim</button>
+      </div>
+
+      <div class="mat__passo" data-em="confirmado" hidden>
+        <textarea class="mat__ta" id="mat-texto-ok" readonly></textarea>
+        <p class="mat__estado">
+          <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Confirmado
+        </p>
+        <div class="mat__pe">
+          <button class="mat__acao" data-mat="editar">Editar</button>
+          <button class="mat__acao mat__acao--custa" data-mat="ler">Ler de novo
+            <span class="mat__moeda"><svg viewBox="0 0 24 24" width="8" height="8" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>16</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fic">
+
+      <!-- luz natural · a borda de sombra é a diferença -->
+      <div class="fic__l" data-aberta="nao">
+        <button class="fic__cab">
+          <span class="fic__nome">Luz natural</span>
+          <span class="fic__val">Luz direta</span>
+          <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="fic__corpo">
+          <div class="am" data-grupo>
+            <button class="am__b" aria-checked="true">
+              <span class="am__q" style="background:linear-gradient(112deg,#f8f4ea 0 44%,#b3aa99 44%,#8f8677)"></span>
+              <span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="am__n">Luz direta</span>
+            </button>
+            <button class="am__b" aria-checked="false">
+              <span class="am__q" style="background:linear-gradient(112deg,#f2efe8,#dcd7cd 55%,#cbc5ba)"></span>
+              <span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="am__n">Luz difusa</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- hora do dia · família no sulco, e a hora é a cor do céu -->
+      <div class="fic__l" data-aberta="sim">
+        <button class="fic__cab">
+          <span class="fic__nome">Hora do dia</span>
+          <span class="fic__val">Dia claro editorial</span>
+          <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="fic__corpo">
+          <div class="sul" data-familias>
+            <button class="sul__b" aria-checked="true" data-fam="dia">Dia</button>
+            <button class="sul__b" aria-checked="false" data-fam="especiais">Especiais</button>
+            <button class="sul__b" aria-checked="false" data-fam="difuso">Difuso</button>
+            <button class="sul__b" aria-checked="false" data-fam="noite">Noite</button>
+          </div>
+          <div class="am" data-grupo data-fam-alvo style="margin-top:8px">
+            <button class="am__b" data-fam="dia" aria-checked="true"><span class="am__q" style="background:linear-gradient(175deg,#cfe0ec,#f2f4f4 60%,#e6e4de)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Dia claro editorial</span></button>
+            <button class="am__b" data-fam="dia" aria-checked="false"><span class="am__q" style="background:linear-gradient(175deg,#d8e3ea,#f7efe2 58%,#eeddc8)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Manhã</span></button>
+            <button class="am__b" data-fam="dia" aria-checked="false"><span class="am__q" style="background:linear-gradient(175deg,#c2d8e8,#f4f7f8 55%,#e9ebea)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Meio-dia</span></button>
+            <button class="am__b" data-fam="dia" aria-checked="false"><span class="am__q" style="background:linear-gradient(175deg,#e2cfb4,#f2e2c8 50%,#d6b489)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Tarde</span></button>
+            <button class="am__b" data-fam="especiais" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#cfd4e2,#efdcd2 55%,#e3b9a4)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Amanhecer</span></button>
+            <button class="am__b" data-fam="especiais" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#e8c99a,#f2d9a8 50%,#cf9a5e)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Golden hour</span></button>
+            <button class="am__b" data-fam="especiais" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#8fa0bd,#b7c2d4 55%,#6c7c9c)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Blue hour</span></button>
+            <button class="am__b" data-fam="difuso" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#cfd3d4,#e4e6e6 58%,#c8cccd)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Nublado</span></button>
+            <button class="am__b" data-fam="difuso" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#dde4e8,#f4f7f9 58%,#e6ebee)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Neve</span></button>
+            <button class="am__b" data-fam="difuso" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#b9c1c6,#d2d8db 55%,#a8b1b7)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Chuvoso</span></button>
+            <button class="am__b" data-fam="difuso" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#d6d8d6,#e8e9e7 58%,#cdd0ce)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Neblina</span></button>
+            <button class="am__b" data-fam="noite" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#2f3a4d,#4a5670 55%,#232a37)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Noite clara</span></button>
+            <button class="am__b" data-fam="noite" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#1e2636,#2f3a52 55%,#141a26)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Noite estrelada</span></button>
+            <button class="am__b" data-fam="noite" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#1a1e26,#262c38 55%,#10131a)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Noite escura</span></button>
+            <button class="am__b" data-fam="noite" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#232a33,#363f4b 55%,#171c23)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Noite chuvosa</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- direção da luz · mais de uma, porque a luz entra por mais de um lugar -->
+      <div class="fic__l" data-aberta="nao">
+        <button class="fic__cab">
+          <span class="fic__nome">Direção da luz</span>
+          <span class="fic__val" data-plural="escolhidas">Lateral direita</span>
+          <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="fic__corpo">
+          <div class="am am--3" data-grupo data-varios>
+            <button class="am__b am__b--planta" aria-checked="false"><span class="am__q"><svg viewBox="0 0 100 44" aria-hidden="true"><path class="pl-sala" d="M39 28v-7l11-6 11 6v7"/><path class="pl-luz" d="M50 12v-2.6M45.8 12.8l-1-2.2M54.2 12.8l1-2.2"/></svg></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Frontal</span></button>
+            <button class="am__b am__b--planta" aria-checked="false"><span class="am__q"><svg viewBox="0 0 100 44" aria-hidden="true"><rect class="pl-sala" x="31" y="13" width="38" height="19" rx="2"/><path class="pl-luz" d="M19 22.5h11M30 22.5l-3.2-3.2M30 22.5l-3.2 3.2"/></svg></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Lateral esquerda</span></button>
+            <button class="am__b am__b--planta" aria-checked="true"><span class="am__q"><svg viewBox="0 0 100 44" aria-hidden="true"><rect class="pl-sala" x="31" y="13" width="38" height="19" rx="2"/><path class="pl-luz" d="M81 22.5H70M70 22.5l3.2-3.2M70 22.5l3.2 3.2"/></svg></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Lateral direita</span></button>
+            <button class="am__b am__b--planta" aria-checked="false"><span class="am__q"><svg viewBox="0 0 100 44" aria-hidden="true"><rect class="pl-sala" x="31" y="13" width="38" height="19" rx="2"/><path class="pl-luz" d="M50 41v-7M50 34l-3.2 3.2M50 34l3.2 3.2"/></svg></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Pelo fundo</span></button>
+            <button class="am__b am__b--planta" aria-checked="false"><span class="am__q"><svg viewBox="0 0 100 44" aria-hidden="true"><rect class="pl-sala" x="31" y="13" width="38" height="19" rx="2"/><path class="pl-luz" d="M79 6L70.5 14.5M70.5 14.5l4.8-.5M70.5 14.5l.5-4.8"/></svg></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Diagonal</span></button>
+            <button class="am__b am__b--planta" aria-checked="false"><span class="am__q"><svg viewBox="0 0 100 44" aria-hidden="true"><path class="pl-sala" d="M36 33V22l14-8.5 14 8.5v11"/><path class="pl-luz" d="M50 5v5M44.5 7.5l1.7 3.2M55.5 7.5l-1.7 3.2"/></svg></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Zenital</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- os detalhes da luz · o único lugar do texto livre sobre luz
+           Os dois campos continuam sendo dois (`detNatural` e `descLuz`, que é
+           como o componente já manda para o servidor). O que mudou é que eles
+           pararam de morar abertos no meio das escolhas: quem nunca escreve
+           nada não vê nenhum dos dois, e quem escreve tem os dois juntos. -->
+      <div class="fic__l" data-aberta="nao">
+        <button class="fic__cab">
+          <span class="fic__nome">Detalhes da luz</span>
+          <span class="fic__val" data-vazio="sim">nenhum</span>
+          <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="fic__corpo">
+          <p class="fic__grp">Sobre a iluminação natural</p>
+          <textarea class="ta ta--curta" data-detalhe placeholder="Ex.: sol baixo entrando rasante, sombra comprida no piso"></textarea>
+          <p class="fic__grp">Sobre a direção</p>
+          <textarea class="ta ta--curta" data-detalhe placeholder="Ex.: luz entra pela porta-janela lateral direita e pelo fundo"></textarea>
+        </div>
+      </div>
+
+      <!-- atmosfera · lista de vários, com o marcador quadrado -->
+      <div class="fic__l" data-aberta="nao">
+        <button class="fic__cab">
+          <span class="fic__nome">Atmosfera</span>
+          <span class="fic__val" data-vazio="sim" data-plural="escolhidas">nenhuma</span>
+          <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="fic__corpo">
+          <div class="lista" data-grupo data-varios>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Céu azul limpo</button>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Nuvens leves</button>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Nublado difuso</button>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Pós-chuva com reflexos sutis</button>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Leve neblina</button>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Clima tropical seco</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- luz artificial · a bolinha mostra a temperatura -->
+      <div class="fic__l" data-aberta="nao">
+        <button class="fic__cab">
+          <span class="fic__nome">Luz artificial</span>
+          <span class="fic__val">Desligada</span>
+          <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="fic__corpo">
+          <div class="kel" data-grupo>
+            <button class="kel__b" aria-checked="true"><span class="kel__q" style="background:var(--wash2)"></span>Desligada</button>
+            <button class="kel__b" aria-checked="false"><span class="kel__q" style="background:#f0c07a"></span>2700K</button>
+            <button class="kel__b" aria-checked="false"><span class="kel__q" style="background:#f5d2a2"></span>3000K</button>
+            <button class="kel__b" aria-checked="false"><span class="kel__q" style="background:#f6e6cd"></span>4000K</button>
+            <button class="kel__b" aria-checked="false"><span class="kel__q" style="background:#eef2f6"></span>5500K</button>
+            <button class="kel__b" aria-checked="false"><span class="kel__q" style="background:var(--wash2)"></span>Outro</button>
+          </div>
+          <div class="cor" id="cor-outro" hidden>
+            <div class="cor__topo">
+              <span class="cor__bola" id="cor-bola" style="background:#F4EAD9"></span>
+              <span class="cor__k"><span id="cor-k">4200</span><span id="cor-un">K</span> <small id="cor-nota">· branco neutro</small></span>
+            </div>
+
+            <div class="cor__abas" id="cor-abas">
+              <button class="cor__aba" aria-checked="true" data-modo="branco">Branco</button>
+              <button class="cor__aba" aria-checked="false" data-modo="colorida">Colorida</button>
+            </div>
+
+            <div class="cor__painel" id="cor-branco">
+              <input class="cor__regua cor__regua--k" id="cor-kelvin" type="range" min="1800" max="6500" step="50" value="4200"
+                     aria-label="Temperatura de cor da luz">
+              <div class="cor__pes"><span>1800K quente</span><span>6500K frio</span></div>
+            </div>
+
+            <div class="cor__painel" id="cor-colorida" hidden>
+              <div class="cor__quadro" id="cor-quadro" style="background:#f00" tabindex="0"
+                   role="application" aria-label="Escolher a cor: horizontal muda a saturação, vertical muda o brilho">
+                <span class="cor__alvo" id="cor-alvo" style="left:100%;top:0"></span>
+              </div>
+              <input class="cor__regua cor__regua--h" id="cor-matiz" type="range" min="0" max="360" step="1" value="0"
+                     aria-label="Matiz">
+            </div>
+
+            <div class="cor__hex">
+              <span class="cor__rot">ou</span>
+              <input class="cor__campo" id="cor-hex" value="#F4EAD9" spellcheck="false" aria-label="Cor em hexadecimal">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- entorno · lista de uma, com o marcador redondo -->
+      <div class="fic__l" data-aberta="nao">
+        <button class="fic__cab">
+          <span class="fic__nome">Entorno</span>
+          <span class="fic__val" data-vazio="sim" data-plural="escolhidos">nenhum</span>
+          <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="fic__corpo">
+          <div class="lista" data-grupo data-varios>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Jardim</button>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Casa térrea</button>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Vista urbana</button>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Bairro residencial</button>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Montanhas</button>
+            <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Praia</button>
+          </div>
+          <textarea class="ta" placeholder="Descreva com suas palavras o entorno..."></textarea>
+          <p class="hint">Quanto mais específico, melhor. Ex.: "10º andar em
+            Florianópolis, vista de bairro arborizado".</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="sec">Referências <span>opcional</span></p>
+    <div class="refs">
+      <div class="ref ref--a"><span class="ref__n">01</span></div>
+      <div class="ref ref--b"><span class="ref__n">02</span></div>
+      <button class="ref ref--add"><span class="ref__mais">+</span><span class="ref__c">2/10</span></button>
+    </div>
+    <textarea class="ta" placeholder="Cite @ref01 para usar uma referência..."></textarea>
+    <p class="hint">Use @ref01, @ref02... para dizer onde cada imagem entra.</p>
+
+    <div class="barra-ger">
+      <div class="cfg">
+        <div class="qty"><button aria-label="Menos">−</button><span>2</span><button aria-label="Mais">+</button></div>
+
+        <!-- proporção -->
+        <div class="cfg__wrap">
+          <button class="cfg__b" aria-expanded="false" data-pop="ratio">
+            <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="14" height="10" rx="1.5"/></svg>
+            <span data-val="ratio">4:5</span>
+            <svg class="cfg__seta" viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="pop pop--ratio" id="pop-ratio" hidden>
+            <div class="rt" data-grupo data-alvo="ratio">
+              <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:22px;height:22px"></span></span>auto</button>
+              <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:22px;height:22px"></span></span>1:1</button>
+              <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:11px"></span></span>21:9</button>
+              <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:15px"></span></span>16:9</button>
+              <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:15px;height:26px"></span></span>9:16</button>
+              <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:20px"></span></span>4:3</button>
+              <button class="rt__b" aria-checked="true"><span class="rt__cx"><span class="rt__q" style="width:21px;height:26px"></span></span>4:5</button>
+              <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:21px"></span></span>5:4</button>
+              <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:20px;height:26px"></span></span>3:4</button>
+              <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:17px"></span></span>3:2</button>
+              <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:17px;height:26px"></span></span>2:3</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- resolução -->
+        <div class="cfg__wrap">
+          <button class="cfg__b" aria-expanded="false" data-pop="res">
+            <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7V4h3M17 7V4h-3M3 13v3h3M17 13v3h-3"/></svg>
+            <span data-val="res">2K</span>
+            <svg class="cfg__seta" viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="pop" id="pop-res" hidden>
+            <div class="rs" data-grupo data-alvo="res">
+              <button class="rs__b" aria-checked="false"><span class="rs__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>1K</button>
+              <button class="rs__b" aria-checked="true"><span class="rs__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>2K</button>
+              <button class="rs__b" aria-checked="false"><span class="rs__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>4K</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="gerar" id="gerar" disabled>
+        <span id="gerar-rotulo">Leia os materiais primeiro</span>
+        <span class="cr-custo-tag">
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+          276
+        </span>
+      </button>
+      <button class="resetar">Resetar configurações</button>
+    </div>
+  </div>
+
+  <!-- ══════════ as notas ══════════ -->
+  <div class="notas">
+    <h2>O que mudou desde a última</h2>
+    <p><b>Os desenhos saíram.</b> A sala vista de cima com a seta, o solzinho
+      com a sombra: viraram amostra de luz. A direção agora é o lado claro da
+      amostra, e "luz direta" tem a borda de sombra dura que "luz difusa" não
+      tem. Clip-art dentro de uma ferramenta de imagem é o pior lugar possível
+      para ele estar.</p>
+    <p><b>Direção da luz aceita mais de uma.</b> A luz de um projeto entra por
+      mais de um lugar, e obrigar a escolher uma era mentira sobre a cena.</p>
+    <p><b>Atmosfera e Entorno viraram lista com marcador.</b> Soltas, as
+      palavras não tinham onde se apoiar. E o marcador diz sozinho quantas dá
+      para escolher: quadrado marca várias, círculo marca uma. Some a frase
+      "dá para marcar mais de uma", que era a legenda de um desenho que não
+      estava lá.</p>
+    <p><b>A linha não fecha mais ao escolher.</b> Trocar de mood é o que mais se
+      faz testando, e fechar a cada troca cobrava um clique por tentativa.</p>
+    <p><b>A proporção e a resolução abrem.</b> Clica nelas na barra de baixo. A
+      proporção não mostra um ícone de proporção: o bloquinho tem a forma que a
+      imagem vai ter.</p>
+
+    <h2>Quem virou o quê</h2>
+    <table class="mapa">
+      <thead><tr><th>Grupo</th><th>Abre como</th><th>Quantas</th></tr></thead>
+      <tbody>
+        <tr><td>Ambiente</td><td>lista, marcador redondo</td><td>uma</td></tr>
+        <tr><td>Luz natural</td><td>amostra de luz</td><td>uma</td></tr>
+        <tr><td>Hora do dia</td><td>sulco de família + amostra de céu</td><td>uma</td></tr>
+        <tr><td>Direção da luz</td><td>amostra de luz</td><td>várias</td></tr>
+        <tr><td>Atmosfera</td><td>lista, marcador quadrado</td><td>várias</td></tr>
+        <tr><td>Luz artificial</td><td>lista com a cor da temperatura</td><td>uma</td></tr>
+        <tr><td>Entorno</td><td>lista, marcador redondo</td><td>uma</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Onde eu ainda ficaria de olho</h2>
+    <p>Com a linha não fechando, escolher em dois grupos seguidos custa dois
+      cliques a mais: fechar um e abrir o outro. Achei o preço certo, porque
+      trocar dentro do mesmo grupo é muito mais frequente que pular de grupo,
+      mas é o tipo de coisa que só o uso responde.</p>
+    <p><b>Uma correção minha.</b> Na versão anterior deste estudo eu tinha
+      posto uma frase de custo embaixo do botão, e ela nunca existiu no site: o
+      Cora já mostra a moeda numa pastilha dentro do "Renderizar", que aparece
+      no hover. Voltou a ser assim aqui. Passa o mouse no botão para ver.</p>
+    <p>O <b>picker da imagem</b> é a peça que ainda não passou por aqui.</p>
+
+    <p class="medida">a mesma área, fechada <b data-alt="fechado">…</b> · hoje <b>2515px</b></p>
+    <p style="margin:8px 0 0;font-size:12.5px;color:var(--ink3);max-width:52ch">
+      Os 2515px são medidos no site que está no ar, na largura de 400px:
+      <b style="color:var(--ink);font-weight:500">44 botões de escolha</b> e
+      384px só de caixas de texto abertas que quase ninguém preenche.</p>
+  </div>
+</div>
+
+
+<div class="est">
+  <h2>A leitura dos materiais, estado por estado</h2>
+  <p>É a única parte do painel com vida própria: ela passa por quatro estados no
+    código, e cada um mostra uma coisa diferente. Os quatro primeiros são o que
+    já existe, vestido de novo. <b>O quinto é proposta</b>, e é a resposta para
+    o defeito do ambiente trocado.</p>
+
+  <div class="est__grade">
+
+    <div class="est__op">
+      <h3>Nunca leu</h3>
+      <span class="est__cod">vazio</span>
+      <p>Dois caminhos: pagar a leitura, ou colar uma que já existe. A aba
+        Análises guarda as antigas, e reaproveitar não custa nada.</p>
+      <div class="est__cx">
+        <p class="sec" style="margin-top:0">Materiais</p>
+        <button class="acao acao--quieta">Já tenho a análise</button>
+        <button class="acao acao--lima" style="position:relative">
+          Ler materiais
+          <span class="cr-custo-tag"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>16</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="est__op">
+      <h3>Lendo</h3>
+      <span class="est__cod">lendo</span>
+      <p>A moeda some enquanto lê: o crédito já saiu, e continuar mostrando o
+        preço de uma coisa já paga é oferecer o que não está mais à venda.</p>
+      <div class="est__cx">
+        <p class="sec" style="margin-top:0">Materiais</p>
+        <button class="acao acao--lendo" disabled><span class="mat__spin"></span>Lendo a imagem...</button>
+      </div>
+    </div>
+
+    <div class="est__op">
+      <h3>Leu, e está conferindo</h3>
+      <span class="est__cod">revisar</span>
+      <p>O texto chega editável. O botão de ler some daqui de propósito, para
+        ninguém pagar duas vezes no meio da conferência.</p>
+      <div class="est__cx">
+        <p class="sec" style="margin-top:0">Materiais</p>
+        <textarea class="mat__ta">Piso: porcelanato acetinado bege claro, peça grande, rejunte fino da mesma cor.
+Paredes: pintura fosca branco quente.
+Marcenaria: MDF ripado em carvalho natural, puxadores embutidos.
+Bancada: quartzo branco, espessura 2 cm, borda reta.
+Metais: latão escovado.
+Estofado: linho cru.</textarea>
+        <span class="mat__dica">Materiais identificados, edite se precisar</span>
+        <button class="mat__ok">Tá bom, seguir assim</button>
+      </div>
+    </div>
+
+    <div class="est__op">
+      <h3>Confirmado</h3>
+      <span class="est__cod">confirmado</span>
+      <p>O campo vira papel de leitura, e o Renderizar destrava. Ler de novo
+        volta a ser oferecido, e volta a cobrar.</p>
+      <div class="est__cx">
+        <p class="sec" style="margin-top:0">Materiais</p>
+        <textarea class="mat__ta" readonly>Piso: porcelanato acetinado bege claro, peça grande, rejunte fino da mesma cor.
+Paredes: pintura fosca branco quente.
+Marcenaria: MDF ripado em carvalho natural, puxadores embutidos.
+Bancada: quartzo branco, espessura 2 cm, borda reta.
+Metais: latão escovado.
+Estofado: linho cru.</textarea>
+        <p class="mat__estado">
+          <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Confirmado
+        </p>
+        <div class="mat__pe">
+          <button class="mat__acao">Editar</button>
+          <button class="mat__acao mat__acao--custa">Ler de novo
+            <span class="mat__moeda"><svg viewBox="0 0 24 24" width="8" height="8" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>16</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="est__op">
+      <h3>O ambiente mudou depois</h3>
+      <span class="est__cod est__cod--novo">proposta</span>
+      <p>Hoje isto passa calado: o <code style="font-family:var(--mono);font-size:12px">setTipo</code>
+        troca o valor e a leitura confirmada fica valendo, feita pelo promptador
+        errado. O aviso não trava nada e não cobra nada sozinho.</p>
+      <div class="est__cx">
+        <p class="sec" style="margin-top:0">Materiais</p>
+        <textarea class="mat__ta" readonly>Piso: porcelanato acetinado bege claro, peça grande, rejunte fino da mesma cor.
+Paredes: pintura fosca branco quente.
+Marcenaria: MDF ripado em carvalho natural, puxadores embutidos.
+Bancada: quartzo branco, espessura 2 cm, borda reta.
+Metais: latão escovado.
+Estofado: linho cru.</textarea>
+        <p class="mat__estado">
+          <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Confirmado
+        </p>
+        <div class="mat__aviso" role="status">
+          <p>Esta leitura foi feita para <b>ambiente interno</b>,
+            e&nbsp;o&nbsp;projeto agora está como externo.
+            O&nbsp;promptador é&nbsp;outro.</p>
+          <button class="mat__aviso-b">
+            Ler de novo para externo
+            <span class="mat__moeda"><svg viewBox="0 0 24 24" width="8" height="8" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>16</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="est" style="padding-bottom:110px">
+  <h2>O picker da imagem</h2>
+  <p>Todo card que escolhe imagem abre este mesmo picker: a imagem base, as
+    referências, a imagem do Editar. Uma peça, quatro origens. <b>Clica nas
+    origens e nas miniaturas.</b></p>
+
+  <div class="pk-palco">
+    <div style="width:100%">
+    <div class="pk-modo" data-pk-modo>
+      <button aria-checked="true" data-pk-m="uma">Imagem base · uma</button>
+      <button aria-checked="false" data-pk-m="varias">Referências · até 10</button>
+    </div>
+    <div class="pk">
+      <nav class="pk-lado" data-origens>
+        <button class="pk-origem" data-alvo="enviar">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 14v2a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5v-2" stroke-linecap="round"/></svg>
+          Enviar
+        </button>
+        <button class="pk-origem pk-origem--on" data-alvo="historico">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10a7 7 0 107-7 7 7 0 00-5 2.1" stroke-linecap="round"/><path d="M3 3v2.5h2.5M10 6v4l2.5 1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Histórico
+          <span class="pk-conta">128</span>
+        </button>
+        <button class="pk-origem" data-alvo="uploads">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4" width="15" height="12" rx="2"/><circle cx="7" cy="8.5" r="1.4"/><path d="M3 14l4-3.5 3 2.5 3-3 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Uploads
+          <span class="pk-conta">14</span>
+        </button>
+        <button class="pk-origem" data-alvo="favoritos">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z" stroke-linejoin="round"/></svg>
+          Favoritos
+          <span class="pk-conta">9</span>
+        </button>
+      </nav>
+
+      <div class="pk-main">
+        <header class="pk-cab">
+          <span class="pk-titulo" data-titulo>Histórico</span>
+          <div class="pk-busca">
+            <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="9" r="5.5"/><path d="M13.5 13.5L17 17" stroke-linecap="round"/></svg>
+            <input placeholder="Buscar">
+          </div>
+          <button class="pk-x" aria-label="Fechar">
+            <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9" stroke-linecap="round"/></svg>
+          </button>
+        </header>
+
+        <div class="pk-corpo">
+          <div class="pk-multi-tira" data-tira hidden>
+            <span class="pk-multi-rot">Escolhidas</span>
+            <span class="pk-multi-vazia" data-tira-vazia>nenhuma ainda</span>
+          </div>
+          <div class="pk-painel" data-painel="enviar" hidden>
+            <div class="pk-drop">
+              <span class="pk-drop-ico"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 16V5m0 0L8 9m4-4l4 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2.5A2.5 2.5 0 006.5 21h11a2.5 2.5 0 002.5-2.5V16" stroke-linecap="round"/></svg></span>
+              <span class="pk-drop-t">Arraste sua imagem aqui</span>
+              <span class="pk-drop-s">ou cole com Ctrl+V</span>
+              <button class="pk-drop-b">Procurar no computador</button>
+            </div>
+          </div>
+
+          <div class="pk-painel" data-painel="historico" data-grade>
+            <section class="pk-mes">
+              <h3>Setembro 2026</h3>
+              <div class="pk-grade">
+              <button class="pk-item"><i style="background:linear-gradient(160deg,#cfd8d2,#8fa39a 45%,#5d6b66)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+              <button class="pk-item"><i style="background:linear-gradient(160deg,#e6ddd0,#c4ae94 50%,#8a755d)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="pk-fav"><svg viewBox="0 0 20 20" width="11" height="11" fill="currentColor"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/></svg></span></button>
+              <button class="pk-item pk-item--on"><i style="background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+              <button class="pk-item"><i style="background:linear-gradient(200deg,#efe6da,#cbb8a2 55%,#7d6a55)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+              <button class="pk-item"><i style="background:linear-gradient(140deg,#dfe3dc,#9aa79b 48%,#63706a)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+              <button class="pk-item"><i style="background:linear-gradient(170deg,#f0e4d4,#d3b591 52%,#93704c)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="pk-fav"><svg viewBox="0 0 20 20" width="11" height="11" fill="currentColor"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/></svg></span></button>
+              <button class="pk-item"><i style="background:linear-gradient(150deg,#dcdfe6,#a3aab8 46%,#666f80)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+              <button class="pk-item"><i style="background:linear-gradient(185deg,#e9e2d6,#bdae99 50%,#79695a)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+              </div>
+            </section>
+            <section class="pk-mes">
+              <h3>Agosto 2026</h3>
+              <div class="pk-grade">
+              <button class="pk-item"><i style="background:linear-gradient(200deg,#efe6da,#cbb8a2 55%,#7d6a55)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+              <button class="pk-item"><i style="background:linear-gradient(140deg,#dfe3dc,#9aa79b 48%,#63706a)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="pk-fav"><svg viewBox="0 0 20 20" width="11" height="11" fill="currentColor"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/></svg></span></button>
+              <button class="pk-item"><i style="background:linear-gradient(170deg,#f0e4d4,#d3b591 52%,#93704c)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+              <button class="pk-item"><i style="background:linear-gradient(150deg,#dcdfe6,#a3aab8 46%,#666f80)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+              <button class="pk-item"><i style="background:linear-gradient(185deg,#e9e2d6,#bdae99 50%,#79695a)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+              </div>
+            </section>
+          </div>
+
+          <div class="pk-painel" data-painel="uploads" hidden data-grade>
+            <div class="pk-grade">
+            <button class="pk-item"><i style="background:linear-gradient(160deg,#e6ddd0,#c4ae94 50%,#8a755d)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+            <button class="pk-item"><i style="background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+            <button class="pk-item"><i style="background:linear-gradient(200deg,#efe6da,#cbb8a2 55%,#7d6a55)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+            <button class="pk-item"><i style="background:linear-gradient(140deg,#dfe3dc,#9aa79b 48%,#63706a)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+            </div>
+          </div>
+
+          <div class="pk-painel" data-painel="favoritos" hidden data-grade>
+            <div class="pk-grade">
+            <button class="pk-item"><i style="background:linear-gradient(160deg,#cfd8d2,#8fa39a 45%,#5d6b66)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="pk-fav"><svg viewBox="0 0 20 20" width="11" height="11" fill="currentColor"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/></svg></span></button>
+            <button class="pk-item"><i style="background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="pk-fav"><svg viewBox="0 0 20 20" width="11" height="11" fill="currentColor"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/></svg></span></button>
+            <button class="pk-item"><i style="background:linear-gradient(140deg,#dfe3dc,#9aa79b 48%,#63706a)"></i><span class="pk-visto"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="pk-fav"><svg viewBox="0 0 20 20" width="11" height="11" fill="currentColor"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/></svg></span></button>
+            </div>
+          </div>
+        </div>
+
+        <footer class="pk-ok">
+          <span class="pk-ok-mini" data-mini><i style="background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d)"></i></span>
+          <div class="pk-ok-txt">
+            <strong data-ok-t>1 imagem escolhida</strong>
+            <span data-ok-s>Do histórico ou do computador</span>
+          </div>
+          <button class="pk-ok-outra" data-limpar>Escolher outra</button>
+          <button class="pk-ok-btn" data-usar>Usar esta imagem</button>
+        </footer>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <p style="margin:16px 0 0;max-width:64ch;font-size:13.5px;color:var(--ink2)">
+    Aqui ele abre no Histórico para a grade ficar à vista. No site ele abre em
+    <b>Enviar</b>, porque quase sempre a pessoa quer subir uma imagem nova, e
+    quem vai buscar no histórico procura de qualquer jeito.</p>
+</div>
+
+<div class="ico">
+  <h2>Os quatro ícones do crédito</h2>
+  <p>O comportamento é o mesmo nos quatro, e é o que já existe no site: parado
+    o botão diz só "Renderizar", e no hover a moeda entra pela borda direita.
+    <b>Passa o mouse nos quatro</b> para comparar só o desenho.</p>
+  <div class="ico__grade">
+    <div class="ico__op">
+      <h3>A · O losango cheio <span class="est__cod est__cod--novo" style="position:relative;top:-2px">escolhido</span></h3>
+      <p>É o que está no ar, e o mesmo do plugin. Foi o escolhido, então nada
+        muda: nem aqui, nem lá.</p>
+      <button class="gerar" id="gerar" disabled>
+        <span id="gerar-rotulo">Leia os materiais primeiro</span>
+        <span class="cr-custo-tag"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+          276</span>
+      </button>
+      <p class="ico__nota">Os outros três ficam registrados aqui caso a decisão volte. Trocar por qualquer um deles pede a mesma troca no plugin, senão o mesmo número passa a ter dois símbolos.</p>
+    </div>
+    <div class="ico__op">
+      <h3>B · O losango vazado</h3>
+      <p>A mesma forma, só o contorno. Mantém o símbolo que a pessoa já aprendeu e tira o peso da mancha cheia.</p>
+      <button class="gerar" id="gerar" disabled>
+        <span id="gerar-rotulo">Leia os materiais primeiro</span>
+        <span class="cr-custo-tag"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 3l9 9-9 9-9-9z" stroke-linejoin="round"/></svg>
+          276</span>
+      </button>
+      <p class="ico__nota">Em 11px o vazado quase fecha sozinho. Testar num monitor sem retina antes de fechar.</p>
+    </div>
+    <div class="ico__op">
+      <h3>C · O losango menor</h3>
+      <p>O mesmo desenho cheio, de 11px para 8px. É a mudança mais barata das quatro: um número no atributo.</p>
+      <button class="gerar" id="gerar" disabled>
+        <span id="gerar-rotulo">Leia os materiais primeiro</span>
+        <span class="cr-custo-tag"><svg viewBox="0 0 24 24" width="8" height="8" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+          276</span>
+      </button>
+      <p class="ico__nota">Não muda nada no plugin, porque a forma continua a mesma.</p>
+    </div>
+    <div class="ico__op">
+      <h3>D · O ponto</h3>
+      <p>Sem forma nenhuma, só uma marca de que aquele número é de outra natureza que o resto do botão.</p>
+      <button class="gerar" id="gerar" disabled>
+        <span id="gerar-rotulo">Leia os materiais primeiro</span>
+        <span class="cr-custo-tag"><svg viewBox="0 0 12 12" width="6" height="6" fill="currentColor" aria-hidden="true"><circle cx="6" cy="6" r="6"/></svg>
+          276</span>
+      </button>
+      <p class="ico__nota">É o mais quieto e o que menos diz. Sem o losango, "276" pode ser lido como quantidade de imagens.</p>
+    </div>
+  </div>
+</div>
+
+<div class="prop">
+  <h2>A proporção, três jeitos</h2>
+  <p>O bloquinho é sempre a forma de verdade, e não um ícone representando a
+    forma. O que muda entre as três é <b>como as onze ficam organizadas</b>: por
+    nada, pela forma, ou por onde a imagem vai parar. Clica nelas.</p>
+
+  <div class="prop__grade">
+    <div class="prop__op">
+      <h3>A · A grade</h3>
+      <p>As onze na ordem em que estão no código. É a que está no painel agora,
+        e a que menos ajuda a decidir.</p>
+      <div class="prop__cx">
+        <div class="rt" data-grupo><button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:22px;height:22px;background:transparent;box-shadow:inset 0 0 0 1.5px var(--line2)"></span></span>auto</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:22px;height:22px"></span></span>1:1</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:11px"></span></span>21:9</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:15px"></span></span>16:9</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:15px;height:26px"></span></span>9:16</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:20px"></span></span>4:3</button> <button class="rt__b" aria-checked="true"><span class="rt__cx"><span class="rt__q" style="width:21px;height:26px"></span></span>4:5</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:21px"></span></span>5:4</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:20px;height:26px"></span></span>3:4</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:17px"></span></span>3:2</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:17px;height:26px"></span></span>2:3</button></div>
+      </div>
+    </div>
+
+    <div class="prop__op">
+      <h3>B · Pela forma</h3>
+      <p>Deitada, em pé ou quadrada. É a primeira coisa que se decide, e com ela
+        três quartos das opções saem do caminho de uma vez.</p>
+      <div class="prop__cx">
+        <p class="prop__fam">Automática</p>
+        <div class="prop__fila" data-grupo><button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:22px;height:22px;background:transparent;box-shadow:inset 0 0 0 1.5px var(--line2)"></span></span>auto</button></div>
+        <p class="prop__fam">Deitada</p>
+        <div class="prop__fila" data-grupo><button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:11px"></span></span>21:9</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:15px"></span></span>16:9</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:17px"></span></span>3:2</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:20px"></span></span>4:3</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:21px"></span></span>5:4</button></div>
+        <p class="prop__fam">Em pé</p>
+        <div class="prop__fila" data-grupo><button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:15px;height:26px"></span></span>9:16</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:17px;height:26px"></span></span>2:3</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:20px;height:26px"></span></span>3:4</button> <button class="rt__b" aria-checked="true"><span class="rt__cx"><span class="rt__q" style="width:21px;height:26px"></span></span>4:5</button></div>
+        <p class="prop__fam">Quadrada</p>
+        <div class="prop__fila" data-grupo><button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:22px;height:22px"></span></span>1:1</button></div>
+      </div>
+    </div>
+
+    <div class="prop__op">
+      <h3>C · Pelo destino</h3>
+      <p>Onde a imagem vai parar. É como o IA Studio ensina a escolher, e quem
+        está montando um Reels não precisa saber que Reels é 9:16.</p>
+      <div class="prop__cx">
+        <p class="prop__fam">Automática</p>
+        <div class="prop__fila" data-grupo><button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:22px;height:22px;background:transparent;box-shadow:inset 0 0 0 1.5px var(--line2)"></span></span>auto</button></div>
+        <p class="prop__fam">Redes sociais</p>
+        <div class="prop__fila" data-grupo><button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:15px;height:26px"></span></span>9:16</button> <button class="rt__b" aria-checked="true"><span class="rt__cx"><span class="rt__q" style="width:21px;height:26px"></span></span>4:5</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:22px;height:22px"></span></span>1:1</button></div>
+        <p class="prop__fam">Apresentação</p>
+        <div class="prop__fila" data-grupo><button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:15px"></span></span>16:9</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:20px"></span></span>4:3</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:17px"></span></span>3:2</button></div>
+        <p class="prop__fam">Impressão</p>
+        <div class="prop__fila" data-grupo><button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:21px"></span></span>5:4</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:20px;height:26px"></span></span>3:4</button> <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:17px;height:26px"></span></span>2:3</button></div>
+        <p class="prop__fam">Cinema</p>
+        <div class="prop__fila" data-grupo><button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:11px"></span></span>21:9</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tema">
+  <button class="on" data-tema="light">Claro</button>
+  <button data-tema="dark">Escuro</button>
+</div>
+
+<script>
+  // ── tema ──
+  document.querySelectorAll('.tema [data-tema]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.tema [data-tema]').forEach(function (o) { o.classList.remove('on'); });
+      b.classList.add('on');
+      document.documentElement.setAttribute('data-theme', b.dataset.tema);
+      medir();
+    });
+  });
+
+  // ── abrir e fechar a linha ──
+  // Uma por vez, de propósito: é o que mantém o painel curto.
+  document.querySelectorAll('.fic__cab').forEach(function (c) {
+    c.addEventListener('click', function () {
+      var l = c.closest('.fic__l');
+      var abrindo = l.getAttribute('data-aberta') !== 'sim';
+      document.querySelectorAll('.fic__l').forEach(function (o) { o.setAttribute('data-aberta', 'nao'); });
+      l.setAttribute('data-aberta', abrindo ? 'sim' : 'nao');
+      medir();
+    });
+  });
+
+  // ── escolher ──
+  function nomeDe(b) {
+    var n = b.querySelector('.am__n');
+    return (n ? n.textContent : b.textContent).trim();
+  }
+  document.querySelectorAll('[data-grupo]').forEach(function (g) {
+    var varios = g.hasAttribute('data-varios');
+    g.addEventListener('click', function (e) {
+      var b = e.target.closest('button[aria-checked]');
+      if (!b) return;
+      if (varios) {
+        b.setAttribute('aria-checked', b.getAttribute('aria-checked') === 'true' ? 'false' : 'true');
+      } else {
+        g.querySelectorAll('button[aria-checked]').forEach(function (o) { o.setAttribute('aria-checked', 'false'); });
+        b.setAttribute('aria-checked', 'true');
+      }
+
+      var marcados = [].slice.call(g.querySelectorAll('button[aria-checked="true"]')).map(nomeDe);
+
+      var l = g.hasAttribute('data-so-marca') ? null : b.closest('.fic__l');
+      if (l) {
+        var val = l.querySelector('.fic__val');
+        // O plural e a palavra do vazio vêm do próprio marcador, e não de uma
+        // constante: "2 escolhidas" para Atmosfera, "2 escolhidos" para
+        // Entorno. Fixar um dos dois erra o gênero na metade das linhas.
+        if (val.dataset.zero === undefined) val.dataset.zero = val.textContent.trim();
+        // Com duas ou mais, o cabeçalho CONTA em vez de listar: "Nuvens leves,
+        // Pós-chuva com reflexos su..." cortado no meio não informa nada.
+        var texto = marcados.length === 1 ? marcados[0]
+                  : marcados.length > 1  ? marcados.length + ' ' + (val.dataset.plural || 'escolhidas')
+                  : val.dataset.zero;
+        val.textContent = texto;
+        val.setAttribute('data-vazio', marcados.length ? 'nao' : 'sim');
+        // A linha NÃO fecha. Trocar de mood é o que mais se faz testando, e
+        // fechar a cada troca cobrava um clique por tentativa.
+      }
+      // Na barra de baixo o valor sobe para o botão, e o popover fica aberto
+      // pelo mesmo motivo.
+      if (g.dataset.alvo) {
+        document.querySelector('[data-val="' + g.dataset.alvo + '"]').textContent = marcados[0] || '';
+      }
+      medir();
+    });
+  });
+
+  // ── a família da hora do dia ──
+  document.querySelectorAll('[data-familias]').forEach(function (s) {
+    s.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-fam]');
+      if (!b) return;
+      s.querySelectorAll('button').forEach(function (o) { o.setAttribute('aria-checked', 'false'); });
+      b.setAttribute('aria-checked', 'true');
+      var alvo = s.closest('.fic__corpo').querySelector('[data-fam-alvo]');
+      alvo.querySelectorAll('.am__b').forEach(function (l) { l.hidden = l.dataset.fam !== b.dataset.fam; });
+      medir();
+    });
+  });
+
+  // ── os popovers da barra de baixo ──
+  function fechaPops(menos) {
+    document.querySelectorAll('.pop').forEach(function (p) {
+      if (p !== menos) {
+        p.hidden = true;
+        document.querySelector('[data-pop="' + p.id.replace('pop-', '') + '"]').setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+  document.querySelectorAll('[data-pop]').forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var p = document.getElementById('pop-' + b.dataset.pop);
+      var abrindo = p.hidden;
+      fechaPops(p);
+      p.hidden = !abrindo;
+      b.setAttribute('aria-expanded', abrindo ? 'true' : 'false');
+    });
+  });
+  document.querySelectorAll('.pop').forEach(function (p) {
+    p.addEventListener('click', function (e) { e.stopPropagation(); });
+  });
+  // Clicar fora fecha. Escolher dentro NÃO fecha, pelo mesmo motivo da linha.
+  document.addEventListener('click', function () { fechaPops(null); });
+  addEventListener('keydown', function (e) { if (e.key === 'Escape') fechaPops(null); });
+
+
+  // ── o seletor de cor do "Outro" ──
+  // Kelvin vira RGB pela aproximação do Tanner Helland, que é a que se usa
+  // para desenhar régua de temperatura. Ela erra alguns pontos nas pontas, e
+  // para escolher a cor de uma luminária isso não muda nada.
+  function kelvinParaRgb(k) {
+    var x = k / 100, r, g, b;
+    if (x <= 66) {
+      r = 255;
+      g = 99.4708025861 * Math.log(x) - 161.1195681661;
+      b = x <= 19 ? 0 : 138.5177312231 * Math.log(x - 10) - 305.0447927307;
+    } else {
+      r = 329.698727446 * Math.pow(x - 60, -0.1332047592);
+      g = 288.1221695283 * Math.pow(x - 60, -0.0755148492);
+      b = 255;
+    }
+    return [r, g, b].map(function (v) { return Math.max(0, Math.min(255, Math.round(v))); });
+  }
+  function hsvParaRgb(h, s, v) {
+    var c = v * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = v - c;
+    var t = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x]
+          : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+    return t.map(function (n) { return Math.round((n + m) * 255); });
+  }
+  function paraHex(rgb) {
+    return '#' + rgb.map(function (v) {
+      var s = v.toString(16);
+      return s.length < 2 ? '0' + s : s;
+    }).join('').toUpperCase();
+  }
+  function nomeDaTemp(k) {
+    if (k < 2400) return 'muito quente';
+    if (k < 3200) return 'quente';
+    if (k < 4600) return 'branco neutro';
+    if (k < 5600) return 'branco frio';
+    return 'luz do dia';
+  }
+  (function () {
+    var caixa = document.getElementById('cor-outro');
+    if (!caixa) return;
+    var bola = document.getElementById('cor-bola');
+    var rotulo = document.getElementById('cor-k');
+    var unidade = document.getElementById('cor-un');
+    var nota = document.getElementById('cor-nota');
+    var hex = document.getElementById('cor-hex');
+    var kelvin = document.getElementById('cor-kelvin');
+    var matiz = document.getElementById('cor-matiz');
+    var quadro = document.getElementById('cor-quadro');
+    var alvo = document.getElementById('cor-alvo');
+    var sat = 1, bri = 1;
+
+    function pinta(cor, texto, unid, obs) {
+      bola.style.background = cor;
+      hex.value = cor;
+      rotulo.textContent = texto;
+      unidade.hidden = !unid;
+      nota.textContent = '· ' + obs;
+    }
+    function doKelvin() {
+      var k = +kelvin.value;
+      pinta(paraHex(kelvinParaRgb(k)), k, true, nomeDaTemp(k));
+    }
+    function daCor() {
+      var h = +matiz.value;
+      quadro.style.background = paraHex(hsvParaRgb(h, 1, 1));
+      alvo.style.left = (sat * 100) + '%';
+      alvo.style.top = ((1 - bri) * 100) + '%';
+      pinta(paraHex(hsvParaRgb(h, sat, bri)), paraHex(hsvParaRgb(h, sat, bri)), false, 'cor livre');
+    }
+
+    kelvin.addEventListener('input', doKelvin);
+    matiz.addEventListener('input', daCor);
+
+    // O quadro segue o dedo e o mouse. `setPointerCapture` é o que faz o
+    // arraste continuar valendo quando o ponteiro sai da caixinha.
+    function noQuadro(e) {
+      var r = quadro.getBoundingClientRect();
+      sat = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      bri = Math.max(0, Math.min(1, 1 - (e.clientY - r.top) / r.height));
+      daCor();
+    }
+    quadro.addEventListener('pointerdown', function (e) {
+      quadro.setPointerCapture(e.pointerId);
+      noQuadro(e);
+    });
+    quadro.addEventListener('pointermove', function (e) {
+      if (e.buttons) noQuadro(e);
+    });
+
+    // O hex manda em qualquer cor, e é por onde entra o código que veio da
+    // ficha da fita de LED.
+    hex.addEventListener('input', function () {
+      var v = hex.value.trim();
+      if (!/^#?[0-9a-fA-F]{6}$/.test(v)) return;
+      if (v[0] !== '#') v = '#' + v;
+      bola.style.background = v;
+      rotulo.textContent = v.toUpperCase();
+      unidade.hidden = true;
+      nota.textContent = '· cor livre';
+    });
+
+    document.getElementById('cor-abas').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-modo]');
+      if (!b) return;
+      this.querySelectorAll('.cor__aba').forEach(function (o) { o.setAttribute('aria-checked', 'false'); });
+      b.setAttribute('aria-checked', 'true');
+      var branco = b.dataset.modo === 'branco';
+      document.getElementById('cor-branco').hidden = !branco;
+      document.getElementById('cor-colorida').hidden = branco;
+      if (branco) doKelvin(); else daCor();
+      medir();
+    });
+
+    // A caixa só existe quando "Outro" está escolhido.
+    var kel = caixa.closest('.fic__corpo').querySelector('.kel');
+    kel.addEventListener('click', function (e) {
+      var b = e.target.closest('.kel__b');
+      if (!b) return;
+      caixa.hidden = b.textContent.trim() !== 'Outro';
+      medir();
+    });
+    doKelvin();
+  })();
+
+
+  // ── a linha dos detalhes conta se tem texto ──
+  // O cabeçalho mostra o começo do que foi escrito, e não "1 escolhido": aqui
+  // não há escolha, há frase, e o começo dela é o que identifica.
+  document.querySelectorAll('[data-detalhe]').forEach(function (ta) {
+    ta.addEventListener('input', function () {
+      var l = ta.closest('.fic__l');
+      var val = l.querySelector('.fic__val');
+      var textos = [].slice.call(l.querySelectorAll('[data-detalhe]'))
+        .map(function (x) { return x.value.trim(); })
+        .filter(Boolean);
+      val.textContent = textos.length ? textos[0] : 'nenhum';
+      val.setAttribute('data-vazio', textos.length ? 'nao' : 'sim');
+    });
+  });
+
+
+  // ── a leitura dos materiais ──
+  // Quatro estados, os mesmos do PainelRender.js: vazio, lendo, revisar,
+  // confirmado. Só `confirmado` destrava o Renderizar, e é isso que o
+  // `travadoMat` faz no componente de verdade.
+  (function () {
+    var mat = document.getElementById('mat');
+    if (!mat) return;
+    var texto = document.getElementById('mat-texto');
+    var textoOk = document.getElementById('mat-texto-ok');
+    var gerar = document.getElementById('gerar');
+    var rotulo = document.getElementById('gerar-rotulo');
+    var LIDO = "Piso: porcelanato acetinado bege claro, peça grande, rejunte fino da mesma cor.\nParedes: pintura fosca branco quente.\nMarcenaria: MDF ripado em carvalho natural, puxadores embutidos.\nBancada: quartzo branco, espessura 2 cm, borda reta.\nMetais: latão escovado.\nEstofado: linho cru.";
+
+    function vai(estado) {
+      mat.dataset.estado = estado;
+      mat.querySelectorAll('.mat__passo').forEach(function (s) {
+        s.hidden = s.dataset.em !== estado;
+      });
+      var ok = estado === 'confirmado';
+      gerar.disabled = !ok;
+      rotulo.textContent = ok ? 'Renderizar' : 'Leia os materiais primeiro';
+      medir();
+    }
+
+    mat.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-mat]');
+      if (!b) return;
+      var acao = b.dataset.mat;
+      if (acao === 'tenho') { texto.value = ''; vai('revisar'); texto.focus(); }
+      if (acao === 'ler') {
+        vai('lendo');
+        setTimeout(function () { texto.value = LIDO; vai('revisar'); }, 1400);
+      }
+      if (acao === 'confirmar') { textoOk.value = texto.value; vai('confirmado'); }
+      if (acao === 'editar') { texto.value = textoOk.value; vai('revisar'); texto.focus(); }
+    });
+  })();
+
+
+  // ── o picker ──
+  (function () {
+    var lado = document.querySelector('[data-origens]');
+    if (!lado) return;
+    var titulos = { enviar: 'Enviar imagem', historico: 'Histórico', uploads: 'Uploads', favoritos: 'Favoritos' };
+    var pk = lado.closest('.pk');
+    var tira = pk.querySelector('[data-tira]');
+    var vazia = pk.querySelector('[data-tira-vazia]');
+    var varias = false;
+
+    lado.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-alvo]');
+      if (!b) return;
+      lado.querySelectorAll('.pk-origem').forEach(function (o) { o.classList.remove('pk-origem--on'); });
+      b.classList.add('pk-origem--on');
+      pk.querySelector('[data-titulo]').textContent = titulos[b.dataset.alvo];
+      pk.querySelectorAll('[data-painel]').forEach(function (s) {
+        s.hidden = s.dataset.painel !== b.dataset.alvo;
+      });
+    });
+
+    function marcadas() { return [].slice.call(pk.querySelectorAll('.pk-item--on')); }
+
+    function pinta() {
+      var m = marcadas();
+      var mini = pk.querySelector('[data-mini]');
+      var txt = pk.querySelector('[data-ok-t]');
+      var sub = pk.querySelector('[data-ok-s]');
+      var usar = pk.querySelector('[data-usar]');
+      var outra = pk.querySelector('[data-limpar]');
+
+      usar.disabled = !m.length;
+      tira.hidden = !varias;
+
+      if (varias) {
+        // A tira mostra o que já foi marcado, na ordem em que foi. Com dez
+        // escolhidas espalhadas por três meses, sem ela a pessoa perde a conta.
+        tira.querySelectorAll('.pk-multi-mini').forEach(function (x) { x.remove(); });
+        m.forEach(function (it) {
+          var b = document.createElement('button');
+          b.className = 'pk-multi-mini';
+          b.title = 'Tirar da seleção';
+          b.innerHTML = '<i style="background:' + it.querySelector('i').style.background + '"></i>'
+                      + '<span class="pk-multi-x">×</span>';
+          b.addEventListener('click', function () { it.classList.remove('pk-item--on'); pinta(); });
+          tira.appendChild(b);
+        });
+        vazia.hidden = m.length > 0;
+        mini.hidden = true;
+        txt.textContent = m.length === 1 ? '1 imagem escolhida' : m.length + ' imagens escolhidas';
+        sub.textContent = 'Do histórico e/ou do computador';
+        outra.textContent = 'Limpar';
+        usar.textContent = m.length === 1 ? 'Usar 1 imagem' : 'Usar ' + m.length + ' imagens';
+      } else {
+        mini.hidden = !m.length;
+        if (m.length) mini.querySelector('i').style.background = m[0].querySelector('i').style.background;
+        txt.textContent = m.length ? '1 imagem escolhida' : 'Nenhuma escolhida';
+        sub.textContent = 'Do histórico ou do computador';
+        outra.textContent = 'Escolher outra';
+        usar.textContent = 'Usar esta imagem';
+      }
+    }
+
+    pk.addEventListener('click', function (e) {
+      var it = e.target.closest('.pk-item');
+      if (!it) return;
+      if (varias) {
+        // Dez é o teto das referências, o mesmo MAX_REFS do lib/render.
+        if (!it.classList.contains('pk-item--on') && marcadas().length >= 10) return;
+        it.classList.toggle('pk-item--on');
+      } else {
+        var jaEra = it.classList.contains('pk-item--on');
+        pk.querySelectorAll('.pk-item').forEach(function (o) { o.classList.remove('pk-item--on'); });
+        if (!jaEra) it.classList.add('pk-item--on');
+      }
+      pinta();
+    });
+
+    pk.querySelector('[data-limpar]').addEventListener('click', function () {
+      pk.querySelectorAll('.pk-item').forEach(function (o) { o.classList.remove('pk-item--on'); });
+      pinta();
+    });
+
+    // `data-pk-modo`, e não `data-modo`: este último já era das abas Branco e
+    // Colorida do seletor de cor, e o `querySelector` devolvia o de lá.
+    document.querySelector('[data-pk-modo]').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-pk-m]');
+      if (!b) return;
+      this.querySelectorAll('button').forEach(function (o) { o.setAttribute('aria-checked', 'false'); });
+      b.setAttribute('aria-checked', 'true');
+      varias = b.dataset.pkM === 'varias';
+      pk.querySelector('.pk-drop-t').textContent = varias
+        ? 'Arraste suas imagens aqui' : 'Arraste sua imagem aqui';
+      if (!varias) {
+        var m = marcadas();
+        m.slice(1).forEach(function (o) { o.classList.remove('pk-item--on'); });
+      }
+      pinta();
+    });
+
+    pinta();
+  })();
+
+  // ── a medida ──
+  // A mesma área nas duas: o formulário, sem a barra de baixo. O número de
+  // hoje veio de medir o `.cr-form` do site que está no ar, na largura de
+  // 400px: 2515px, 44 botões, 384px de caixa de texto aberta.
+  function medir() {
+    var p = document.getElementById('painel');
+    var barra = document.querySelector('.barra-ger');
+    var extra = 0;
+    document.querySelectorAll('.fic__l[data-aberta="sim"]').forEach(function (l) {
+      extra += l.querySelector('.fic__corpo').getBoundingClientRect().height;
+    });
+    var h = Math.round(p.getBoundingClientRect().height - barra.getBoundingClientRect().height - extra);
+    var el = document.querySelector('[data-alt="fechado"]');
+    if (el) el.textContent = h + 'px';
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(medir);
+  medir();
+  addEventListener('resize', medir);
+</script>

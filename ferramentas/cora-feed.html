@@ -1,0 +1,938 @@
+<meta charset="utf-8">
+<title>O feed do Cora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     O FEED DO CORA · o lado direito da janela
+
+     Quatro assuntos, e todos vêm da mesma pergunta: o feed inventou
+     desenho onde o site já tinha um.
+
+     1. LIMA DEMAIS. A regra é lima para o que se FAZ e turquesa para o que
+        está ESCOLHIDO. No feed a marca do A/B, o anel do card e a alça do
+        comparador estão em lima, e as três são escolha.
+
+     2. O COMPARADOR. A home já tem um, e ele é branco: fio de 2px com
+        sombra, e a bolinha de papel com o desenho em --ink. O do Cora
+        inventou um segundo desenho para a mesma coisa.
+
+     3. OS FILTROS. O admin já resolveu isto: gatilho preto quando ligado,
+        chip de texto com × para o que está valendo, e o popover com cabeça
+        e blocos. O do feed virou uma grade de pílulas contornadas.
+
+     4. O CORAÇÃO. Hoje ele acende em --lima-txt (#256B2A), que é verde
+        ESCURO, em cima de uma barra de vidro escura. Não dá para ler.
+
+     ISTO É UM ESTUDO. Quem gera o app/cora-pagina.css é o cora.html.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --turq-txt:#196C5B; --lima-txt:#256B2A; --turq-bg:#E6F7F3;
+  --alerta:#C8342A; --alerta-bg:#FCEDEC;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --vidro:rgba(255,255,255,.82);
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px;
+  --t-titulo:17px; --t-secao:20px; --t-tela:26px;
+  --alt-ctrl:38px;
+  --t:170ms cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+  --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.16);
+  --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+  color-scheme:dark;
+}
+html{ color-scheme:light; }
+:root[data-theme="dark"]{ color-scheme:dark; }
+*{ scrollbar-width:thin; scrollbar-color:var(--line2) transparent; }
+::-webkit-scrollbar{ width:11px; height:11px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{ background:var(--line2); border-radius:100px; border:3px solid transparent; background-clip:content-box; }
+::-webkit-scrollbar-corner{ background:transparent; }
+
+*,*::before,*::after{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+button,input{ font-family:inherit; }
+button{ cursor:pointer; }
+:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
+::selection{ background:var(--lima); color:#111111; }
+
+/* ══ a página ══ */
+.topo{ max-width:1080px; margin:0 auto; padding:52px 24px 0; }
+.eb{ margin:0; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+h1{ margin:12px 0 0; font-size:clamp(28px,4vw,38px); font-weight:500; letter-spacing:-.033em; line-height:1.1; text-wrap:balance; }
+.lead{ margin:16px 0 0; max-width:62ch; font-size:16px; color:var(--ink2); text-wrap:pretty; }
+.lead b{ color:var(--ink); font-weight:600; }
+
+.sec{ max-width:1080px; margin:0 auto; padding:52px 24px 0; }
+.sec h2{ margin:0 0 6px; font-size:var(--t-tela); font-weight:500; letter-spacing:-.028em; }
+.sec > p{ margin:0 0 20px; max-width:66ch; color:var(--ink2); text-wrap:pretty; font-size:var(--t-apoio); }
+.sec > p b{ color:var(--ink); font-weight:600; }
+.cx{
+  padding:18px; border:1px solid var(--line); border-radius:var(--r);
+  background:var(--paper);
+}
+.par{ display:grid; gap:20px; grid-template-columns:1fr; align-items:start; }
+@media (min-width:820px){ .par{ grid-template-columns:1fr 1fr; } }
+.rot{
+  margin:0 0 8px; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+}
+.rot--mal{ color:var(--alerta); }
+.rot--bem{ color:var(--turq-txt); }
+.decidido{
+  display:inline-block; position:relative; top:-4px; margin-left:8px;
+  padding:2px 10px; border-radius:var(--pill);
+  background:var(--turq-bg); color:var(--turq-txt);
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+}
+.nota{ margin:10px 0 0; font-size:var(--t-apoio2); color:var(--ink3); text-wrap:pretty; }
+
+/* ══════════════════════════════════════════════════════════════════
+   1 · A BARRA DO FEED
+   O escolhido é turquesa. Lima fica com quem AGE, que aqui é só o
+   Comparar e o Renderizar do outro lado.
+   ══════════════════════════════════════════════════════════════════ */
+.cr-barra{
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  padding:10px 14px; border-radius:var(--r-peq); background:var(--paper);
+  border:1px solid var(--line);
+}
+.cr-fbtn{
+  min-width:34px; height:34px; padding:0 9px; border:0; border-radius:var(--pill);
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  background:transparent; color:var(--ink3);
+  font-size:var(--t-apoio2); font-weight:600;
+  transition:background var(--t), color var(--t), box-shadow var(--t);
+}
+.cr-fbtn:hover:not(.cr-fbtn--on){ background:var(--wash2); color:var(--ink); }
+.cr-fbtn--on{
+  background:var(--turq-bg); color:var(--turq-txt);
+  box-shadow:inset 0 0 0 1px var(--turquesa-esc);
+}
+.cr-div{ width:1px; height:20px; margin:0 4px; background:var(--line); flex:none; }
+.cr-tams,.cr-seg{ display:flex; gap:2px; padding:3px; border-radius:var(--pill); background:var(--wash2); }
+.cr-tam{
+  min-width:28px; height:26px; padding:0 9px; border:0; border-radius:var(--pill);
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; color:var(--ink3);
+  font-size:var(--t-apoio2); font-weight:600;
+  transition:background var(--t), color var(--t);
+}
+.cr-tam--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+.cr-seg .cr-fbtn{ min-width:30px; height:26px; padding:0 8px; }
+.cr-seg .cr-fbtn--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+.cr-busca{ position:relative; display:flex; align-items:center; margin-left:auto; }
+.cr-busca svg{ position:absolute; left:13px; color:var(--ink3); pointer-events:none; }
+.cr-busca input{
+  width:180px; height:34px; padding:0 14px 0 34px;
+  border:1px solid transparent; border-radius:var(--pill);
+  background:var(--wash2); color:var(--ink); font-size:var(--t-apoio2); outline:none;
+}
+.cr-busca input:focus{ background:var(--paper); border-color:var(--line2); }
+
+/* ── a linha do A/B ── */
+.ab{
+  display:flex; align-items:center; gap:10px; margin-top:8px; padding:10px 14px;
+  border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper);
+}
+.ab__vaga{
+  flex:1; min-width:0; display:flex; align-items:center; gap:10px;
+  height:44px; padding:0 8px 0 6px; border-radius:10px; background:var(--wash);
+}
+.ab__mini{ flex:none; width:32px; height:32px; border-radius:8px; overflow:hidden; }
+.ab__mini i{ display:block; width:100%; height:100%; }
+.ab__nome{ flex:1; min-width:0; font-size:var(--t-apoio); color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ab__x{
+  flex:none; width:24px; height:24px; padding:0; border:0; border-radius:50%;
+  background:transparent; color:var(--ink3); font-size:var(--t-corpo); line-height:1;
+}
+.ab__x:hover{ background:var(--wash2); color:var(--ink); }
+.ab__vs{ flex:none; font-size:var(--t-apoio2); color:var(--ink3); }
+.ab__cancelar{
+  flex:none; height:var(--alt-ctrl); padding:0 14px; border:0; border-radius:var(--pill);
+  background:transparent; color:var(--ink3); font-size:var(--t-apoio); font-weight:500;
+}
+.ab__cancelar:hover{ background:var(--wash2); color:var(--ink); }
+.ab__ok{
+  flex:none; display:flex; align-items:center; gap:8px;
+  height:var(--alt-ctrl); padding:0 18px; border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-size:var(--t-apoio); font-weight:600;
+}
+.ab__ok:hover{ background:var(--lima-esc); }
+
+/* ── os cards ── */
+.cards{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+.card{
+  position:relative; width:160px; height:112px; padding:0; overflow:hidden;
+  border:1px solid var(--line); border-radius:var(--r-peq); background:var(--wash2);
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.card i{ display:block; width:100%; height:100%; }
+.card--sel{ border-color:var(--turquesa-esc); box-shadow:0 0 0 2px var(--turquesa); }
+.card--lima{ border-color:var(--lima-esc); box-shadow:0 0 0 2px var(--lima); }
+/* A marca do A e do B: pastilha de vidro, com a letra em --turq-txt. Cheia de
+   lima ela pesava mais que a própria imagem, e é a imagem que se está
+   comparando. */
+.card__ab{
+  position:absolute; left:8px; top:8px; width:24px; height:24px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:50%; background:var(--vidro); color:var(--turq-txt);
+  backdrop-filter:blur(10px) saturate(150%);
+  font-size:var(--t-apoio2); font-weight:700;
+}
+.card__ab--lima{ background:var(--lima); color:#111111; }
+
+/* ══════════════════════════════════════════════════════════════════
+   2 · O COMPARADOR
+   O mesmo da home, medida por medida: fio de 2px em --paper com
+   sombra, e a bolinha de papel com o desenho em --ink. Nenhuma cor
+   de marca: a cor ali é da imagem.
+   ══════════════════════════════════════════════════════════════════ */
+.cmp{
+  position:relative; width:100%; height:300px; overflow:hidden;
+  border-radius:var(--r-peq); background:var(--wash2);
+  --pos:50%; user-select:none; touch-action:pan-y;
+}
+.cmp__atras,.cmp__frente{ position:absolute; inset:0; }
+.cmp__frente{ clip-path:inset(0 calc(100% - var(--pos)) 0 0); }
+.cmp__atras i,.cmp__frente i{ display:block; width:100%; height:100%; }
+.cmp__linha{
+  position:absolute; top:0; bottom:0; left:var(--pos); width:2px;
+  background:var(--paper); transform:translateX(-50%); pointer-events:none;
+  box-shadow:0 0 12px rgba(0,0,0,.4); z-index:2;
+}
+.cmp__botao{
+  position:absolute; top:50%; left:var(--pos); transform:translate(-50%,-50%);
+  width:38px; height:38px; border-radius:50%;
+  background:var(--paper); color:var(--ink);
+  box-shadow:0 4px 20px rgba(0,0,0,.35);
+  display:grid; place-items:center; pointer-events:none; z-index:3;
+}
+.cmp__alca{
+  position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0;
+  background:transparent; border:0; -webkit-appearance:none; appearance:none;
+  cursor:ew-resize; z-index:4;
+}
+.cmp__alca::-webkit-slider-thumb{ -webkit-appearance:none; width:44px; height:300px; }
+.cmp__tag{
+  position:absolute; top:12px; z-index:3; padding:3px 11px; border-radius:var(--pill);
+  background:var(--vidro); color:#111111; backdrop-filter:blur(12px) saturate(150%);
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.06em;
+}
+.cmp__tag--a{ left:12px; }
+.cmp__tag--b{ right:12px; }
+/* o desenho antigo, para comparar */
+.cmp--lima .cmp__linha{ background:var(--lima); box-shadow:0 0 10px rgba(0,0,0,.3); }
+.cmp--lima .cmp__botao{ background:var(--lima); color:#111111; }
+
+/* ══════════════════════════════════════════════════════════════════
+   3 · OS FILTROS, NO DESENHO DO ADMIN
+
+   O admin não usa lista de marcação: usa o `DropdownCora`, um campo
+   por filtro, com o rótulo pequeno em cima e o valor de agora
+   embaixo. Fechado, o painel é uma pilha de campos que se lê de
+   relance. Aberto, um deles vira lista.
+
+   As classes são as de lá (`cora-dd`, `adm-pop`), para a portagem
+   ser troca de folha.
+   ══════════════════════════════════════════════════════════════════ */
+.flt-linha{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.adm-btn-linha{
+  display:inline-flex; align-items:center; gap:8px;
+  height:var(--alt-ctrl); padding:0 16px;
+  border:1px solid var(--line2); border-radius:var(--pill);
+  background:var(--paper); color:var(--ink2);
+  font-size:var(--t-apoio); font-weight:500;
+  transition:border-color var(--t), background var(--t), color var(--t);
+}
+.adm-btn-linha:hover{ border-color:var(--ink); color:var(--ink); }
+/* Preto, e não turquesa: o gatilho não é uma escolha entre irmãos, é uma
+   gaveta aberta. O admin resolveu assim e o gesto já foi aprendido. */
+.adm-btn-linha--on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.adm-btn-linha--on:hover{ background:#000000; color:var(--paper); }
+.adm-btn-linha em{
+  font-style:normal; min-width:18px; height:18px; padding:0 5px;
+  display:inline-flex; align-items:center; justify-content:center;
+  border-radius:var(--pill); background:var(--lima); color:#111111;
+  font-size:var(--t-etiqueta); font-weight:700;
+}
+
+.adm-pop{
+  width:340px; margin-top:12px;
+  border:1px solid var(--line); border-radius:var(--r);
+  background:var(--paper); box-shadow:var(--sombra); overflow:hidden;
+}
+.adm-pop__cab{
+  display:flex; align-items:center; gap:10px;
+  padding:16px 18px 12px;
+}
+.adm-pop__cab h2{ margin:0; font-size:var(--t-corpo); font-weight:600; letter-spacing:-.014em; }
+.adm-limpar-t{
+  margin-left:auto; padding:2px 0; border:0; background:none;
+  color:var(--ink2); font-size:var(--t-apoio2);
+  box-shadow:inset 0 -1px 0 var(--line2);
+  transition:color var(--t), box-shadow var(--t);
+}
+.adm-limpar-t:hover{ color:var(--ink); box-shadow:inset 0 -1px 0 var(--ink); }
+.adm-pop__corpo{ max-height:360px; overflow-y:auto; padding:0 18px 6px; display:grid; gap:10px; }
+.adm-pop__g{ position:relative; }
+
+/* ── o campo ──
+   Rótulo pequeno em cima, valor embaixo. Ele parece um campo porque é um
+   campo: o que muda ali muda o que a tela mostra. */
+.cora-dd{ position:relative; width:100%; }
+.cora-dd-btn{
+  width:100%; display:flex; align-items:center; gap:10px;
+  padding:9px 14px; border:1px solid var(--line2); border-radius:var(--r-peq);
+  background:var(--paper); text-align:left;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.cora-dd-btn:hover{ border-color:var(--ink3); }
+.cora-dd--aberto .cora-dd-btn{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+.cora-dd-mio{ flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+.cora-dd-rot{
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.cora-dd-val{
+  font-size:var(--t-apoio); color:var(--ink); font-weight:500;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.cora-dd-val[data-vazio="sim"]{ color:var(--ink3); font-weight:400; }
+.cora-dd-seta{ flex:none; color:var(--ink3); transition:transform var(--t); }
+.cora-dd--aberto .cora-dd-seta{ transform:rotate(180deg); }
+
+.cora-dd-lista{
+  position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:10;
+  padding:6px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); box-shadow:var(--sombra);
+  max-height:230px; overflow-y:auto;
+}
+.cora-dd-lista[hidden]{ display:none; }
+.cora-dd-opt{
+  width:100%; display:flex; align-items:center; gap:9px;
+  padding:9px 11px; border:0; border-radius:9px; background:none; text-align:left;
+  color:var(--ink2); font-size:var(--t-apoio);
+  transition:background var(--t), color var(--t);
+}
+.cora-dd-opt:hover{ background:var(--wash); color:var(--ink); }
+.cora-dd-opt--sel{ color:var(--ink); font-weight:600; }
+.cora-dd-tique{ margin-left:auto; flex:none; color:var(--turq-txt); opacity:0; }
+.cora-dd-opt--sel .cora-dd-tique{ opacity:1; }
+/* O quadrado marca vários, o círculo marca uma. É o mesmo par da Atmosfera e
+   do Entorno no painel, e ele diz sozinho quantas dá para escolher. */
+.cora-dd-m{
+  flex:none; width:15px; height:15px; border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--wash2); color:transparent; box-shadow:inset 0 0 0 1px var(--line2);
+  transition:background var(--t), color var(--t), box-shadow var(--t);
+}
+.cora-dd--uma .cora-dd-m{ border-radius:50%; }
+.cora-dd-opt--sel .cora-dd-m{ background:var(--turquesa); color:#111111; box-shadow:inset 0 0 0 1px var(--turquesa-esc); }
+
+.adm-pop__pe{
+  display:flex; align-items:center; gap:12px;
+  padding:14px 18px; border-top:1px solid var(--line); margin-top:8px;
+}
+.adm-pop__conta{ font-size:var(--t-apoio2); color:var(--ink3); font-variant-numeric:tabular-nums; }
+.as-btn-cta{
+  margin-left:auto; height:var(--alt-ctrl); padding:0 18px; border:0;
+  border-radius:var(--pill); background:var(--lima); color:#111111;
+  font-size:var(--t-apoio); font-weight:600;
+  transition:background var(--t);
+}
+.as-btn-cta:hover{ background:var(--lima-esc); }
+
+/* o desenho que eu tinha proposto antes, para comparar */
+.ft{
+  width:340px; margin-top:12px; padding:0;
+  border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); box-shadow:var(--sombra-peq); overflow:hidden;
+}
+.ft-bloco{ padding:14px 16px; border-bottom:1px solid var(--line); }
+.ft-bloco h4{
+  margin:0 0 9px; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+}
+.ft-tags{ display:flex; flex-wrap:wrap; gap:5px; }
+.ft-tag{
+  height:30px; padding:0 12px; border:1px solid var(--line2); border-radius:var(--pill);
+  background:none; color:var(--ink2); font-size:var(--t-apoio2);
+}
+.ft-tag--on{ border-color:var(--turq-txt); color:var(--turq-txt); }
+
+/* ══════════════════════════════════════════════════════════════════
+   4 · O CORAÇÃO
+   ══════════════════════════════════════════════════════════════════ */
+.cor-linha{ display:flex; gap:14px; flex-wrap:wrap; }
+.cor-op{ flex:1; min-width:150px; }
+.cor-op p{ margin:8px 0 0; font-size:var(--t-apoio2); color:var(--ink3); text-wrap:pretty; }
+.foto{
+  position:relative; width:100%; height:120px; border-radius:var(--r-peq); overflow:hidden;
+  background:linear-gradient(160deg,#cfd8d2,#8fa39a 45%,#5d6b66);
+}
+.cr-ca-barra{
+  position:absolute; right:8px; bottom:8px; display:flex; align-items:center; gap:2px;
+  padding:3px; border-radius:var(--pill);
+  background:rgba(17,17,17,.55); backdrop-filter:blur(10px);
+}
+.cr-ca{
+  width:27px; height:27px; padding:0; border:0; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; color:rgba(255,255,255,.86);
+  transition:background var(--t), color var(--t);
+}
+.cr-ca:hover{ background:rgba(255,255,255,.18); color:#fff; }
+.cr-ca--limatxt{ color:var(--lima-txt); }
+.cr-ca--turq{ color:var(--turquesa); }
+.cr-ca--preto{ color:#111111; }
+
+/* ══════════════════════════════════════════════════════════════════
+   5 · OS QUATRO ÍCONES DE IMAGEM INICIAL E FINAL
+   ══════════════════════════════════════════════════════════════════ */
+.ico-grade{ display:grid; gap:16px; grid-template-columns:1fr; }
+@media (min-width:700px){ .ico-grade{ grid-template-columns:repeat(2,1fr); } }
+@media (min-width:1000px){ .ico-grade{ grid-template-columns:repeat(4,1fr); } }
+.ico-op h3{ margin:0 0 3px; font-size:var(--t-apoio); font-weight:600; }
+.ico-op p{ margin:0 0 10px; font-size:var(--t-apoio2); color:var(--ink2); text-wrap:pretty; }
+.anim-refs{ display:flex; align-items:center; gap:6px; }
+.anim-card{
+  flex:1; min-width:0; height:96px; padding:0; border:1px dashed var(--line2);
+  border-radius:var(--r-peq); background:var(--wash); color:var(--ink3);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px;
+  transition:border-color var(--t), background var(--t), color var(--t);
+}
+.anim-card:hover{ border-color:var(--ink3); background:var(--wash2); color:var(--ink2); }
+.anim-card-lbl{ font-size:var(--t-apoio2); font-weight:500; }
+.anim-seta{
+  flex:none; width:24px; height:24px; padding:0; border:0; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--wash2); color:var(--ink3);
+}
+
+/* ══ a barra de tema ══ */
+.tema{
+  position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:200;
+  display:flex; gap:4px; padding:5px; border-radius:var(--pill);
+  background:#111111; box-shadow:0 12px 34px rgba(0,0,0,.34);
+}
+.tema button{
+  height:32px; padding:0 15px; border:0; border-radius:var(--pill);
+  background:transparent; color:#B6B5AE; font-size:var(--t-apoio); font-weight:500;
+}
+.tema button.on{ background:#F2F2EF; color:#111111; font-weight:600; }
+.fim{ height:110px; }
+</style>
+
+<div class="topo">
+  <p class="eb">Cora Render · o lado direito da janela</p>
+  <h1>O feed, e o que ele inventou de novo</h1>
+  <p class="lead">Quatro assuntos, e todos vêm da mesma pergunta: <b>o feed
+    desenhou sozinho coisas que o site já tinha resolvido em outro lugar.</b>
+    O comparador existe na home, o filtro existe no admin, e a regra das duas
+    cores existe desde a passada de setembro.</p>
+</div>
+
+<!-- ══════════════ 1 ══════════════ -->
+<div class="sec">
+  <h2>1 · Lima demais</h2>
+  <p>A regra é <b>lima para o que se faz, turquesa para o que está escolhido</b>.
+    No feed a marca do A/B, o anel do card e a alça do comparador estão em lima,
+    e as três são escolha. Sobra lima só onde ela deve estar: no Comparar.</p>
+
+  <div class="cx">
+    <div class="cr-barra">
+      <button class="cr-fbtn cr-fbtn--on" aria-label="Tudo"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/><rect x="2.5" y="11.5" width="6" height="6" rx="1"/><rect x="11.5" y="11.5" width="6" height="6" rx="1"/></svg></button>
+      <button class="cr-fbtn" aria-label="Imagens"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/><path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/></svg></button>
+      <button class="cr-fbtn" aria-label="Vídeos"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5" width="10" height="10" rx="1.5"/><path d="M12.5 8.5l5-2.5v8l-5-2.5" stroke-linejoin="round"/></svg></button>
+      <button class="cr-fbtn" aria-label="Favoritos"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z" stroke-linejoin="round"/></svg></button>
+      <span class="cr-div"></span>
+      <button class="cr-fbtn cr-fbtn--on">A/B</button>
+      <button class="cr-fbtn" aria-label="Selecionar"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="14" height="14" rx="2"/><path d="M6.5 10l2.5 2.5L14 7.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="cr-seg">
+        <button class="cr-fbtn cr-fbtn--on" aria-label="Lista"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h12M4 10h12M4 14h12" stroke-linecap="round"/></svg></button>
+        <button class="cr-fbtn" aria-label="Grade"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg></button>
+      </div>
+      <div class="cr-tams">
+        <button class="cr-tam">P</button><button class="cr-tam">M</button>
+        <button class="cr-tam cr-tam--on">G</button><button class="cr-tam">GG</button>
+      </div>
+      <div class="cr-busca">
+        <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="9" r="5.5"/><path d="M13.5 13.5L17 17" stroke-linecap="round"/></svg>
+        <input placeholder="Buscar">
+      </div>
+    </div>
+
+    <div class="ab">
+      <div class="ab__vaga">
+        <span class="ab__mini"><i style="background:linear-gradient(160deg,#e6ddd0,#c4ae94 50%,#8a755d)"></i></span>
+        <span class="ab__nome">Imagem A</span>
+        <button class="ab__x" aria-label="Tirar">×</button>
+      </div>
+      <span class="ab__vs">vs</span>
+      <div class="ab__vaga">
+        <span class="ab__mini"><i style="background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d)"></i></span>
+        <span class="ab__nome">Imagem B</span>
+        <button class="ab__x" aria-label="Tirar">×</button>
+      </div>
+      <button class="ab__cancelar">Cancelar</button>
+      <button class="ab__ok">
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.5" y="4" width="15" height="12" rx="1.5"/><path d="M10 4v12"/></svg>
+        Comparar
+      </button>
+    </div>
+
+    <div class="par" style="margin-top:20px">
+      <div>
+        <p class="rot rot--mal">Hoje, em lima</p>
+        <div class="cards">
+          <div class="card card--lima"><i style="background:linear-gradient(160deg,#e6ddd0,#c4ae94 50%,#8a755d)"></i><span class="card__ab card__ab--lima">A</span></div>
+          <div class="card"><i style="background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d)"></i></div>
+        </div>
+      </div>
+      <div>
+        <p class="rot rot--bem">Em turquesa</p>
+        <div class="cards">
+          <div class="card card--sel"><i style="background:linear-gradient(160deg,#e6ddd0,#c4ae94 50%,#8a755d)"></i><span class="card__ab">A</span></div>
+          <div class="card"><i style="background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d)"></i></div>
+        </div>
+      </div>
+    </div>
+    <p class="nota">A marca do A e do B virou pastilha de vidro com a letra em
+      turquesa. Cheia de lima ela pesava mais que a própria imagem, e é a
+      imagem que se está comparando.</p>
+  </div>
+</div>
+
+<!-- ══════════════ 2 ══════════════ -->
+<div class="sec">
+  <h2>2 · O comparador</h2>
+  <p>A home já tem um, e ele é <b>branco</b>: fio de 2px em papel com sombra, e
+    a bolinha de papel com o desenho em tinta. Copiei medida por medida do
+    <code style="font-family:var(--mono);font-size:12.5px">.hm .comparador</code>.
+    <b>Arrasta os dois.</b></p>
+
+  <div class="par">
+    <div>
+      <p class="rot rot--mal">Hoje, em lima</p>
+      <div class="cmp cmp--lima" data-cmp>
+        <div class="cmp__atras"><i style="background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d)"></i></div>
+        <div class="cmp__frente"><i style="background:linear-gradient(160deg,#e6ddd0,#c4ae94 50%,#8a755d)"></i></div>
+        <span class="cmp__linha"></span>
+        <span class="cmp__botao"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 6l-3 4 3 4M12 6l3 4-3 4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <input class="cmp__alca" type="range" min="0" max="100" value="50" aria-label="Comparar">
+      </div>
+    </div>
+    <div>
+      <p class="rot rot--bem">No padrão da home</p>
+      <div class="cmp" data-cmp>
+        <div class="cmp__atras"><i style="background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d)"></i></div>
+        <div class="cmp__frente"><i style="background:linear-gradient(160deg,#e6ddd0,#c4ae94 50%,#8a755d)"></i></div>
+        <span class="cmp__tag cmp__tag--a">A</span>
+        <span class="cmp__tag cmp__tag--b">B</span>
+        <span class="cmp__linha"></span>
+        <span class="cmp__botao"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 6l-3 4 3 4M12 6l3 4-3 4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <input class="cmp__alca" type="range" min="0" max="100" value="50" aria-label="Comparar">
+      </div>
+    </div>
+  </div>
+  <p class="nota">Nenhuma cor de marca aqui, e é de propósito: a cor que
+    importa nessa tela é a das duas imagens, e qualquer tinta na alça entra na
+    comparação sem ser convidada.</p>
+</div>
+
+<!-- ══════════════ 3 ══════════════ -->
+<div class="sec">
+  <h2>3 · Os filtros</h2>
+  <p>É o desenho que o admin já usa: <b>um campo por filtro</b>, com o rótulo
+    pequeno em cima e o valor de agora embaixo. Fechado, o painel é uma pilha
+    que se lê de relance. Aberto, um campo vira lista. O gatilho fica preto
+    quando há filtro ligado, e o pé mostra a conta com a ação em lima.</p>
+
+  <div class="cx">
+    <div class="flt-linha">
+      <button class="adm-btn-linha adm-btn-linha--on" data-flt>
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h14M6 10h8M8 14h4" stroke-linecap="round"/></svg>
+        Filtros
+        <em>2</em>
+      </button>
+      <span class="adm-quantos" style="margin-left:0">42 de 128 no feed</span>
+    </div>
+
+    <div class="par" style="margin-top:20px">
+      <div>
+        <p class="rot rot--bem">No desenho do admin</p>
+        <div class="adm-pop">
+          <div class="adm-pop__cab">
+            <h2>Filtros</h2>
+            <button class="adm-limpar-t">Limpar filtros</button>
+          </div>
+          <div class="adm-pop__corpo">
+        <div class="adm-pop__g">
+          <div class="cora-dd cora-dd--uma" data-dd>
+            <button class="cora-dd-btn">
+              <span class="cora-dd-mio">
+                <span class="cora-dd-rot">Período</span>
+                <span class="cora-dd-val" data-vazio="sim">Qualquer</span>
+              </span>
+              <svg class="cora-dd-seta" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6.5l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="cora-dd-lista" hidden>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Qualquer</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Este mês</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Últimos 12 meses</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Escolher datas</button>
+            </div>
+          </div>
+        </div>
+        <div class="adm-pop__g">
+          <div class="cora-dd cora-dd--aberto" data-dd>
+            <button class="cora-dd-btn">
+              <span class="cora-dd-mio">
+                <span class="cora-dd-rot">Ferramenta</span>
+                <span class="cora-dd-val">Render</span>
+              </span>
+              <svg class="cora-dd-seta" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6.5l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="cora-dd-lista">
+            <button class="cora-dd-opt cora-dd-opt--sel"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Render</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Editar</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Batch</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Upscale</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Pós-produção</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>360°</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Animação</button>
+            </div>
+          </div>
+        </div>
+        <div class="adm-pop__g">
+          <div class="cora-dd cora-dd--uma" data-dd>
+            <button class="cora-dd-btn">
+              <span class="cora-dd-mio">
+                <span class="cora-dd-rot">Proporção</span>
+                <span class="cora-dd-val" data-vazio="sim">Qualquer</span>
+              </span>
+              <svg class="cora-dd-seta" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6.5l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="cora-dd-lista" hidden>
+            <button class="cora-dd-opt cora-dd-opt--sel"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Qualquer</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>auto</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>1:1</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>21:9</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>16:9</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>9:16</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>4:3</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>4:5</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>5:4</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>3:4</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>3:2</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>2:3</button>
+            </div>
+          </div>
+        </div>
+        <div class="adm-pop__g">
+          <div class="cora-dd" data-dd>
+            <button class="cora-dd-btn">
+              <span class="cora-dd-mio">
+                <span class="cora-dd-rot">Resolução</span>
+                <span class="cora-dd-val">2K</span>
+              </span>
+              <svg class="cora-dd-seta" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6.5l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="cora-dd-lista" hidden>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>1K</button>
+            <button class="cora-dd-opt cora-dd-opt--sel"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>2K</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>4K</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>8K</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>16K</button>
+            </div>
+          </div>
+        </div>
+        <div class="adm-pop__g">
+          <div class="cora-dd cora-dd--uma" data-dd>
+            <button class="cora-dd-btn">
+              <span class="cora-dd-mio">
+                <span class="cora-dd-rot">Propriedades</span>
+                <span class="cora-dd-val" data-vazio="sim">Todas</span>
+              </span>
+              <svg class="cora-dd-seta" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6.5l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="cora-dd-lista" hidden>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Todas</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Baixadas</button>
+            <button class="cora-dd-opt"><span class="cora-dd-m"><svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Favoritas</button>
+            </div>
+          </div>
+        </div>
+          </div>
+          <div class="adm-pop__pe">
+            <span class="adm-pop__conta">42 de 128</span>
+            <button class="as-btn-cta">Ver 42 resultados</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p class="rot rot--mal">Como está hoje</p>
+        <div class="ft">
+          <div class="ft-bloco">
+            <h4>Ferramenta</h4>
+            <div class="ft-tags">
+              <button class="ft-tag ft-tag--on">Render</button>
+              <button class="ft-tag">Editar</button>
+              <button class="ft-tag">Batch</button>
+              <button class="ft-tag">Upscale</button>
+              <button class="ft-tag">Pós-produção</button>
+              <button class="ft-tag">360°</button>
+            </div>
+          </div>
+          <div class="ft-bloco">
+            <h4>Resolução</h4>
+            <div class="ft-tags">
+              <button class="ft-tag">1K</button><button class="ft-tag">2K</button>
+              <button class="ft-tag">4K</button><button class="ft-tag">8K</button>
+            </div>
+          </div>
+        </div>
+        <p class="nota">Uma grade de pílulas contornadas, com a mesma forma dos
+          botões de verdade da barra. Nada ali diz qual clique é ação e qual é
+          filtro, e a altura cresce com o número de opções.</p>
+      </div>
+    </div>
+    <p class="nota"><b>Clica nos campos.</b> A Ferramenta e a Resolução aceitam
+      várias, e por isso o marcador delas é quadrado. Período, Proporção e
+      Propriedades escolhem uma, e o marcador é redondo.</p>
+  </div>
+</div>
+
+<!-- ══════════════ 4 ══════════════ -->
+<div class="sec">
+  <h2>4 · O coração <span class="decidido">turquesa</span></h2>
+  <p>Hoje ele acende em <code style="font-family:var(--mono);font-size:12.5px">--lima-txt</code>,
+    que é verde <b>escuro</b>, em cima de uma barra de vidro escura. Não dá
+    para ler. <b>Eu ficaria com o turquesa</b>, e a razão é a regra: favoritada
+    é um estado, e estado é turquesa. Preto some na barra escura pelo mesmo
+    motivo do verde escuro.</p>
+
+  <div class="cx">
+    <div class="cor-linha">
+      <div class="cor-op">
+        <p class="rot rot--mal">Hoje · lima-txt</p>
+        <div class="foto">
+          <div class="cr-ca-barra">
+            <button class="cr-ca cr-ca--limatxt"><svg viewBox="0 0 20 20" width="15" height="15" fill="currentColor"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/></svg></button>
+            <button class="cr-ca"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5M4 15.5h12" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+        <p>Verde escuro sobre vidro escuro. É a pior das três, e é a que está no ar.</p>
+      </div>
+
+      <div class="cor-op">
+        <p class="rot rot--bem">Turquesa</p>
+        <div class="foto">
+          <div class="cr-ca-barra">
+            <button class="cr-ca cr-ca--turq"><svg viewBox="0 0 20 20" width="15" height="15" fill="currentColor"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/></svg></button>
+            <button class="cr-ca"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5M4 15.5h12" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+        <p>Claro sobre escuro, e é a cor que a janela inteira já usa para dizer "escolhido".</p>
+      </div>
+
+      <div class="cor-op">
+        <p class="rot">Preto</p>
+        <div class="foto">
+          <div class="cr-ca-barra">
+            <button class="cr-ca cr-ca--preto"><svg viewBox="0 0 20 20" width="15" height="15" fill="currentColor"><path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z"/></svg></button>
+            <button class="cr-ca"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5M4 15.5h12" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+        <p>Some na barra. E se a barra fosse clara, ele diria "ícone comum", e não "está favoritada".</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 5 ══════════════ -->
+<div class="sec">
+  <h2>5 · Imagem inicial e final <span class="decidido">o D</span></h2>
+  <p>Quatro desenhos para os dois cards da Animação. O de hoje é a moldura de
+    foto com montanha e sol dentro, que em 24px vira mancha.</p>
+
+  <div class="cx">
+    <div class="ico-grade">
+      <div class="ico-op">
+        <h3>A · Hoje</h3>
+        <p>Moldura, montanha, sol e uma seta. Quatro coisas em 24px.</p>
+        <div class="anim-refs">
+          <button class="anim-card">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span class="anim-card-lbl">Imagem inicial</span>
+          </button>
+          <button class="anim-seta"><svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10h12M12 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="anim-card">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span class="anim-card-lbl">Imagem final</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="ico-op">
+        <h3>B · Só a moldura</h3>
+        <p>O quadro vazio, sem nada dentro. É o que o card é: um lugar para uma imagem que ainda não veio.</p>
+        <div class="anim-refs">
+          <button class="anim-card">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="5" width="17" height="14" rx="2"/></svg>
+            <span class="anim-card-lbl">Imagem inicial</span>
+          </button>
+          <button class="anim-seta"><svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10h12M12 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="anim-card">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="5" width="17" height="14" rx="2"/></svg>
+            <span class="anim-card-lbl">Imagem final</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="ico-op">
+        <h3>C · O mais</h3>
+        <p>Um sinal de mais. Não desenha imagem nenhuma: desenha o que o clique faz.</p>
+        <div class="anim-refs">
+          <button class="anim-card">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+            <span class="anim-card-lbl">Imagem inicial</span>
+          </button>
+          <button class="anim-seta"><svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10h12M12 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="anim-card">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+            <span class="anim-card-lbl">Imagem final</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="ico-op">
+        <h3>D · O quadro do tempo <span class="decidido" style="top:-2px">escolhido</span></h3>
+        <p>Moldura com a barra no lado que ela é, à esquerda no primeiro quadro
+          e à direita no último, e a dica de imagem dentro: o ponto e a linha
+          de montanha do ícone de hoje, reduzidos ao mínimo. Os dois cards
+          param de ser o mesmo desenho, e continuam dizendo "imagem".</p>
+        <div class="anim-refs">
+          <button class="anim-card">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M7.5 5v14" stroke-linecap="round"/><circle cx="12" cy="10" r="1.1"/><path d="M10 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="anim-card-lbl">Imagem inicial</span>
+          </button>
+          <button class="anim-seta"><svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10h12M12 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="anim-card">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M16.5 5v14" stroke-linecap="round"/><circle cx="8" cy="10" r="1.1"/><path d="M5.5 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="anim-card-lbl">Imagem final</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <p class="nota">A barra troca de lado entre os dois, e o desenho de dentro
+      acompanha: no primeiro quadro a imagem fica à direita da barra, no último
+      fica à esquerda. Dá para ler os dois lado a lado sem precisar do rótulo.</p>
+  </div>
+</div>
+
+<div class="fim"></div>
+
+<div class="tema">
+  <button class="on" data-tema="light">Claro</button>
+  <button data-tema="dark">Escuro</button>
+</div>
+
+<script>
+  document.querySelectorAll('.tema [data-tema]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.tema [data-tema]').forEach(function (o) { o.classList.remove('on'); });
+      b.classList.add('on');
+      document.documentElement.setAttribute('data-theme', b.dataset.tema);
+    });
+  });
+
+  // ── o comparador ──
+  // A alça é um `input[type=range]` cobrindo a área inteira, e não um arraste
+  // escrito à mão. É o que a home faz, e é o que dá teclado de graça: seta
+  // esquerda e direita andam com o corte sem nenhuma linha a mais.
+  document.querySelectorAll('[data-cmp]').forEach(function (c) {
+    var alca = c.querySelector('.cmp__alca');
+    function anda() { c.style.setProperty('--pos', alca.value + '%'); }
+    alca.addEventListener('input', anda);
+    anda();
+  });
+
+  // ── os filtros ──
+  // Um campo aberto por vez: com cinco abertos o painel viraria uma pilha de
+  // listas, e a pilha de campos é o que faz ele caber sem rolar.
+  document.querySelectorAll('[data-dd]').forEach(function (dd) {
+    var btn = dd.querySelector('.cora-dd-btn');
+    var lista = dd.querySelector('.cora-dd-lista');
+    var uma = dd.classList.contains('cora-dd--uma');
+    var rotulo = dd.querySelector('.cora-dd-rot').textContent;
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var abrindo = lista.hidden;
+      document.querySelectorAll('[data-dd]').forEach(function (o) {
+        o.classList.remove('cora-dd--aberto');
+        o.querySelector('.cora-dd-lista').hidden = true;
+      });
+      lista.hidden = !abrindo;
+      dd.classList.toggle('cora-dd--aberto', abrindo);
+    });
+
+    lista.addEventListener('click', function (e) {
+      var o = e.target.closest('.cora-dd-opt');
+      if (!o) return;
+      if (uma) {
+        lista.querySelectorAll('.cora-dd-opt').forEach(function (x) { x.classList.remove('cora-dd-opt--sel'); });
+        o.classList.add('cora-dd-opt--sel');
+      } else {
+        o.classList.toggle('cora-dd-opt--sel');
+      }
+      var sel = [].slice.call(lista.querySelectorAll('.cora-dd-opt--sel'))
+        .map(function (x) { return x.textContent.trim(); });
+      var val = dd.querySelector('.cora-dd-val');
+      // Duas ou mais viram contagem, pelo mesmo motivo do painel: nome cortado
+      // no meio do campo não informa nada.
+      var vazio = rotulo === 'Propriedades' ? 'Todas' : 'Qualquer';
+      val.textContent = sel.length === 0 ? vazio
+                      : sel.length === 1 ? sel[0]
+                      : sel.length + ' escolhidas';
+      val.setAttribute('data-vazio', sel.length && sel[0] !== vazio ? 'nao' : 'sim');
+    });
+  });
+  document.addEventListener('click', function () {
+    document.querySelectorAll('[data-dd]').forEach(function (o) {
+      o.classList.remove('cora-dd--aberto');
+      o.querySelector('.cora-dd-lista').hidden = true;
+    });
+  });
+
+  var gat = document.querySelector('[data-flt]');
+  if (gat) gat.addEventListener('click', function (e) {
+    e.stopPropagation();
+    gat.classList.toggle('adm-btn-linha--on');
+  });
+</script>

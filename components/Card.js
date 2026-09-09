@@ -169,7 +169,7 @@ export default function Card({
           <button
             className={'cr-ca' + (it.favorito ? ' cr-ca--fav' : '')}
             onClick={so(() => onFavoritar(it))}
-            data-tip={it.favorito ? t('card_desfavoritar') : t('card_favoritos')}
+            data-tip={it.favorito ? t('card_desfavoritar') : t('card_favoritar')}
             aria-label={it.favorito ? t('card_desfavoritar') : t('card_favoritar')}
           >
             <Coracao cheio={it.favorito} />

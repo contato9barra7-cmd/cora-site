@@ -3,12 +3,25 @@
 // ═══════════════════════════════════════════════════════════
 //  Filtros — o painel que abre pelo ícone de ajustes
 //
-//  Data, ferramenta, proporção, resolução e favoritos. Os filtros rápidos
-//  (Tudo / Imagens / Vídeos / Upscales / Favoritos) continuam nos ícones da
-//  barra; aqui ficam os que precisam de mais espaço.
+//  Data, ferramenta, proporção, resolução e propriedades. Os filtros
+//  rápidos (Tudo / Imagens / Vídeos / Upscales / Favoritos) continuam nos
+//  ícones da barra; aqui ficam os que precisam de mais espaço.
+//
+//  ── O DESENHO É O DO ADMIN ──
+//  Era uma grade de pílulas contornadas, uma por opção, com a mesma forma
+//  dos botões de verdade da barra: nada ali dizia qual clique era ação e
+//  qual era filtro, e a altura do painel crescia com o número de opções.
+//
+//  Agora é UM CAMPO POR FILTRO, com o rótulo pequeno em cima e o valor de
+//  agora embaixo, que é o `DropdownCora` que o admin usa. Fechado, o painel
+//  é uma pilha que se lê de relance. Aberto, um campo vira lista, e só um
+//  por vez.
+//
+//  As classes são as de lá (`cora-dd`), de propósito: o desenho é o mesmo e
+//  a folha já existe.
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useIdioma } from '../lib/i18n';
 
 const FERRAMENTAS = [
@@ -21,22 +34,83 @@ const FERRAMENTAS = [
   { val: 'animacao', chave: 'filtros_ferr_animacao' }
 ];
 
-// As mais usadas ficam à mostra; o resto entra no "..."
-const PROPORCOES_PRINCIPAIS = ['1:1', '16:9', '9:16', '4:3', '4:5'];
-const PROPORCOES_RESTO      = ['3:2', '2:3', '5:4', '3:4', '21:9'];
+// As ONZE, e não um recorte delas. Esconder proporção atrás de um "..." faz
+// quem procura a dele achar que ela não existe no histórico.
+const PROPORCOES = ['auto', '1:1', '21:9', '16:9', '9:16', '4:3', '4:5', '5:4', '3:4', '3:2', '2:3'];
 
 const RESOLUCOES = ['1k', '2k', '4k', '8k', '16k'];
 
-export default function Filtros({ aberto, valor, onMudar, onLimpar, onFechar }) {
+const SETA = (
+  <svg className="cora-dd-seta" viewBox="0 0 16 16" width="14" height="14" fill="none"
+       stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+    <path d="M4 6.5l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const TIQUE = (
+  <svg viewBox="0 0 12 12" width="8" height="8" fill="none" stroke="currentColor"
+       strokeWidth="2.6" aria-hidden="true">
+    <path d="M2 6.3l2.6 2.6L10 3.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+// ── Um campo ──
+// `uma` troca o marcador de quadrado para redondo, e é ele que diz sozinho
+// quantas dá para escolher, sem precisar de uma frase embaixo explicando.
+function Campo({ rotulo, valor, vazio, uma, aberto, aoAbrir, children }) {
+  return (
+    <div className="adm-pop__g">
+      <div className={'cora-dd' + (uma ? ' cora-dd--uma' : '') + (aberto ? ' cora-dd--aberto' : '')}>
+        <button
+          type="button"
+          className="cora-dd-btn"
+          onClick={aoAbrir}
+          aria-expanded={aberto}
+        >
+          <span className="cora-dd-mio">
+            <span className="cora-dd-rot">{rotulo}</span>
+            <span className="cora-dd-val" data-vazio={valor ? 'nao' : 'sim'}>{valor || vazio}</span>
+          </span>
+          {SETA}
+        </button>
+        {aberto && <div className="cora-dd-lista">{children}</div>}
+      </div>
+    </div>
+  );
+}
+
+function Opcao({ marcada, onClick, children }) {
+  return (
+    <button
+      type="button"
+      className={'cora-dd-opt' + (marcada ? ' cora-dd-opt--sel' : '')}
+      onClick={onClick}
+      aria-checked={marcada}
+      role="menuitemcheckbox"
+    >
+      <span className="cora-dd-m">{TIQUE}</span>
+      {children}
+    </button>
+  );
+}
+
+export default function Filtros({ aberto, valor, onMudar, onLimpar, onFechar, quantos, total }) {
   const { t } = useIdioma();
-  const [maisProps, setMaisProps] = useState(false);
+  const [campoAberto, setCampoAberto] = useState(null);
+  const caixa = useRef(null);
 
   useEffect(() => {
     if (!aberto) return;
-    const onKey = (e) => { if (e.key === 'Escape') onFechar(); };
+    const onKey = (e) => {
+      // Escape fecha o campo aberto antes de fechar o painel: quem abriu uma
+      // lista e desistiu dela não quer perder o painel inteiro junto.
+      if (e.key !== 'Escape') return;
+      if (campoAberto) setCampoAberto(null);
+      else onFechar();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [aberto, onFechar]);
+  }, [aberto, onFechar, campoAberto]);
 
   if (!aberto) return null;
 
@@ -50,6 +124,28 @@ export default function Filtros({ aberto, valor, onMudar, onLimpar, onFechar }) 
     });
   }
 
+  // Com duas ou mais o campo CONTA em vez de listar: nome cortado no meio não
+  // informa nada, e a contagem informa.
+  const resumo = (lista, comoNome) => {
+    if (!lista || !lista.length) return '';
+    if (lista.length === 1) return comoNome(lista[0]);
+    return `${lista.length} ${t('filtros_escolhidas')}`;
+  };
+
+  const nomeFerr = (v) => {
+    const f = FERRAMENTAS.find((x) => x.val === v);
+    return f ? (f.chave ? t(f.chave) : f.rotulo) : v;
+  };
+
+  const propsMarcadas = [
+    valor.baixadas ? t('filtros_baixadas') : null,
+    valor.favoritos ? t('filtros_favoritas') : null
+  ].filter(Boolean);
+
+  const periodo = valor.de || valor.ate
+    ? [valor.de, valor.ate].filter(Boolean).join(' → ')
+    : '';
+
   const usados =
     (valor.de ? 1 : 0) + (valor.ate ? 1 : 0) +
     (valor.ferramentas?.length || 0) +
@@ -58,112 +154,110 @@ export default function Filtros({ aberto, valor, onMudar, onLimpar, onFechar }) 
     (valor.baixadas ? 1 : 0) +
     (valor.favoritos ? 1 : 0);
 
+  const abre = (nome) => () => setCampoAberto((a) => (a === nome ? null : nome));
+
   return (
     <>
       <div className="ft-fundo" onClick={onFechar} />
 
-      <div className="ft" onClick={(e) => e.stopPropagation()}>
+      <div className="ft" ref={caixa} onClick={(e) => e.stopPropagation()}>
 
-        <div className="ft-bloco">
-          <h4>{t('filtros_periodo')}</h4>
-          <div className="ft-datas">
-            <input
-              type="date"
-              value={valor.de || ''}
-              onChange={(e) => onMudar({ ...valor, de: e.target.value })}
-            />
-            <span>→</span>
-            <input
-              type="date"
-              value={valor.ate || ''}
-              onChange={(e) => onMudar({ ...valor, ate: e.target.value })}
-            />
-          </div>
+        <div className="ft__cab">
+          <h3>{t('filtros_titulo')}</h3>
+          <button className="ft-limpar-t" onClick={onLimpar} disabled={usados === 0}>
+            {t('filtros_limpar_tudo')}
+          </button>
         </div>
 
-        <div className="ft-bloco">
-          <h4>{t('filtros_ferramenta')}</h4>
-          <div className="ft-tags">
+        <div className="ft__corpo">
+
+          <Campo
+            rotulo={t('filtros_periodo')} valor={periodo} vazio={t('filtros_qualquer')}
+            uma aberto={campoAberto === 'periodo'} aoAbrir={abre('periodo')}
+          >
+            <div className="ft-datas">
+              <input
+                type="date" aria-label={t('filtros_de')}
+                value={valor.de || ''}
+                onChange={(e) => onMudar({ ...valor, de: e.target.value })}
+              />
+              <input
+                type="date" aria-label={t('filtros_ate')}
+                value={valor.ate || ''}
+                onChange={(e) => onMudar({ ...valor, ate: e.target.value })}
+              />
+            </div>
+          </Campo>
+
+          <Campo
+            rotulo={t('filtros_ferramenta')}
+            valor={resumo(valor.ferramentas, nomeFerr)} vazio={t('filtros_qualquer')}
+            aberto={campoAberto === 'ferramenta'} aoAbrir={abre('ferramenta')}
+          >
             {FERRAMENTAS.map((f) => (
-              <button
+              <Opcao
                 key={f.val}
-                className={'ft-tag' + ((valor.ferramentas || []).includes(f.val) ? ' ft-tag--on' : '')}
+                marcada={(valor.ferramentas || []).includes(f.val)}
                 onClick={() => alternar('ferramentas', f.val)}
-              >{f.chave ? t(f.chave) : f.rotulo}</button>
+              >{f.chave ? t(f.chave) : f.rotulo}</Opcao>
             ))}
-          </div>
-        </div>
+          </Campo>
 
-        <div className="ft-bloco">
-          <h4>{t('filtros_proporcao')}</h4>
-          <div className="ft-tags">
-            {PROPORCOES_PRINCIPAIS.map((p) => (
-              <button
+          <Campo
+            rotulo={t('filtros_proporcao')}
+            valor={resumo(valor.proporcoes, (p) => p)} vazio={t('filtros_qualquer')}
+            aberto={campoAberto === 'proporcao'} aoAbrir={abre('proporcao')}
+          >
+            {PROPORCOES.map((p) => (
+              <Opcao
                 key={p}
-                className={'ft-tag' + ((valor.proporcoes || []).includes(p) ? ' ft-tag--on' : '')}
+                marcada={(valor.proporcoes || []).includes(p)}
                 onClick={() => alternar('proporcoes', p)}
-              >{p}</button>
+              >{p === 'auto' ? t('painelrender_auto') : p}</Opcao>
             ))}
+          </Campo>
 
-            {/* O resto das proporções mora aqui, para não lotar o painel */}
-            {!maisProps && (
-              <button className="ft-tag ft-tag--mais" onClick={() => setMaisProps(true)}>
-                ...
-              </button>
-            )}
-
-            {maisProps && PROPORCOES_RESTO.map((p) => (
-              <button
-                key={p}
-                className={'ft-tag' + ((valor.proporcoes || []).includes(p) ? ' ft-tag--on' : '')}
-                onClick={() => alternar('proporcoes', p)}
-              >{p}</button>
-            ))}
-          </div>
-        </div>
-
-        <div className="ft-bloco">
-          <h4>{t('filtros_propriedades')}</h4>
-          <div className="ft-tags">
-            <button
-              className={'ft-tag' + (valor.baixadas ? ' ft-tag--on' : '')}
-              onClick={() => onMudar({ ...valor, baixadas: !valor.baixadas })}
-            >
-              <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
-                <path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M3.5 14v1.5A1.5 1.5 0 005 17h10a1.5 1.5 0 001.5-1.5V14" strokeLinecap="round"/>
-              </svg>
-              {t('filtros_baixadas')}
-            </button>
-
-            <button
-              className={'ft-tag' + (valor.favoritos ? ' ft-tag--on' : '')}
-              onClick={() => onMudar({ ...valor, favoritos: !valor.favoritos })}
-            >
-              <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6">
-                <path d="M10 16.5l-1.1-1C5 12 2.5 9.7 2.5 6.9A3.4 3.4 0 016 3.5c1.2 0 2.3.5 3 1.5.7-1 1.8-1.5 3-1.5a3.4 3.4 0 013.5 3.4c0 2.8-2.5 5.1-6.4 8.6l-1.1 1z" strokeLinejoin="round"/>
-              </svg>
-              {t('filtros_favoritas')}
-            </button>
-          </div>
-        </div>
-
-        <div className="ft-bloco">
-          <h4>{t('filtros_resolucao')}</h4>
-          <div className="ft-tags">
+          <Campo
+            rotulo={t('filtros_resolucao')}
+            valor={resumo(valor.resolucoes, (r) => r.toUpperCase())} vazio={t('filtros_qualquer')}
+            aberto={campoAberto === 'resolucao'} aoAbrir={abre('resolucao')}
+          >
             {RESOLUCOES.map((r) => (
-              <button
+              <Opcao
                 key={r}
-                className={'ft-tag' + ((valor.resolucoes || []).includes(r) ? ' ft-tag--on' : '')}
+                marcada={(valor.resolucoes || []).includes(r)}
                 onClick={() => alternar('resolucoes', r)}
-              >{r.toUpperCase()}</button>
+              >{r.toUpperCase()}</Opcao>
             ))}
-          </div>
+          </Campo>
+
+          <Campo
+            rotulo={t('filtros_propriedades')}
+            valor={propsMarcadas.length === 1 ? propsMarcadas[0]
+                 : propsMarcadas.length > 1 ? `${propsMarcadas.length} ${t('filtros_escolhidas')}` : ''}
+            vazio={t('filtros_todas')}
+            aberto={campoAberto === 'props'} aoAbrir={abre('props')}
+          >
+            <Opcao
+              marcada={!!valor.baixadas}
+              onClick={() => onMudar({ ...valor, baixadas: !valor.baixadas })}
+            >{t('filtros_baixadas')}</Opcao>
+            <Opcao
+              marcada={!!valor.favoritos}
+              onClick={() => onMudar({ ...valor, favoritos: !valor.favoritos })}
+            >{t('filtros_favoritas')}</Opcao>
+          </Campo>
         </div>
 
-        <button className="ft-limpar" onClick={onLimpar} disabled={usados === 0}>
-          {t('filtros_limpar_tudo')}{usados > 0 ? ` (${usados})` : ''}
-        </button>
+        <div className="ft__pe">
+          {typeof quantos === 'number' && typeof total === 'number' && (
+            <span className="ft__conta">{quantos} {t('filtros_de_total')} {total}</span>
+          )}
+          <button className="ft-ver" onClick={onFechar}>
+            {t('filtros_ver')} {typeof quantos === 'number' ? `${quantos} ` : ''}
+            {quantos === 1 ? t('filtros_resultado') : t('filtros_resultados')}
+          </button>
+        </div>
       </div>
     </>
   );

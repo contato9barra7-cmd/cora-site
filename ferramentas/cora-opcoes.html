@@ -1,0 +1,689 @@
+<meta charset="utf-8">
+<title>Quatro jeitos de escolher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     QUATRO JEITOS DE ESCOLHER · estudo para o painel do Render
+
+     ISTO É UM ESTUDO, e não a fonte de nenhuma folha. Não rodar o
+     gerar-css-artefato.py aqui: quem gera o app/cora-pagina.css é o cora.html.
+     Depois que uma das quatro for escolhida, ela entra lá.
+
+     O problema: trinta pílulas iguais em duas colunas. A forma é a mesma em
+     todas, o peso é o mesmo em todas, e o olho não encontra ordem nenhuma. É
+     o desenho que qualquer ferramenta faria, e por isso não parece de
+     ninguém.
+
+     As quatro atacam coisas diferentes:
+       1. a ficha   → tira a grade, e mostra só o que está escolhido
+       2. o sulco   → tira a pílula solta, e junta o grupo num instrumento
+       3. sem caixa → tira a caixa inteira, e deixa só a palavra
+       4. as lâminas→ tira a palavra, onde a escolha é visual
+
+     O mesmo conteúdo nas quatro, de propósito: dois botões, quatro botões e
+     seis botões, que é a faixa de verdade do painel. Cada coluna mede a
+     própria altura no fim.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --turq-txt:#196C5B; --lima-txt:#256B2A; --turq-bg:#E6F7F3;
+  --alerta:#C8342A;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px;
+  --t-titulo:17px; --t-secao:20px; --t-tela:26px;
+  --t:170ms cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+  --alerta:#F0A9A3;
+  --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+  color-scheme:dark;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+button{ font-family:inherit; cursor:pointer; }
+:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
+::selection{ background:var(--lima); color:#111111; }
+
+/* ══ a página ══ */
+.topo{ max-width:1180px; margin:0 auto; padding:52px 24px 0; }
+.eb{ margin:0; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+h1{ margin:12px 0 0; font-size:clamp(28px,4vw,38px); font-weight:500; letter-spacing:-.033em; line-height:1.1; text-wrap:balance; }
+.lead{ margin:14px 0 0; max-width:62ch; font-size:16px; color:var(--ink2); text-wrap:pretty; }
+.lead b{ color:var(--ink); font-weight:600; }
+
+.grade{
+  max-width:1180px; margin:44px auto 0; padding:0 24px 120px;
+  display:grid; gap:28px; grid-template-columns:1fr;
+}
+@media (min-width:900px){ .grade{ grid-template-columns:repeat(2,1fr); } }
+.grade{ align-items:start; }
+
+/* ── o painel de hoje, para o número não ser conta minha ── */
+.hoje{ max-width:1180px; margin:40px auto 0; padding:0 24px; }
+.hoje__cab{ display:flex; align-items:baseline; gap:10px; margin-bottom:4px; }
+.hoje__t{ margin:0; font-size:var(--t-secao); font-weight:500; letter-spacing:-.02em; color:var(--ink2); }
+.hoje__sel{
+  padding:1px 9px; border-radius:var(--pill); background:var(--wash2);
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.pil{ display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
+.pil__b{
+  min-height:38px; padding:7px 12px; border:0; border-radius:var(--pill);
+  background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-apoio); font-weight:500; line-height:1.25; text-wrap:pretty;
+  transition:background var(--t), color var(--t);
+}
+.pil__b:hover:not([aria-checked="true"]){ background:var(--line); color:var(--ink); }
+.pil__b[aria-checked="true"]{
+  background:var(--turq-bg); color:var(--turq-txt); font-weight:600;
+  box-shadow:inset 0 0 0 1px var(--turquesa-esc);
+}
+
+/* ── cada opção ── */
+.op{ min-width:0; }
+.op__cab{ display:flex; align-items:baseline; gap:10px; margin-bottom:4px; }
+.op__n{
+  flex:none; width:24px; height:24px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--ink); color:var(--paper);
+  font-size:var(--t-apoio2); font-weight:700; font-variant-numeric:tabular-nums;
+  position:relative; top:2px;
+}
+.op__t{ margin:0; font-size:var(--t-secao); font-weight:500; letter-spacing:-.02em; }
+.op__d{ margin:0 0 14px; font-size:var(--t-apoio); color:var(--ink2); text-wrap:pretty; }
+
+/* a moldura de 400px: é a largura de verdade do painel */
+.painel{
+  width:100%; max-width:400px; padding:20px 16px 22px;
+  border:1px solid var(--line); border-radius:var(--r);
+  background:var(--paper);
+}
+.sec{
+  margin:24px 0 10px; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+}
+.sec:first-child{ margin-top:0; }
+
+.medida{
+  display:flex; align-items:baseline; gap:8px; margin-top:12px; max-width:400px;
+  font-family:var(--mono); font-size:var(--t-apoio2); color:var(--ink3);
+}
+.medida b{ color:var(--ink); font-weight:500; }
+.troca{
+  margin:10px 0 0; max-width:400px; padding-left:16px; position:relative;
+  font-size:var(--t-apoio2); color:var(--ink2); text-wrap:pretty;
+}
+.troca::before{
+  content:""; position:absolute; left:0; top:.55em; width:6px; height:6px;
+  border-radius:50%; background:var(--alerta);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   1 · A FICHA
+   A linha diz o nome do ajuste e o valor de agora. Clicou, ela abre e
+   mostra as escolhas. Escolheu, ela fecha. É a lista de ajustes de uma
+   câmera, e não uma tela de aplicativo.
+   ══════════════════════════════════════════════════════════════════ */
+.fic{ border-top:1px solid var(--line); }
+.fic__linha{ border-bottom:1px solid var(--line); }
+.fic__cab{
+  width:100%; display:flex; align-items:center; gap:12px; padding:13px 2px;
+  border:0; background:none; text-align:left;
+}
+.fic__nome{
+  flex:none; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.fic__val{
+  flex:1; min-width:0; text-align:right; font-size:var(--t-corpo);
+  color:var(--ink); font-weight:500;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  transition:color var(--t);
+}
+.fic__cab:hover .fic__val{ color:var(--turq-txt); }
+.fic__seta{ flex:none; color:var(--ink3); transition:transform var(--t); }
+.fic__linha[data-aberta="sim"] .fic__seta{ transform:rotate(180deg); }
+.fic__corpo{ display:none; padding:0 0 10px; }
+.fic__linha[data-aberta="sim"] .fic__corpo{ display:block; }
+.fic__op{
+  width:100%; display:flex; align-items:center; gap:10px; padding:9px 10px;
+  border:0; border-radius:10px; background:none; text-align:left;
+  font-size:var(--t-apoio); color:var(--ink2);
+  transition:background var(--t), color var(--t);
+}
+.fic__op:hover{ background:var(--wash); color:var(--ink); }
+.fic__op[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.fic__marca{
+  flex:none; width:16px; height:16px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--wash2); color:transparent;
+}
+.fic__op[aria-checked="true"] .fic__marca{ background:var(--lima); color:#111111; }
+
+/* ══════════════════════════════════════════════════════════════════
+   2 · O SULCO
+   O grupo inteiro vira uma peça só, e a escolhida é a placa que sobe do
+   sulco. É o gesto que o trilho das abas e o P/M/G/GG já usam.
+   ══════════════════════════════════════════════════════════════════ */
+.sul{ display:flex; gap:3px; padding:3px; border-radius:var(--pill); background:var(--wash2); }
+.sul--grade{ display:grid; grid-template-columns:repeat(2,1fr); border-radius:var(--r-peq); }
+.sul--3{ grid-template-columns:repeat(3,1fr); }
+.sul__b{
+  min-height:34px; padding:6px 10px; border:0; border-radius:var(--pill);
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; color:var(--ink3);
+  font-size:var(--t-apoio); font-weight:500; line-height:1.25; text-align:center;
+  text-wrap:pretty; transition:color var(--t), background var(--t), box-shadow var(--t);
+}
+.sul--grade .sul__b{ border-radius:9px; }
+.sul__b:hover:not([aria-checked="true"]){ color:var(--ink); }
+.sul__b[aria-checked="true"]{
+  background:var(--paper); color:var(--ink); font-weight:600; box-shadow:var(--sombra-peq);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   3 · SEM CAIXA
+   Nenhum contorno. A palavra é o botão, e o sublinhado de lima de 2px
+   diz qual está valendo. É o mesmo sublinhado das ações do resto do
+   site, aqui marcando escolha.
+   ══════════════════════════════════════════════════════════════════ */
+.txt{ display:flex; flex-wrap:wrap; gap:4px 20px; }
+.txt__b{
+  padding:5px 0 6px; border:0; background:none;
+  font-size:var(--t-corpo); color:var(--ink3); font-weight:500;
+  box-shadow:inset 0 -2px 0 transparent;
+  transition:color var(--t), box-shadow var(--t);
+}
+.txt__b:hover:not([aria-checked="true"]){ color:var(--ink2); box-shadow:inset 0 -2px 0 var(--line2); }
+.txt__b[aria-checked="true"]{ color:var(--ink); font-weight:600; box-shadow:inset 0 -2px 0 var(--lima); }
+
+/* ══════════════════════════════════════════════════════════════════
+   4 · AS LÂMINAS
+   Onde a escolha é espacial ou de cor, o desenho diz mais rápido que a
+   palavra. "Lateral direita" é uma frase. A seta entrando pela direita
+   é a coisa. E "golden hour" é uma cor, não um nome.
+   ══════════════════════════════════════════════════════════════════ */
+.lam{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.lam--2{ grid-template-columns:repeat(2,1fr); }
+.lam__b{
+  padding:0; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); overflow:hidden; text-align:center;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.lam__b:hover{ border-color:var(--line2); box-shadow:var(--sombra-peq); }
+.lam__b[aria-checked="true"]{
+  border-color:var(--turquesa-esc); box-shadow:0 0 0 1px var(--turquesa-esc);
+}
+.lam__q{ display:block; height:52px; background:var(--wash); }
+.lam__q svg{ width:100%; height:100%; display:block; }
+.lam__n{
+  display:block; padding:7px 6px 8px; font-size:var(--t-apoio2);
+  color:var(--ink2); font-weight:500; line-height:1.25; text-wrap:pretty;
+}
+.lam__b[aria-checked="true"] .lam__n{ color:var(--ink); font-weight:600; }
+/* O desenho da planta: a sala vista de cima, e de onde a luz entra. */
+.pl-sala{ fill:none; stroke:var(--ink3); stroke-width:1.4; }
+.pl-luz{ fill:none; stroke:var(--turq-txt); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.lam__b[aria-checked="true"] .pl-sala{ stroke:var(--ink2); }
+
+/* ══ o rodapé com a comparação ══ */
+.fecho{ max-width:1180px; margin:0 auto; padding:0 24px 120px; }
+.fecho h2{ margin:0 0 6px; font-size:var(--t-tela); font-weight:500; letter-spacing:-.028em; }
+.fecho p{ margin:0 0 14px; max-width:66ch; color:var(--ink2); text-wrap:pretty; }
+.fecho p b{ color:var(--ink); font-weight:600; }
+.rolo{ overflow-x:auto; margin-top:18px; }
+table{ width:100%; min-width:520px; border-collapse:collapse; font-size:var(--t-apoio); }
+th{
+  text-align:left; padding:0 16px 8px 0; border-bottom:1px solid var(--line);
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink3); white-space:nowrap;
+}
+td{ padding:11px 16px 11px 0; border-bottom:1px solid var(--line); color:var(--ink2); vertical-align:top; }
+td:first-child{ color:var(--ink); font-weight:500; white-space:nowrap; }
+td.num{ font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+/* ══ a barra de tema ══ */
+.barra{
+  position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:200;
+  display:flex; gap:4px; padding:5px; border-radius:var(--pill);
+  background:#111111; box-shadow:0 12px 34px rgba(0,0,0,.34);
+}
+.barra button{
+  height:32px; padding:0 15px; border:0; border-radius:var(--pill);
+  background:transparent; color:#B6B5AE; font-size:var(--t-apoio); font-weight:500;
+}
+.barra button.on{ background:#F2F2EF; color:#111111; font-weight:600; }
+</style>
+
+<div class="topo">
+  <p class="eb">Cora Render · o painel do Render</p>
+  <h1>Quatro jeitos de escolher</h1>
+  <p class="lead">Hoje são trinta pílulas iguais em duas colunas. A forma é a
+    mesma em todas e o peso é o mesmo em todas, então o olho não encontra ordem
+    e a tela fica com cara de kit pronto. <b>As quatro abaixo têm o mesmo
+    conteúdo</b>, com grupos de dois, quatro e seis, que é a faixa de verdade do
+    painel. Cada uma mede a própria altura no fim.</p>
+</div>
+
+<div class="hoje" id="hoje">
+  <div class="hoje__cab">
+    <h2 class="hoje__t">O que está no ar hoje</h2>
+    <span class="hoje__sel">referência</span>
+  </div>
+  <p class="op__d" style="max-width:56ch">Os mesmos três grupos, do jeito que a
+    tela está agora. É contra esta altura que as quatro abaixo se medem.</p>
+  <div class="painel">
+    <p class="sec">Tipo de ambiente</p>
+    <div class="pil" data-grupo>
+      <button class="pil__b" aria-checked="true">Interno</button>
+      <button class="pil__b" aria-checked="false">Externo</button>
+    </div>
+    <p class="sec">Hora do dia</p>
+    <div class="pil" data-grupo>
+      <button class="pil__b" aria-checked="true">Dia claro editorial</button>
+      <button class="pil__b" aria-checked="false">Manhã</button>
+      <button class="pil__b" aria-checked="false">Meio-dia</button>
+      <button class="pil__b" aria-checked="false">Tarde</button>
+    </div>
+    <p class="sec">Direção da luz</p>
+    <div class="pil" data-grupo>
+      <button class="pil__b" aria-checked="false">Frontal</button>
+      <button class="pil__b" aria-checked="false">Lateral esquerda</button>
+      <button class="pil__b" aria-checked="true">Lateral direita</button>
+      <button class="pil__b" aria-checked="false">Pelo fundo</button>
+      <button class="pil__b" aria-checked="false">Diagonal</button>
+      <button class="pil__b" aria-checked="false">Zenital</button>
+    </div>
+  </div>
+  <p class="medida">altura <b data-alt="hoje">…</b></p>
+</div>
+
+<div class="grade">
+
+  <!-- ══════════ 1 ══════════ -->
+  <section class="op" id="op1">
+    <div class="op__cab"><span class="op__n">1</span><h2 class="op__t">A ficha</h2></div>
+    <p class="op__d">A linha diz o nome do ajuste e o valor de agora. Clicou,
+      abre. Escolheu, fecha. É a lista de ajustes de uma câmera, e não uma tela
+      de aplicativo.</p>
+
+    <div class="painel">
+      <div class="fic" data-grupo>
+        <div class="fic__linha" data-aberta="nao">
+          <button class="fic__cab">
+            <span class="fic__nome">Ambiente</span>
+            <span class="fic__val">Interno</span>
+            <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="fic__corpo">
+            <button class="fic__op" aria-checked="true"><span class="fic__marca"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Interno</button>
+            <button class="fic__op" aria-checked="false"><span class="fic__marca"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Externo</button>
+          </div>
+        </div>
+
+        <div class="fic__linha" data-aberta="sim">
+          <button class="fic__cab">
+            <span class="fic__nome">Hora do dia</span>
+            <span class="fic__val">Dia claro editorial</span>
+            <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="fic__corpo">
+            <button class="fic__op" aria-checked="true"><span class="fic__marca"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Dia claro editorial</button>
+            <button class="fic__op" aria-checked="false"><span class="fic__marca"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Manhã</button>
+            <button class="fic__op" aria-checked="false"><span class="fic__marca"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Meio-dia</button>
+            <button class="fic__op" aria-checked="false"><span class="fic__marca"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Tarde</button>
+          </div>
+        </div>
+
+        <div class="fic__linha" data-aberta="nao">
+          <button class="fic__cab">
+            <span class="fic__nome">Direção da luz</span>
+            <span class="fic__val">Lateral direita</span>
+            <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="fic__corpo">
+            <button class="fic__op" aria-checked="false"><span class="fic__marca"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Frontal</button>
+            <button class="fic__op" aria-checked="false"><span class="fic__marca"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Lateral esquerda</button>
+            <button class="fic__op" aria-checked="true"><span class="fic__marca"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Lateral direita</button>
+            <button class="fic__op" aria-checked="false"><span class="fic__marca"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Pelo fundo</button>
+            <button class="fic__op" aria-checked="false"><span class="fic__marca"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Diagonal</button>
+            <button class="fic__op" aria-checked="false"><span class="fic__marca"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Zenital</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="medida">altura fechada <b data-alt="op1-fechada">…</b> · aberta <b data-alt="op1">…</b></p>
+    <p class="troca">O painel inteiro cabe sem rolar, mas a pessoa só vê o que
+      está escolhido. Para comparar duas opções, precisa abrir.</p>
+  </section>
+
+  <!-- ══════════ 2 ══════════ -->
+  <section class="op" id="op2">
+    <div class="op__cab"><span class="op__n">2</span><h2 class="op__t">O sulco</h2></div>
+    <p class="op__d">O grupo vira uma peça só, e a escolhida é a placa que sobe
+      do sulco. É o gesto que o trilho das abas e o P/M/G/GG já usam, aplicado
+      ao painel inteiro.</p>
+
+    <div class="painel">
+      <p class="sec">Tipo de ambiente</p>
+      <div class="sul" data-grupo>
+        <button class="sul__b" aria-checked="true">Interno</button>
+        <button class="sul__b" aria-checked="false">Externo</button>
+      </div>
+
+      <p class="sec">Hora do dia</p>
+      <div class="sul sul--grade" data-grupo>
+        <button class="sul__b" aria-checked="true">Dia claro editorial</button>
+        <button class="sul__b" aria-checked="false">Manhã</button>
+        <button class="sul__b" aria-checked="false">Meio-dia</button>
+        <button class="sul__b" aria-checked="false">Tarde</button>
+      </div>
+
+      <p class="sec">Direção da luz</p>
+      <div class="sul sul--grade sul--3" data-grupo>
+        <button class="sul__b" aria-checked="false">Frontal</button>
+        <button class="sul__b" aria-checked="false">Lateral esq.</button>
+        <button class="sul__b" aria-checked="true">Lateral dir.</button>
+        <button class="sul__b" aria-checked="false">Pelo fundo</button>
+        <button class="sul__b" aria-checked="false">Diagonal</button>
+        <button class="sul__b" aria-checked="false">Zenital</button>
+      </div>
+    </div>
+
+    <p class="medida">altura <b data-alt="op2">…</b></p>
+    <p class="troca">Some o fio entre os botões, mas o retângulo continua lá. É
+      a mudança mais barata das quatro, e também a menos radical.</p>
+  </section>
+
+  <!-- ══════════ 3 ══════════ -->
+  <section class="op" id="op3">
+    <div class="op__cab"><span class="op__n">3</span><h2 class="op__t">Sem caixa</h2></div>
+    <p class="op__d">Nenhum contorno. A palavra é o botão, e o sublinhado de
+      lima de 2px diz qual está valendo. O mesmo sublinhado das ações do resto
+      do site, aqui marcando escolha.</p>
+
+    <div class="painel">
+      <p class="sec">Tipo de ambiente</p>
+      <div class="txt" data-grupo>
+        <button class="txt__b" aria-checked="true">Interno</button>
+        <button class="txt__b" aria-checked="false">Externo</button>
+      </div>
+
+      <p class="sec">Hora do dia</p>
+      <div class="txt" data-grupo>
+        <button class="txt__b" aria-checked="true">Dia claro editorial</button>
+        <button class="txt__b" aria-checked="false">Manhã</button>
+        <button class="txt__b" aria-checked="false">Meio-dia</button>
+        <button class="txt__b" aria-checked="false">Tarde</button>
+      </div>
+
+      <p class="sec">Direção da luz</p>
+      <div class="txt" data-grupo>
+        <button class="txt__b" aria-checked="false">Frontal</button>
+        <button class="txt__b" aria-checked="false">Lateral esquerda</button>
+        <button class="txt__b" aria-checked="true">Lateral direita</button>
+        <button class="txt__b" aria-checked="false">Pelo fundo</button>
+        <button class="txt__b" aria-checked="false">Diagonal</button>
+        <button class="txt__b" aria-checked="false">Zenital</button>
+      </div>
+    </div>
+
+    <p class="medida">altura <b data-alt="op3">…</b></p>
+    <p class="troca">A mais leve e a que menos parece kit pronto. Também a que
+      menos parece clicável: sem borda nem fundo, o alvo é a palavra, e quem
+      nunca usou pode demorar a perceber.</p>
+  </section>
+
+  <!-- ══════════ 4 ══════════ -->
+  <section class="op" id="op4">
+    <div class="op__cab"><span class="op__n">4</span><h2 class="op__t">As lâminas</h2></div>
+    <p class="op__d">Onde a escolha é espacial ou de cor, o desenho chega antes
+      da palavra. "Lateral direita" é uma frase. A seta entrando pela direita é
+      a coisa.</p>
+
+    <div class="painel">
+      <p class="sec">Tipo de ambiente</p>
+      <div class="lam lam--2" data-grupo>
+        <button class="lam__b" aria-checked="true">
+          <span class="lam__q"><svg viewBox="0 0 100 52" aria-hidden="true">
+            <rect class="pl-sala" x="20" y="10" width="60" height="32" rx="2"/>
+            <path class="pl-sala" d="M20 26h18M62 26h18" stroke-dasharray="3 4"/>
+            <circle cx="50" cy="26" r="3" fill="var(--ink3)" stroke="none"/>
+          </svg></span>
+          <span class="lam__n">Interno</span>
+        </button>
+        <button class="lam__b" aria-checked="false">
+          <span class="lam__q"><svg viewBox="0 0 100 52" aria-hidden="true">
+            <path class="pl-sala" d="M28 42V22l22-12 22 12v20"/>
+            <path class="pl-sala" d="M14 42h72"/>
+            <circle class="pl-luz" cx="74" cy="15" r="5"/>
+          </svg></span>
+          <span class="lam__n">Externo</span>
+        </button>
+      </div>
+
+      <p class="sec">Hora do dia</p>
+      <div class="lam lam--2" data-grupo>
+        <button class="lam__b" aria-checked="true">
+          <span class="lam__q" style="background:linear-gradient(175deg,#cfe4f2,#f4f7f9 62%,#e9e6df)"></span>
+          <span class="lam__n">Dia claro editorial</span>
+        </button>
+        <button class="lam__b" aria-checked="false">
+          <span class="lam__q" style="background:linear-gradient(175deg,#dbe7f0,#fbf1e2 60%,#f2ddc4)"></span>
+          <span class="lam__n">Manhã</span>
+        </button>
+        <button class="lam__b" aria-checked="false">
+          <span class="lam__q" style="background:linear-gradient(175deg,#bcd9ee,#f7fafc 55%,#eceff0)"></span>
+          <span class="lam__n">Meio-dia</span>
+        </button>
+        <button class="lam__b" aria-checked="false">
+          <span class="lam__q" style="background:linear-gradient(175deg,#e7cfa7,#f6dfb8 50%,#d8a86e)"></span>
+          <span class="lam__n">Tarde</span>
+        </button>
+      </div>
+
+      <p class="sec">Direção da luz</p>
+      <div class="lam" data-grupo>
+        <button class="lam__b" aria-checked="false">
+          <span class="lam__q"><svg viewBox="0 0 100 52" aria-hidden="true">
+            <rect class="pl-sala" x="26" y="12" width="48" height="28" rx="2"/>
+            <path class="pl-luz" d="M50 2v9M50 11l-4-4M50 11l4-4"/>
+          </svg></span>
+          <span class="lam__n">Frontal</span>
+        </button>
+        <button class="lam__b" aria-checked="false">
+          <span class="lam__q"><svg viewBox="0 0 100 52" aria-hidden="true">
+            <rect class="pl-sala" x="26" y="12" width="48" height="28" rx="2"/>
+            <path class="pl-luz" d="M12 26h13M25 26l-4-4M25 26l-4 4"/>
+          </svg></span>
+          <span class="lam__n">Lateral esquerda</span>
+        </button>
+        <button class="lam__b" aria-checked="true">
+          <span class="lam__q"><svg viewBox="0 0 100 52" aria-hidden="true">
+            <rect class="pl-sala" x="26" y="12" width="48" height="28" rx="2"/>
+            <path class="pl-luz" d="M88 26H75M75 26l4-4M75 26l4 4"/>
+          </svg></span>
+          <span class="lam__n">Lateral direita</span>
+        </button>
+        <button class="lam__b" aria-checked="false">
+          <span class="lam__q"><svg viewBox="0 0 100 52" aria-hidden="true">
+            <rect class="pl-sala" x="26" y="12" width="48" height="28" rx="2"/>
+            <path class="pl-luz" d="M50 50v-9M50 41l-4 4M50 41l4 4"/>
+          </svg></span>
+          <span class="lam__n">Pelo fundo</span>
+        </button>
+        <button class="lam__b" aria-checked="false">
+          <span class="lam__q"><svg viewBox="0 0 100 52" aria-hidden="true">
+            <rect class="pl-sala" x="26" y="12" width="48" height="28" rx="2"/>
+            <path class="pl-luz" d="M83 5L72 16M72 16l6-.6M72 16l.6-6"/>
+          </svg></span>
+          <span class="lam__n">Diagonal</span>
+        </button>
+        <button class="lam__b" aria-checked="false">
+          <span class="lam__q"><svg viewBox="0 0 100 52" aria-hidden="true">
+            <path class="pl-sala" d="M30 42V24l20-13 20 13v18"/>
+            <path class="pl-luz" d="M50 2v7M42 6l2.5 4.5M58 6l-2.5 4.5"/>
+          </svg></span>
+          <span class="lam__n">Zenital</span>
+        </button>
+      </div>
+    </div>
+
+    <p class="medida">altura <b data-alt="op4">…</b></p>
+    <p class="troca">A mais cara de fazer e a única que serve para tudo: "Interno
+      ou Externo" não tem desenho que ajude, e ali a lâmina vira enfeite.</p>
+  </section>
+</div>
+
+<div class="fecho">
+  <h2>O que eu faria</h2>
+  <p>Nenhuma das quatro sozinha. O que resolve a cara de kit pronto não é trocar
+    a pílula por outra forma repetida trinta vezes, é <b>parar de tratar
+    escolhas diferentes como se fossem a mesma coisa</b>. Hoje "Interno ou
+    Externo" e "de onde a luz entra" têm o mesmo desenho, e uma é uma
+    chave de duas posições e a outra é uma decisão de projeto.</p>
+  <p>A mistura que eu levaria adiante: <b>a ficha</b> para o que é ajuste de
+    configuração e quase nunca muda depois de escolhido (ambiente, luz
+    artificial, entorno), <b>as lâminas</b> para o que é decisão visual (hora do
+    dia, direção da luz, atmosfera), e <b>sem caixa</b> para as listas longas e
+    secundárias. O sulco fica para o que já é dele, que são as abas e o
+    P/M/G/GG, sem descer para o formulário.</p>
+  <p>Isso dá ao painel a coisa que ele não tem hoje, que é ordem: a pessoa passa
+    o olho e sabe o que é decisão e o que é ajuste, sem ler nada.</p>
+
+  <div class="rolo">
+    <table>
+      <thead><tr><th>Jeito</th><th>Altura</th><th>Ganha</th><th>Perde</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Hoje, pílulas</td>
+          <td class="num" data-alt-cel="hoje">…</td>
+          <td>tudo à vista, um clique</td>
+          <td>sem hierarquia, cara de kit pronto</td>
+        </tr>
+        <tr>
+          <td>1 · A ficha</td>
+          <td class="num" data-alt-cel="op1-fechada">…</td>
+          <td>o painel inteiro sem rolar</td>
+          <td>comparar duas opções pede abrir</td>
+        </tr>
+        <tr>
+          <td>2 · O sulco</td>
+          <td class="num" data-alt-cel="op2">…</td>
+          <td>gesto que a tela já usa</td>
+          <td>o retângulo continua lá</td>
+        </tr>
+        <tr>
+          <td>3 · Sem caixa</td>
+          <td class="num" data-alt-cel="op3">…</td>
+          <td>a mais leve, e a menos genérica</td>
+          <td>a menos óbvia de clicar</td>
+        </tr>
+        <tr>
+          <td>4 · As lâminas</td>
+          <td class="num" data-alt-cel="op4">…</td>
+          <td>escolher olhando, não lendo</td>
+          <td>a mais cara, e não serve para todo grupo</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="barra">
+  <button class="on" data-tema="light">Claro</button>
+  <button data-tema="dark">Escuro</button>
+</div>
+
+<script>
+  // ── o tema ──
+  document.querySelectorAll('.barra [data-tema]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.barra [data-tema]').forEach(function (o) { o.classList.remove('on'); });
+      b.classList.add('on');
+      document.documentElement.setAttribute('data-theme', b.dataset.tema);
+      medir();
+    });
+  });
+
+  // ── escolher dentro do grupo ──
+  document.querySelectorAll('[data-grupo]').forEach(function (g) {
+    g.addEventListener('click', function (e) {
+      var b = e.target.closest('button[aria-checked]');
+      if (!b) return;
+      g.querySelectorAll('button[aria-checked]').forEach(function (o) { o.setAttribute('aria-checked', 'false'); });
+      b.setAttribute('aria-checked', 'true');
+      // Na ficha, escolher fecha a linha e sobe o valor para o cabeçalho.
+      var linha = b.closest('.fic__linha');
+      if (linha) {
+        linha.querySelector('.fic__val').textContent = b.textContent.trim();
+        linha.setAttribute('data-aberta', 'nao');
+      }
+      medir();
+    });
+  });
+
+  // ── abrir e fechar a linha da ficha ──
+  document.querySelectorAll('.fic__cab').forEach(function (c) {
+    c.addEventListener('click', function () {
+      var l = c.closest('.fic__linha');
+      var abrindo = l.getAttribute('data-aberta') !== 'sim';
+      l.closest('.fic').querySelectorAll('.fic__linha').forEach(function (o) { o.setAttribute('data-aberta', 'nao'); });
+      l.setAttribute('data-aberta', abrindo ? 'sim' : 'nao');
+      medir();
+    });
+  });
+
+  // ── a medida ──
+  // Olhar a miniatura não serve para dizer qual ocupa menos: as quatro estão
+  // lado a lado e cada uma numa altura. O número é o painel de 400px, os
+  // mesmos três grupos, e a altura que eles pedem.
+  function medir() {
+    var alturas = {};
+    document.querySelectorAll('.op, .hoje').forEach(function (op) {
+      alturas[op.id] = Math.round(op.querySelector('.painel').getBoundingClientRect().height);
+    });
+    // A ficha tem duas alturas: com tudo fechado, e com uma linha aberta.
+    var fic = document.querySelector('#op1 .fic');
+    var abertas = fic.querySelectorAll('.fic__linha[data-aberta="sim"]');
+    var extra = 0;
+    abertas.forEach(function (l) { extra += l.querySelector('.fic__corpo').getBoundingClientRect().height; });
+    alturas['op1-fechada'] = Math.round(alturas.op1 - extra);
+
+    document.querySelectorAll('[data-alt]').forEach(function (el) {
+      el.textContent = alturas[el.dataset.alt] + 'px';
+    });
+    document.querySelectorAll('[data-alt-cel]').forEach(function (el) {
+      el.textContent = alturas[el.dataset.altCel] + 'px';
+    });
+  }
+  // As fontes mudam a altura ao carregar, então mede depois delas.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(medir);
+  medir();
+  addEventListener('resize', medir);
+</script>

@@ -811,7 +811,11 @@ export default function PainelAnimacao({
               </>
             ) : (
               <>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                {/* A barra fica no lado que este quadro é: à esquerda no primeiro,
+                    à direita no último, e o desenho de dentro acompanha. Antes os
+                    dois cards tinham o mesmo ícone, e o par existe justo porque um
+                    é o começo e o outro é o fim. */}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M7.5 5v14" strokeLinecap="round"/><circle cx="12" cy="10" r="1.1"/><path d="M10 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 <span className="anim-card-lbl">{t('painelanimacao_imagem_inicial')}</span>
               </>
             )}
@@ -834,7 +838,7 @@ export default function PainelAnimacao({
               </>
             ) : (
               <>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M16.5 5v14" strokeLinecap="round"/><circle cx="8" cy="10" r="1.1"/><path d="M5.5 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 <span className="anim-card-lbl">{t('painelanimacao_imagem_final')}</span>
               </>
             )}

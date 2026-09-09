@@ -1,0 +1,491 @@
+<meta charset="utf-8">
+<title>Onde o custo aparece</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     ONDE O CUSTO APARECE · quatro jeitos, na barra de baixo do Render
+
+     ── ANTES DE TUDO, UMA CORREÇÃO MINHA ──
+     A frase "Custa 116 créditos e você tem 11.600" que apareceu no estudo do
+     painel NUNCA EXISTIU no site. Eu a inventei, e o número também.
+
+     O que o Cora faz hoje, em produção, é o que foi pedido: a
+     moeda numa pastilha ancorada na borda direita do botão "Renderizar",
+     invisível em repouso e visível no hover. Está no globals.css, em
+     `.cr-custo-tag`, com `opacity: 0` e `:hover { opacity: 1 }`, e o
+     comentário de lá já diz o porquê: "aparece só no hover, não polui o
+     botão em repouso".
+
+     Então a opção 1 abaixo não é proposta, é o retrato do que já roda. As
+     outras três são alternativas a ela.
+
+     ── A CONTA DE VERDADE ──
+     Está no lib/render.js, em CREDITOS:
+
+         prompt  8       cobrado 1x por lote
+         imagem  134     em 1K e em 2K (o Nano Banana cobra igual nas duas)
+                 231     em 4K
+
+     Duas imagens em 2K custam 8 + 134 + 134 = 276. As quatro opções aqui
+     calculam de verdade: mexe na quantidade e na resolução que o número
+     anda.
+
+     ── O QUE NÃO DÁ PARA ESQUECER ──
+     Isto é dinheiro de verdade, e crédito gasto não volta (a não ser quando
+     a geração falha, e aí o servidor estorna). Esconder o preço de uma ação
+     paga atrás de um hover tem um custo real, e no celular não existe hover
+     nenhum. Cada opção abaixo diz o que ela faz no toque.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --turq-txt:#196C5B; --lima-txt:#256B2A; --turq-bg:#E6F7F3;
+  --alerta:#C8342A;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px;
+  --t-titulo:17px; --t-secao:20px; --t-tela:26px;
+  --alt-ctrl:38px; --alt-acao:46px;
+  --t:170ms cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+  --alerta:#F0A9A3;
+  --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+  color-scheme:dark;
+}
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+
+*,*::before,*::after{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+button{ font-family:inherit; cursor:pointer; }
+:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
+::selection{ background:var(--lima); color:#111111; }
+
+/* ══ a página ══ */
+.topo{ max-width:1120px; margin:0 auto; padding:52px 24px 0; }
+.eb{ margin:0; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+h1{ margin:12px 0 0; font-size:clamp(28px,4vw,38px); font-weight:500; letter-spacing:-.033em; line-height:1.1; text-wrap:balance; }
+.lead{ margin:16px 0 0; max-width:62ch; font-size:16px; color:var(--ink2); text-wrap:pretty; }
+.lead b{ color:var(--ink); font-weight:600; }
+
+.conta{
+  margin:22px 0 0; max-width:62ch; padding:16px 20px;
+  border-left:3px solid var(--lima); border-radius:0 var(--r-peq) var(--r-peq) 0;
+  background:var(--paper);
+}
+.conta p{ margin:0; font-size:var(--t-apoio); color:var(--ink2); text-wrap:pretty; }
+.conta p + p{ margin-top:8px; }
+.conta b{ color:var(--ink); font-weight:600; }
+.conta code{ font-family:var(--mono); font-size:12.5px; background:var(--wash2); padding:1px 5px; border-radius:5px; color:var(--ink); }
+
+.grade{
+  max-width:1120px; margin:44px auto 0; padding:0 24px 120px;
+  display:grid; gap:30px; grid-template-columns:1fr; align-items:start;
+}
+@media (min-width:880px){ .grade{ grid-template-columns:repeat(2,1fr); } }
+
+.op{ min-width:0; }
+.op__cab{ display:flex; align-items:baseline; gap:10px; margin-bottom:4px; }
+.op__n{
+  flex:none; width:24px; height:24px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--ink); color:var(--paper);
+  font-size:var(--t-apoio2); font-weight:700; font-variant-numeric:tabular-nums;
+  position:relative; top:2px;
+}
+.op__t{ margin:0; font-size:var(--t-secao); font-weight:500; letter-spacing:-.02em; }
+.op__d{ margin:0 0 14px; max-width:44ch; font-size:var(--t-apoio); color:var(--ink2); text-wrap:pretty; }
+.toque{
+  margin:12px 0 0; max-width:400px; padding-left:16px; position:relative;
+  font-size:var(--t-apoio2); color:var(--ink2); text-wrap:pretty;
+}
+.toque::before{
+  content:""; position:absolute; left:0; top:.55em; width:6px; height:6px;
+  border-radius:50%; background:var(--alerta);
+}
+.toque--ok::before{ background:var(--turquesa-esc); }
+
+/* ══ a barra de baixo, a mesma nas quatro ══ */
+.barra{
+  width:100%; max-width:400px; padding:14px 16px 16px;
+  border:1px solid var(--line); border-radius:var(--r);
+  background:var(--paper);
+}
+.cfg{ display:flex; gap:6px; margin-bottom:10px; }
+.qty{
+  display:flex; align-items:center; gap:2px; flex:none;
+  height:var(--alt-ctrl); padding:0 6px; border-radius:var(--pill); background:var(--wash2);
+}
+.qty button{
+  width:24px; height:24px; padding:0; border:0; border-radius:50%;
+  background:transparent; color:var(--ink2); font-size:var(--t-corpo); line-height:1;
+}
+.qty button:hover:not(:disabled){ background:var(--paper); color:var(--ink); }
+.qty button:disabled{ opacity:.35; cursor:default; }
+.qty span{ min-width:18px; text-align:center; font-size:var(--t-apoio); font-weight:600; font-variant-numeric:tabular-nums; }
+.cfg__b{
+  flex:1; height:var(--alt-ctrl); padding:0 12px; border:0;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-apoio); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.cfg__b:hover{ background:var(--line); color:var(--ink); }
+
+.gerar{
+  position:relative; width:100%; height:var(--alt-acao); border:0;
+  border-radius:var(--pill); background:var(--lima); color:#111111;
+  font-size:var(--t-corpo); font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+  transition:background var(--t);
+}
+.gerar:hover{ background:var(--lima-esc); }
+.num{ font-variant-numeric:tabular-nums; }
+
+/* ══════════════════════════════════════════════════════════════════
+   1 · A MOEDA NO HOVER · o que JÁ EXISTE
+   Copiado do `.cr-custo-tag` do globals.css, medida por medida:
+   ancorada na direita, `opacity: 0` em repouso, 1 no hover. Fica
+   absoluta de propósito, para o rótulo continuar centrado e não pular
+   de lugar quando a moeda entra.
+   ══════════════════════════════════════════════════════════════════ */
+.h1-moeda{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  display:inline-flex; align-items:center; gap:4px; padding:3px 9px;
+  border-radius:var(--pill); background:rgba(0,0,0,.14); color:#111111;
+  font-size:11px; font-weight:600; line-height:1; white-space:nowrap;
+  font-variant-numeric:tabular-nums; pointer-events:none;
+  opacity:0; transition:opacity .15s ease;
+}
+.gerar--h1:hover .h1-moeda,
+.gerar--h1:focus-visible .h1-moeda{ opacity:1; }
+
+/* ══════════════════════════════════════════════════════════════════
+   2 · A PASTILHA DENTRO DO BOTÃO
+   O número mora no botão, encostado na borda direita. Some a linha de
+   baixo inteira, e o preço continua à vista sem pedir hover.
+   ══════════════════════════════════════════════════════════════════ */
+.gerar--h2{ justify-content:space-between; padding:0 8px 0 22px; }
+.h2-tag{
+  flex:none; padding:4px 11px; border-radius:var(--pill);
+  background:rgba(17,17,17,.10); color:#111111;
+  font-size:var(--t-apoio2); font-weight:600; font-variant-numeric:tabular-nums;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   3 · JUNTO DOS CONTROLES
+   O custo é consequência de quantidade e resolução, e aqui ele fica no
+   meio dos dois. Mexeu num, o número ao lado anda.
+   ══════════════════════════════════════════════════════════════════ */
+.h3-tag{
+  flex:none; display:flex; align-items:center; gap:5px;
+  height:var(--alt-ctrl); padding:0 13px; border-radius:var(--pill);
+  background:var(--turq-bg); color:var(--turq-txt);
+  font-size:var(--t-apoio); font-weight:600; font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.h3-tag svg{ flex:none; opacity:.85; }
+
+/* ══════════════════════════════════════════════════════════════════
+   4 · SÓ QUANDO MUDA
+   Calada por padrão. Mexeu na quantidade ou na resolução, a linha entra
+   por três segundos e sai. Ela fala quando tem novidade, e cala quando
+   não tem.
+   ══════════════════════════════════════════════════════════════════ */
+.h4-linha{
+  overflow:hidden; height:0; opacity:0;
+  transition:height .22s cubic-bezier(.16,1,.3,1), opacity .22s;
+}
+.h4-linha[data-mostra="sim"]{ height:26px; opacity:1; }
+.h4-linha p{
+  margin:8px 0 0; text-align:center; font-size:var(--t-apoio2); color:var(--ink3);
+}
+.h4-linha b{
+  display:inline-block; padding:1px 9px; border-radius:var(--pill);
+  background:var(--turq-bg); color:var(--turq-txt); font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ══ hoje, a referência ══ */
+.hoje{ max-width:1120px; margin:36px auto 0; padding:0 24px; }
+.hoje__cab{ display:flex; align-items:baseline; gap:10px; margin-bottom:4px; }
+.hoje__t{ margin:0; font-size:var(--t-secao); font-weight:500; letter-spacing:-.02em; color:var(--ink2); }
+.hoje__sel{
+  padding:1px 9px; border-radius:var(--pill); background:var(--wash2);
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.hoje__custo{ margin:8px 0 0; text-align:center; font-size:var(--t-apoio2); color:var(--ink3); }
+.hoje__custo b{
+  display:inline-block; padding:1px 9px; border-radius:var(--pill);
+  background:var(--turq-bg); color:var(--turq-txt); font-weight:600; font-variant-numeric:tabular-nums;
+}
+
+/* ══ o fecho ══ */
+.fecho{ max-width:1120px; margin:0 auto; padding:0 24px 130px; }
+.fecho h2{ margin:0 0 8px; font-size:var(--t-tela); font-weight:500; letter-spacing:-.028em; }
+.fecho p{ margin:0 0 12px; max-width:66ch; color:var(--ink2); text-wrap:pretty; }
+.fecho p b{ color:var(--ink); font-weight:600; }
+
+/* ══ a barra de tema ══ */
+.tema{
+  position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:200;
+  display:flex; gap:4px; padding:5px; border-radius:var(--pill);
+  background:#111111; box-shadow:0 12px 34px rgba(0,0,0,.34);
+}
+.tema button{
+  height:32px; padding:0 15px; border:0; border-radius:var(--pill);
+  background:transparent; color:#B6B5AE; font-size:var(--t-apoio); font-weight:500;
+}
+.tema button.on{ background:#F2F2EF; color:#111111; font-weight:600; }
+</style>
+
+<div class="topo">
+  <p class="eb">Cora Render · a barra de baixo</p>
+  <h1>Onde o custo aparece</h1>
+  <p class="lead">Antes das quatro, uma correção minha: <b>a frase de custo
+    embaixo do botão nunca existiu no site.</b> Eu inventei ela no estudo do
+    painel, e o número junto. O Cora já mostra a moeda no hover do
+    "Renderizar", que é o que tu pediu. A opção 1 aqui é o retrato do que já
+    roda, e as outras três são alternativas a ela.</p>
+  <p class="lead"><b>Mexe na quantidade e na resolução</b> das quatro, que o
+    número anda de verdade em todas.</p>
+
+  <div class="conta">
+    <p><b>A conta é a de verdade,</b> a do <code>lib/render.js</code>: 8 de
+      prompt por lote, mais 134 por imagem em 1K e em 2K, mais 231 por imagem
+      em 4K. O Nano Banana cobra igual em 1K e 2K, e só o 4K sai mais caro no
+      provedor.</p>
+    <p>Duas imagens em 2K dão <code>8 + 134 + 134 = 276</code>. É a mesma
+      conta do <code>custoRender()</code>, que é quem alimenta a pastilha no
+      site.</p>
+  </div>
+</div>
+
+<div class="hoje">
+  <div class="hoje__cab">
+    <h2 class="hoje__t">Como está hoje</h2>
+    <span class="hoje__sel">referência</span>
+  </div>
+  <div class="barra">
+    <div class="cfg">
+      <div class="qty"><button disabled>−</button><span>2</span><button>+</button></div>
+      <button class="cfg__b">4:5</button>
+      <button class="cfg__b">2K</button>
+    </div>
+    <button class="gerar gerar--h1">
+      Renderizar
+      <span class="h1-moeda">
+        <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.3"/><path d="M8 4.6v6.8M6 6.4h3.2a1.4 1.4 0 010 2.8H6.6a1.4 1.4 0 000 2.8H10" stroke-linecap="round"/></svg>
+        276
+      </span>
+    </button>
+    <p class="hoje__custo">Passa o mouse no botão. É assim que ele já é.</p>
+  </div>
+</div>
+
+<div class="grade">
+
+  <!-- ══════════ 1 ══════════ -->
+  <section class="op" data-op="h1">
+    <div class="op__cab"><span class="op__n">1</span><h2 class="op__t">A moeda no hover</h2></div>
+    <p class="op__d"><b>É o que já está no ar.</b> Parado, só "Renderizar". Com
+      o mouse em cima, a moeda aparece na borda direita. Copiado do
+      <code style="font-family:var(--mono);font-size:12px">.cr-custo-tag</code>
+      do site, medida por medida.</p>
+
+    <div class="barra">
+      <div class="cfg">
+        <div class="qty"><button data-menos>−</button><span data-qtd>2</span><button data-mais>+</button></div>
+        <button class="cfg__b">4:5</button>
+        <button class="cfg__b" data-res>2K</button>
+      </div>
+      <button class="gerar gerar--h1">
+        Renderizar
+        <span class="h1-moeda">
+          <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.3"/><path d="M8 4.6v6.8M6 6.4h3.2a1.4 1.4 0 010 2.8H6.6a1.4 1.4 0 000 2.8H10" stroke-linecap="round"/></svg>
+          <span class="num" data-custo>276</span>
+        </span>
+      </button>
+    </div>
+
+    <p class="toque">No celular não existe hover, e a moeda fica invisível o
+      tempo todo. É o único buraco de verdade nela, e ele se fecha com três
+      linhas: dentro de um <code style="font-family:var(--mono);font-size:12px">@media (pointer: coarse)</code>,
+      a moeda nasce com <code style="font-family:var(--mono);font-size:12px">opacity: 1</code>.</p>
+  </section>
+
+  <!-- ══════════ 2 ══════════ -->
+  <section class="op" data-op="h2">
+    <div class="op__cab"><span class="op__n">2</span><h2 class="op__t">A pastilha dentro do botão</h2></div>
+    <p class="op__d">O número mora no botão, encostado na borda direita. Some a
+      linha de baixo inteira, e o preço continua à vista sem pedir gesto
+      nenhum.</p>
+
+    <div class="barra">
+      <div class="cfg">
+        <div class="qty"><button data-menos>−</button><span data-qtd>2</span><button data-mais>+</button></div>
+        <button class="cfg__b">4:5</button>
+        <button class="cfg__b" data-res>2K</button>
+      </div>
+      <button class="gerar gerar--h2">
+        <span>Renderizar</span>
+        <span class="h2-tag num" data-custo>276</span>
+      </button>
+    </div>
+
+    <p class="toque toque--ok">Funciona igual no toque e no mouse. O que ela
+      perde é a palavra "créditos": sobra o número sozinho, e quem entra pela
+      primeira vez pode ler como quantidade de imagens.</p>
+  </section>
+
+  <!-- ══════════ 3 ══════════ -->
+  <section class="op" data-op="h3">
+    <div class="op__cab"><span class="op__n">3</span><h2 class="op__t">Junto dos controles</h2></div>
+    <p class="op__d">O custo é consequência da quantidade e da resolução, e
+      aqui ele fica no meio dos dois. Mexeu num, o número ao lado anda, e a
+      causa fica à vista.</p>
+
+    <div class="barra">
+      <div class="cfg">
+        <div class="qty"><button data-menos>−</button><span data-qtd>2</span><button data-mais>+</button></div>
+        <button class="cfg__b" data-res>2K</button>
+        <span class="h3-tag">
+          <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.3"/><path d="M8 4.6v6.8M6 6.4h3.2a1.4 1.4 0 010 2.8H6.6a1.4 1.4 0 000 2.8H10" stroke-linecap="round"/></svg>
+          <span class="num" data-custo>276</span>
+        </span>
+      </div>
+      <button class="gerar">Renderizar</button>
+    </div>
+
+    <p class="toque">A proporção teve que sair da linha para o custo caber. Ela
+      viraria um terceiro item numa segunda linha, ou um ícone sem rótulo, e
+      nenhuma das duas saídas é de graça.</p>
+  </section>
+
+  <!-- ══════════ 4 ══════════ -->
+  <section class="op" data-op="h4">
+    <div class="op__cab"><span class="op__n">4</span><h2 class="op__t">Só quando muda</h2></div>
+    <p class="op__d">Calada por padrão. Mexeu na quantidade ou na resolução, a
+      linha entra por três segundos e sai. Ela fala quando tem novidade, e cala
+      quando não tem.</p>
+
+    <div class="barra">
+      <div class="cfg">
+        <div class="qty"><button data-menos>−</button><span data-qtd>2</span><button data-mais>+</button></div>
+        <button class="cfg__b">4:5</button>
+        <button class="cfg__b" data-res>2K</button>
+      </div>
+      <button class="gerar">Renderizar</button>
+      <div class="h4-linha" data-linha data-mostra="nao">
+        <p>Passou para <b class="num" data-custo>276</b> créditos</p>
+      </div>
+    </div>
+
+    <p class="toque">Quem abre o painel e não mexe em nada nunca vê o preço.
+      Para uma tela onde a configuração vem salva da última vez, esse é o caso
+      mais comum, e não o mais raro.</p>
+  </section>
+</div>
+
+<div class="fecho">
+  <h2>O que eu faria</h2>
+  <p><b>Ficar com a 1, que já é o que roda, e fechar o buraco do toque.</b> Tu
+    pediu a moeda no hover, e ela já está lá desde antes desta conversa. O que
+    falta é o celular: sem hover, hoje o preço não aparece nunca. Três linhas
+    de CSS resolvem, e a pastilha passa a nascer visível onde não existe
+    ponteiro fino.</p>
+  <p>A <b>2</b> é a mesma peça sem depender de gesto nenhum, e é para onde eu
+    iria se o toque virasse o uso principal. O que ela cobra é a moeda sempre
+    à vista, que foi o que o comentário do código chamou de "poluir o botão em
+    repouso".</p>
+  <p>A <b>3</b> é a que mais ensina, porque põe causa e efeito lado a lado: o
+    número anda no mesmo lugar onde se mexe na quantidade. Mas ela empurra a
+    proporção para fora da linha, e isso só compensa se a proporção sair da
+    barra e virar linha da ficha.</p>
+  <p>A <b>4</b> tem o defeito mais sério: quem abre o painel e não mexe em nada
+    nunca vê o preço, e a configuração vem salva da última vez. É a que mais
+    depende de a pessoa já saber o que está fazendo.</p>
+</div>
+
+<div class="tema">
+  <button class="on" data-tema="light">Claro</button>
+  <button data-tema="dark">Escuro</button>
+</div>
+
+<script>
+  // ── tema ──
+  document.querySelectorAll('.tema [data-tema]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.tema [data-tema]').forEach(function (o) { o.classList.remove('on'); });
+      b.classList.add('on');
+      document.documentElement.setAttribute('data-theme', b.dataset.tema);
+    });
+  });
+
+  // ── a conta ──
+  // A mesma do lib/render.js. Se um dia ela mudar lá, muda aqui: mostrar um
+  // preço e cobrar outro é o pior defeito possível numa tela de cobrança.
+  var CREDITOS = { prompt: 8, imagem: { '1K': 134, '2K': 134, '4K': 231 } };
+  function conta(qtd, res) { return CREDITOS.prompt + qtd * CREDITOS.imagem[res]; }
+
+  var RES = ['1K', '2K', '4K'];
+
+  document.querySelectorAll('.op').forEach(function (op) {
+    var estado = { qtd: 2, res: '2K' };
+    var elQtd = op.querySelector('[data-qtd]');
+    var elRes = op.querySelector('[data-res]');
+    var linha = op.querySelector('[data-linha]');
+    var timer = null;
+
+    function pinta(mudou) {
+      elQtd.textContent = estado.qtd;
+      if (elRes) elRes.textContent = estado.res;
+      op.querySelectorAll('[data-custo]').forEach(function (c) {
+        c.textContent = conta(estado.qtd, estado.res).toLocaleString('pt-BR');
+      });
+      op.querySelector('[data-menos]').disabled = estado.qtd <= 1;
+      op.querySelector('[data-mais]').disabled = estado.qtd >= 4;
+
+      // A opção 4 fala só quando o número anda, e cala sozinha depois.
+      if (linha && mudou) {
+        linha.setAttribute('data-mostra', 'sim');
+        clearTimeout(timer);
+        timer = setTimeout(function () { linha.setAttribute('data-mostra', 'nao'); }, 3000);
+      }
+    }
+
+    op.querySelector('[data-menos]').addEventListener('click', function () {
+      if (estado.qtd > 1) { estado.qtd--; pinta(true); }
+    });
+    op.querySelector('[data-mais]').addEventListener('click', function () {
+      if (estado.qtd < 4) { estado.qtd++; pinta(true); }
+    });
+    if (elRes) elRes.addEventListener('click', function () {
+      estado.res = RES[(RES.indexOf(estado.res) + 1) % RES.length];
+      pinta(true);
+    });
+
+    pinta(false);
+  });
+</script>

@@ -1381,12 +1381,17 @@ export default function AppPage() {
                   </svg>
                 </button>
 
+                {/* `quantos` e `total`: o pé do painel diz quantas imagens
+                    sobram com o filtro que está montado. Sem o número, "Ver
+                    resultados" é um botão que pede fé. */}
                 <Filtros
                   aberto={painelFiltros}
                   valor={avancados}
                   onMudar={setAvancados}
                   onLimpar={() => setAvancados({})}
                   onFechar={() => setPainelFiltros(false)}
+                  quantos={lotesVisiveis.reduce((n, l) => n + l.itens.length, 0)}
+                  total={lotes.reduce((n, l) => n + l.itens.length, 0)}
                 />
               </div>
 
