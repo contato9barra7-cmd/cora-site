@@ -764,6 +764,7 @@ export default function PainelAnimacao({
   }
 
   return (
+    <>
     <div className="up-painel">
 
       {/* ── Seletor Animação / Sequências (fixo no topo) ── */}
@@ -915,14 +916,6 @@ export default function PainelAnimacao({
       </section>
 
       {erro && <p className="up-erro">{erro}</p>}
-
-      {/* ── Gerar ── */}
-      <button className="cr-btn-gerar up-gerar" onClick={gerar} disabled={!inicio || !modelo}>
-        <span>{t('painelanimacao_gerar_animacao')}</span>
-        {inicio && modelo && custo > 0 && (
-          <span className="cr-custo-tag"><IconeCredito /> {custo}</span>
-        )}
-      </button>
 
       </>)}
 
@@ -1404,5 +1397,19 @@ export default function PainelAnimacao({
         }}
       />
     </div>
+
+      {/* ── Gerar: no pé do painel, como no Render. Só a animação simples
+          tem barra: nas sequências cada etapa tem o seu botão no lugar. ── */}
+      {secao === 'animacao' && (
+        <div className="cr-barra-ger">
+          <button className="cr-btn-gerar up-gerar" onClick={gerar} disabled={!inicio || !modelo}>
+            <span>{t('painelanimacao_gerar_animacao')}</span>
+            {inicio && modelo && custo > 0 && (
+              <span className="cr-custo-tag"><IconeCredito /> {custo}</span>
+            )}
+          </button>
+        </div>
+      )}
+    </>
   );
 }

@@ -897,9 +897,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
             </p>
           </>
         )}
-      </div>
-
-      {/* Recomeçar do zero, depois da barra e não antes dela. Pede
+      {/* Recomeçar do zero, no pé da barra e não antes dela. Pede
           confirmação: a análise custou créditos. Travado durante a geração,
           porque resetar no meio deixaria o `gerar` rodando com cenas que já
           não existem. */}
@@ -910,6 +908,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
       >
         {t('painelbatch_resetar_cfg')}
       </button>
+      </div>
 
       <PickerImagem
         aberto={picker !== null}

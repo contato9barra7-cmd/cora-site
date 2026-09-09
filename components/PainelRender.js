@@ -952,9 +952,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
               : t('painelrender_leia_materiais')}
           </p>
         )}
-      </div>
-
-      {/* Recomeçar do zero, depois da barra e não antes dela. Recomeçar é a
+      {/* Recomeçar do zero, no pé da barra e não antes dela. Recomeçar é a
           última coisa que se faz, e estava no meio da tela. Pede confirmação: os
           materiais lidos custaram créditos, e apagá-los sem querer é perder
           dinheiro. */}
@@ -965,6 +963,7 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
       >
         {t('painelrender_resetar_config')}
       </button>
+      </div>
 
       <PickerImagem
         aberto={picker !== null}

@@ -1154,7 +1154,7 @@ export default function AppPage() {
               escreveu, tudo sumia ao trocar de aba e voltar.
 
               `hidden` esconde sem desmontar. O estado sobrevive. */}
-          <div hidden={ferramenta !== 'render'}>
+          <div className="cr-aba" hidden={ferramenta !== 'render'}>
             <PainelRender
               leituraInicial={leituraDeOutraAba?.destino === 'render' ? leituraDeOutraAba : null}
               refazer={refazer}
@@ -1169,7 +1169,7 @@ export default function AppPage() {
             />
           </div>
 
-          <div hidden={ferramenta !== 'batch'}>
+          <div className="cr-aba" hidden={ferramenta !== 'batch'}>
             <PainelBatch
               leituraInicial={leituraDeOutraAba?.destino === 'batch' ? leituraDeOutraAba : null}
               aprovadas={aprovadas}
@@ -1218,7 +1218,7 @@ export default function AppPage() {
             />
           )}
 
-          <div hidden={ferramenta !== 'editar' || !!pincel}>
+          <div className="cr-aba" hidden={ferramenta !== 'editar' || !!pincel}>
             <PainelEditar
               imagemInicial={imagemDeOutraAba?.para === 'editar' ? imagemDeOutraAba : null}
               ferramentas={conta?.ferramentas || []}
@@ -1241,7 +1241,7 @@ export default function AppPage() {
             />
           </div>
 
-          <div hidden={ferramenta !== 'planta'}>
+          <div className="cr-aba" hidden={ferramenta !== 'planta'}>
             <PainelPlanta
               ocupado={ocupado}
               setOcupado={marcarOcupado}
@@ -1255,10 +1255,11 @@ export default function AppPage() {
           </div>
 
           {ferramenta === 'analises' && (
-            <PainelAnalises onUsar={usarLeitura} />
+            <div className="cr-aba"><PainelAnalises onUsar={usarLeitura} /></div>
           )}
 
           {ferramenta === 'animacao' && (
+            <div className="cr-aba">
             <PainelAnimacao
               imagemInicial={imagemDeOutraAba?.para === 'animacao' ? imagemDeOutraAba : null}
               ehAdmin={ehAdmin}
@@ -1278,9 +1279,11 @@ export default function AppPage() {
               abrirNarrativaId={abrirNarrId}
               onNarrativaAberta={() => setAbrirNarrId(null)}
             />
+            </div>
           )}
 
           {ferramenta === 'upscale' && (
+            <div className="cr-aba">
             <PainelUpscale
               imagemInicial={imagemDeOutraAba?.para === 'upscale' ? imagemDeOutraAba : null}
               ehAdmin={ehAdmin}
@@ -1288,13 +1291,14 @@ export default function AppPage() {
               onIniciar={(base, prop) => iniciarGeracaoAtiva(base, t('app_fazendo_upscale'), prop)}
               onTerminar={(id) => { terminarGeracaoAtiva(id); recarregarComFolga(); }}
             />
+            </div>
           )}
 
           {ferramenta !== 'render' && ferramenta !== 'batch' &&
            ferramenta !== 'editar' && ferramenta !== 'analises' &&
            ferramenta !== 'planta' &&
            ferramenta !== 'upscale' && ferramenta !== 'animacao' && (
-            <div className="cr-painel-vazio">
+            <div className="cr-aba cr-painel-vazio">
               <p>{t('app_aba_prefixo')}{ferramenta}{t('app_aba_sufixo')}</p>
             </div>
           )}

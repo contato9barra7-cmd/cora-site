@@ -530,10 +530,24 @@
 /* ══════════════════════════════════════════════════════════════════════
    A BARRA DE BAIXO
    ══════════════════════════════════════════════════════════════════════ */
+/* ── O pé fixo ──
+   Cada aba é uma coluna que preenche o corpo do painel: o formulário ocupa
+   o que sobra e a barra de gerar fica presa no fim, no mesmo lugar em toda
+   aba, com o formulário rolando por baixo dela. É o espelho do feed, que
+   tem a barra parada em cima e a lista rolando embaixo. */
+.cr-aba{ display:flex; flex-direction:column; flex:1 0 auto; }
+/* O `hidden` é do navegador e perde para qualquer `display` de autor: sem
+   esta linha as quatro abas montadas apareceriam ao mesmo tempo. */
+.cr-aba[hidden]{ display:none; }
+.cr-aba > .cr-form, .cr-aba > .up-painel{ flex:1 0 auto; }
 .cr-barra-ger{
   flex:none; padding:12px 16px 14px;
   border-top:1px solid var(--line); background:var(--paper);
+  position:sticky; bottom:0; z-index:5;
 }
+/* O Resetar mora na barra, depois do botão: é a última coisa que se faz. */
+.cr-barra-ger .cr-resetar{ margin:12px auto 0; }
+.cr-barra-ger .up-gerar{ margin-top:0; }
 .cr-pills-cfg{ display:flex; gap:6px; margin-bottom:10px; }
 
 /* ── A verificação do Batch, em ficha ──
@@ -1458,6 +1472,7 @@
           </div>
 
           <div class="cr-painel-corpo">
+          <div class="cr-aba">
           <div class="cr-form">
             <p class="cr-sec">Imagem do modelo</p>
             <div class="cr-base">
@@ -1562,6 +1577,7 @@
             </div>
             <button class="cr-btn-gerar">Renderizar</button>
             <p class="cr-custo">Custa <span class="cr-custo-tag">116 créditos</span> e você tem 11.600</p>
+          </div>
           </div>
           </div>
         </div>

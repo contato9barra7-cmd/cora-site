@@ -174,6 +174,7 @@ export default function PainelUpscale({
   }
 
   return (
+    <>
     <div className="up-painel">
 
       {/* ── A imagem ── */}
@@ -310,13 +311,17 @@ export default function PainelUpscale({
         </p>
       )}
 
-      {/* ── Gerar ── */}
+    </div>
+
+      {/* ── Gerar: no pé do painel, como no Render ── */}
+      <div className="cr-barra-ger">
       <button className="cr-btn-gerar up-gerar" onClick={gerar} disabled={!base}>
         <span>{t('painelupscale_btn_upscale')}</span>
         {base && (
           <span className="cr-custo-tag"><IconeCredito /> {custo}</span>
         )}
       </button>
+      </div>
 
       <PickerImagem
         aberto={picker}
@@ -345,6 +350,6 @@ export default function PainelUpscale({
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
