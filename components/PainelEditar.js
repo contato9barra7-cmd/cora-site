@@ -437,10 +437,7 @@ export default function PainelEditar({
                         <ItemLista
                           key={o}
                           marcada={escolhas[c.chave] === o}
-                          onClick={() => {
-                            setEsc((s) => ({ ...s, [c.chave]: o }));
-                            setLinhaAberta(null);
-                          }}
+                          onClick={() => setEsc((s) => ({ ...s, [c.chave]: o }))}
                         >{t(o)}</ItemLista>
                       ))}
                     </Lista>

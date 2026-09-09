@@ -226,10 +226,11 @@
 }.co .cr-ref:hover .cr-ref-x{ opacity:1; }/* ── Editar e Seguir assim: um par, com a mesma medida ──
    O `.cr-b` cresce por `min-height` e o `.cr-b-conf` do globals tinha 34px
    fixos: um saía mais baixo que o outro, e com letra de outro tamanho. *//* Lado a lado: são dois caminhos para a mesma coisa, e um debaixo do outro
-   eles liam como dois passos. Sozinho, um deles ocupa a linha toda. */.co .cr-mat-acoes{ margin-top:8px; display:flex; gap:8px; }.co .cr-mat-acoes > *{ flex:1 1 0; min-width:0; }.co .cr-mat-acoes .cr-b, .co .cr-mat-acoes .cr-b-conf{
+   eles liam como dois passos. Sozinho, um deles ocupa a linha toda. */.co .cr-mat-acoes{ margin-top:8px; display:flex; gap:8px; }.co .cr-mat-acoes > .cr-b, .co .cr-mat-acoes > .cr-b-conf, .co .cr-mat-acoes > .cr-b-ler{ flex:1 1 0; min-width:0; }/* Os três da caixa de materiais na mesma altura e na mesma letra: o de ler
+   não é `.cr-b` e ficava 8px mais alto que o vizinho. */.co .cr-mat-acoes .cr-b, .co .cr-mat-acoes .cr-b-conf, .co .cr-mat-acoes .cr-b-ler{
   height:var(--alt-ctrl); min-height:0; padding:0 12px;
   font-size:var(--t-apoio2); line-height:1;
-}.co .cr-b-conf{
+}.co .cr-mat-acoes .cr-b-ler{ width:auto; }.co .cr-b-conf{
   border:0; border-radius:var(--pill); background:var(--lima); color:#111111;
   font-weight:600; cursor:pointer; transition:background var(--t);
 }.co .cr-b-conf:hover{ background:var(--lima-esc); opacity:1; }/* ── Resetar: ação de texto, e a última da coluna ──
@@ -574,26 +575,14 @@
   transition:border-color var(--t), box-shadow var(--t);
 }.co .cmp__b:hover{ border-color:var(--ink3); }.co .cmp__b:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }.co .cmp[data-aberta="sim"] .cmp__b{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }.co .cmp__val{
   flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-}.co .cmp__val[data-vazio="sim"]{ color:var(--ink3); font-weight:400; }.co .cmp__seta{ flex:none; width:15px; height:15px; color:var(--ink3); transition:transform var(--t); }.co .cmp[data-aberta="sim"] .cmp__seta{ transform:rotate(180deg); }.co .cmp__corpo{ padding:10px 0 2px; }/* Um grupo só de campos não leva o fio de topo: cada campo já se fecha na
+}.co .cmp__val[data-vazio="sim"]{ color:var(--ink3); font-weight:400; }.co .cmp__seta{ flex:none; width:15px; height:15px; color:var(--ink3); transition:transform var(--t); }.co .cmp[data-aberta="sim"] .cmp__seta{ transform:rotate(180deg); }/* Só a sub-linha do Batch abre por dentro (`inline`): o resto abre o cartão
+   flutuante, que mora no globals porque nasce no body. */.co .cmp__corpo{ padding:10px 0 2px; }/* Um grupo só de campos não leva o fio de topo: cada campo já se fecha na
    própria caixa, e o fio ali em cima virava a borda de uma caixa maior. */.co .fic:has(> .cmp){ border-top:0; margin-top:20px; }.co .fic--solta:has(> .cmp){ margin-top:16px; }.co .fic:has(> .cmp) + .cr-sec{ margin-top:22px; }.co .fic__l[data-aberta="sim"] .fic__corpo{ display:block; }/* ══════════════════════════════════════════════════════════════════
    A LISTA COM MARCADOR
    Quadrado marca vários, círculo marca uma. É a convenção que todo
    mundo já leu em papel, e ela diz sozinha quantas dá para escolher,
    sem precisar de uma frase embaixo explicando.
-   ══════════════════════════════════════════════════════════════════ */.co .lista{ display:flex; flex-direction:column; }.co .lista__b{
-  display:flex; align-items:center; gap:11px; width:100%; padding:8px 10px;
-  border:0; border-radius:9px; background:none; text-align:left;
-  font-size:var(--t-apoio); color:var(--ink2); font-weight:500;
-  transition:background var(--t), color var(--t);
-}.co .lista__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink); }.co .lista__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }.co .lista__m{
-  flex:none; width:17px; height:17px; border-radius:5px;
-  display:flex; align-items:center; justify-content:center;
-  background:var(--wash2); color:transparent;
-  box-shadow:inset 0 0 0 1px var(--line2);
-  transition:background var(--t), color var(--t), box-shadow var(--t);
-}.co .lista--uma .lista__m{ border-radius:50%; }.co .lista__b[aria-checked="true"] .lista__m{
-  background:var(--turquesa); color:#111111; box-shadow:inset 0 0 0 1px var(--turquesa-esc);
-}/* ══════════════════════════════════════════════════════════════════
+   ══════════════════════════════════════════════════════════════════ *//* ══════════════════════════════════════════════════════════════════
    O SULCO · só para escolher a família dentro do grupo
    ══════════════════════════════════════════════════════════════════ */.co .sul{ display:flex; gap:2px; padding:3px; border-radius:var(--pill); background:var(--wash2); }.co .sul__b{
   flex:1; min-width:0; height:28px; padding:0 6px; border:0; border-radius:var(--pill);

@@ -733,6 +733,7 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                             ela dobrava a altura de toda cena. */}
                         <div className="fic bc__sub">
                           <Linha
+                            inline
                             nome={t('painelbatch_refs_cena')}
                             valor={nRefs ? `${nRefs} ${nRefs === 1 ? t('painelbatch_imagem') : t('painelbatch_imagens')}` : ''}
                             vazio={t('painelbatch_nenhuma')}

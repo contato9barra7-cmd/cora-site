@@ -1,5 +1,8 @@
 'use client';
 
+import { useState, useRef, useEffect, createContext, useContext } from 'react';
+import { createPortal } from 'react-dom';
+
 // ═══════════════════════════════════════════════════════════
 //  A ficha do painel, e as peças que ela usa
 //
@@ -40,13 +43,6 @@ const CHECK = (
       <path d="M3 8.4l3.4 3.4L13 4.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   </span>
-);
-
-const TIQUE = (
-  <svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor"
-       strokeWidth="2.4" aria-hidden="true">
-    <path d="M2 6.3l2.6 2.6L10 3.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
 );
 
 // ── A cor do céu de cada hora ──
@@ -110,17 +106,97 @@ export const KELVIN = {
 };
 
 // ═══════════════════════════════════════════════════════════
-//  A linha
+//  O campo
+//
+//  Rótulo em cima, caixa larga embaixo, e ao abrir o MESMO cartão flutuante
+//  do dropdown da Planta baixa: ele nasce em `document.body`, com posição
+//  medida a partir da caixa, e por isso nunca é cortado pelo formulário,
+//  que rola. Fecha ao clicar fora, ao rolar o painel e ao redimensionar,
+//  que é o que o DropdownCora faz.
+//
+//  Quem decide se ele está aberto é o pai (`aberta` + `aoAbrir`, um
+//  alternador): assim uma aba abre um campo por vez. O `fechar` do contexto
+//  é o que a lista de escolha única chama depois de escolher.
+//
+//  O cartão leva a classe `co` na raiz: as amostras e o sulco vivem na
+//  folha escopada da janela, e o `body` está fora dela.
 // ═══════════════════════════════════════════════════════════
-export function Linha({ nome, valor, vazio, aberta, aoAbrir, children }) {
+const CtxCampo = createContext({ fechar: () => {} });
+const CtxLista = createContext({ uma: false });
+
+export function Linha({ nome, valor, vazio, aberta, aoAbrir, inline, children }) {
+  const ref = useRef(null);
+  const popRef = useRef(null);
+  const [pos, setPos] = useState(null);
+
+  // Mede antes de abrir, para não piscar. Se não cabe embaixo, abre em cima.
+  function medir() {
+    if (!ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    // A altura de LAYOUT, e não `innerHeight`: numa janela emulada os dois
+    // divergem, e o cartão nascia com `bottom` negativo, fora da tela.
+    const vh = document.documentElement.clientHeight || window.innerHeight;
+    const abaixo = vh - r.bottom - 12;
+    const acima = r.top - 12;
+    if (abaixo >= 240 || abaixo >= acima) {
+      setPos({ left: r.left, width: r.width, top: r.bottom + 6, maxHeight: Math.max(160, Math.min(480, abaixo)) });
+    } else {
+      setPos({ left: r.left, width: r.width, bottom: vh - r.top + 6, maxHeight: Math.max(160, Math.min(480, acima)) });
+    }
+  }
+  function alternar() { if (!aberta) medir(); aoAbrir(); }
+  const fechar = () => { if (aberta) aoAbrir(); };
+
+  useEffect(() => {
+    if (!aberta || inline) return;
+    medir();
+    function fora(e) {
+      if (ref.current && ref.current.contains(e.target)) return;
+      if (popRef.current && popRef.current.contains(e.target)) return;
+      aoAbrir();
+    }
+    // Rolar o painel fecha: o cartão é fixo e não acompanharia. Rolar
+    // DENTRO do cartão não fecha.
+    function aoRolar(e) {
+      if (popRef.current && popRef.current.contains(e.target)) return;
+      aoAbrir();
+    }
+    function aoRedimensionar() { aoAbrir(); }
+    document.addEventListener('mousedown', fora);
+    window.addEventListener('scroll', aoRolar, true);
+    window.addEventListener('resize', aoRedimensionar);
+    return () => {
+      document.removeEventListener('mousedown', fora);
+      window.removeEventListener('scroll', aoRolar, true);
+      window.removeEventListener('resize', aoRedimensionar);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aberta, inline]);
+
+  const corpo = <CtxCampo.Provider value={{ fechar }}>{children}</CtxCampo.Provider>;
+
   return (
-    <div className="cmp" data-aberta={aberta ? 'sim' : 'nao'}>
+    <div className="cmp" data-aberta={aberta ? 'sim' : 'nao'} ref={ref}>
       <span className="cmp__rot">{nome}</span>
-      <button type="button" className="cmp__b" onClick={aoAbrir} aria-expanded={aberta}>
+      <button type="button" className="cmp__b" onClick={alternar} aria-haspopup="listbox" aria-expanded={aberta}>
         <span className="cmp__val" data-vazio={valor ? 'nao' : 'sim'}>{valor || vazio}</span>
         {SETA}
       </button>
-      {aberta && <div className="cmp__corpo">{children}</div>}
+      {aberta && inline && <div className="cmp__corpo">{corpo}</div>}
+      {aberta && !inline && pos && typeof document !== 'undefined' && createPortal(
+        <div
+          ref={popRef}
+          className="co cmp__pop cora-dd-lista cora-dd-lista--portal"
+          style={{
+            position: 'fixed', left: pos.left, width: pos.width, right: 'auto',
+            top: pos.top, bottom: pos.bottom, maxHeight: pos.maxHeight
+          }}
+          role="listbox"
+        >
+          {corpo}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
@@ -149,26 +225,59 @@ export function Amostra({ fundo, planta, marcada, onClick, children }) {
   );
 }
 
-// ── A lista com marcador ──
-// Quadrado marca vários, círculo marca uma. É a convenção que todo mundo já
-// leu em papel, e ela diz sozinha quantas dá para escolher, sem precisar de
-// uma frase embaixo explicando.
+// ── A lista de palavras ──
+// As MESMAS opções do dropdown da Planta baixa, com as classes do globals:
+// escolha única leva o texto à esquerda e o tique à direita (DropdownCora);
+// várias levam a caixinha à esquerda (DropdownMulti). A linha escolhida fica
+// turquesa nas duas. Única fecha ao escolher, várias ficam abertas.
 export function Lista({ uma, children }) {
-  return <div className={'lista' + (uma ? ' lista--uma' : '')}>{children}</div>;
+  return (
+    <CtxLista.Provider value={{ uma: !!uma }}>
+      <div className={'cmp__lista' + (uma ? ' cmp__lista--uma' : '')}>{children}</div>
+    </CtxLista.Provider>
+  );
 }
 
 export function ItemLista({ marcada, onClick, children }) {
+  const { uma } = useContext(CtxLista);
+  const { fechar } = useContext(CtxCampo);
+  if (uma) {
+    return (
+      <div
+        className={'cora-dd-opt' + (marcada ? ' cora-dd-opt--sel' : '')}
+        role="option"
+        aria-selected={!!marcada}
+        tabIndex={0}
+        onClick={() => { onClick(); fechar(); }}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); fechar(); } }}
+      >
+        <span>{children}</span>
+        <svg className="cora-dd-tique" viewBox="0 0 16 16" fill="none"
+             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="m3 8.5 3.5 3.5L13 5" />
+        </svg>
+      </div>
+    );
+  }
   return (
-    <button
-      type="button"
-      className="lista__b"
-      aria-checked={marcada}
-      role="checkbox"
+    <div
+      className={'cora-dd-opt cora-dd-opt--multi' + (marcada ? ' cora-dd-opt--sel' : '')}
+      role="option"
+      aria-selected={!!marcada}
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
     >
-      <span className="lista__m">{TIQUE}</span>
+      <span className="cora-dd-check" aria-hidden="true">
+        {marcada && (
+          <svg viewBox="0 0 16 16" width="10" height="10" fill="none"
+               stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="2,8 6,12 14,4" />
+          </svg>
+        )}
+      </span>
       {children}
-    </button>
+    </div>
   );
 }
 

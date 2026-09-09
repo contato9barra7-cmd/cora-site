@@ -12209,6 +12209,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .cora-dd-opt--sel .cora-dd-tique { opacity: 1; }
 /* Lista no portal (fixed em document.body) — acima de painéis/overlays */
 .cora-dd-lista--portal { z-index: 9999; }
+/* O cartão que o campo da janela (Render, Editar, Batch) abre: é ESTE
+   cartão, com um respiro a mais para as amostras de céu e de direção, que
+   são grades e não linhas. Ele nasce no body, por isso mora aqui. */
+.cmp__pop { padding: 8px; }
+.cmp__pop .cmp__lista { display: flex; flex-direction: column; gap: 1px; }
+.cmp__pop .cora-dd-opt { outline: none; }
+.cmp__pop .cora-dd-opt:focus-visible { box-shadow: inset 0 0 0 2px var(--turquesa-esc); }
 
 /* Placeholder do gatilho (multi sem nada marcado) */
 .cora-dd-ph { color: var(--ink3); }
