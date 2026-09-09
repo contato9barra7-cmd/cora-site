@@ -476,9 +476,10 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
         {/* Já leu esta imagem antes, ou tem o texto à mão? Abre o campo sem
             gastar créditos. A aba Análises guarda as leituras antigas. */}
-        {/* Os dois botões na mesma caixa, lado a lado: são dois caminhos para
-            a mesma coisa. Sozinho, o de ler ocupa a linha toda. */}
-        <div className="cr-mat-acoes">
+        {/* Um em cima do outro, largura inteira. Chegaram a ficar lado a lado,
+            mas em 175px não cabe o que todo botão de crédito faz: texto
+            centralizado e a moeda no canto direito, só no hover. */}
+        <div className="cr-mat-acoes cr-mat-acoes--pilha">
         {matEstado === 'vazio' && (
           <button className="cr-b cr-b--tenho" onClick={() => setMatEstado('revisar')}>
             {t('painelrender_ja_tenho_analise')}

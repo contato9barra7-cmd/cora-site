@@ -227,15 +227,19 @@
    O `.cr-b` cresce por `min-height` e o `.cr-b-conf` do globals tinha 34px
    fixos: um saía mais baixo que o outro, e com letra de outro tamanho. *//* Lado a lado: são dois caminhos para a mesma coisa, e um debaixo do outro
    eles liam como dois passos. Sozinho, um deles ocupa a linha toda. */.co .cr-mat-acoes{ margin-top:8px; display:flex; gap:8px; }/* `margin:0` de propósito: o globals dá 10px em cima ao "Já tenho a análise"
-   para o caso empilhado, e na dupla isso descia um botão e não o outro. */.co .cr-mat-acoes{ align-items:center; }.co .cr-mat-acoes > .cr-b, .co .cr-mat-acoes > .cr-b-conf, .co .cr-mat-acoes > .cr-b-ler{ flex:1 1 0; min-width:0; margin:0; }/* Na dupla o botão tem 175px, e a moeda ancorada à direita passava por cima
-   do texto no hover. Ela entra na linha, depois do texto, e fica à vista
-   sempre: aparecer só no hover empurraria o texto na hora de clicar. */.co .cr-mat-acoes .cr-b-ler .cr-custo-tag{
-  position:static; transform:none; margin-left:6px; opacity:1;
-}/* Os três da caixa de materiais na mesma altura e na mesma letra: o de ler
-   não é `.cr-b` e ficava 8px mais alto que o vizinho. */.co .cr-mat-acoes .cr-b, .co .cr-mat-acoes .cr-b-conf, .co .cr-mat-acoes .cr-b-ler{
+   para o caso empilhado, e isso descia um botão e não o outro. */.co .cr-mat-acoes{ align-items:center; }.co .cr-mat-acoes > .cr-b, .co .cr-mat-acoes > .cr-b-conf{ flex:1 1 0; min-width:0; margin:0; }/* A dupla Editar / Tá bom, na altura de controle e na mesma letra. */.co .cr-mat-acoes .cr-b, .co .cr-mat-acoes .cr-b-conf{
   height:var(--alt-ctrl); min-height:0; padding:0 12px;
   font-size:var(--t-apoio2); line-height:1;
-}.co .cr-mat-acoes .cr-b-ler{ width:auto; }.co .cr-b-conf{
+}/* O "Já tenho a análise" e o "Ler materiais" ficam um em cima do outro, na
+   largura inteira. Chegaram a ficar lado a lado, e em 175px não cabe o que
+   todo botão de crédito faz: texto centralizado e a moeda no canto direito,
+   só no hover. Os dois na altura de ação (46px). Vem DEPOIS da regra da
+   dupla, porque o "Já tenho" também é `.cr-b` e a dupla o encolhia; e
+   `flex:none`, porque em coluna o `flex:1 1 0` da dupla vira base zero na
+   vertical e passa por cima da altura. */.co .cr-mat-acoes--pilha{ flex-direction:column; align-items:stretch; }.co .cr-mat-acoes--pilha > .cr-b--tenho, .co .cr-mat-acoes--pilha > .cr-b-ler{
+  flex:none; width:100%; margin:0; height:var(--alt-acao); min-height:0;
+  font-size:var(--t-corpo); font-weight:500; padding:0 14px; line-height:1;
+}.co .cr-mat-acoes--pilha > .cr-b-ler{ font-weight:600; }.co .cr-b-conf{
   border:0; border-radius:var(--pill); background:var(--lima); color:#111111;
   font-weight:600; cursor:pointer; transition:background var(--t);
 }.co .cr-b-conf:hover{ background:var(--lima-esc); opacity:1; }/* ── Resetar: ação de texto, e a última da coluna ──

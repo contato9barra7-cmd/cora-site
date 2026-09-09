@@ -1000,7 +1000,9 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
               <nav className="aj-abas">
                 {[...ABAS_AJUSTE.slice(0, 3),
                   { id: 'curva', nome: t('janelaajustes_aba_curva'), icone: 'curva' },
-                  { id: 'mixer', nome: 'Color Mixer', icone: 'mixer' },
+                  // "Mixer" na aba: seis abas iguais em 294px não comportam
+                  // "Color Mixer" numa linha. O título da seção segue inteiro.
+                  { id: 'mixer', nome: 'Mixer', icone: 'mixer' },
                   ABAS_AJUSTE[3]
                 ].map((a) => (
                   <button
