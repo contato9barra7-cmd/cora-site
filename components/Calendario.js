@@ -22,6 +22,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { tOpt } from '../lib/i18n';
 
 const SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 const MES_LONGO = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
@@ -124,10 +125,10 @@ export default function Calendario({ de, ate, min, max, aoEscolher, aoFechar }) 
   const depoisDoTeto = chave(ano, mes, 1) >= teto.slice(0, 8) + '01';
 
   return (
-    <div className="cal" ref={caixa} role="dialog" aria-label="Escolher o período">
+    <div className="cal" ref={caixa} role="dialog" aria-label={tOpt('Escolher o período')}>
       <div className="cal__cab">
         <button type="button" className="cal__seta" onClick={() => andar(-1)}
-                disabled={antesDoPiso} aria-label="Mês anterior">
+                disabled={antesDoPiso} aria-label={tOpt('Mês anterior')}>
           <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor"
                strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 3L5 8l5 5" />
@@ -135,7 +136,7 @@ export default function Calendario({ de, ate, min, max, aoEscolher, aoFechar }) 
         </button>
         <span className="cal__mes">{MES_LONGO[mes]} <b>{ano}</b></span>
         <button type="button" className="cal__seta" onClick={() => andar(1)}
-                disabled={depoisDoTeto} aria-label="Próximo mês">
+                disabled={depoisDoTeto} aria-label={tOpt('Próximo mês')}>
           <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor"
                strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 3l5 5-5 5" />
@@ -178,7 +179,7 @@ export default function Calendario({ de, ate, min, max, aoEscolher, aoFechar }) 
             frase muda para o que falta fazer. Um texto fixo com dois passos
             deixa a pessoa procurando em qual ela está. */}
         <span className="cal__dica">
-          {parcial ? 'Agora escolha o último dia.' : 'Clique no primeiro dia.'}
+          {tOpt(parcial ? 'Agora escolha o último dia.' : 'Clique no primeiro dia.')}
         </span>
         {(de || parcial) && (
           <button type="button" className="cal__limpar"

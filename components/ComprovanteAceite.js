@@ -28,7 +28,10 @@
 
 import { useEffect, useState } from 'react';
 import { adminComprovante } from '../lib/auth';
+import { tOpt } from '../lib/i18n';
 
+// O nome sai traduzido na tela; o que a pessoa aceitou continua sendo a
+// versão em português guardada no banco, com o hash dela.
 const NOME_DO_DOC = { termos: 'Termos de Uso', privacidade: 'Política de Privacidade' };
 
 function porExtenso(iso, comHora) {
@@ -80,16 +83,16 @@ export default function ComprovanteAceite({ contaId, nome, onFechar }) {
     <div className="adm-modal" onClick={(e) => { if (e.target === e.currentTarget) onFechar(); }}>
       <div className="adm-modal__folha" style={{ width: 'min(820px, 100%)' }}>
         <div className="adm-modal__cab">
-          <h2>Comprovante de aceite</h2>
+          <h2>{tOpt('Comprovante de aceite')}</h2>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             {/* Só aparece com a folha pronta: imprimir um "carregando" gera um
                 papel em branco que parece um comprovante vazio. */}
             {dados && (
               <button className="as-btn-cta"
                       style={{ height: 40, padding: '0 20px', fontSize: 13.5 }}
-                      onClick={() => window.print()}>Salvar em PDF</button>
+                      onClick={() => window.print()}>{tOpt('Salvar em PDF')}</button>
             )}
-            <button className="adm-modal__x" onClick={onFechar} aria-label="Fechar">×</button>
+            <button className="adm-modal__x" onClick={onFechar} aria-label={tOpt('Fechar')}>×</button>
           </div>
         </div>
 
@@ -103,7 +106,7 @@ export default function ComprovanteAceite({ contaId, nome, onFechar }) {
             <div className="cmp__miolo">
               <div className="cmp__marca" role="img" aria-label="Cora Render" />
 
-              <h3 className="cmp__tit">Comprovante de aceite</h3>
+              <h3 className="cmp__tit">{tOpt('Comprovante de aceite')}</h3>
               <p className="cmp__num">
                 Registro nº {String(conta.id).padStart(7, '0')} · emitido em{' '}
                 {porExtenso(dados.emitido_em)}
@@ -130,7 +133,7 @@ export default function ComprovanteAceite({ contaId, nome, onFechar }) {
                   </p>
                 </div>
                 <div>
-                  <span>O que foi aceito</span>
+                  <span>{tOpt('O que foi aceito')}</span>
                   <p>
                     {docs.map((d) => (
                       <span key={d.documento}>
@@ -153,7 +156,7 @@ export default function ComprovanteAceite({ contaId, nome, onFechar }) {
                   </p>
                 </div>
                 <div>
-                  <span>De onde</span>
+                  <span>{tOpt('De onde')}</span>
                   <p>
                     Endereço de IP <b>{ultimo?.ip || '—'}</b>
                   </p>

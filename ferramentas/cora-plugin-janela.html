@@ -1,0 +1,1452 @@
+<title>A janela do plugin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     A JANELA DO PLUGIN · o trilho das 12 abas e a aba Render
+
+     A janela do SketchUp abre 880 x 980 (`panel.rb`, :width/:height), com
+     mínimo de 460 x 500. O tamanho aqui é o de hoje, e fica assim até o
+     dono decidir outro.
+
+     O QUE ESTE ARQUIVO É
+     O desenho da janela nova, em tamanho real, na identidade do
+     `cora-manual-janela.html`. As peças vêm do `cora-render.html`, que é o
+     estudo aprovado da aba Render da web. Nada de peça nova: a mesma ficha,
+     a mesma lista com marcador, a mesma amostra de luz, a mesma barra do pé.
+
+     O QUE MUDA DA WEB PARA O PLUGIN
+     · Não existe "Imagem do modelo". O plugin captura o viewport do
+       SketchUp, e por isso o enquadramento virou o palco à direita, com o
+       safe frame, os terços, salvar cena e exportar, que hoje moram soltos
+       no meio do formulário.
+     · São 12 abas, e não 8. As quatro a mais são de SketchUp: 360, Materiais,
+       Blocos e Histórico.
+     · As quatro ferramentas do modelo (espelho, vidros, otimizar, purge)
+       ficam na cabeça, porque agem no modelo e não numa aba.
+
+     A ORDEM DO FORMULÁRIO NÃO É ESTÉTICA
+     Ambiente vem antes de Materiais porque o `lerMateriais(imagem, tipo)`
+     manda o tipo para o servidor, e é ele que escolhe o promptador da
+     leitura. Lido como interno, um projeto externo volta errado, e refazer
+     custa 16 créditos.
+
+     ISTO É UM ESTUDO. Não rodar o gerar-css-artefato.py aqui.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --turq-txt:#196C5B; --lima-txt:#256B2A; --turq-bg:#E6F7F3;
+  --alerta:#C8342A; --alerta-bg:#FCEDEC;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px;
+  --t-titulo:17px; --t-secao:20px; --t-tela:26px;
+  --alt-ctrl:38px; --alt-acao:46px;
+  --t:170ms cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+    --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+    --line:#2B2B30; --line2:#3A3A41;
+    --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+    --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.16);
+    --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+    --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+  --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.16);
+  --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+  color-scheme:dark;
+}
+
+*{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--wash); color:var(--ink);
+  font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.55;
+  -webkit-font-smoothing:antialiased; padding-bottom:96px;
+}
+button,input,textarea{ font-family:inherit; }
+button{ cursor:pointer; }
+:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
+::selection{ background:var(--lima); color:#111111; }
+::-webkit-scrollbar{ width:11px; height:11px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{ background:var(--line2); border-radius:100px; border:3px solid transparent; background-clip:content-box; }
+::-webkit-scrollbar-thumb:hover{ background:var(--ink3); background-clip:content-box; }
+
+/* ══════════ a página em volta ══════════ */
+.env{ max-width:1180px; margin:0 auto; padding:32px 24px 0; }
+.eb{ margin:0; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+h1{ margin:12px 0 0; font-size:clamp(28px,4vw,36px); font-weight:500; letter-spacing:-.033em; line-height:1.1; text-wrap:balance; }
+.lead{ margin:16px 0 0; max-width:62ch; font-size:16px; color:var(--ink2); text-wrap:pretty; }
+.lead b{ color:var(--ink); font-weight:600; }
+.regra{
+  margin:22px 0 0; max-width:62ch; padding:16px 20px;
+  border-left:3px solid var(--lima); border-radius:0 var(--r-peq) var(--r-peq) 0;
+  background:var(--paper);
+}
+.regra p{ margin:0; font-size:16px; color:var(--ink); text-wrap:pretty; }
+.regra p + p{ margin-top:8px; font-size:var(--t-apoio); color:var(--ink2); }
+
+.palco-pg{ display:grid; gap:34px; align-items:start; margin:28px 0 0; grid-template-columns:1fr; }
+@media (min-width:1320px){ .palco-pg{ grid-template-columns:880px minmax(0,1fr); } }
+
+.notas h2{ margin:0 0 4px; font-size:var(--t-secao); font-weight:500; letter-spacing:-.02em; }
+.notas h2:not(:first-child){ margin-top:28px; }
+.notas p{ margin:0 0 10px; font-size:var(--t-apoio); color:var(--ink2); text-wrap:pretty; }
+.notas p b{ color:var(--ink); font-weight:600; }
+.notas code{ padding:1px 6px; border-radius:6px; background:var(--wash2); color:var(--ink); font-family:var(--mono); font-size:12px; }
+.mapa{ margin:14px 0 0; width:100%; border-collapse:collapse; font-size:var(--t-apoio2); }
+.mapa th{ text-align:left; padding:0 12px 7px 0; border-bottom:1px solid var(--line); font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); }
+.mapa td{ padding:8px 12px 8px 0; border-bottom:1px solid var(--line); color:var(--ink2); vertical-align:top; }
+.mapa td:first-child{ color:var(--ink); font-weight:500; white-space:nowrap; }
+.medida{ display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 0; font-family:var(--mono); font-size:var(--t-apoio2); color:var(--ink3); }
+.medida b{ color:var(--ink); font-weight:500; }
+
+/* ══════════════════════════════════════════════════════════════════
+   A JANELA · 880 x 980, o tamanho que o panel.rb abre hoje
+   ══════════════════════════════════════════════════════════════════ */
+.jn-fora{ overflow-x:auto; padding-bottom:6px; }
+.jn{
+  width:880px; height:980px; flex:none; display:flex; flex-direction:column; overflow:hidden;
+  border:1px solid var(--line2); border-radius:var(--r-peq);
+  background:var(--wash); box-shadow:var(--sombra);
+}
+
+/* ── a cabeça ── */
+.jn-cab{
+  flex:none; height:52px; display:flex; align-items:center; gap:10px;
+  padding:0 14px 0 16px; border-bottom:1px solid var(--line); background:var(--paper);
+}
+.mrc{ display:flex; align-items:baseline; gap:5px; font-size:var(--t-corpo); letter-spacing:-.01em; }
+.mrc b{ font-weight:600; color:var(--ink); }
+.mrc span{ font-weight:400; color:var(--ink2); }
+.jn-cab__dir{ margin-left:auto; display:flex; align-items:center; gap:4px; }
+.fer{
+  position:relative; width:30px; height:30px; padding:0; border:0; border-radius:9px;
+  background:transparent; color:var(--ink3); display:flex; align-items:center; justify-content:center;
+  transition:background var(--t), color var(--t);
+}
+.fer:hover{ background:var(--wash2); color:var(--ink); }
+.fer__tip{
+  position:absolute; top:calc(100% + 7px); right:0; z-index:40;
+  padding:5px 9px; border-radius:8px; background:var(--ink); color:var(--paper);
+  font-size:11.5px; font-weight:600; white-space:nowrap; opacity:0; pointer-events:none;
+  transition:opacity .12s ease;
+}
+.fer:hover .fer__tip{ opacity:1; }
+.jn-cab__risco{ width:1px; height:20px; margin:0 6px; background:var(--line); }
+.saldo{
+  display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 11px;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-apoio2); font-weight:600; font-variant-numeric:tabular-nums;
+}
+.saldo svg{ color:var(--ink3); }
+.av{ position:relative; width:34px; height:34px; padding:0; border:0; background:none; display:flex; align-items:center; justify-content:center; }
+.av__anel{ position:absolute; inset:0; }
+.av__miolo{
+  width:28px; height:28px; border-radius:50%;
+  background:linear-gradient(135deg,var(--lima),var(--turquesa));
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:700; color:#111111;
+}
+
+/* ── o trilho, duas fileiras ── */
+.tri{ flex:none; padding:11px 16px 13px; background:var(--paper); border-bottom:1px solid var(--line); }
+.tri__sul{
+  display:grid; grid-template-columns:repeat(6,1fr); gap:2px;
+  padding:3px; border-radius:var(--pill); background:var(--wash2);
+}
+.tri__sul + .tri__sul{ margin-top:5px; }
+.tri__b{
+  position:relative; min-width:0; height:34px; padding:0 8px; border:0; border-radius:var(--pill);
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  background:transparent; color:var(--ink3);
+  font-size:var(--t-apoio2); font-weight:500; white-space:nowrap;
+  transition:color var(--t), background var(--t), box-shadow var(--t);
+}
+.tri__b svg{ flex:none; width:16px; height:16px; }
+.tri__b:hover:not(.tri__b--on):not(.tri__b--trancada){ color:var(--ink); }
+.tri__b--on{ background:var(--paper); color:var(--ink); font-weight:600; box-shadow:var(--sombra-peq); }
+.tri__b--on svg{ color:var(--turquesa-esc); }
+/* Desligado e cor, nao transparencia. A .35 do molde antigo derrubava o
+   rotulo abaixo de qualquer piso de contraste. Aqui a trancada fica com a
+   mesma tinta da inativa, e quem conta a historia e o cadeado. */
+.tri__b--trancada{ color:var(--ink3); cursor:default; }
+.tri__cad{ color:var(--ink3); }
+.tri__cad{ width:11px; height:11px; }
+.tri__pe{ margin:9px 2px 0; display:flex; gap:16px; font-size:var(--t-etiqueta); color:var(--ink3); }
+
+/* ── o corpo ── */
+.jn-corpo{ flex:1; min-height:0; display:flex; }
+
+/* ══════════════════════════════════════════════════════════════════
+   O PAINEL · 400 de largura. O formulário rola, a barra do pé não.
+   ══════════════════════════════════════════════════════════════════ */
+.pn{
+  flex:none; width:400px; display:flex; flex-direction:column; min-height:0;
+  background:var(--paper); border-right:1px solid var(--line);
+}
+.pn__rola{ flex:1; min-height:0; overflow-y:auto; padding:18px 16px 18px; }
+
+.sec{
+  margin:24px 0 10px; display:flex; align-items:baseline; gap:6px;
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.sec:first-child{ margin-top:0; }
+.sec span{ font-weight:400; letter-spacing:.06em; opacity:.85; }
+.hint{ margin:10px 0 0; font-size:var(--t-apoio2); color:var(--ink3); line-height:1.5; text-wrap:pretty; }
+
+.acao{
+  width:100%; height:var(--alt-acao); border:0; border-radius:var(--pill);
+  font-size:var(--t-apoio); font-weight:600;
+  transition:background var(--t), color var(--t);
+}
+.acao--lima{ background:var(--lima); color:#111111; }
+.acao--lima:hover{ background:var(--lima-esc); }
+.acao--quieta{ background:var(--wash2); color:var(--ink2); font-weight:500; margin-bottom:8px; }
+.acao--quieta:hover{ background:var(--line); color:var(--ink); }
+.acao--lendo{ display:flex; align-items:center; justify-content:center; gap:9px; background:var(--wash2); color:var(--ink3); cursor:default; }
+
+/* ── a ficha, a espinha do painel ── */
+.fic{ margin-top:24px; border-top:1px solid var(--line); }
+.fic--solta{ margin-top:16px; }
+/* No plugin o Ambiente é a PRIMEIRA coisa do painel, porque não existe
+   "imagem do modelo" para escolher. Sem isto o fio de cima da ficha abre a
+   coluna com um risco solto, sem nada acima dele para separar. */
+.pn__rola > .fic:first-child{ margin-top:2px; border-top:0; }
+.fic__l{ border-bottom:1px solid var(--line); }
+.fic__cab{ width:100%; display:flex; align-items:center; gap:12px; padding:11px 2px; border:0; background:none; text-align:left; }
+.fic__nome{ flex:none; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); transition:color var(--t); }
+.fic__l[data-aberta="sim"] .fic__nome{ color:var(--ink2); }
+.fic__val{
+  flex:1; min-width:0; text-align:right; font-size:var(--t-apoio);
+  color:var(--ink); font-weight:500;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:color var(--t);
+}
+.fic__val[data-vazio="sim"]{ color:var(--ink3); font-weight:400; }
+.fic__cab:hover .fic__val{ color:var(--turq-txt); }
+.fic__seta{ flex:none; color:var(--ink3); transition:transform var(--t); }
+.fic__l[data-aberta="sim"] .fic__seta{ transform:rotate(180deg); }
+.fic__grp{ margin:16px 0 7px; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
+.fic__grp:first-child{ margin-top:0; }
+.fic__corpo{ display:none; padding:2px 0 16px; }
+.fic__l[data-aberta="sim"] .fic__corpo{ display:block; }
+
+/* ── a lista com marcador. Quadrado marca vários, círculo marca uma. ── */
+.lista{ display:flex; flex-direction:column; }
+.lista__b{
+  display:flex; align-items:center; gap:11px; width:100%; padding:8px 10px;
+  border:0; border-radius:9px; background:none; text-align:left;
+  font-size:var(--t-corpo); color:var(--ink2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.lista__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink); }
+.lista__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.lista__m{
+  flex:none; width:17px; height:17px; border-radius:5px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--wash2); color:transparent; box-shadow:inset 0 0 0 1px var(--line2);
+  transition:background var(--t), color var(--t), box-shadow var(--t);
+}
+.lista--uma .lista__m{ border-radius:50%; }
+.lista__b[aria-checked="true"] .lista__m{ background:var(--turquesa); color:#111111; box-shadow:inset 0 0 0 1px var(--turquesa-esc); }
+
+/* ── o sulco ── */
+.sul{ display:flex; gap:2px; padding:3px; border-radius:var(--pill); background:var(--wash2); }
+.sul__b{
+  flex:1; min-width:0; height:28px; padding:0 6px; border:0; border-radius:var(--pill);
+  background:transparent; color:var(--ink3); font-size:var(--t-apoio2); font-weight:600;
+  transition:color var(--t), background var(--t), box-shadow var(--t);
+}
+.sul__b:hover[aria-checked="false"]{ color:var(--ink); }
+.sul__b[aria-checked="true"]{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
+
+/* ── as amostras de luz. O gradiente é a coisa, não o desenho dela. ── */
+.am{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.am--3{ grid-template-columns:repeat(3,1fr); }
+.am__b{
+  padding:0; border:1px solid var(--line); border-radius:10px;
+  background:var(--paper); overflow:hidden; text-align:center;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.am__b:hover{ border-color:var(--line2); box-shadow:var(--sombra-peq); }
+.am__b[aria-checked="true"]{ border-color:var(--turquesa-esc); box-shadow:0 0 0 1px var(--turquesa-esc); }
+.am__q{ display:block; height:46px; position:relative; overflow:hidden; }
+.am__q svg{ display:block; width:100%; height:100%; }
+.am__ok{
+  position:absolute; right:5px; top:5px; opacity:0; color:var(--turquesa-esc);
+  filter:drop-shadow(0 1px 2px rgba(17,17,17,.55)); transition:opacity var(--t);
+}
+.am__b[aria-checked="true"] .am__ok{ opacity:1; }
+.am__n{ display:block; padding:6px 6px 7px; font-size:var(--t-apoio2); color:var(--ink2); font-weight:500; line-height:1.25; text-wrap:pretty; }
+.am__b[aria-checked="true"] .am__n{ color:var(--ink); font-weight:600; }
+.am__b--planta .am__q{ height:42px; background:var(--wash); }
+.pl-sala{ fill:none; stroke:var(--ink3); stroke-width:1.5; }
+.pl-luz{ fill:none; stroke:var(--ink2); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.am__b[aria-checked="true"] .pl-luz{ stroke:var(--turq-txt); }
+.am__b--planta .am__ok{ color:var(--turq-txt); filter:none; }
+
+/* ── a temperatura da luz artificial ── */
+.kel{ display:grid; grid-template-columns:repeat(2,1fr); gap:2px 12px; }
+.kel__b{
+  display:flex; align-items:center; gap:10px; padding:8px 6px;
+  border:0; border-radius:9px; background:none; text-align:left;
+  font-size:var(--t-corpo); color:var(--ink2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.kel__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink); }
+.kel__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.kel__q{ flex:none; width:16px; height:16px; border-radius:50%; box-shadow:inset 0 0 0 1px rgba(17,17,17,.14); transition:box-shadow var(--t); }
+.kel__b[aria-checked="true"] .kel__q{ box-shadow:0 0 0 2px var(--turquesa-esc); }
+
+/* ── a caixa de texto ── */
+.ta{
+  width:100%; min-height:84px; margin-top:12px; padding:11px 13px;
+  border:1px solid transparent; border-radius:var(--r-peq);
+  background:var(--wash); color:var(--ink);
+  font-size:var(--t-apoio2); line-height:1.55; resize:vertical; outline:none;
+  transition:background var(--t), border-color var(--t);
+}
+.ta:hover{ border-color:var(--line); }
+.ta:focus{ background:var(--paper); border-color:var(--line2); }
+.ta::placeholder{ color:var(--ink3); }
+.ta--curta{ min-height:70px; margin-top:0; }
+
+/* ── as referências ── */
+.refs{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+.ref{ position:relative; aspect-ratio:1; padding:0; overflow:hidden; border:0; border-radius:10px; background:var(--wash2); }
+.ref--a{ background:linear-gradient(160deg,#e6ddd0,#c4ae94 50%,#8a755d); }
+.ref--b{ background:linear-gradient(150deg,#d5dee6,#93a6b8 45%,#5b6b7d); }
+.ref__n{
+  position:absolute; left:4px; bottom:4px; padding:1px 6px;
+  border-radius:var(--pill); background:rgba(255,255,255,.82); color:#111111;
+  backdrop-filter:blur(10px); font-size:9.5px; font-weight:600;
+}
+.ref--add{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; color:var(--ink3); transition:background var(--t), color var(--t); }
+.ref--add:hover{ background:var(--line); color:var(--ink); }
+.ref__mais{ font-size:17px; line-height:1; }
+.ref__c{ font-size:9.5px; letter-spacing:.06em; }
+
+/* ── os cinco estados do bloco Materiais ── */
+.mat__passo[hidden]{ display:none; }
+.mat__ta{
+  width:100%; min-height:260px; padding:14px 16px;
+  border:1px solid transparent; border-radius:var(--r-peq);
+  background:var(--wash); color:var(--ink);
+  font-size:var(--t-etiqueta); line-height:1.65; resize:vertical; outline:none;
+  transition:background var(--t), border-color var(--t);
+}
+.mat__ta:hover{ border-color:var(--line); }
+.mat__ta:focus{ background:var(--paper); border-color:var(--line2); }
+.mat__ta[readonly]{ color:var(--ink2); resize:none; }
+.mat__ta[readonly]:hover{ border-color:transparent; }
+.mat__estado{
+  display:flex; align-items:center; gap:5px; margin:12px 0 0;
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--turq-txt);
+}
+.mat__pe{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px; }
+.mat__acao{
+  position:relative; display:flex; align-items:center; justify-content:center;
+  height:var(--alt-ctrl); padding:0 12px; border:0;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-apoio); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.mat__acao:hover{ background:var(--line); color:var(--ink); }
+.mat__acao--custa{ padding:0 46px; }
+.mat__moeda{
+  position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  display:inline-flex; align-items:center; gap:4px; padding:2px 8px;
+  border-radius:var(--pill); background:rgba(17,17,17,.09); color:var(--ink2);
+  font-size:var(--t-etiqueta); font-weight:600; font-variant-numeric:tabular-nums;
+  pointer-events:none; opacity:0; transition:opacity .15s ease;
+}
+.mat__acao:hover .mat__moeda, .mat__acao:focus-visible .mat__moeda{ opacity:1; }
+.mat__dica{ display:block; margin:12px 0 8px; font-size:var(--t-apoio2); color:var(--ink3); }
+.mat__ok{
+  width:100%; height:var(--alt-ctrl); border:0; border-radius:var(--pill);
+  background:var(--lima); color:#111111; font-size:var(--t-apoio); font-weight:600;
+  transition:background var(--t);
+}
+.mat__ok:hover{ background:var(--lima-esc); }
+.mat__spin{ width:13px; height:13px; flex:none; border-radius:50%; border:2px solid rgba(17,17,17,.20); border-top-color:var(--ink3); animation:mat-gira .7s linear infinite; }
+@keyframes mat-gira{ to{ transform:rotate(360deg); } }
+
+/* ── a barra do pé, fixa ── */
+.barra-ger{ flex:none; padding:12px 16px 13px; border-top:1px solid var(--line); background:var(--paper); }
+.cfg{ display:flex; gap:6px; margin-bottom:10px; }
+.qty{ display:flex; align-items:center; gap:2px; flex:none; height:var(--alt-ctrl); padding:0 6px; border-radius:var(--pill); background:var(--wash2); }
+.qty button{ width:24px; height:24px; padding:0; border:0; border-radius:50%; background:transparent; color:var(--ink2); font-size:var(--t-corpo); line-height:1; }
+.qty button:hover{ background:var(--paper); color:var(--ink); }
+.qty span{ min-width:18px; text-align:center; font-size:var(--t-apoio); font-weight:600; font-variant-numeric:tabular-nums; }
+.cfg__wrap{ flex:1; position:relative; min-width:0; }
+.cfg__b{
+  width:100%; height:var(--alt-ctrl); padding:0 14px; border:0;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:var(--t-apoio); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.cfg__b:hover, .cfg__b[aria-expanded="true"]{ background:var(--line); color:var(--ink); }
+.cfg__seta{ flex:none; color:var(--ink3); transition:transform var(--t); }
+.cfg__b[aria-expanded="true"] .cfg__seta{ transform:rotate(180deg); }
+.pop{
+  position:absolute; bottom:calc(100% + 8px); left:0; right:0;
+  padding:10px; border:1px solid var(--line); border-radius:var(--r-peq);
+  background:var(--paper); box-shadow:var(--sombra); z-index:30;
+}
+.pop[hidden]{ display:none; }
+.pop--ratio{ min-width:268px; left:auto; right:0; }
+.rt{ display:grid; grid-template-columns:repeat(4,1fr); gap:4px; }
+.rt__b{
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  padding:8px 2px 7px; border:0; border-radius:9px; background:none;
+  color:var(--ink3); font-size:var(--t-apoio2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.rt__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink2); }
+.rt__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.rt__q{ display:block; background:var(--line2); border-radius:2px; transition:background var(--t); }
+.rt__b[aria-checked="true"] .rt__q{ background:var(--turquesa-esc); box-shadow:0 0 0 1px var(--turq-txt); }
+.rt__cx{ height:26px; display:flex; align-items:center; justify-content:center; }
+.rs{ display:flex; flex-direction:column; gap:2px; }
+.rs__b{
+  display:flex; align-items:center; gap:10px; padding:9px 10px;
+  border:0; border-radius:9px; background:none; text-align:left;
+  font-size:var(--t-corpo); color:var(--ink2); font-weight:500;
+  transition:background var(--t), color var(--t);
+}
+.rs__b:hover[aria-checked="false"]{ background:var(--wash); color:var(--ink); }
+.rs__b[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+.rs__m{
+  flex:none; width:17px; height:17px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--wash2); color:transparent; box-shadow:inset 0 0 0 1px var(--line2);
+  transition:background var(--t), color var(--t), box-shadow var(--t);
+}
+.rs__b[aria-checked="true"] .rs__m{ background:var(--turquesa); color:#111111; box-shadow:inset 0 0 0 1px var(--turquesa-esc); }
+.gerar{
+  position:relative; width:100%; height:var(--alt-acao); border:0;
+  border-radius:var(--pill); background:var(--lima); color:#111111;
+  font-size:var(--t-corpo); font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+  transition:background var(--t);
+}
+.gerar:hover:not(:disabled){ background:var(--lima-esc); }
+.gerar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+.gerar:disabled .cr-custo-tag{ display:none; }
+.cr-custo-tag{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  display:inline-flex; align-items:center; gap:5px; padding:4px 10px;
+  border-radius:var(--pill); background:rgba(0,0,0,.14);
+  font-size:11px; font-weight:600; line-height:1; white-space:nowrap;
+  font-variant-numeric:tabular-nums; pointer-events:none;
+  opacity:0; transition:opacity .15s ease;
+}
+.gerar:hover .cr-custo-tag, .gerar:focus-visible .cr-custo-tag,
+.acao:hover .cr-custo-tag, .acao:focus-visible .cr-custo-tag{ opacity:1; }
+.acao--lima .cr-custo-tag{ background:rgba(17,17,17,.14); }
+.resetar{
+  display:block; width:auto; margin:10px auto 0; padding:2px 0;
+  border:0; background:none; color:var(--ink3); font-size:var(--t-etiqueta);
+  box-shadow:inset 0 -1px 0 var(--line2); transition:color var(--t);
+}
+.resetar:hover{ color:var(--ink2); box-shadow:inset 0 -1px 0 var(--ink3); }
+
+/* ══════════════════════════════════════════════════════════════════
+   O PALCO · o enquadramento do SketchUp
+   O safe frame, os terços, salvar cena e exportar moram hoje soltos
+   no meio do formulário, cada um do tamanho de um botão de texto.
+   Todos falam do MESMO assunto, que é o que a câmera está pegando,
+   e esse assunto é uma imagem. Aqui ele fica do tamanho de uma.
+   ══════════════════════════════════════════════════════════════════ */
+.pc{ flex:1; min-width:0; overflow-y:auto; padding:18px 18px 22px; background:var(--wash); }
+.pc__cab{ display:flex; align-items:baseline; gap:8px; margin:0 0 10px; }
+.pc__cab .sec{ margin:0; }
+.pc__viva{ margin-left:auto; font-size:var(--t-etiqueta); color:var(--ink3); font-variant-numeric:tabular-nums; }
+.vis{
+  position:relative; border:1px solid var(--line); border-radius:var(--r-peq);
+  overflow:hidden; background:var(--paper);
+}
+/* O viewport do SketchUp é largo. O safe frame é o retângulo da proporção
+   escolhida, e o que fica de fora dele escurece. Num 4:3 de viewport com
+   saída em 4:5, sobra 20% escuro de cada lado. Escurecer topo e pé, como
+   estava, mentia sobre onde o corte acontece. */
+.vis__cena{ display:block; width:100%; aspect-ratio:4/3; }
+.vis__safe{ position:absolute; inset:0; pointer-events:none; }
+.vis__fora{ position:absolute; top:0; bottom:0; width:20%; background:rgba(17,17,17,.32); }
+.vis__corte{ position:absolute; top:0; bottom:0; width:1px; background:rgba(255,255,255,.62); }
+.vis__linha{ position:absolute; background:rgba(255,255,255,.5); }
+.vis__marca{
+  position:absolute; left:calc(20% + 8px); bottom:8px; display:inline-flex; align-items:center; gap:5px;
+  padding:3px 9px; border-radius:var(--pill);
+  background:rgba(255,255,255,.82); color:#111111; backdrop-filter:blur(14px) saturate(150%);
+  font-size:var(--t-etiqueta); font-weight:600;
+}
+.pc__fila{ display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin-top:10px; }
+.pc__b{
+  position:relative; height:var(--alt-ctrl); padding:0 12px; border:0; border-radius:var(--pill);
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  background:var(--wash2); color:var(--ink2); font-size:var(--t-apoio); font-weight:500;
+  transition:background var(--t), color var(--t), box-shadow var(--t);
+}
+.pc__b:hover{ background:var(--line); color:var(--ink); }
+.pc__b[aria-pressed="true"]{ background:var(--paper); color:var(--ink); font-weight:600; box-shadow:var(--sombra-peq); }
+.pc__b[aria-pressed="true"] svg{ color:var(--turquesa-esc); }
+.pc__b svg{ flex:none; }
+
+.cn{ display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+.cn__b{ position:relative; padding:0; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--paper); transition:border-color var(--t), box-shadow var(--t); }
+.cn__b:hover{ border-color:var(--line2); box-shadow:var(--sombra-peq); }
+.cn__b[aria-checked="true"]{ border-color:var(--turquesa-esc); box-shadow:0 0 0 1px var(--turquesa-esc); }
+.cn__q{ display:block; width:100%; aspect-ratio:4/3; }
+.cn__n{ display:block; padding:5px 7px 6px; font-size:var(--t-etiqueta); color:var(--ink2); font-weight:500; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cn__b[aria-checked="true"] .cn__n{ color:var(--ink); font-weight:600; }
+.cn--add{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  border-style:dashed; border-color:var(--line2); background:var(--wash); color:var(--ink3);
+  font-size:var(--t-etiqueta); min-height:78px;
+}
+.cn--add:hover{ background:var(--wash2); color:var(--ink2); }
+
+.lote{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.lt{ position:relative; aspect-ratio:4/5; border:1px solid var(--line); border-radius:var(--r-peq); overflow:hidden; background:var(--wash2); }
+.lt--a{ background:linear-gradient(158deg,#e9e2d4,#c9b8a0 46%,#8d7a63); }
+.lt--b{ background:linear-gradient(158deg,#dfe6ea,#a8b9c6 46%,#6c7d8c); }
+.lt__pil{
+  position:absolute; top:8px; left:50%; transform:translateX(-50%);
+  display:flex; align-items:center; gap:1px; padding:4px;
+  border-radius:18px; background:rgba(20,20,22,.72); backdrop-filter:blur(6px);
+  opacity:0; transition:opacity .14s ease;
+}
+.lt:hover .lt__pil{ opacity:1; }
+.lt__pil button{ width:26px; height:26px; border:0; border-radius:50%; background:transparent; color:rgba(255,255,255,.86); display:flex; align-items:center; justify-content:center; }
+.lt__pil button:hover{ background:rgba(255,255,255,.16); color:#fff; }
+.lt__pil i{ width:1px; height:14px; margin:0 3px; background:rgba(255,255,255,.22); }
+.pc__vazio{
+  padding:26px 18px; border:1px dashed var(--line2); border-radius:var(--r-peq);
+  background:var(--paper); text-align:center;
+}
+.pc__vazio svg{ width:24px; height:24px; margin-bottom:8px; color:var(--ink3); }
+.pc__vazio p{ margin:0; font-size:var(--t-apoio2); color:var(--ink3); line-height:1.55; }
+
+/* ══════════ o banco de provas ══════════ */
+.banco{
+  position:fixed; left:0; right:0; bottom:0; z-index:60;
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px 20px;
+  padding:12px 22px; background:#141416; color:#F2F2EF;
+  box-shadow:0 -8px 28px rgba(0,0,0,.22);
+}
+.banco__g{ display:flex; align-items:center; gap:7px; }
+.banco__r{ font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#8B8A83; }
+.banco__b{
+  height:28px; padding:0 12px; border:0; border-radius:var(--pill);
+  background:rgba(255,255,255,.09); color:#B6B5AE;
+  font-size:var(--t-apoio2); font-weight:500; transition:background .14s, color .14s;
+}
+.banco__b:hover{ background:rgba(255,255,255,.16); color:#F2F2EF; }
+.banco__b.on{ background:#F2F2EF; color:#141416; font-weight:600; }
+.banco__n{ margin-left:auto; font-size:var(--t-etiqueta); color:#8B8A83; }
+
+.rod{ margin:44px 0 0; padding:20px 0 0; border-top:1px solid var(--line2); max-width:70ch; }
+.rod p{ margin:0 0 8px; font-size:var(--t-apoio); color:var(--ink2); text-wrap:pretty; }
+.rod b{ color:var(--ink); font-weight:600; }
+.rod code{ padding:1px 6px; border-radius:6px; background:var(--wash2); color:var(--ink); font-family:var(--mono); font-size:12px; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-render" viewBox="0 0 24 24"><path d="M3.5 5.5h17v13h-17z M3.5 14l5-4.5 4 3.5 3-2.5 5 4"/></symbol>
+  <symbol id="i-batch" viewBox="0 0 24 24"><path d="M7 3.5h13.5V17 M3.5 7h13.5v13.5H3.5z"/></symbol>
+  <symbol id="i-planta" viewBox="0 0 24 24"><path d="M3.5 3.5h17v17h-17z M3.5 10h8 M11.5 10v10.5 M11.5 6h9"/></symbol>
+  <symbol id="i-360" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17z M3.5 12h17 M12 3.5c2.4 2.3 3.6 5 3.6 8.5S14.4 18.2 12 20.5c-2.4-2.3-3.6-5-3.6-8.5S9.6 5.8 12 3.5z"/></symbol>
+  <symbol id="i-editar" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z M14.5 5.5l4 4"/></symbol>
+  <symbol id="i-anim" viewBox="0 0 24 24"><path d="M3.5 5.5h17v13h-17z M8 5.5v13 M16 5.5v13 M3.5 12h17"/></symbol>
+  <symbol id="i-upscale" viewBox="0 0 24 24"><path d="M5 10.5V5h5.5 M19 13.5V19h-5.5 M5 5l5.5 5.5 M19 19l-5.5-5.5"/></symbol>
+  <symbol id="i-pos" viewBox="0 0 24 24"><path d="M4 6h16 M4 12h11 M4 18h7"/></symbol>
+  <symbol id="i-materiais" viewBox="0 0 24 24"><path d="M3.5 3.5h10v10h-10z M14 14a6.5 6.5 0 1 0 0 .01z M13.5 8.5h1"/></symbol>
+  <symbol id="i-blocos" viewBox="0 0 24 24"><path d="M12 2.8l8.5 4.8v9.4L12 21.2 3.5 16.4V7.6z M12 12l8.5-4.4 M12 12v9.2 M12 12L3.5 7.6"/></symbol>
+  <symbol id="i-historico" viewBox="0 0 24 24"><path d="M3.5 3.5h8v8h-8z M12.5 3.5h8v8h-8z M3.5 12.5h8v8h-8z M12.5 12.5h8v8h-8z"/></symbol>
+  <symbol id="i-analises" viewBox="0 0 24 24"><path d="M4 20V10 M10 20V4 M16 20v-7 M22 20H2"/></symbol>
+  <symbol id="i-cadeado" viewBox="0 0 24 24"><path d="M6 10.5h12v10H6z M8.5 10.5V7a3.5 3.5 0 0 1 7 0v3.5"/></symbol>
+</svg>
+
+<div class="env">
+  <header>
+    <p class="eb">Cora Render · a janela do SketchUp</p>
+    <h1>O trilho das doze, e a aba Render</h1>
+    <p class="lead">Em <b>tamanho real</b>, 880 por 980, que é o que o
+      <code>panel.rb</code> abre hoje. <b>Clica nas linhas da ficha, nas pílulas
+      da barra de baixo e nos botões do enquadramento</b>, que tudo abre. O tema,
+      o estado dos materiais e o plano trocam na barra preta lá embaixo.</p>
+  </header>
+
+  <div class="palco-pg">
+
+    <!-- ══════════════════ A JANELA ══════════════════ -->
+    <div class="jn-fora">
+    <div class="jn" id="jn">
+
+      <!-- ── a cabeça ── -->
+      <div class="jn-cab">
+        <span class="mrc"><b>Cora</b><span>Render</span></span>
+
+        <div class="jn-cab__dir">
+          <button class="fer" aria-label="Espelho">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="6.4" ry="9"/><path d="M9.4 14.4 L13 9.2 M11.6 15 L15.2 9.8"/></svg>
+            <span class="fer__tip">Espelho, gera o reflexo do espelho selecionado</span>
+          </button>
+          <button class="fer" aria-label="Vidros refletivos">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8 8 L13.5 13.5 M8 12.5 L11 15.5"/></svg>
+            <span class="fer__tip">Vidros refletivos</span>
+          </button>
+          <button class="fer" aria-label="Otimizar modelo">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 L14.5 9.5"/><path d="M17 3.5 L17.9 6.1 L20.5 7 L17.9 7.9 L17 10.5 L16.1 7.9 L13.5 7 L16.1 6.1 Z" fill="currentColor"/><path d="M6 5 L6 7.5 M4.75 6.25 L7.25 6.25"/></svg>
+            <span class="fer__tip">Otimizar o modelo, limpa geometria e o que não é usado</span>
+          </button>
+          <button class="fer" aria-label="Purge">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5 L20 6.5"/><path d="M9.5 6.5 L9.5 4.5 L14.5 4.5 L14.5 6.5"/><path d="M6 6.5 L7 20 L17 20 L18 6.5"/><path d="M10 10 L10.4 16.5 M14 10 L13.6 16.5"/></svg>
+            <span class="fer__tip">Purge, tira componente, material, tag e estilo sem uso</span>
+          </button>
+
+          <span class="jn-cab__risco"></span>
+
+          <span class="saldo">
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+            <span id="saldo-n">1.284</span>
+          </span>
+
+          <button class="av" aria-label="Minha conta">
+            <svg class="av__anel" viewBox="0 0 34 34" aria-hidden="true">
+              <circle cx="17" cy="17" r="15" fill="none" stroke="var(--line)" stroke-width="2.5"/>
+              <circle cx="17" cy="17" r="15" fill="none" stroke="var(--turquesa-esc)" stroke-width="2.5" stroke-linecap="round" transform="rotate(-90 17 17)" stroke-dasharray="94.2" stroke-dashoffset="26"/>
+            </svg>
+            <span class="av__miolo">M</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── o trilho, duas fileiras ──
+           A de cima é o que cria a imagem. A de baixo é o que termina, o que
+           abastece o modelo e o que já saiu. A placa que sobe do sulco marca
+           onde a pessoa está, sem cor de fundo, e só o desenho dela fica
+           turquesa. Escolher entre jeitos de ver a mesma coisa não é escolher
+           entre coisas, e por isso não leva cor. -->
+      <div class="tri">
+        <div class="tri__sul" data-fileira="criar">
+          <button class="tri__b tri__b--on" data-aba="render"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-render"/></svg>Render</button>
+          <button class="tri__b" data-aba="batch"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-batch"/></svg>Batch</button>
+          <button class="tri__b" data-aba="planta"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-planta"/></svg>Planta baixa</button>
+          <button class="tri__b" data-aba="r360"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-360"/></svg>360°</button>
+          <button class="tri__b" data-aba="editar"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-editar"/></svg>Editar</button>
+          <button class="tri__b" data-aba="animacao" data-plano="pro"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-anim"/></svg><span class="tri__rot">Animação</span></button>
+        </div>
+        <div class="tri__sul" data-fileira="apoio">
+          <button class="tri__b" data-aba="upscale"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upscale"/></svg>Upscale</button>
+          <button class="tri__b" data-aba="pos" data-plano="pro"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-pos"/></svg><span class="tri__rot">Pós-produção</span></button>
+          <button class="tri__b" data-aba="materiais"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-materiais"/></svg>Materiais</button>
+          <button class="tri__b" data-aba="blocos"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-blocos"/></svg>Blocos</button>
+          <button class="tri__b" data-aba="historico"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-historico"/></svg>Histórico</button>
+          <button class="tri__b" data-aba="analises"><svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-analises"/></svg>Análises</button>
+        </div>
+      </div>
+
+      <!-- ── o corpo ── -->
+      <div class="jn-corpo">
+
+        <!-- ══════════ o painel de 400 ══════════ -->
+        <div class="pn">
+          <div class="pn__rola">
+
+            <!-- O ambiente vem ANTES do Materiais, e não é ordem estética: o
+                 `lerMateriais(imagem, tipo)` manda o tipo para o servidor, e é
+                 ele que decide qual promptador roda na leitura. Lido como
+                 interno, um projeto externo volta com a análise errada, e
+                 refazer custa 16 créditos. -->
+            <div class="fic fic--solta">
+              <div class="fic__l" data-aberta="nao">
+                <button class="fic__cab">
+                  <span class="fic__nome">Ambiente</span>
+                  <span class="fic__val">Interno</span>
+                  <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="fic__corpo">
+                  <div class="lista lista--uma" data-grupo>
+                    <button class="lista__b" aria-checked="true"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Interno</button>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Externo</button>
+                  </div>
+                  <p class="hint">É o tipo que decide qual leitura o servidor
+                    roda nos materiais. Trocar depois de ler pede uma leitura
+                    nova.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- ══ Materiais, o único bloco do painel com vida própria ══
+                 Quatro estados no código: vazio, lendo, revisar, confirmado. -->
+            <p class="sec">Materiais</p>
+            <div id="mat" data-estado="vazio">
+
+              <div class="mat__passo" data-em="vazio">
+                <button class="acao acao--quieta" data-mat="tenho">Já tenho a análise</button>
+                <button class="acao acao--lima" data-mat="ler" style="position:relative">
+                  Ler materiais
+                  <span class="cr-custo-tag"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg> 16</span>
+                </button>
+                <p class="hint">A leitura olha a cena capturada e diz o que é
+                  cada superfície. Sem ela, o Renderizar fica apagado.</p>
+              </div>
+
+              <div class="mat__passo" data-em="lendo" hidden>
+                <button class="acao acao--lendo" disabled><span class="mat__spin"></span>Lendo a cena...</button>
+              </div>
+
+              <div class="mat__passo" data-em="revisar" hidden>
+                <textarea class="mat__ta" id="mat-texto" placeholder="Cole aqui a análise que você já tem..."></textarea>
+                <span class="mat__dica">Materiais identificados, edite se precisar</span>
+                <button class="mat__ok" data-mat="confirmar">Tá bom, seguir assim</button>
+              </div>
+
+              <div class="mat__passo" data-em="confirmado" hidden>
+                <textarea class="mat__ta" id="mat-texto-ok" readonly></textarea>
+                <p class="mat__estado">
+                  <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Confirmado
+                </p>
+                <div class="mat__pe">
+                  <button class="mat__acao" data-mat="editar">Editar</button>
+                  <button class="mat__acao mat__acao--custa" data-mat="ler">Ler de novo
+                    <span class="mat__moeda"><svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg> 16</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ══ a ficha ══ -->
+            <div class="fic">
+
+              <!-- luz natural, a borda de sombra é a diferença -->
+              <div class="fic__l" data-aberta="nao">
+                <button class="fic__cab">
+                  <span class="fic__nome">Luz natural</span>
+                  <span class="fic__val">Luz direta</span>
+                  <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="fic__corpo">
+                  <div class="am" data-grupo>
+                    <button class="am__b" aria-checked="true">
+                      <span class="am__q" style="background:linear-gradient(112deg,#f8f4ea 0 44%,#b3aa99 44%,#8f8677)"></span>
+                      <span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                      <span class="am__n">Luz direta</span>
+                    </button>
+                    <button class="am__b" aria-checked="false">
+                      <span class="am__q" style="background:linear-gradient(112deg,#f2efe8,#dcd7cd 55%,#cbc5ba)"></span>
+                      <span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                      <span class="am__n">Luz difusa</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- hora do dia, família no sulco, e a hora é a cor do céu -->
+              <div class="fic__l" data-aberta="sim">
+                <button class="fic__cab">
+                  <span class="fic__nome">Hora do dia</span>
+                  <span class="fic__val">Dia claro editorial</span>
+                  <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="fic__corpo">
+                  <div class="sul" data-familias>
+                    <button class="sul__b" aria-checked="true" data-fam="dia">Dia</button>
+                    <button class="sul__b" aria-checked="false" data-fam="especiais">Especiais</button>
+                    <button class="sul__b" aria-checked="false" data-fam="difuso">Difuso</button>
+                    <button class="sul__b" aria-checked="false" data-fam="noite">Noite</button>
+                  </div>
+                  <div class="am" data-grupo data-fam-alvo style="margin-top:8px">
+                    <button class="am__b" data-fam="dia" aria-checked="true"><span class="am__q" style="background:linear-gradient(175deg,#cfe0ec,#f2f4f4 60%,#e6e4de)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Dia claro editorial</span></button>
+                    <button class="am__b" data-fam="dia" aria-checked="false"><span class="am__q" style="background:linear-gradient(175deg,#d8e3ea,#f7efe2 58%,#eeddc8)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Manhã</span></button>
+                    <button class="am__b" data-fam="dia" aria-checked="false"><span class="am__q" style="background:linear-gradient(175deg,#c2d8e8,#f4f7f8 55%,#e9ebea)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Meio-dia</span></button>
+                    <button class="am__b" data-fam="dia" aria-checked="false"><span class="am__q" style="background:linear-gradient(175deg,#e2cfb4,#f2e2c8 50%,#d6b489)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Tarde</span></button>
+                    <button class="am__b" data-fam="especiais" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#cfd4e2,#efdcd2 55%,#e3b9a4)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Amanhecer</span></button>
+                    <button class="am__b" data-fam="especiais" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#e8c99a,#f2d9a8 50%,#cf9a5e)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Golden hour</span></button>
+                    <button class="am__b" data-fam="especiais" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#8fa0bd,#b7c2d4 55%,#6c7c9c)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Blue hour</span></button>
+                    <button class="am__b" data-fam="difuso" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#cfd3d4,#e4e6e6 58%,#c8cccd)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Nublado</span></button>
+                    <button class="am__b" data-fam="difuso" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#dde4e8,#f4f7f9 58%,#e6ebee)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Neve</span></button>
+                    <button class="am__b" data-fam="difuso" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#b9c1c6,#d2d8db 55%,#a8b1b7)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Chuvoso</span></button>
+                    <button class="am__b" data-fam="difuso" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#d6d8d6,#e8e9e7 58%,#cdd0ce)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Neblina</span></button>
+                    <button class="am__b" data-fam="noite" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#2f3a4d,#4a5670 55%,#232a37)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Noite clara</span></button>
+                    <button class="am__b" data-fam="noite" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#1e2636,#2f3a52 55%,#141a26)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Noite estrelada</span></button>
+                    <button class="am__b" data-fam="noite" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#1a1e26,#262c38 55%,#10131a)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Noite escura</span></button>
+                    <button class="am__b" data-fam="noite" aria-checked="false" hidden><span class="am__q" style="background:linear-gradient(175deg,#232a33,#363f4b 55%,#171c23)"></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Noite chuvosa</span></button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- direção da luz, mais de uma, porque a luz entra por mais de um lugar -->
+              <div class="fic__l" data-aberta="nao">
+                <button class="fic__cab">
+                  <span class="fic__nome">Direção da luz</span>
+                  <span class="fic__val" data-plural="escolhidas">Lateral direita</span>
+                  <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="fic__corpo">
+                  <div class="am am--3" data-grupo data-varios>
+                    <button class="am__b am__b--planta" aria-checked="false"><span class="am__q"><svg viewBox="0 0 100 44" aria-hidden="true"><path class="pl-sala" d="M39 28v-7l11-6 11 6v7"/><path class="pl-luz" d="M50 12v-2.6M45.8 12.8l-1-2.2M54.2 12.8l1-2.2"/></svg></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Frontal</span></button>
+                    <button class="am__b am__b--planta" aria-checked="false"><span class="am__q"><svg viewBox="0 0 100 44" aria-hidden="true"><rect class="pl-sala" x="31" y="13" width="38" height="19" rx="2"/><path class="pl-luz" d="M19 22.5h11M30 22.5l-3.2-3.2M30 22.5l-3.2 3.2"/></svg></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Lateral esquerda</span></button>
+                    <button class="am__b am__b--planta" aria-checked="true"><span class="am__q"><svg viewBox="0 0 100 44" aria-hidden="true"><rect class="pl-sala" x="31" y="13" width="38" height="19" rx="2"/><path class="pl-luz" d="M81 22.5H70M70 22.5l3.2-3.2M70 22.5l3.2 3.2"/></svg></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Lateral direita</span></button>
+                    <button class="am__b am__b--planta" aria-checked="false"><span class="am__q"><svg viewBox="0 0 100 44" aria-hidden="true"><rect class="pl-sala" x="31" y="13" width="38" height="19" rx="2"/><path class="pl-luz" d="M50 41v-7M50 34l-3.2 3.2M50 34l3.2 3.2"/></svg></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Pelo fundo</span></button>
+                    <button class="am__b am__b--planta" aria-checked="false"><span class="am__q"><svg viewBox="0 0 100 44" aria-hidden="true"><rect class="pl-sala" x="31" y="13" width="38" height="19" rx="2"/><path class="pl-luz" d="M79 6L70.5 14.5M70.5 14.5l4.8-.5M70.5 14.5l.5-4.8"/></svg></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Diagonal</span></button>
+                    <button class="am__b am__b--planta" aria-checked="false"><span class="am__q"><svg viewBox="0 0 100 44" aria-hidden="true"><path class="pl-sala" d="M36 33V22l14-8.5 14 8.5v11"/><path class="pl-luz" d="M50 5v5M44.5 7.5l1.7 3.2M55.5 7.5l-1.7 3.2"/></svg></span><span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="am__n">Zenital</span></button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- os detalhes da luz, o único lugar do texto livre sobre luz.
+                   No plugin são TRÊS campos soltos hoje (detalhe-natural,
+                   desc-luz e detalhe-artificial), abertos no meio das
+                   escolhas. Quem nunca escreve nada via os três. Aqui eles
+                   viram uma linha só, e quem escreve tem os três juntos. -->
+              <div class="fic__l" data-aberta="nao">
+                <button class="fic__cab">
+                  <span class="fic__nome">Detalhes da luz</span>
+                  <span class="fic__val" data-vazio="sim">nenhum</span>
+                  <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="fic__corpo">
+                  <p class="fic__grp">Sobre a iluminação natural</p>
+                  <textarea class="ta ta--curta" placeholder="Ex.: sol baixo entrando rasante, sombra comprida no piso"></textarea>
+                  <p class="fic__grp">Sobre a direção</p>
+                  <textarea class="ta ta--curta" placeholder="Ex.: luz entra pela porta-janela lateral direita e pelo fundo"></textarea>
+                  <p class="fic__grp">Sobre a luz artificial</p>
+                  <textarea class="ta ta--curta" placeholder="Ex.: sanca acesa no perímetro, pendente sobre a mesa"></textarea>
+                </div>
+              </div>
+
+              <!-- atmosfera, lista de vários, marcador quadrado -->
+              <div class="fic__l" data-aberta="nao">
+                <button class="fic__cab">
+                  <span class="fic__nome">Atmosfera</span>
+                  <span class="fic__val" data-vazio="sim" data-plural="escolhidas">nenhuma</span>
+                  <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="fic__corpo">
+                  <div class="lista" data-grupo data-varios>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Céu azul limpo</button>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Nuvens leves</button>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Nublado difuso</button>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Pós-chuva com reflexos sutis</button>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Leve neblina</button>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Clima tropical seco</button>
+                  </div>
+                  <textarea class="ta" placeholder="Outra, descreva com suas palavras..."></textarea>
+                </div>
+              </div>
+
+              <!-- luz artificial, a bolinha mostra a temperatura -->
+              <div class="fic__l" data-aberta="nao">
+                <button class="fic__cab">
+                  <span class="fic__nome">Luz artificial</span>
+                  <span class="fic__val">Desligada</span>
+                  <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="fic__corpo">
+                  <p class="fic__grp">Cor</p>
+                  <div class="kel" data-grupo>
+                    <button class="kel__b" aria-checked="true"><span class="kel__q" style="background:var(--wash2)"></span>Desligada</button>
+                    <button class="kel__b" aria-checked="false"><span class="kel__q" style="background:#f0c07a"></span>2700K</button>
+                    <button class="kel__b" aria-checked="false"><span class="kel__q" style="background:#f5d2a2"></span>3000K</button>
+                    <button class="kel__b" aria-checked="false"><span class="kel__q" style="background:#f6e6cd"></span>4000K</button>
+                    <button class="kel__b" aria-checked="false"><span class="kel__q" style="background:#eef2f6"></span>5500K</button>
+                    <button class="kel__b" aria-checked="false"><span class="kel__q" style="background:var(--wash2)"></span>Outro</button>
+                  </div>
+                  <!-- Intensidade é "quanto", e não "o quê". Escolha curta
+                       entre poucos valores que não muda o que a ferramenta
+                       faz vai no sulco, que é o mesmo gesto do 2x/4x/8x. -->
+                  <p class="fic__grp">Intensidade</p>
+                  <div class="sul" data-grupo data-so-marca>
+                    <button class="sul__b" aria-checked="false">Suave</button>
+                    <button class="sul__b" aria-checked="true">Média</button>
+                    <button class="sul__b" aria-checked="false">Intensa</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- entorno, lista de vários -->
+              <div class="fic__l" data-aberta="nao">
+                <button class="fic__cab">
+                  <span class="fic__nome">Entorno</span>
+                  <span class="fic__val" data-vazio="sim" data-plural="escolhidos">nenhum</span>
+                  <svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="fic__corpo">
+                  <div class="lista" data-grupo data-varios>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Jardim</button>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Casa térrea</button>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Vista urbana</button>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Bairro residencial</button>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Montanhas</button>
+                    <button class="lista__b" aria-checked="false"><span class="lista__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Praia</button>
+                  </div>
+                  <textarea class="ta" placeholder="Descreva com suas palavras o entorno..."></textarea>
+                  <p class="hint">Quanto mais específico, melhor. Ex.: "10º andar
+                    em Florianópolis, vista de bairro arborizado".</p>
+                </div>
+              </div>
+            </div>
+
+            <p class="sec">Referências <span>opcional</span></p>
+            <div class="refs">
+              <div class="ref ref--a"><span class="ref__n">01</span></div>
+              <div class="ref ref--b"><span class="ref__n">02</span></div>
+              <button class="ref ref--add"><span class="ref__mais">+</span><span class="ref__c">2/10</span></button>
+            </div>
+            <textarea class="ta" placeholder="Cite @ref01 para usar uma referência..."></textarea>
+            <p class="hint">Use @ref01, @ref02... para dizer onde cada imagem entra.</p>
+
+          </div><!-- /pn__rola -->
+
+          <!-- ══ a barra do pé, fixa. A rolagem para nela. ══ -->
+          <div class="barra-ger">
+            <div class="cfg">
+              <div class="qty">
+                <button aria-label="Menos" data-qty="-1">−</button>
+                <span id="qty">2</span>
+                <button aria-label="Mais" data-qty="1">+</button>
+              </div>
+
+              <div class="cfg__wrap">
+                <button class="cfg__b" aria-expanded="false" data-pop="ratio">
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="14" height="10" rx="1.5"/></svg>
+                  <span data-val="ratio">4:5</span>
+                  <svg class="cfg__seta" viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="pop pop--ratio" id="pop-ratio" hidden>
+                  <div class="rt" data-grupo data-alvo="ratio">
+                    <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:22px;height:22px"></span></span>auto</button>
+                    <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:22px;height:22px"></span></span>1:1</button>
+                    <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:11px"></span></span>21:9</button>
+                    <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:15px"></span></span>16:9</button>
+                    <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:15px;height:26px"></span></span>9:16</button>
+                    <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:20px"></span></span>4:3</button>
+                    <button class="rt__b" aria-checked="true"><span class="rt__cx"><span class="rt__q" style="width:21px;height:26px"></span></span>4:5</button>
+                    <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:21px"></span></span>5:4</button>
+                    <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:20px;height:26px"></span></span>3:4</button>
+                    <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:26px;height:17px"></span></span>3:2</button>
+                    <button class="rt__b" aria-checked="false"><span class="rt__cx"><span class="rt__q" style="width:17px;height:26px"></span></span>2:3</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cfg__wrap">
+                <button class="cfg__b" aria-expanded="false" data-pop="res">
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7V4h3M17 7V4h-3M3 13v3h3M17 13v3h-3"/></svg>
+                  <span data-val="res">2K</span>
+                  <svg class="cfg__seta" viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="pop" id="pop-res" hidden>
+                  <div class="rs" data-grupo data-alvo="res">
+                    <button class="rs__b" aria-checked="false"><span class="rs__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>1K</button>
+                    <button class="rs__b" aria-checked="true"><span class="rs__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>2K</button>
+                    <button class="rs__b" aria-checked="false"><span class="rs__m"><svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 6.3l2.6 2.6L10 3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>4K</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button class="gerar" id="gerar" disabled>
+              <span id="gerar-rotulo">Leia os materiais primeiro</span>
+              <span class="cr-custo-tag">
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+                <span id="gerar-custo">276</span>
+              </span>
+            </button>
+            <button class="resetar">Resetar configurações</button>
+          </div>
+        </div><!-- /pn -->
+
+        <!-- ══════════ o palco ══════════ -->
+        <div class="pc">
+
+          <div class="pc__cab">
+            <p class="sec">O enquadramento</p>
+            <span class="pc__viva">Cena 3 · 4:5 · 2048 × 2560</span>
+          </div>
+
+          <div class="vis">
+            <!-- A cena do SketchUp. No plugin isto é o PNG do
+                 `viewport_capture.rb`, e aqui é um desenho de linha porque o
+                 assunto é o enquadramento, e não a imagem. -->
+            <svg class="vis__cena" viewBox="0 0 480 360" aria-label="A cena capturada no SketchUp">
+              <rect width="480" height="360" fill="#FFFFFF"/>
+              <path d="M132 252h216l132 108H0z" fill="#F4F4F1"/>
+              <path d="M132 100h216L480 0H0z" fill="#F4F4F1" opacity=".55"/>
+
+              <!-- a caixa do ambiente -->
+              <g fill="none" stroke="#B9B9B1" stroke-width="1.3" stroke-linejoin="round">
+                <path d="M132 100h216v152H132z"/>
+                <path d="M132 100L0 0M348 100l132-100M132 252L0 360M348 252l132 108"/>
+              </g>
+
+              <!-- o painel ripado da direita, atrás de tudo -->
+              <g fill="none" stroke="#DCDCD6" stroke-width="1">
+                <path d="M264 130v98M276 130v98M288 130v98M300 130v98M312 130v98M324 130v98M336 130v98"/>
+                <path d="M258 130h84v98h-84z"/>
+              </g>
+
+              <!-- a esquadria -->
+              <g fill="none" stroke="#B9B9B1" stroke-width="1.3">
+                <path d="M150 126h76v100h-76z"/>
+                <path d="M188 126v100M150 168h76"/>
+              </g>
+
+              <!-- o tapete -->
+              <path d="M124 302h232l34 40H90z" fill="none" stroke="#DCDCD6" stroke-width="1.1" stroke-linejoin="round"/>
+
+              <!-- o sofá -->
+              <g fill="#FFFFFF" stroke="#B9B9B1" stroke-width="1.3" stroke-linejoin="round">
+                <path d="M170 226h140v40l12 24H158l12-24z"/>
+              </g>
+              <path d="M170 266h140" fill="none" stroke="#B9B9B1" stroke-width="1.1"/>
+
+              <!-- a mesa de centro -->
+              <g fill="#FFFFFF" stroke="#B9B9B1" stroke-width="1.2" stroke-linejoin="round">
+                <path d="M204 300h72l8 10h-88z"/>
+              </g>
+              <path d="M212 310v14M268 310v14" fill="none" stroke="#B9B9B1" stroke-width="1.1"/>
+            </svg>
+
+            <!-- o safe frame: o que fica fora do corte escurece -->
+            <div class="vis__safe" id="safe">
+              <span class="vis__fora" style="left:0"></span>
+              <span class="vis__fora" style="right:0"></span>
+              <span class="vis__corte" style="left:20%"></span>
+              <span class="vis__corte" style="left:80%"></span>
+            </div>
+
+            <!-- os terços, dentro do corte -->
+            <div class="vis__safe" id="tercos" hidden>
+              <span class="vis__linha" style="left:40%;top:0;bottom:0;width:1px"></span>
+              <span class="vis__linha" style="left:60%;top:0;bottom:0;width:1px"></span>
+              <span class="vis__linha" style="top:33.33%;left:20%;right:20%;height:1px"></span>
+              <span class="vis__linha" style="top:66.66%;left:20%;right:20%;height:1px"></span>
+            </div>
+
+            <span class="vis__marca">Safe frame</span>
+          </div>
+
+          <div class="pc__fila">
+            <button class="pc__b" id="b-recapturar">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 10a6.5 6.5 0 1 1-1.9-4.6M16.5 3v3.5H13"/></svg>
+              Recapturar
+            </button>
+            <button class="pc__b" id="b-tercos" aria-pressed="false">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="2.5" width="15" height="15" rx="1.5"/><path d="M7.5 2.5v15M12.5 2.5v15M2.5 7.5h15M2.5 12.5h15"/></svg>
+              Terços
+            </button>
+            <button class="pc__b">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4v12M4 10h12"/></svg>
+              Salvar cena
+            </button>
+            <button class="pc__b">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v9M6.5 8.5L10 12l3.5-3.5M3.5 14.5V16h13v-1.5"/></svg>
+              Exportar
+            </button>
+          </div>
+
+          <p class="sec">Cenas salvas</p>
+          <div class="cn">
+            <button class="cn__b" aria-checked="false"><span class="cn__q" style="background:linear-gradient(150deg,#e7e3da,#cfc7b8)"></span><span class="cn__n">Sala 01</span></button>
+            <button class="cn__b" aria-checked="false"><span class="cn__q" style="background:linear-gradient(150deg,#e2e6ea,#c2cbd3)"></span><span class="cn__n">Sala 02</span></button>
+            <button class="cn__b" aria-checked="true"><span class="cn__q" style="background:linear-gradient(150deg,#e9e5db,#d3c9b6)"></span><span class="cn__n">Estar amplo</span></button>
+            <button class="cn__b cn--add"><span style="font-size:16px;line-height:1">+</span>Nova</button>
+          </div>
+
+          <p class="sec">Último lote</p>
+          <div class="lote">
+            <div class="lt lt--a">
+              <div class="lt__pil">
+                <button aria-label="Aprovar"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-9"/></svg></button>
+                <button aria-label="Favoritar"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M10 16.5S3.5 12.6 3.5 8.2A3.4 3.4 0 0 1 10 6.6a3.4 3.4 0 0 1 6.5 1.6c0 4.4-6.5 8.3-6.5 8.3z"/></svg></button>
+                <button aria-label="Baixar"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v9M6.5 8.5L10 12l3.5-3.5M3.5 15.5V17h13v-1.5"/></svg></button>
+                <button aria-label="Excluir"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h13M8 5.5V4h4v1.5M5 5.5l.8 11h8.4l.8-11"/></svg></button>
+                <i></i>
+                <button aria-label="Levar para Editar"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 16.5h3l9-9-3-3-9 9v3zM12 4.5l3 3"/></svg></button>
+                <button aria-label="Levar para Upscale"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5V4h4.5M16 11.5V16h-4.5M4 4l4.5 4.5M16 16l-4.5-4.5"/></svg></button>
+                <button aria-label="Levar para Animação"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2.5 4.5h15v11h-15zM6.5 4.5v11M13.5 4.5v11M2.5 10h15"/></svg></button>
+              </div>
+            </div>
+            <div class="lt lt--b">
+              <div class="lt__pil">
+                <button aria-label="Aprovar"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-9"/></svg></button>
+                <button aria-label="Favoritar"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M10 16.5S3.5 12.6 3.5 8.2A3.4 3.4 0 0 1 10 6.6a3.4 3.4 0 0 1 6.5 1.6c0 4.4-6.5 8.3-6.5 8.3z"/></svg></button>
+                <button aria-label="Baixar"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v9M6.5 8.5L10 12l3.5-3.5M3.5 15.5V17h13v-1.5"/></svg></button>
+                <button aria-label="Excluir"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h13M8 5.5V4h4v1.5M5 5.5l.8 11h8.4l.8-11"/></svg></button>
+                <i></i>
+                <button aria-label="Levar para Editar"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 16.5h3l9-9-3-3-9 9v3zM12 4.5l3 3"/></svg></button>
+                <button aria-label="Levar para Upscale"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5V4h4.5M16 11.5V16h-4.5M4 4l4.5 4.5M16 16l-4.5-4.5"/></svg></button>
+                <button aria-label="Levar para Animação"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2.5 4.5h15v11h-15zM6.5 4.5v11M13.5 4.5v11M2.5 10h15"/></svg></button>
+              </div>
+            </div>
+          </div>
+          <p class="hint">O lote inteiro fica no Histórico. Aqui ficam só as
+            desta sessão, para conferir sem trocar de aba.</p>
+
+        </div><!-- /pc -->
+      </div><!-- /jn-corpo -->
+    </div><!-- /jn -->
+    </div>
+
+    <!-- ══════════════════ AS NOTAS ══════════════════ -->
+    <div class="notas">
+      <div class="regra" style="margin:0 0 30px">
+        <p><b>O painel tem 400 de largura. O formulário rola, a barra do pé não.</b></p>
+        <p>Os 479 que sobram não ficam vazios, e também não ganham peça nova. O
+          enquadramento, os terços, salvar cena e exportar já existem na aba
+          Render, espremidos numa fileira de botões de texto. Eles falam todos
+          do mesmo assunto, que é uma imagem, e aqui ficam do tamanho de uma.</p>
+      </div>
+
+      <h2>O trilho</h2>
+      <p>Doze abas, ícone e nome nas doze, em duas fileiras de seis. Nenhuma
+        atrás de seta, que era a queixa do trilho de hoje: cabem quatro nomes
+        e as outras oito só existem para quem rola.</p>
+      <p>As duas fileiras não são só quebra de linha. A de cima é <b>o que cria
+        a imagem</b> a partir do modelo. A de baixo é <b>o que termina, o que
+        abastece o modelo e o que já saiu</b>. Quem chega procurando "onde eu
+        gero" olha para a primeira linha e acha.</p>
+      <p>O ativo é a placa que sobe do sulco, papel e sombra, sem cor de fundo,
+        e só o desenho dele fica turquesa. Escolher entre jeitos de ver a mesma
+        coisa não é escolher entre coisas, e por isso não leva cor.</p>
+
+      <h2>O que a aba Render cobra</h2>
+      <table class="mapa">
+        <thead><tr><th>O quê</th><th>1K e 2K</th><th>4K</th></tr></thead>
+        <tbody>
+          <tr><td>Ler materiais</td><td>16</td><td>16</td></tr>
+          <tr><td>A primeira imagem</td><td>142</td><td>239</td></tr>
+          <tr><td>Cada imagem a mais do lote</td><td>134</td><td>231</td></tr>
+        </tbody>
+      </table>
+      <p>A moeda no botão segue a conta e muda com a quantidade e a resolução.
+        Ela aparece <b>só no hover</b>, no canto direito, e o rótulo fica
+        sempre centralizado. Quem decide se a pessoa pode gerar agora é sempre
+        o servidor, no <code>pode_gerar</code>. A tela só mostra.</p>
+
+      <h2>Os quatro estados dos materiais</h2>
+      <p>É o único bloco do painel com vida própria, e ele passa por
+        <code>vazio</code>, <code>lendo</code>, <code>revisar</code> e
+        <code>confirmado</code>. O Renderizar só acende no quarto, e enquanto
+        isso o próprio botão diz o motivo, em vez de uma frase embaixo dele.
+        Troca no banco de provas aqui embaixo.</p>
+
+      <h2>O que saiu do formulário</h2>
+      <p><b>O enquadramento.</b> Safe frame, terços, salvar cena e exportar
+        eram quatro botões de texto no meio das escolhas de luz. Falam todos
+        do mesmo assunto, que é uma imagem, e agora estão do tamanho de uma.</p>
+      <p><b>Os três campos de texto livre.</b> <code>detalhe-natural</code>,
+        <code>desc-luz</code> e <code>detalhe-artificial</code> moravam abertos
+        entre as escolhas. Viraram uma linha só, Detalhes da luz. Quem nunca
+        escreve nada não vê nenhum dos três.</p>
+      <p><b>A grade de proporção duplicada.</b> O painel de hoje tem a mesma
+        escolha em três lugares: o dropdown do topo, a grade escondida e a
+        pílula da barra. Fica a da barra, que é onde ela vale para todas as
+        abas.</p>
+
+      <h2>O que ficou de fora de propósito</h2>
+      <p>A intensidade da luz artificial foi para o sulco, e não para uma lista
+        com marcador. Ela é "quanto", e não "o quê", que é o mesmo caso do
+        2x/4x/8x do Upscale.</p>
+      <p>O roxo saiu do avatar e do anel de crédito. Eram os dois últimos
+        <code>#A4A1F3</code> do plugin nesta tela.</p>
+
+      <div class="medida">
+        <span><b>janela</b> 880 × 980</span>
+        <span><b>painel</b> 400</span>
+        <span><b>palco</b> 479</span>
+        <span><b>cabeça</b> 52</span>
+        <span><b>trilho</b> 2 × 34</span>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="rod">
+    <p><b>De onde vêm as peças.</b> A ficha, a lista com marcador, a amostra de
+      luz, o sulco e a barra do pé vêm do <code>cora-render.html</code>, que é
+      o estudo aprovado da aba Render da web. As cores, os tamanhos e as regras
+      vêm do <code>cora-manual-janela.html</code>. Nada aqui inventa peça nova.</p>
+    <p><b>O tamanho é o de hoje.</b> 880 por 980 é o que o <code>panel.rb</code>
+      abre, com mínimo de 460 por 500. No mínimo o palco some e sobra o painel,
+      que é a mesma coluna de 400 do site.</p>
+    <p><b>Isto é um estudo.</b> Não rodar o <code>gerar-css-artefato.py</code>
+      aqui. Quando aprovar, o caminho é o <code>panel.html</code> do
+      <code>cora-plugin</code>.</p>
+  </footer>
+</div>
+
+<!-- ══════════════════ o banco de provas ══════════════════ -->
+<div class="banco">
+  <div class="banco__g">
+    <span class="banco__r">Tema</span>
+    <button class="banco__b on" data-tema="light">Claro</button>
+    <button class="banco__b" data-tema="dark">Escuro</button>
+  </div>
+  <div class="banco__g">
+    <span class="banco__r">Materiais</span>
+    <button class="banco__b on" data-est="vazio">Vazio</button>
+    <button class="banco__b" data-est="lendo">Lendo</button>
+    <button class="banco__b" data-est="revisar">Revisar</button>
+    <button class="banco__b" data-est="confirmado">Confirmado</button>
+  </div>
+  <div class="banco__g">
+    <span class="banco__r">Plano</span>
+    <button class="banco__b on" data-plano="pro">Pro</button>
+    <button class="banco__b" data-plano="starter">Starter</button>
+  </div>
+  <span class="banco__n">Animação e Pós-produção são Pro e Studio</span>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var raiz = document.documentElement;
+
+  // ── o tema ──
+  document.querySelectorAll('[data-tema]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-tema]').forEach(function (o) { o.classList.remove('on'); });
+      b.classList.add('on');
+      raiz.setAttribute('data-theme', b.dataset.tema);
+    });
+  });
+
+  // ── abrir e fechar a linha da ficha ──
+  // Uma por vez, de propósito: é o que mantém o painel curto.
+  document.querySelectorAll('.fic__cab').forEach(function (c) {
+    c.addEventListener('click', function () {
+      var l = c.closest('.fic__l');
+      var abrindo = l.getAttribute('data-aberta') !== 'sim';
+      document.querySelectorAll('.fic__l').forEach(function (o) { o.setAttribute('data-aberta', 'nao'); });
+      l.setAttribute('data-aberta', abrindo ? 'sim' : 'nao');
+    });
+  });
+
+  // ── escolher ──
+  function nomeDe(b) {
+    var n = b.querySelector('.am__n');
+    return (n ? n.textContent : b.textContent).trim();
+  }
+
+  document.querySelectorAll('[data-grupo]').forEach(function (g) {
+    var varios = g.hasAttribute('data-varios');
+    g.addEventListener('click', function (e) {
+      var b = e.target.closest('button[aria-checked]');
+      if (!b || !g.contains(b)) return;
+
+      if (varios) {
+        b.setAttribute('aria-checked', b.getAttribute('aria-checked') === 'true' ? 'false' : 'true');
+      } else {
+        g.querySelectorAll('button[aria-checked]').forEach(function (o) { o.setAttribute('aria-checked', 'false'); });
+        b.setAttribute('aria-checked', 'true');
+      }
+
+      var marcados = [].slice.call(g.querySelectorAll('button[aria-checked="true"]')).map(nomeDe);
+      var l = g.hasAttribute('data-so-marca') ? null : b.closest('.fic__l');
+
+      if (l) {
+        var val = l.querySelector('.fic__val');
+        // O plural e a palavra do vazio vêm do próprio marcador, e não de uma
+        // constante: "2 escolhidas" para Atmosfera, "2 escolhidos" para
+        // Entorno. Fixar um dos dois erra o gênero na metade das linhas.
+        if (val.dataset.zero === undefined) val.dataset.zero = val.textContent.trim();
+        var texto = marcados.length === 1 ? marcados[0]
+                  : marcados.length > 1  ? marcados.length + ' ' + (val.dataset.plural || 'escolhidas')
+                  : val.dataset.zero;
+        val.textContent = texto;
+        val.setAttribute('data-vazio', marcados.length ? 'nao' : 'sim');
+        // A linha NÃO fecha. Trocar de mood é o que mais se faz testando, e
+        // fechar a cada troca cobrava um clique por tentativa.
+      }
+
+      if (g.dataset.alvo) {
+        document.querySelector('[data-val="' + g.dataset.alvo + '"]').textContent = marcados[0] || '';
+        conta();
+      }
+    });
+  });
+
+  // ── a família da hora do dia ──
+  document.querySelectorAll('[data-familias]').forEach(function (s) {
+    s.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-fam]');
+      if (!b) return;
+      s.querySelectorAll('button').forEach(function (o) { o.setAttribute('aria-checked', 'false'); });
+      b.setAttribute('aria-checked', 'true');
+      var alvo = s.closest('.fic__corpo').querySelector('[data-fam-alvo]');
+      alvo.querySelectorAll('.am__b').forEach(function (l) { l.hidden = l.dataset.fam !== b.dataset.fam; });
+    });
+  });
+
+  // ── os popovers da barra de baixo ──
+  function fechaPops(menos) {
+    document.querySelectorAll('.pop').forEach(function (p) {
+      if (p !== menos) {
+        p.hidden = true;
+        var b = document.querySelector('[data-pop="' + p.id.replace('pop-', '') + '"]');
+        if (b) b.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+  document.querySelectorAll('[data-pop]').forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var p = document.getElementById('pop-' + b.dataset.pop);
+      var abrindo = p.hidden;
+      fechaPops(p);
+      p.hidden = !abrindo;
+      b.setAttribute('aria-expanded', abrindo ? 'true' : 'false');
+    });
+  });
+  document.querySelectorAll('.pop').forEach(function (p) {
+    p.addEventListener('click', function (e) { e.stopPropagation(); });
+  });
+  document.addEventListener('click', function () { fechaPops(null); });
+  addEventListener('keydown', function (e) { if (e.key === 'Escape') fechaPops(null); });
+
+  // ── a quantidade e a conta do custo ──
+  // Os números são os de hoje e mudam: o servidor é a fonte, e a tela só
+  // mostra. 142 e 239 na primeira, 134 e 231 em cada uma a mais do lote.
+  var qty = document.getElementById('qty');
+  var custo = document.getElementById('gerar-custo');
+
+  function conta() {
+    var n = +qty.textContent;
+    var res = document.querySelector('[data-val="res"]').textContent.trim();
+    var base = res === '4K' ? 239 : 142;
+    var mais = res === '4K' ? 231 : 134;
+    custo.textContent = base + (n - 1) * mais;
+  }
+
+  document.querySelectorAll('[data-qty]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var n = Math.max(1, Math.min(8, +qty.textContent + +b.dataset.qty));
+      qty.textContent = n;
+      conta();
+    });
+  });
+
+  // ── os quatro estados dos materiais ──
+  var LEITURA = [
+    'PISO  ·  porcelanato bege claro, 90x90, acabamento acetinado, rejunte fino no tom.',
+    'PAREDE DO FUNDO  ·  massa lisa pintada de branco quente, sem textura aparente.',
+    'PAINEL RIPADO  ·  ripas de madeira clara na vertical, largura 4cm, vão de 1cm.',
+    'ESQUADRIA  ·  alumínio preto fosco, perfil fino, vidro incolor.',
+    'SOFÁ  ·  linho cru, trama visível, almofadas no mesmo tecido.',
+    'MESA DE CENTRO  ·  tampo de mármore branco com veio cinza, base metálica preta.',
+    'TAPETE  ·  lã bege, pelo baixo, sem estampa.',
+    'CORTINA  ·  voil branco, do teto ao piso, franzido leve.'
+  ].join('\n');
+
+  var mat = document.getElementById('mat');
+  var gerar = document.getElementById('gerar');
+  var rotulo = document.getElementById('gerar-rotulo');
+
+  function estado(e) {
+    mat.dataset.estado = e;
+    mat.querySelectorAll('.mat__passo').forEach(function (p) { p.hidden = p.dataset.em !== e; });
+
+    if (e === 'revisar') document.getElementById('mat-texto').value = LEITURA;
+    if (e === 'confirmado') document.getElementById('mat-texto-ok').value = LEITURA;
+
+    // O botão diz o motivo de estar apagado. Uma linha a menos na barra, e a
+    // resposta no lugar onde a pergunta nasce, que é o próprio botão.
+    var pronto = e === 'confirmado';
+    gerar.disabled = !pronto;
+    rotulo.textContent = pronto ? 'Renderizar'
+      : e === 'lendo' ? 'Lendo os materiais'
+      : e === 'revisar' ? 'Confirme os materiais'
+      : 'Leia os materiais primeiro';
+
+    document.querySelectorAll('[data-est]').forEach(function (b) { b.classList.toggle('on', b.dataset.est === e); });
+  }
+
+  mat.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-mat]');
+    if (!b) return;
+    var o = b.dataset.mat;
+    if (o === 'tenho') estado('revisar');
+    if (o === 'ler') { estado('lendo'); setTimeout(function () { estado('revisar'); }, 1400); }
+    if (o === 'confirmar') estado('confirmado');
+    if (o === 'editar') estado('revisar');
+  });
+
+  document.querySelectorAll('[data-est]').forEach(function (b) {
+    b.addEventListener('click', function () { estado(b.dataset.est); });
+  });
+
+  // ── os terços ──
+  var bt = document.getElementById('b-tercos');
+  bt.addEventListener('click', function () {
+    var on = bt.getAttribute('aria-pressed') === 'true';
+    bt.setAttribute('aria-pressed', on ? 'false' : 'true');
+    document.getElementById('tercos').hidden = on;
+  });
+
+  // ── o trilho ──
+  document.querySelector('.tri').addEventListener('click', function (ev) {
+    var b = ev.target.closest('.tri__b');
+    if (!b || b.classList.contains('tri__b--trancada')) return;
+    document.querySelectorAll('.tri__b').forEach(function (o) { o.classList.remove('tri__b--on'); });
+    b.classList.add('tri__b--on');
+  });
+
+  // ── o plano ──
+  // A aba trancada continua com o cadeado, e o clique abre o aviso de plano.
+  // Aqui ela só não troca de aba.
+  var CAD = '<svg class="tri__cad" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><use href="#i-cadeado"/></svg>';
+
+  function plano(p) {
+    document.querySelectorAll('[data-plano="pro"]').forEach(function (b) {
+      var trancada = p === 'starter';
+      b.classList.toggle('tri__b--trancada', trancada);
+      var cad = b.querySelector('.tri__cad');
+      if (trancada && !cad) b.insertAdjacentHTML('beforeend', CAD);
+      if (!trancada && cad) cad.remove();
+      if (trancada && b.classList.contains('tri__b--on')) {
+        b.classList.remove('tri__b--on');
+        document.querySelector('[data-aba="render"]').classList.add('tri__b--on');
+      }
+    });
+    document.querySelectorAll('.banco__b[data-plano]').forEach(function (b) { b.classList.toggle('on', b.dataset.plano === p); });
+  }
+
+  document.querySelectorAll('.banco__b[data-plano]').forEach(function (b) {
+    b.addEventListener('click', function () { plano(b.dataset.plano); });
+  });
+
+  conta();
+  estado('vazio');
+})();
+</script>

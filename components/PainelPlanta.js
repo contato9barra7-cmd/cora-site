@@ -21,11 +21,20 @@ import DropdownMulti from './DropdownMulti';
 import IconeCredito from './IconeCredito';
 import Seta from './Seta';
 import CampoRefs from './CampoRefs';
-import { useIdioma } from '../lib/i18n';
+import { useIdioma, tOpt } from '../lib/i18n';
 import { gerarRender, analisarBatch, PROPORCOES, RESOLUCOES, custoRender, MAX_REFS } from '../lib/render';
 
-// ── Rótulos (PT) — a i18n liga depois; ver a lista no fim do componente ──
-const L = {
+// ── Rótulos ──
+//
+// O português é o canônico: é o que vai no prompt e o que o servidor entende.
+// A tradução acontece na LEITURA, e não aqui, porque estas linhas rodam uma
+// vez só, quando o módulo carrega, e nessa hora ninguém escolheu idioma ainda.
+//
+// O `Proxy` abaixo faz isso sem tocar nas 111 leituras espalhadas pelo
+// componente: `L.mood_leve` continua sendo `L.mood_leve`, e sai traduzido.
+// As opções dos dropdowns são um caso à parte, porque as listas também se
+// montam no carregamento: quem traduz aquelas é o próprio dropdown, ao pintar.
+const PT = {
   imagem_planta:   'Imagem da planta',
   escolher_imagem: 'Escolher imagem',
   remover_imagem:  'Remover imagem',
@@ -60,18 +69,18 @@ const L = {
   paleta_natural:  'Natural / orgânica',
   paleta_contraste:'Contrastada',
 
-  ilum_sombras:    'Iluminação — sombras',
+  ilum_sombras:    'Iluminação: sombras',
   sombra_difusas:  'Difusas',
   sombra_suaves:   'Suaves',
   sombra_medias:   'Médias',
   sombra_marcadas: 'Marcadas',
 
-  ilum_origem:     'Iluminação — origem',
+  ilum_origem:     'Iluminação: origem',
   origem_zenital:  'Zenital',
   origem_lateral:  'Lateral',
   origem_uniforme: 'Uniforme',
 
-  par_cor:         'Espessura das paredes — cor',
+  par_cor:         'Espessura das paredes: cor',
   cor_branco:      'Branco',
   cor_offwhite:    'Off-white',
   cor_cinza_claro: 'Cinza claro',
@@ -79,7 +88,7 @@ const L = {
   cor_cinza_escuro:'Cinza escuro',
   cor_preto:       'Preto',
 
-  par_trat:        'Espessura das paredes — tratamento',
+  par_trat:        'Espessura das paredes: tratamento',
   trat_sombra:     'Leve sombra interna',
   trat_chapada:    'Chapada',
   trat_textura:    'Textura sutil',
@@ -99,7 +108,7 @@ const L = {
 
   piso_titulo:       'Piso por zona',
   piso_definir:      '＋ Definir piso por zona',
-  piso_social:       'Área social — tipo + tom + acabamento',
+  piso_social:       'Área social: tipo, tom e acabamento',
   piso_social_ph:    'ex.: porcelanato bege acetinado grande formato',
   piso_intima:       'Área íntima',
   piso_intima_mesmo: 'Mesmo piso',
@@ -109,7 +118,7 @@ const L = {
   piso_zona_outra:   'Outra zona',
   piso_zona_nome_lbl:'Nome da zona (ex.: varanda, cozinha)',
   piso_zona_nome_ph: 'nome da zona',
-  piso_zona_piso_lbl:'Piso — tipo + tom + acabamento',
+  piso_zona_piso_lbl:'Piso: tipo, tom e acabamento',
   piso_zona_piso_ph: 'ex.: deck de madeira',
 
   descricao:     'Descrição adicional',
@@ -143,6 +152,8 @@ const L = {
   mat_confirmados: '✓ Materiais confirmados',
   voltar_refs:     '‹ Voltar para referências'
 };
+
+const L = new Proxy(PT, { get: (o, k) => tOpt(o[k]) });
 
 // ── Opções (v = PT canônico p/ o servidor · n = rótulo) ──
 const OPC_LEITURA = [

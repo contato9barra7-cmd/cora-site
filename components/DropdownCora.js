@@ -20,6 +20,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { tOpt } from '../lib/i18n';
 
 // `caixinha` liga o desenho da JANELA (Prancheta): caixa de check à esquerda,
 // igual ao dropdown de várias. Fora dela o dropdown é o do site, com o tique
@@ -78,7 +79,7 @@ export default function DropdownCora({ valor, opcoes, onEscolher, rotulo, caixin
       >
         <span className="cora-dd-mio">
           {rotulo && <span className="cora-dd-rot">{rotulo}</span>}
-          <span className="cora-dd-val">{atual ? atual.n : ''}</span>
+          <span className="cora-dd-val">{atual ? tOpt(atual.n) : ''}</span>
         </span>
         <svg className="cora-dd-seta" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.7">
           <path d="M4 6l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
@@ -114,11 +115,11 @@ export default function DropdownCora({ valor, opcoes, onEscolher, rotulo, caixin
                       </svg>
                     )}
                   </span>
-                  {o.n}
+                  {tOpt(o.n)}
                 </>
               ) : (
                 <>
-                  <span>{o.n}</span>
+                  <span>{tOpt(o.n)}</span>
                   <svg className="cora-dd-tique" viewBox="0 0 16 16" fill="none"
                        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m3 8.5 3.5 3.5L13 5" />

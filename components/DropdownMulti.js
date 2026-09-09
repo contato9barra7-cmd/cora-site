@@ -18,6 +18,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { tOpt } from '../lib/i18n';
 
 export default function DropdownMulti({ valores, opcoes, onToggle, placeholder = 'Selecione…' }) {
   const [aberto, setAberto] = useState(false);
@@ -26,7 +27,7 @@ export default function DropdownMulti({ valores, opcoes, onToggle, placeholder =
   const listaRef = useRef(null);
 
   const marcados = opcoes.filter((o) => valores.includes(o.v));
-  const rotulo = marcados.length ? marcados.map((o) => o.n).join(', ') : placeholder;
+  const rotulo = marcados.length ? marcados.map((o) => tOpt(o.n)).join(', ') : placeholder;
 
   function medir() {
     if (!ref.current) return;
@@ -92,7 +93,7 @@ export default function DropdownMulti({ valores, opcoes, onToggle, placeholder =
                     </svg>
                   )}
                 </span>
-                {o.n}
+                {tOpt(o.n)}
               </div>
             );
           })}
