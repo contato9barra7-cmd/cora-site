@@ -692,13 +692,24 @@
 /* ── Quando não há nada ──
    A faixa entra aqui porque é o único lugar da janela onde sobra silêncio, e
    um lugar vazio é onde a marca cabe sem competir com imagem nenhuma. */
-.cr-vazio{ padding:80px 24px; text-align:center; }
+/* O bloco senta no MEIO da area do feed, e nao num terco fixo de cima: num
+   feed alto, o terco deixava dois tercos de nada embaixo e o vazio parecia
+   erro. No meio ele parece descanso. As frases ficam mais juntas (14 e 4, em
+   vez de 24 e 8). Escolhido no estudo `ferramentas/cora-vazio.html`.
+
+   A lista so vira coluna flex quando o vazio e filho dela, para o layout
+   normal (lotes, grades, masonry) nao mudar em nada. */
+.cr-lista:has(> .cr-vazio){ display:flex; flex-direction:column; }
+.cr-vazio{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:24px; text-align:center;
+}
 .cr-vazio-faixa{
-  width:132px; height:14px; margin:0 auto 24px; border-radius:var(--pill);
+  width:132px; height:14px; margin:0 0 14px; border-radius:var(--pill);
   background:var(--faixa) repeat-x left center; background-size:112px 100%;
 }
-.cr-vazio h2{ margin:0 0 8px; font-size:var(--t-titulo); font-weight:600; color:var(--ink); }
-.cr-vazio p{ margin:0 auto; max-width:38ch; font-size:var(--t-corpo); color:var(--ink2);  text-wrap:pretty; }
+.cr-vazio h2{ margin:0 0 4px; font-size:var(--t-titulo); font-weight:600; color:var(--ink); }
+.cr-vazio p{ margin:0; max-width:38ch; font-size:var(--t-corpo); color:var(--ink2); text-wrap:pretty; }
 .cr-msg{ padding:32px 20px; color:var(--ink3); font-size:var(--t-corpo); }
 
 /* ── Voltar ao topo ── */

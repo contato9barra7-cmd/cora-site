@@ -244,7 +244,10 @@ export default function AppShell({ children }) {
   // leva bloqueio de tela cheia no Cora.
   const TODOS_ITENS = [
     { href: '/conta', rotulo: t('nav_dashboard'), icone: Icone.dashboard, admin: false },
-    { href: '/app', rotulo: 'Cora Render', icone: Icone.studio, admin: false },
+    // "Prancheta", e nao "Cora Render": o produto ja e o logo em cima do
+    // menu, e o item nomeia o LUGAR, a mesa onde o trabalho acontece. O
+    // cabecalho da tela le este mesmo rotulo, entao um nome so.
+    { href: '/app', rotulo: t('nav_prancheta'), icone: Icone.studio, admin: false },
     { href: '/conta/perfil', rotulo: t('nav_minhaconta'), icone: Icone.conta, admin: false, divisor: true },
     { href: '/workspace', rotulo: t('nav_equipe'), icone: Icone.equipe, admin: false, soDono: true },
     { href: '/assinatura', rotulo: t('nav_assinatura'), icone: Icone.assinatura, admin: false, soPagante: true },

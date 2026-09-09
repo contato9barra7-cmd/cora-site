@@ -406,10 +406,19 @@
    `outline`, e a minha `box-shadow` virava um segundo anel em volta do
    primeiro). Ficam as duas coisas que a identidade nova de fato muda. */.co .cr-card{ border-radius:var(--r-peq); background:var(--wash2); }/* ── Quando não há nada ──
    A faixa entra aqui porque é o único lugar da janela onde sobra silêncio, e
-   um lugar vazio é onde a marca cabe sem competir com imagem nenhuma. */.co .cr-vazio{ padding:80px 24px; text-align:center; }.co .cr-vazio-faixa{
-  width:132px; height:14px; margin:0 auto 24px; border-radius:var(--pill);
+   um lugar vazio é onde a marca cabe sem competir com imagem nenhuma. *//* O bloco senta no MEIO da area do feed, e nao num terco fixo de cima: num
+   feed alto, o terco deixava dois tercos de nada embaixo e o vazio parecia
+   erro. No meio ele parece descanso. As frases ficam mais juntas (14 e 4, em
+   vez de 24 e 8). Escolhido no estudo `ferramentas/cora-vazio.html`.
+
+   A lista so vira coluna flex quando o vazio e filho dela, para o layout
+   normal (lotes, grades, masonry) nao mudar em nada. */.co .cr-lista:has(> .cr-vazio){ display:flex; flex-direction:column; }.co .cr-vazio{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:24px; text-align:center;
+}.co .cr-vazio-faixa{
+  width:132px; height:14px; margin:0 0 14px; border-radius:var(--pill);
   background:var(--faixa) repeat-x left center; background-size:112px 100%;
-}.co .cr-vazio h2{ margin:0 0 8px; font-size:var(--t-titulo); font-weight:600; color:var(--ink); }.co .cr-vazio p{ margin:0 auto; max-width:38ch; font-size:var(--t-corpo); color:var(--ink2);  text-wrap:pretty; }.co .cr-msg{ padding:32px 20px; color:var(--ink3); font-size:var(--t-corpo); }/* ── Voltar ao topo ── */.co .cr-voltar-topo{
+}.co .cr-vazio h2{ margin:0 0 4px; font-size:var(--t-titulo); font-weight:600; color:var(--ink); }.co .cr-vazio p{ margin:0; max-width:38ch; font-size:var(--t-corpo); color:var(--ink2); text-wrap:pretty; }.co .cr-msg{ padding:32px 20px; color:var(--ink3); font-size:var(--t-corpo); }/* ── Voltar ao topo ── */.co .cr-voltar-topo{
   position:absolute; right:20px; bottom:20px; width:44px; height:44px;
   border:0; border-radius:50%; background:var(--lima); color:#111111;
   display:flex; align-items:center; justify-content:center; cursor:pointer;
