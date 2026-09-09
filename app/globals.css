@@ -3565,7 +3565,10 @@ select.perfil-input {
   transition: all .15s;
 }
 
-.pk-drop:hover, .pk-drop--on { border-color: var(--lima-txt); color: var(--lima-txt); }
+/* Turquesa, e não `--lima-txt`: a lima rebaixada até virar texto legível
+   perde a marca e lê como verde de sistema. Turquesa é o que marca escolha
+   aqui dentro, e a lima fica cheia nos botões que executam. */
+.pk-drop:hover, .pk-drop--on { border-color: var(--turquesa-esc); color: var(--turq-txt); }
 .pk-drop-t { font-size: 14.5px; color: var(--ink2); }
 .pk-drop-s { font-size: 13.5px; }
 
@@ -7145,7 +7148,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .pn-lado input {
   width: 74px;
-  accent-color: var(--lima-txt);
+  accent-color: var(--turquesa-esc);
   cursor: pointer;
 }
 
@@ -7599,7 +7602,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .pn-zoombar input {
   width: 80px;
-  accent-color: var(--lima-txt);
+  accent-color: var(--turquesa-esc);
   cursor: pointer;
 }
 
@@ -7638,14 +7641,14 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .pn-calibre input {
   flex: 1;
-  accent-color: var(--lima-txt);
+  accent-color: var(--turquesa-esc);
   cursor: pointer;
 }
 
 .pn-disco {
   flex-shrink: 0;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--turquesa);
   opacity: .4;
   transition: width .1s, height .1s;
 }
@@ -7671,18 +7674,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer;
   transition: background .12s, color .12s, border-color .12s;
 }
-.pn-ico:hover { background: var(--accent-bg); color: var(--lima-txt); }
-.pn-ico--on { background: var(--accent-bg); color: var(--lima-txt); border-color: var(--lima-txt); }
+.pn-ico:hover { background: var(--turq-bg); color: var(--turq-txt); }
+.pn-ico--on { background: var(--turq-bg); color: var(--turq-txt); border-color: var(--turquesa-esc); }
 .pn-ico:disabled { opacity: .4; cursor: default; }
 .pn-sep { width: 1px; height: 20px; background: var(--line2); flex: 0 0 auto; }
-.pn-bar-range { flex: 1; min-width: 70px; accent-color: var(--lima-txt); cursor: pointer; }
+.pn-bar-range { flex: 1; min-width: 70px; accent-color: var(--turquesa-esc); cursor: pointer; }
 .pn-chip {
   min-width: 32px; flex: 0 0 auto;
   text-align: center;
   font-size: 11px; font-weight: 600;
-  color: var(--lima-txt);
-  background: var(--accent-bg);
-  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--turq-txt);
+  background: var(--turq-bg);
+  border: 1px solid color-mix(in srgb, var(--turquesa) 55%, transparent);
   border-radius: 100px;
   padding: 2px 6px;
 }

@@ -991,6 +991,9 @@ export default function AppPage() {
       window.dispatchEvent(new CustomEvent('cora:sem-acesso', { detail: { recurso: rot } }));
       return;
     }
+    // Sair da aba fecha o pincel: ele toma o feed inteiro, e ficar preso
+    // nele depois de pedir outra ferramenta não é o que ninguém quis.
+    setPincel(null);
     setFerramenta(id);
   }
 
@@ -1803,14 +1806,10 @@ export default function AppPage() {
               );
             })}
 
-            {/* O rodapé fecha a galeria, e só quando há galeria: embaixo do
-                "Nada aqui ainda" ele viraria a única coisa escrita na tela. */}
-            {!carregando && !vazio && <RodapeLegal noFeed />}
-
           </div>
-          </>
-          )}
 
+          {/* A seta de voltar ao topo é da lista, e só dela: com o pincel
+              aberto ela pairava sobre a imagem sem ter o que rolar. */}
           <button
             className={'cr-voltar-topo' + (mostrarTopo ? ' cr-voltar-topo--on' : '')}
             onClick={voltarAoTopo}
@@ -1820,6 +1819,11 @@ export default function AppPage() {
               <path d="M12 19V5M5 12l7-7 7 7" />
             </svg>
           </button>
+          </>
+          )}
+
+          {/* O rodapé fica preso no pé do feed, com galeria ou sem ela. */}
+          <RodapeLegal noFeed />
         </section>
       </div>
 

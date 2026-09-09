@@ -17,6 +17,7 @@ import PickerImagem from './PickerImagem';
 import CampoRefs from './CampoRefs';
 import IconeCredito from './IconeCredito';
 import Seta from './Seta';
+import { Linha, Lista, ItemLista } from './CoraFicha';
 import { useIdioma } from '../lib/i18n';
 import {
   editarImagem, custoEditar, PROPORCOES, RESOLUCOES, MAX_REFS
@@ -170,6 +171,8 @@ export default function PainelEditar({
   }, [popRatio, popRes]);
 
   const m = MODOS.find((x) => x.id === modo);
+  // Uma linha de ficha aberta por vez, como no Render.
+  const [linhaAberta, setLinhaAberta] = useState(null);
 
   // Quem pode usar o pincel? Não perguntamos o NOME do plano — perguntamos se
   // a conta tem a ferramenta. É o mesmo critério do servidor.
@@ -215,6 +218,7 @@ export default function PainelEditar({
     const iniciais = {};
     (mod.campos || []).forEach((c) => { iniciais[c.chave] = c.padrao; });
     setEsc(iniciais);
+    setLinhaAberta(null);
 
     if (mod.pincel) {
       onAbrirPincel({ modo: mod.id, base, previa });
@@ -413,22 +417,37 @@ export default function PainelEditar({
               <span>{t(m.desc)}</span>
             </div>
 
-            {/* ── Os botões de escolha deste modo ── */}
-            {(m.campos || []).map((c) => (
-              <div key={c.chave} className="ed-grupo">
-                <div className="cr-sec">{t(c.rotulo)}</div>
-                {/* Quatro opções não cabem numa linha sem cortar o texto */}
-                <div className={'cr-chips' + (c.opcoes.length > 3 ? ' cr-chips--2' : '')}>
-                  {c.opcoes.map((o) => (
-                    <button
-                      key={o}
-                      className={'cr-chip' + (escolhas[c.chave] === o ? ' cr-chip--on' : '')}
-                      onClick={() => setEsc((e) => ({ ...e, [c.chave]: o }))}
-                    >{t(o)}</button>
-                  ))}
-                </div>
+            {/* ── As escolhas deste modo ──
+                Eram pílulas soltas, com a mesma forma dos botões de ação da
+                barra, e com quatro opções elas quebravam em duas fileiras.
+                Viraram linha de ficha, como o Tipo de ambiente do Render:
+                nome à esquerda, escolha de agora à direita. */}
+            {(m.campos || []).length > 0 && (
+              <div className="fic fic--solta">
+                {m.campos.map((c) => (
+                  <Linha
+                    key={c.chave}
+                    nome={t(c.rotulo)}
+                    valor={t(escolhas[c.chave] || c.padrao)}
+                    aberta={linhaAberta === c.chave}
+                    aoAbrir={() => setLinhaAberta((a) => (a === c.chave ? null : c.chave))}
+                  >
+                    <Lista uma>
+                      {c.opcoes.map((o) => (
+                        <ItemLista
+                          key={o}
+                          marcada={escolhas[c.chave] === o}
+                          onClick={() => {
+                            setEsc((s) => ({ ...s, [c.chave]: o }));
+                            setLinhaAberta(null);
+                          }}
+                        >{t(o)}</ItemLista>
+                      ))}
+                    </Lista>
+                  </Linha>
+                ))}
               </div>
-            ))}
+            )}
 
             {/* As referências vêm ANTES do texto: é preciso tê-las para poder
                 escrever @img01 apontando para elas. */}

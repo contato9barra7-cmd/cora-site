@@ -320,13 +320,7 @@
 }/* O Resetar mora na barra, depois do botão: é a última coisa que se faz. */.co .cr-barra-ger .cr-resetar{ margin:12px auto 0; }.co .cr-barra-ger .up-gerar{ margin-top:0; }.co .cr-pills-cfg{ display:flex; gap:6px; margin-bottom:10px; }/* ── A verificação do Batch, em ficha ──
    O marcador dos dois passos, a linha de cada cena (miniatura, nome, estado)
    e a sub-linha das referências. As peças de dentro (caixa, botões,
-   configuração) são as mesmas do Render. */.co .fic__passos{
-  display:flex; align-items:center; gap:8px; margin:0 0 14px;
-  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink3);
-}.co .fic__passos i{ flex:1; height:1px; background:var(--line); }.co .fic__passos button{
-  padding:0; border:0; background:none; font:inherit; letter-spacing:inherit; text-transform:inherit;
-  color:var(--ink3); cursor:pointer; transition:color var(--t);
-}.co .fic__passos button:disabled{ cursor:default; }.co .fic__passos button[aria-current="step"]{ color:var(--ink); }.co .fic__passos button:not(:disabled):hover{ color:var(--ink); }.co .bc__cab{ gap:10px; }.co .bc__mini{ flex:none; width:34px; height:26px; border-radius:6px; object-fit:cover; background:var(--wash2); }.co .bc__nome{
+   configuração) são as mesmas do Render. */.co .bc__cab{ gap:10px; }.co .bc__mini{ flex:none; width:34px; height:26px; border-radius:6px; object-fit:cover; background:var(--wash2); }.co .bc__nome{
   flex:1; min-width:0; font-size:var(--t-apoio); font-weight:600; color:var(--ink);
   text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }.co .bc__st{ flex:none; font-size:var(--t-apoio2); font-weight:500; color:var(--ink3); }.co .bc__st--ok{ color:var(--turq-txt); display:inline-flex; align-items:center; gap:5px; }.co .bc__st--ok::before{
@@ -491,12 +485,12 @@
   width:132px; height:14px; margin:0 0 14px; border-radius:var(--pill);
   background:var(--faixa) repeat-x left center; background-size:112px 100%;
 }.co .cr-vazio h2{ margin:0 0 4px; font-size:var(--t-titulo); font-weight:600; color:var(--ink); }.co .cr-vazio p{ margin:0; max-width:38ch; font-size:var(--t-corpo); color:var(--ink2); text-wrap:pretty; }.co .cr-msg{ padding:32px 20px; color:var(--ink3); font-size:var(--t-corpo); }/* ── O rodapé da galeria ──
-   O mesmo rodapé do resto do painel, no fim da lista. O fio não atravessa a
-   tela: ele para no recuo das imagens, e o texto fica um tom mais claro que
-   o do resto. Ele fecha a galeria, não abre uma segunda superfície. */.co .rodape-legal--feed{
-  margin:44px 0 0; padding:26px 0 34px;
-  border-top:1px solid var(--line);
-  font-size:var(--t-apoio2); color:var(--ink3); opacity:.75;
+   Preso no pé da coluna do feed, fora da lista que rola: ele está sempre
+   ali, com galeria cheia ou vazia. Fino e num tom mais claro que o resto,
+   porque é o fim da tela e não uma segunda superfície. */.co .rodape-legal--feed{
+  flex:none; margin:0; padding:16px 24px;
+  border-top:1px solid var(--line); background:var(--paper);
+  font-size:var(--t-apoio2); color:var(--ink3); opacity:.7;
   transition:opacity var(--t);
 }.co .rodape-legal--feed:hover{ opacity:1; }.co .rodape-legal--feed .rl-sep{ margin:0 6px; }/* ── Voltar ao topo ── */.co .cr-voltar-topo{
   position:absolute; right:20px; bottom:20px; width:44px; height:44px;
@@ -763,7 +757,9 @@
    Ou a base não declara a propriedade, ou o modificador vem junto. Aqui vem
    junto, com o valor que o globals já tinha.
    ══════════════════════════════════════════════════════════════════════ */.co .cr-hint--erro{ color:var(--alerta); }.co .cr-hint--ok{ color:var(--lima-txt); }.co .cr-b--voltar{ color:var(--lima-txt); font-size:var(--t-apoio); }.co .cr-pill-cfg--larga{ width:100%; justify-content:flex-start; }/* O `+` das referências tem o MESMO tracejado da imagem principal (`.cr-drop`):
-   é a mesma ação, escolher uma foto, e a mesma linha diz isso. */.co .cr-ref--add{ background:transparent; border:1px dashed var(--line2); }.co .cr-ta--alta{ min-height:120px; }.co .cr-tag--roxa{ color:var(--turq-txt); }.co .ed-card--travado{ cursor:default; }/* ══════════════════════════════════════════════════════════════════════
+   é a mesma ação, escolher uma foto, e a mesma linha diz isso. */.co .cr-ref--add{ background:transparent; border:1px dashed var(--line2); }.co .cr-ta--alta{ min-height:120px; }/* A caixa de todo modo do Editar tem a mesma altura. O `.ed-ta` do globals
+   existe, mas `.co .cr-ta` o esmagava, e a altura acabava sendo a que o
+   conteúdo desse em cada card. */.co .ed-ta{ min-height:104px; }.co .cr-tag--roxa{ color:var(--turq-txt); }.co .ed-card--travado{ cursor:default; }/* ══════════════════════════════════════════════════════════════════════
    A CONFIRMAÇÃO
    ══════════════════════════════════════════════════════════════════════ */.co .cf{
   width:min(420px, calc(100vw - 40px)); padding:26px 26px 22px;

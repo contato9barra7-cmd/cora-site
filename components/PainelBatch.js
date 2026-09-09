@@ -479,8 +479,6 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
         {/* ═══ FASE 1 ═══ */}
         {fase === 1 && (
           <>
-            <Passos atual={1} temAnalise={!!analise} aoIr={() => setFase1(false)} t={t} />
-
             <div className="cr-sec">{t('painelbatch_sec_refs')}</div>
             <p className="cr-hint cr-hint--topo">
               {t('painelbatch_hint_refs')}
@@ -609,10 +607,14 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
                 gesto do Render: fechada é a miniatura, o nome e o estado. Abre
                 uma por vez, e a lista fechada vira o resumo do batch.
 
-                O "Voltar às cenas" virou o passo 1 do marcador: é o mesmo
-                caminho, com o nome de onde se está. Voltar não apaga a análise
-                (ela custou créditos). */}
-            <Passos atual={2} temAnalise aoIr={() => setFase1(true)} t={t} />
+                Voltar não apaga a análise: ela custou créditos. */}
+            <button className="cr-voltar" onClick={() => setFase1(true)}>
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
+                   stroke="currentColor" strokeWidth="1.6">
+                <path d="M12 4l-5 6 5 6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              {t('painelbatch_voltar_cenas')}
+            </button>
 
             <div className="cr-sec">{t('painelbatch_sec_verif')}</div>
             <p className={'cr-hint cr-hint--topo' + (cenasAprovadas.length ? ' cr-hint--ok' : '')}>
@@ -919,29 +921,6 @@ export default function PainelBatch({ aprovadas, leituraInicial, onDesaprovar, o
         titulo={picker === 'ref' ? t('painelbatch_add_ref') : (typeof picker === 'string' && picker.startsWith('det:')) ? 'Referência desta cena' : t('painelbatch_add_cena')}
       />
     </>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-//  Passos: o marcador "1 Cenas · 2 Verificação"
-//  O Batch é uma sequência de dois passos e se apresenta como tal. O passo
-//  que não é o atual é um botão, e o 2 só abre quando já existe análise.
-// ═══════════════════════════════════════════════════════════
-function Passos({ atual, temAnalise, aoIr, t }) {
-  const passo = (n, rotulo) => (
-    <button
-      type="button"
-      aria-current={atual === n ? 'step' : undefined}
-      disabled={atual === n || (n === 2 && !temAnalise)}
-      onClick={() => aoIr(n)}
-    >{n} {rotulo}</button>
-  );
-  return (
-    <div className="fic__passos">
-      {passo(1, t('painelbatch_passo_cenas'))}
-      <i />
-      {passo(2, t('painelbatch_passo_verif'))}
-    </div>
   );
 }
 
