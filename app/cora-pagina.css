@@ -660,43 +660,7 @@
    anel é a forma do botão, e forma de botão não muda com o estado: dez botões
    iguais e um com anel colorido viram dois desenhos na mesma barra. */.co .vz-ico--fav{ border-color:var(--line2); background:transparent; color:var(--turquesa-esc); }.co .vz-ico--fav:hover{ border-color:var(--line2); color:var(--turquesa-esc); }.co .cr-ca--fav{ color:var(--turquesa); }.co .cr-card-fav{ color:var(--turquesa); }/* Aprovada: o disco de lima, e nada de anel em volta. A borda toma a cor do
    fundo para sumir sem mudar a medida do botão. */.co .vz-ico--ok{ border-color:var(--lima); background:var(--lima); color:#111111; }.co .vz-ico--ok:hover{ border-color:var(--lima-esc); background:var(--lima-esc); color:#111111; }/* A janela do prompt cabe DENTRO da janela do preview, e por isso é menor nos
-   dois eixos: o preview tem 1120px por 82vh, com teto de 860px. */.co .vz-prompt-janela{ max-width:660px; max-height:70vh; }.co .vz-prompt-corpo{ font-size:var(--t-apoio2); }/* ══════════════════════════════════════════════════════════════════════
-   O BOTÃO DE CRIAR
-   Fica acima do trilho e abre a lista do que dá para gerar, cada uma com
-   desenho e uma linha do que faz. Turquesa, e não lima: ele não gasta
-   crédito e não marca escolha, ele abre a porta. Lima segue sendo dos
-   botões que executam, e dois limas na mesma coluna disputariam o olhar.
-   ══════════════════════════════════════════════════════════════════════ */.co .criar{ position:relative; padding:12px 14px 0; }.co .criar__b{
-  display:flex; align-items:center; justify-content:center; gap:7px;
-  width:100%; height:var(--alt-ctrl); padding:0 14px; border:0;
-  border-radius:var(--pill); background:var(--turquesa); color:var(--turq-txt);
-  font-size:var(--t-apoio); font-weight:600; cursor:pointer;
-  transition:background var(--t), color var(--t);
-}.co .criar__b:hover, .co .criar__b--on{ background:var(--turquesa-esc); color:#0F4A3E; }/* A lista FLUTUA sobre o painel: empurrando, ela jogaria o formulário inteiro
-   para baixo a cada abertura, e o trilho sairia de vista. */.co .criar__lista{
-  position:absolute; z-index:40; left:14px; right:14px; top:calc(100% + 6px);
-  padding:6px; border:1px solid var(--line); border-radius:var(--r-peq);
-  background:var(--paper); box-shadow:var(--sombra);
-  max-height:min(60vh, 460px); overflow-y:auto;
-}.co .criar__it{
-  display:flex; align-items:flex-start; gap:11px; width:100%;
-  padding:9px 10px; border:0; border-radius:9px; background:none; text-align:left;
-  cursor:pointer; transition:background var(--t);
-}.co .criar__it:hover:not(:disabled){ background:var(--wash); }.co .criar__it:disabled{ opacity:.45; cursor:default; }/* O fio de lima de 3px na esquerda quer dizer "você está aqui". É o mesmo do
-   menu lateral e do índice das páginas legais. */.co .criar__it[aria-current="true"]{ position:relative; background:var(--wash); }.co .criar__it[aria-current="true"]::before{
-  content:""; position:absolute; left:0; top:6px; bottom:6px;
-  width:3px; border-radius:2px; background:var(--lima);
-}.co .criar__ico{
-  flex:none; display:flex; align-items:center; justify-content:center;
-  width:30px; height:30px; border-radius:50%;
-  background:var(--wash2); color:var(--ink2);
-  transition:background var(--t), color var(--t);
-}.co .criar__ico svg{ width:16px; height:16px; }.co .criar__it[aria-current="true"] .criar__ico{ background:var(--turq-bg); color:var(--turq-txt); }.co .criar__txt{ flex:1; min-width:0; }.co .criar__txt strong{
-  display:block; font-size:var(--t-apoio); font-weight:600; color:var(--ink);
-}.co .criar__txt span{
-  display:block; margin-top:2px; font-size:var(--t-etiqueta);
-  color:var(--ink3); line-height:1.4; text-wrap:pretty;
-}.co .criar__cad{ flex:none; margin-top:2px; color:var(--ink3); }/* A linha do Ambiente mora sozinha, fora da ficha grande. Ela respira em
+   dois eixos: o preview tem 1120px por 82vh, com teto de 860px. */.co .vz-prompt-janela{ max-width:660px; max-height:70vh; }.co .vz-prompt-corpo{ font-size:var(--t-apoio2); }/* A linha do Ambiente mora sozinha, fora da ficha grande. Ela respira em
    cima (estava colada no picker da imagem) e encosta no rótulo de Materiais
    embaixo: o `.cr-sec` nasce com 26px de margem, e aqui sobrava. */.co .fic--solta{ margin:14px 0 0; border:0; }.co .fic--solta .fic__l:last-child{ border-bottom:0; }.co .fic--solta + .cr-sec{ margin-top:10px; }/* ══════════════════════════════════════════════════════════════════════
    OS MODIFICADORES QUE A MINHA REGRA BASE ESMAGAVA

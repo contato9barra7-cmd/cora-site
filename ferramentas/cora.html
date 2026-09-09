@@ -1143,64 +1143,6 @@
 .vz-prompt-corpo{ font-size:var(--t-apoio2); }
 
 
-/* ══════════════════════════════════════════════════════════════════════
-   O BOTÃO DE CRIAR
-   Fica acima do trilho e abre a lista do que dá para gerar, cada uma com
-   desenho e uma linha do que faz. Turquesa, e não lima: ele não gasta
-   crédito e não marca escolha, ele abre a porta. Lima segue sendo dos
-   botões que executam, e dois limas na mesma coluna disputariam o olhar.
-   ══════════════════════════════════════════════════════════════════════ */
-.criar{ position:relative; padding:12px 14px 0; }
-.criar__b{
-  display:flex; align-items:center; justify-content:center; gap:7px;
-  width:100%; height:var(--alt-ctrl); padding:0 14px; border:0;
-  border-radius:var(--pill); background:var(--turquesa); color:var(--turq-txt);
-  font-size:var(--t-apoio); font-weight:600; cursor:pointer;
-  transition:background var(--t), color var(--t);
-}
-.criar__b:hover, .criar__b--on{ background:var(--turquesa-esc); color:#0F4A3E; }
-
-/* A lista FLUTUA sobre o painel: empurrando, ela jogaria o formulário inteiro
-   para baixo a cada abertura, e o trilho sairia de vista. */
-.criar__lista{
-  position:absolute; z-index:40; left:14px; right:14px; top:calc(100% + 6px);
-  padding:6px; border:1px solid var(--line); border-radius:var(--r-peq);
-  background:var(--paper); box-shadow:var(--sombra);
-  max-height:min(60vh, 460px); overflow-y:auto;
-}
-.criar__it{
-  display:flex; align-items:flex-start; gap:11px; width:100%;
-  padding:9px 10px; border:0; border-radius:9px; background:none; text-align:left;
-  cursor:pointer; transition:background var(--t);
-}
-.criar__it:hover:not(:disabled){ background:var(--wash); }
-.criar__it:disabled{ opacity:.45; cursor:default; }
-
-/* O fio de lima de 3px na esquerda quer dizer "você está aqui". É o mesmo do
-   menu lateral e do índice das páginas legais. */
-.criar__it[aria-current="true"]{ position:relative; background:var(--wash); }
-.criar__it[aria-current="true"]::before{
-  content:""; position:absolute; left:0; top:6px; bottom:6px;
-  width:3px; border-radius:2px; background:var(--lima);
-}
-.criar__ico{
-  flex:none; display:flex; align-items:center; justify-content:center;
-  width:30px; height:30px; border-radius:50%;
-  background:var(--wash2); color:var(--ink2);
-  transition:background var(--t), color var(--t);
-}
-.criar__ico svg{ width:16px; height:16px; }
-.criar__it[aria-current="true"] .criar__ico{ background:var(--turq-bg); color:var(--turq-txt); }
-.criar__txt{ flex:1; min-width:0; }
-.criar__txt strong{
-  display:block; font-size:var(--t-apoio); font-weight:600; color:var(--ink);
-}
-.criar__txt span{
-  display:block; margin-top:2px; font-size:var(--t-etiqueta);
-  color:var(--ink3); line-height:1.4; text-wrap:pretty;
-}
-.criar__cad{ flex:none; margin-top:2px; color:var(--ink3); }
-
 /* A linha do Ambiente mora sozinha, fora da ficha grande. Ela respira em
    cima (estava colada no picker da imagem) e encosta no rótulo de Materiais
    embaixo: o `.cr-sec` nasce com 26px de margem, e aqui sobrava. */

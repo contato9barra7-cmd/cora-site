@@ -11,6 +11,7 @@ import DropdownCora from './DropdownCora';
 import { contaVista, lerModo, EVENTO_VER_COMO } from '../lib/verComo';
 import { TELAS_ADMIN, usarTelaAdmin } from '../lib/telaAdmin';
 import { useIdioma, IDIOMAS, localeDeIdioma } from '../lib/i18n';
+import BotaoCriar from './BotaoCriar';
 import { DOCUMENTOS, maisRecentes } from '../lib/documentos';
 import { TextoTermos, TextoPrivacidade } from './TextosLegais';
 
@@ -142,6 +143,20 @@ export default function AppShell({ children }) {
 
   // Chegou na página de destino: a gaveta já cumpriu o papel dela e sai.
   useEffect(() => { setGaveta(false); }, [pathname]);
+
+  // ── O "Criar" da lateral manda abrir uma ferramenta no /app ──
+  //  Já no /app, é um evento e a página troca a aba na hora. De outra tela,
+  //  o pedido espera no sessionStorage até a página montar. Quem decide se o
+  //  plano libera é o `trocarAba` de lá, nos dois caminhos.
+  function abrirFerramenta(id) {
+    setGaveta(false);
+    if (pathname === '/app') {
+      window.dispatchEvent(new CustomEvent('cora:abrir-ferramenta', { detail: id }));
+      return;
+    }
+    try { sessionStorage.setItem('cora_abrir_ferramenta', id); } catch {}
+    router.push('/app');
+  }
 
   // Enquanto a gaveta está aberta, o que está por baixo não rola. Sem isto, o
   // dedo deslizando sobre o véu leva a página junto — e ao fechar a gaveta a
@@ -517,6 +532,10 @@ export default function AppShell({ children }) {
           >×</button>
         </div>
         <nav className="app-nav">
+          {/* Acima do "Início", como o Create do Magnific: de qualquer tela a
+              pessoa começa um render sem passar pelo /app antes. */}
+          <BotaoCriar aoEscolher={abrirFerramenta} />
+
           {itens.map(i => (
             <div key={i.href}>
               {i.divisor && <div className="app-nav-div" />}

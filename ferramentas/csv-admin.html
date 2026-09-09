@@ -244,6 +244,65 @@
 }
 .app-shell.recolhido .app-nav-item{ justify-content:center; padding:0 9px; }
 .app-shell.recolhido .app-nav-lbl{ display:none; }
+
+/* ── O botão de criar ──
+   Acima do "Início", como o Create do Magnific. O "+" mora num quadrado de
+   canto redondo, turquesa, ao lado do rótulo: é a forma do avatar e do anel de
+   créditos, que já são quadrados de canto redondo nesta barra. Turquesa e não
+   lima: ele não gasta crédito e não marca escolha, ele abre a porta.
+
+   A lista abre PARA A DIREITA, fora da lateral, e é agrupada pelo ponto de
+   partida (do modelo, de uma imagem pronta), porque essa é a pergunta de
+   quem chegou agora. O quadrado do "+" tem 28px com padding de 8: o centro
+   cai nos mesmos 22px dos ícones de 20px dos itens, com padding de 12. */
+.criar{ position:relative; margin:0 0 6px; }
+.criar__b{
+  display:flex; align-items:center; gap:12px; width:100%;
+  height:40px; padding:0 8px; border:0; border-radius:var(--r-peq);
+  background:transparent; color:var(--ink); font-size:14.5px; font-weight:600;
+  letter-spacing:-.005em; white-space:nowrap; cursor:pointer; text-align:left;
+  transition:background-color var(--t);
+}
+.criar__b:hover, .criar__b--on{ background:var(--wash2); }
+.criar__q{
+  flex:none; display:flex; align-items:center; justify-content:center;
+  width:28px; height:28px; border-radius:9px;
+  background:var(--turquesa); color:var(--turq-txt);
+  transition:background var(--t);
+}
+.criar__b:hover .criar__q, .criar__b--on .criar__q{ background:var(--turquesa-esc); }
+.app-shell.recolhido .criar__b{ justify-content:center; padding:0; }
+
+.criar__lista{
+  position:absolute; z-index:60; left:calc(100% + 10px); top:0; width:300px;
+  padding:6px; border:1px solid var(--line); border-radius:14px;
+  background:var(--paper); box-shadow:var(--sombra);
+}
+.criar__rot{
+  margin:0; padding:8px 10px 4px; font-size:11px; font-weight:700;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--ink3);
+}
+.criar__grp + .criar__grp{ margin-top:4px; }
+.criar__div{ height:1px; margin:6px 10px; background:var(--line); }
+.criar__it{
+  display:flex; align-items:flex-start; gap:11px; width:100%;
+  padding:8px 10px; border:0; border-radius:9px; background:none; text-align:left;
+  color:inherit; cursor:pointer; transition:background var(--t);
+}
+.criar__it:hover{ background:var(--wash2); }
+.criar__ico{
+  flex:none; display:flex; align-items:center; justify-content:center;
+  width:28px; height:28px; border-radius:8px; background:var(--wash2); color:var(--ink2);
+  transition:color var(--t);
+}
+.criar__it:hover .criar__ico{ color:var(--ink); }
+.criar__ico svg{ width:16px; height:16px; }
+.criar__txt{ flex:1; min-width:0; }
+.criar__txt strong{ display:block; font-size:13.5px; font-weight:600; color:var(--ink); }
+.criar__txt span{
+  display:block; margin-top:2px; font-size:11.5px; color:var(--ink3);
+  line-height:1.4; text-wrap:pretty;
+}
 .app-shell.recolhido .app-nav-div{ margin:10px 8px; }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -1659,6 +1718,9 @@
   .app-side-fechar:hover{ background:var(--wash2); color:var(--ink); }
   .app-shell.recolhido .app-nav-item{ justify-content:flex-start; padding:0 12px; }
   .app-shell.recolhido .app-nav-lbl{ display:block; }
+  /* Na gaveta a lista não flutua para fora da tela: abre embaixo do botão,
+     na largura da própria gaveta. */
+  .criar__lista{ position:static; width:auto; margin:4px 0 8px; box-shadow:none; }
   .admin-wrap{ padding:26px 20px 48px; }
 
   /* Deitada, a esteira troca de ladrilho e de eixo. Esticar o de pé na

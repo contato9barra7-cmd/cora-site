@@ -26,7 +26,6 @@ import PainelPincel from '../../components/PainelPincel';
 import PainelAnalises from '../../components/PainelAnalises';
 import PainelPos from '../../components/PainelPos';
 import Trilho from '../../components/Trilho';
-import BotaoCriar from '../../components/BotaoCriar';
 import Visualizador from '../../components/Visualizador';
 import Filtros from '../../components/Filtros';
 import Card, { proporcaoCss } from '../../components/Card';
@@ -994,6 +993,25 @@ export default function AppPage() {
     setFerramenta(id);
   }
 
+  // ── A lateral manda abrir uma ferramenta ──
+  //  O "Criar" mora no menu da esquerda (AppShell), fora desta página, e ele
+  //  fala por dois caminhos: um evento, quando a pessoa já está no /app, e
+  //  o sessionStorage, quando ela vem de outra tela e a página ainda vai
+  //  montar. Os dois passam pelo `trocarAba`, que é quem sabe o que o plano
+  //  libera. Só depois de `conta` chegar: antes disso tudo pareceria trancado.
+  useEffect(() => {
+    if (!conta) return;
+    const abrir = (id) => { if (ABAS.some((a) => a.id === id)) trocarAba(id); };
+    try {
+      const pendente = sessionStorage.getItem('cora_abrir_ferramenta');
+      if (pendente) { sessionStorage.removeItem('cora_abrir_ferramenta'); abrir(pendente); }
+    } catch {}
+    const ouve = (e) => abrir(e.detail);
+    window.addEventListener('cora:abrir-ferramenta', ouve);
+    return () => window.removeEventListener('cora:abrir-ferramenta', ouve);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conta]);
+
   // ── As imagens aprovadas ──
   //
   //  O Batch as usa como referência de estilo. Elas saem DAQUI, do estado
@@ -1120,16 +1138,6 @@ export default function AppPage() {
           {/* Sem `disabled={ocupado}`: a geração roda no servidor, e não há
               razão para prender a pessoa aqui. Ela pode trocar de aba e
               preparar o próximo trabalho enquanto este sai. */}
-          {/* Duas portas para a mesma coisa, e de propósito: o botão mostra o
-              que cada ferramenta faz para quem chegou agora, o trilho é o
-              atalho de quem já sabe o nome do que quer. */}
-          <BotaoCriar
-            abas={ABAS.map((a) => ({ ...a, rotulo: tOpt(a.rotulo) }))}
-            ativa={ferramenta}
-            onTrocar={trocarAba}
-            bloqueadas={abasBloqueadas}
-          />
-
           <Trilho
             abas={ABAS.map((a) => ({ ...a, rotulo: tOpt(a.rotulo) }))}
             ativa={ferramenta}
