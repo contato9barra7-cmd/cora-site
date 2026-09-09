@@ -424,11 +424,11 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
         const virar = !ficha.conta.gerente;
         await adminGerente(conta.id, virar);
         setAviso(virar
-          ? 'Agora é gerente: gera sem consumir crédito, e continua sem o admin.'
-          : 'Não é mais gerente: volta a consumir crédito do plano.');
+          ? 'Agora é gerente: tem a aba Gerente e gera sem consumir crédito. Continua sem o admin.'
+          : 'Não é mais gerente: perde a aba e volta a consumir crédito do plano.');
       } else if (acao === 'cancelar') {
         await adminCancelar(conta.id);
-        setAviso('Plano cancelado — a conta voltou para Free.');
+        setAviso('Plano cancelado, e a conta voltou para Free.');
       } else if (acao === 'deletar') {
         await adminDeletarConta(conta.id);
         // A conta não existe mais: não há ficha para onde voltar.
@@ -462,6 +462,13 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
   const a = ficha?.acesso;
   const consumo = consumoDaConta(ficha);
   const motivo = motivoDoAcesso(a, ficha?.conta);
+  /* Papel valendo, e sem a chave que o cancela. Enquanto isto for verdade o
+     plano dela nao tem efeito nenhum, e mostra-lo ao lado de "sem limite"
+     seria a tela se contradizendo. Com `creditos_reais` ligada o plano volta
+     a valer, e volta a aparecer. */
+  const papelSemPlano = !!(ficha?.conta
+    && (ficha.conta.is_admin || ficha.conta.gerente)
+    && !ficha.conta.creditos_reais);
   /* O cartao e o problema vem prontos do servidor, da MESMA funcao que monta
      a tela da propria pessoa. Duplicar a leitura aqui faria as duas darem
      versoes diferentes do mesmo cartao, e a divergencia so apareceria numa
@@ -871,9 +878,13 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
               </p>
               <p className="ficha-confirma-p">
                 {ficha.conta.gerente ? (
-                  <>Volta a consumir crédito do plano dela, como qualquer conta.</>
+                  <>Perde a aba <b>Gerente</b> e volta a consumir crédito do plano
+                    dela, como qualquer conta. Nada do que ela criou some.</>
                 ) : (
-                  <>Passa a gerar <b>sem consumir crédito</b>. Dá para desfazer
+                  <>Ganha a aba <b>Gerente</b>: achar qualquer conta, ver a ficha
+                    inteira, os aceites e a auditoria, e entrar como o cliente em
+                    modo leitura. E gera sem consumir crédito. Não mexe em
+                    dinheiro, em plano, nem no papel de ninguém. Dá para desfazer
                     por este mesmo caminho.</>
                 )}
               </p>
@@ -951,7 +962,11 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
           abas guardam as listas longas, que só interessam depois. Elas usam a
           mesma barra do resto do admin, e não um segmentador próprio: eram dois
           desenhos para o mesmo gesto na mesma tela. */}
-      <div className="adm-abas" role="tablist">
+      {/* `--ficha` porque esta fila e a SEGUNDA da tela: acima dela ja tem a
+          fila da propria tela (Contas, Aceites, Auditoria). Duas filas do
+          mesmo tamanho competiam, e a de dentro parecia mandar na de fora. Um
+          degrau abaixo na escala, de 14,5 para 13,5. */}
+      <div className="adm-abas adm-abas--ficha" role="tablist">
         {[['resumo', 'Resumo', null],
           ['creditos', 'Créditos', ficha.baldes.length],
           ['faturas', 'Faturas', faturasConta.length],
@@ -970,7 +985,15 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
 
       {aba === 'resumo' && (
         <div className="conta-card adm-card">
-          <Linha rotulo="Plano">{NOME_PLANO[a?.plano] || a?.plano} · {a?.status}</Linha>
+          {/* ── O PLANO SO APARECE PARA QUEM USA PLANO ──
+              Um gerente aparecia como "Free · ativo" logo acima de "sem limite
+              de créditos", e as duas linhas se contradiziam na mesma tela. O
+              plano continua existindo no banco, e é para onde a pessoa volta
+              se perder o papel, então ele não some: encosta na linha do Papel,
+              que é a razão de ele estar parado. */}
+          {!papelSemPlano && (
+            <Linha rotulo="Plano">{NOME_PLANO[a?.plano] || a?.plano} · {a?.status}</Linha>
+          )}
           {/* ── O PAPEL E A CHAVE QUE O CANCELA ──
               Estas duas linhas nasceram de um defeito real: uma conta foi
               promovida a gerente, não ganhou nada, e recebeu um e-mail dizendo
@@ -982,6 +1005,9 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
             {ficha.conta.is_admin ? 'admin'
               : ficha.conta.gerente ? 'gerente'
               : 'conta comum'}
+            {papelSemPlano && (
+              <> · não usa plano, e é {NOME_PLANO[a?.plano] || a?.plano} por baixo</>
+            )}
           </Linha>
           {ficha.conta.creditos_reais && (
             <Linha rotulo="Gasta crédito de verdade">

@@ -152,6 +152,12 @@
   align-self:center; background:var(--line2);
 }
 .adm-abas::-webkit-scrollbar{ display:none; }
+/* ── A FILA DE DENTRO E UM DEGRAU MENOR ──
+   A ficha de uma conta abre embaixo da fila da tela (Contas, Aceites,
+   Auditoria) e tem a fila dela. Duas do mesmo tamanho competiam, e a de
+   dentro parecia mandar na de fora. 14,5 vira 13,5, que e o degrau seguinte
+   da escala, e a hierarquia se resolve sem mudar cor nem peso. */
+.adm-abas--ficha .adm-aba{ font-size:13.5px; }
 .adm-aba{
   position:relative; flex:none; padding:0 0 13px; border:0; background:none;
   font-family:inherit; font-size:14.5px; font-weight:500; letter-spacing:-.008em;

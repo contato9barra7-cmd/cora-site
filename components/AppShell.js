@@ -334,6 +334,18 @@ export default function AppShell({ children }) {
      deploy nao pode trancar ninguem por causa de um campo que ainda nao
      chegou. */
   const precisaAceitar = conta?.precisa_aceitar === true;
+
+  /* ── QUANDO DOIS BLOQUEIOS BRIGAM, GANHA O QUE DA PARA RESOLVER ──
+     `pode_gerar` ja vem `false` POR CAUSA do reaceite, e os outros quatro
+     bloqueios de tela cheia leem esse mesmo `false` e concluem que o problema
+     e deles. Foi assim que o primeiro gerente de verdade entrou e levou "Seu
+     teste de 7 dias terminou": o papel dele estava valendo, o servidor dizia
+     `precisa_aceitar`, e o cartaz do teste desenhou por cima do dos
+     documentos, que e o unico que ele conseguia resolver sozinho.
+
+     Enquanto o reaceite estiver pendente, ele e o unico cartaz na tela. */
+  const bloqueioDePlano = !podeGerar && !precisaAceitar;
+
   const [aceitando, setAceitando] = useState(false);
   const [erroAceite, setErroAceite] = useState('');
 
@@ -879,7 +891,7 @@ export default function AppShell({ children }) {
       {/* Bloqueio de tela cheia (trial expirado, e sem recarga para gastar).
           Aluno dos Promptadores NÃO cai aqui — para ele o aviso é só no /app,
           logo abaixo, e o resto da conta (inclusive os Promptadores) segue. */}
-      {ehTrial && trialExpirado && !podeGerar && !ehAlunoPromptador && (
+      {ehTrial && trialExpirado && bloqueioDePlano && !ehAlunoPromptador && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
             <div className="trial-bloqueio-faixa" aria-hidden="true" />
@@ -897,7 +909,7 @@ export default function AppShell({ children }) {
       {/* Aluno dos Promptadores sem assinatura do Cora: aviso amigável, só no
           /app (onde se gera). Ele não "perdeu" nada — nunca assinou; o botão
           apresenta o produto em vez de cobrar renovação. */}
-      {ehAlunoPromptador && ehTrial && trialExpirado && !podeGerar && naApp && (
+      {ehAlunoPromptador && ehTrial && trialExpirado && bloqueioDePlano && naApp && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
             <div className="trial-bloqueio-faixa" aria-hidden="true" />
@@ -914,7 +926,7 @@ export default function AppShell({ children }) {
 
       {/* Bloqueio do /app quando o plano vence / cartão falha (conta e
           assinatura continuam acessíveis pela navegação lateral) */}
-      {planoExpirado && naApp && !podeGerar && !suspensoEquipe && (
+      {planoExpirado && naApp && bloqueioDePlano && !suspensoEquipe && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
             <div className="trial-bloqueio-faixa" aria-hidden="true" />
@@ -933,7 +945,7 @@ export default function AppShell({ children }) {
           Mesma moldura do bloqueio de plano, outra mensagem: aqui nao ha o que
           renovar — quem resolve e o administrador da equipe. O botao oferece a
           unica saida que depende so dela: assinar por conta propria. */}
-      {suspensoEquipe && naApp && !podeGerar && (
+      {suspensoEquipe && naApp && bloqueioDePlano && (
         <div className="trial-bloqueio">
           <div className="trial-bloqueio-card">
             <div className="trial-bloqueio-faixa" aria-hidden="true" />
