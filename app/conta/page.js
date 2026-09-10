@@ -16,7 +16,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { lerModo, gravarModo, DEMO_TOTAL, DEMO_RESTANTES } from '../../lib/verComo';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import AppShell from '../../components/AppShell';
+import AppShell, { URL_IA_STUDIO } from '../../components/AppShell';
 import Confirma from '../../components/Confirma';
 import { lerConta, atualizarConta, baixarPlugin, minhaEquipe, sairDaEquipe, lerEquipe, EVENTO_CREDITOS} from '../../lib/auth';
 import { listarGeracoes } from '../../lib/geracoes';
@@ -38,6 +38,11 @@ function ContaConteudo() {
   const [conta, setConta] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [aviso, setAviso] = useState('');
+  // Qual dos três quadros do herói está no ar, e se ele parou de andar. Ele
+  // para no hover e no primeiro clique nos pontinhos: quem escolheu um quadro
+  // quer ler aquele, e não ver o próximo chegar no meio da frase.
+  const [quadro, setQuadro] = useState(0);
+  const [pausado, setPausado] = useState(false);
   const [erro, setErro] = useState('');
   const [baixando, setBaixando] = useState(false);
 
@@ -52,6 +57,19 @@ function ContaConteudo() {
   const [verComo, setVerComo] = useState('real');   // real | normal | dono | membro
   useEffect(() => { setVerComo(lerModo()); }, []);
   function escolherVerComo(m) { setVerComo(gravarModo(m)); }
+
+  /* O herói anda sozinho de nove em nove segundos. Nove porque o quadro do
+     meio tem duas linhas de frase, e sete não dava para ler até o fim.
+     Quem pediu menos movimento no sistema fica no primeiro quadro e usa os
+     pontinhos — a mesma regra do resto do painel. */
+  useEffect(() => {
+    if (pausado) return undefined;
+    try {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    } catch (e) {}
+    const id = setInterval(() => setQuadro((q) => (q + 1) % 3), 9000);
+    return () => clearInterval(id);
+  }, [pausado]);
 
   // As últimas imagens. Vêm do mesmo `/geracoes` que alimenta o feed dentro
   // do /app, e ele já devolve do mais novo para o mais velho.
@@ -300,25 +318,100 @@ function ContaConteudo() {
       {aviso && <div className="conta-aviso">{aviso}</div>}
       {erro && <div className="login-erro" style={{ marginBottom: 18 }}>{erro}</div>}
 
-      {/* ── O HERÓI ──
+      {/* ── O HERÓI, EM TRÊS QUADROS ──
           Cartão branco com a esteira da faixa numa coluna, no modelo da home
           dos Promptadores. A esteira é a mesma peça do cabeçalho dos e-mails,
-          de pé. */}
-      <div className="heroi">
-        <div className="heroi__pad" aria-hidden="true" />
-        <div className="heroi__txt">
-          <div className="heroi__marca" role="img" aria-label="Cora Render" />
-          <p className="eyebrow">{nomePlano}</p>
-          <h1>{t('pn_oi')}{primeiroNome ? `, ${primeiroNome}` : ''}</h1>
-          <p className="heroi__sub">{subDoHeroi()}</p>
-          <div className="heroi__acoes">
-            <button className="dash-btn-cta" onClick={() => router.push('/app')}>
-              {t('pn_abrir')}
-            </button>
-            <button className="dash-btn-sec" onClick={baixar} disabled={baixando}>
-              {baixando ? t('conta_preparando') : t('conta_baixar_plugin')}
-            </button>
+          de pé.
+
+          Ele passou a contar três assuntos no mesmo lugar: quem chegou, o IA
+          Studio e as aulas. Só o quadro do momento existe no HTML — empilhar
+          os três em absoluto obrigaria a caixa a ter a altura do mais alto, e
+          os dois menores ficariam com um vão embaixo do botão. */}
+      <div
+        className="heroi-carro"
+        onMouseEnter={() => setPausado(true)}
+        onMouseLeave={() => setPausado(false)}
+      >
+        {quadro === 0 && (
+          <div className="heroi heroi--entra" key="q0">
+            <div className="heroi__pad" aria-hidden="true" />
+            <div className="heroi__txt">
+              <div className="heroi__marca" role="img" aria-label="Cora Render" />
+              <p className="eyebrow">{nomePlano}</p>
+              <h1>{t('pn_oi')}{primeiroNome ? `, ${primeiroNome}` : ''}</h1>
+              <p className="heroi__sub">{subDoHeroi()}</p>
+              <div className="heroi__acoes">
+                <button className="dash-btn-cta" onClick={() => router.push('/app')}>
+                  {t('pn_abrir')}
+                </button>
+                <button className="dash-btn-sec" onClick={baixar} disabled={baixando}>
+                  {baixando ? t('conta_preparando') : t('conta_baixar_plugin')}
+                </button>
+              </div>
+            </div>
           </div>
+        )}
+
+        {quadro === 1 && (
+          <div className="heroi heroi--entra" key="q1">
+            {/* A coluna do IA Studio é um objeto, e não textura andando: a
+                outra marca se apresenta pelo símbolo dela. */}
+            <div className="heroi__pad heroi__pad--ia" aria-hidden="true">
+              <span className="ia-anel" />
+              <span className="ia-anel ia-anel--2" />
+              <span className="ia-disco"><i /></span>
+            </div>
+            <div className="heroi__txt">
+              <div className="heroi__marca heroi__marca--ia" role="img" aria-label="IA Studio" />
+              <p className="eyebrow">{t('pn_ia_olho')}</p>
+              <h1>{t('pn_ia_tit')}</h1>
+              <p className="heroi__sub">{t('pn_ia_sub')}</p>
+              <div className="heroi__acoes">
+                <a
+                  className="dash-btn-ia"
+                  href={URL_IA_STUDIO}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t('pn_ia_btn')}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+                       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M14 4h6v6M20 4l-8 8" />
+                    <path d="M17 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h5" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {quadro === 2 && (
+          <div className="heroi heroi--entra" key="q2">
+            <div className="heroi__pad" aria-hidden="true" />
+            <div className="heroi__txt">
+              <div className="heroi__marca" role="img" aria-label="Cora Render" />
+              <p className="eyebrow">{t('pn_apr_olho')}</p>
+              <h1>{t('pn_apr_tit')}</h1>
+              <p className="heroi__sub">{t('pn_apr_sub')}</p>
+              <div className="heroi__acoes">
+                <button className="dash-btn-cta" onClick={() => router.push('/aprender')}>
+                  {t('pn_apr_btn')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="heroi__pontos">
+          {[0, 1, 2].map((i) => (
+            <button
+              key={i}
+              className="heroi__ponto"
+              aria-current={quadro === i}
+              aria-label={`${t('pn_quadro')} ${i + 1}`}
+              onClick={() => { setQuadro(i); setPausado(true); }}
+            />
+          ))}
         </div>
       </div>
 

@@ -80,7 +80,26 @@ const Icone = {
       <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
     </svg>
   ),
+  // Um livro aberto, e nao um "play": a aba nao e um video, e o conjunto das
+  // aulas. O play mora dentro dela, na aula.
+  aulas: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
+      <path d="M3.5 5.5h6a2.5 2.5 0 0 1 2.5 2.5v11a3 3 0 0 0-2.5-1.4H3.5z"/>
+      <path d="M20.5 5.5h-6A2.5 2.5 0 0 0 12 8v11a3 3 0 0 1 2.5-1.4h6z"/>
+    </svg>
+  ),
+  fora: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 4h6v6M20 4l-8 8"/><path d="M17 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h5"/>
+    </svg>
+  ),
 };
+
+/* Para onde o convite da lateral leva. A página do IA Studio ainda não
+   existe, então ele cai na 9barra7 — o mesmo desenho que o `cora-auth` já usa
+   nos links de renovação (`RENOVAR_IA_STUDIO_URL`). Quando a página nascer,
+   basta a variável no Vercel. */
+export const URL_IA_STUDIO = process.env.NEXT_PUBLIC_IA_STUDIO_URL || 'https://9barra7.com';
 
 export default function AppShell({ children }) {
   const pathname = usePathname();
@@ -251,6 +270,10 @@ export default function AppShell({ children }) {
     { href: '/conta/perfil', rotulo: t('nav_minhaconta'), icone: Icone.conta, admin: false, divisor: true },
     { href: '/workspace', rotulo: t('nav_equipe'), icone: Icone.equipe, admin: false, soDono: true },
     { href: '/assinatura', rotulo: t('nav_assinatura'), icone: Icone.assinatura, admin: false, soPagante: true },
+    /* Aprender abre o seu próprio grupo, e é o último para quem não
+       administra nada: ela não é trabalho nem conta, é o lugar de aprender a
+       usar o que está acima dela. */
+    { href: '/aprender', rotulo: t('nav_aprender'), icone: Icone.aulas, admin: false, divisor: true },
     { href: '/admin', rotulo: 'Admin', icone: Icone.admin, admin: true },
     /* A tela do gerente. MESMO ICONE do Admin, de proposito: os dois nunca
        aparecem no mesmo menu (quem e admin ve o dele, quem e gerente ve o
@@ -596,6 +619,37 @@ export default function AppShell({ children }) {
               )}
             </div>
           ))}
+
+          {/* ── O CONVITE DO IA STUDIO ──
+              A única coisa da barra que leva para fora do Cora, e por isso
+              tem forma de cartão e não de item de lista. As duas versões
+              existem sempre no HTML; quem escolhe qual aparece é a classe
+              `recolhido`, no CSS — pelo mesmo motivo do logo aqui em cima:
+              escolher por estado no React deixava a gaveta do celular sem
+              nenhuma das duas. */}
+          <a
+            className="app-convite"
+            href={URL_IA_STUDIO}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="app-convite__faixa" aria-hidden="true" />
+            <span className="app-convite__txt">
+              <b>IA&nbsp;Studio</b>
+              <span className="app-convite__sub">{t('ia_sub')}</span>
+              <span className="app-convite__ir">{t('ia_link')} {Icone.fora}</span>
+            </span>
+          </a>
+          <a
+            className="app-convite--selo"
+            href={URL_IA_STUDIO}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="IA Studio"
+            aria-label="IA Studio"
+          >
+            <i aria-hidden="true" />
+          </a>
         </nav>
       </aside>
 

@@ -41,6 +41,15 @@
   --side-w:240px; --side-w-min:68px; --header-h:60px;
   --pad-heroi:136px;      /* a coluna da esteira */
   --pad-deitado:58px;     /* a mesma esteira, virada, no celular */
+
+  /* ── AS CORES DO IA STUDIO ──
+     Não são as do Cora, e é de propósito que elas ficam num par separado: o
+     IA Studio é outro produto, e a lima dele (#DDFE6F, puxando para o
+     amarelo) não é a lima daqui (#C4FBA7, verde-maçã). Uma do lado da outra
+     o olho lê erro de cor, então a ácida só aparece dentro da faixa do
+     convite e da coluna do quadro dele, longe do fio de lima da aba aberta. */
+  --ia-lima:#DDFE6F;
+  --ia-azul:#316CF6;
   --r:20px; --r-peq:12px; --r-heroi:22px; --pill:100px;
   /* O vidro das pastilhas que ficam EM CIMA da padronagem. Ele não muda
      no tema escuro: a lima e a turquesa da faixa também não mudam, e um
@@ -322,6 +331,63 @@
 .app-shell.recolhido .app-nav-div{ margin:10px 8px; }
 
 /* ══════════════════════════════════════════════════════════════════════
+   O CONVITE DO IA STUDIO
+
+   Fica no pé da lateral, depois do Aprender. Ele não é uma aba: é a única
+   coisa da barra que leva para FORA do Cora, e por isso tem forma de cartão
+   e não de item de lista. O balão cromado é o mesmo objeto da capa do curso.
+
+   A lima ácida entra só dentro da faixa. O fio de lima da aba aberta mora na
+   borda esquerda da lista, longe daqui, então as duas limas nunca se
+   encostam — que é o único jeito de elas conviverem sem parecer erro de
+   impressão.
+   ══════════════════════════════════════════════════════════════════════ */
+.app-convite{
+  display:block; margin:14px 0 4px; border:1px solid var(--line);
+  border-radius:var(--r-peq); overflow:hidden; background:var(--paper);
+  text-decoration:none; transition:border-color var(--t), box-shadow var(--t);
+}
+.app-convite:hover{ border-color:var(--line2); box-shadow:var(--sombra); }
+/* O balão encosta nos mesmos 12px em que o título e o link começam. Centrado
+   ele ficava sozinho num eixo que mais nada do cartão usa. */
+.app-convite__faixa{
+  display:block; height:62px;
+  background:var(--ia-lima) url('/img/ia/balao-ia.webp') no-repeat 12px center;
+  background-size:auto 50px;
+}
+.app-convite__txt{ display:block; padding:10px 12px 12px; }
+.app-convite__txt b{ display:block; font-size:var(--t-apoio2); font-weight:700; color:var(--ink); }
+/* Classe propria, e nao `.app-convite__txt span`: o link ali embaixo tambem e
+   um span, e um seletor de tipo aqui venceria o `inline-flex` dele por ter
+   uma especificidade a mais. */
+.app-convite__sub{
+  display:block; margin-top:3px; font-size:var(--t-etiqueta); line-height:1.4; color:var(--ink2);
+}
+.app-convite__ir{
+  display:inline-flex; align-items:center; gap:5px; margin-top:9px;
+  font-size:var(--t-etiqueta); font-weight:700; color:var(--ia-azul);
+}
+.app-convite__ir svg{ width:11px; height:11px; }
+
+/* Recolhida, um cartão com título e frase não cabe em 30px de largura. Ele
+   vira o selo: o símbolo da marca em branco sobre o azul do IA Studio, no
+   pé, separado dos ícones do Cora pelo vazio. Ele não é uma aba, então não
+   ganha o formato de aba — quem diz o nome é o balão do hover. */
+.app-convite--selo{ display:none; }
+.app-shell.recolhido .app-convite{ display:none; }
+.app-shell.recolhido .app-convite--selo{
+  display:grid; place-items:center; width:34px; height:34px; margin:16px auto 4px;
+  border-radius:10px; background:var(--ia-azul);
+  transition:transform var(--t);
+}
+.app-shell.recolhido .app-convite--selo:hover{ transform:scale(1.06); }
+.app-convite--selo i{
+  width:19px; height:19px; background:#fff;
+  -webkit-mask:var(--simbolo) no-repeat center / contain;
+  mask:var(--simbolo) no-repeat center / contain;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
    O CABEÇALHO
    ══════════════════════════════════════════════════════════════════════ */
 .app-header{
@@ -554,6 +620,78 @@
 .heroi__sub{ margin:14px 0 0; color:var(--ink2); font-size:14.5px; max-width:52ch; text-wrap:pretty; }
 .heroi__sub b{ color:var(--ink); font-weight:600; }
 .heroi__acoes{ margin-top:28px; display:flex; gap:10px; flex-wrap:wrap; }
+
+/* ── O HERÓI PASSOU A SER TRÊS ──
+   O mesmo quadro conta três assuntos: quem chegou, o IA Studio e as aulas.
+   Um de cada vez, e só o quadro do momento existe no HTML — empilhar os três
+   em absoluto obrigaria a caixa a ter a altura do mais alto, e os dois mais
+   curtos ficariam com um vão embaixo do botão. */
+.heroi-carro{ position:relative; }
+.heroi--entra{ animation:pn-quadro .42s cubic-bezier(.16,1,.3,1) both; }
+@keyframes pn-quadro{
+  from{ opacity:0; transform:translateY(7px); }
+  to  { opacity:1; transform:none; }
+}
+.heroi__pontos{
+  position:absolute; right:22px; bottom:18px; z-index:2; display:flex; gap:7px;
+}
+.heroi__ponto{
+  width:26px; height:4px; padding:0; border:0; border-radius:var(--pill);
+  background:var(--line2); cursor:pointer; transition:background-color var(--t);
+}
+.heroi__ponto:hover{ background:var(--ink3); }
+.heroi__ponto[aria-current="true"]{ background:var(--lima-esc); }
+
+/* A coluna do quadro do IA Studio. A do Cora é textura andando; esta é um
+   objeto só, porque a outra marca se apresenta pelo símbolo e não por um
+   ladrilho. O disco boia e, de cinco em cinco segundos, um aro sai de dentro
+   dele e se apaga antes de dobrar de tamanho. */
+.heroi__pad--ia{
+  --ia-d:92px;
+  position:relative; background:var(--ia-lima); animation:none;
+  display:flex; align-items:center; justify-content:center;
+}
+.ia-disco{
+  position:relative; display:flex; align-items:center; justify-content:center;
+  width:var(--ia-d); height:var(--ia-d); border-radius:50%; background:var(--ia-azul);
+  animation:pn-ia-boia 6.5s ease-in-out infinite;
+}
+.ia-disco i{
+  width:44%; height:44%; background:#fff;
+  -webkit-mask:var(--simbolo) no-repeat center / contain;
+  mask:var(--simbolo) no-repeat center / contain;
+}
+.ia-anel{
+  position:absolute; width:var(--ia-d); height:var(--ia-d); border-radius:50%;
+  border:2px solid var(--ia-azul); opacity:0;
+  animation:pn-ia-anel 5.2s ease-out infinite;
+}
+.ia-anel--2{ animation-delay:2.6s; }
+@keyframes pn-ia-boia{
+  0%,100%{ transform:translateY(-6px); }
+  50%    { transform:translateY(6px); }
+}
+@keyframes pn-ia-anel{
+  0%     { transform:scale(1); opacity:.5; }
+  70%,100%{ transform:scale(1.9); opacity:0; }
+}
+/* A marca do IA Studio no lugar da do Cora, no quadro dele. Ela é mais larga
+   que a do Cora na mesma altura de letra, então a largura vem da proporção
+   do arquivo e não de um número redondo. */
+.heroi__marca.heroi__marca--ia{
+  width:145px;
+  -webkit-mask-image:url('/img/ia/marca-ia-studio.png');
+  mask-image:url('/img/ia/marca-ia-studio.png');
+}
+.dash-btn-ia{
+  height:48px; padding:0 24px; border-radius:var(--pill); border:1px solid transparent;
+  background:var(--ia-azul); color:#fff; font-size:14.5px; font-weight:600;
+  display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+  transition:background-color var(--t), transform 120ms var(--t);
+}
+.dash-btn-ia:hover{ background:#2559D6; }
+.dash-btn-ia:active{ transform:scale(.985); }
+.dash-btn-ia svg{ width:14px; height:14px; }
 
 .dash-btn-cta,.dash-btn-sec{
   height:48px; padding:0 24px; border-radius:var(--pill); border:1px solid transparent;
@@ -1751,6 +1889,135 @@
    A fatura em A4 tem artefato próprio: ferramentas/fatura-a4.html. */
 
 /* ══════════════════════════════════════════════════════════════════════
+   A ABA APRENDER
+
+   Três telas, e cada uma substitui a anterior: os módulos, as aulas de um
+   módulo, e a aula. O caminho de volta existe em todas, uma escada a menos
+   por vez. Não há índice lateral de propósito: dentro da aula, o que importa
+   é o vídeo, e a lista fica a um clique de distância.
+   ══════════════════════════════════════════════════════════════════════ */
+.apr-wrap{ padding:34px 40px 60px; max-width:1180px; }
+.apr-cab h1{
+  margin:0; font-size:clamp(24px,2.4vw,32px); font-weight:500; letter-spacing:-.03em;
+  line-height:1.12; text-wrap:balance;
+}
+.apr-cab p{
+  margin:11px 0 0; color:var(--ink2); font-size:var(--t-corpo); max-width:62ch;
+  line-height:1.55; text-wrap:pretty;
+}
+.apr-cab{ margin-bottom:28px; }
+
+/* ── os módulos ──
+   As capas são as da plataforma de membros, e elas são cartaz em pé
+   (520x909). Forçar 16/9 nelas cortava o número e o título fora, e sobrava o
+   meio do desenho. A grade acompanha: coluna estreita, cartaz inteiro. */
+.apr-grade{ display:grid; grid-template-columns:repeat(auto-fill,minmax(186px,1fr)); gap:22px; }
+/* `flex`, e nao `block`: o <button> tem um bloco anonimo por dentro que nao
+   soma a altura dos filhos, entao com `block` o cartao media o tamanho da
+   capa e o rotulo escorria por baixo, em cima da linha seguinte da grade. */
+.apr-mod{
+  display:flex; flex-direction:column; align-items:stretch;
+  width:100%; padding:0; border:0; background:none; text-align:left;
+  cursor:pointer; color:inherit;
+}
+.apr-mod__capa{
+  width:100%; aspect-ratio:520/909; border-radius:var(--r-peq); overflow:hidden;
+  background:var(--wash2);
+}
+.apr-mod__capa img{
+  display:block; width:100%; height:100%; object-fit:cover;
+  transition:transform 280ms cubic-bezier(.16,1,.3,1);
+}
+.apr-mod:hover .apr-mod__capa img{ transform:scale(1.04); }
+.apr-mod__n{
+  display:block; margin-top:12px; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--ink3);
+}
+.apr-mod__t{
+  display:block; margin-top:3px; font-size:var(--t-corpo); font-weight:600;
+  letter-spacing:-.012em; color:var(--ink); text-wrap:pretty;
+}
+/* `margin-top:auto` alinha a contagem pelo pe do cartao: os titulos tem
+   comprimentos diferentes, e em espanhol um deles vira duas linhas. Sem isso,
+   a linha "5 clases" de um cartao ficava mais alta que a do vizinho. */
+.apr-mod__q{
+  display:block; margin-top:auto; padding-top:5px;
+  font-size:var(--t-apoio2); color:var(--ink3);
+}
+
+/* ── o voltar ── */
+.apr-volta{
+  display:inline-flex; align-items:center; gap:7px; margin-bottom:20px;
+  padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:var(--pill);
+  background:var(--paper); color:var(--ink2); font-size:var(--t-apoio); font-weight:600;
+  cursor:pointer; transition:color var(--t), border-color var(--t);
+}
+.apr-volta:hover{ color:var(--ink); border-color:var(--line2); }
+.apr-volta svg{ width:14px; height:14px; }
+
+/* ── o cabeçalho do módulo: a capa vira miniatura ── */
+.apr-mcab{ display:flex; align-items:center; gap:20px; margin-bottom:26px; }
+.apr-mcab img{
+  flex:none; display:block; width:92px; aspect-ratio:520/909; object-fit:cover;
+  border-radius:var(--r-peq);
+}
+.apr-mcab h1{
+  margin:6px 0 0; font-size:clamp(21px,2.1vw,28px); font-weight:500;
+  letter-spacing:-.028em; line-height:1.14; text-wrap:balance;
+}
+.apr-mcab p{ margin:0; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }
+
+/* ── a lista de aulas ── */
+.apr-lista{ display:flex; flex-direction:column; gap:7px; max-width:780px; }
+.apr-aula{
+  display:flex; align-items:center; gap:14px; width:100%; padding:13px 16px;
+  border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper);
+  text-align:left; cursor:pointer; color:inherit;
+  transition:border-color var(--t), background-color var(--t);
+}
+.apr-aula:hover{ border-color:var(--line2); background:var(--wash); }
+.apr-aula__n{
+  flex:none; width:24px; font-size:var(--t-apoio2); font-weight:700; color:var(--ink3);
+  font-variant-numeric:tabular-nums;
+}
+.apr-aula__t{ flex:1; min-width:0; font-size:var(--t-apoio); font-weight:500; color:var(--ink); }
+/* A aula sem vídeo continua clicável: quem entra vê o recado explicando, e
+   não uma linha morta que não responde. */
+.apr-aula__tag{
+  flex:none; padding:3px 10px; border-radius:var(--pill); background:var(--wash2);
+  font-size:var(--t-etiqueta); font-weight:600; color:var(--ink3);
+}
+
+/* ── a aula ── */
+.apr-palco{ max-width:920px; }
+.apr-palco__quadro{
+  aspect-ratio:16/9; border-radius:var(--r-heroi); overflow:hidden; background:var(--wash2);
+  display:flex; align-items:center; justify-content:center;
+}
+.apr-palco__quadro iframe{ display:block; width:100%; height:100%; border:0; }
+.apr-breve{ padding:28px; text-align:center; }
+.apr-breve b{ display:block; font-size:var(--t-titulo); font-weight:600; color:var(--ink); }
+.apr-breve span{
+  display:block; margin:9px auto 0; max-width:46ch; font-size:var(--t-apoio);
+  color:var(--ink2); line-height:1.55; text-wrap:pretty;
+}
+.apr-palco__onde{
+  margin:22px 0 0; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--ink3);
+}
+.apr-palco h1{
+  margin:6px 0 0; font-size:clamp(20px,2vw,27px); font-weight:500;
+  letter-spacing:-.028em; line-height:1.14; text-wrap:balance;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .heroi--entra, .ia-disco, .ia-anel{ animation:none; }
+  .ia-anel{ opacity:0; }
+  .apr-mod:hover .apr-mod__capa img{ transform:none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
    ATÉ 1024px a lateral vira gaveta, e a esteira deita
    ══════════════════════════════════════════════════════════════════════ */
 @media (max-width:1024px){
@@ -1797,6 +2064,12 @@
     to  { background-position:calc(var(--pad-deitado) * 8) center; }
   }
   .heroi__txt{ padding:30px 26px; }
+  /* Deitada, a coluna do IA Studio mede pela altura: 66% da largura, ali,
+     seria um disco maior que a faixa inteira. */
+  .heroi__pad--ia{ --ia-d:calc(var(--pad-deitado) * .62); height:var(--pad-deitado); }
+  .apr-wrap{ padding:24px 18px 48px; }
+  .apr-mcab{ gap:14px; }
+  .apr-mcab img{ width:72px; }
   .trial-card{ right:16px; left:16px; bottom:calc(16px + var(--h-cookies, 0px)); width:auto; }
 }
 </style>
