@@ -13,6 +13,7 @@ import { TELAS_ADMIN, usarTelaAdmin } from '../lib/telaAdmin';
 import { useIdioma, IDIOMAS, localeDeIdioma } from '../lib/i18n';
 import BotaoCriar from './BotaoCriar';
 import { DOCUMENTOS, maisRecentes } from '../lib/documentos';
+import { contarComentariosNovos } from '../lib/aulas';
 import { TextoTermos, TextoPrivacidade } from './TextosLegais';
 
 // Ícones simples em SVG (sem dependência externa)
@@ -318,6 +319,20 @@ export default function AppShell({ children }) {
 
   const inicial = (conta?.nome || conta?.email || '?').charAt(0).toUpperCase();
 
+  /* Quantos comentários chegaram e ainda não foram olhados. Só quem
+     administra vê, e a conta é uma consulta só, sem trazer texto nenhum.
+
+     Ela zera quando a aba de Comentários abre, e não quando o comentário é
+     aprovado: a bolinha diz o que CHEGOU, e não o que falta fazer. Por isso
+     ela também se refaz quando a rota muda. */
+  const [comNovos, setComNovos] = useState(0);
+  useEffect(() => {
+    if (!conta?.is_admin) { setComNovos(0); return; }
+    let vivo = true;
+    contarComentariosNovos().then((n) => { if (vivo) setComNovos(n); });
+    return () => { vivo = false; };
+  }, [conta?.is_admin, pathname]);
+
   // Trial: conta free de até 7 dias. Mostra o contador; ao expirar, bloqueia a tela.
   const ehTrial = conta?.eh_trial === true;
   const trialExpirado = conta?.trial_expirado === true;
@@ -510,7 +525,7 @@ export default function AppShell({ children }) {
   // que o PromptHub faz. No Início ela já mora na esteira do herói, e duas na
   // mesma tela competem. Foi a mesma conclusão do lado dos Promptadores, e é
   // por isso que lá o cabeçalho liso é o normal e a faixa é a exceção.
-  const TELAS_COM_FAIXA = ['/conta/perfil', '/assinatura', '/admin', '/workspace'];
+  const TELAS_COM_FAIXA = ['/conta/perfil', '/assinatura', '/admin', '/workspace', '/aprender'];
   const cabecalhoComFaixa = TELAS_COM_FAIXA.includes(pathname);
 
   return (
@@ -675,6 +690,11 @@ export default function AppShell({ children }) {
 
         <div className="app-header-dir">
           <div className="app-user-wrap">
+            {comNovos > 0 && (
+              <Link href="/admin#comentarios" className="app-aviso" title={t('adm_com_titulo')}>
+                {comNovos > 9 ? '9+' : comNovos}
+              </Link>
+            )}
             <button className="app-user-btn" onClick={() => setMenuUser(!menuUser)} title={t('nav_minhaconta')}>
               {/* anel de créditos ao redor do avatar (estilo Magnific).
                   Admin/ilimitado mostra o anel SEMPRE CHEIO. */}

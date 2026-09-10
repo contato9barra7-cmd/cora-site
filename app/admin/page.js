@@ -13,6 +13,7 @@ import PainelAceites from '../../components/PainelAceites';
 import AdminDinheiro from '../../components/AdminDinheiro';
 import PainelNovidades from '../../components/PainelNovidades';
 import AdminAuditoria from '../../components/AdminAuditoria';
+import AdminComentarios from '../../components/AdminComentarios';
 import { usarTelaAdmin, irParaTelaAdmin } from '../../lib/telaAdmin';
 
 
@@ -97,6 +98,8 @@ export default function Admin() {
                 primeira: 'pagantes' },
     registros:{ olho: 'Admin · Registros', titulo: 'O que ficou gravado',
                 abas: ['aceites', 'novidades', 'auditoria'], primeira: 'aceites' },
+    comentarios:{ olho: 'Admin · Aulas', titulo: 'Comentários',
+                abas: ['espera', 'todos'], primeira: 'espera' },
   };
 
   /* ── QUEM TEM LISTAGEM, POR INCLUSAO ──
@@ -661,7 +664,9 @@ export default function Admin() {
                       : aba === 'novidades'
                         ? 'Para quantas pessoas dá para escrever.'
                         : 'A prova de quem aceitou o que, e quando.')
-                  : 'Assinatura e recarga, com a taxa que o Stripe reteve.'}
+                  : telaAdm === 'comentarios'
+                    ? t('adm_com_sub')
+                    : 'Assinatura e recarga, com a taxa que o Stripe reteve.'}
             </p>
           </div>
         </div>
@@ -930,6 +935,18 @@ export default function Admin() {
           <button className={'adm-aba' + (aba === 'auditoria' ? ' ativa' : '')}
                   onClick={() => setAba('auditoria')}>Auditoria</button>
         </div>
+      )}
+
+      {telaAdm === 'comentarios' && (
+        <>
+          <div className="adm-abas" role="tablist" data-fila="comentarios">
+            <button className={'adm-aba' + (aba === 'espera' ? ' ativa' : '')}
+                    onClick={() => setAba('espera')}>{t('adm_com_espera')}</button>
+            <button className={'adm-aba' + (aba === 'todos' ? ' ativa' : '')}
+                    onClick={() => setAba('todos')}>{t('adm_com_todos')}</button>
+          </div>
+          <AdminComentarios aba={aba} />
+        </>
       )}
 
       {/* A dashboard. Ela le o Stripe ao vivo, entao nao depende de nada que

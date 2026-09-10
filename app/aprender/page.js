@@ -7,10 +7,11 @@
 //
 //     MÓDULOS   as sete capas, e quantas aulas cada uma tem
 //     MÓDULO    a capa vira miniatura no cabeçalho, e as aulas viram lista
-//     AULA      o vídeo, com o caminho de volta para o módulo
+//     AULA      o vídeo, com o índice do curso ao lado e os comentários embaixo
 //
-//  Não há índice lateral de propósito. Dentro da aula o que importa é o
-//  vídeo, e a lista fica a um clique. Foi o fluxo escolhido em 09/09/2026.
+//  O catálogo (títulos, ordem, vídeo) mora em `lib/aulas.js`. O que é da
+//  pessoa (assistida, voto) e o que é público (comentários, placar) vem do
+//  cora-auth, pelas funções do mesmo arquivo.
 //
 //  O desenho é o do artefato `ferramentas/painel.html`, e a folha
 //  (painel-pagina.css) é GERADA a partir dele:
@@ -18,63 +19,155 @@
 //      python gerar-css-artefato.py painel.html ../app/painel-pagina.css pn
 // ═══════════════════════════════════════════════════════════════════════════
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import { lerConta } from '../../lib/auth';
-import { MODULOS, urlDoVideo } from '../../lib/aulas';
+import {
+  MODULOS, TOTAL_AULAS, urlDoVideo,
+  lerEstadoAulas, marcarVisto, votar, lerComentarios, comentar,
+} from '../../lib/aulas';
 import { useIdioma, tOpt } from '../../lib/i18n';
 
-const Seta = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M14 6l-6 6 6 6" />
-  </svg>
-);
+const Ico = {
+  esq: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M14 6l-6 6 6 6" /></svg>),
+  dir: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M10 6l6 6-6 6" /></svg>),
+  visto: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>),
+  cima: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10.5v9H4.5a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z" /><path d="M7 10.5l4-6.5a2 2 0 0 1 2.9 2.4l-1 3.6h4.7a2 2 0 0 1 2 2.4l-1.2 6a2 2 0 0 1-2 1.6H7z" /></svg>),
+  baixo: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M7 13.5v-9H4.5a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1z" /><path d="M7 13.5l4 6.5a2 2 0 0 0 2.9-2.4l-1-3.6h4.7a2 2 0 0 0 2-2.4l-1.2-6a2 2 0 0 0-2-1.6H7z" /></svg>),
+  envia: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 12l15-7-4.5 15-3.5-5.8z" /><path d="M11.5 14.2L19.5 5" /></svg>),
+  abre: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9.5l6 6 6-6" /></svg>),
+  fecha: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M6 14.5l6-6 6 6" /></svg>),
+  relogio: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>),
+};
+
+/* O anel de progresso, com o número dentro. É o mesmo desenho do anel de
+   créditos do avatar: retângulo de canto redondo com `pathLength=100`, então
+   o quanto falta é o número direto, sem conta de perímetro. */
+function Anel({ dentro, pct, tam = 26 }) {
+  const r = Math.round(tam * 0.31);
+  return (
+    <span className="apr-anel">
+      <svg viewBox={`0 0 ${tam} ${tam}`} aria-hidden="true">
+        <rect className="tri" x="2" y="2" width={tam - 4} height={tam - 4} rx={r} pathLength="100" />
+        <rect className="ch" x="2" y="2" width={tam - 4} height={tam - 4} rx={r} pathLength="100"
+              strokeDasharray="100" strokeDashoffset={100 - pct} />
+      </svg>
+      <i>{dentro}</i>
+    </span>
+  );
+}
+
+/* A lista plana das 33, para o Anterior e o Próxima andarem pelo curso e não
+   pelo módulo: no fim do módulo, o Próxima rola para o seguinte em vez de
+   morrer. */
+const FILA = MODULOS.flatMap((m) => m.aulas.map((a) => ({ ...a, modulo: m })));
 
 export default function Aprender() {
   const { t } = useIdioma();
   const router = useRouter();
   const [pronto, setPronto] = useState(false);
 
-  // Onde a pessoa está. Os dois nulos = a tela dos módulos.
   const [modId, setModId] = useState(null);
   const [aulaId, setAulaId] = useState(null);
+  const [abertos, setAbertos] = useState([]);   // módulos abertos no índice
+
+  const [estado, setEstado] = useState({ vistas: [], votos: {}, joinhas: {} });
+  const [comentarios, setComentarios] = useState([]);
+  const [rascunho, setRascunho] = useState('');
+  const [escrevendo, setEscrevendo] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const caixa = useRef(null);
 
   useEffect(() => {
     if (!lerConta()) { router.push('/login'); return; }
     setPronto(true);
+    lerEstadoAulas().then(setEstado);
   }, [router]);
 
-  // Voltar do navegador fecha a aula antes de sair da tela: quem entrou em
-  // três passos espera desfazer um por vez.
   useEffect(() => {
     function aoVoltar() {
       if (aulaId) { setAulaId(null); return; }
-      if (modId) { setModId(null); }
+      if (modId) setModId(null);
     }
     window.addEventListener('popstate', aoVoltar);
     return () => window.removeEventListener('popstate', aoVoltar);
   }, [modId, aulaId]);
 
+  // Os comentários chegam por aula, e só quando ela abre.
+  useEffect(() => {
+    if (!aulaId) { setComentarios([]); return; }
+    let vivo = true;
+    lerComentarios(aulaId).then((c) => { if (vivo) setComentarios(c); });
+    return () => { vivo = false; };
+  }, [aulaId]);
+
   const modulo = MODULOS.find((m) => m.id === modId) || null;
   const aula = modulo ? modulo.aulas.find((a) => a.id === aulaId) || null : null;
+  const vistas = useMemo(() => new Set(estado.vistas), [estado.vistas]);
 
   function abrirModulo(id) {
-    setModId(id);
-    setAulaId(null);
+    setModId(id); setAulaId(null); setAbertos([id]);
     window.history.pushState({ apr: id }, '');
   }
-  function abrirAula(id) {
+  function abrirAula(id, mod) {
     setAulaId(id);
+    if (mod && mod !== modId) { setModId(mod); setAbertos([mod]); }
+    setEscrevendo(false); setRascunho('');
     window.history.pushState({ apr: id }, '');
   }
-
   function quantas(n) {
     return `${n} ${n === 1 ? t('apr_aula') : t('apr_aulas')}`;
   }
 
+  const vistasDo = useCallback(
+    (m) => m.aulas.filter((a) => vistas.has(a.id)).length,
+    [vistas]
+  );
+
+  async function alternarVisto() {
+    const novo = !vistas.has(aulaId);
+    setEstado((e) => ({
+      ...e,
+      vistas: novo ? [...e.vistas, aulaId] : e.vistas.filter((x) => x !== aulaId),
+    }));
+    try { await marcarVisto(aulaId, novo); } catch (err) {}
+  }
+
+  async function alternarVoto(v) {
+    const atual = estado.votos[aulaId] || null;
+    const novo = atual === v ? null : v;
+    try {
+      const d = await votar(aulaId, novo);
+      setEstado((e) => ({
+        ...e,
+        votos: { ...e.votos, [aulaId]: novo },
+        joinhas: { ...e.joinhas, [aulaId]: { cima: d.cima, baixo: d.baixo } },
+      }));
+    } catch (err) {}
+  }
+
+  async function enviar() {
+    const texto = rascunho.trim();
+    if (!texto || enviando) return;
+    setEnviando(true);
+    try {
+      const d = await comentar(aulaId, texto);
+      setComentarios((c) => [...c, d.comentario]);
+      setRascunho(''); setEscrevendo(false);
+    } catch (err) {}
+    setEnviando(false);
+  }
+
   if (!pronto) return <AppShell><div className="apr-wrap" /></AppShell>;
+
+  const iAtual = FILA.findIndex((a) => a.id === aulaId);
+  const anterior = iAtual > 0 ? FILA[iAtual - 1] : null;
+  const proxima = iAtual >= 0 && iAtual < FILA.length - 1 ? FILA[iAtual + 1] : null;
+  const joinha = estado.joinhas[aulaId] || { cima: 0, baixo: 0 };
+  const meuVoto = estado.votos[aulaId] || null;
+  const totalVistas = estado.vistas.length;
+  const pctCurso = Math.round((totalVistas / TOTAL_AULAS) * 100);
 
   return (
     <AppShell>
@@ -82,10 +175,6 @@ export default function Aprender() {
         {/* ── 1. OS MÓDULOS ── */}
         {!modulo && (
           <>
-            {/* A mesma cabeça das outras telas da conta: olho, título grande
-                e uma linha de apoio ao lado. Sem foto, o nome e o apoio se
-                encontram na linha de base, e quem faz isso é o `:has()` da
-                folha — não precisa de classe aqui. */}
             <div className="conta-cabeca">
               <div className="conta-cabeca__txt">
                 <p className="eyebrow">{t('apr_titulo')}</p>
@@ -112,7 +201,7 @@ export default function Aprender() {
         {modulo && !aula && (
           <div className="apr-col">
             <button className="apr-volta" onClick={() => setModId(null)}>
-              {Seta}{t('apr_voltar_mod')}
+              {Ico.esq}{t('apr_voltar_mod')}
             </button>
             <div className="apr-mcab">
               <img src={modulo.capa} alt="" />
@@ -123,11 +212,10 @@ export default function Aprender() {
             </div>
             <div className="apr-lista">
               {modulo.aulas.map((a, i) => (
-                <button key={a.id} className="apr-aula" onClick={() => abrirAula(a.id)}>
+                <button key={a.id} className="apr-aula" onClick={() => abrirAula(a.id, modulo.id)}>
                   <span className="apr-aula__n">{String(i + 1).padStart(2, '0')}</span>
                   <span className="apr-aula__t">{tOpt(a.titulo)}</span>
-                  {/* A etiqueta só aparece quando a aula ainda não tem vídeo.
-                      Aula pronta não precisa dizer que está pronta. */}
+                  {vistas.has(a.id) && <span className="apr-pip apr-pip--ok">{Ico.visto}</span>}
                   {!urlDoVideo(a.panda) && <span className="apr-aula__tag">{t('apr_breve')}</span>}
                 </button>
               ))}
@@ -137,40 +225,176 @@ export default function Aprender() {
 
         {/* ── 3. A AULA ── */}
         {modulo && aula && (
-          <div className="apr-col">
+          <>
             <button className="apr-volta" onClick={() => setAulaId(null)}>
-              {Seta}{t('apr_voltar_aulas')}
+              {Ico.esq}{t('apr_voltar_aulas')}
             </button>
-            <div className="apr-palco">
-              <p className="apr-palco__onde">{t('apr_modulo')} {modulo.id} · {tOpt(modulo.titulo)}</p>
-              <h1>{tOpt(aula.titulo)}</h1>
-              <div className="apr-palco__quadro">
-                {urlDoVideo(aula.panda) ? (
-                  <iframe
-                    src={urlDoVideo(aula.panda)}
-                    title={tOpt(aula.titulo)}
-                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <div className="apr-breve">
-                    <b>{t('apr_breve')}</b>
-                    <span>{t('apr_breve_sub')}</span>
-                  </div>
-                )}
+
+            <div className="apr-tela">
+              <div className="apr-tela__t1">
+                <p className="apr-palco__onde">{t('apr_modulo')} {modulo.id} · {tOpt(modulo.titulo)}</p>
+                <h1 className="apr-palco__tit">{tOpt(aula.titulo)}</h1>
               </div>
-              {/* Quem dá a aula assina embaixo dela, como na área de membros.
-                  É a mesma peça de lá, e ela fecha a tela sem precisar de
-                  mais uma caixa em volta. */}
-              <img
-                className="apr-assina"
-                src="/img/aulas/assinatura.webp"
-                alt="Marilia Fischer · 9BARRA7 Academy"
-                width="1251"
-                height="209"
-              />
+
+              {/* O progresso do CURSO, solto da lista: ele é a única peça que
+                  fala do todo, e o todo não tem número de módulo. */}
+              <div className="apr-tela__t2">
+                <div className="apr-prog">
+                  <Anel dentro={`${pctCurso}%`} pct={pctCurso} tam={32} />
+                  <span className="apr-prog__txt">
+                    <b>{t('apr_progresso')}</b>
+                    <em>{totalVistas} {t('apr_de')} {TOTAL_AULAS} {t('apr_aulas')}</em>
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <div className="apr-palco__quadro">
+                  {urlDoVideo(aula.panda) ? (
+                    <iframe
+                      src={urlDoVideo(aula.panda)}
+                      title={tOpt(aula.titulo)}
+                      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <div className="apr-breve">
+                      <b>{t('apr_breve')}</b>
+                      <span>{t('apr_breve_sub')}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* O joinha e o contrário dele moram na mesma pílula: são duas
+                    metades de uma pergunta só, e não dois botões vizinhos. */}
+                <div className="apr-acoes">
+                  <span className="apr-voto">
+                    <button className={meuVoto === 1 ? 'on' : undefined}
+                            onClick={() => alternarVoto(1)} aria-label={t('apr_gostei')}>
+                      {Ico.cima}{joinha.cima > 0 ? joinha.cima : ''}
+                    </button>
+                    <button className={meuVoto === -1 ? 'on' : undefined}
+                            onClick={() => alternarVoto(-1)} aria-label={t('apr_nao_gostei')} />
+                  </span>
+                  <button className={'apr-bt' + (vistas.has(aulaId) ? ' apr-bt--on' : '')}
+                          onClick={alternarVisto}>
+                    {Ico.visto}{vistas.has(aulaId) ? t('apr_assistida') : t('apr_marcar')}
+                  </button>
+                  <span className="apr-acoes__dir">
+                    <button className="apr-bt" disabled={!anterior}
+                            onClick={() => anterior && abrirAula(anterior.id, anterior.modulo.id)}>
+                      {Ico.esq}{t('apr_anterior')}
+                    </button>
+                    <button className="apr-bt" disabled={!proxima}
+                            onClick={() => proxima && abrirAula(proxima.id, proxima.modulo.id)}>
+                      {t('apr_proxima')}{Ico.dir}
+                    </button>
+                  </span>
+                </div>
+
+                <img className="apr-assina" src="/img/aulas/assinatura.webp"
+                     alt="Marilia Fischer · 9BARRA7 Academy" width="2501" height="418" />
+
+                {/* ── os comentários ── */}
+                <div className="apr-com">
+                  <div className="apr-com__cab">
+                    <h2>{t('apr_comentarios')}</h2>
+                    {comentarios.length > 0 && <em>{comentarios.length}</em>}
+                  </div>
+
+                  <div className={'apr-escreve' + (escrevendo ? ' apr-escreve--alto' : '')}>
+                    <span className="apr-ava">{(lerConta()?.nome || '?').charAt(0).toUpperCase()}</span>
+                    <div className={'apr-campo' + (escrevendo ? ' apr-campo--aberto' : '')}>
+                      <textarea
+                        ref={caixa}
+                        rows={escrevendo ? 3 : 1}
+                        value={rascunho}
+                        placeholder={t('apr_escreva')}
+                        onFocus={() => setEscrevendo(true)}
+                        onChange={(e) => setRascunho(e.target.value)}
+                      />
+                      {escrevendo ? (
+                        <span className="apr-campo__pe">
+                          <button className="apr-bt apr-bt--txt"
+                                  onClick={() => setEscrevendo(false)}>{t('apr_cancelar')}</button>
+                          <button className="apr-bt apr-bt--cta"
+                                  disabled={!rascunho.trim() || enviando} onClick={enviar}>
+                            {Ico.envia}{t('apr_comentar')}
+                          </button>
+                        </span>
+                      ) : (
+                        <button className="apr-bt apr-bt--so" onClick={() => {
+                          setEscrevendo(true);
+                          setTimeout(() => caixa.current?.focus(), 0);
+                        }}>{Ico.envia}</button>
+                      )}
+                    </div>
+                  </div>
+
+                  {comentarios.map((c) => (
+                    <div className="apr-fio" key={c.id}>
+                      <span className="apr-ava"
+                            style={c.foto ? { backgroundImage: `url(${c.foto})`, backgroundSize: 'cover', color: 'transparent' } : undefined}>
+                        {(c.nome || '?').charAt(0).toUpperCase()}
+                      </span>
+                      <span className="apr-fio__txt">
+                        <span className="apr-fio__quem">
+                          <b>{c.nome || '—'}</b>
+                          {c.esperando && (
+                            <span className="apr-tag apr-tag--espera">{Ico.relogio}{t('apr_so_voce')}</span>
+                          )}
+                        </span>
+                        <p>{c.texto}</p>
+                        {c.resposta && (
+                          <span className="apr-resp">
+                            <span className="apr-fio__quem">
+                              <b>Marilia</b>
+                              <span className="apr-tag apr-tag--dono">{t('apr_quem_da')}</span>
+                            </span>
+                            <p>{c.resposta}</p>
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── o índice do curso ── */}
+              <div className="apr-idx">
+                {MODULOS.map((m) => {
+                  const v = vistasDo(m);
+                  const aberto = abertos.includes(m.id);
+                  return (
+                    <div className={'apr-mod-l' + (aberto ? ' apr-mod-l--on' : '')} key={m.id}>
+                      <button className="apr-mod-l__cab"
+                              onClick={() => setAbertos((a) => a.includes(m.id) ? a.filter((x) => x !== m.id) : [...a, m.id])}>
+                        <Anel dentro={m.id} pct={Math.round((v / m.aulas.length) * 100)} />
+                        <span>
+                          <b>{tOpt(m.titulo)}</b>
+                          <em>{quantas(m.aulas.length)}{v ? ` · ${v} ${t('apr_assistidas')}` : ''}</em>
+                        </span>
+                        {aberto ? Ico.fecha : Ico.abre}
+                      </button>
+                      {aberto && (
+                        <div className="apr-mod-l__lista">
+                          {m.aulas.map((a, i) => (
+                            <button key={a.id} className={a.id === aulaId ? 'on' : undefined}
+                                    onClick={() => abrirAula(a.id, m.id)}>
+                              <span className={'apr-pip' + (vistas.has(a.id) ? ' apr-pip--ok' : '')}>
+                                {vistas.has(a.id) ? Ico.visto : null}
+                              </span>
+                              {i + 1}. {tOpt(a.titulo)}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </AppShell>
