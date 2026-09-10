@@ -1,0 +1,534 @@
+<title>A tela de Assinatura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --turq-txt:#196C5B; --turq-bg:#E6F7F3;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px; --t-titulo:17px;
+  --alt-ctrl:38px; --alt-acao:46px;
+  --ambar-l:#F0C9A8; --ambar-f:#FDF3EA; --ambar-t:#7A4712; --ambar-t2:#8A5518; --ambar-i:#9A5B18;
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83; --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+    --line:#2B2B30; --line2:#3A3A41; --turq-txt:#8FDDCC; --turq-bg:rgba(143,221,204,.16);
+    --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+    --ambar-l:#5A3A18; --ambar-f:rgba(154,91,24,.16); --ambar-t:#E8B983; --ambar-t2:#D9A874; --ambar-i:#E8B983;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83; --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41; --turq-txt:#8FDDCC; --turq-bg:rgba(143,221,204,.16);
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34);
+  --ambar-l:#5A3A18; --ambar-f:rgba(154,91,24,.16); --ambar-t:#E8B983; --ambar-t2:#D9A874; --ambar-i:#E8B983;
+  color-scheme:dark;
+}
+
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--wash); color:var(--ink); font-family:var(--fonte);
+      font-size:var(--t-corpo); line-height:1.5; }
+.pag{ max-width:1080px; margin:0 auto; padding:40px 24px 80px; }
+.cab{ max-width:66ch; margin-bottom:16px; }
+.cab h1{ margin:0 0 8px; font-size:28px; font-weight:600; letter-spacing:-.015em; text-wrap:balance; }
+.cab p{ margin:0 0 8px; color:var(--ink2); text-wrap:pretty; }
+.cab b{ color:var(--ink); font-weight:600; }
+
+.nota{ max-width:66ch; margin:0 0 36px; padding:14px 17px;
+       border-left:3px solid var(--turquesa-esc); background:var(--turq-bg);
+       border-radius:0 var(--r-peq) var(--r-peq) 0; }
+.nota p{ margin:0; font-size:var(--t-apoio); color:var(--turq-txt); text-wrap:pretty; }
+.nota p + p{ margin-top:8px; }
+.nota code{ font-family:ui-monospace,Menlo,monospace; font-size:12px; }
+
+h2.sec{ margin:46px 0 3px; font-size:19px; font-weight:600; letter-spacing:-.01em; }
+p.sec-p{ margin:0 0 18px; color:var(--ink2); font-size:var(--t-apoio); max-width:72ch; text-wrap:pretty; }
+
+.tela{ border:1px solid var(--line); border-radius:var(--r); overflow:hidden; background:var(--wash); }
+.tela__cab{ display:flex; align-items:center; gap:10px; padding:12px 20px; border-bottom:1px solid var(--line); }
+.tela__pill{ padding:5px 13px; border-radius:var(--pill); background:var(--paper);
+             border:1px solid var(--line); font-size:var(--t-apoio2); font-weight:600; }
+.tela__corpo{ padding:26px 24px 32px; }
+.tela__olho{ font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em;
+             text-transform:uppercase; color:var(--ink3); }
+.tela h3{ margin:2px 0 3px; font-size:22px; font-weight:600; letter-spacing:-.015em; }
+.tela__sub{ margin:0 0 26px; color:var(--ink2); font-size:var(--t-apoio); }
+.bloco{ margin-top:30px; }
+.bloco > h4{ margin:0 0 3px; font-size:var(--t-titulo); font-weight:600; }
+.bloco > p.ap{ margin:0 0 14px; color:var(--ink2); font-size:var(--t-apoio); }
+
+.cartao{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r); }
+
+.plano{ padding:20px 22px; }
+.plano__topo{ display:flex; gap:20px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; }
+.plano__rot{ display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+.plano__rot > span{ font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em;
+                    text-transform:uppercase; color:var(--ink3); }
+.selo{ display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:var(--pill);
+       background:var(--turq-bg); color:var(--turq-txt); font-size:var(--t-etiqueta); font-weight:600;
+       letter-spacing:.04em; text-transform:uppercase; }
+.plano__nome{ display:block; font-size:26px; font-weight:600; letter-spacing:-.02em; line-height:1.15; }
+.plano__sub{ display:block; margin-top:3px; color:var(--ink2); font-size:var(--t-apoio); }
+.plano__preco{ text-align:right; }
+.plano__preco strong{ display:block; font-size:22px; font-weight:600; letter-spacing:-.02em;
+                      font-variant-numeric:tabular-nums; }
+.plano__preco strong em{ font-style:normal; font-size:var(--t-apoio2); font-weight:500;
+                         color:var(--ink3); margin-left:2px; }
+.plano__preco span{ display:block; margin-top:2px; font-size:var(--t-apoio2); color:var(--ink3); }
+
+.uso{ margin-top:18px; }
+.uso__l{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; gap:12px; }
+.uso__l b{ font-size:var(--t-apoio); font-weight:600; }
+.uso__l span{ font-size:var(--t-apoio2); color:var(--ink3); font-variant-numeric:tabular-nums; }
+.uso__g{ height:8px; border-radius:var(--pill); background:var(--wash2); overflow:hidden; }
+.uso__g i{ display:block; height:100%; border-radius:var(--pill); background:var(--turquesa-esc); }
+
+.plano__pe{ display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+            margin-top:20px; padding-top:16px; border-top:1px solid var(--line); }
+
+.bt{ display:inline-flex; align-items:center; justify-content:center; gap:7px; height:var(--alt-ctrl);
+     padding:0 18px; border-radius:var(--pill); border:1px solid var(--line2); background:var(--paper);
+     color:var(--ink); font:inherit; font-size:var(--t-apoio); font-weight:500; cursor:pointer; }
+.bt svg{ width:15px; height:15px; stroke:currentColor; fill:none; }
+.bt--cheio{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.bt--lima{ background:var(--lima); border-color:var(--lima); color:#111111; font-weight:600; }
+.bt--nu{ border-color:transparent; background:none; color:var(--ink2); padding:0 6px; }
+.bt--peq{ height:30px; padding:0 13px; font-size:var(--t-apoio2); }
+
+.planos{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.pl{ display:flex; flex-direction:column; padding:18px 18px 16px; background:var(--paper);
+     border:1px solid var(--line); border-radius:var(--r); }
+.pl--atual{ border-color:var(--line2); background:var(--wash2); }
+.pl--sobe{ border-color:var(--turquesa-esc); }
+.pl__n{ display:flex; align-items:center; gap:8px; font-size:var(--t-titulo); font-weight:600; }
+.pl__p{ margin:10px 0 2px; font-size:24px; font-weight:600; letter-spacing:-.02em;
+        font-variant-numeric:tabular-nums; }
+.pl__p em{ font-style:normal; font-size:var(--t-apoio2); font-weight:500; color:var(--ink3); }
+.pl__c{ margin:0 0 14px; font-size:var(--t-apoio); color:var(--ink2); }
+.pl ul{ margin:0 0 18px; padding:0; list-style:none; display:flex; flex-direction:column; gap:7px; }
+.pl li{ display:flex; gap:8px; align-items:flex-start; font-size:var(--t-apoio2);
+        color:var(--ink2); line-height:1.4; }
+.pl li svg{ flex:none; width:14px; height:14px; margin-top:2px; stroke:var(--turq-txt); fill:none; }
+.pl li.off{ color:var(--ink3); }
+.pl li.off svg{ stroke:var(--line2); }
+.pl__pe{ margin-top:auto; }
+.pl__pe .bt{ width:100%; }
+.pl__aqui{ display:flex; align-items:center; justify-content:center; height:var(--alt-ctrl);
+           font-size:var(--t-apoio2); color:var(--ink3); }
+
+.recs{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.rec{ position:relative; display:flex; flex-direction:column; padding:16px 16px 14px;
+      background:var(--paper); border:1px solid var(--line); border-radius:var(--r); }
+.rec--pop{ border-color:var(--lima-esc); }
+.rec__tag{ position:absolute; top:-9px; left:16px; padding:2px 9px; border-radius:var(--pill);
+           background:var(--lima); color:#111111; font-size:var(--t-etiqueta); font-weight:700;
+           letter-spacing:.08em; text-transform:uppercase; }
+.rec__n{ font-size:var(--t-apoio2); font-weight:600; color:var(--ink3);
+         letter-spacing:.06em; text-transform:uppercase; }
+.rec__c{ margin:7px 0 1px; font-size:21px; font-weight:600; letter-spacing:-.02em;
+         font-variant-numeric:tabular-nums; }
+.rec__c em{ font-style:normal; font-size:var(--t-apoio2); font-weight:500; color:var(--ink3); }
+.rec__f{ margin:0 0 14px; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.35; min-height:36px; }
+.rec .bt{ width:100%; margin-top:auto; }
+
+.pag-linha{ display:flex; align-items:center; gap:14px; padding:16px 18px; flex-wrap:wrap; }
+.band{ flex:none; width:46px; height:31px; border-radius:6px; border:1px solid var(--line);
+       display:grid; place-items:center; background:var(--paper); }
+.band svg{ width:30px; height:auto; }
+.pag-linha__t{ flex:1; min-width:190px; }
+.pag-linha__t b{ display:block; font-size:var(--t-apoio); font-weight:600; }
+.pag-linha__t span{ display:block; font-size:var(--t-apoio2); color:var(--ink3); }
+.aviso{ display:flex; gap:12px; padding:14px 16px; margin-top:12px; border-radius:var(--r-peq);
+        border:1px solid var(--ambar-l); background:var(--ambar-f); }
+.aviso svg{ flex:none; width:18px; height:18px; margin-top:1px; stroke:var(--ambar-i); fill:none; }
+.aviso b{ display:block; font-size:var(--t-apoio); color:var(--ambar-t); }
+.aviso p{ margin:3px 0 0; font-size:var(--t-apoio2); color:var(--ambar-t2); }
+
+.fats{ overflow-x:auto; padding:6px 18px 14px; }
+.fats table{ width:100%; min-width:560px; border-collapse:collapse; }
+.fats th{ text-align:left; padding:8px 12px 9px; font-size:var(--t-etiqueta); font-weight:700;
+          letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
+.fats td{ padding:12px; border-top:1px solid var(--line); font-size:var(--t-apoio); vertical-align:middle; }
+.fats .val{ text-align:right; font-variant-numeric:tabular-nums; font-weight:600; white-space:nowrap; }
+.fats .aca{ text-align:right; white-space:nowrap; }
+.fats .dat{ white-space:nowrap; color:var(--ink2); font-variant-numeric:tabular-nums; }
+.est{ display:inline-flex; align-items:center; gap:5px; padding:2px 10px; border-radius:var(--pill);
+      font-size:var(--t-etiqueta); font-weight:600; letter-spacing:.04em; text-transform:uppercase; }
+.est--paga{ background:var(--turq-bg); color:var(--turq-txt); }
+.est--aberta{ background:var(--ambar-f); color:var(--ambar-t2); }
+
+.doc{ max-width:640px; padding:34px 36px 30px; background:var(--paper);
+      border:1px solid var(--line); border-radius:var(--r); }
+.doc__topo{ display:flex; justify-content:space-between; align-items:flex-start; gap:20px;
+            padding-bottom:20px; border-bottom:1px solid var(--line); }
+.doc__marca{ font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.2em;
+             text-transform:uppercase; color:var(--ink3); }
+.doc__tit{ margin-top:8px; font-size:21px; font-weight:600; letter-spacing:-.015em; }
+.doc__meta{ margin-top:3px; font-size:var(--t-apoio2); color:var(--ink3); }
+.doc__de{ display:grid; grid-template-columns:1fr 1fr; gap:22px; padding:20px 0;
+          border-bottom:1px solid var(--line); }
+.doc__de b{ display:block; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.12em;
+            text-transform:uppercase; color:var(--ink3); margin-bottom:5px; }
+.doc__de p{ margin:0; font-size:var(--t-apoio); color:var(--ink2); line-height:1.45; }
+.doc table{ width:100%; border-collapse:collapse; margin:6px 0 0; }
+.doc th{ text-align:left; padding:12px 0 8px; font-size:var(--t-etiqueta); font-weight:700;
+         letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); }
+.doc th:last-child, .doc td:last-child{ text-align:right; }
+.doc td{ padding:9px 0; font-size:var(--t-apoio); border-top:1px solid var(--line);
+         font-variant-numeric:tabular-nums; }
+.doc__soma{ display:flex; justify-content:space-between; align-items:baseline; padding-top:14px;
+            margin-top:6px; border-top:2px solid var(--ink); }
+.doc__soma span{ font-size:var(--t-apoio); color:var(--ink2); }
+.doc__soma strong{ font-size:20px; font-weight:600; letter-spacing:-.02em;
+                   font-variant-numeric:tabular-nums; }
+.doc__pe{ margin:20px 0 0; font-size:var(--t-apoio2); color:var(--ink3); line-height:1.5; }
+
+.legenda{ max-width:72ch; margin:16px 0 0; font-size:var(--t-apoio); color:var(--ink2); text-wrap:pretty; }
+.legenda b{ color:var(--ink); font-weight:600; }
+
+@media (max-width: 880px){
+  .planos{ grid-template-columns:1fr; }
+  .recs{ grid-template-columns:1fr 1fr; }
+}
+@media (max-width: 520px){
+  .recs{ grid-template-columns:1fr; }
+  .tela__corpo{ padding:20px 16px 24px; }
+  .doc{ padding:24px 22px; }
+  .doc__de{ grid-template-columns:1fr; gap:16px; }
+}
+</style>
+
+<div class="pag">
+
+  <div class="cab">
+    <h1>A tela de Assinatura, por inteiro</h1>
+    <p>Os botões <b>Upgrade</b> e <b>Créditos</b> do plugin trazem para cá. Esta é a
+      tela com tudo que ela precisa mostrar: o plano de agora, para onde dá para
+      subir, as recargas, o cartão que paga e o histórico do que já foi cobrado.</p>
+  </div>
+
+  <div class="nota">
+    <p><b>O que está acontecendo na tua tela.</b> A página já tem quase tudo isso
+      escrito. O que ela não tem é botão nenhum <b>para quem é admin</b>: o pé do
+      cartão do plano lê <code>ehPago ? gerenciar : !ehAdmin ? ver planos : null</code>,
+      e a tua conta cai no <code>null</code>. A seção das recargas tem a mesma
+      trava, ela só aparece com <code>ehPago</code> ou dono de equipe.</p>
+    <p>Quem paga Starter hoje vê o botão de gerenciar e as quatro recargas. Tu não
+      vê porque <code>ehPago</code> exclui admin de propósito, para o teu acesso
+      ilimitado não parecer uma assinatura.</p>
+    <p>E falta uma coisa de verdade, para todo mundo: <b>a escolha do plano dentro
+      da página</b>. Hoje mudar de plano acontece no portal do Stripe, então quem
+      quer subir de Starter para Pro sai do Cora para descobrir quanto custa.</p>
+  </div>
+
+  <h2 class="sec">A tela</h2>
+  <p class="sec-p">Números reais: Starter 97, Pro 197 e Studio 497 por mês, e as
+    quatro recargas como elas estão em <code>lib/planos.js</code>. A conta do
+    exemplo é uma Starter no meio do ciclo.</p>
+
+  <div class="tela">
+    <div class="tela__cab"><span class="tela__pill">Assinatura</span></div>
+
+    <div class="tela__corpo">
+      <span class="tela__olho">Sua conta</span>
+      <h3>Assinatura</h3>
+      <p class="tela__sub">Plano, créditos, cartão e recibos. Tudo cobrado pela Stripe.</p>
+
+      <!-- ── O PLANO DE AGORA ── -->
+      <div class="cartao plano">
+        <div class="plano__topo">
+          <div>
+            <div class="plano__rot">
+              <span>Plano atual</span>
+              <em class="selo">Ativo</em>
+            </div>
+            <strong class="plano__nome">Starter</strong>
+            <span class="plano__sub">5.000 créditos por mês · renova em 12 dias</span>
+          </div>
+          <div class="plano__preco">
+            <strong>R$ 97,00<em>/mês</em></strong>
+            <span>cliente desde março de 2026</span>
+          </div>
+        </div>
+
+        <div class="uso">
+          <div class="uso__l">
+            <b>Créditos deste mês</b>
+            <span>3.140 usados · 1.860 restantes</span>
+          </div>
+          <div class="uso__g"><i style="width:63%"></i></div>
+        </div>
+
+        <div class="plano__pe">
+          <button class="bt bt--cheio">Mudar de plano</button>
+          <button class="bt">Gerenciar na Stripe
+            <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 4h6v6M20 4l-8.5 8.5"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>
+            </svg>
+          </button>
+          <button class="bt bt--nu">Cancelar assinatura</button>
+        </div>
+      </div>
+
+      <!-- ── PARA ONDE DÁ PARA SUBIR ── -->
+      <div class="bloco">
+        <h4>Mudar de plano</h4>
+        <p class="ap">A troca vale a partir da próxima cobrança, e o que sobrou do
+          mês atual continua valendo até lá.</p>
+
+        <div class="planos">
+          <div class="pl pl--atual">
+            <span class="pl__n">Starter</span>
+            <div class="pl__p">R$ 97<em>/mês</em></div>
+            <p class="pl__c">5.000 créditos por mês</p>
+            <ul>
+              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Render e Batch</li>
+              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Materiais e blocos</li>
+              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Upscale até 4K</li>
+              <li class="off"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>Animação</li>
+              <li class="off"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>Pós-produção</li>
+            </ul>
+            <div class="pl__pe"><div class="pl__aqui">Você está aqui</div></div>
+          </div>
+
+          <div class="pl pl--sobe">
+            <span class="pl__n">Pro <em class="selo">Mais escolhido</em></span>
+            <div class="pl__p">R$ 197<em>/mês</em></div>
+            <p class="pl__c">20.000 créditos por mês</p>
+            <ul>
+              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Tudo do Starter</li>
+              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Animação e timelapse</li>
+              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Pós-produção</li>
+              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Preenchimento generativo</li>
+              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Upscale até 16K</li>
+            </ul>
+            <div class="pl__pe"><button class="bt bt--lima">Mudar para o Pro</button></div>
+          </div>
+
+          <div class="pl">
+            <span class="pl__n">Studio</span>
+            <div class="pl__p">R$ 497<em>/mês</em></div>
+            <p class="pl__c">60.000 créditos por mês</p>
+            <ul>
+              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Tudo do Pro</li>
+              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Volume de escritório</li>
+              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Fila com prioridade</li>
+              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Suporte direto</li>
+            </ul>
+            <div class="pl__pe"><button class="bt">Mudar para o Studio</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AS RECARGAS ── -->
+      <div class="bloco">
+        <h4>Mais créditos</h4>
+        <p class="ap">Recarga avulsa não vence e não mexe no plano. Ela entra por
+          cima do que já tem, e é gasta depois dos créditos do mês.</p>
+
+        <div class="recs">
+          <div class="rec">
+            <span class="rec__n">Recarga P</span>
+            <div class="rec__c">2.000<em> créditos</em></div>
+            <p class="rec__f">Pra quebrar um galho.</p>
+            <button class="bt">R$ 30</button>
+          </div>
+          <div class="rec">
+            <span class="rec__n">Recarga M</span>
+            <div class="rec__c">5.000<em> créditos</em></div>
+            <p class="rec__f">Fecha um projeto inteiro.</p>
+            <button class="bt">R$ 65</button>
+          </div>
+          <div class="rec rec--pop">
+            <span class="rec__tag">Popular</span>
+            <span class="rec__n">Recarga G</span>
+            <div class="rec__c">12.000<em> créditos</em></div>
+            <p class="rec__f">Um mês inteiro com folga.</p>
+            <button class="bt bt--lima">R$ 140</button>
+          </div>
+          <div class="rec">
+            <span class="rec__n">Recarga GG</span>
+            <div class="rec__c">30.000<em> créditos</em></div>
+            <p class="rec__f">Tá com demanda grande? Esse segura.</p>
+            <button class="bt">R$ 320</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── O CARTÃO ── -->
+      <div class="bloco">
+        <h4>Forma de pagamento</h4>
+        <p class="ap">O cartão que paga a assinatura e as recargas.</p>
+
+        <div class="cartao pag-linha">
+          <span class="band" aria-hidden="true">
+            <svg viewBox="0 0 48 16" role="img" aria-label="Visa">
+              <text x="0" y="13" font-family="DM Sans, sans-serif" font-size="14"
+                    font-weight="700" font-style="italic" fill="#1A1F71" letter-spacing="-.5">VISA</text>
+            </svg>
+          </span>
+          <span class="pag-linha__t">
+            <b>Visa terminado em 3067</b>
+            <span>Vence em 08/2029</span>
+          </span>
+          <button class="bt bt--peq">Trocar cartão</button>
+        </div>
+      </div>
+
+      <!-- ── AS FATURAS ── -->
+      <div class="bloco">
+        <h4>Faturas</h4>
+        <p class="ap">Tudo que já foi cobrado nesta conta, do mais novo para o mais antigo.</p>
+
+        <div class="cartao fats">
+          <table>
+            <thead>
+              <tr><th>Data</th><th>Descrição</th><th>Situação</th><th class="val">Valor</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="dat">02/09/2026</td>
+                <td>Recarga G · 12.000 créditos</td>
+                <td><span class="est est--paga">Paga</span></td>
+                <td class="val">R$ 140,00</td>
+                <td class="aca"><button class="bt bt--peq bt--nu">Ver</button></td>
+              </tr>
+              <tr>
+                <td class="dat">22/08/2026</td>
+                <td>Cora Render Starter · mensal</td>
+                <td><span class="est est--paga">Paga</span></td>
+                <td class="val">R$ 97,00</td>
+                <td class="aca"><button class="bt bt--peq bt--nu">Ver</button></td>
+              </tr>
+              <tr>
+                <td class="dat">22/07/2026</td>
+                <td>Cora Render Starter · mensal</td>
+                <td><span class="est est--paga">Paga</span></td>
+                <td class="val">R$ 97,00</td>
+                <td class="aca"><button class="bt bt--peq bt--nu">Ver</button></td>
+              </tr>
+              <tr>
+                <td class="dat">05/07/2026</td>
+                <td>Recarga M · 5.000 créditos</td>
+                <td><span class="est est--paga">Paga</span></td>
+                <td class="val">R$ 65,00</td>
+                <td class="aca"><button class="bt bt--peq bt--nu">Ver</button></td>
+              </tr>
+              <tr>
+                <td class="dat">22/06/2026</td>
+                <td>Cora Render Starter · mensal</td>
+                <td><span class="est est--paga">Paga</span></td>
+                <td class="val">R$ 97,00</td>
+                <td class="aca"><button class="bt bt--peq bt--nu">Ver</button></td>
+              </tr>
+              <tr>
+                <td class="dat">22/03/2026</td>
+                <td>Cora Render Starter · primeira cobrança</td>
+                <td><span class="est est--paga">Paga</span></td>
+                <td class="val">R$ 97,00</td>
+                <td class="aca"><button class="bt bt--peq bt--nu">Ver</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── O CARTÃO COM PROBLEMA ── -->
+  <h2 class="sec">Quando a cobrança não passa</h2>
+  <p class="sec-p">Este bloco já existe no código e é o único momento em que a tela
+    fala mais alto. Ele entra logo abaixo do cartão, e a fatura correspondente
+    aparece em aberto na lista.</p>
+
+  <div class="cartao pag-linha" style="max-width:640px">
+    <span class="band" aria-hidden="true">
+      <svg viewBox="0 0 48 16" role="img" aria-label="Mastercard">
+        <circle cx="16" cy="8" r="7" fill="#EB001B"/>
+        <circle cx="26" cy="8" r="7" fill="#F79E1B" fill-opacity=".85"/>
+      </svg>
+    </span>
+    <span class="pag-linha__t">
+      <b>Mastercard terminado em 4417</b>
+      <span>Venceu em 07/2026</span>
+    </span>
+    <button class="bt bt--peq bt--cheio">Atualizar cartão</button>
+  </div>
+
+  <div class="aviso" style="max-width:640px">
+    <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 8.5v5M12 16.8v.2"/><circle cx="12" cy="12" r="9"/>
+    </svg>
+    <div>
+      <b>Este cartão venceu.</b>
+      <p>Desde 22 de agosto de 2026. 3 tentativas de cobrança.</p>
+    </div>
+  </div>
+
+  <!-- ── A FATURA ── -->
+  <h2 class="sec">A fatura aberta</h2>
+  <p class="sec-p">O botão <b>Ver</b> de cada linha abre este documento. Ele já
+    existe na página e imprime em A4 do jeito que está.</p>
+
+  <div class="doc">
+    <div class="doc__topo">
+      <div>
+        <div class="doc__marca">Cora Render</div>
+        <div class="doc__tit">Fatura</div>
+        <div class="doc__meta">Nº 4F2C-0091 · 22 de agosto de 2026</div>
+      </div>
+      <span class="est est--paga">Paga</span>
+    </div>
+
+    <div class="doc__de">
+      <div>
+        <b>Cobrado de</b>
+        <p>Marilia Fischer<br>marilia@exemplo.com.br</p>
+      </div>
+      <div>
+        <b>Emitido por</b>
+        <p>9BARRA7 Academy<br>Cora Render</p>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>Descrição</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Cora Render Starter · 22/08 a 22/09</td><td>R$ 97,00</td></tr>
+      </tbody>
+    </table>
+
+    <div class="doc__soma">
+      <span>Total</span>
+      <strong>R$ 97,00</strong>
+    </div>
+
+    <p class="doc__pe">Pago em 22 de agosto de 2026, no cartão Visa terminado em 3067.
+      Este documento é o comprovante da cobrança. A nota fiscal, quando pedida,
+      chega por e-mail.</p>
+  </div>
+
+  <h2 class="sec">O que eu mudaria de verdade</h2>
+  <p class="sec-p">Três coisas, em ordem de tamanho.</p>
+  <p class="legenda"><b>Uma.</b> Tirar a trava de admin do que é só informação. Ver o
+    próprio plano, o cartão e as faturas não é privilégio de quem paga, e hoje a
+    tua conta chega numa tela sem ação nenhuma. Admin continua sem botão de
+    assinar, porque assinar não faz sentido para ele, mas passa a ver a tela.</p>
+  <p class="legenda"><b>Duas.</b> Trazer a escolha do plano para dentro. Quem quer
+    subir de Starter para Pro precisa ver o preço e o que muda antes de sair para
+    o portal. O clique final continua na Stripe, que é quem cobra.</p>
+  <p class="legenda"><b>Três.</b> A barra de créditos do mês. O número de créditos
+    aparece na barra lateral, mas quanto disso já foi embora não aparece em lugar
+    nenhum, e é essa a pergunta que faz alguém clicar em Créditos.</p>
+
+</div>
