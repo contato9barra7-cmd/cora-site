@@ -23,7 +23,11 @@
      IA Studio é outro produto, e a lima dele (#DDFE6F, puxando para o
      amarelo) não é a lima daqui (#C4FBA7, verde-maçã). Uma do lado da outra
      o olho lê erro de cor, então a ácida só aparece dentro da faixa do
-     convite e da coluna do quadro dele, longe do fio de lima da aba aberta. *//* O vidro das pastilhas que ficam EM CIMA da padronagem. Ele não muda
+     convite e da coluna do quadro dele, longe do fio de lima da aba aberta. *//* ── O TOM DA LATERAL ──
+     Ela e o miolo trocaram de tom no padrao dos Promptadores, mas com o
+     `--wash2` (#efefeb) contra o `--wash` (#f6f6f4) do miolo sobravam SETE
+     unidades de diferenca, e a fronteira entre as duas sumia. Aqui sao
+     treze, que e o minimo em que o olho separa duas areas sem fio. *//* O vidro das pastilhas que ficam EM CIMA da padronagem. Ele não muda
      no tema escuro: a lima e a turquesa da faixa também não mudam, e um
      vidro escuro sobre elas ficaria sujo. *//* ── A ESCALA DE TIPO ──
      O painel usava VINTE tamanhos diferentes, seis deles entre 13 e 15.5px
@@ -61,6 +65,9 @@
   
   --ia-lima:#DDFE6F;
   --ia-azul:#316CF6;
+
+  
+  --side-bg:#E9E9E3;
   --balao:url('/img/ia/balao-ia.webp');
   --r:20px; --r-peq:12px; --r-heroi:22px; --pill:100px;
   
@@ -100,9 +107,12 @@
    chão é lima com as formas em turquesa, no escuro é o contrário. O
    cabeçalho troca com um cruzamento de 420ms, porque o seletor de tema mora
    no menu do avatar, que abre em cima dele: quem troca o tema está olhando
-   justamente para a faixa quando ela muda. */[data-theme="dark"] .pn{
+   justamente para a faixa quando ela muda. */[data-theme="dark"] .pn{/* No escuro a lateral sobe em vez de descer: o miolo ja e o mais escuro
+     que a tela tem, e escurecer mais viraria buraco. */
   --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
   --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  
+  --side-bg:#1A1A1E;
   --line:#2B2B30; --line2:#3A3A41;
   --ok:#7BD3A0; --ok-bg:rgba(31,122,68,.16);
   --turq-txt:var(--turquesa-esc);
@@ -128,7 +138,7 @@
      Assim o branco passa a ser sempre CONTEUDO, e nunca moldura. */
   position:fixed; top:0; left:0; bottom:0; width:var(--side-w); z-index:50;
   
-  background:var(--wash2); border-right:1px solid var(--line);
+  background:var(--side-bg); border-right:1px solid var(--line);
   display:flex; flex-direction:column; transition:width var(--t);
 }.pn .app-shell.recolhido .app-side{ width:var(--side-w-min); }.pn .app-side-topo{
   height:var(--header-h); flex:none; display:flex; align-items:center;
@@ -261,25 +271,30 @@
    borda esquerda da lista, longe daqui, então as duas limas nunca se
    encostam — que é o único jeito de elas conviverem sem parecer erro de
    impressão.
-   ══════════════════════════════════════════════════════════════════════ */.pn .app-convite{
-  display:flex; align-items:stretch; height:40px; margin:14px 0 4px; margin-top:auto;
+   ══════════════════════════════════════════════════════════════════════ *//* A coluna azul acompanha o cartao inteiro: assim o selo deixa de ser um
+   icone ao lado de um texto e vira a lateral da peca. 44px de largura, e o
+   simbolo a 23 — o que ele pode crescer sem competir com o desenho da aba
+   logo acima. */.pn .app-convite{
+  display:flex; align-items:stretch; margin:14px 0 4px; margin-top:auto;
   border:1px solid var(--line); border-radius:12px; overflow:hidden;
   background:var(--paper); text-decoration:none;
   transition:border-color var(--t), box-shadow var(--t);
-}.pn .app-convite:hover{ border-color:var(--line2); box-shadow:var(--sombra); }/* O bloco azul tem a largura da lateral recolhida. Quando a barra fecha, o
-   campo branco some e ele fica exatamente onde estava, sem pulo. */.pn .app-convite__azul{
-  flex:none; display:grid; place-items:center; width:40px;
+}.pn .app-convite:hover{ border-color:var(--line2); box-shadow:var(--sombra); }.pn .app-convite__azul{
+  flex:none; display:grid; place-items:center; width:44px;
   background:var(--ia-azul); border-radius:11px 0 0 11px;
 }.pn .app-convite__azul i{
-  width:21px; height:21px; background:#fff;
+  width:23px; height:23px; background:#fff;
   -webkit-mask:var(--simbolo) no-repeat center / contain;
   mask:var(--simbolo) no-repeat center / contain;
 }.pn .app-convite__txt{
-  flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; padding:0 10px;
-}.pn .app-convite__txt b{ display:block; font-size:11.5px; font-weight:700; color:var(--ink); line-height:1.2; }.pn .app-convite__ir{
-  display:inline-flex; align-items:center; gap:4px; margin-top:2px;
-  font-size:10px; font-weight:700; color:var(--ia-azul);
-}.pn .app-convite__ir svg{ width:9px; height:9px; }/* Recolhida, sobra so o bloco azul, no mesmo lugar e no mesmo tamanho. */.pn .app-convite--selo{ display:none; }.pn .app-shell.recolhido .app-convite{ display:none; }.pn .app-shell.recolhido .app-convite--selo{
+  flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center;
+  padding:11px 12px;
+}.pn .app-convite__txt b{ display:block; font-size:12.5px; font-weight:700; color:var(--ink); line-height:1.25; }.pn .app-convite__sub{
+  display:block; margin-top:3px; font-size:10.5px; line-height:1.4; color:var(--ink2);
+}.pn .app-convite__ir{
+  display:inline-flex; align-items:center; gap:4px; margin-top:8px;
+  font-size:10.5px; font-weight:700; color:var(--ia-azul);
+}.pn .app-convite__ir svg{ width:10px; height:10px; }/* Recolhida, sobra so o bloco azul, no mesmo lugar e no mesmo tamanho. */.pn .app-convite--selo{ display:none; }.pn .app-shell.recolhido .app-convite{ display:none; }.pn .app-shell.recolhido .app-convite--selo{
   display:grid; place-items:center; width:40px; height:40px; margin:16px auto 4px;
   margin-top:auto; border-radius:12px; background:var(--ia-azul);
   transition:transform var(--t);
@@ -463,12 +478,24 @@
 @keyframes pn-quadro{
   from{ opacity:0; transform:translateY(7px); }
   to  { opacity:1; transform:none; }
-}.pn .heroi__pontos{
+}/* ── AS BARRINHAS DO HERÓI ──
+   Elas são o relógio, e não um enfeite ao lado dele: a barra enche em seis
+   segundos e o fim da animação é o que vira o quadro. Um `setInterval` em
+   paralelo daria dois relógios, e bastaria uma pausa para eles se
+   desencontrarem — o mesmo desenho da tela de entrar.
+
+   Segurar o dedo em cima pausa, como num story. Passar o mouse NÃO para:
+   quem só atravessou o cartão com o cursor não pediu nada. */.pn .heroi__pontos{
   position:absolute; right:22px; bottom:18px; z-index:2; display:flex; gap:7px;
 }.pn .heroi__ponto{
-  width:26px; height:4px; padding:0; border:0; border-radius:var(--pill);
-  background:var(--line2); cursor:pointer; transition:background-color var(--t);
-}.pn .heroi__ponto:hover{ background:var(--ink3); }.pn .heroi__ponto[aria-current="true"]{ background:var(--lima-esc); }/* A coluna do quadro do IA Studio. A do Cora é textura andando; esta é um
+  width:30px; height:4px; padding:0; border:0; border-radius:var(--pill);
+  background:var(--line2); cursor:pointer; overflow:hidden;
+}.pn .heroi__ponto i{
+  display:block; height:100%; width:100%; border-radius:var(--pill);
+  background:var(--lima-esc); transform:scaleX(0); transform-origin:left;
+}.pn .heroi__ponto[data-status="completa"] i{ transform:scaleX(1); }.pn .heroi__ponto[data-status="ativa"] i{ animation:pn-encher var(--dur,6s) linear forwards; }.pn .heroi-carro[data-pausado="true"] .heroi__ponto[data-status="ativa"] i{ animation-play-state:paused; }
+@keyframes pn-encher{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+@media (prefers-reduced-motion:reduce){.pn .heroi__ponto[data-status="ativa"] i{ animation:none; transform:scaleX(1); }}/* A coluna do quadro do IA Studio. A do Cora é textura andando; esta é um
    objeto só, porque a outra marca se apresenta pelo símbolo e não por um
    ladrilho. O disco boia e, de cinco em cinco segundos, um aro sai de dentro
    dele e se apaga antes de dobrar de tamanho. */.pn .heroi__pad--ia{
@@ -1325,7 +1352,7 @@
    linha e descolava da borda de cima dele.
    ══════════════════════════════════════════════════════════════════════════ */.pn .apr-tela{
   display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:0 22px;
-  align-items:start; max-width:1180px;
+  align-items:start; max-width:1180px; margin:0 auto;
 }.pn .apr-tela > *{ min-width:0; }.pn .apr-tela__t1, .pn .apr-tela__t2{ align-self:end; padding-bottom:14px; }
 @media (max-width:1080px){.pn .apr-tela{ grid-template-columns:1fr; }.pn .apr-tela__t2{ padding-bottom:16px; }}.pn .apr-palco__tit{
   margin:5px 0 0; font-size:clamp(20px,2vw,26px); font-weight:500;
@@ -1361,12 +1388,13 @@
   background:none; font-size:var(--t-apoio2); font-weight:600; color:var(--ink2);
   cursor:pointer; font-variant-numeric:tabular-nums;
 }.pn .apr-voto button:hover{ color:var(--ink); }.pn .apr-voto button + button{ border-left:1px solid var(--line); }.pn .apr-voto svg{ width:14px; height:14px; }.pn .apr-voto .on{ color:var(--turq-txt); }/* ── o indice do curso ── */.pn .apr-idx{ border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper); overflow:hidden; }.pn .apr-mod-l{ border-bottom:1px solid var(--line); }.pn .apr-mod-l:last-child{ border-bottom:0; }.pn .apr-mod-l__cab{
-  display:flex; align-items:center; gap:11px; width:100%; padding:11px 16px;
+  display:flex; align-items:center; gap:11px; width:100%; padding:13px 16px;
   border:0; background:none; text-align:left; cursor:pointer; color:inherit;
-}.pn .apr-mod-l__cab:hover{ background:var(--wash); }.pn .apr-mod-l__cab > svg{ width:14px; height:14px; color:var(--ink3); margin-left:auto; flex:none; }.pn .apr-mod-l__cab b{ display:block; font-size:var(--t-apoio2); font-weight:600; color:var(--ink); line-height:1.25; }.pn .apr-mod-l__cab em{ display:block; font-style:normal; font-size:var(--t-etiqueta); color:var(--ink3); }.pn .apr-mod-l__lista{ padding:0 0 8px; display:flex; flex-direction:column; }.pn .apr-mod-l__lista button{
-  display:flex; align-items:center; gap:10px; padding:7px 16px 7px 20px; width:100%;
+}.pn .apr-mod-l__cab:hover{ background:var(--wash); }.pn .apr-mod-l__cab > svg{ width:14px; height:14px; color:var(--ink3); margin-left:auto; flex:none; }.pn .apr-mod-l__cab b{ display:block; font-size:var(--t-apoio); font-weight:600; color:var(--ink); line-height:1.3; }.pn .apr-mod-l__cab em{ display:block; margin-top:1px; font-style:normal; font-size:var(--t-apoio2); color:var(--ink3); }.pn .apr-mod-l__lista{ padding:0 0 8px; display:flex; flex-direction:column; }/* 10px de respiro em cima e embaixo, e nao 7: com 33 titulos, a lista lida
+   apertada vira parede de texto. */.pn .apr-mod-l__lista button{
+  display:flex; align-items:center; gap:10px; padding:10px 16px 10px 20px; width:100%;
   border:0; background:none; text-align:left; cursor:pointer;
-  font-size:var(--t-apoio2); color:var(--ink2);
+  font-size:var(--t-apoio); color:var(--ink2); line-height:1.35;
 }.pn .apr-mod-l__lista button:hover{ background:var(--wash); }.pn .apr-mod-l__lista button.on{ color:var(--ink); font-weight:600; background:var(--wash2); }.pn .apr-pip{
   flex:none; display:grid; place-items:center; width:16px; height:16px; border-radius:50%;
   border:1.5px solid var(--line2);

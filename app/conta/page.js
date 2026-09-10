@@ -38,11 +38,8 @@ function ContaConteudo() {
   const [conta, setConta] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [aviso, setAviso] = useState('');
-  // Qual dos três quadros do herói está no ar, e se ele parou de andar. Ele
-  // para no hover e no primeiro clique nos pontinhos: quem escolheu um quadro
-  // quer ler aquele, e não ver o próximo chegar no meio da frase.
+  // Qual dos três quadros do herói está no ar.
   const [quadro, setQuadro] = useState(0);
-  const [pausado, setPausado] = useState(false);
   const [erro, setErro] = useState('');
   const [baixando, setBaixando] = useState(false);
 
@@ -58,25 +55,19 @@ function ContaConteudo() {
   useEffect(() => { setVerComo(lerModo()); }, []);
   function escolherVerComo(m) { setVerComo(gravarModo(m)); }
 
-  /* O herói anda sozinho de sete em sete segundos.
+  /* ── O HERÓI É UM STORY ──
+     Quem conta o tempo é a BARRINHA, e não um relógio em paralelo: ela enche
+     em seis segundos e o fim da animação é o que vira o quadro. Com um
+     `setInterval` do lado seriam dois relógios, e bastaria uma pausa para
+     eles se desencontrarem — foi a mesma conta da tela de entrar.
 
-     Sete porque o que manda aqui não é o tempo de LER o quadro inteiro, é o
-     tempo até a pessoa PRESENCIAR uma troca. Quem chega no painel olha o topo
-     por poucos segundos e desce; virando em nove ou dez, a maioria nunca
-     descobre que existe um segundo quadro. Sete dá para ler o título e o
-     apoio com folga, e quem quiser ler cada palavra do quadro do IA Studio
-     para ele só de passar o mouse.
-
-     Quem pediu menos movimento no sistema fica no primeiro quadro e anda
-     pelos pontinhos — a mesma regra do resto do painel. */
-  useEffect(() => {
-    if (pausado) return undefined;
-    try {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
-    } catch (e) {}
-    const id = setInterval(() => setQuadro((q) => (q + 1) % 3), 7000);
-    return () => clearInterval(id);
-  }, [pausado]);
+     Segurar o dedo em cima pausa. Passar o mouse não para: quem só atravessou
+     o cartão com o cursor não pediu nada. */
+  const [pausado, setPausado] = useState(false);
+  function aoEncher(e) {
+    if (e.animationName !== 'pn-encher') return;
+    setQuadro((q) => (q + 1) % 3);
+  }
 
   // As últimas imagens. Vêm do mesmo `/geracoes` que alimenta o feed dentro
   // do /app, e ele já devolve do mais novo para o mais velho.
@@ -336,8 +327,12 @@ function ContaConteudo() {
           os dois menores ficariam com um vão embaixo do botão. */}
       <div
         className="heroi-carro"
-        onMouseEnter={() => setPausado(true)}
-        onMouseLeave={() => setPausado(false)}
+        data-pausado={pausado ? 'true' : 'false'}
+        onPointerDown={() => setPausado(true)}
+        onPointerUp={() => setPausado(false)}
+        onPointerCancel={() => setPausado(false)}
+        onPointerLeave={() => setPausado(false)}
+        onAnimationEnd={aoEncher}
       >
         {quadro === 0 && (
           <div className="heroi heroi--entra" key="q0">
@@ -416,10 +411,15 @@ function ContaConteudo() {
             <button
               key={i}
               className="heroi__ponto"
+              data-status={quadro === i ? 'ativa' : (i < quadro ? 'completa' : 'pendente')}
               aria-current={quadro === i}
               aria-label={`${t('pn_quadro')} ${i + 1}`}
-              onClick={() => { setQuadro(i); setPausado(true); }}
-            />
+              onClick={() => setQuadro(i)}
+            >
+              {/* `key` no filho: sem ele o React reaproveita o mesmo nó ao
+                  voltar para um quadro já visto, e a animação não recomeça. */}
+              <i key={`${i}-${quadro}`} />
+            </button>
           ))}
         </div>
       </div>

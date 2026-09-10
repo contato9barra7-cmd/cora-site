@@ -106,6 +106,40 @@ export default function Aprender() {
   const aula = modulo ? modulo.aulas.find((a) => a.id === aulaId) || null : null;
   const vistas = useMemo(() => new Set(estado.vistas), [estado.vistas]);
 
+  /* ── A AULA SE MARCA SOZINHA AOS 90% ──
+     O player da Panda avisa o andamento por `postMessage`. O formato do
+     recado mudou de nome mais de uma vez, então aqui a gente aceita qualquer
+     um que traga um tempo e uma duração, em vez de casar com uma chave.
+
+     90% e não 100% porque os últimos segundos são a vinheta do fim: quem
+     chegou até ali já assistiu a aula, e esperar o fim exato faria a marca
+     depender de a pessoa não fechar a aba antes. Marcar é IDEMPOTENTE: uma
+     `ref` guarda o que já foi marcado, senão o evento, que chega várias vezes
+     por segundo, viraria uma enxurrada de POSTs. */
+  const jaMarcou = useRef(new Set());
+  useEffect(() => {
+    if (!aulaId) return undefined;
+    function ouvir(ev) {
+      let host = '';
+      try { host = new URL(ev.origin).hostname; } catch (e) { return; }
+      if (!/pandavideo\.com\.br$/.test(host)) return;
+      let d = ev.data;
+      if (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { return; } }
+      if (!d || typeof d !== 'object') return;
+      const t0 = Number(d.currentTime ?? d.time ?? d.progress);
+      const total = Number(d.duration ?? d.length);
+      if (!isFinite(t0) || !isFinite(total) || total <= 0) return;
+      if (t0 / total < 0.9) return;
+      if (jaMarcou.current.has(aulaId) || vistas.has(aulaId)) return;
+      jaMarcou.current.add(aulaId);
+      setEstado((e) => ({ ...e, vistas: [...e.vistas, aulaId] }));
+      marcarVisto(aulaId, true).catch(() => {});
+    }
+    window.addEventListener('message', ouvir);
+    return () => window.removeEventListener('message', ouvir);
+  }, [aulaId, vistas]);
+
+
   function abrirModulo(id) {
     setModId(id); setAulaId(null); setAbertos([id]);
     window.history.pushState({ apr: id }, '');
@@ -274,7 +308,9 @@ export default function Aprender() {
                       {Ico.cima}{joinha.cima > 0 ? joinha.cima : ''}
                     </button>
                     <button className={meuVoto === -1 ? 'on' : undefined}
-                            onClick={() => alternarVoto(-1)} aria-label={t('apr_nao_gostei')} />
+                            onClick={() => alternarVoto(-1)} aria-label={t('apr_nao_gostei')}>
+                      {Ico.baixo}{joinha.baixo > 0 ? joinha.baixo : ''}
+                    </button>
                   </span>
                   <button className={'apr-bt' + (vistas.has(aulaId) ? ' apr-bt--on' : '')}
                           onClick={alternarVisto}>

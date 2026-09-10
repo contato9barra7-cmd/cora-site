@@ -656,6 +656,7 @@ export default function AppShell({ children }) {
             <span className="app-convite__azul" aria-hidden="true"><i /></span>
             <span className="app-convite__txt">
               <b>IA&nbsp;Studio</b>
+              <span className="app-convite__sub">{t('ia_sub')}</span>
               <span className="app-convite__ir">{t('ia_link')} {Icone.fora}</span>
             </span>
           </a>
