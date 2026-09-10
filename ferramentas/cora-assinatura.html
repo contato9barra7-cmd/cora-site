@@ -128,10 +128,15 @@ p.sec-p{ margin:0 0 18px; color:var(--ink2); font-size:var(--t-apoio); max-width
 .recs{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
 .rec{ position:relative; display:flex; flex-direction:column; padding:16px 16px 14px;
       background:var(--paper); border:1px solid var(--line); border-radius:var(--r); }
-.rec--pop{ border-color:var(--lima-esc); }
-.rec__tag{ position:absolute; top:-9px; left:16px; padding:2px 9px; border-radius:var(--pill);
-           background:var(--lima); color:#111111; font-size:var(--t-etiqueta); font-weight:700;
-           letter-spacing:.08em; text-transform:uppercase; }
+/* Mesmo acordo dos planos: a moldura e a pastilha em preto, e a lima fica
+   guardada para o botao. O verde nos tres ao mesmo tempo tirava do botao a
+   unica coisa que ele tem para dizer que e ele quem se clica.
+   Contorno de 2px, e por isso o recuo perde 1px de cada lado: sem isso o
+   cartao em destaque fica dois pixels maior que os vizinhos. */
+.rec--pop{ border:2px solid var(--ink); padding:15px 15px 13px; }
+.rec__tag{ position:absolute; top:-11px; left:15px; padding:4px 12px; border-radius:var(--pill);
+           background:var(--ink); color:var(--paper); font-size:var(--t-etiqueta); font-weight:700;
+           letter-spacing:.08em; text-transform:uppercase; line-height:1; }
 .rec__n{ font-size:var(--t-apoio2); font-weight:600; color:var(--ink3);
          letter-spacing:.06em; text-transform:uppercase; }
 .rec__c{ margin:7px 0 1px; font-size:21px; font-weight:600; letter-spacing:-.02em;
