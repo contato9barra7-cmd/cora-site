@@ -1086,6 +1086,11 @@
 .am{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
 .am--3{ grid-template-columns:repeat(3,1fr); }
 .am__b{
+  /* `position:relative` porque o check e IRMAO da amostra, e nao filho dela.
+     Sem esta linha ele procurava o ancestral posicionado mais proximo, que e o
+     cartao flutuante, e ia parar no canto de cima da lista inteira: com "Dia"
+     escolhido aparecia um tique ao lado de "Noite", que nao quer dizer nada. */
+  position:relative;
   padding:0; border:1px solid var(--line); border-radius:10px;
   background:var(--paper); overflow:hidden; text-align:center;
   transition:border-color var(--t), box-shadow var(--t);

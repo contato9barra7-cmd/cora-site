@@ -25,9 +25,11 @@ import { useState, useRef, useEffect } from 'react';
 import { proporcaoCss } from './Card';
 import { useIdioma } from '../lib/i18n';
 
+// Sem `tip`: o nome do modo ja esta escrito ao lado do desenho, e um balao
+// repetindo o que esta na tela e ruido.
 const MODOS = [
   {
-    id: 'split', rotulo: 'Split', tip: 'Split View',
+    id: 'split', rotulo: 'Split',
     icone: (
       <svg viewBox="0 0 14 14" width="13" height="13" fill="none">
         <rect x="1" y="1" width="5" height="12" rx="1" stroke="currentColor" strokeWidth="1.2"/>
@@ -37,7 +39,7 @@ const MODOS = [
     )
   },
   {
-    id: 'sbs', rotulo: 'Side by Side', tip: 'Side by Side',
+    id: 'sbs', rotulo: 'Side by Side',
     icone: (
       <svg viewBox="0 0 14 14" width="13" height="13" fill="none">
         <rect x="1" y="1" width="5" height="12" rx="1" stroke="currentColor" strokeWidth="1.2"/>
@@ -46,7 +48,7 @@ const MODOS = [
     )
   },
   {
-    id: 'single', rotulo: 'Single', tip: 'Single View',
+    id: 'single', rotulo: 'Single',
     icone: (
       <svg viewBox="0 0 14 14" width="13" height="13" fill="none">
         <rect x="1" y="1" width="12" height="12" rx="1" stroke="currentColor" strokeWidth="1.2"/>
@@ -304,7 +306,6 @@ export default function Visualizador({
                   key={m.id}
                   className={'vz-modo' + (modo === m.id ? ' vz-modo--on' : '')}
                   onClick={() => setModo(m.id)}
-                  data-tip={m.tip}
                 >
                   {m.icone}
                   <span>{m.rotulo}</span>
