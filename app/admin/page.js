@@ -98,7 +98,7 @@ export default function Admin() {
                 primeira: 'pagantes' },
     registros:{ olho: 'Admin · Registros', titulo: 'O que ficou gravado',
                 abas: ['aceites', 'novidades', 'auditoria'], primeira: 'aceites' },
-    comentarios:{ olho: 'Admin · Aulas', titulo: 'Comentários',
+    aulas:{ olho: 'Admin · Aulas', titulo: t('adm_aulas_titulo'),
                 abas: ['espera', 'todos'], primeira: 'espera' },
   };
 
@@ -664,7 +664,7 @@ export default function Admin() {
                       : aba === 'novidades'
                         ? 'Para quantas pessoas dá para escrever.'
                         : 'A prova de quem aceitou o que, e quando.')
-                  : telaAdm === 'comentarios'
+                  : telaAdm === 'aulas'
                     ? t('adm_com_sub')
                     : 'Assinatura e recarga, com a taxa que o Stripe reteve.'}
             </p>
@@ -937,9 +937,9 @@ export default function Admin() {
         </div>
       )}
 
-      {telaAdm === 'comentarios' && (
+      {telaAdm === 'aulas' && (
         <>
-          <div className="adm-abas" role="tablist" data-fila="comentarios">
+          <div className="adm-abas" role="tablist" data-fila="aulas">
             <button className={'adm-aba' + (aba === 'espera' ? ' ativa' : '')}
                     onClick={() => setAba('espera')}>{t('adm_com_espera')}</button>
             <button className={'adm-aba' + (aba === 'todos' ? ' ativa' : '')}

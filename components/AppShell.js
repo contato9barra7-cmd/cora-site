@@ -692,7 +692,7 @@ export default function AppShell({ children }) {
         <div className="app-header-dir">
           <div className="app-user-wrap">
             {comNovos > 0 && (
-              <Link href="/admin#comentarios" className="app-aviso" title={t('adm_com_titulo')}>
+              <Link href="/admin#aulas" className="app-aviso" title={t('adm_aulas_titulo')}>
                 {comNovos > 9 ? '9+' : comNovos}
               </Link>
             )}

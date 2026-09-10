@@ -1,0 +1,341 @@
+<title>Os fundos da Prancheta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-esc:#A5F37D;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC;
+  --turq-txt:#196C5B; --turq-bg:#E6F7F3;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra-peq:0 2px 8px rgba(17,17,17,.07);
+  --t:.16s ease;
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px; --t-titulo:17px;
+  --alt-ctrl:38px; --alt-acao:46px; --alt-ta:128px;
+  --fonte:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --faixa:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%221%22%20viewBox%3D%220%200%208%201%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%228%22%20height%3D%221%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%220.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M1%2C0%20A.5.5%200%200%201%201%2C1%20Z%22%2F%3E%3Cpath%20d%3D%22M1.5%2C0%20A.5.5%200%200%201%201.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M4%2C0%20A.5.5%200%200%201%204%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M6.5%2C0%20A.5.5%200%200%201%206.5%2C1%20Z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%22.5%22%20r%3D%22.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83; --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+    --line:#2B2B30; --line2:#3A3A41; --turq-txt:#8FDDCC; --turq-bg:rgba(143,221,204,.16);
+    --sombra-peq:0 2px 8px rgba(0,0,0,.34); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83; --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41; --turq-txt:#8FDDCC; --turq-bg:rgba(143,221,204,.16);
+  --sombra-peq:0 2px 8px rgba(0,0,0,.34); color-scheme:dark;
+}
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--wash); color:var(--ink); font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.5; }
+.pag{ max-width:1320px; margin:0 auto; padding:40px 24px 72px; }
+.cab{ max-width:64ch; margin-bottom:28px; }
+.cab h1{ margin:0 0 8px; font-size:28px; font-weight:600; letter-spacing:-.01em; text-wrap:balance; }
+.cab p{ margin:0; color:var(--ink2); text-wrap:pretty; }
+.cab p + p{ margin-top:8px; }
+h2.sec{ margin:40px 0 4px; font-size:20px; font-weight:600; }
+p.sec-p{ margin:0 0 16px; color:var(--ink2); font-size:var(--t-apoio); max-width:70ch; }
+
+/* a fila de passos: rola de lado */
+.fila{ display:flex; gap:22px; overflow-x:auto; padding:4px 4px 18px; scroll-snap-type:x proximity; }
+.passo{ flex:none; width:400px; scroll-snap-align:start; }
+.passo__cab{ display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; min-height:72px; }
+.passo__n{ flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--ink); color:var(--paper); font-size:var(--t-apoio2); font-weight:600; }
+.passo__cab h3{ margin:1px 0 2px; font-size:var(--t-apoio); font-weight:600; }
+.passo__cab p{ margin:0; color:var(--ink2); font-size:var(--t-apoio2); text-wrap:pretty; }
+
+/* o painel: 400 de largura, 640 de altura, corpo que rola e pé fixo */
+.painel{ width:400px; height:640px; display:flex; flex-direction:column; background:var(--paper); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; }
+.painel__corpo{ flex:1; min-height:0; overflow-y:auto; padding:20px 16px 24px; }
+.painel__pe{ flex:none; padding:12px 16px 14px; border-top:1px solid var(--line); background:var(--paper); }
+
+/* peças da janela */
+.cr-sec{ margin:18px 0 8px; display:flex; align-items:baseline; gap:6px; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+.cr-sec:first-child{ margin-top:0; }
+.cr-opc{ font-weight:600; letter-spacing:.06em; opacity:.75; }
+.cr-voltar{ display:inline-flex; align-items:center; gap:6px; margin-bottom:14px; padding:2px 0; border:0; background:none; color:var(--ink2); font:inherit; font-size:var(--t-apoio); cursor:pointer; }
+.cr-voltar svg{ width:14px; height:14px; stroke:currentColor; }
+.seq-hint{ font-size:var(--t-apoio2); line-height:1.5; color:var(--ink3); margin:6px 0 16px; }
+.cr-drop{ width:100%; height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; border:1px dashed var(--line2); border-radius:var(--r-peq); background:var(--wash); color:var(--ink3); font:inherit; font-size:var(--t-apoio); cursor:pointer; }
+.cr-drop svg{ width:22px; height:22px; stroke:currentColor; }
+.cr-base{ position:relative; border-radius:var(--r-peq); border:1px solid var(--line); overflow:hidden; }
+.cr-base-img{ display:block; width:100%; height:150px; background-size:cover; background-position:center; }
+.cr-base-x{ position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:50%; border:0; background:rgba(17,17,17,.55); color:#fff; font:inherit; font-size:16px; line-height:1; cursor:pointer; backdrop-filter:blur(6px); }
+.cmp{ margin-top:14px; }
+.cmp__rot{ display:block; margin:0 0 6px; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+.cmp__b{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:44px; padding:11px 16px; border:1px solid var(--line); border-radius:14px; background:var(--paper); color:var(--ink); font:inherit; font-size:var(--t-apoio); text-align:left; line-height:1.35; }
+.cmp__seta{ width:15px; height:15px; stroke:var(--ink3); flex:none; }
+.cr-pills-cfg{ display:flex; gap:6px; margin-bottom:10px; }
+.cr-pill-wrap{ flex:0 0 auto; width:118px; }
+.cr-pills-cfg--uma .cr-pill-wrap{ flex:0 0 118px; }
+.cr-pill-cfg{ width:100%; height:var(--alt-ctrl); padding:0 14px; border:0; display:flex; align-items:center; justify-content:center; gap:6px; border-radius:var(--pill); background:var(--wash2); color:var(--ink2); font:inherit; font-size:var(--t-apoio); font-weight:500; }
+.cr-pill-cfg svg{ width:14px; height:14px; stroke:currentColor; }
+.cr-btn-gerar{ position:relative; width:100%; height:var(--alt-acao); border:0; border-radius:var(--pill); background:var(--lima); color:#111111; font:inherit; font-size:var(--t-corpo); font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.cr-btn-gerar:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+.cr-btn-gerar > span:first-child{ min-width:0; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cr-btn-gerar .cr-custo-tag{ position:absolute; right:12px; top:50%; transform:translateY(-50%); display:inline-flex; align-items:center; gap:4px; padding:1px 9px; border-radius:var(--pill); background:var(--turq-bg); color:var(--turq-txt); font-size:var(--t-apoio2); font-weight:600; }
+.cr-btn-gerar .cr-custo-tag svg{ width:12px; height:12px; fill:currentColor; }
+.moeda-vis .cr-custo-tag{ opacity:1; }
+.seq-gerar-box{ display:flex; flex-direction:column; gap:12px; }
+.seq-gerar-item{ display:flex; flex-direction:column; gap:6px; }
+.seq-gerar-aviso{ font-size:var(--t-etiqueta); line-height:1.45; color:var(--ink3); margin:0; text-align:center; }
+.seq-passo-box{ display:flex; flex-direction:column; gap:8px; }
+.seq-refazer{ padding:9px 0; border-radius:var(--pill); border:1px solid var(--line2); background:transparent; color:var(--ink2); font:inherit; font-size:var(--t-apoio2); cursor:pointer; }
+.cr-resetar{ display:block; margin:12px auto 0; padding:2px 0; border:0; background:none; color:var(--ink2); font:inherit; font-size:var(--t-apoio2); cursor:pointer; box-shadow:inset 0 -2px 0 var(--lima); }
+.seq-gerando{ margin:8px 0 0; }
+.seq-status{ font-size:11.5px; color:var(--turq-txt); line-height:1.5; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.seq-prog{ height:5px; border-radius:var(--pill); background:var(--wash2); overflow:hidden; margin:4px 0 0; }
+.seq-prog > span{ display:block; height:100%; background:var(--lima); border-radius:var(--pill); }
+.seq-reembolso{ font-size:var(--t-etiqueta); color:var(--ink3); margin:4px 0 0; }
+.cr-hint{ font-size:var(--t-apoio2); color:var(--ink3); margin:6px 0 0; }
+
+/* a grade das etapas: 2 colunas, legenda numerada */
+.seq-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+.seq-cel{ display:flex; flex-direction:column; gap:4px; }
+.seq-slot{ position:relative; aspect-ratio:4/3; border-radius:10px; overflow:hidden; background:var(--wash2); border:1px solid var(--line); }
+.seq-img{ position:absolute; inset:0; background-size:cover; background-position:center; filter:var(--f, none); }
+.seq-slot-load{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+.cr-ger-spin{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line2); border-top-color:var(--turq-txt); animation:gira 1s linear infinite; }
+@keyframes gira{ to{ transform:rotate(360deg); } }
+.seq-slot-acoes{ position:absolute; left:6px; right:6px; bottom:6px; display:flex; gap:4px; justify-content:center; }
+.seq-acao{ width:26px; height:26px; border-radius:50%; border:0; background:rgba(17,17,17,.45); color:#fff; backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; }
+.seq-acao svg{ width:14px; height:14px; stroke:currentColor; fill:none; }
+.seq-cel-cap{ font-size:var(--t-etiqueta); color:var(--ink3); line-height:1.3; }
+.seq-cel-cap b{ color:var(--ink); font-weight:600; margin-right:3px; }
+
+/* tipo de obra (interiores) */
+.seq-modo-int{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.seq-modo-int-btn{ display:flex; flex-direction:column; gap:3px; text-align:left; padding:11px 13px; border-radius:var(--r-peq); border:1px solid var(--line); background:var(--paper); font:inherit; cursor:pointer; }
+.seq-modo-int-btn strong{ font-size:var(--t-apoio2); }
+.seq-modo-int-btn span{ font-size:var(--t-etiqueta); color:var(--ink2); line-height:1.3; }
+.seq-modo-int-btn--on{ border-color:var(--turquesa-esc); background:var(--turq-bg); }
+
+/* cards das ferramentas */
+.ed-cards{ display:grid; grid-template-columns:1fr; grid-auto-rows:1fr; gap:8px; }
+.ed-card{ position:relative; overflow:hidden; display:block; width:100%; padding:24px 12px 12px; text-align:left; border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper); cursor:pointer; font:inherit; color:inherit; }
+.ed-card::after{ content:""; position:absolute; left:0; right:0; top:0; height:10px; background:var(--faixa) repeat-x var(--desl,0) center; background-size:80px 100%; }
+.ed-card:nth-child(2){ --desl:-12px; } .ed-card:nth-child(3){ --desl:-27px; }
+.ed-card--on{ border-color:var(--line2); }
+.ed-card--on::before{ content:""; position:absolute; left:0; top:10px; bottom:0; width:3px; background:var(--lima); }
+.ed-faixa{ width:34px; height:34px; margin-bottom:10px; border-radius:50%; background:var(--wash2); color:var(--ink2); display:flex; align-items:center; justify-content:center; }
+.ed-faixa svg{ width:17px; height:17px; stroke:currentColor; fill:none; }
+.ed-card--on .ed-faixa{ background:var(--turq-bg); color:var(--turq-txt); }
+.ed-corpo strong{ display:block; font-size:var(--t-corpo); font-weight:600; }
+.ed-corpo span{ display:block; margin-top:4px; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.45; }
+.nota{ margin:0 0 10px; padding:8px 10px; border-radius:10px; background:var(--wash2); color:var(--ink2); font-size:var(--t-etiqueta); }
+.rod{ margin-top:36px; max-width:64ch; color:var(--ink2); font-size:var(--t-apoio); }
+.rod p{ margin:0 0 8px; text-wrap:pretty; }
+.rod strong{ color:var(--ink); font-weight:600; }
+
+body{ background:var(--wash); }
+.pag{ max-width:1120px; }
+.cab{ max-width:70ch; } .cab h1{ font-size:32px; }
+.selo{ display:inline-block; margin-bottom:12px; padding:4px 12px; border-radius:var(--pill);
+  background:var(--ink); color:var(--paper); font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; }
+h2.cap{ margin:50px 0 6px; font-size:23px; font-weight:600; letter-spacing:-.015em; }
+h2.cap span{ color:var(--ink3); font-weight:500; margin-right:10px; }
+.cap-txt{ margin:0 0 22px; max-width:70ch; color:var(--ink2); line-height:1.65; text-wrap:pretty; }
+p.txt{ margin:0 0 12px; max-width:70ch; color:var(--ink2); line-height:1.65; text-wrap:pretty; }
+p.txt b{ color:var(--ink); font-weight:600; }
+.rot{ font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink3); margin:0 0 10px; }
+.rod{ margin-top:52px; padding-top:20px; border-top:1px solid var(--line2); max-width:70ch; }
+.dois{ display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px; align-items:start; }
+
+/* ── a janela em miniatura ── */
+.jan{ display:grid; grid-template-columns:60px 150px minmax(0,1fr); height:250px;
+  border:1px solid var(--line); border-radius:var(--r-peq); overflow:hidden; }
+.jan__lat{ background:var(--wash2); border-right:1px solid var(--line); padding:10px 8px;
+  display:flex; flex-direction:column; gap:7px; }
+.jan__lat i{ display:block; height:9px; border-radius:3px; background:rgba(17,17,17,.13); }
+.jan__lat i:first-child{ background:var(--turquesa); }
+.jan__pai{ border-right:1px solid var(--line); padding:12px 10px; display:flex;
+  flex-direction:column; gap:9px; }
+.jan__rot{ display:block; height:6px; width:52%; border-radius:3px; background:rgba(17,17,17,.16); }
+.jan__campo{ display:block; height:26px; border-radius:var(--pill); border:1px solid var(--line); }
+.jan__sulco{ display:flex; gap:3px; padding:3px; border-radius:var(--pill); }
+.jan__sulco b{ flex:1; height:20px; border-radius:var(--pill); }
+.jan__feed{ padding:12px; display:grid; grid-template-columns:1fr 1fr; gap:9px;
+  align-content:start; }
+.jan__card{ border-radius:8px; aspect-ratio:4/3; }
+.jan__barra{ grid-column:1 / -1; height:26px; border-radius:var(--pill); }
+
+/* hoje */
+.jan--hoje .jan__pai{ background:var(--paper); }
+.jan--hoje .jan__campo{ background:var(--paper); }
+.jan--hoje .jan__sulco{ background:var(--wash2); }
+.jan--hoje .jan__sulco b:first-child{ background:var(--turq-bg); box-shadow:inset 0 0 0 1px var(--turquesa-esc); }
+.jan--hoje .jan__feed{ background:var(--wash); }
+.jan--hoje .jan__card{ background:var(--wash2); }
+.jan--hoje .jan__barra{ background:var(--paper); }
+
+/* proposto */
+.jan--novo .jan__pai{ background:var(--wash); }
+.jan--novo .jan__campo{ background:var(--paper); }
+.jan--novo .jan__sulco{ background:var(--paper); box-shadow:inset 0 0 0 1px var(--line); }
+.jan--novo .jan__sulco b:first-child{ background:var(--turq-bg); box-shadow:inset 0 0 0 1px var(--turquesa-esc); }
+.jan--novo .jan__feed{ background:var(--paper); }
+.jan--novo .jan__card{ background:var(--wash2); }
+.jan--novo .jan__barra{ background:var(--wash); }
+
+/* ── a régua dos três degraus ── */
+.degraus{ display:flex; border:1px solid var(--line); border-radius:var(--r-peq); overflow:hidden; }
+.degrau{ flex:1; padding:16px 14px 18px; }
+.degrau b{ display:block; font-size:var(--t-apoio2); font-weight:700; color:var(--ink); }
+.degrau em{ display:block; margin-top:2px; font-style:normal; font-size:var(--t-etiqueta);
+  color:var(--ink3); font-family:ui-monospace,Menlo,monospace; }
+
+/* ── as peças, antes e depois ── */
+.pecas{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; }
+.peca{ border:1px solid var(--line); border-radius:var(--r); overflow:hidden; background:var(--paper); }
+.peca__cab{ padding:12px 15px 4px; }
+.peca__cab h4{ margin:0; font-size:var(--t-apoio); font-weight:600; }
+.peca__par{ display:grid; grid-template-columns:1fr 1fr; }
+.peca__lado{ padding:20px 16px; display:grid; place-items:center; min-height:104px; }
+.peca__lado--a{ background:var(--paper); border-right:1px solid var(--line); }
+.peca__lado--b{ background:var(--wash); }
+.peca__pe{ padding:10px 15px 13px; border-top:1px solid var(--line); font-size:var(--t-etiqueta);
+  color:var(--ink2); line-height:1.55; }
+.peca__pe b{ color:var(--ink); font-weight:600; }
+.mini{ font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink3); text-align:center; padding:6px 0 0; }
+
+/* as peças de verdade, no tamanho de verdade */
+.sulco{ display:flex; gap:2px; padding:3px; border-radius:var(--pill); background:var(--wash2); }
+.sulco--novo{ background:var(--paper); box-shadow:inset 0 0 0 1px var(--line); }
+.sulco span{ padding:5px 13px; border-radius:var(--pill); font-size:var(--t-apoio2);
+  font-weight:500; color:var(--ink2); }
+.sulco span.on{ background:var(--turq-bg); color:var(--turq-txt); box-shadow:inset 0 0 0 1px var(--turquesa-esc); }
+.pcfg{ height:38px; padding:0 14px; display:inline-flex; align-items:center; gap:6px;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2); font-size:var(--t-apoio); }
+.pcfg--novo{ background:var(--paper); box-shadow:inset 0 0 0 1px var(--line); }
+.campo{ width:100%; height:38px; padding:0 14px; display:flex; align-items:center;
+  border:1px solid var(--line); border-radius:var(--pill); background:var(--paper);
+  color:var(--ink); font-size:var(--t-apoio); }
+.card{ width:112px; aspect-ratio:4/3; border-radius:var(--r-peq); background:var(--wash2);
+  display:grid; place-items:center; color:var(--ink3); font-size:var(--t-etiqueta); }
+</style>
+<div class="pag">
+  <header class="cab">
+    <span class="selo">Cora Render · proposta</span>
+    <h1>Os fundos da Prancheta</h1>
+    <p>A moldura do painel já mudou de tom. Falta a janela por dentro. A ideia é a tua: onde é branco vira o tom do cabeçalho, e onde é cinza fica mais claro.</p>
+  </header>
+
+  <h2 class="cap"><span>01</span>Três degraus, da esquerda para a direita</h2>
+  <p class="cap-txt">Quanto mais à direita, mais claro. A lateral fica no cinza mais fechado que já está, o painel de ferramentas vem para o tom do cabeçalho, e o feed vira branco. O trabalho acontece no mais claro dos três.</p>
+  <div class="degraus">
+    <div class="degrau" style="background:var(--wash2)"><b>A lateral</b><em>#EFEFEB</em></div>
+    <div class="degrau" style="background:var(--wash)"><b>O painel de ferramentas</b><em>#F6F6F4</em></div>
+    <div class="degrau" style="background:var(--paper)"><b>O feed</b><em>#FFFFFF</em></div>
+  </div>
+
+  <h2 class="cap"><span>02</span>A janela inteira</h2>
+  <p class="cap-txt">Em miniatura, para dar para ver os três blocos de uma vez.</p>
+  <div class="dois">
+    <div><p class="rot">Hoje</p><div class="jan jan--hoje">
+  <div class="jan__lat"><i></i><i></i><i></i><i></i></div>
+  <div class="jan__pai">
+    <span class="jan__rot"></span>
+    <span class="jan__campo"></span>
+    <span class="jan__rot"></span>
+    <span class="jan__campo"></span>
+    <span class="jan__sulco"><b></b><b></b><b></b></span>
+    <span class="jan__rot"></span>
+    <span class="jan__campo"></span>
+  </div>
+  <div class="jan__feed">
+    <span class="jan__barra"></span>
+    <span class="jan__card"></span><span class="jan__card"></span>
+    <span class="jan__card"></span><span class="jan__card"></span>
+  </div>
+</div>
+      <p class="txt" style="margin-top:12px;font-size:var(--t-apoio2)">O painel é branco e o feed é cinza. O branco está no lugar onde ninguém olha uma imagem, e o cinza está justamente onde elas aparecem.</p></div>
+    <div><p class="rot">Proposto</p><div class="jan jan--novo">
+  <div class="jan__lat"><i></i><i></i><i></i><i></i></div>
+  <div class="jan__pai">
+    <span class="jan__rot"></span>
+    <span class="jan__campo"></span>
+    <span class="jan__rot"></span>
+    <span class="jan__campo"></span>
+    <span class="jan__sulco"><b></b><b></b><b></b></span>
+    <span class="jan__rot"></span>
+    <span class="jan__campo"></span>
+  </div>
+  <div class="jan__feed">
+    <span class="jan__barra"></span>
+    <span class="jan__card"></span><span class="jan__card"></span>
+    <span class="jan__card"></span><span class="jan__card"></span>
+  </div>
+</div>
+      <p class="txt" style="margin-top:12px;font-size:var(--t-apoio2)">Inverte. O painel passa a ser coluna, como a lateral, e o feed passa a ser a mesa. Os campos brancos do formulário viram objetos sobre o cinza, do mesmo jeito que a aba acesa virou pastilha branca na barra.</p></div>
+  </div>
+
+  <h2 class="cap"><span>03</span>A armadilha, e é ela que decide o tamanho da mudança</h2>
+  <p class="cap-txt">Dentro do painel existem <b>24 peças</b> usando o mesmo cinza que ele passaria a ter. Se só o fundo mudar, elas somem. É o mesmo erro que eu cometi na barra lateral ontem, ao contrário.</p>
+  <div class="pecas">
+    <div class="peca">
+      <div class="peca__cab"><h4>O sulco</h4></div>
+      <div class="peca__par">
+        <div class="peca__lado peca__lado--a"><span class="sulco"><span class="on">Precisão</span><span>Criativo</span></span><p class="mini">no painel branco</p></div>
+        <div class="peca__lado peca__lado--b"><span class="sulco"><span class="on">Precisão</span><span>Criativo</span></span><p class="mini">no painel cinza</p></div>
+      </div>
+      <div class="peca__pe"><b>Some.</b> O sulco é um cinza sobre branco. Sobre o cinza do painel ele fica com sete unidades de diferença, e o groove deixa de existir.</div>
+    </div>
+    <div class="peca">
+      <div class="peca__cab"><h4>O sulco, corrigido</h4></div>
+      <div class="peca__par">
+        <div class="peca__lado peca__lado--a"><span class="sulco sulco--novo"><span class="on">Precisão</span><span>Criativo</span></span><p class="mini">no painel branco</p></div>
+        <div class="peca__lado peca__lado--b"><span class="sulco sulco--novo"><span class="on">Precisão</span><span>Criativo</span></span><p class="mini">no painel cinza</p></div>
+      </div>
+      <div class="peca__pe">Ele inverte junto: vira branco com um fio de 1px. O gesto continua o mesmo, e a escolhida segue turquesa.</div>
+    </div>
+    <div class="peca">
+      <div class="peca__cab"><h4>A pílula de configuração</h4></div>
+      <div class="peca__par">
+        <div class="peca__lado peca__lado--a"><span class="pcfg">Ajustes</span><p class="mini">hoje</p></div>
+        <div class="peca__lado peca__lado--b"><span class="pcfg pcfg--novo">Ajustes</span><p class="mini">proposto</p></div>
+      </div>
+      <div class="peca__pe">Mesmo caminho do sulco: branco com fio. São seis peças assim no painel.</div>
+    </div>
+    <div class="peca">
+      <div class="peca__cab"><h4>O campo</h4></div>
+      <div class="peca__par">
+        <div class="peca__lado peca__lado--a"><span class="campo">Interno</span><p class="mini">hoje</p></div>
+        <div class="peca__lado peca__lado--b"><span class="campo">Interno</span><p class="mini">proposto</p></div>
+      </div>
+      <div class="peca__pe"><b>Não muda, e melhora.</b> Ele já é branco com fio. Sobre o cinza ele passa a ler como campo sem depender do fio, que é o que acontece na barra lateral com a aba acesa.</div>
+    </div>
+    <div class="peca">
+      <div class="peca__cab"><h4>O card do feed</h4></div>
+      <div class="peca__par">
+        <div class="peca__lado peca__lado--a" style="background:var(--wash)"><span class="card">imagem</span><p class="mini">feed cinza</p></div>
+        <div class="peca__lado peca__lado--b" style="background:var(--paper)"><span class="card">imagem</span><p class="mini">feed branco</p></div>
+      </div>
+      <div class="peca__pe">O quadrado cinza é o lugar da imagem enquanto ela não chega. No feed branco ele continua se lendo, e quando a imagem chega ela fica a coisa mais luminosa da tela.</div>
+    </div>
+    <div class="peca">
+      <div class="peca__cab"><h4>A barra do feed</h4></div>
+      <div class="peca__par">
+        <div class="peca__lado peca__lado--a" style="background:var(--wash)"><span class="campo" style="border-radius:var(--r-peq)">filtros</span><p class="mini">hoje: branca sobre cinza</p></div>
+        <div class="peca__lado peca__lado--b" style="background:var(--paper)"><span class="campo" style="border-radius:var(--r-peq);background:var(--wash);border-color:transparent">filtros</span><p class="mini">proposto: cinza sobre branco</p></div>
+      </div>
+      <div class="peca__pe">Ela troca de lado junto com o feed, senão vira uma faixa branca sobre branco — o mesmo que o cabeçalho do painel era antes de ontem.</div>
+    </div>
+  </div>
+
+  <h2 class="cap"><span>04</span>O que muda, na conta</h2>
+  <p class="txt"><b>Três fundos</b>: o painel de ferramentas, o feed e a barra do feed.</p>
+  <p class="txt"><b>Vinte e quatro peças</b> que hoje usam o cinza e passam a usar branco com fio: os sulcos do trilho, do modo e dos tamanhos, as pílulas de configuração, os botões desabilitados e os fundos de campo somente-leitura.</p>
+  <p class="txt"><b>Nada de estrutura.</b> Nenhuma medida, nenhum raio, nenhuma posição. É troca de tom, e por isso dá para desfazer inteira num commit se não ficar bom na tela grande.</p>
+  <p class="txt"><b>O que eu não faria:</b> mexer no tom do painel sem mexer nas 24. Meia mudança aqui é pior que nenhuma — o painel fica cinza e os controles dentro dele viram manchas.</p>
+
+  <footer class="rod">
+    <p class="txt">Se estiver de pé, eu levanto os três fundos e as 24 peças no mesmo commit, com a bateria passando antes de subir.</p>
+  </footer>
+</div>
