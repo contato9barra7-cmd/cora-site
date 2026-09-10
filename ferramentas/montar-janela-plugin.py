@@ -48,7 +48,7 @@ ALVO = re.compile(
     # o seletor de cor, o campo do @, o painel de filtros, as janelas
     r'|cor\b|cor__|cref\b|cref-|ft\b|ft-|ft__|cf\b|cf-|nm-|ps-b|dt\b|dt-'
     # a aba Editar e as duas telas de pincel
-    r'|ed-|pn-|pk|pk-'
+    r'|ed-|pn-|pk'
     # e o visualizador, que e o `Visualizador.js` inteiro
     r'|vz\b|vz-)'
 )
