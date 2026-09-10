@@ -50,16 +50,23 @@ p.sec-p code, .legenda code{ font-family:ui-monospace,Menlo,monospace; font-size
   font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }
 
 /* ── as pastilhas de estado ── */
-.est{ display:inline-flex; align-items:center; gap:6px; padding:4px 11px; border-radius:var(--pill);
-  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.05em; text-transform:uppercase;
-  border:1px solid transparent; cursor:pointer; font-family:inherit; }
+/* A MESMA ALTURA do botao ao lado, 36px. Uma pastilha de 24 ao lado de um botao
+   de 38 le como duas coisas de pesos diferentes, e as duas sao acoes. */
+.est{ display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px;
+  border-radius:var(--pill); font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.05em;
+  text-transform:uppercase; border:1px solid transparent; cursor:pointer; font-family:inherit; }
+.est--mudo{ cursor:default; }
 .est svg{ width:12px; height:12px; stroke:currentColor; fill:none; }
 .est--no{ background:var(--turq-bg); color:var(--turq-txt); }
 .est--ras{ background:var(--ambar-f); color:var(--ambar-t); border-color:var(--ambar-l); }
 .est--mudo{ background:var(--wash2); color:var(--ink3); }
 
 /* ── a lista do admin ── */
-.adm{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; }
+/* Sem `overflow:hidden`: ele recortava o menu de tres pontinhos, que sai por
+   baixo da linha do modulo. As pecas de dentro ja tem o proprio raio. */
+.adm{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r); }
+.adm .aula:last-child, .adm .pe{ border-radius:0 0 var(--r) var(--r); }
+.quadro--menu{ padding-bottom:190px; }
 .adm + .adm{ margin-top:12px; }
 .adm--ras{ border-style:dashed; border-color:var(--ambar-l); }
 .mod{ display:flex; align-items:center; gap:14px; padding:14px 16px; }
@@ -135,10 +142,24 @@ p.sec-p code, .legenda code{ font-family:ui-monospace,Menlo,monospace; font-size
 /* a barra do texto */
 .barra-txt{ display:flex; gap:2px; padding:6px; border:1px solid var(--line); border-bottom:0;
   border-radius:var(--r-peq) var(--r-peq) 0 0; background:var(--wash); }
-.barra-txt button{ display:grid; place-items:center; width:30px; height:28px; border:0;
-  border-radius:7px; background:none; color:var(--ink2); font:inherit; font-size:13px;
+.barra-txt button{ position:relative; display:grid; place-items:center; width:32px; height:30px;
+  border:0; border-radius:7px; background:none; color:var(--ink2); font:inherit; font-size:13px;
   font-weight:700; cursor:pointer; }
 .barra-txt button:hover{ background:var(--wash2); color:var(--ink); }
+/* O desenho precisa de medida propria: sem isso o SVG herdava a caixa inteira
+   do botao e o link virava uma mancha preta. */
+.barra-txt svg{ width:16px; height:16px; stroke:currentColor; fill:none; }
+.barra-txt hr{ width:1px; height:18px; margin:6px 4px; border:0; background:var(--line2); }
+/* A dica no hover. `title` do navegador demora um segundo e some sozinho, e
+   numa barra de seis desenhos a pessoa precisa da resposta na hora. */
+.barra-txt button::after{
+  content:attr(data-dica); position:absolute; top:calc(100% + 7px); left:50%;
+  transform:translateX(-50%); padding:5px 9px; border-radius:8px;
+  background:var(--ink); color:var(--paper); font-size:11px; font-weight:500;
+  letter-spacing:0; text-transform:none; white-space:nowrap; opacity:0; pointer-events:none;
+  transition:opacity var(--t); z-index:3;
+}
+.barra-txt button:hover::after{ opacity:1; }
 .barra-txt i{ font-style:italic; }
 .barra-txt s{ text-decoration:none; border-bottom:1.5px solid currentColor; }
 .entrada--texto{ border-radius:0 0 var(--r-peq) var(--r-peq); }
@@ -155,7 +176,7 @@ p.sec-p code, .legenda code{ font-family:ui-monospace,Menlo,monospace; font-size
 .mat__txt span{ display:block; font-size:var(--t-etiqueta); color:var(--ink3); margin-top:1px;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .mat__novo{ display:flex; gap:8px; }
-.bt{ display:inline-flex; align-items:center; justify-content:center; gap:7px; height:38px;
+.bt{ display:inline-flex; align-items:center; justify-content:center; gap:7px; height:36px;
   padding:0 16px; border-radius:var(--pill); border:1px solid var(--line2); background:var(--paper);
   color:var(--ink); font:inherit; font-size:var(--t-apoio); font-weight:500; cursor:pointer; }
 .bt svg{ width:15px; height:15px; stroke:currentColor; fill:none; }
@@ -246,7 +267,7 @@ p.sec-p code, .legenda code{ font-family:ui-monospace,Menlo,monospace; font-size
       não subiu não pode depender de ler sete pastilhas.</p>
   </div>
 
-  <div class="quadro">
+  <div class="quadro quadro--menu">
     <span class="quadro__eti">O menu do módulo</span>
 <div class="adm"><div class="mod"><span class="pega"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></span><button class="dobra"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg></button><span class="mod__capa mod__capa--h" style="background-image:var(--de-05)"></span><span class="mod__txt"><span class="mod__n">Módulo 05</span><span class="mod__t">Dando movimento</span></span><span class="mod__dir"><button class="est est--no"><svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.3l2.5 2.5 4.5-5"/></svg> Publicado <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg></button><span class="menu-wrap"><button class="icb"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="6" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18" cy="12" r="1.7"/></svg></button><div class="menu"><button><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/></svg> Editar o módulo</button><button><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 13l4 4L14 7"/><path d="M10 15l2 2L22 7"/></svg> Publicar tudo</button><button><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg> Ver como aluno</button><button><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 5.5H6A2.5 2.5 0 0 0 3.5 8v10"/></svg> Duplicar</button><hr><button class="perigo"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15"/><path d="M9.5 7V5.5A1.5 1.5 0 0 1 11 4h2a1.5 1.5 0 0 1 1.5 1.5V7"/><path d="M6.5 7l.8 11.2A2 2 0 0 0 9.3 20h5.4a2 2 0 0 0 2-1.8L17.5 7"/></svg> Remover</button></div></span><button class="icb"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 6l6 6-6 6"/></svg></button></span></div></div>
     <p class="legenda"><b>Publicar tudo</b> é o que economiza tempo de verdade:
@@ -285,13 +306,23 @@ p.sec-p code, .legenda code{ font-family:ui-monospace,Menlo,monospace; font-size
             <div class="campo">
               <label>O que vai escrito na aula</label>
               <div class="barra-txt">
-                <button><b>B</b></button><button><i>I</i></button><button><s>S</s></button>
-                <button><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1.5 1.5"/><path d="M14 10.5a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1.5-1.5"/></svg></button><button>&bull;</button><button>1.</button>
+                <button data-dica="Negrito"><b>B</b></button>
+                <button data-dica="Itálico"><i>I</i></button>
+                <button data-dica="Sublinhado"><s>S</s></button>
+                <hr>
+                <button data-dica="Link"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1.5 1.5"/><path d="M14 10.5a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1.5-1.5"/></svg></button>
+                <button data-dica="Imagem"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="3"/><circle cx="8.5" cy="10" r="1.6"/><path d="M4 17l4.5-4.5 3.5 3.5 3-2.5L20 18"/></svg></button>
+                <hr>
+                <button data-dica="Lista">&bull;</button>
+                <button data-dica="Lista numerada">1.</button>
               </div>
-              <div class="entrada entrada--texto entrada--alta entrada--vazia">O texto que fica embaixo do vídeo. Negrito, itálico, link e lista, e mais nada.</div>
-              <p class="dica">Texto com formatação simples, e não blocos arrastáveis: um editor de
-                blocos como o da Cademi é um produto inteiro, e aqui o que falta é escrever
-                três parágrafos e um link.</p>
+              <div class="entrada entrada--texto entrada--alta entrada--vazia">O texto que fica embaixo do vídeo.</div>
+              <p class="dica">Negrito, itálico, sublinhado, link, imagem e lista, e mais nada. A
+                imagem entra no meio do texto, arrastada para dentro ou pelo botão. Blocos
+                arrastáveis como os da Cademi são outro produto, e aqui o que falta é escrever
+                três parágrafos, pôr um print e deixar um link.</p>
+              <p class="dica">A fonte é a <b>DM Sans</b>, a mesma do resto do painel: o que você
+                escrever aqui sai com a cara do site, e não com a do editor.</p>
             </div>
 
             <div class="campo">
@@ -325,10 +356,13 @@ p.sec-p code, .legenda code{ font-family:ui-monospace,Menlo,monospace; font-size
             </div>
 
             <div class="liga">
-              <span class="liga__t"><b>Assinatura</b><span>A faixa da Marilia no pé</span></span>
+              <span class="liga__t"><b>Assinatura</b><span>Vem ligada em toda aula</span></span>
               <button class="chave chave--on"></button>
             </div>
             <div class="assina"></div>
+            <button class="bt" style="width:100%"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h11a4.5 4.5 0 0 1 0 9h-3"/><path d="M7.5 5.5L4 9l3.5 3.5"/></svg> Trocar a imagem</button>
+            <p class="dica" style="margin:-10px 0 0">A faixa da Marilia é a de fábrica. Dá para
+              subir outra só nesta aula, sem mexer nas demais.</p>
 
             <div class="campo" style="margin:0">
               <label>Resumo</label>
