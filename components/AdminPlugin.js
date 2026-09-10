@@ -52,6 +52,10 @@ export default function AdminPlugin() {
   const escolher = useRef(null);
   const [agora, setAgora] = useState(null);
   const [carregando, setCarregando] = useState(true);
+  /* "Nada publicado" e "não consegui perguntar" são coisas diferentes e
+     estavam saindo iguais na tela. A primeira é o começo de tudo, a segunda é
+     um problema, e quem lê precisa saber em qual das duas está. */
+  const [naoLeu, setNaoLeu] = useState(false);
 
   const [arquivo, setArquivo] = useState(null);   // o .rbz escolhido, ainda no PC
   const [versao, setVersao] = useState('');
@@ -65,7 +69,7 @@ export default function AdminPlugin() {
     let vivo = true;
     lerPlugin()
       .then((d) => { if (vivo) { setAgora(d); setCarregando(false); } })
-      .catch(() => { if (vivo) setCarregando(false); });
+      .catch(() => { if (vivo) { setNaoLeu(true); setCarregando(false); } });
     return () => { vivo = false; };
   }, []);
 
@@ -109,7 +113,9 @@ export default function AdminPlugin() {
         <span className="adm-pl__ico">{Ico.caixa}</span>
         <span className="adm-pl__txt">
           <p>{t('adm_pl_no_ar')}</p>
-          <h3>{noAr ? t('adm_pl_versao') + ' ' + noAr : t('adm_pl_nada')}</h3>
+          <h3>{noAr ? t('adm_pl_versao') + ' ' + noAr
+                : naoLeu ? t('adm_pl_naoleu') : t('adm_pl_nada')}</h3>
+          {naoLeu && <span className="adm-pl__meta">{t('adm_pl_naoleu_q')}</span>}
           {agora?.arquivo && (
             <span className="adm-pl__meta">
               {agora.arquivo.nome} · {tamanhoLegivel(agora.arquivo.tamanho)}
@@ -141,7 +147,7 @@ export default function AdminPlugin() {
         {arquivo && <p className="adm-pl__dica">{tamanhoLegivel(arquivo.size)}</p>}
 
         <label className="adm-au__rot">{t('adm_pl_versao_rot')}</label>
-        <input className="adm-au__campo adm-au__campo--mono" value={versao}
+        <input className="adm-au__campo adm-au__campo--mono adm-pl__versao" value={versao}
                placeholder="2.1.0" onChange={(e) => setVersao(e.target.value)} />
         {/* O plugin só mostra o aviso quando a versão publicada é MAIOR que a
             dele. Publicar um número igual ou menor não avisa ninguém, e é um

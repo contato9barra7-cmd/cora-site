@@ -2192,7 +2192,11 @@
 /* ══════════════════════════════════════════════════════════════════════
    ADMIN · PUBLICAR O PLUGIN
    ══════════════════════════════════════════════════════════════════════ */
-.adm-pl{ max-width:640px; }
+/* Sem teto de largura: as caixas acompanham a coluna do admin, como as outras
+   telas. Só o campo da versão fica curto, porque ele guarda cinco caracteres e
+   uma caixa de mil pixels para "2.1.0" não é generosidade, é desalinho. */
+.adm-pl{ max-width:none; }
+.adm-pl__versao{ max-width:200px; }
 .adm-pl__agora{
   display:flex; align-items:center; gap:16px; padding:18px 20px; margin-bottom:12px;
   background:var(--paper); border:1px solid var(--line); border-radius:var(--r);

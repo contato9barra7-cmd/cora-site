@@ -1358,7 +1358,9 @@
   font-variant-numeric:tabular-nums; }.pn .adm-au__erro{ margin:0; padding:9px 13px; border-radius:var(--r-peq);
   background:#FDECEA; color:#B3261E; font-size:var(--t-apoio2); }/* ══════════════════════════════════════════════════════════════════════
    ADMIN · PUBLICAR O PLUGIN
-   ══════════════════════════════════════════════════════════════════════ */.pn .adm-pl{ max-width:640px; }.pn .adm-pl__agora{
+   ══════════════════════════════════════════════════════════════════════ *//* Sem teto de largura: as caixas acompanham a coluna do admin, como as outras
+   telas. Só o campo da versão fica curto, porque ele guarda cinco caracteres e
+   uma caixa de mil pixels para "2.1.0" não é generosidade, é desalinho. */.pn .adm-pl{ max-width:none; }.pn .adm-pl__versao{ max-width:200px; }.pn .adm-pl__agora{
   display:flex; align-items:center; gap:16px; padding:18px 20px; margin-bottom:12px;
   background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
 }.pn .adm-pl__ico{ flex:none; display:grid; place-items:center; width:46px; height:46px;
