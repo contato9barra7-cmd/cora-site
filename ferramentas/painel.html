@@ -2002,7 +2002,44 @@
 .adm-cat__pega:active{ cursor:grabbing; }
 .adm-cat__pega:hover{ opacity:1; }
 .adm-cat__pega svg{ width:14px; height:14px; }
-.adm-cat--movendo, .adm-cat__aula--movendo{ opacity:.4; }
+/* ══════════════════════════════════════════════════════════════════════
+   ASSINATURA: os cartoes de plano vindos de /precos
+   O desenho inteiro vem de `precos-pagina.css`, escopado em `.pr`, e a folha
+   e carregada no layout. Aqui so cabe o que muda POR ESTAR NO PAINEL: sao
+   tres planos e nao quatro, e a coluna e mais estreita que a do site.
+   ══════════════════════════════════════════════════════════════════════ */
+.as-planos{ margin-top:16px; }
+.as-planos .planos{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.as-planos .plano{ padding:22px 20px 20px; }
+.as-planos .plano__nome{ font-size:22px; }
+.as-planos .plano__valor{ font-size:30px; }
+.as-planos__nota{ margin:14px 0 0; font-size:var(--t-apoio2); color:var(--ink3); text-wrap:pretty; }
+
+/* O cartao do plano de agora. O selo preto ja e do destaque, e dois selos
+   pretos lado a lado disputariam a mesma leitura: este vira turquesa, que e a
+   cor de "isto e seu" no resto do painel. */
+.as-planos .plano--atual{ border-color:var(--turquesa-esc); }
+.as-planos .plano__selo--atual{ background:var(--turq-bg); color:var(--turq-txt); }
+/* Ele ocupa a MESMA altura do botao dos outros dois (48px), senao a lista de
+   recursos do cartao atual subiria 23px e as tres colunas parariam de casar. */
+.as-planos .plano__aqui{
+  display:flex; align-items:center; justify-content:center; height:48px; margin:0;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink3);
+  font-size:var(--t-apoio); font-weight:500;
+}
+@media (max-width: 1100px){ .as-planos .planos{ grid-template-columns:1fr; } }
+
+.adm-cat--movendo{ opacity:.35; }
+/* A linha de inserção. Ela é a única coisa que se mexe durante o arrasto: a
+   lista só se reordena depois que o dedo solta, porque mexer no nó que está
+   sendo arrastado faz o navegador abortar o gesto. */
+.adm-cat--antes, .adm-cat--depois{ position:relative; }
+.adm-cat--antes::before, .adm-cat--depois::after{
+  content:""; position:absolute; left:10px; right:10px; height:2px;
+  border-radius:2px; background:var(--turquesa-esc);
+}
+.adm-cat--antes::before{ top:-1px; }
+.adm-cat--depois::after{ bottom:-1px; }
 .adm-cat__tira{ flex:none; color:var(--ink3); }
 .adm-cat__tira:hover{ color:#B3261E; border-color:#B3261E; }
 .adm-cat__pe{ display:flex; gap:14px; align-items:center; padding:10px 18px; border-top:1px solid var(--line); }

@@ -217,17 +217,16 @@ p.sec-p{ margin:0 0 18px; color:var(--ink2); font-size:var(--t-apoio); max-width
   </div>
 
   <div class="nota">
-    <p><b>O que está acontecendo na tua tela.</b> A página já tem quase tudo isso
-      escrito. O que ela não tem é botão nenhum <b>para quem é admin</b>: o pé do
-      cartão do plano lê <code>ehPago ? gerenciar : !ehAdmin ? ver planos : null</code>,
-      e a tua conta cai no <code>null</code>. A seção das recargas tem a mesma
-      trava, ela só aparece com <code>ehPago</code> ou dono de equipe.</p>
-    <p>Quem paga Starter hoje vê o botão de gerenciar e as quatro recargas. Tu não
-      vê porque <code>ehPago</code> exclui admin de propósito, para o teu acesso
-      ilimitado não parecer uma assinatura.</p>
-    <p>E falta uma coisa de verdade, para todo mundo: <b>a escolha do plano dentro
-      da página</b>. Hoje mudar de plano acontece no portal do Stripe, então quem
-      quer subir de Starter para Pro sai do Cora para descobrir quanto custa.</p>
+    <p><b>Isto já está no ar.</b> O que faltava não era a página, era o botão:
+      duas perguntas diferentes estavam usando a mesma resposta.</p>
+    <p>O CARTÃO do plano pergunta o que mostrar, e ali admin é caso à parte, tem
+      acesso ilimitado e escrever "5.000 créditos, renova em 12 dias" na conta
+      dele seria mentira. Os BOTÕES perguntam outra coisa, sobre dinheiro:
+      existe assinatura viva nesta conta? Enquanto as duas eram a mesma
+      pergunta, quem é admin chegava numa tela sem ação nenhuma, nem gerenciar,
+      nem recarga, nem ver os planos.</p>
+    <p>E a escolha do plano passou a morar dentro da página, com os cartões de
+      <code>/precos</code>, o componente e a folha, e não uma cópia parecida.</p>
   </div>
 
   <h2 class="sec">A tela</h2>
@@ -282,51 +281,18 @@ p.sec-p{ margin:0 0 18px; color:var(--ink2); font-size:var(--t-apoio); max-width
       <!-- ── PARA ONDE DÁ PARA SUBIR ── -->
       <div class="bloco">
         <h4>Mudar de plano</h4>
-        <p class="ap">A troca vale a partir da próxima cobrança, e o que sobrou do
-          mês atual continua valendo até lá.</p>
-
-        <div class="planos">
-          <div class="pl pl--atual">
-            <span class="pl__n">Starter</span>
-            <div class="pl__p">R$ 97<em>/mês</em></div>
-            <p class="pl__c">5.000 créditos por mês</p>
-            <ul>
-              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Render e Batch</li>
-              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Materiais e blocos</li>
-              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Upscale até 4K</li>
-              <li class="off"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>Animação</li>
-              <li class="off"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>Pós-produção</li>
-            </ul>
-            <div class="pl__pe"><div class="pl__aqui">Você está aqui</div></div>
-          </div>
-
-          <div class="pl pl--sobe">
-            <span class="pl__n">Pro <em class="selo">Mais escolhido</em></span>
-            <div class="pl__p">R$ 197<em>/mês</em></div>
-            <p class="pl__c">20.000 créditos por mês</p>
-            <ul>
-              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Tudo do Starter</li>
-              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Animação e timelapse</li>
-              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Pós-produção</li>
-              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Preenchimento generativo</li>
-              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Upscale até 16K</li>
-            </ul>
-            <div class="pl__pe"><button class="bt bt--lima">Mudar para o Pro</button></div>
-          </div>
-
-          <div class="pl">
-            <span class="pl__n">Studio</span>
-            <div class="pl__p">R$ 497<em>/mês</em></div>
-            <p class="pl__c">60.000 créditos por mês</p>
-            <ul>
-              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Tudo do Pro</li>
-              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Volume de escritório</li>
-              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Fila com prioridade</li>
-              <li><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Suporte direto</li>
-            </ul>
-            <div class="pl__pe"><button class="bt">Mudar para o Studio</button></div>
-          </div>
-        </div>
+        <p class="ap">Aqui entram os três cartões de <b>/precos</b>, o mesmo
+          componente e a mesma folha, com o zoom do hover e o selo do destaque.
+          Não desenhei uma versão parecida de propósito: duas cópias do mesmo
+          cartão vivem duas semanas em paz e divergem na primeira mudança de
+          preço. Trocar um número em <code>lib/planos.js</code> muda as duas
+          telas de uma vez, nos três idiomas.</p>
+        <p class="ap">O que muda no painel é só o que precisa mudar: são três
+          planos e não quatro, o Free fica de fora porque ninguém muda para o
+          Free, o cartão do plano de agora ganha o selo "Seu plano" em turquesa
+          para não disputar com o preto do destaque, e o botão dele vira
+          "Você está aqui", da mesma altura dos outros dois, senão a lista de
+          recursos subiria e as três colunas parariam de casar.</p>
       </div>
 
       <!-- ── AS RECARGAS ── -->
@@ -518,17 +484,22 @@ p.sec-p{ margin:0 0 18px; color:var(--ink2); font-size:var(--t-apoio); max-width
       chega por e-mail.</p>
   </div>
 
-  <h2 class="sec">O que eu mudaria de verdade</h2>
-  <p class="sec-p">Três coisas, em ordem de tamanho.</p>
-  <p class="legenda"><b>Uma.</b> Tirar a trava de admin do que é só informação. Ver o
-    próprio plano, o cartão e as faturas não é privilégio de quem paga, e hoje a
-    tua conta chega numa tela sem ação nenhuma. Admin continua sem botão de
-    assinar, porque assinar não faz sentido para ele, mas passa a ver a tela.</p>
-  <p class="legenda"><b>Duas.</b> Trazer a escolha do plano para dentro. Quem quer
-    subir de Starter para Pro precisa ver o preço e o que muda antes de sair para
-    o portal. O clique final continua na Stripe, que é quem cobra.</p>
-  <p class="legenda"><b>Três.</b> A barra de créditos do mês. O número de créditos
-    aparece na barra lateral, mas quanto disso já foi embora não aparece em lugar
-    nenhum, e é essa a pergunta que faz alguém clicar em Créditos.</p>
+  <h2 class="sec">O que ficou</h2>
+  <p class="sec-p">As três coisas que este estudo levantou, e onde cada uma parou.</p>
+  <p class="legenda"><b>A trava de admin saiu do que é ação.</b> Ver o próprio
+    plano, gerenciar, comprar crédito e olhar as faturas passou a depender de
+    uma pergunta só: existe assinatura viva nesta conta? O cartão do plano
+    continua tratando admin à parte, porque ali a pergunta é o que mostrar, e
+    "acesso ilimitado" é a verdade.</p>
+  <p class="legenda"><b>A escolha do plano entrou na página.</b> Quem quer subir
+    de Starter para Pro vê o preço e o que muda sem sair do Cora. O clique final
+    vai para o portal da Stripe, e não para um checkout novo: quem já paga e
+    passa por um checkout ganha uma SEGUNDA assinatura, não uma troca, e a
+    cobrança aqui é real. O portal troca mantendo a mesma assinatura, com o
+    proporcional do mês já calculado.</p>
+  <p class="legenda"><b>A barra de créditos do mês ainda não.</b> Ela está
+    desenhada aqui em cima, no cartão do plano, mas o servidor devolve o total e
+    o saldo, não o gasto do ciclo. Fica para quando eu mexer no
+    <code>/conta</code>.</p>
 
 </div>

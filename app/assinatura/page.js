@@ -7,8 +7,9 @@ import AppShell from '../../components/AppShell';
 import ModalFiscal from '../../components/ModalFiscal';
 import DropdownCora from '../../components/DropdownCora';
 import { lerConta, abrirPortal, lerEquipe, iniciarCheckout, lerCobranca } from '../../lib/auth';
-import { recargas, imagensPor } from '../../lib/planos';
-import { itemDaRecarga } from '../../lib/stripe-prices';
+import CartaoPlano from '../../components/CartaoPlano';
+import { planos, recargas, imagensPor } from '../../lib/planos';
+import { itemDoPlano, itemDaRecarga } from '../../lib/stripe-prices';
 import { useIdioma, tOpt, localeDeIdioma } from '../../lib/i18n';
 
 const NOME_PLANO = { free: 'Free', starter: 'Starter', pro: 'Pro', studio: 'Studio' };
@@ -64,6 +65,29 @@ export default function Assinatura() {
     return () => { vivo = false; };
   }, []);
 
+  /* MUDAR DE PLANO NÃO É UM CHECKOUT NOVO.
+     Quem já paga e passa por um `checkout.session` ganha uma SEGUNDA
+     assinatura, não uma troca, e a cobrança aqui é real. Quem sabe trocar
+     mantendo a mesma assinatura, com o proporcional do mês já calculado, é o
+     portal da Stripe. Então o cartão do plano mostra o preço e o que muda, e
+     o clique leva para lá.
+
+     Conta sem plano pago é outro caso: aí não há o que trocar, e o checkout
+     normal é o caminho certo. */
+  async function trocarPlano(id) {
+    if (!temPlano) {
+      setErro(''); setComprando(true);
+      try {
+        await iniciarCheckout(itemDoPlano(id, 'mensal'), null, null);
+      } catch (e) {
+        if (e.precisaCpf) { setModalFiscal(true); return; }
+        setErro(e.message);
+      } finally { setComprando(false); }
+      return;
+    }
+    gerenciar();
+  }
+
   async function comprarRecarga(qual) {
     const id = qual || recargaSel;
     setRecargaSel(id);
@@ -117,7 +141,20 @@ export default function Assinatura() {
   if (!conta) return null;
 
   const ehAdmin = conta.is_admin === true;
-  const ehPago = conta.plano && conta.plano !== 'free' && !ehAdmin;
+  /* Duas perguntas diferentes, e elas se confundiram por um tempo.
+
+     O CARTÃO do plano pergunta o que MOSTRAR: admin tem acesso ilimitado, e
+     escrever "5.000 créditos, renova em 12 dias" na conta dele seria mentira.
+     Por isso `ehAdmin` continua trocando o texto lá em cima.
+
+     Os BOTÕES perguntam sobre dinheiro: existe uma assinatura viva nesta
+     conta? Se existe, trocar de plano tem que passar pelo portal, senão um
+     checkout novo abre uma SEGUNDA assinatura e cobra duas vezes. E se existe,
+     comprar crédito também faz sentido. Admin com plano marcado entra aqui.
+
+     Enquanto as duas eram a mesma pergunta, a tela chegava sem ação nenhuma
+     para quem é admin: nem gerenciar, nem recarga, nem ver os planos. */
+  const temPlano = !!conta.plano && conta.plano !== 'free' && conta.status === 'ativo';
 
   // "renova em 11 de agosto" é uma data; "29 dias" é o que a pessoa sente.
   const dataRenov = conta.eh_dono_equipe ? conta.equipe_renova_em : conta.expira_em;
@@ -382,21 +419,53 @@ export default function Assinatura() {
             </div>
 
             <div className="as-plano-pe">
-              {ehPago ? (
+              {temPlano ? (
                 /* Mudar de plano acontece dentro do portal do Stripe. Um botão
                    levando a /precos era um desvio: a pessoa ia ver a tabela e
                    voltava para clicar aqui de qualquer jeito. */
                 <button className="as-btn-cta" onClick={gerenciar} disabled={abrindo}>
                   {abrindo ? t('assinatura_abrindo') : t('assinatura_gerenciar')}
                 </button>
-              ) : !ehAdmin ? (
+              ) : (
                 <Link href="/precos" className="as-btn-cta">{t('assinatura_ver_planos')}</Link>
-              ) : null}
+              )}
             </div>
           </div>
         )}
 
-        {(ehPago || conta.eh_dono_equipe) && (
+        {/* ── MUDAR DE PLANO ──
+            Os cartões são os MESMOS de /precos, o componente e a folha, e não
+            uma cópia parecida: quem muda um preço, um crédito ou um recurso em
+            `lib/planos.js` muda as duas telas de uma vez. O `pr` é o escopo
+            daquela folha, e é ele que traz o desenho inteiro para cá, com o
+            zoom do hover e o selo do destaque.
+
+            O Free fica de fora: aqui a pergunta é para onde subir, e ninguém
+            "muda para o Free". Numa equipe também não aparece, porque quem
+            escolhe o plano lá é o dono, pelo Teams. */}
+        {!conta.eh_dono_equipe && !conta.equipe_id && (
+          <div className="conta-card">
+            <h2 className="conta-h2">{t('assinatura_mudar_titulo')}</h2>
+            <p className="conta-p">{t('assinatura_mudar_sub')}</p>
+            <div className="pr as-planos">
+              <div className="planos">
+                {planos.filter((p) => p.mensal > 0).map((p) => (
+                  <CartaoPlano
+                    key={p.id}
+                    p={p}
+                    atual={p.id === conta.plano}
+                    rotulo={temPlano ? t('assinatura_mudar_para') : undefined}
+                    ocupado={comprando || abrindo}
+                    aoClicar={trocarPlano}
+                  />
+                ))}
+              </div>
+            </div>
+            {temPlano && <p className="as-planos__nota">{t('assinatura_mudar_nota')}</p>}
+          </div>
+        )}
+
+        {(temPlano || conta.eh_dono_equipe) && (
           <div className="conta-card">
             <h2 className="conta-h2">{t('assinatura_mais_creditos')}</h2>
             <p className="conta-p">

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { iniciarCheckout, lerConta } from '../../lib/auth';
 import { itemDoPlano, itemDaRecarga } from '../../lib/stripe-prices';
 import Cabecalho from '../../components/Cabecalho';
+import CartaoPlano, { brl, brlInt } from '../../components/CartaoPlano';
 import ModalFiscal from '../../components/ModalFiscal';
 import { useIdioma, localeDeIdioma } from '../../lib/i18n';
 import {
@@ -18,26 +19,7 @@ import {
 // responsivo quebra "R$" numa linha e "140" na outra, e um preco partido
 // no meio para de ser um preco. Escrito com a fuga e nao com o caractere
 // solto: nbsp no codigo-fonte e invisivel, e some numa colagem.
-function brl(n) { return 'R$ ' + n.toFixed(2).replace('.', ','); }
-function brlInt(n) { return 'R$ ' + n.toLocaleString('pt-BR'); }
 function num(v) { return typeof v === 'number' ? v.toLocaleString('pt-BR') : v; }
-
-// O mesmo cheque do artefato: traco de 2.2, ponta redonda, herdando a cor do
-// item. O item apagado leva um X mais fino, pra ele nao competir com os que
-// estao ligados.
-function Check({ on }) {
-  return on ? (
-    <svg className="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M20 6L9 17l-5-5" />
-    </svg>
-  ) : (
-    <svg className="ic-check ic-check--nao" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-      <path d="M6 6l12 12M18 6L6 18" />
-    </svg>
-  );
-}
 
 function Celula({ v }) {
   if (v === true) return <span className="tick-sim">✓</span>;
@@ -198,82 +180,9 @@ export default function Precos() {
           </div>
 
         <div className="planos">
-          {planos.map((p) => {
-            let preco, cobranca = '', risco = '';
-            if (p.mensal === 0) {
-              preco = t('precos_gratis');
-              cobranca = t('precos_7dias');
-            } else if (anual) {
-              const mes = p.mensal * (1 - descontoAnual);
-              preco = brl(mes);
-              cobranca = brlInt(Math.round(mes * 12)) + ' ' + t('precos_cobrado_ano');
-              risco = brlInt(p.mensal);
-            } else {
-              preco = brlInt(p.mensal);
-              cobranca = t('precos_por_mes');
-            }
-            return (
-              <article key={p.id} className={'plano' + (p.destaque ? ' plano--destaque' : '')}>
-                {p.tagKey && <span className="plano__selo">{t(p.tagKey)}</span>}
-                <div className="plano__cab">
-                  <h2 className="plano__nome">{p.nome}</h2>
-                  <p className="plano__desc">{t(p.descKey)}</p>
-                </div>
-                <div className="plano__preco-bloco">
-                  <div className="plano__preco">
-                    {risco && <span className="plano__risco">{risco}</span>}
-                    <span className="plano__valor">{preco}</span>
-                    {p.mensal > 0 && <span className="plano__per">{t('conta_mes')}</span>}
-                  </div>
-                  <p className="plano__cobranca">{cobranca}</p>
-                </div>
-                {/* Os NÚMEROS saem de lib/planos.js, e não de uma frase
-                    escrita em cada idioma. Escritos à mão, eles ficaram meses
-                    dizendo 10.000 créditos no Pro enquanto o servidor concedia
-                    20.000, e prometendo 68 imagens onde cabiam 35. Agora muda
-                    o crédito num lugar só e a frase acompanha, nos três
-                    idiomas. O Free continua com chave própria porque ele não
-                    tem número nenhum para contar. */}
-                <div className="plano__cred">
-                  {p.creditos ? (
-                    <>
-                      <p className="plano__credtxt">
-                        {p.creditos.toLocaleString(localeDeIdioma(idioma))} {t('pl_creditos_mes')}
-                      </p>
-                      <p className="plano__credsub">
-                        {p.imagens.toLocaleString(localeDeIdioma(idioma))} {t('pl_imagens_em')} {RESOLUCAO_ANUNCIADA}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="plano__credtxt">{t(p.creditosTxtKey)}</p>
-                      <p className="plano__credsub">{t(p.creditosSubKey)}</p>
-                    </>
-                  )}
-                </div>
-                <div className="plano__cta">
-                  {/* O artefato escreve o nome do plano no botao: "Assinar Pro",
-                      nao so "Assinar". Com quatro cartoes lado a lado isso
-                      importa, porque o botao passa a dizer sozinho o que faz. O
-                      Free fica de fora, o rotulo dele e "Testar 7 dias". */}
-                  <button type="button" className={'btn btn--largo btn--' + p.ctaEstilo}
-                          onClick={() => assinarPlano(p.id)}>
-                    {p.mensal === 0
-                      ? t(p.ctaKey)
-                      : t('assinar_plano').replace('{plano}', p.nome)}
-                  </button>
-                </div>
-                <ul className="plano__beneficios">
-                  {p.feats.map((f, i) => (
-                    <li key={i} className={f[0] ? '' : 'esta-fora'}>
-                      <Check on={f[0]} />
-                      <span className={i === 0 && /mais:/.test(t(f[1])) ? 'plano__beneficio-topo' : ''}>{t(f[1])}</span>
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            );
-          })}
+          {planos.map((p) => (
+            <CartaoPlano key={p.id} p={p} anual={anual} aoClicar={assinarPlano} />
+          ))}
           </div>
         </div>
       </section>

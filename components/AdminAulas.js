@@ -75,6 +75,18 @@ function Campo({ valor, original, onSalvar, placeholder, largo }) {
   );
 }
 
+/* Uma caixa que empresta o próprio nó para quem desenha dentro dela. A alça
+   precisa dele para dizer ao navegador que o fantasma do arrasto é a LINHA
+   inteira, e não o punhado de pontinhos que foi agarrado. */
+function Bloco({ className, onDragOver, onDrop, render }) {
+  const eu = useRef(null);
+  return (
+    <div ref={eu} className={className} onDragOver={onDragOver} onDrop={onDrop}>
+      {render(eu)}
+    </div>
+  );
+}
+
 export default function AdminAulas({ aba }) {
   const { t } = useIdioma();
   const [cat, setCat] = useState({});
@@ -84,12 +96,18 @@ export default function AdminAulas({ aba }) {
   const [carregando, setCarregando] = useState(true);
   const arquivo = useRef(null);
   const [alvoCapa, setAlvoCapa] = useState(null);
-  /* A fila que está sendo arrastada. Ela existe só enquanto o dedo está em
-     cima, e mais um instante depois: soltar dispara o POST, e a fila continua
-     mandando no desenho até o catálogo voltar do banco, senão a lista pularia
-     para a ordem velha no meio do caminho. */
-  const [fila, setFila] = useState(null);
-  const [pronto, setPronto] = useState(null);      // a linha que a alça soltou
+  /* ── ARRASTAR ──
+     `arraste` é o gesto em curso, e ele NÃO muda de conteúdo enquanto dura:
+     a primeira versão reordenava a lista a cada `dragover`, e mexer no nó que
+     está sendo arrastado faz o navegador abortar o gesto na hora. Era isso o
+     "arrasta mas não solta". Agora só uma linha fina diz onde ele vai cair, e
+     a lista se reordena depois que o dedo solta.
+
+     `posto` é a ordem nova mandando no desenho enquanto o banco não responde,
+     senão a lista voltaria para a ordem velha no meio do caminho. */
+  const [arraste, setArraste] = useState(null);    // { pai, ids, movendo }
+  const [alvo, setAlvo] = useState(null);          // { id, depois }
+  const [posto, setPosto] = useState(null);        // { pai, ids }
   const [abrindo, setAbrindo] = useState({});      // módulos com as removidas à vista
 
   useEffect(() => {
@@ -125,42 +143,64 @@ export default function AdminAulas({ aba }) {
     if (d?.id) setCat((c) => ({ ...c, [d.id]: { modulo } }));
   }
 
-  /* ── ARRASTAR ──
-     A alça é que decide: `draggable` só liga na linha cuja alça foi apertada.
-     Sem isso, arrastar de dentro de um campo de texto viraria arrastar a linha
-     inteira, e ninguém mais conseguiria selecionar o que escreveu. */
-  function pegar(pai, itens, id) {
-    setFila({ pai, ids: itens.map((x) => x.id), movendo: id, salvando: false });
-  }
-  function sobre(id) {
-    setFila((f) => {
-      if (!f || f.salvando || f.movendo === id) return f;
-      const de = f.ids.indexOf(f.movendo);
-      const para = f.ids.indexOf(id);
-      if (de < 0 || para < 0) return f;
-      const ids = f.ids.slice();
-      ids.splice(para, 0, ids.splice(de, 1)[0]);
-      return { ...f, ids };
-    });
-  }
-  async function soltar() {
-    setPronto(null);
-    const f = fila;
-    if (!f || f.salvando) return;
-    setFila({ ...f, salvando: true });
-    try {
-      const d = await salvarOrdem(f.pai, f.ids);
-      if (d?.catalogo) setCat(d.catalogo);
-    } catch (e) {}
-    setFila(null);
+  /* Quem é arrastável é a ALÇA, e não a linha. Ligado na linha, arrastar de
+     dentro de um campo de texto viraria arrastar a linha inteira, e ninguém
+     mais conseguiria selecionar o que escreveu. O fantasma continua sendo a
+     linha toda, por `setDragImage`. */
+  function pegar(ev, pai, itens, id, linha) {
+    ev.dataTransfer.effectAllowed = 'move';
+    /* Sem `setData` o Chrome trata o gesto como um arrasto sem carga e recusa
+       o drop, mesmo com o dragover pedindo. */
+    ev.dataTransfer.setData('text/plain', id);
+    if (linha) ev.dataTransfer.setDragImage(linha, 24, 20);
+    setArraste({ pai, ids: itens.map((x) => x.id), movendo: id });
   }
 
-  /* Enquanto a fila está viva, quem manda no desenho é ela. */
+  /* A metade de cima da linha manda cair antes dela, a de baixo depois. Sem
+     isso não dá para largar no fim da lista: o último item não teria borda
+     de baixo para mirar. */
+  function sobre(ev, pai, id) {
+    if (!arraste || arraste.pai !== pai) return;
+    ev.preventDefault();
+    ev.dataTransfer.dropEffect = 'move';
+    if (id === arraste.movendo) { setAlvo(null); return; }
+    const r = ev.currentTarget.getBoundingClientRect();
+    const depois = ev.clientY > r.top + r.height / 2;
+    setAlvo((a) => (a && a.id === id && a.depois === depois ? a : { id, depois }));
+  }
+
+  function largar() { setArraste(null); setAlvo(null); }
+
+  async function soltar(ev, pai, id) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const a = arraste;
+    const onde = alvo;
+    largar();
+    if (!a || a.pai !== pai || id === a.movendo) return;
+    const ids = a.ids.filter((x) => x !== a.movendo);
+    const i = ids.indexOf(id);
+    if (i < 0) return;
+    ids.splice(onde && onde.depois ? i + 1 : i, 0, a.movendo);
+    setPosto({ pai, ids });
+    try {
+      const d = await salvarOrdem(pai, ids);
+      if (d?.catalogo) setCat(d.catalogo);
+    } catch (e) {}
+    setPosto(null);
+  }
+
+  /* Enquanto o banco não respondeu, quem manda no desenho é a ordem nova. */
   function naOrdem(pai, itens) {
-    if (!fila || fila.pai !== pai) return itens;
+    if (!posto || posto.pai !== pai) return itens;
     const por = new Map(itens.map((x) => [x.id, x]));
-    const posto = fila.ids.map((id) => por.get(id)).filter(Boolean);
-    return posto.length === itens.length ? posto : itens;
+    const fila = posto.ids.map((id) => por.get(id)).filter(Boolean);
+    return fila.length === itens.length ? fila : itens;
+  }
+
+  function marca(id) {
+    if (!alvo || alvo.id !== id) return '';
+    return alvo.depois ? ' adm-cat--depois' : ' adm-cat--antes';
   }
 
   /* A capa vai como data URL, do mesmo jeito que a foto do perfil: ela é
@@ -245,20 +285,17 @@ export default function AdminAulas({ aba }) {
     <>
       <input ref={arquivo} type="file" accept="image/*" hidden onChange={escolherCapa} />
       {naOrdem('', lista).map((m) => (
-        <div
-          className={'adm-cat' + (fila?.movendo === m.id ? ' adm-cat--movendo' : '')}
+        <Bloco
           key={m.id}
-          draggable={pronto === m.id}
-          onDragStart={() => pegar('', lista, m.id)}
-          onDragOver={(e) => { if (fila?.pai === '') { e.preventDefault(); sobre(m.id); } }}
-          onDragEnd={soltar}
-          onDrop={(e) => { e.preventDefault(); soltar(); }}
-        >
+          className={'adm-cat' + (arraste?.movendo === m.id ? ' adm-cat--movendo' : '') + marca(m.id)}
+          onDragOver={(e) => sobre(e, '', m.id)}
+          onDrop={(e) => soltar(e, '', m.id)}
+          render={(linha) => (<>
           <div className="adm-cat__mod">
             <span
-              className="adm-cat__pega" title={t('adm_cat_mover')}
-              onMouseDown={() => setPronto(m.id)}
-              onMouseUp={() => setPronto(null)}
+              className="adm-cat__pega" title={t('adm_cat_mover')} draggable
+              onDragStart={(e) => pegar(e, '', lista, m.id, linha.current)}
+              onDragEnd={largar}
             >{Ico.pega}</span>
             <span className="adm-cat__capa">
               <img src={m.capa} alt="" />
@@ -288,19 +325,16 @@ export default function AdminAulas({ aba }) {
             const n = numeros[a.id] || { vistas: 0, cima: 0, baixo: 0, com: 0 };
             const noAr = !!urlDoVideo(a.panda);
             return (
-              <div
-                className={'adm-cat__aula' + (fila?.movendo === a.id ? ' adm-cat__aula--movendo' : '')}
+              <Bloco
                 key={a.id}
-                draggable={pronto === a.id}
-                onDragStart={() => pegar(m.id, m.aulas.filter((x) => !x.removido), a.id)}
-                onDragOver={(e) => { if (fila?.pai === m.id) { e.preventDefault(); sobre(a.id); } }}
-                onDragEnd={soltar}
-                onDrop={(e) => { e.preventDefault(); soltar(); }}
-              >
+                className={'adm-cat__aula' + (arraste?.movendo === a.id ? ' adm-cat--movendo' : '') + marca(a.id)}
+                onDragOver={(e) => sobre(e, m.id, a.id)}
+                onDrop={(e) => soltar(e, m.id, a.id)}
+                render={(linha) => (<>
                 <span
-                  className="adm-cat__pega" title={t('adm_cat_mover')}
-                  onMouseDown={() => setPronto(a.id)}
-                  onMouseUp={() => setPronto(null)}
+                  className="adm-cat__pega" title={t('adm_cat_mover')} draggable
+                  onDragStart={(e) => pegar(e, m.id, m.aulas.filter((x) => !x.removido), a.id, linha.current)}
+                  onDragEnd={largar}
                 >{Ico.pega}</span>
                 <span className="adm-cat__n">{String(i + 1).padStart(2, '0')}</span>
                 <span className="adm-cat__nome">
@@ -336,7 +370,7 @@ export default function AdminAulas({ aba }) {
                 </span>
                 <button className="apr-bt apr-bt--so adm-cat__tira" title={t('adm_cat_remover')}
                         onClick={() => gravar(a.id, 'removido', '1')}>{Ico.x}</button>
-              </div>
+                </>)} />
             );
           })}
 
@@ -366,7 +400,7 @@ export default function AdminAulas({ aba }) {
               </button>
             </div>
           ))}
-        </div>
+          </>)} />
       ))}
     </>
   );
