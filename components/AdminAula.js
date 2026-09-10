@@ -13,11 +13,18 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { urlDoVideo } from '../lib/aulas';
+import { urlDoVideo, subirMaterial, urlDoMaterial } from '../lib/aulas';
 import { useIdioma, tOpt } from '../lib/i18n';
 
 const LARGURA_ASSINA = 1200;      // a assinatura é uma faixa larga e baixa
-const MAX_ARQUIVO = 8 * 1024 * 1024;
+const MAX_ARQUIVO = 8 * 1024 * 1024;    // imagem, que ainda passa por um canvas
+const TETO_MATERIAL = 100 * 1024 * 1024; // material de apoio, que vai inteiro
+
+function tamanhoLegivel(n) {
+  if (!n) return '';
+  if (n < 1024 * 1024) return Math.max(1, Math.round(n / 1024)) + ' KB';
+  return (n / 1024 / 1024).toFixed(1).replace('.', ',') + ' MB';
+}
 
 const Ico = {
   esq: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 6L9 12l5.5 6" /></svg>),
@@ -25,6 +32,8 @@ const Ico = {
   elo: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13.5a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1.5 1.5" /><path d="M14 10.5a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1.5-1.5" /></svg>),
   imagem: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="3" /><circle cx="8.5" cy="10" r="1.6" /><path d="M4 17l4.5-4.5 3.5 3.5 3-2.5L20 18" /></svg>),
   troca: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9h11a4.5 4.5 0 0 1 0 9h-3" /><path d="M7.5 5.5L4 9l3.5 3.5" /></svg>),
+  arquivo: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13.5 3.5H7A2 2 0 0 0 5 5.5v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9z" /><path d="M13.5 3.5V9H19" /></svg>),
+  sobe: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16V4.5" /><path d="M7.5 9L12 4.5 16.5 9" /><path d="M4.5 16v2.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V16" /></svg>),
   mais: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"><path d="M12 5.5v13M5.5 12h13" /></svg>),
   x: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" /></svg>),
 };
@@ -244,16 +253,54 @@ function Materiais({ lista, onSalvar, t }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lista]);
 
+  const escolher = useRef(null);
+  const [subindo, setSubindo] = useState(false);
+  const [erro, setErro] = useState('');
+
   function aplicar(nova) {
     setLocais(nova);
-    onSalvar(nova.filter((m) => m.nome || m.link));
+    onSalvar(nova.filter((m) => m.nome || m.link || m.chave));
   }
   function trocar(i, campo, v) {
     aplicar(locais.map((m, j) => (j === i ? { ...m, [campo]: v } : m)));
   }
+
+  /* O arquivo vai inteiro para o R2, e o que fica guardado aqui é a chave dele.
+     Qualquer formato serve, porque quem estuda só baixa: imagem, PDF, zip,
+     .rbz, .skp. */
+  async function enviar(e) {
+    const f = e.target.files?.[0];
+    e.target.value = '';
+    if (!f) return;
+    if (f.size > TETO_MATERIAL) { setErro(t('adm_au_mat_grande')); return; }
+    setErro(''); setSubindo(true);
+    try {
+      const d = await subirMaterial(f);
+      aplicar([...locais, { nome: f.name, chave: d.chave, tamanho: d.tamanho, link: '' }]);
+    } catch (err) {
+      setErro(err.message);
+    }
+    setSubindo(false);
+  }
+
   return (
     <div className="adm-au__mat">
+      <input ref={escolher} type="file" hidden onChange={enviar} />
       {locais.map((m, i) => (
+        m.chave ? (
+          /* O que subiu não se edita: ele é um arquivo, e o que se pode fazer
+             com ele é tirar. Trocar é subir outro. */
+          <div className="adm-au__mat-item" key={i}>
+            <span className="adm-au__mat-ico">{Ico.arquivo}</span>
+            <span className="adm-au__mat-txt">
+              <a className="adm-au__mat-nome" href={urlDoMaterial(m.chave)}
+                 target="_blank" rel="noopener noreferrer">{m.nome}</a>
+              <span className="adm-au__mat-peso">{tamanhoLegivel(m.tamanho)}</span>
+            </span>
+            <button className="apr-bt apr-bt--so" data-dica={t('adm_au_mat_tira')}
+                    onClick={() => aplicar(locais.filter((_, j) => j !== i))}>{Ico.x}</button>
+          </div>
+        ) : (
         <div className="adm-au__mat-item" key={i}>
           <span className="adm-au__mat-ico">{Ico.elo}</span>
           <span className="adm-au__mat-txt">
@@ -262,14 +309,22 @@ function Materiais({ lista, onSalvar, t }) {
             <Campo mono valor={m.link} placeholder={t('adm_au_mat_link')}
                    onSalvar={(v) => trocar(i, 'link', v)} />
           </span>
-          <button className="apr-bt apr-bt--so" title={t('adm_au_mat_tira')}
+          <button className="apr-bt apr-bt--so" data-dica={t('adm_au_mat_tira')}
                   onClick={() => aplicar(locais.filter((_, j) => j !== i))}>{Ico.x}</button>
         </div>
+        )
       ))}
-      <button className="adm-au__mais"
-              onClick={() => setLocais([...locais, { nome: '', link: '' }])}>
-        {Ico.mais}{t('adm_au_mat_novo')}
-      </button>
+      {erro && <p className="adm-au__erro">{erro}</p>}
+      <span className="adm-au__mat-bts">
+        <button className="adm-au__mais" disabled={subindo}
+                onClick={() => escolher.current?.click()}>
+          {Ico.sobe}{subindo ? t('adm_au_mat_subindo') : t('adm_au_mat_arquivo')}
+        </button>
+        <button className="adm-au__mais"
+                onClick={() => setLocais([...locais, { nome: '', link: '' }])}>
+          {Ico.elo}{t('adm_au_mat_novo')}
+        </button>
+      </span>
     </div>
   );
 }

@@ -78,7 +78,7 @@ function Campo({ valor, original, onSalvar, placeholder, largo }) {
         style={largo ? { fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 11.5 } : undefined}
       />
       {original != null && (
-        <button className="apr-bt apr-bt--so" title="Voltar ao original"
+        <button className="apr-bt apr-bt--so" data-dica="Voltar ao original"
                 onClick={() => onSalvar('')}>{Ico.volta}</button>
       )}
     </span>
@@ -426,12 +426,12 @@ export default function AdminAulas({ aba }) {
           render={(linha) => (<>
           <div className="adm-cat__mod">
             <span
-              className="adm-cat__pega" title={t('adm_cat_mover')} draggable
+              className="adm-cat__pega" data-dica={t('adm_cat_mover')} draggable
               onDragStart={(e) => pegar(e, '', lista, m.id, linha.current)}
               onDragEnd={largar}
             >{Ico.pega}</span>
             <button className={'adm-cat__dobra' + (fechados[m.id] ? ' adm-cat__dobra--off' : '')}
-                    title={fechados[m.id] ? t('adm_cat_abrir') : t('adm_cat_fechar')}
+                    data-dica={fechados[m.id] ? t('adm_cat_abrir') : t('adm_cat_fechar')}
                     onClick={() => setFechados((f) => ({ ...f, [m.id]: !f[m.id] }))}>
               {Ico.seta}
             </button>
@@ -490,7 +490,7 @@ export default function AdminAulas({ aba }) {
                 onDrop={(e) => soltar(e, m.id, a.id)}
                 render={(linha) => (<>
                 <span
-                  className="adm-cat__pega" title={t('adm_cat_mover')} draggable
+                  className="adm-cat__pega" data-dica={t('adm_cat_mover')} draggable
                   onDragStart={(e) => pegar(e, m.id, m.aulas.filter((x) => !x.removido), a.id, linha.current)}
                   onDragEnd={largar}
                 >{Ico.pega}</span>
@@ -511,9 +511,9 @@ export default function AdminAulas({ aba }) {
                   <span>{Ico.balao}{n.com}</span>
                 </span>
                 <Estado valor={a.estado} t={t} onTrocar={(e) => gravar(a.id, 'estado', e)} />
-                <button className="apr-bt apr-bt--so adm-cat__tira" title={t('adm_cat_remover')}
+                <button className="apr-bt apr-bt--so adm-cat__tira" data-dica={t('adm_cat_remover')}
                         onClick={() => gravar(a.id, 'removido', '1')}>{Ico.x}</button>
-                <button className="apr-bt apr-bt--so" title={t('adm_cat_editar')}
+                <button className="apr-bt apr-bt--so" data-dica={t('adm_cat_editar')} data-dica-fim=""
                         onClick={() => setAulaAberta(a.id)}>{Ico.dir}</button>
                 </>)} />
             );

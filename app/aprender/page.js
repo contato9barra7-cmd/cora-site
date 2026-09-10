@@ -24,10 +24,16 @@ import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import { lerConta, atualizarConta } from '../../lib/auth';
 import {
-  contarAulas, urlDoVideo, temEtiqueta, podeAbrir, comCatalogo, lerCatalogo,
+  contarAulas, urlDoVideo, urlDoMaterial, temEtiqueta, podeAbrir, comCatalogo, lerCatalogo,
   lerEstadoAulas, marcarVisto, votar, lerComentarios, comentar,
 } from '../../lib/aulas';
 import { useIdioma, tOpt } from '../../lib/i18n';
+
+function tamanhoLegivel(n) {
+  if (!n) return '';
+  if (n < 1024 * 1024) return Math.max(1, Math.round(n / 1024)) + ' KB';
+  return (n / 1024 / 1024).toFixed(1).replace('.', ',') + ' MB';
+}
 
 const Ico = {
   baixar: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 4.5V15" /><path d="M7.5 10.5L12 15l4.5-4.5" /><path d="M4.5 16v2.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V16" /></svg>),
@@ -408,12 +414,17 @@ export default function Aprender() {
                   <div className="apr-mat">
                     <h2>{t('apr_material')}</h2>
                     {aula.materiais.map((m, i) => (
-                      <a key={i} className="apr-mat__item" href={m.link}
+                      /* Arquivo que subiu para o R2 e link de fora moram na
+                         mesma lista: para quem estuda os dois são a mesma
+                         coisa, algo para baixar ou abrir. O que muda é o
+                         endereço e a linha de baixo. */
+                      <a key={i} className="apr-mat__item"
+                         href={m.chave ? urlDoMaterial(m.chave) : m.link}
                          target="_blank" rel="noopener noreferrer">
                         <span className="apr-mat__ico">{Ico.baixar}</span>
                         <span className="apr-mat__txt">
                           <b>{m.nome || m.link}</b>
-                          {m.nome && <span>{m.link}</span>}
+                          <span>{m.chave ? tamanhoLegivel(m.tamanho) : m.link}</span>
                         </span>
                       </a>
                     ))}

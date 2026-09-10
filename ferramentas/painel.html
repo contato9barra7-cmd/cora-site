@@ -2111,15 +2111,22 @@
 .adm-au__barra svg{ width:16px; height:16px; stroke:currentColor; fill:none; }
 .adm-au__barra hr{ width:1px; height:18px; margin:6px 4px; border:0; background:var(--line2); }
 .adm-au__barra u{ text-decoration:none; border-bottom:1.5px solid currentColor; }
-/* A dica no hover, desenhada: o `title` do navegador demora um segundo e some
-   sozinho, e numa barra de sete desenhos a resposta precisa vir na hora. */
-.adm-au__barra button::after{
+/* ── A DICA DA CASA ──
+   O `title` do navegador e uma caixa branca do sistema operacional, com a fonte
+   dele e o tempo dele: ela demora quase um segundo, some sozinha e nao se
+   parece com nada do resto da tela. Esta e desenhada, aparece na hora e usa a
+   tinta e a fonte da marca. Vale para qualquer botao com `data-dica`. */
+[data-dica]{ position:relative; }
+[data-dica]::after{
   content:attr(data-dica); position:absolute; top:calc(100% + 7px); left:50%;
-  transform:translateX(-50%); padding:5px 9px; border-radius:8px; background:var(--ink);
-  color:var(--paper); font-size:11px; font-weight:500; letter-spacing:0; text-transform:none;
-  white-space:nowrap; opacity:0; pointer-events:none; transition:opacity var(--t); z-index:3;
+  transform:translateX(-50%); padding:5px 10px; border-radius:8px; background:var(--ink);
+  color:var(--paper); font-family:var(--fonte); font-size:11px; font-weight:500;
+  letter-spacing:0; line-height:1.3; text-transform:none; white-space:nowrap;
+  opacity:0; pointer-events:none; transition:opacity var(--t); z-index:20;
 }
-.adm-au__barra button:hover::after{ opacity:1; }
+[data-dica]:hover::after{ opacity:1; }
+/* Na beirada direita da tela ela cabe puxada para dentro. */
+[data-dica-fim]::after{ left:auto; right:0; transform:none; }
 .adm-au__campo--rico{ min-height:220px; border:0; border-radius:0; }
 .adm-au__campo--rico:empty::before{ content:attr(data-vazio); color:var(--ink3); }
 .adm-au__campo--rico img{ max-width:100%; height:auto; border-radius:var(--r-peq); margin:8px 0; }
@@ -2172,6 +2179,15 @@
   font-weight:600; cursor:pointer; transition:color var(--t), border-color var(--t);
 }
 .adm-au__mais:hover{ color:var(--ink); border-color:var(--line2); }
+.adm-au__mais:disabled{ color:var(--ink3); cursor:default; }
+.adm-au__mat-bts{ display:flex; gap:8px; flex-wrap:wrap; }
+.adm-au__mat-nome{ display:block; font-size:var(--t-apoio); font-weight:600; color:var(--ink);
+  text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.adm-au__mat-nome:hover{ text-decoration:underline; text-underline-offset:3px; }
+.adm-au__mat-peso{ display:block; margin-top:1px; font-size:var(--t-etiqueta); color:var(--ink3);
+  font-variant-numeric:tabular-nums; }
+.adm-au__erro{ margin:0; padding:9px 13px; border-radius:var(--r-peq);
+  background:#FDECEA; color:#B3261E; font-size:var(--t-apoio2); }
 .adm-au__mais svg{ width:14px; height:14px; stroke:currentColor; fill:none; }
 
 /* o interruptor da assinatura */
