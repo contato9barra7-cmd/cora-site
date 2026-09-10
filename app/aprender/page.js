@@ -266,22 +266,32 @@ export default function Aprender() {
 
         {/* ── 2. AS AULAS DO MÓDULO ── */}
         {modulo && !aula && (
+          /* UMA COLUNA SÓ, e a ordem é a de quem chega: que módulo é este,
+             como ele se chama, a arte dele, onde eu parei e o que eu faço
+             agora. A lista vem depois do botão porque ela é a segunda
+             pergunta, e não a primeira.
+
+             Antes isto eram duas colunas, com a capa à esquerda e as aulas à
+             direita. Ali o número de aulas mandava no desenho: no módulo de
+             três a coluna da esquerda sobrava, no de nove a lista descia
+             sozinha do lado dela. Empilhado, três ou nove só deixam a página
+             mais curta ou mais longa. */
           <div className="apr-mtela">
-            <button className="apr-volta apr-volta--topo" onClick={() => setModId(null)}>
+            <button className="apr-volta" onClick={() => setModId(null)}>
               {Ico.esq}{t('apr_voltar_mod')}
             </button>
 
-            {/* A capa deitada e o que ela precisa em volta.
-                Uma imagem sozinha à esquerda lê como metade de alguma coisa, e
-                aí qualquer sobra de altura vira erro de encaixe. Com o
-                progresso e o botão embaixo, ela vira uma coluna de verdade, e
-                a lista do lado pode ser mais curta ou mais longa sem estranhar.
-                De quebra a tela ganha a ação que faltava: quem abre um módulo
-                pela metade não precisa mais caçar na lista onde parou. */}
-            <div className="apr-mcol">
-              <img className="apr-mcapa" src={modulo.capaH || modulo.capa} alt=""
-                   width="1168" height="668" />
-              <div className="apr-mprog">
+            <p className="apr-molho">{t('apr_modulo')} {modulo.id} · {quantas(modulo.aulas.length)}</p>
+            <h1 className="apr-mtit">{tOpt(modulo.titulo)}</h1>
+
+            <img className="apr-mcapa" src={modulo.capaH || modulo.capa} alt=""
+                 width="1168" height="668" />
+
+            {/* O progresso e o botão dividem uma linha só: são a mesma frase,
+                onde eu parei e o que eu faço com isso. Em duas linhas o botão
+                descia para longe do número que o justifica. */}
+            <div className="apr-mlinha">
+              <span className="apr-mprog">
                 {/* Sem número dentro: quem conta é o texto ao lado, e dois
                     números dizendo a mesma coisa em 34px brigariam. */}
                 <Anel dentro="" pct={Math.round((vistasDo(modulo) / modulo.aulas.length) * 100)} tam={34} />
@@ -289,7 +299,7 @@ export default function Aprender() {
                   <b>{vistasDo(modulo)} {t('apr_de')} {modulo.aulas.length}</b>
                   <em>{t('apr_assistidas')}</em>
                 </span>
-              </div>
+              </span>
               <button className="apr-mcta" disabled={!proximaDoModulo(modulo)}
                       onClick={() => { const p = proximaDoModulo(modulo); if (p) abrirAula(p.id, modulo.id); }}>
                 {!proximaDoModulo(modulo) ? t('apr_mod_pronto')
@@ -298,19 +308,15 @@ export default function Aprender() {
               </button>
             </div>
 
-            <div className="apr-mlado">
-              <p className="apr-molho">{t('apr_modulo')} {modulo.id} · {quantas(modulo.aulas.length)}</p>
-              <h1 className="apr-mtit">{tOpt(modulo.titulo)}</h1>
-              <div className="apr-lista">
-                {modulo.aulas.map((a, i) => (
-                  <button key={a.id} className="apr-aula" onClick={() => abrirAula(a.id, modulo.id)}>
-                    <span className="apr-aula__n">{String(i + 1).padStart(2, '0')}</span>
-                    <span className="apr-aula__t">{tOpt(a.titulo)}</span>
-                    {vistas.has(a.id) && <span className="apr-pip apr-pip--ok">{Ico.visto}</span>}
-                    {!urlDoVideo(a.panda) && <span className="apr-aula__tag">{t('apr_breve')}</span>}
-                  </button>
-                ))}
-              </div>
+            <div className="apr-lista">
+              {modulo.aulas.map((a, i) => (
+                <button key={a.id} className="apr-aula" onClick={() => abrirAula(a.id, modulo.id)}>
+                  <span className="apr-aula__n">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="apr-aula__t">{tOpt(a.titulo)}</span>
+                  {vistas.has(a.id) && <span className="apr-pip apr-pip--ok">{Ico.visto}</span>}
+                  {!urlDoVideo(a.panda) && <span className="apr-aula__tag">{t('apr_breve')}</span>}
+                </button>
+              ))}
             </div>
           </div>
         )}

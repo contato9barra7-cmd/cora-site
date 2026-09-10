@@ -1392,31 +1392,37 @@
   background:var(--paper); color:var(--ink2); font-size:var(--t-apoio); font-weight:600;
   cursor:pointer; transition:color var(--t), border-color var(--t);
 }.pn .apr-volta:hover{ color:var(--ink); border-color:var(--line2); }.pn .apr-volta svg{ width:14px; height:14px; }/* ── A TELA DO MÓDULO ──
-   Duas colunas: a capa deitada à esquerda e a lista de aulas à direita.
+   UMA COLUNA SÓ, e a ordem é a de quem chega: que módulo é este, como ele se
+   chama, a arte dele, onde eu parei e o que eu faço agora. A lista vem depois
+   do botão porque ela é a segunda pergunta, e não a primeira.
 
-   A capa aqui é a versão HORIZONTAL da arte, e não o cartaz em pé recortado.
-   Em pé ela media 455px de altura e o desenho ficava refém disso: no módulo de
-   cinco aulas ela sobrava, no de nove a lista descia sozinha do lado dela.
+   A capa é a versão HORIZONTAL da arte, e não o cartaz em pé. Este desenho já
+   foi duas colunas com a capa à esquerda, e ali o número de aulas mandava na
+   página: no módulo de três a coluna da esquerda sobrava, no de nove a lista
+   descia sozinha do lado dela. Empilhado, três ou nove só deixam a página mais
+   curta ou mais longa.
 
-   E a coluna da esquerda não é só a imagem. Uma imagem sozinha lê como metade
-   de alguma coisa, e aí qualquer sobra de altura vira erro de encaixe. Com o
-   progresso e o botão embaixo, ela vira uma coluna de verdade, e as duas podem
-   terminar em alturas diferentes sem estranhar, que é o que acontece em
-   qualquer página com barra lateral. */.pn .apr-mtela{
-  display:grid; grid-template-columns:400px 1fr; gap:32px;
-  align-items:start; max-width:1000px; margin:0 auto;
-}.pn .apr-volta--topo{ grid-column:1 / -1; justify-self:start; }.pn .apr-mcol{ display:flex; flex-direction:column; gap:16px; }.pn .apr-mcapa{
-  display:block; width:100%; height:auto; aspect-ratio:1168/668; object-fit:cover;
-  border-radius:var(--r); border:1px solid var(--line);
+   A capa para em 720 e não acompanha a coluna. Na largura toda ela daria 900
+   por 515 e a primeira aula cairia a 741px do topo, fora da tela: quem abrisse
+   o módulo veria a arte e mais nada. Em 720 ela dá 412 de altura e a primeira
+   aula sobe para 638, que cabe numa janela de 900. */.pn .apr-mtela{ max-width:900px; margin:0 auto; }.pn .apr-mcapa{
+  display:block; width:100%; max-width:720px; height:auto; aspect-ratio:1168/668;
+  object-fit:cover; border-radius:var(--r); border:1px solid var(--line);
+}.pn .apr-molho{ margin:0; line-height:1; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }.pn .apr-mtit{ margin:8px 0 20px; font-size:clamp(24px,2.6vw,34px); font-weight:500;
+  letter-spacing:-.028em; line-height:1.1; text-wrap:balance; }/* O progresso e o botão dividem uma linha só: são a mesma frase, onde eu parei
+   e o que eu faço com isso. */.pn .apr-mlinha{
+  display:flex; align-items:center; justify-content:space-between; gap:20px;
+  flex-wrap:wrap; margin:18px 0 26px;
 }.pn .apr-mprog{ display:flex; align-items:center; gap:11px; }.pn .apr-mprog > span{ display:block; line-height:1.2; }.pn .apr-mprog b{ display:block; font-size:var(--t-apoio); font-weight:600; color:var(--ink);
-  font-variant-numeric:tabular-nums; }.pn .apr-mprog em{ display:block; font-style:normal; font-size:var(--t-apoio2); color:var(--ink3); }.pn .apr-mcta{
-  width:100%; height:46px; border:0; border-radius:var(--pill); background:var(--ink);
-  color:var(--paper); font-family:inherit; font-size:var(--t-apoio); font-weight:600;
-  cursor:pointer; transition:opacity var(--t);
-}.pn .apr-mcta:hover{ opacity:.86; }.pn .apr-mcta:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }.pn .apr-mlado{ min-width:0; }.pn .apr-molho{ margin:0; line-height:1; font-size:var(--t-etiqueta); font-weight:700;
-  letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }.pn .apr-mtit{ margin:8px 0 22px; font-size:clamp(22px,2.3vw,30px); font-weight:500;
-  letter-spacing:-.028em; line-height:1.12; text-wrap:balance; }
-@media (max-width: 900px){.pn .apr-mtela{ grid-template-columns:1fr; gap:22px; }}/* O vão de 6px virava 11px na tela: o olho tem 11px de corpo com a entrelinha
+  font-variant-numeric:tabular-nums; }.pn .apr-mprog em{ display:block; font-style:normal; font-size:var(--t-apoio2); color:var(--ink3); }/* O botão mede o que o texto dele pede, e não a largura da coluna: um botão de
+   900px deixa de parecer botão e vira faixa. O piso de 260 é para o rótulo não
+   dançar entre "Começar o módulo" e "Continuar de onde parei". */.pn .apr-mcta{
+  flex:none; min-width:260px; height:48px; padding:0 28px; border:0; border-radius:var(--pill);
+  background:var(--ink); color:var(--paper); font-family:inherit; font-size:var(--t-apoio);
+  font-weight:600; cursor:pointer; transition:opacity var(--t);
+}.pn .apr-mcta:hover{ opacity:.86; }.pn .apr-mcta:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+@media (max-width: 620px){.pn .apr-mcta{ width:100%; min-width:0; }}/* O vão de 6px virava 11px na tela: o olho tem 11px de corpo com a entrelinha
    padrão, e a meia entrelinha de sobra soma com a do título. `line-height:1`
    no olho e margem zero no título deixam os dois no vão que se vê. */.pn .apr-mcab h1{
   margin:2px 0 0; font-size:clamp(21px,2.1vw,28px); font-weight:500;
