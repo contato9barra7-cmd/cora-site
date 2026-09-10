@@ -24,7 +24,7 @@ import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import { lerConta, atualizarConta } from '../../lib/auth';
 import {
-  contarAulas, urlDoVideo, comCatalogo, lerCatalogo,
+  contarAulas, urlDoVideo, temEtiqueta, podeAbrir, comCatalogo, lerCatalogo,
   lerEstadoAulas, marcarVisto, votar, lerComentarios, comentar,
 } from '../../lib/aulas';
 import { useIdioma, tOpt } from '../../lib/i18n';
@@ -188,7 +188,9 @@ export default function Aprender() {
      abre, e é ele que decide se o rótulo diz começar ou continuar. Nulo quando
      o módulo acabou. */
   const proximaDoModulo = useCallback(
-    (m) => m.aulas.find((a) => !vistas.has(a.id)) || null,
+    /* Só entra na conta o que dá para abrir: mandar alguém para uma aula em
+       breve seria abrir uma porta que não existe. */
+    (m) => m.aulas.find((a) => !vistas.has(a.id) && podeAbrir(a)) || null,
     [vistas]
   );
 
@@ -314,7 +316,7 @@ export default function Aprender() {
                   <span className="apr-aula__n">{String(i + 1).padStart(2, '0')}</span>
                   <span className="apr-aula__t">{tOpt(a.titulo)}</span>
                   {vistas.has(a.id) && <span className="apr-pip apr-pip--ok">{Ico.visto}</span>}
-                  {!urlDoVideo(a.panda) && <span className="apr-aula__tag">{t('apr_breve')}</span>}
+                  {temEtiqueta(a) && <span className="apr-aula__tag">{t('apr_breve')}</span>}
                 </button>
               ))}
             </div>
@@ -350,7 +352,7 @@ export default function Aprender() {
 
               <div>
                 <div className="apr-palco__quadro">
-                  {urlDoVideo(aula.panda) ? (
+                  {podeAbrir(aula) ? (
                     <iframe
                       src={urlDoVideo(aula.panda)}
                       title={tOpt(aula.titulo)}

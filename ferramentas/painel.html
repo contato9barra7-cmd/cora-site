@@ -1992,8 +1992,14 @@
 /* ══════════════════════════════════════════════════════════════════════
    ADMIN · AULAS: o catalogo e o progresso
    ══════════════════════════════════════════════════════════════════════ */
+/* Sem `overflow:hidden`: ele recortava o menu do estado, que sai por baixo da
+   linha da aula, e a ultima aula do modulo perdia metade dele. Quem arredonda
+   o pe do cartao agora sao as pecas de baixo, que e o unico lugar onde o
+   recorte fazia falta. */
 .adm-cat{ margin-bottom:18px; border:1px solid var(--line); border-radius:var(--r);
-  background:var(--paper); overflow:hidden; }
+  background:var(--paper); }
+.adm-cat > :first-child{ border-radius:var(--r) var(--r) 0 0; }
+.adm-cat > :last-child{ border-radius:0 0 var(--r) var(--r); }
 /* A alça. Ela não some no hover porque a linha tem quatro campos e dois
    botões: um alvo que só aparece quando o mouse chega perto vira caça ao
    tesouro numa lista de trinta e três. */
@@ -2046,6 +2052,43 @@
 .adm-cat__tira:hover{ color:#B3261E; border-color:#B3261E; }
 .adm-cat__pe{ display:flex; gap:14px; align-items:center; padding:10px 18px; border-top:1px solid var(--line); }
 .adm-cat__barra{ display:flex; gap:14px; align-items:center; margin-bottom:14px; }
+
+/* ── O ESTADO ──
+   Um seletor, e nao tres interruptores: os tres estados se excluem. A pastilha
+   fica na propria linha e troca com dois cliques, porque publicar e o gesto
+   mais repetido de todos. */
+.adm-est-wrap{ position:relative; display:inline-block; flex:none; }
+.adm-est{
+  display:inline-flex; align-items:center; gap:6px; height:30px; padding:0 11px;
+  border:1px solid transparent; border-radius:var(--pill); font-family:inherit;
+  font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.05em;
+  text-transform:uppercase; cursor:pointer; white-space:nowrap;
+}
+.adm-est svg{ width:12px; height:12px; }
+.adm-est svg:last-child{ width:11px; height:11px; opacity:.65; }
+.adm-est--no{ background:var(--turq-bg); color:var(--turq-txt); }
+.adm-est--ras{ background:#FDF3EA; color:#8A5518; border-color:#F0C9A8; }
+.adm-est--br{ background:var(--wash2); color:var(--ink2); }
+.adm-est-menu{
+  position:absolute; top:36px; right:0; z-index:6; width:288px; padding:6px;
+  background:var(--paper); border:1px solid var(--line); border-radius:14px;
+  box-shadow:0 12px 32px rgba(17,17,17,.12);
+}
+.adm-est-op{
+  display:flex; align-items:center; gap:11px; width:100%; padding:9px 10px; border:0;
+  border-radius:10px; background:none; font:inherit; text-align:left; cursor:pointer;
+}
+.adm-est-op:hover{ background:var(--wash); }
+.adm-est-op--on{ background:var(--wash2); }
+.adm-est-op__ico{ flex:none; display:grid; place-items:center; width:28px; height:28px;
+  border-radius:50%; }
+.adm-est-op__ico svg{ width:14px; height:14px; }
+.adm-est-op b{ display:block; font-size:var(--t-apoio); font-weight:600; color:var(--ink); }
+.adm-est-op em{ display:block; font-style:normal; font-size:var(--t-etiqueta);
+  color:var(--ink3); margin-top:1px; line-height:1.3; }
+/* O modulo em rascunho se ve de longe: com sete na tela, achar o que ainda nao
+   subiu nao pode depender de ler sete pastilhas. */
+.adm-cat:has(.adm-cat__mod .adm-est--ras){ border-style:dashed; border-color:#F0C9A8; }
 /* A seta que dobra o módulo. Ela fica junto da alça, no canto de cima, porque
    as duas fazem a mesma coisa: mexer no módulo inteiro, e não no que tem
    dentro dele. */

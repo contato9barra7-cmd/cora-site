@@ -16,9 +16,9 @@ const fonte = fs.readFileSync(path.join(__dirname, 'lib', 'aulas.js'), 'utf8')
   .replace(/^import [^;]+;$/gm, '')
   .replace(/\bexport /g, '');
 
-const { MODULOS, comCatalogo, contarAulas } = new Function(
+const { MODULOS, comCatalogo, contarAulas, temEtiqueta, podeAbrir } = new Function(
   'registrarOpcoes',
-  `${fonte}\n return { MODULOS, comCatalogo, contarAulas };`
+  `${fonte}\n return { MODULOS, comCatalogo, contarAulas, temEtiqueta, podeAbrir };`
 )(() => {});
 
 let falhas = 0;
@@ -81,6 +81,29 @@ e('e o total cai junto', contarAulas(l) === 32);
 l = comCatalogo({ '00-03': { removido: true } }, true);
 e('mas o admin continua vendo ela', l[0].aulas.length === 5);
 e('marcada como removida', l[0].aulas[2].removido === true);
+
+// ── os três estados ──
+l = comCatalogo({ '00-02': { estado: 'rascunho' } });
+e('a aula em rascunho some para quem estuda', l[0].aulas.length === 4);
+e('e a numeração fecha em cima dela', ids(l[0].aulas) === '00-01,00-03,00-04,00-05');
+l = comCatalogo({ '00-02': { estado: 'rascunho' } }, true);
+e('mas o admin continua vendo', l[0].aulas.length === 5);
+e('marcada com o estado', l[0].aulas[1].estado === 'rascunho');
+l = comCatalogo({ '00-02': { estado: 'breve' } });
+e('a aula em breve continua na lista', l[0].aulas.length === 5);
+e('sem estado gravado, a aula está no ar', l[0].aulas[0].estado === 'no_ar');
+l = comCatalogo({ '01': { estado: 'rascunho' } });
+e('módulo em rascunho some da fila', l.length === 6);
+e('e leva as aulas dele junto', contarAulas(l) === 24);
+l = comCatalogo({ '01': { estado: 'rascunho' } }, true);
+e('o admin vê o módulo em rascunho', l.length === 7);
+l = comCatalogo({ '01': { estado: 'breve' } });
+e('módulo em breve continua na fila', l.length === 7);
+e('a aula do arquivo com vídeo abre', podeAbrir(MODULOS[0].aulas[0]));
+e('a sem vídeo não abre', !podeAbrir(MODULOS[0].aulas[1]));
+e('e leva etiqueta', temEtiqueta(MODULOS[0].aulas[1]));
+e('a com vídeo em breve não abre', !podeAbrir({ panda: MODULOS[0].aulas[0].panda, estado: 'breve' }));
+e('e leva etiqueta também', temEtiqueta({ panda: MODULOS[0].aulas[0].panda, estado: 'breve' }));
 
 // ── ordem ──
 l = comCatalogo({

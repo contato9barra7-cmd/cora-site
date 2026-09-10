@@ -23,7 +23,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   MODULOS, comCatalogo, contarAulas, urlDoVideo, lerPainelAulas, salvarCatalogo,
-  criarAula, criarModulo, salvarOrdem,
+  criarAula, criarModulo, publicarModulo, salvarOrdem,
 } from '../lib/aulas';
 import { useIdioma, tOpt } from '../lib/i18n';
 
@@ -39,6 +39,9 @@ const Ico = {
   olho: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" /><circle cx="12" cy="12" r="3" /></svg>),
   cima: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10.5v9H4.5a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z" /><path d="M7 10.5l4-6.5a2 2 0 0 1 2.9 2.4l-1 3.6h4.7a2 2 0 0 1 2 2.4l-1.2 6a2 2 0 0 1-2 1.6H7z" /></svg>),
   baixo: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M7 13.5v-9H4.5a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1z" /><path d="M7 13.5l4 6.5a2 2 0 0 0 2.9-2.4l-1-3.6h4.7a2 2 0 0 0 2-2.4l-1.2-6a2 2 0 0 0-2-1.6H7z" /></svg>),
+  noAr: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M8.5 12.3l2.5 2.5 4.5-5" /></svg>),
+  rascunho: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9" strokeDasharray="3 3" /></svg>),
+  relogio: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7.5V12l3 2" /></svg>),
   seta: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9.5l6 6 6-6" /></svg>),
   dobrar: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12h16" /><path d="M9 7.5L12 4.5l3 3" /><path d="M9 16.5l3 3 3-3" /></svg>),
   mais: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"><path d="M12 5.5v13M5.5 12h13" /></svg>),
@@ -89,6 +92,47 @@ function Bloco({ className, onDragOver, onDrop, render }) {
     <div ref={eu} className={className} onDragOver={onDragOver} onDrop={onDrop}>
       {render(eu)}
     </div>
+  );
+}
+
+/* Os tres estados. Um so vale por vez, e por isso e um seletor e nao tres
+   interruptores: nao existe aula publicada E em rascunho.
+
+   'no_ar' e o padrao, e quem esta nele nao guarda linha no banco: sem estado
+   gravado a aula ja esta no ar. Isso e o que faz as 33 do arquivo aparecerem
+   sem uma linha cada. */
+const ESTADOS = ['no_ar', 'rascunho', 'breve'];
+const CLASSE = { no_ar: 'adm-est--no', rascunho: 'adm-est--ras', breve: 'adm-est--br' };
+const DESENHO = { no_ar: 'noAr', rascunho: 'rascunho', breve: 'relogio' };
+
+function Estado({ valor, onTrocar, t }) {
+  const [aberto, setAberto] = useState(false);
+  const eu = useRef(null);
+
+  useEffect(() => {
+    if (!aberto) return undefined;
+    function fora(ev) { if (eu.current && !eu.current.contains(ev.target)) setAberto(false); }
+    document.addEventListener('mousedown', fora);
+    return () => document.removeEventListener('mousedown', fora);
+  }, [aberto]);
+
+  return (
+    <span className="adm-est-wrap" ref={eu}>
+      <button className={'adm-est ' + CLASSE[valor]} onClick={() => setAberto((a) => !a)}>
+        {Ico[DESENHO[valor]]}{t('adm_est_' + valor)}{Ico.seta}
+      </button>
+      {aberto && (
+        <span className="adm-est-menu">
+          {ESTADOS.map((e) => (
+            <button key={e} className={'adm-est-op' + (e === valor ? ' adm-est-op--on' : '')}
+                    onClick={() => { setAberto(false); if (e !== valor) onTrocar(e); }}>
+              <span className={'adm-est-op__ico ' + CLASSE[e]}>{Ico[DESENHO[e]]}</span>
+              <span><b>{t('adm_est_' + e)}</b><em>{t('adm_est_' + e + '_q')}</em></span>
+            </button>
+          ))}
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -155,6 +199,16 @@ export default function AdminAulas({ aba }) {
 
   /* O módulo novo nasce vazio: sem nome, sem capa e sem aula. Ele entra no fim
      da fila e o resto chega por onde já chegava, campo a campo. */
+  /* O módulo e todas as aulas dele de uma vez. Um módulo de nove aulas prontas
+     seriam dez idas ao servidor sem isto, e dez chances de parar no meio com
+     metade publicada. */
+  async function publicarTudo(id) {
+    try {
+      const d = await publicarModulo(id);
+      if (d?.catalogo) setCat(d.catalogo);
+    } catch (e) {}
+  }
+
   async function novoModulo() {
     const d = await criarModulo();
     if (d?.id) {
@@ -361,6 +415,7 @@ export default function AdminAulas({ aba }) {
                 : <span className="adm-cat__semcapa" />}
               <button onClick={() => trocarCapa(m.id, 'capah')}>{t('adm_cat_capa_h')}</button>
             </span>
+            <Estado valor={m.estado} t={t} onTrocar={(e) => gravar(m.id, 'estado', e)} />
             <span className="adm-cat__txt">
               <p className="adm-cat__olho">
                 {t('apr_modulo')} {m.numero || m.id} · {m.aulas.length} {t('apr_aulas')}
@@ -424,9 +479,11 @@ export default function AdminAulas({ aba }) {
                   />
                 </span>
                 <span className="adm-cat__num">
-                  <span className={'apr-tag ' + (noAr ? 'apr-tag--dono' : 'apr-tag--espera')}>
-                    {noAr ? Ico.ok : null}{noAr ? t('adm_com_no_ar') : t('apr_breve')}
-                  </span>
+                  <Estado valor={a.estado} t={t} onTrocar={(e) => gravar(a.id, 'estado', e)} />
+                  {/* Ter vídeo é outra pergunta, e continua sendo mostrada: uma
+                      aula publicada sem link abre dizendo "em breve" para quem
+                      estuda, e é bom enxergar isso daqui. */}
+                  {!noAr && <span className="apr-tag apr-tag--espera">{t('adm_cat_sem_video')}</span>}
                   <span>{Ico.olho}{n.vistas}</span>
                   <span>{Ico.cima}{n.cima}</span>
                   <span>{Ico.baixo}{n.baixo}</span>
@@ -445,6 +502,11 @@ export default function AdminAulas({ aba }) {
             <button className="apr-bt apr-bt--txt" onClick={() => nova(m.id)}>
               {Ico.mais}{t('adm_cat_nova')}
             </button>
+            {m.aulas.some((a) => a.estado !== 'no_ar') && (
+              <button className="apr-bt apr-bt--txt" onClick={() => publicarTudo(m.id)}>
+                {Ico.noAr}{t('adm_cat_publicar_tudo')}
+              </button>
+            )}
             {m.aulas.some((a) => a.removido) && (
               <button className="apr-bt apr-bt--txt"
                       onClick={() => setAbrindo((o) => ({ ...o, [m.id]: !o[m.id] }))}>

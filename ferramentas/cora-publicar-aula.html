@@ -226,8 +226,12 @@ p.sec-p code, .legenda code{ font-family:ui-monospace,Menlo,monospace; font-size
 .aluno__l + .aluno__l{ margin-top:6px; }
 .aluno__l span:first-child{ width:20px; font-weight:700; color:var(--ink3); font-variant-numeric:tabular-nums; }
 .aluno__l b{ flex:1; font-weight:500; }
-/* A aula em breve o aluno VE, e nao abre. O cursor diz isso antes do clique. */
+/* A aula em breve o aluno VE, e nao abre. */
 .aluno__l--trava{ background:var(--wash); cursor:default; }
+/* A pastilha encolhe para caber na linha: no tamanho de acao ela empurrava a
+   altura e a aula em breve ficava mais alta que as vizinhas. Aqui ela nao e
+   acao nenhuma, e so um aviso. */
+.aluno__l .est{ height:22px; padding:0 9px; font-size:10px; }
 
 .legenda{ max-width:76ch; margin:16px 0 0; font-size:var(--t-apoio); color:var(--ink2); text-wrap:pretty; }
 .legenda b{ color:var(--ink); font-weight:600; }
