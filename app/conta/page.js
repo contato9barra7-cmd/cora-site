@@ -381,11 +381,11 @@ function ContaConteudo() {
         {quadro === 2 && (
           <div className="heroi heroi--entra" key="q2">
             {/* A coluna do IA Studio é um objeto, e não textura andando: a
-                outra marca se apresenta pelo símbolo dela. */}
+                outra marca se apresenta pelo balão da capa dela. Ele respira
+                em nove segundos e a cada sete e meio uma luz atravessa a
+                silhueta, como reflexo no alumínio. */}
             <div className="heroi__pad heroi__pad--ia" aria-hidden="true">
-              <span className="ia-anel" />
-              <span className="ia-anel ia-anel--2" />
-              <span className="ia-disco"><i /></span>
+              <span className="ia-balao"><span /><i /></span>
             </div>
             <div className="heroi__txt">
               <div className="heroi__marca heroi__marca--ia" role="img" aria-label="IA Studio" />

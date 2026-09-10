@@ -51,6 +51,7 @@
      convite e da coluna do quadro dele, longe do fio de lima da aba aberta. */
   --ia-lima:#DDFE6F;
   --ia-azul:#316CF6;
+  --balao:url('/img/ia/balao-ia.webp');
   --r:20px; --r-peq:12px; --r-heroi:22px; --pill:100px;
   /* O vidro das pastilhas que ficam EM CIMA da padronagem. Ele não muda
      no tema escuro: a lima e a turquesa da faixa também não mudam, e um
@@ -358,46 +359,44 @@
    impressão.
    ══════════════════════════════════════════════════════════════════════ */
 .app-convite{
-  display:block; margin:14px 0 4px; margin-top:auto; border:1px solid var(--line);
-  border-radius:var(--r-peq); overflow:hidden; background:var(--paper);
-  text-decoration:none; transition:border-color var(--t), box-shadow var(--t);
+  display:flex; align-items:stretch; height:40px; margin:14px 0 4px; margin-top:auto;
+  border:1px solid var(--line); border-radius:12px; overflow:hidden;
+  background:var(--paper); text-decoration:none;
+  transition:border-color var(--t), box-shadow var(--t);
 }
 .app-convite:hover{ border-color:var(--line2); box-shadow:var(--sombra); }
-/* O balão encosta nos mesmos 12px em que o título e o link começam. Centrado
-   ele ficava sozinho num eixo que mais nada do cartão usa. */
-.app-convite__faixa{
-  display:block; height:62px;
-  background:var(--ia-lima) url('/img/ia/balao-ia.webp') no-repeat 12px center;
-  background-size:auto 50px;
+/* O bloco azul tem a largura da lateral recolhida. Quando a barra fecha, o
+   campo branco some e ele fica exatamente onde estava, sem pulo. */
+.app-convite__azul{
+  flex:none; display:grid; place-items:center; width:40px;
+  background:var(--ia-azul); border-radius:11px 0 0 11px;
 }
-.app-convite__txt{ display:block; padding:10px 12px 12px; }
-.app-convite__txt b{ display:block; font-size:var(--t-apoio2); font-weight:700; color:var(--ink); }
-/* Classe propria, e nao `.app-convite__txt span`: o link ali embaixo tambem e
-   um span, e um seletor de tipo aqui venceria o `inline-flex` dele por ter
-   uma especificidade a mais. */
-.app-convite__sub{
-  display:block; margin-top:3px; font-size:var(--t-etiqueta); line-height:1.4; color:var(--ink2);
+.app-convite__azul i{
+  width:21px; height:21px; background:#fff;
+  -webkit-mask:var(--simbolo) no-repeat center / contain;
+  mask:var(--simbolo) no-repeat center / contain;
 }
+.app-convite__txt{
+  flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; padding:0 10px;
+}
+.app-convite__txt b{ display:block; font-size:11.5px; font-weight:700; color:var(--ink); line-height:1.2; }
 .app-convite__ir{
-  display:inline-flex; align-items:center; gap:5px; margin-top:9px;
-  font-size:var(--t-etiqueta); font-weight:700; color:var(--ia-azul);
+  display:inline-flex; align-items:center; gap:4px; margin-top:2px;
+  font-size:10px; font-weight:700; color:var(--ia-azul);
 }
-.app-convite__ir svg{ width:11px; height:11px; }
+.app-convite__ir svg{ width:9px; height:9px; }
 
-/* Recolhida, um cartão com título e frase não cabe em 30px de largura. Ele
-   vira o selo: o símbolo da marca em branco sobre o azul do IA Studio, no
-   pé, separado dos ícones do Cora pelo vazio. Ele não é uma aba, então não
-   ganha o formato de aba — quem diz o nome é o balão do hover. */
+/* Recolhida, sobra so o bloco azul, no mesmo lugar e no mesmo tamanho. */
 .app-convite--selo{ display:none; }
 .app-shell.recolhido .app-convite{ display:none; }
 .app-shell.recolhido .app-convite--selo{
-  display:grid; place-items:center; width:34px; height:34px; margin:16px auto 4px;
-  margin-top:auto; border-radius:10px; background:var(--ia-azul);
+  display:grid; place-items:center; width:40px; height:40px; margin:16px auto 4px;
+  margin-top:auto; border-radius:12px; background:var(--ia-azul);
   transition:transform var(--t);
 }
 .app-shell.recolhido .app-convite--selo:hover{ transform:scale(1.06); }
 .app-convite--selo i{
-  width:19px; height:19px; background:#fff;
+  width:21px; height:21px; background:#fff;
   -webkit-mask:var(--simbolo) no-repeat center / contain;
   mask:var(--simbolo) no-repeat center / contain;
 }
@@ -672,33 +671,34 @@
    ladrilho. O disco boia e, de cinco em cinco segundos, um aro sai de dentro
    dele e se apaga antes de dobrar de tamanho. */
 .heroi__pad--ia{
-  --ia-d:92px;
-  position:relative; background:var(--ia-lima); animation:none;
+  --ia-bal:84%;
+  position:relative; overflow:hidden; background:var(--ia-lima); animation:none;
   display:flex; align-items:center; justify-content:center;
 }
-.ia-disco{
-  position:relative; display:flex; align-items:center; justify-content:center;
-  width:var(--ia-d); height:var(--ia-d); border-radius:50%; background:var(--ia-azul);
-  animation:pn-ia-boia 6.5s ease-in-out infinite;
+/* O respiro esta no envelope, e nao na imagem: assim a luz cresce junto com o
+   balao e nunca descola da silhueta dele. */
+.ia-balao{ position:relative; width:var(--ia-bal); animation:pn-ia-respira 9s ease-in-out infinite; }
+.ia-balao span{
+  display:block; width:100%; aspect-ratio:560/512;
+  background:var(--balao) no-repeat center / contain;
 }
-.ia-disco i{
-  width:44%; height:44%; background:#fff;
-  -webkit-mask:var(--simbolo) no-repeat center / contain;
-  mask:var(--simbolo) no-repeat center / contain;
+/* A luz e recortada na silhueta do proprio balao e se apaga antes da borda:
+   assim ela le como reflexo no aluminio, e nao como brilho por cima do cartao. */
+.ia-balao i{
+  position:absolute; inset:0;
+  -webkit-mask:var(--balao) no-repeat center / contain;
+  mask:var(--balao) no-repeat center / contain;
+  background:linear-gradient(105deg, transparent 40%, rgba(255,255,255,.9) 50%, transparent 60%);
+  background-size:280% 100%; background-repeat:no-repeat;
+  mix-blend-mode:screen; animation:pn-ia-luz 7.5s ease-in-out infinite;
 }
-.ia-anel{
-  position:absolute; width:var(--ia-d); height:var(--ia-d); border-radius:50%;
-  border:2px solid var(--ia-azul); opacity:0;
-  animation:pn-ia-anel 5.2s ease-out infinite;
+@keyframes pn-ia-respira{
+  0%,100%{ transform:scale(1); }
+  50%    { transform:scale(1.055); }
 }
-.ia-anel--2{ animation-delay:2.6s; }
-@keyframes pn-ia-boia{
-  0%,100%{ transform:translateY(-6px); }
-  50%    { transform:translateY(6px); }
-}
-@keyframes pn-ia-anel{
-  0%     { transform:scale(1); opacity:.5; }
-  70%,100%{ transform:scale(1.9); opacity:0; }
+@keyframes pn-ia-luz{
+  0%,58%{ background-position:170% 0; }
+  100%  { background-position:-80% 0; }
 }
 /* A marca do IA Studio no lugar da do Cora, no quadro dele. Ela é mais larga
    que a do Cora na mesma altura de letra, então a largura vem da proporção
@@ -2073,8 +2073,7 @@
 .apr-assina{ display:block; width:100%; height:auto; max-width:620px; margin:30px 0 0; }
 
 @media (prefers-reduced-motion:reduce){
-  .heroi--entra, .ia-disco, .ia-anel{ animation:none; }
-  .ia-anel{ opacity:0; }
+  .heroi--entra, .ia-balao, .ia-balao i{ animation:none; }
   .apr-mod:hover .apr-mod__capa img{ transform:none; }
 }
 
@@ -2127,7 +2126,11 @@
   .heroi__txt{ padding:30px 26px; }
   /* Deitada, a coluna do IA Studio mede pela altura: 66% da largura, ali,
      seria um disco maior que a faixa inteira. */
-  .heroi__pad--ia{ --ia-d:calc(var(--pad-deitado) * .62); height:var(--pad-deitado); }
+  /* Deitada, o balao mede pela altura da faixa: 84% da largura, ali, seria um
+     balao maior que a tela. */
+  .heroi__pad--ia{ height:var(--pad-deitado); }
+  .heroi__pad--ia .ia-balao{ width:auto; height:78%; }
+  .heroi__pad--ia .ia-balao span{ height:100%; width:auto; aspect-ratio:560/512; }
   .apr-wrap{ padding:24px 18px 48px; }
   .apr-mcab{ gap:14px; }
   .apr-mcab img{ width:72px; }
