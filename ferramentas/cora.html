@@ -98,9 +98,6 @@
   --alt-ctrl:38px;
   /* A altura de toda caixa de texto do app. Era o `rows` de cada componente
      que decidia, e cada tela saía com uma altura. */
-  /* O cinza da coluna de ferramentas. Fora de --wash2 de proposito: ver o
-     comentario dos tres tons da janela. */
-  --painel-bg:#EFEFEB;
   --alt-ta:128px;
   --alt-acao:46px;
   --painel-w:400px;
@@ -114,7 +111,6 @@
 :root[data-theme="dark"]{
   --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
   --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
-  --painel-bg:#1E1E22;
   --line:#2B2B30; --line2:#3A3A41;
   --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
   --ok:#7BD3A0; --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.18);
@@ -148,27 +144,10 @@
 .cr-tela :focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
 .cr-tela ::selection{ background:var(--lima); color:#111111; }
 
-/* ── OS TRÊS TONS DA JANELA (10/09/2026) ──
-   O painel deixou de ser papel e virou COLUNA, no cinza da barra lateral. O
-   feed continua sendo a bancada: ele já foi branco, e as miniaturas ficavam
-   com cara de recorte colado — está anotado aqui desde então, e é por isso
-   que ele NÃO voltou ao branco junto com esta mudança.
-
-   Dentro do painel, o cinza vira papel. `--wash2` é redefinido aqui, e não
-   nas 24 regras que o usam: elas continuam pedindo "o tom de apoio", e quem
-   responde muda com o lugar. Os sulcos ganham um fio, senão o branco sobre o
-   cinza fica flutuando sem borda.
-
-   `--painel-bg` existe como token separado porque `background:var(--wash2)`
-   na própria `.cr-painel` leria o `--wash2` redefinido logo abaixo, e o
-   painel sairia branco. */
-.cr-painel{
-  background:var(--painel-bg); border-right:1px solid var(--line);
-  --wash2:var(--paper);
-}
-.cr-painel .cr-sulco, .cr-painel .cr-sul, .cr-painel .sul{
-  box-shadow:inset 0 0 0 1px var(--line);
-}
+/* O painel é o papel: é ali que se trabalha. O feed é a bancada, um tom
+   abaixo, porque o que tem que brilhar ali é a imagem. Era o contrário, e as
+   miniaturas ficavam com cara de recorte colado sobre branco. */
+.cr-painel{ background:var(--paper); border-right:1px solid var(--line); }
 .cr-feed{ background:var(--wash); }
 
 /* ══════════════════════════════════════════════════════════════════════
