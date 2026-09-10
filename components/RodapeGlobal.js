@@ -14,7 +14,7 @@ import RodapeLegal from './RodapeLegal';
 // "/em-construcao". Quem tira o rodapé daquela tela é uma regra de CSS na
 // própria página. O caminho continua listado porque visitar `/em-construcao`
 // direto, sem reescrita, também não deve trazer rodapé.
-const PREFIXOS_APP = ['/conta', '/app', '/admin', '/workspace', '/assinatura', '/promptadores', '/em-construcao'];
+const PREFIXOS_APP = ['/conta', '/app', '/admin', '/workspace', '/assinatura', '/aprender', '/promptadores', '/em-construcao'];
 
 // As telas de entrar e criar conta seguem com a tira fina que já tinham. Elas
 // ocupam a janela inteira, painel de imagem de um lado e cartão do outro, e o
