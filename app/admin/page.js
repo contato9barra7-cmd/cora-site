@@ -15,6 +15,7 @@ import PainelNovidades from '../../components/PainelNovidades';
 import AdminAuditoria from '../../components/AdminAuditoria';
 import AdminComentarios from '../../components/AdminComentarios';
 import AdminAulas from '../../components/AdminAulas';
+import AdminPlugin from '../../components/AdminPlugin';
 import { usarTelaAdmin, irParaTelaAdmin } from '../../lib/telaAdmin';
 
 
@@ -101,6 +102,10 @@ export default function Admin() {
                 abas: ['aceites', 'novidades', 'auditoria'], primeira: 'aceites' },
     aulas:{ olho: 'Admin · Aulas', titulo: t('adm_aulas_titulo'),
                 abas: ['comentarios', 'catalogo', 'progresso'], primeira: 'comentarios' },
+    /* Plugin nao tem abas: e uma tela so, e a lista de abas vazia e o que faz
+       o cabecalho nao desenhar uma fila de um item. */
+    plugin:{ olho: 'Admin · Plugin', titulo: t('adm_pl_titulo'),
+                abas: [], primeira: '' },
   };
 
   /* ── QUEM TEM LISTAGEM, POR INCLUSAO ──
@@ -667,7 +672,9 @@ export default function Admin() {
                         : 'A prova de quem aceitou o que, e quando.')
                   : telaAdm === 'aulas'
                     ? t('adm_com_sub')
-                    : 'Assinatura e recarga, com a taxa que o Stripe reteve.'}
+                    : telaAdm === 'plugin'
+                      ? t('adm_pl_sub')
+                      : 'Assinatura e recarga, com a taxa que o Stripe reteve.'}
             </p>
           </div>
         </div>
@@ -953,6 +960,8 @@ export default function Admin() {
             : <AdminAulas aba={aba} />}
         </>
       )}
+
+      {telaAdm === 'plugin' && <AdminPlugin />}
 
       {/* A dashboard. Ela le o Stripe ao vivo, entao nao depende de nada que
           esta pagina ja tenha carregado. */}

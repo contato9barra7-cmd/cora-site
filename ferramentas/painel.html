@@ -2188,6 +2188,40 @@
   font-variant-numeric:tabular-nums; }
 .adm-au__erro{ margin:0; padding:9px 13px; border-radius:var(--r-peq);
   background:#FDECEA; color:#B3261E; font-size:var(--t-apoio2); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   ADMIN · PUBLICAR O PLUGIN
+   ══════════════════════════════════════════════════════════════════════ */
+.adm-pl{ max-width:640px; }
+.adm-pl__agora{
+  display:flex; align-items:center; gap:16px; padding:18px 20px; margin-bottom:12px;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+}
+.adm-pl__ico{ flex:none; display:grid; place-items:center; width:46px; height:46px;
+  border-radius:14px; background:var(--wash2); color:var(--ink2); }
+.adm-pl__ico svg{ width:22px; height:22px; }
+.adm-pl__txt{ flex:1; min-width:0; }
+.adm-pl__txt p{ margin:0; line-height:1; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }
+.adm-pl__txt h3{ margin:5px 0 0; font-size:21px; font-weight:500; letter-spacing:-.02em; }
+.adm-pl__meta{ display:block; margin-top:3px; font-size:var(--t-etiqueta); color:var(--ink3); }
+.adm-pl__lista{ margin:0 0 8px; padding:14px 20px 14px 38px; background:var(--wash);
+  border:1px solid var(--line); border-radius:var(--r); }
+.adm-pl__lista li{ font-size:var(--t-apoio); color:var(--ink2); margin-bottom:4px; }
+.adm-pl__forma{ margin-top:14px; padding:20px; background:var(--paper);
+  border:1px solid var(--line); border-radius:var(--r); }
+.adm-pl__forma > .adm-au__rot:first-child{ margin-top:0; }
+.adm-pl__dica{ margin:6px 0 0; font-size:var(--t-etiqueta); color:var(--ink3); }
+/* O aviso de versao menor e ambar e nao vermelho: nao e erro, e um engano
+   provavel. Publicar assim funciona, so nao avisa ninguem. */
+.adm-pl__aviso{ margin:8px 0 0; padding:9px 13px; border-radius:var(--r-peq);
+  background:#FDF3EA; color:#8A5518; font-size:var(--t-apoio2); line-height:1.45; }
+.adm-pl__pronto{ display:flex; align-items:center; gap:8px; margin:14px 0 0;
+  padding:9px 13px; border-radius:var(--r-peq); background:var(--turq-bg);
+  color:var(--turq-txt); font-size:var(--t-apoio2); }
+.adm-pl__pronto svg{ flex:none; width:15px; height:15px; }
+.adm-pl__ir{ width:100%; margin-top:18px; }
+.adm-pl__ir:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
 .adm-au__mais svg{ width:14px; height:14px; stroke:currentColor; fill:none; }
 
 /* o interruptor da assinatura */
