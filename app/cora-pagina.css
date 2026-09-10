@@ -21,7 +21,8 @@
      Um controle da grade tem 38. A ação e o campo têm 46, que é a medida do
      resto do site. Duas alturas, e não sete: era isso que fazia a barra de
      baixo parecer montada em dias diferentes. *//* A altura de toda caixa de texto do app. Era o `rows` de cada componente
-     que decidia, e cada tela saía com uma altura. *//* A faixa da marca, na geometria da spec (ODD_ODO_DO). */
+     que decidia, e cada tela saía com uma altura. *//* O cinza da coluna de ferramentas. Fora de --wash2 de proposito: ver o
+     comentario dos tres tons da janela. *//* A faixa da marca, na geometria da spec (ODD_ODO_DO). */
   
   --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
   --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
@@ -57,6 +58,8 @@
   
   --alt-ctrl:38px;
   
+  
+  --painel-bg:#EFEFEB;
   --alt-ta:128px;
   --alt-acao:46px;
   --painel-w:400px;
@@ -67,6 +70,7 @@
    fica lima. Foi o dono quem pediu, olhando os cards do Editar. */[data-theme="dark"] .co{
   --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
   --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --painel-bg:#1E1E22;
   --line:#2B2B30; --line2:#3A3A41;
   --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
   --ok:#7BD3A0; --alerta:#F0A9A3; --alerta-bg:rgba(200,52,42,.18);
@@ -89,9 +93,25 @@
   font-family:var(--fonte); font-size:var(--t-corpo); line-height:1.55;
   -webkit-font-smoothing:antialiased;
 }.co .cr-tela *, .co .cr-tela *::before, .co .cr-tela *::after{ box-sizing:border-box; }.co .cr-tela button, .co .cr-tela input, .co .cr-tela textarea{ font-family:inherit; }/* O foco é turquesa, sempre. Sem isto o navegador desenha o dele, que é
-   âmbar e não é do produto. */.co .cr-tela :focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }.co .cr-tela ::selection{ background:var(--lima); color:#111111; }/* O painel é o papel: é ali que se trabalha. O feed é a bancada, um tom
-   abaixo, porque o que tem que brilhar ali é a imagem. Era o contrário, e as
-   miniaturas ficavam com cara de recorte colado sobre branco. */.co .cr-painel{ background:var(--paper); border-right:1px solid var(--line); }.co .cr-feed{ background:var(--wash); }/* ══════════════════════════════════════════════════════════════════════
+   âmbar e não é do produto. */.co .cr-tela :focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }.co .cr-tela ::selection{ background:var(--lima); color:#111111; }/* ── OS TRÊS TONS DA JANELA (10/09/2026) ──
+   O painel deixou de ser papel e virou COLUNA, no cinza da barra lateral. O
+   feed continua sendo a bancada: ele já foi branco, e as miniaturas ficavam
+   com cara de recorte colado — está anotado aqui desde então, e é por isso
+   que ele NÃO voltou ao branco junto com esta mudança.
+
+   Dentro do painel, o cinza vira papel. `--wash2` é redefinido aqui, e não
+   nas 24 regras que o usam: elas continuam pedindo "o tom de apoio", e quem
+   responde muda com o lugar. Os sulcos ganham um fio, senão o branco sobre o
+   cinza fica flutuando sem borda.
+
+   `--painel-bg` existe como token separado porque `background:var(--wash2)`
+   na própria `.cr-painel` leria o `--wash2` redefinido logo abaixo, e o
+   painel sairia branco. */.co .cr-painel{
+  background:var(--painel-bg); border-right:1px solid var(--line);
+  --wash2:var(--paper);
+}.co .cr-painel .cr-sulco, .co .cr-painel .cr-sul, .co .cr-painel .sul{
+  box-shadow:inset 0 0 0 1px var(--line);
+}.co .cr-feed{ background:var(--wash); }/* ══════════════════════════════════════════════════════════════════════
    O TRILHO DAS FERRAMENTAS
    O sulco é a janela. O trilho, por baixo, desliza. A ativa é a placa que
    sobe do sulco. O gesto carrega a hierarquia, e por não depender de cor
@@ -447,13 +467,12 @@
    comparar e selecionar · lista/grade e tamanhos · filtros e busca. */.co .cr-barra-dir{ margin-left:auto; flex:0 1 auto; min-width:0; display:flex; align-items:center; gap:6px; justify-content:flex-end; }.co .cr-barra-dir > .cr-seg-lay, .co .cr-barra-dir > .cr-ft-wrap{ margin-left:6px; }/* `min-width` e não `width`: quase todo filtro é só um desenho e vira um
    círculo de 34px, mas o A/B carrega duas letras e precisa crescer. Com
    largura fixa ele estourava para fora do próprio botão. */.co .cr-fbtn{
-  width:34px; min-width:34px; height:34px; padding:0; border:0; border-radius:var(--pill);
+  min-width:34px; height:34px; padding:0 9px; border:0; border-radius:var(--pill);
   display:flex; align-items:center; justify-content:center; gap:5px;
   background:transparent; color:var(--ink3); cursor:pointer;
   font-size:var(--t-apoio2); font-weight:600;
   transition:background var(--t), color var(--t);
-}/* O A/B e o unico que carrega letra: so ele cresce, e o resto fica redondo.
-   Com `padding` em todos, o desenho ficava num oval de 32 por 34. */.co .cr-fbtn:has(.cr-ab-ico){ width:auto; padding:0 10px; }.co .cr-fbtn:hover:not(.cr-fbtn--on){ background:var(--wash2); color:var(--ink); }.co .cr-fbtn--on{
+}.co .cr-fbtn:hover:not(.cr-fbtn--on){ background:var(--wash2); color:var(--ink); }.co .cr-fbtn--on{
   background:var(--turq-bg); color:var(--turq-txt);
   box-shadow:inset 0 0 0 1px var(--turquesa-esc);
 }.co .cr-fbtn--fav.cr-fbtn--on svg{ fill:var(--turq-txt); }/* Os tamanhos e o modo de exibição correm no mesmo sulco do trilho. Repetir
