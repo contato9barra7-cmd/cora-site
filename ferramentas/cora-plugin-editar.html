@@ -503,9 +503,12 @@
 .cr-chips{display: flex; flex-wrap: wrap; gap: 6px;}
 .cr-chips .cr-chip{flex: 1 1 0; min-width: 0; justify-content: center; display: flex; align-items: center; padding: 0 10px; overflow: hidden; text-overflow: ellipsis;}
 .cr-chips--2 .cr-chip{flex: 1 1 calc(50% - 3px);}
+.ed-grupo{margin-bottom: 20px;}
 .cr-chip{height: 34px; padding: 0 14px; border: 1px solid var(--line2); border-radius: 100px; background: var(--paper); color: var(--ink2); font-size: 11.2px; font-family: inherit; cursor: pointer; transition: all .15s; white-space: nowrap;}
 .cr-chip:hover{border-color: var(--lima-txt);}
 .cr-chip--on{border-color: var(--lima-txt); color: var(--lima-txt); background: var(--accent-bg);}
+.ed-cards{display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 4px;}
+.ed-card{position: relative; display: flex; flex-direction: column; padding: 0; overflow: hidden; border: 1px solid var(--line2); border-radius: 12px; background: var(--paper); text-align: left; cursor: pointer; transition: border-color .15s, transform .15s; font-family: inherit;}
 .cr-sul{display: flex; gap: 2px; padding: 3px; border-radius: 100px; background: var(--wash2);}
 .cr-sul__b{flex: 1; min-width: 0; height: 38px; padding: 0 10px; border: 0; border-radius: 100px; display: flex; align-items: center; justify-content: center; gap: 8px; background: transparent; color: var(--ink3); font-family: inherit; font-size: 12.2px; font-weight: 600; cursor: pointer;}
 .cr-sul__b--on{background: var(--paper); color: var(--ink); box-shadow: 0 2px 8px rgba(17,17,17,.07);}
@@ -515,7 +518,27 @@
 .vz-fmt-pop{position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 2px; padding: 4px; z-index: 30; border-radius: 10px; border: 0.5px solid var(--line2); background: var(--paper); box-shadow: 0 6px 18px rgba(0,0,0,.16);}
 .vz-fmt-pop button{padding: 6px 22px; border: none; background: none; border-radius: 6px; font-size: 11.2px; color: var(--ink); cursor: pointer; font-family: inherit;}
 .vz-fmt-pop button:hover{background: var(--wash);}
+.ed-card:hover:not(:disabled){border-color: var(--lima-txt); transform: translateY(-1px);}
+.ed-card:disabled{opacity: .55; cursor: default;}
+.ed-faixa{height: 54px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
+.ed-faixa svg{width: 21px; height: 21px;}
+.ed-corpo{padding: 11px 12px 13px;}
+.ed-card strong{display: block; font-size: 12.2px; font-weight: 600; color: var(--ink); margin-bottom: 3px;}
+.ed-card span{display: block; font-size: 9.9px; line-height: 1.45; color: var(--ink3);}
+.ed-card--travado{opacity: .6; cursor: default;}
+.ed-card--travado:hover{border-color: var(--line2); transform: none;}
+.ed-card .ed-cad{position: absolute; top: 9px; right: 9px; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fff; color: #8a8a90; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); z-index: 1;}
+.ed-cad svg{display: block;}
+.ed-voltar{margin-top: 18px;}
+.ed-titulo{margin-bottom: 22px;}
+.ed-ta{min-height: 104px;}
+.ed-titulo strong{display: block; font-size: 13.1px; font-weight: 600; color: var(--ink); margin-bottom: 3px;}
+.ed-titulo span{font-size: 11.2px; line-height: 1.5; color: var(--ink3);}
 .pn-topo .cr-chip{flex: 0 0 auto;}
+.pn-draw--off{pointer-events: none;}
+.pn-lado span{font-size: 9.9px; color: var(--ink3); white-space: nowrap;}
+.pn-lado input{width: 74px; accent-color: var(--turquesa-esc); cursor: pointer;}
+.pn-lado em{font-style: normal; font-size: 9.9px; font-weight: 600; color: var(--ink2); min-width: 30px;}
 .cr-ab{display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--wash); transition: background .2s, border-color .2s;}
 .cr-ab--pronto{background: var(--accent-bg); border-bottom-color: var(--lima-txt);}
 .cr-ab-slots{display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0;}
@@ -533,9 +556,58 @@
 .cr-ab-sair:hover{color: var(--ink);}
 .cr-ab-ver{flex-shrink: 0; display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 16px; border: none; border-radius: 100px; background: var(--accent); color: var(--accent-txt); font-size: 11.2px; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity .15s;}
 .cr-ab-ver:disabled{opacity: .35; cursor: default;}
+.pn-tela{display: flex; flex-direction: column; height: 100%; min-height: 0;}
+.pn-area{flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 24px; overflow: hidden; position: relative; background: var(--wash);}
+.pn-pilha{position: relative; line-height: 0; transform-origin: center;}
+.pn-canvas{display: block; border-radius: 6px; max-width: 100%; box-shadow: 0 2px 14px rgba(0, 0, 0, .12);}
+.pn-draw{position: absolute; top: 0; left: 0; cursor: crosshair; opacity: .4; box-shadow: none;}
+.pn-cursor{position: fixed; display: none; pointer-events: none; z-index: 9999; border: 2px solid var(--accent); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 0 1px rgba(0, 0, 0, .4);}
+.pn-moldura{position: absolute; border: 1.5px dashed var(--accent); border-radius: 4px; background: color-mix(in srgb, var(--accent) 9%, transparent); background-color: var(--paper); background-image: linear-gradient(45deg, var(--wash2) 25%, transparent 25%), linear-gradient(-45deg, var(--wash2) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--wash2) 75%), linear-gradient(-45deg, transparent 75%, var(--wash2) 75%); background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0;}
+.pn-alca{position: absolute; background: var(--paper); border: 1.5px solid var(--accent); border-radius: 2px; z-index: 2;}
+.pn-alca--ce, .pn-alca--cd, .pn-alca--be, .pn-alca--bd{width: 11px; height: 11px;}
+.pn-alca--ce{top: -6px; left: -6px; cursor: nwse-resize;}
+.pn-alca--cd{top: -6px; right: -6px; cursor: nesw-resize;}
+.pn-alca--be{bottom: -6px; left: -6px; cursor: nesw-resize;}
+.pn-alca--bd{bottom: -6px; right: -6px; cursor: nwse-resize;}
+.pn-alca--cima, .pn-alca--baixo{left: 50%; transform: translateX(-50%); width: 24px; height: 9px; cursor: ns-resize;}
+.pn-alca--cima{top: -5px;}
+.pn-alca--baixo{bottom: -5px;}
+.pn-alca--esq, .pn-alca--dir{top: 50%; transform: translateY(-50%); width: 9px; height: 24px; cursor: ew-resize;}
+.pn-alca--esq{left: -5px;}
+.pn-alca--dir{right: -5px;}
+.pn-medida{position: absolute; left: 50%; bottom: -26px; transform: translateX(-50%); font-size: 9.5px; font-weight: 600; color: var(--lima-txt); white-space: nowrap; line-height: 1;}
+.pn-zoombar{position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 9px; padding: 7px 13px; border: 1px solid var(--line); border-radius: 100px; background: var(--paper); box-shadow: 0 4px 16px rgba(0, 0, 0, .12); color: var(--ink3);}
+.pn-zoombar input{width: 80px; accent-color: var(--turquesa-esc); cursor: pointer;}
+.pn-zoombar span{font-size: 9.9px; font-weight: 600; color: var(--ink2); min-width: 30px;}
+.pn-lbl{display: flex; align-items: baseline; justify-content: space-between; margin-top: 20px;}
+.pn-lbl em{font-style: normal; font-size: 9.9px; font-weight: 600; color: var(--ink2);}
+.pn-calibre{display: flex; align-items: center; gap: 11px; margin-bottom: 18px;}
+.pn-calibre input{flex: 1; accent-color: var(--turquesa-esc); cursor: pointer;}
+.pn-disco{flex-shrink: 0; border-radius: 50%; background: var(--turquesa); opacity: .4; transition: width .1s, height .1s;}
+.pn-bar{display: flex; align-items: center; gap: 10px; background: var(--paper); border: 1px solid var(--line2); border-radius: 100px; padding: 6px 10px; margin: 2px 0 16px;}
+.pn-ico{width: 36px; height: 36px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid transparent; background: transparent; color: var(--ink3); cursor: pointer; transition: background .12s, color .12s, border-color .12s;}
+.pn-ico:hover{background: var(--turq-bg); color: var(--turq-txt);}
+.pn-ico--on{background: var(--turq-bg); color: var(--turq-txt); border-color: var(--turquesa-esc);}
+.pn-ico:disabled{opacity: .4; cursor: default;}
+.pn-sep{width: 1px; height: 20px; background: var(--line2); flex: 0 0 auto;}
+.pn-bar-range{flex: 1; min-width: 70px; accent-color: var(--turquesa-esc); cursor: pointer;}
+.pn-chip{min-width: 32px; flex: 0 0 auto; text-align: center; font-size: 9.9px; font-weight: 600; color: var(--turq-txt); background: var(--turq-bg); border: 1px solid color-mix(in srgb, var(--turquesa) 55%, transparent); border-radius: 100px; padding: 2px 6px;}
 .vz-ico--on{border-color: var(--lima-txt); color: var(--lima-txt);}
+.pn-medidas{display: flex; align-items: center; gap: 6px; margin: 10px 0;}
+.pn-medidas input{flex: 1; min-width: 0; height: 38px; padding: 0 15px; border: 1px solid var(--line); border-radius: 100px; background: var(--paper); color: var(--ink); font-size: 12.2px; font-family: inherit; font-variant-numeric: tabular-nums; box-sizing: border-box;}
+.pn-medidas input:focus{outline: none; border-color: var(--lima-txt);}
+.pn-medidas input::-webkit-outer-spin-button, .pn-medidas input::-webkit-inner-spin-button{-webkit-appearance: none; margin: 0;}
+.pn-medidas input[type=number]{-moz-appearance: textfield;}
+.pn-inverter{flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 50%; background: var(--paper); color: var(--ink3); cursor: pointer; transition: all .15s;}
+.pn-inverter:hover{border-color: var(--lima-txt); color: var(--lima-txt);}
+.pn-limpar-larga{width: 100%; height: 34px; margin-bottom: 18px; border: 1px solid var(--line2); border-radius: 100px; background: transparent; color: var(--ink3); font-size: 11.2px; font-family: inherit; cursor: pointer; transition: all .15s;}
+.pn-limpar-larga:hover:not(:disabled){border-color: var(--lima-txt); color: var(--lima-txt);}
+.pn-limpar-larga:disabled{opacity: .4; cursor: default;}
 .cr-pill-cfg--larga{width: 100%; justify-content: flex-start; padding-left: 13px;}
 .cr-pill-cfg--larga > span{flex: 1; text-align: left;}
+.pn-guia{position: absolute; background: var(--accent); pointer-events: none; opacity: .9;}
+.pn-guia--v{top: 0; bottom: 0; width: 1px; left: 50%;}
+.pn-guia--h{left: 0; right: 0; height: 1px; top: 50%;}
 .cr-bcena-cab{position: relative;}
 .cr-bcena-x{position: absolute; top: 50%; right: 0; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 1px solid var(--line); border-radius: 50%; background: var(--paper); color: var(--ink3); cursor: pointer; opacity: 0; transition: all .13s;}
 .cr-bcena:hover .cr-bcena-x{opacity: 1;}
@@ -1785,9 +1857,8 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
 .jn-cheia .cr-pills{ grid-area:2/1/3/3; }
 .jn-cheia .col{ grid-area:3/1/4/2; }
 .jn-cheia .direita{ grid-area:3/2/4/3; min-width:0; display:flex; flex-direction:column; }
-/* O pincel toma a janela: nem coluna, nem feed. */
-.jn-cheia.jn-pincel .miolo{ grid-template-columns:minmax(0,1fr); }
-.jn-cheia.jn-pincel .direita{ grid-area:3/1/4/2; }
+/* O pincel nao toma a janela: ele troca o FEED pela tela de pintar. A
+   coluna fica onde estava, com o painel do modo dentro dela. */
 
 .col{
   width:400px; min-width:0; display:flex; flex-direction:column; position:relative;
@@ -1818,32 +1889,14 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
 .feed-card{ aspect-ratio:4/5; border-radius:10px; border:1px solid var(--line); overflow:hidden; background:var(--wash); }
 
 /* ── A TELA DO PINCEL ──
-   Ela não é uma variação da coluna: é outra tela, e por isso toma a janela.
-   Pintar uma máscara em 400px não é apertado, é impossível. */
-.pin{ display:flex; flex-direction:column; height:100%; background:var(--wash); }
-.pin-cab{
-  flex:none; display:flex; align-items:center; gap:10px; padding:11px 14px;
-  min-height:56px; border-bottom:1px solid var(--line); background:var(--paper);
+   Ela entra no lugar do feed, e a medida vem do `.pn-*` de producao. O que
+   fica aqui e so a imagem de prova dentro da pilha. */
+.pn-pilha > .foto{ position:absolute; inset:0; border-radius:6px; }
+.pin-mancha{
+  position:absolute; border-radius:16px;
+  background:rgba(143,221,204,.45); box-shadow:0 0 0 1.5px #8FDDCC inset;
 }
-.pin-tit{ font-size:12.2px; font-weight:600; }
-.pin-sub{ font-size:11.2px; color:var(--ink3); }
-.pin-cab .fim{ margin-left:auto; display:flex; align-items:center; gap:6px; }
-.pin-palco{ flex:1; min-height:0; display:grid; place-items:center; padding:20px; overflow:hidden; }
-.pin-tela{ position:relative; height:100%; width:auto; max-width:100%; aspect-ratio:4/3; border-radius:12px; overflow:hidden; box-shadow:0 2px 14px rgba(0,0,0,.12); }
-/* A área marcada: o que a pessoa pintou. */
-.pin-marca{ position:absolute; border-radius:14px; background:rgba(143,221,204,.42); box-shadow:0 0 0 1.5px #8FDDCC inset; }
-/* A expansão: a imagem encolhe e a moldura nova aparece em volta. */
-.pin-fora{ position:absolute; inset:0; border:1.5px dashed var(--turquesa-esc); border-radius:12px; }
-.pin-alca{ position:absolute; width:9px; height:9px; border-radius:2px; background:var(--paper); box-shadow:0 0 0 1.5px var(--turquesa-esc); }
-.pin-pe{
-  flex:none; display:flex; align-items:center; gap:10px; padding:12px 14px;
-  border-top:1px solid var(--line); background:var(--paper);
-}
-.pin-pe .cr-ta{ margin-top:0; min-height:0; height:38px; flex:1; padding:9px 14px; }
-.pin-pincel{ display:flex; align-items:center; gap:8px; font-size:11.2px; color:var(--ink3); }
-.pin-regua{ width:96px; height:4px; border-radius:99px; background:var(--wash2); position:relative; }
-.pin-regua i{ position:absolute; left:0; top:0; bottom:0; width:52%; border-radius:99px; background:var(--turquesa-esc); }
-.pin-bola{ position:absolute; top:50%; left:52%; transform:translate(-50%,-50%); width:12px; height:12px; border-radius:50%; background:var(--paper); box-shadow:0 0 0 1.5px var(--turquesa-esc); }
+
 </style>
 
 <header class="topo">
@@ -1914,7 +1967,7 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
       i:'M8 8H4v4 M16 16h4v-4 M4 8l6 6 M20 16l-6-6 M16 4h4v4 M8 20H4v-4', pincel:true }
   ];
 
-  var SETA = '<svg class="fic__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var SETA_CMP = '<svg class="cmp__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var TIQUE = '<svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg>';
   var MOEDA = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 4l8 8-8 8-8-8z"/></svg>';
   var CSETA = '<svg class="cr-seta" viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -1971,13 +2024,16 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
         '<div class="ed-corpo"><strong>' + m.n + '</strong><span>' + m.d + '</span></div></button>';
     }).join('') + '</div>';
   }
-  function linhaFicha(c, aberta) {
-    var h = '<div class="fic__l" data-aberta="' + (aberta ? 'sim' : 'nao') + '">' +
-      '<button type="button" class="fic__cab" aria-expanded="' + aberta + '">' +
-      '<span class="fic__nome">' + c.r + '</span>' +
-      '<span class="fic__val" data-vazio="nao">' + c.v + '</span>' + SETA + '</button>';
+  // A escolha de cada modo e o MESMO campo do Render: rotulo em cima, caixa
+  // larga embaixo, e a lista abre num cartao por cima. Era linha de ficha
+  // aqui, que e outro gesto e nao e o que a web faz.
+  function campo(c, aberta) {
+    var h = '<div class="cmp" data-aberta="' + (aberta ? 'sim' : 'nao') + '">' +
+      '<span class="cmp__rot">' + c.r + '</span>' +
+      '<button type="button" class="cmp__b" aria-haspopup="listbox" aria-expanded="' + aberta + '">' +
+      '<span class="cmp__val" data-vazio="nao">' + c.v + '</span>' + SETA_CMP + '</button>';
     if (aberta) {
-      h += '<div class="fic__corpo"><div class="cmp__lista cmp__lista--uma">' + c.o.map(function (o) {
+      h += '<div class="cmp__pop cora-dd-lista"><div class="cmp__lista cmp__lista--uma">' + c.o.map(function (o) {
         var on = o === c.v;
         return '<div class="cora-dd-opt cora-dd-opt--multi cora-dd-opt--uma' + (on ? ' cora-dd-opt--sel' : '') + '" role="option" aria-selected="' + on + '">' +
           '<span class="cora-dd-check" aria-hidden="true">' + (on ? TIQUE : '') + '</span>' + o + '</div>';
@@ -1989,9 +2045,7 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
     op = op || {};
     var h = '<button class="cr-voltar ed-voltar"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4l-5 6 5 6" stroke-linecap="round" stroke-linejoin="round"/></svg>Voltar</button>';
     h += '<div class="ed-titulo"><strong>' + m.n + '</strong><span>' + m.d + '</span></div>';
-    if (m.campos) h += '<div class="fic fic--solta">' + m.campos.map(function (c, k) {
-      return linhaFicha(c, op.linha === k);
-    }).join('') + '</div>';
+    if (m.campos) h += m.campos.map(function (c, k) { return campo(c, op.linha === k); }).join('');
     if (m.refs) {
       h += '<div class="cr-sec">Referências <span class="cr-opc">Opcional</span></div><div class="cr-refs">';
       var n = op.refs || 0;
@@ -2031,31 +2085,69 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
       (b ? '<div class="cr-barra-ger">' + b + '</div>' : '') + '</div>';
   }
 
-  // ── A tela do pincel ──
-  function pincel(qual) {
-    var expansao = qual === 'expansao';
-    var h = '<div class="direita"><div class="pin">';
-    h += '<div class="pin-cab">' +
-      '<button class="cr-voltar"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4l-5 6 5 6" stroke-linecap="round" stroke-linejoin="round"/></svg>Voltar</button>' +
-      '<span><span class="pin-tit">' + (expansao ? 'Expansão generativa' : 'Preenchimento generativo') + '</span><br>' +
-      '<span class="pin-sub">' + (expansao ? 'Puxe as alças para esticar a imagem para fora.' : 'Pinte a área que você quer corrigir ou remover.') + '</span></span>' +
-      '<span class="fim">' +
-      (expansao ? '<button class="cr-b">4:5</button><button class="cr-b cr-b--on">16:9</button>'
-                : '<span class="pin-pincel">Pincel<span class="pin-regua"><i></i><span class="pin-bola"></span></span></span>' +
-                  '<button class="cr-b">Limpar</button>') +
-      '</span></div>';
-    h += '<div class="pin-palco"><div class="pin-tela"' + (expansao ? ' style="aspect-ratio:16/9"' : '') + '>' +
-      (expansao
-        ? '<i class="foto f4" style="position:absolute;inset:0 14% ;border-radius:8px"></i><span class="pin-fora"></span>' +
-          '<span class="pin-alca" style="left:-4px;top:-4px"></span><span class="pin-alca" style="right:-4px;top:-4px"></span>' +
-          '<span class="pin-alca" style="left:-4px;bottom:-4px"></span><span class="pin-alca" style="right:-4px;bottom:-4px"></span>'
-        : '<i class="foto f2"></i><span class="pin-marca" style="left:22%;top:38%;width:30%;height:34%"></span>') +
-      '</div></div>';
-    h += '<div class="pin-pe">' +
-      '<textarea class="cr-ta" placeholder="' + (expansao ? 'O que deve aparecer no espaço novo (opcional)' : 'O que deve entrar no lugar (deixe vazio para só remover)') + '" spellcheck="false"></textarea>' +
-      '<button class="cr-btn-gerar" style="width:auto;padding:0 22px"><span>Gerar</span><span class="cr-custo-tag">' + MOEDA + ' 28</span></button>' +
-      '</div>';
-    return h + '</div></div>';
+  // ── Os dois de pincel ──
+  // A coluna continua sendo a coluna: o painel do modo mora nela, com a
+  // mesma barra de gerar no pe. Quem sai de cena e o feed, e no lugar dele
+  // entra a tela de pintar. As classes sao as do `PainelPincel` e do
+  // `TelaPincel` da web, sem uma regra minha.
+  var ICO_PINCEL = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 5.5l3 3M14 7L5 16c-.5.5-.8 1.2-.9 1.9L3.5 20.5l2.6-.6c.7-.1 1.4-.4 1.9-.9L17 10z"/></svg>';
+  var ICO_BORRACHA = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20H5l-2-2a2 2 0 010-2.8l8.5-8.5a2 2 0 012.8 0l4 4a2 2 0 010 2.8L14 20z"/><path d="M8 20l8-8"/></svg>';
+  var ICO_LIXO = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 12a1 1 0 001 1h8a1 1 0 001-1l1-12"/></svg>';
+  var ICO_INVERTER = '<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h12m0 0l-3-3m3 3l-3 3" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 13H4m0 0l3-3m-3 3l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ICO_LUPA = '<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="9" r="5"/><path d="M12.6 12.6L17 17" stroke-linecap="round"/><path d="M7 9h4M9 7v4" stroke-linecap="round"/></svg>';
+
+  function colunaPincel(expansao) {
+    var h = '<button class="cr-voltar ed-voltar"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4l-5 6 5 6" stroke-linecap="round" stroke-linejoin="round"/></svg>Voltar</button>';
+    h += '<div class="ed-titulo"><strong>' + (expansao ? 'Expansão generativa' : 'Preenchimento generativo') + '</strong>' +
+      '<span>' + (expansao
+        ? 'Arraste as bordas da moldura para fora. As bordas e o centro têm encaixe automático.'
+        : 'Pinte sobre a área que quer corrigir, remover ou regenerar. O resto é preservado.') + '</span></div>';
+
+    if (!expansao) {
+      h += '<div class="pn-bar">' +
+        '<button class="pn-ico pn-ico--on" aria-label="Pincel">' + ICO_PINCEL + '</button>' +
+        '<button class="pn-ico" aria-label="Borracha">' + ICO_BORRACHA + '</button>' +
+        '<span class="pn-sep"></span>' +
+        '<input class="pn-bar-range" type="range" min="8" max="90" value="38" aria-label="Tamanho">' +
+        '<span class="pn-chip">38</span>' +
+        '<span class="pn-sep"></span>' +
+        '<button class="pn-ico" aria-label="Limpar">' + ICO_LIXO + '</button>' +
+        '</div>';
+      h += '<div class="cr-sec">O que fazer na área marcada</div>';
+      h += '<textarea class="cr-ta ed-ta" placeholder="Ex: remover o objeto e continuar a parede; corrigir essa falha; trocar por piso de madeira…" spellcheck="false"></textarea>';
+    } else {
+      h += '<div class="cr-sec">Proporção</div>';
+      h += '<div class="cr-pill-wrap"><button class="cr-pill-cfg">' +
+        '<svg viewBox="0 0 20 20" width="15" height="15" fill="none"><rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>' +
+        '<span>Livre</span>' + CSETA + '</button></div>';
+      h += '<div class="pn-medidas"><input type="text" placeholder="L">' +
+        '<button class="pn-inverter" aria-label="Inverter">' + ICO_INVERTER + '</button>' +
+        '<input type="text" placeholder="A"></div>';
+      h += '<button class="pn-limpar-larga">Limpar</button>';
+      h += '<div class="cr-sec">Detalhes <span class="cr-opc">Opcional</span></div>';
+      h += '<textarea class="cr-ta ed-ta" placeholder="Ex: continuar o jardim e o céu; estender o piso…" spellcheck="false"></textarea>';
+    }
+
+    var b = '<div class="cr-pills-cfg"><div class="cr-qty"><button aria-label="Menos uma">−</button><span>1</span><button aria-label="Mais uma">+</button></div></div>';
+    b += '<button class="cr-btn-gerar"><span>Gerar</span><span class="cr-custo-tag">' + MOEDA + ' 28</span></button>';
+    return '<div class="col"><div class="cr-form">' + h + '</div><div class="cr-barra-ger">' + b + '</div></div>';
+  }
+
+  function telaPincel(expansao) {
+    var h = '<div class="direita pn-tela"><div class="pn-area"><div class="pn-pilha">';
+    if (expansao) {
+      h += '<div class="pn-moldura" style="top:-14%;bottom:-14%;left:-6%;right:-6%">' +
+        ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'].map(function (a) {
+          return '<span class="pn-alca pn-alca--' + a + '"></span>';
+        }).join('') +
+        '<span class="pn-medida">1536 × 1152 · livre</span></div>';
+    }
+    h += '<i class="foto f2"></i>';
+    if (!expansao) h += '<span class="pin-mancha" style="left:24%;top:40%;width:28%;height:30%"></span>';
+    h += '</div><div class="pn-zoombar">' + ICO_LUPA +
+      '<input class="pn-bar-range" type="range" min="50" max="200" value="100" aria-label="Zoom"><span>100%</span>' +
+      '</div></div></div>';
+    return h;
   }
 
   function janela(miolo, pin) {
@@ -2106,10 +2198,10 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
   }).join('');
 
   document.getElementById('pinceis').innerHTML =
-    '<div class="moldura jn-cheia jn-pincel co" style="margin-bottom:34px">' + janela(pincel('preenchimento')) + '</div>' +
-    '<p style="max-width:62ch;margin:0 0 34px;color:var(--pag-apoio);font-size:13px">O preenchimento: a marca turquesa é o que a pessoa pintou. A régua do pincel e o Limpar ficam na cabeça, o que fazer com a área fica no pé, junto do Gerar.</p>' +
-    '<div class="moldura jn-cheia jn-pincel co">' + janela(pincel('expansao')) + '</div>' +
-    '<p style="max-width:62ch;margin:18px 0 0;color:var(--pag-apoio);font-size:13px">A expansão: a imagem encolhe dentro da proporção nova e as alças esticam para fora. A proporção de destino fica na cabeça, ao lado do nome.</p>';
+    '<div class="moldura jn-cheia co" style="margin-bottom:34px">' + janela(colunaPincel(false) + telaPincel(false)) + '</div>' +
+    '<p style="max-width:62ch;margin:0 0 34px;color:var(--pag-apoio);font-size:13px">O preenchimento. A coluna continua sendo a coluna: o pincel, a borracha, a régua do tamanho e o limpar numa fileira só, e embaixo o que fazer na área marcada. Quem saiu de cena foi o feed.</p>' +
+    '<div class="moldura jn-cheia co">' + janela(colunaPincel(true) + telaPincel(true)) + '</div>' +
+    '<p style="max-width:62ch;margin:18px 0 0;color:var(--pag-apoio);font-size:13px">A expansão. A moldura cresce em volta da imagem e as alças esticam para fora, com a medida no canto. A proporção e os dois campos de razão ficam na coluna.</p>';
 
   var raiz = document.documentElement, btn = document.getElementById('tema');
   function escuro() { var t = raiz.getAttribute('data-theme'); return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
