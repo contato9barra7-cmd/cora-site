@@ -38,7 +38,8 @@
   --ok:#1F7A44; --ok-bg:#EAF6EE;
   --alerta:#C8342A; --alerta-bg:#FCEDEC;
 
-  --side-w:240px; --side-w-min:68px; --header-h:60px;
+  /* 264px, a mesma medida da lateral dos Promptadores. */
+  --side-w:264px; --side-w-min:68px; --header-h:60px;
   --pad-heroi:136px;      /* a coluna da esteira */
   --pad-deitado:58px;     /* a mesma esteira, virada, no celular */
 
@@ -145,7 +146,10 @@
    ══════════════════════════════════════════════════════════════════════ */
 .app-side{
   position:fixed; top:0; left:0; bottom:0; width:var(--side-w); z-index:50;
-  background:var(--paper); border-right:1px solid var(--line);
+  /* A lateral e o miolo trocaram de tom em 10/09/2026, no padrao dos
+     Promptadores: a barra fica no cinza mais fechado e o miolo no mais claro.
+     Assim o branco passa a ser sempre CONTEUDO, e nunca moldura. */
+  background:var(--wash2); border-right:1px solid var(--line);
   display:flex; flex-direction:column; transition:width var(--t);
 }
 .app-shell.recolhido .app-side{ width:var(--side-w-min); }
@@ -253,12 +257,20 @@
   color:var(--ink2); font-size:var(--t-apoio); font-weight:500; letter-spacing:-.004em;
   white-space:nowrap; transition:background-color var(--t), color var(--t);
 }
+/* 16px, a medida dos desenhos da lateral dos Promptadores. Os SVG nascem com
+   20 no atributo, e quem manda e o CSS. */
 .app-nav-ic{ flex:none; display:flex; color:var(--ink3); transition:color var(--t); }
+.app-nav-ic svg{ width:16px; height:16px; }
 .app-nav-lbl{ overflow:hidden; text-overflow:ellipsis; }
-.app-nav-item:hover{ background:var(--wash2); color:var(--ink); }
+/* Sobre o cinza da barra, o item aceso vira uma pastilha BRANCA. O cinza que
+   ele usava antes era o mesmo tom do fundo de agora, e ele sumia. */
+.app-nav-item:hover{ background:rgba(255,255,255,.55); color:var(--ink); }
 .app-nav-item:hover .app-nav-ic{ color:var(--ink); }
 
-.app-nav-item.ativo{ background:var(--wash2); color:var(--ink); font-weight:600; }
+.app-nav-item.ativo{
+  background:var(--paper); color:var(--ink); font-weight:600;
+  box-shadow:0 1px 2px rgba(17,17,17,.05);
+}
 .app-nav-item.ativo .app-nav-ic{ color:var(--ink); }
 .app-nav-item.ativo::before{
   content:""; position:absolute; left:0; top:50%; transform:translateY(-50%);
@@ -399,7 +411,13 @@
   display:flex; align-items:center; padding:0 26px; transition:left var(--t);
 }
 .app-shell.recolhido .app-header{ left:var(--side-w-min); }
-.app-header-aqui{ font-size:14.5px; font-weight:600; letter-spacing:-.012em; color:var(--ink); }
+/* O nome da tela mora numa pastilha, como no cabecalho dos Promptadores: ele
+   deixa de ser uma palavra solta no vao e passa a ser um objeto. */
+.app-header-aqui{
+  display:inline-flex; align-items:center; padding:7px 15px;
+  border-radius:var(--pill); background:var(--paper); border:1px solid var(--line);
+  font-size:14.5px; font-weight:600; letter-spacing:-.012em; color:var(--ink);
+}
 .app-header-dir{ margin-left:auto; display:flex; align-items:center; gap:16px; }
 
 /* ── O CABEÇALHO COM A PADRONAGEM ──
@@ -1925,26 +1943,23 @@
    (520x909). Forçar 16/9 nelas cortava o número e o título fora, e sobrava o
    meio do desenho.
 
-   `flex`, e não `grid`: são sete cartazes, e numa grade a linha que sobra fica
-   encostada à esquerda com um vão do tamanho de um cartaz. No flex elas se
-   centram sozinhas.
+   Sete colunas iguais, e não cartazes de largura fixa: assim a fila começa e
+   termina nas mesmas margens do título, e os cartazes crescem para ocupar o
+   que sobra em vez de deixar um vão dos dois lados.
 
-   Os sete cabem numa linha a partir de 1426px de janela com a lateral aberta.
-   Abaixo disso a caixa é apertada para a largura de quatro, e a grade quebra
-   em 4 e 3 em vez de 6 e 1. */
-.apr-grade{
-  display:flex; flex-wrap:wrap; justify-content:center; gap:16px;
-  margin:0 auto;
-}
-@media (max-width:1430px){
-  .apr-grade{ max-width:calc(152px * 4 + 16px * 3); }
-}
+   Abaixo de 1430px sete colunas dariam cartazes de menos de 130px, e o número
+   impresso na capa deixaria de se ler. Aí a grade cai para quatro, e depois
+   para três e duas. */
+.apr-grade{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:16px; }
+@media (max-width:1430px){ .apr-grade{ grid-template-columns:repeat(4,minmax(0,1fr)); } }
+@media (max-width:980px){ .apr-grade{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media (max-width:620px){ .apr-grade{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
 /* `flex`, e nao `block`: o <button> tem um bloco anonimo por dentro que nao
    soma a altura dos filhos, entao com `block` o cartao media o tamanho da
    capa e o rotulo escorria por baixo, em cima da linha seguinte da grade. */
 .apr-mod{
   display:flex; flex-direction:column; align-items:stretch;
-  width:152px; padding:0; border:0; background:none; text-align:left;
+  width:100%; min-width:0; padding:0; border:0; background:none; text-align:left;
   cursor:pointer; color:inherit;
 }
 .apr-mod__capa{
@@ -1994,11 +2009,14 @@
   flex:none; display:block; width:92px; aspect-ratio:520/909; object-fit:cover;
   border-radius:var(--r-peq);
 }
+/* O vão de 6px virava 11px na tela: o olho tem 11px de corpo com a entrelinha
+   padrão, e a meia entrelinha de sobra soma com a do título. `line-height:1`
+   no olho e margem zero no título deixam os dois no vão que se vê. */
 .apr-mcab h1{
-  margin:6px 0 0; font-size:clamp(21px,2.1vw,28px); font-weight:500;
+  margin:2px 0 0; font-size:clamp(21px,2.1vw,28px); font-weight:500;
   letter-spacing:-.028em; line-height:1.14; text-wrap:balance;
 }
-.apr-mcab p{ margin:0; font-size:var(--t-etiqueta); font-weight:700;
+.apr-mcab p{ margin:0; line-height:1; font-size:var(--t-etiqueta); font-weight:700;
   letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }
 
 /* ── a lista de aulas ── */
@@ -2048,7 +2066,11 @@
 /* A assinatura da Marilia fecha a aula. Ela é a mesma peça da área de membros
    e vem com os cantos já arredondados no arquivo, então não leva raio nem
    fio: qualquer um dos dois desenharia uma segunda borda em volta dela. */
-.apr-assina{ display:block; width:100%; max-width:620px; margin:30px 0 0; }
+/* `height:auto` não é detalhe: a imagem leva os atributos `width` e `height`
+   (que existem para o navegador reservar o espaço antes de ela chegar), e sem
+   isto o CSS trocava só a largura. A altura ficava nos 209px do atributo e a
+   assinatura saía esticada. */
+.apr-assina{ display:block; width:100%; height:auto; max-width:620px; margin:30px 0 0; }
 
 @media (prefers-reduced-motion:reduce){
   .heroi--entra, .ia-disco, .ia-anel{ animation:none; }
