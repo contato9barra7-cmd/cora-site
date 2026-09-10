@@ -1753,6 +1753,26 @@
 .jn .cr-card .foto{ aspect-ratio:4/5; }
 .jn .cref-op .foto{ width:26px; height:26px; flex:none; border-radius:6px; }
 
+/* ── O Editar numa janela de 980 ──
+   Os oito cartões pedem 881px e a coluna tem 836. Quem rola perde justamente
+   os dois últimos, que são os que menos se conhece.
+
+   Aqui eles apertam: o recuo do cartão, a pastilha do desenho, a entrelinha
+   da descrição e o respiro entre eles. Nada de tamanho de letra: o texto
+   continua o mesmo do resto do painel.
+
+   É do PLUGIN, e não da web: lá a coluna acompanha a altura do navegador e
+   não tem esse teto. Por isso pede a classe, em vez de valer para todo
+   `.ed-card` do mundo.
+
+   Sobram uns 16px de proposíto. Em inglês e em espanhol as descrições são
+   mais longas, e caber exato numa língua só não é caber. */
+.co-cartao-curto .ed-cards{ gap:6px; }
+.co-cartao-curto .ed-card{ padding:16px 11px 9px; }
+.co-cartao-curto .ed-faixa{ width:30px; height:30px; margin-bottom:6px; }
+.co-cartao-curto .ed-faixa svg{ width:16px; height:16px; }
+.co-cartao-curto .ed-corpo span{ margin-top:3px; line-height:1.35; }
+
 
 :root{
   --marca:url('data:image/png;base64,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');
@@ -1908,7 +1928,7 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
 
 <h2 class="secao">Onde ele mora</h2>
 <p>A janela inteira, no tamanho de verdade. A grade dos oito modos na coluna, o feed à direita.</p>
-<div class="env"><div class="moldura jn-cheia co" id="jn1"></div></div>
+<div class="env"><div class="moldura jn-cheia co co-cartao-curto" id="jn1"></div></div>
 
 <h2 class="secao">As etapas, uma a uma</h2>
 <p>Cada quadro é a coluna do Editar no tamanho de verdade, 400px, com a barra de gerar no pé quando há o que gerar.</p>
@@ -2192,15 +2212,15 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
   ];
 
   document.getElementById('etapas').innerHTML = ETAPAS.map(function (e) {
-    return '<figure class="etapa"><div class="moldura co"><div class="moldura-barra">' +
+    return '<figure class="etapa"><div class="moldura co co-cartao-curto"><div class="moldura-barra">' +
       '<span class="ico"></span>Cora Render<span class="vazio"></span><i></i><i class="q"></i><i class="x"></i></div>' +
       e.html + '</div><figcaption><span class="n">' + e.n + '</span><b>' + e.t + '</b><p>' + e.d + '</p></figcaption></figure>';
   }).join('');
 
   document.getElementById('pinceis').innerHTML =
-    '<div class="moldura jn-cheia co" style="margin-bottom:34px">' + janela(colunaPincel(false) + telaPincel(false)) + '</div>' +
+    '<div class="moldura jn-cheia co co-cartao-curto" style="margin-bottom:34px">' + janela(colunaPincel(false) + telaPincel(false)) + '</div>' +
     '<p style="max-width:62ch;margin:0 0 34px;color:var(--pag-apoio);font-size:13px">O preenchimento. A coluna continua sendo a coluna: o pincel, a borracha, a régua do tamanho e o limpar numa fileira só, e embaixo o que fazer na área marcada. Quem saiu de cena foi o feed.</p>' +
-    '<div class="moldura jn-cheia co">' + janela(colunaPincel(true) + telaPincel(true)) + '</div>' +
+    '<div class="moldura jn-cheia co co-cartao-curto">' + janela(colunaPincel(true) + telaPincel(true)) + '</div>' +
     '<p style="max-width:62ch;margin:18px 0 0;color:var(--pag-apoio);font-size:13px">A expansão. A moldura cresce em volta da imagem e as alças esticam para fora, com a medida no canto. A proporção e os dois campos de razão ficam na coluna.</p>';
 
   var raiz = document.documentElement, btn = document.getElementById('tema');

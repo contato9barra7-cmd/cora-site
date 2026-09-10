@@ -151,7 +151,7 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
 
 <h2 class="secao">Onde ele mora</h2>
 <p>A janela inteira, no tamanho de verdade. A grade dos oito modos na coluna, o feed à direita.</p>
-<div class="env"><div class="moldura jn-cheia co" id="jn1"></div></div>
+<div class="env"><div class="moldura jn-cheia co co-cartao-curto" id="jn1"></div></div>
 
 <h2 class="secao">As etapas, uma a uma</h2>
 <p>Cada quadro é a coluna do Editar no tamanho de verdade, 400px, com a barra de gerar no pé quando há o que gerar.</p>
@@ -435,15 +435,15 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
   ];
 
   document.getElementById('etapas').innerHTML = ETAPAS.map(function (e) {
-    return '<figure class="etapa"><div class="moldura co"><div class="moldura-barra">' +
+    return '<figure class="etapa"><div class="moldura co co-cartao-curto"><div class="moldura-barra">' +
       '<span class="ico"></span>Cora Render<span class="vazio"></span><i></i><i class="q"></i><i class="x"></i></div>' +
       e.html + '</div><figcaption><span class="n">' + e.n + '</span><b>' + e.t + '</b><p>' + e.d + '</p></figcaption></figure>';
   }).join('');
 
   document.getElementById('pinceis').innerHTML =
-    '<div class="moldura jn-cheia co" style="margin-bottom:34px">' + janela(colunaPincel(false) + telaPincel(false)) + '</div>' +
+    '<div class="moldura jn-cheia co co-cartao-curto" style="margin-bottom:34px">' + janela(colunaPincel(false) + telaPincel(false)) + '</div>' +
     '<p style="max-width:62ch;margin:0 0 34px;color:var(--pag-apoio);font-size:13px">O preenchimento. A coluna continua sendo a coluna: o pincel, a borracha, a régua do tamanho e o limpar numa fileira só, e embaixo o que fazer na área marcada. Quem saiu de cena foi o feed.</p>' +
-    '<div class="moldura jn-cheia co">' + janela(colunaPincel(true) + telaPincel(true)) + '</div>' +
+    '<div class="moldura jn-cheia co co-cartao-curto">' + janela(colunaPincel(true) + telaPincel(true)) + '</div>' +
     '<p style="max-width:62ch;margin:18px 0 0;color:var(--pag-apoio);font-size:13px">A expansão. A moldura cresce em volta da imagem e as alças esticam para fora, com a medida no canto. A proporção e os dois campos de razão ficam na coluna.</p>';
 
   var raiz = document.documentElement, btn = document.getElementById('tema');

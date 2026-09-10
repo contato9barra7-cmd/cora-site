@@ -281,6 +281,26 @@ h1{ margin:10px 0 0; font-size:clamp(26px,3.6vw,34px); font-weight:500; letter-s
 .jn .foto.ref-b{ background-image:var(--foto4); }
 .jn .cref-op .foto{ width:26px; height:26px; flex:none; border-radius:6px; }
 
+/* ── O Editar numa janela de 980 ──
+   Os oito cartões pedem 881px e a coluna tem 836. Quem rola perde justamente
+   os dois últimos, que são os que menos se conhece.
+
+   Aqui eles apertam: o recuo do cartão, a pastilha do desenho, a entrelinha
+   da descrição e o respiro entre eles. Nada de tamanho de letra: o texto
+   continua o mesmo do resto do painel.
+
+   É do PLUGIN, e não da web: lá a coluna acompanha a altura do navegador e
+   não tem esse teto. Por isso pede a classe, em vez de valer para todo
+   `.ed-card` do mundo.
+
+   Sobram uns 16px de proposíto. Em inglês e em espanhol as descrições são
+   mais longas, e caber exato numa língua só não é caber. */
+.co-cartao-curto .ed-cards{ gap:6px; }
+.co-cartao-curto .ed-card{ padding:16px 11px 9px; }
+.co-cartao-curto .ed-faixa{ width:30px; height:30px; margin-bottom:6px; }
+.co-cartao-curto .ed-faixa svg{ width:16px; height:16px; }
+.co-cartao-curto .ed-corpo span{ margin-top:3px; line-height:1.35; }
+
 /* ── o banco de provas ── */
 .banco{
   position:fixed; left:0; right:0; bottom:0; z-index:60;
