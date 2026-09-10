@@ -933,13 +933,27 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
         </div>
 
         {/* Sem `ocupado` no disabled: dá pra disparar mais de uma — elas entram
-            na FILA e rodam uma por vez. */}
+            na FILA e rodam uma por vez.
+
+            O botão diz o MOTIVO de estar apagado, no próprio rótulo. Antes ele
+            dizia "Renderizar" cinza e o motivo ficava numa linha embaixo: quem
+            olha um botão apagado olha o botão, não o rodapé dele, e clicava
+            três vezes antes de procurar a explicação em outro canto da tela.
+            Confirmados os materiais, ele vira lima e passa a dizer o que faz. */}
         <button
           className="cr-btn-gerar"
           onClick={gerar}
           disabled={!imagem || travadoMat}
         >
-          <span>{t('painelrender_renderizar')}</span>
+          <span>
+            {!imagem
+              ? t('painelrender_escolha_imagem')
+              : travadoMat
+                ? (matEstado === 'revisar'
+                    ? t('painelrender_confirme_materiais')
+                    : t('painelrender_leia_materiais'))
+                : t('painelrender_renderizar')}
+          </span>
           {!travadoMat && imagem && (
             <span className="cr-custo-tag">
               <IconeCredito /> {custo}
@@ -949,17 +963,6 @@ export default function PainelRender({ onPronto, onProgresso, ocupado, setOcupad
 
         {naFila > 0 && (
           <p className="cr-custo">{naFila} {t('fila_rotulo')}</p>
-        )}
-
-        {/* O custo nao se repete aqui: ja aparece na tag do hover.
-            So o aviso fica — a pessoa precisa saber por que o botao esta
-            apagado. */}
-        {travadoMat && (
-          <p className="cr-custo">
-            {matEstado === 'revisar'
-              ? t('painelrender_confirme_materiais')
-              : t('painelrender_leia_materiais')}
-          </p>
         )}
       {/* Recomeçar do zero, no pé da barra e não antes dela. Recomeçar é a
           última coisa que se faz, e estava no meio da tela. Pede confirmação: os
