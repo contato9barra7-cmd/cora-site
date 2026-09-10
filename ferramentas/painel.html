@@ -53,11 +53,12 @@
   --ia-azul:#316CF6;
 
   /* ── O TOM DA LATERAL ──
-     Ela e o miolo trocaram de tom no padrao dos Promptadores, mas com o
-     `--wash2` (#efefeb) contra o `--wash` (#f6f6f4) do miolo sobravam SETE
-     unidades de diferenca, e a fronteira entre as duas sumia. Aqui sao
-     treze, que e o minimo em que o olho separa duas areas sem fio. */
-  --side-bg:#E9E9E3;
+     E o `--wash2` deles, sem correcao minha. Cheguei a escurecer para #E9E9E3
+     achando que sete unidades de diferenca contra o miolo eram pouco, e nao
+     eram: o que separa as duas areas ali nao e o tom, e o FIO de 1px mais as
+     pastilhas brancas de um lado so. Escurecendo, a barra deixava de ser um
+     cinza da familia e virava bege. */
+  --side-bg:var(--wash2);
   --balao:url('/img/ia/balao-ia.webp');
   --r:20px; --r-peq:12px; --r-heroi:22px; --pill:100px;
   /* O vidro das pastilhas que ficam EM CIMA da padronagem. Ele não muda
@@ -121,9 +122,7 @@
 :root[data-theme="dark"]{
   --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
   --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
-  /* No escuro a lateral sobe em vez de descer: o miolo ja e o mais escuro
-     que a tela tem, e escurecer mais viraria buraco. */
-  --side-bg:#1A1A1E;
+  --side-bg:var(--wash2);
   --line:#2B2B30; --line2:#3A3A41;
   --ok:#7BD3A0; --ok-bg:rgba(31,122,68,.16);
   --turq-txt:var(--turquesa-esc);
@@ -422,7 +421,10 @@
    ══════════════════════════════════════════════════════════════════════ */
 .app-header{
   position:fixed; top:0; right:0; left:var(--side-w); height:var(--header-h); z-index:40;
-  background:var(--paper); border-bottom:1px solid var(--line);
+  /* O mesmo tom do miolo, e nao branco: nos Promptadores o cabecalho liso e
+     `--wash`, e e isso que faz a pastilha do nome da tela ler como pastilha.
+     Branco, ele virava uma faixa atravessando o topo. */
+  background:var(--wash); border-bottom:1px solid var(--line);
   display:flex; align-items:center; padding:0 26px; transition:left var(--t);
 }
 .app-shell.recolhido .app-header{ left:var(--side-w-min); }
@@ -693,7 +695,7 @@
   position:absolute; right:22px; bottom:18px; z-index:2; display:flex; gap:7px;
 }
 .heroi__ponto{
-  width:30px; height:4px; padding:0; border:0; border-radius:var(--pill);
+  width:30px; height:3px; padding:0; border:0; border-radius:var(--pill);
   background:var(--line2); cursor:pointer; overflow:hidden;
 }
 .heroi__ponto i{
@@ -2136,8 +2138,10 @@
    por isso o anel dele leva a porcentagem dentro, e os dos modulos levam o
    numero. Sem `margin-left:auto` no apoio: empurrado para a ponta, ele abria
    um vao no meio da pilula e os dois textos deixavam de ser um par. */
+/* `flex`, e nao `inline-flex`: a pilula acompanha a largura da coluna das
+   aulas, e as duas passam a ter a mesma esquina dos dois lados. */
 .apr-prog{
-  display:inline-flex; align-items:center; gap:11px; padding:8px 18px 8px 9px;
+  display:flex; align-items:center; gap:11px; padding:8px 18px 8px 9px;
   border-radius:var(--pill); background:var(--turq-bg); color:var(--turq-txt);
 }
 .apr-prog__txt{ min-width:0; }

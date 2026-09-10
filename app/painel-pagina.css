@@ -24,10 +24,11 @@
      amarelo) não é a lima daqui (#C4FBA7, verde-maçã). Uma do lado da outra
      o olho lê erro de cor, então a ácida só aparece dentro da faixa do
      convite e da coluna do quadro dele, longe do fio de lima da aba aberta. *//* ── O TOM DA LATERAL ──
-     Ela e o miolo trocaram de tom no padrao dos Promptadores, mas com o
-     `--wash2` (#efefeb) contra o `--wash` (#f6f6f4) do miolo sobravam SETE
-     unidades de diferenca, e a fronteira entre as duas sumia. Aqui sao
-     treze, que e o minimo em que o olho separa duas areas sem fio. *//* O vidro das pastilhas que ficam EM CIMA da padronagem. Ele não muda
+     E o `--wash2` deles, sem correcao minha. Cheguei a escurecer para #E9E9E3
+     achando que sete unidades de diferenca contra o miolo eram pouco, e nao
+     eram: o que separa as duas areas ali nao e o tom, e o FIO de 1px mais as
+     pastilhas brancas de um lado so. Escurecendo, a barra deixava de ser um
+     cinza da familia e virava bege. *//* O vidro das pastilhas que ficam EM CIMA da padronagem. Ele não muda
      no tema escuro: a lima e a turquesa da faixa também não mudam, e um
      vidro escuro sobre elas ficaria sujo. *//* ── A ESCALA DE TIPO ──
      O painel usava VINTE tamanhos diferentes, seis deles entre 13 e 15.5px
@@ -67,7 +68,7 @@
   --ia-azul:#316CF6;
 
   
-  --side-bg:#E9E9E3;
+  --side-bg:var(--wash2);
   --balao:url('/img/ia/balao-ia.webp');
   --r:20px; --r-peq:12px; --r-heroi:22px; --pill:100px;
   
@@ -107,12 +108,10 @@
    chão é lima com as formas em turquesa, no escuro é o contrário. O
    cabeçalho troca com um cruzamento de 420ms, porque o seletor de tema mora
    no menu do avatar, que abre em cima dele: quem troca o tema está olhando
-   justamente para a faixa quando ela muda. */[data-theme="dark"] .pn{/* No escuro a lateral sobe em vez de descer: o miolo ja e o mais escuro
-     que a tela tem, e escurecer mais viraria buraco. */
+   justamente para a faixa quando ela muda. */[data-theme="dark"] .pn{
   --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
   --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
-  
-  --side-bg:#1A1A1E;
+  --side-bg:var(--wash2);
   --line:#2B2B30; --line2:#3A3A41;
   --ok:#7BD3A0; --ok-bg:rgba(31,122,68,.16);
   --turq-txt:var(--turquesa-esc);
@@ -304,9 +303,12 @@
   mask:var(--simbolo) no-repeat center / contain;
 }/* ══════════════════════════════════════════════════════════════════════
    O CABEÇALHO
-   ══════════════════════════════════════════════════════════════════════ */.pn .app-header{
+   ══════════════════════════════════════════════════════════════════════ */.pn .app-header{/* O mesmo tom do miolo, e nao branco: nos Promptadores o cabecalho liso e
+     `--wash`, e e isso que faz a pastilha do nome da tela ler como pastilha.
+     Branco, ele virava uma faixa atravessando o topo. */
   position:fixed; top:0; right:0; left:var(--side-w); height:var(--header-h); z-index:40;
-  background:var(--paper); border-bottom:1px solid var(--line);
+  
+  background:var(--wash); border-bottom:1px solid var(--line);
   display:flex; align-items:center; padding:0 26px; transition:left var(--t);
 }.pn .app-shell.recolhido .app-header{ left:var(--side-w-min); }/* O nome da tela mora numa pastilha, como no cabecalho dos Promptadores: ele
    deixa de ser uma palavra solta no vao e passa a ser um objeto. */.pn .app-header-aqui{
@@ -488,7 +490,7 @@
    quem só atravessou o cartão com o cursor não pediu nada. */.pn .heroi__pontos{
   position:absolute; right:22px; bottom:18px; z-index:2; display:flex; gap:7px;
 }.pn .heroi__ponto{
-  width:30px; height:4px; padding:0; border:0; border-radius:var(--pill);
+  width:30px; height:3px; padding:0; border:0; border-radius:var(--pill);
   background:var(--line2); cursor:pointer; overflow:hidden;
 }.pn .heroi__ponto i{
   display:block; height:100%; width:100%; border-radius:var(--pill);
@@ -1361,8 +1363,9 @@
    Ele e a unica peca que fala do TODO, e o todo nao tem numero de modulo:
    por isso o anel dele leva a porcentagem dentro, e os dos modulos levam o
    numero. Sem `margin-left:auto` no apoio: empurrado para a ponta, ele abria
-   um vao no meio da pilula e os dois textos deixavam de ser um par. */.pn .apr-prog{
-  display:inline-flex; align-items:center; gap:11px; padding:8px 18px 8px 9px;
+   um vao no meio da pilula e os dois textos deixavam de ser um par. *//* `flex`, e nao `inline-flex`: a pilula acompanha a largura da coluna das
+   aulas, e as duas passam a ter a mesma esquina dos dois lados. */.pn .apr-prog{
+  display:flex; align-items:center; gap:11px; padding:8px 18px 8px 9px;
   border-radius:var(--pill); background:var(--turq-bg); color:var(--turq-txt);
 }.pn .apr-prog__txt{ min-width:0; }.pn .apr-prog b{ display:block; font-size:var(--t-apoio2); font-weight:700; line-height:1.25; }.pn .apr-prog em{
   display:block; font-style:normal; font-size:var(--t-etiqueta); font-weight:600;

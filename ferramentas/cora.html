@@ -812,7 +812,10 @@
 .cr-tam:hover:not(.cr-tam--on){ color:var(--ink); }
 .cr-tam--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }
 
-.cr-seg-lay .cr-fbtn{ min-width:30px; height:26px; padding:0 8px; }
+/* Circulo, e nao oval: 30 de largura por 26 de altura com raio de pilula
+   desenha uma elipse em volta de um desenho que e quadrado. Dentro do
+   sulco de 3px de respiro, 26 por 26 e o que cabe. */
+.cr-seg-lay .cr-fbtn{ width:26px; min-width:0; height:26px; padding:0; }
 .cr-seg-lay .cr-fbtn--on{
   background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq);
 }

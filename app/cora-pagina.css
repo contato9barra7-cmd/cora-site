@@ -468,7 +468,9 @@
   background:transparent; color:var(--ink3);
   font-size:var(--t-apoio2); font-weight:600; cursor:pointer;
   transition:background var(--t), color var(--t);
-}.co .cr-tam:hover:not(.cr-tam--on){ color:var(--ink); }.co .cr-tam--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }.co .cr-seg-lay .cr-fbtn{ min-width:30px; height:26px; padding:0 8px; }.co .cr-seg-lay .cr-fbtn--on{
+}.co .cr-tam:hover:not(.cr-tam--on){ color:var(--ink); }.co .cr-tam--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }/* Circulo, e nao oval: 30 de largura por 26 de altura com raio de pilula
+   desenha uma elipse em volta de um desenho que e quadrado. Dentro do
+   sulco de 3px de respiro, 26 por 26 e o que cabe. */.co .cr-seg-lay .cr-fbtn{ width:26px; min-width:0; height:26px; padding:0; }.co .cr-seg-lay .cr-fbtn--on{
   background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq);
 }/* O form é só a caixa do input: sem altura, fundo, recuo nem raio próprios,
    que o globals dá a ele numa segunda `.cr-busca` e apareciam por trás da
