@@ -14,6 +14,7 @@ import AdminDinheiro from '../../components/AdminDinheiro';
 import PainelNovidades from '../../components/PainelNovidades';
 import AdminAuditoria from '../../components/AdminAuditoria';
 import AdminComentarios from '../../components/AdminComentarios';
+import AdminAulas from '../../components/AdminAulas';
 import { usarTelaAdmin, irParaTelaAdmin } from '../../lib/telaAdmin';
 
 
@@ -99,7 +100,7 @@ export default function Admin() {
     registros:{ olho: 'Admin · Registros', titulo: 'O que ficou gravado',
                 abas: ['aceites', 'novidades', 'auditoria'], primeira: 'aceites' },
     aulas:{ olho: 'Admin · Aulas', titulo: t('adm_aulas_titulo'),
-                abas: ['espera', 'todos'], primeira: 'espera' },
+                abas: ['comentarios', 'catalogo', 'progresso'], primeira: 'comentarios' },
   };
 
   /* ── QUEM TEM LISTAGEM, POR INCLUSAO ──
@@ -940,12 +941,16 @@ export default function Admin() {
       {telaAdm === 'aulas' && (
         <>
           <div className="adm-abas" role="tablist" data-fila="aulas">
-            <button className={'adm-aba' + (aba === 'espera' ? ' ativa' : '')}
-                    onClick={() => setAba('espera')}>{t('adm_com_espera')}</button>
-            <button className={'adm-aba' + (aba === 'todos' ? ' ativa' : '')}
-                    onClick={() => setAba('todos')}>{t('adm_com_todos')}</button>
+            <button className={'adm-aba' + (aba === 'comentarios' ? ' ativa' : '')}
+                    onClick={() => setAba('comentarios')}>{t('adm_com_titulo')}</button>
+            <button className={'adm-aba' + (aba === 'catalogo' ? ' ativa' : '')}
+                    onClick={() => setAba('catalogo')}>{t('adm_cat_aba')}</button>
+            <button className={'adm-aba' + (aba === 'progresso' ? ' ativa' : '')}
+                    onClick={() => setAba('progresso')}>{t('adm_pg_aba')}</button>
           </div>
-          <AdminComentarios aba={aba} />
+          {aba === 'comentarios'
+            ? <AdminComentarios aba="espera" />
+            : <AdminAulas aba={aba} />}
         </>
       )}
 

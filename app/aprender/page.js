@@ -24,7 +24,7 @@ import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import { lerConta } from '../../lib/auth';
 import {
-  MODULOS, TOTAL_AULAS, urlDoVideo,
+  MODULOS as MODULOS_ARQUIVO, TOTAL_AULAS, urlDoVideo, comCatalogo, lerCatalogo,
   lerEstadoAulas, marcarVisto, votar, lerComentarios, comentar,
 } from '../../lib/aulas';
 import { useIdioma, tOpt } from '../../lib/i18n';
@@ -58,10 +58,7 @@ function Anel({ dentro, pct, tam = 26 }) {
   );
 }
 
-/* A lista plana das 33, para o Anterior e o Próxima andarem pelo curso e não
-   pelo módulo: no fim do módulo, o Próxima rola para o seguinte em vez de
-   morrer. */
-const FILA = MODULOS.flatMap((m) => m.aulas.map((a) => ({ ...a, modulo: m })));
+
 
 export default function Aprender() {
   const { t } = useIdioma();
@@ -73,6 +70,17 @@ export default function Aprender() {
   const [abertos, setAbertos] = useState([]);   // módulos abertos no índice
 
   const [estado, setEstado] = useState({ vistas: [], votos: {}, joinhas: {} });
+  /* O catálogo do arquivo já serve a primeira pintura; o que foi editado no
+     admin chega logo depois e substitui por cima. Assim a tela abre mesmo com
+     a API fora, com os nomes que vieram no código. */
+  const [cat, setCat] = useState(null);
+  const MODULOS = useMemo(() => comCatalogo(cat), [cat]);
+  /* A lista plana das 33, para o Anterior e o Próxima andarem pelo curso e não
+     pelo módulo: no fim do módulo, o Próxima rola para o seguinte. */
+  const FILA = useMemo(
+    () => MODULOS.flatMap((m) => m.aulas.map((a) => ({ ...a, modulo: m }))),
+    [MODULOS]
+  );
   const [comentarios, setComentarios] = useState([]);
   const [rascunho, setRascunho] = useState('');
   const [escrevendo, setEscrevendo] = useState(false);
@@ -83,6 +91,7 @@ export default function Aprender() {
     if (!lerConta()) { router.push('/login'); return; }
     setPronto(true);
     lerEstadoAulas().then(setEstado);
+    lerCatalogo().then(setCat);
   }, [router]);
 
   useEffect(() => {
