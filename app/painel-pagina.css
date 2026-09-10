@@ -397,8 +397,7 @@
   background:var(--ink); color:var(--paper); font-size:14.5px; font-weight:600;
   letter-spacing:.02em; user-select:none;
   background-size:cover; background-position:center;
-}/* A foto anda junto do nome dentro do menu. O avatar da barra fica atras do
-   proprio menu quando ele abre, e quem abre quer ver de quem e a conta. */.pn .app-user-quem{ display:flex; align-items:center; gap:11px; }.pn .app-user-quem-txt{ min-width:0; }.pn .app-avatar--menu{ flex:none; width:40px; height:40px; border-radius:12px; font-size:16px; }.pn .app-user-menu{/* o recuo mora no miolo, para a faixa encostar na borda *//* `overflow:hidden` cortava a lista do dropdown pela borda do menu. Quem
+}.pn .app-user-menu{/* o recuo mora no miolo, para a faixa encostar na borda *//* `overflow:hidden` cortava a lista do dropdown pela borda do menu. Quem
      arredonda a faixa agora é a própria faixa. No site o problema não existe,
      porque a lista do DropdownCora sai por um portal. */
   position:absolute; top:calc(100% + 10px); right:0; width:284px; z-index:60;
@@ -1449,10 +1448,12 @@
   flex:none; display:grid; place-items:center; width:16px; height:16px; border-radius:50%;
   border:1.5px solid var(--line2);
 }.pn .apr-pip svg{ width:10px; height:10px; color:var(--turq-txt); }.pn .apr-pip--ok{ border-color:var(--turquesa-esc); background:var(--turq-bg); }/* ── os comentarios ── */.pn .apr-com{ margin-top:30px; padding-top:24px; border-top:1px solid var(--line); }.pn .apr-com__cab{ display:flex; align-items:baseline; gap:10px; margin-bottom:16px; }.pn .apr-com__cab h2{ margin:0; font-size:var(--t-titulo); font-weight:600; }.pn .apr-com__cab em{ font-style:normal; font-size:var(--t-apoio2); color:var(--ink3); }/* `center`: a foto acompanha o campo, e nao a primeira linha dele. Quando a
-   caixa cresce, ela sobe para o topo, senao a foto ficaria boiando no meio. */.pn .apr-escreve{ display:flex; gap:12px; align-items:center; }.pn .apr-escreve--alto{ align-items:flex-start; }.pn .apr-ava{
+   caixa cresce, ela sobe para o topo, senao a foto ficaria boiando no meio. */.pn .apr-escreve{ display:flex; gap:12px; align-items:center; }.pn .apr-escreve--alto{ align-items:flex-start; }.pn .apr-ava{/* a foto entra como background-image, entao o cover mora aqui e nao no
+     style de cada lugar que desenha um avatar. */
   flex:none; display:grid; place-items:center; width:36px; height:36px; border-radius:12px;
   background:var(--ink); color:var(--paper); font-size:14px; font-weight:600;
-  background-position:center;
+  
+  background-size:cover; background-position:center;
 }.pn .apr-campo{
   flex:1; min-width:0; display:flex; align-items:center; gap:8px;
   border:1px solid var(--line); border-radius:var(--pill); background:var(--paper);

@@ -22,7 +22,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta } from '../../lib/auth';
+import { lerConta, atualizarConta } from '../../lib/auth';
 import {
   MODULOS as MODULOS_ARQUIVO, TOTAL_AULAS, urlDoVideo, comCatalogo, lerCatalogo,
   lerEstadoAulas, marcarVisto, votar, lerComentarios, comentar,
@@ -81,10 +81,22 @@ export default function Aprender() {
     () => MODULOS.flatMap((m) => m.aulas.map((a) => ({ ...a, modulo: m }))),
     [MODULOS]
   );
+  /* A conta mora aqui, e nao num `lerConta()` no meio do JSX: aquele le o
+     cache do localStorage uma vez, na hora de desenhar, e nunca mais. Quem
+     trocou a foto depois de entrar via a inicial para sempre, porque o cache
+     so e reescrito no login e ninguem manda a tela desenhar de novo. */
+  const [eu, setEu] = useState(null);
   const [comentarios, setComentarios] = useState([]);
   const [rascunho, setRascunho] = useState('');
   const [escrevendo, setEscrevendo] = useState(false);
   const [enviando, setEnviando] = useState(false);
+
+  useEffect(() => {
+    let vivo = true;
+    setEu(lerConta());
+    atualizarConta().then((c) => { if (vivo && c) setEu(c); });
+    return () => { vivo = false; };
+  }, []);
   const caixa = useRef(null);
 
   useEffect(() => {
@@ -350,7 +362,10 @@ export default function Aprender() {
                   </div>
 
                   <div className={'apr-escreve' + (escrevendo ? ' apr-escreve--alto' : '')}>
-                    <span className="apr-ava">{(lerConta()?.nome || '?').charAt(0).toUpperCase()}</span>
+                    <span className="apr-ava"
+                          style={eu?.foto_url ? { backgroundImage: `url(${eu.foto_url})`, color: 'transparent' } : undefined}>
+                      {eu?.foto_url ? '' : (eu?.nome || eu?.email || '?').charAt(0).toUpperCase()}
+                    </span>
                     <div className={'apr-campo' + (escrevendo ? ' apr-campo--aberto' : '')}>
                       <textarea
                         ref={caixa}
@@ -381,8 +396,8 @@ export default function Aprender() {
                   {comentarios.map((c) => (
                     <div className="apr-fio" key={c.id}>
                       <span className="apr-ava"
-                            style={c.foto ? { backgroundImage: `url(${c.foto})`, backgroundSize: 'cover', color: 'transparent' } : undefined}>
-                        {(c.nome || '?').charAt(0).toUpperCase()}
+                            style={c.foto ? { backgroundImage: `url(${c.foto})`, color: 'transparent' } : undefined}>
+                        {c.foto ? '' : (c.nome || '?').charAt(0).toUpperCase()}
                       </span>
                       <span className="apr-fio__txt">
                         <span className="apr-fio__quem">

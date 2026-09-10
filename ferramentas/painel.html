@@ -2336,7 +2336,9 @@
 .apr-ava{
   flex:none; display:grid; place-items:center; width:36px; height:36px; border-radius:12px;
   background:var(--ink); color:var(--paper); font-size:14px; font-weight:600;
-  background-position:center;
+  /* a foto entra como background-image, entao o cover mora aqui e nao no
+     style de cada lugar que desenha um avatar. */
+  background-size:cover; background-position:center;
 }
 .apr-campo{
   flex:1; min-width:0; display:flex; align-items:center; gap:8px;

@@ -74,8 +74,8 @@ export default function AdminComentarios({ aba }) {
       {linhas.map((c) => (
         <div key={c.id} className={'adm-com__linha' + (c.estado !== 'espera' ? ' adm-com__linha--ok' : '')}>
           <span className="apr-ava"
-                style={c.foto_url ? { backgroundImage: `url(${c.foto_url})`, backgroundSize: 'cover', color: 'transparent' } : undefined}>
-            {(c.nome || c.email || '?').charAt(0).toUpperCase()}
+                style={c.foto_url ? { backgroundImage: `url(${c.foto_url})`, color: 'transparent' } : undefined}>
+            {c.foto_url ? '' : (c.nome || c.email || '?').charAt(0).toUpperCase()}
           </span>
           <span className="adm-com__txt">
             <p className="adm-com__onde">{onde(c.aula)}</p>
