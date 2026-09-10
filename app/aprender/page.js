@@ -30,6 +30,7 @@ import {
 import { useIdioma, tOpt } from '../../lib/i18n';
 
 const Ico = {
+  baixar: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 4.5V15" /><path d="M7.5 10.5L12 15l4.5-4.5" /><path d="M4.5 16v2.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V16" /></svg>),
   esq: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M14 6l-6 6 6 6" /></svg>),
   dir: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M10 6l6 6-6 6" /></svg>),
   visto: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>),
@@ -396,8 +397,35 @@ export default function Aprender() {
                   </span>
                 </div>
 
-                <img className="apr-assina" src="/img/aulas/assinatura.webp"
-                     alt="Marilia Fischer · 9BARRA7 Academy" width="2501" height="418" />
+                {/* O que a Marilia escreveu na aula. O HTML vem do admin, e
+                    quem o escreve é a dona do curso: não há entrada de fora
+                    aqui, e por isso ele entra como está. */}
+                {aula.texto && (
+                  <div className="apr-texto" dangerouslySetInnerHTML={{ __html: aula.texto }} />
+                )}
+
+                {(aula.materiais || []).length > 0 && (
+                  <div className="apr-mat">
+                    <h2>{t('apr_material')}</h2>
+                    {aula.materiais.map((m, i) => (
+                      <a key={i} className="apr-mat__item" href={m.link}
+                         target="_blank" rel="noopener noreferrer">
+                        <span className="apr-mat__ico">{Ico.baixar}</span>
+                        <span className="apr-mat__txt">
+                          <b>{m.nome || m.link}</b>
+                          {m.nome && <span>{m.link}</span>}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                )}
+
+                {/* A assinatura vem ligada. Vazio é a faixa de fábrica, 'nao' é
+                    sem assinatura, e uma imagem é a daquela aula. */}
+                {aula.assina !== 'nao' && (
+                  <img className="apr-assina" src={aula.assina || '/img/aulas/assinatura.webp'}
+                       alt="Marilia Fischer · 9BARRA7 Academy" />
+                )}
 
                 {/* ── os comentários ── */}
                 <div className="apr-com">

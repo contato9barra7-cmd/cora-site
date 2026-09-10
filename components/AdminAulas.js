@@ -26,6 +26,7 @@ import {
   criarAula, criarModulo, publicarModulo, salvarOrdem,
 } from '../lib/aulas';
 import { useIdioma, tOpt } from '../lib/i18n';
+import AdminAula from './AdminAula';
 
 /* A capa fica guardada com a largura do arquivo. São duas medidas porque são
    duas composições: o cartaz em pé vai na fila dos sete módulos, e a deitada
@@ -42,6 +43,7 @@ const Ico = {
   noAr: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M8.5 12.3l2.5 2.5 4.5-5" /></svg>),
   rascunho: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9" strokeDasharray="3 3" /></svg>),
   relogio: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7.5V12l3 2" /></svg>),
+  dir: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 6l6 6-6 6" /></svg>),
   seta: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9.5l6 6 6-6" /></svg>),
   dobrar: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12h16" /><path d="M9 7.5L12 4.5l3 3" /><path d="M9 16.5l3 3 3-3" /></svg>),
   mais: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"><path d="M12 5.5v13M5.5 12h13" /></svg>),
@@ -105,6 +107,17 @@ const ESTADOS = ['no_ar', 'rascunho', 'breve'];
 const CLASSE = { no_ar: 'adm-est--no', rascunho: 'adm-est--ras', breve: 'adm-est--br' };
 const DESENHO = { no_ar: 'noAr', rascunho: 'rascunho', breve: 'relogio' };
 
+/* A linha de baixo do nome, numa frase: tem vídeo, quantos materiais, e o que
+   falta. É o que substitui os dois campos de digitar que moravam aqui. */
+function resumoDaAula(a, temVideo, t) {
+  const pedacos = [temVideo ? t('adm_cat_tem_video') : t('adm_cat_sem_video')];
+  const q = (a.materiais || []).length;
+  if (q) pedacos.push(q + ' ' + (q === 1 ? t('adm_cat_material') : t('adm_cat_materiais')));
+  if (a.texto) pedacos.push(t('adm_cat_tem_texto'));
+  if (a.editado) pedacos.push(t('adm_cat_sem_trad'));
+  return pedacos.join(' · ');
+}
+
 function Estado({ valor, onTrocar, t }) {
   const [aberto, setAberto] = useState(false);
   const eu = useRef(null);
@@ -163,6 +176,7 @@ export default function AdminAulas({ aba }) {
      reorganizar a fila dos sete: com as 33 aulas à mostra, arrastar um módulo
      do fim para o começo é uma viagem de tela e meia. */
   const [fechados, setFechados] = useState({});
+  const [aulaAberta, setAulaAberta] = useState(null);   // a aula sendo editada
 
   useEffect(() => {
     let vivo = true;
@@ -361,6 +375,28 @@ export default function AdminAulas({ aba }) {
     );
   }
 
+  /* ── A TELA DE UMA AULA ──
+     Ela toma o lugar da lista em vez de abrir por cima: é a mesma aba, e o
+     voltar devolve a fila onde ela estava, com os módulos dobrados do mesmo
+     jeito. */
+  if (aulaAberta) {
+    const dono = lista.find((m) => m.aulas.some((a) => a.id === aulaAberta));
+    const aqui = dono?.aulas.find((a) => a.id === aulaAberta);
+    if (dono && aqui) {
+      const vivas = dono.aulas.filter((a) => !a.removido);
+      return (
+        <AdminAula
+          aula={aqui}
+          modulo={dono}
+          numero={String(vivas.findIndex((a) => a.id === aqui.id) + 1).padStart(2, '0')}
+          aoVoltar={() => setAulaAberta(null)}
+          gravar={gravar}
+          Estado={Estado}
+        />
+      );
+    }
+  }
+
   /* ── AS AULAS ── */
   return (
     <>
@@ -456,41 +492,26 @@ export default function AdminAulas({ aba }) {
                   onDragEnd={largar}
                 >{Ico.pega}</span>
                 <span className="adm-cat__n">{String(i + 1).padStart(2, '0')}</span>
-                <span className="adm-cat__nome">
-                  <Campo
-                    valor={a.titulo}
-                    placeholder={t('adm_cat_nome')}
-                    original={cat[a.id]?.titulo != null && !a.nova ? true : null}
-                    onSalvar={(v) => gravar(a.id, 'titulo', v)}
-                  />
-                  {a.editado && <span className="apr-tag apr-tag--trad">{t('adm_cat_sem_trad')}</span>}
-                </span>
-                <span className="adm-cat__link">
-                  <Campo
-                    largo
-                    valor={a.pandaDoBanco ? a.panda : ''}
-                    original={cat[a.id]?.panda != null ? true : null}
-                    /* Quando o link vem do ARQUIVO, ele aparece apagado no
-                       lugar do convite: assim a linha diz "no ar" e mostra de
-                       onde. Texto apagado = veio do código; texto escrito =
-                       veio daqui. */
-                    placeholder={a.panda && !a.pandaDoBanco ? a.panda : t('adm_cat_cole')}
-                    onSalvar={(v) => gravar(a.id, 'panda', v)}
-                  />
-                </span>
+                {/* O NOME E O QUE A AULA TEM, e não mais dois campos de digitar.
+                    Editar mudou de lugar: vai na tela da aula, atrás da seta.
+                    Aqui a linha é para BATER O OLHO na fila inteira, e trinta e
+                    três campos abertos ao mesmo tempo são trinta e três coisas
+                    para o olho desviar. */}
+                <button className="adm-cat__abre" onClick={() => setAulaAberta(a.id)}>
+                  <b>{tOpt(a.titulo) || t('adm_cat_nome')}</b>
+                  <em>{resumoDaAula(a, noAr, t)}</em>
+                </button>
                 <span className="adm-cat__num">
-                  <Estado valor={a.estado} t={t} onTrocar={(e) => gravar(a.id, 'estado', e)} />
-                  {/* Ter vídeo é outra pergunta, e continua sendo mostrada: uma
-                      aula publicada sem link abre dizendo "em breve" para quem
-                      estuda, e é bom enxergar isso daqui. */}
-                  {!noAr && <span className="apr-tag apr-tag--espera">{t('adm_cat_sem_video')}</span>}
                   <span>{Ico.olho}{n.vistas}</span>
                   <span>{Ico.cima}{n.cima}</span>
                   <span>{Ico.baixo}{n.baixo}</span>
                   <span>{Ico.balao}{n.com}</span>
                 </span>
+                <Estado valor={a.estado} t={t} onTrocar={(e) => gravar(a.id, 'estado', e)} />
                 <button className="apr-bt apr-bt--so adm-cat__tira" title={t('adm_cat_remover')}
                         onClick={() => gravar(a.id, 'removido', '1')}>{Ico.x}</button>
+                <button className="apr-bt apr-bt--so" title={t('adm_cat_editar')}
+                        onClick={() => setAulaAberta(a.id)}>{Ico.dir}</button>
                 </>)} />
             );
           })}

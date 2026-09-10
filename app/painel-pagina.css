@@ -1295,7 +1295,43 @@
    sendo arrastado faz o navegador abortar o gesto. */.pn .adm-cat--antes, .pn .adm-cat--depois{ position:relative; }.pn .adm-cat--antes::before, .pn .adm-cat--depois::after{
   content:""; position:absolute; left:10px; right:10px; height:2px;
   border-radius:2px; background:var(--turquesa-esc);
-}.pn .adm-cat--antes::before{ top:-1px; }.pn .adm-cat--depois::after{ bottom:-1px; }.pn .adm-cat__tira{ flex:none; color:var(--ink3); }.pn .adm-cat__tira:hover{ color:#B3261E; border-color:#B3261E; }.pn .adm-cat__pe{ display:flex; gap:14px; align-items:center; padding:10px 18px; border-top:1px solid var(--line); }.pn .adm-cat__barra{ display:flex; gap:14px; align-items:center; margin-bottom:14px; }/* ── O ESTADO ──
+}.pn .adm-cat--antes::before{ top:-1px; }.pn .adm-cat--depois::after{ bottom:-1px; }.pn .adm-cat__tira{ flex:none; color:var(--ink3); }.pn .adm-cat__tira:hover{ color:#B3261E; border-color:#B3261E; }.pn .adm-cat__pe{ display:flex; gap:14px; align-items:center; padding:10px 18px; border-top:1px solid var(--line); }.pn .adm-cat__barra{ display:flex; gap:14px; align-items:center; margin-bottom:14px; }/* A linha da aula na lista: nome em cima, e embaixo o que ela tem. Ela é um
+   botão inteiro porque o alvo de abrir a aula não pode ser só a setinha. */.pn .adm-cat__abre{
+  flex:1; min-width:0; display:block; padding:2px 0; border:0; background:none;
+  font-family:inherit; text-align:left; cursor:pointer; color:inherit;
+}.pn .adm-cat__abre b{ display:block; font-size:var(--t-apoio); font-weight:500; color:var(--ink);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }.pn .adm-cat__abre em{ display:block; margin-top:2px; font-style:normal;
+  font-size:var(--t-etiqueta); color:var(--ink3); }.pn .adm-cat__abre:hover b{ text-decoration:underline; text-underline-offset:3px; }/* ══════════════════════════════════════════════════════════════════════
+   ADMIN · A TELA DE UMA AULA
+   ══════════════════════════════════════════════════════════════════════ */.pn .adm-au{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r); }.pn .adm-au__cab{ display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:16px 20px; border-bottom:1px solid var(--line); }.pn .adm-au__tit{ flex:1; min-width:200px; }.pn .adm-au__tit p{ margin:0; line-height:1; font-size:var(--t-etiqueta); font-weight:700;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }.pn .adm-au__tit h2{ margin:4px 0 0; font-size:21px; font-weight:500; letter-spacing:-.02em;
+  line-height:1.1; }.pn .adm-au__corpo{ display:grid; grid-template-columns:1fr 320px; }.pn .adm-au__main{ padding:22px 20px 26px; min-width:0; }.pn .adm-au__lado{ padding:22px 20px 26px; border-left:1px solid var(--line); background:var(--wash);
+  display:flex; flex-direction:column; gap:12px; }.pn .adm-au__rot{ display:block; margin:20px 0 6px; font-size:var(--t-apoio2); font-weight:600; }.pn .adm-au__main > .adm-au__rot:first-child, .pn .adm-au__lado > .adm-au__rot:first-child{ margin-top:0; }.pn .adm-au__nota{ margin:6px 0 0; font-size:var(--t-etiqueta); color:var(--ink3); }.pn .adm-au__campo{
+  display:block; width:100%; min-height:42px; padding:11px 14px; border:1px solid var(--line);
+  border-radius:var(--r-peq); background:var(--paper); color:var(--ink);
+  font-family:inherit; font-size:var(--t-apoio); line-height:1.5;
+}.pn .adm-au__campo:focus{ outline:none; border-color:var(--turquesa-esc);
+  box-shadow:0 0 0 3px rgba(173,236,223,.4); }.pn .adm-au__campo--mono{ font-family:ui-monospace,Menlo,monospace; font-size:11.5px; }.pn .adm-au__campo--alto{ min-height:82px; resize:vertical; }/* o texto rico */.pn .adm-au__texto{ border:1px solid var(--line); border-radius:var(--r-peq); overflow:hidden; }.pn .adm-au__barra{ display:flex; gap:2px; padding:6px; background:var(--wash);
+  border-bottom:1px solid var(--line); }.pn .adm-au__barra button{
+  position:relative; display:grid; place-items:center; width:32px; height:30px; border:0;
+  border-radius:7px; background:none; color:var(--ink2); font-family:inherit; font-size:13px;
+  font-weight:700; cursor:pointer;
+}.pn .adm-au__barra button:hover{ background:var(--wash2); color:var(--ink); }.pn .adm-au__barra svg{ width:16px; height:16px; stroke:currentColor; fill:none; }.pn .adm-au__barra hr{ width:1px; height:18px; margin:6px 4px; border:0; background:var(--line2); }.pn .adm-au__barra u{ text-decoration:none; border-bottom:1.5px solid currentColor; }/* A dica no hover, desenhada: o `title` do navegador demora um segundo e some
+   sozinho, e numa barra de sete desenhos a resposta precisa vir na hora. */.pn .adm-au__barra button::after{
+  content:attr(data-dica); position:absolute; top:calc(100% + 7px); left:50%;
+  transform:translateX(-50%); padding:5px 9px; border-radius:8px; background:var(--ink);
+  color:var(--paper); font-size:11px; font-weight:500; letter-spacing:0; text-transform:none;
+  white-space:nowrap; opacity:0; pointer-events:none; transition:opacity var(--t); z-index:3;
+}.pn .adm-au__barra button:hover::after{ opacity:1; }.pn .adm-au__campo--rico{ min-height:220px; border:0; border-radius:0; }.pn .adm-au__campo--rico:empty::before{ content:attr(data-vazio); color:var(--ink3); }.pn .adm-au__campo--rico img{ max-width:100%; height:auto; border-radius:var(--r-peq); margin:8px 0; }.pn .adm-au__campo--rico a{ color:var(--turq-txt); }.pn .adm-au__campo--rico ul, .pn .adm-au__campo--rico ol{ padding-left:22px; }/* o material de apoio */.pn .adm-au__mat{ display:flex; flex-direction:column; gap:8px; }.pn .adm-au__mat-item{ display:flex; align-items:center; gap:12px; padding:11px 13px;
+  border:1px solid var(--line); border-radius:var(--r-peq); }.pn .adm-au__mat-ico{ flex:none; display:grid; place-items:center; width:34px; height:34px;
+  border-radius:9px; background:var(--wash2); color:var(--ink2); }.pn .adm-au__mat-ico svg{ width:16px; height:16px; stroke:currentColor; fill:none; }.pn .adm-au__mat-txt{ flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }/* o interruptor da assinatura */.pn .adm-au__liga{ display:flex; align-items:center; justify-content:space-between; gap:14px; }.pn .adm-au__liga b{ display:block; font-size:var(--t-apoio); font-weight:600; }.pn .adm-au__liga em{ display:block; font-style:normal; font-size:var(--t-etiqueta);
+  color:var(--ink3); margin-top:1px; }.pn .adm-au__chave{ flex:none; width:42px; height:24px; border-radius:var(--pill); border:0;
+  background:var(--wash2); position:relative; cursor:pointer; transition:background-color var(--t); }.pn .adm-au__chave::after{ content:""; position:absolute; top:3px; left:3px; width:18px; height:18px;
+  border-radius:50%; background:var(--paper); box-shadow:0 1px 3px rgba(17,17,17,.2);
+  transition:transform var(--t); }.pn .adm-au__chave--on{ background:var(--turquesa-esc); }.pn .adm-au__chave--on::after{ transform:translateX(18px); }.pn .adm-au__assina{ display:block; width:100%; height:auto; }
+
+@media (max-width: 900px){.pn .adm-au__corpo{ grid-template-columns:1fr; }.pn .adm-au__lado{ border-left:0; border-top:1px solid var(--line); }}/* ── O ESTADO ──
    Um seletor, e nao tres interruptores: os tres estados se excluem. A pastilha
    fica na propria linha e troca com dois cliques, porque publicar e o gesto
    mais repetido de todos. */.pn .adm-est-wrap{ position:relative; display:inline-block; flex:none; }.pn .adm-est{
@@ -1465,7 +1501,17 @@
   margin:2px 0 0; font-size:clamp(21px,2.1vw,28px); font-weight:500;
   letter-spacing:-.028em; line-height:1.14; text-wrap:balance;
 }.pn .apr-mcab p{ margin:0; line-height:1; font-size:var(--t-etiqueta); font-weight:700;
-  letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }/* ── a lista de aulas ── */.pn .apr-lista{ display:flex; flex-direction:column; gap:7px; }.pn .apr-aula{
+  letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }/* ── O QUE A AULA TEM ESCRITO ──
+   O HTML vem do admin e a folha manda no desenho: o que a Marilia escrever ali
+   sai com a cara do site, e nao com a do editor. */.pn .apr-texto{ margin:26px 0 0; font-size:var(--t-corpo); line-height:1.65; color:var(--ink2); }.pn .apr-texto > *:first-child{ margin-top:0; }.pn .apr-texto p{ margin:0 0 14px; text-wrap:pretty; }.pn .apr-texto b, .pn .apr-texto strong{ color:var(--ink); font-weight:600; }.pn .apr-texto a{ color:var(--turq-txt); text-underline-offset:3px; }.pn .apr-texto ul, .pn .apr-texto ol{ margin:0 0 14px; padding-left:22px; }.pn .apr-texto li{ margin-bottom:5px; }.pn .apr-texto img{ display:block; max-width:100%; height:auto; border-radius:var(--r-peq);
+  margin:18px 0; }/* ── o material de apoio ── */.pn .apr-mat{ margin-top:28px; }.pn .apr-mat h2{ margin:0 0 12px; font-size:var(--t-titulo); font-weight:600; }.pn .apr-mat__item{
+  display:flex; align-items:center; gap:13px; padding:13px 16px; margin-bottom:7px;
+  border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper);
+  color:inherit; text-decoration:none;
+  transition:border-color var(--t), background-color var(--t);
+}.pn .apr-mat__item:hover{ border-color:var(--line2); background:var(--wash); }.pn .apr-mat__ico{ flex:none; display:grid; place-items:center; width:36px; height:36px;
+  border-radius:10px; background:var(--wash2); color:var(--ink2); }.pn .apr-mat__ico svg{ width:17px; height:17px; }.pn .apr-mat__txt{ flex:1; min-width:0; }.pn .apr-mat__txt b{ display:block; font-size:var(--t-apoio); font-weight:600; color:var(--ink); }.pn .apr-mat__txt span{ display:block; margin-top:1px; font-size:var(--t-etiqueta); color:var(--ink3);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }/* ── a lista de aulas ── */.pn .apr-lista{ display:flex; flex-direction:column; gap:7px; }.pn .apr-aula{
   display:flex; align-items:center; gap:14px; width:100%; padding:13px 16px;
   border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper);
   text-align:left; cursor:pointer; color:inherit;
