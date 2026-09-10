@@ -418,9 +418,14 @@ export default function Aprender() {
                          mesma lista: para quem estuda os dois são a mesma
                          coisa, algo para baixar ou abrir. O que muda é o
                          endereço e a linha de baixo. */
+                      /* O ARQUIVO NAO ABRE ABA. Ele volta como download, e uma
+                         aba nova para um download deixa uma janela em branco
+                         para trás. O link de fora abre em aba, porque ali é
+                         mesmo uma página. */
                       <a key={i} className="apr-mat__item"
-                         href={m.chave ? urlDoMaterial(m.chave) : m.link}
-                         target="_blank" rel="noopener noreferrer">
+                         href={m.chave ? urlDoMaterial(m.chave, m.nome) : m.link}
+                         target={m.chave ? undefined : '_blank'}
+                         rel={m.chave ? undefined : 'noopener noreferrer'}>
                         <span className="apr-mat__ico">{Ico.baixar}</span>
                         <span className="apr-mat__txt">
                           <b>{m.nome || m.link}</b>

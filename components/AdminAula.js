@@ -293,8 +293,7 @@ function Materiais({ lista, onSalvar, t }) {
           <div className="adm-au__mat-item" key={i}>
             <span className="adm-au__mat-ico">{Ico.arquivo}</span>
             <span className="adm-au__mat-txt">
-              <a className="adm-au__mat-nome" href={urlDoMaterial(m.chave)}
-                 target="_blank" rel="noopener noreferrer">{m.nome}</a>
+              <a className="adm-au__mat-nome" href={urlDoMaterial(m.chave, m.nome)}>{m.nome}</a>
               <span className="adm-au__mat-peso">{tamanhoLegivel(m.tamanho)}</span>
             </span>
             <button className="apr-bt apr-bt--so" data-dica={t('adm_au_mat_tira')}
