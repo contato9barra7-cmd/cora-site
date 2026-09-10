@@ -141,7 +141,8 @@ h1{ margin:10px 0 0; font-size:clamp(26px,3.6vw,34px); font-weight:500; letter-s
    nesta largura. O plugin é sempre grade. O que sobrou é o que filtra, o que
    busca, o A/B e o selecionar várias, com folga entre eles. */
 .jn .cr-barra{ gap:8px; padding:0 14px; }
-.jn .cr-fbtn{ min-width:28px; height:28px; padding:0 6px; }
+.jn .cr-fbtn{ width:28px; min-width:28px; height:28px; padding:0; }
+.jn .cr-fbtn:has(.cr-ab-ico){ width:auto; padding:0 8px; }
 .jn .cr-fbtn svg{ width:14px; height:14px; }
 .jn .cr-fbtns{ gap:5px; }
 .jn .cr-busca{ width:170px; flex:0 1 170px; min-width:110px; }

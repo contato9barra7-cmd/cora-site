@@ -2137,13 +2137,16 @@ select.perfil-input {
 }
 
 /* Filtros em ícone, com tooltip — iguais aos do histórico do plugin */
+/* Redondo, e nao 32 por 30 com canto arredondado: com larguras diferentes o
+   realce do botao ligado saia oval, e um oval no meio de uma fileira de
+   icones parece defeito, nao escolha. */
 .cr-fbtn {
-  width: 32px;
+  width: 30px;
   height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 50%;
   border: 1px solid var(--line2);
   background: transparent;
   color: var(--ink3);

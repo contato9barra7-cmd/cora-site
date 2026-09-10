@@ -70,7 +70,7 @@
 .cr-painel-vazio p{margin: 0 0 10px;}
 .cr-dica{font-size: 12.2px; opacity: .8;}
 .cr-barra{display: flex; align-items: center; gap: 6px; padding: 12px 20px; min-height: 57px; box-sizing: border-box; border-bottom: 1px solid var(--line); flex-wrap: wrap; flex-shrink: 0; background: var(--paper);}
-.cr-fbtn{width: 32px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid var(--line2); background: transparent; color: var(--ink3); cursor: pointer; transition: all .15s; padding: 0;}
+.cr-fbtn{width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--line2); background: transparent; color: var(--ink3); cursor: pointer; transition: all .15s; padding: 0;}
 .cr-fbtn:hover{border-color: var(--ink3); color: var(--ink2);}
 .cr-fbtn--on{border-color: var(--turq-txt); color: var(--turq-txt); background: color-mix(in srgb, var(--roxo) 10%, transparent);}
 .cr-fbtn--fav.cr-fbtn--on svg{fill: var(--roxo);}
@@ -1084,12 +1084,13 @@
    comparar e selecionar · lista/grade e tamanhos · filtros e busca. */.co .cr-barra-dir{ margin-left:auto; flex:0 1 auto; min-width:0; display:flex; align-items:center; gap:6px; justify-content:flex-end; }.co .cr-barra-dir > .cr-seg-lay, .co .cr-barra-dir > .cr-ft-wrap{ margin-left:6px; }/* `min-width` e não `width`: quase todo filtro é só um desenho e vira um
    círculo de 34px, mas o A/B carrega duas letras e precisa crescer. Com
    largura fixa ele estourava para fora do próprio botão. */.co .cr-fbtn{
-  min-width:34px; height:34px; padding:0 9px; border:0; border-radius:var(--pill);
+  width:34px; min-width:34px; height:34px; padding:0; border:0; border-radius:var(--pill);
   display:flex; align-items:center; justify-content:center; gap:5px;
   background:transparent; color:var(--ink3); cursor:pointer;
   font-size:var(--t-apoio2); font-weight:600;
   transition:background var(--t), color var(--t);
-}.co .cr-fbtn:hover:not(.cr-fbtn--on){ background:var(--wash2); color:var(--ink); }.co .cr-fbtn--on{
+}/* O A/B e o unico que carrega letra: so ele cresce, e o resto fica redondo.
+   Com `padding` em todos, o desenho ficava num oval de 32 por 34. */.co .cr-fbtn:has(.cr-ab-ico){ width:auto; padding:0 10px; }.co .cr-fbtn:hover:not(.cr-fbtn--on){ background:var(--wash2); color:var(--ink); }.co .cr-fbtn--on{
   background:var(--turq-bg); color:var(--turq-txt);
   box-shadow:inset 0 0 0 1px var(--turquesa-esc);
 }.co .cr-fbtn--fav.cr-fbtn--on svg{ fill:var(--turq-txt); }/* Os tamanhos e o modo de exibição correm no mesmo sulco do trilho. Repetir
@@ -1105,7 +1106,9 @@
   background:transparent; color:var(--ink3);
   font-size:var(--t-apoio2); font-weight:600; cursor:pointer;
   transition:background var(--t), color var(--t);
-}.co .cr-tam:hover:not(.cr-tam--on){ color:var(--ink); }.co .cr-tam--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }.co .cr-seg-lay .cr-fbtn{ min-width:30px; height:26px; padding:0 8px; }.co .cr-seg-lay .cr-fbtn--on{
+}.co .cr-tam:hover:not(.cr-tam--on){ color:var(--ink); }.co .cr-tam--on{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }/* Circulo, e nao oval: 30 de largura por 26 de altura com raio de pilula
+   desenha uma elipse em volta de um desenho que e quadrado. Dentro do
+   sulco de 3px de respiro, 26 por 26 e o que cabe. */.co .cr-seg-lay .cr-fbtn{ width:26px; min-width:0; height:26px; padding:0; }.co .cr-seg-lay .cr-fbtn--on{
   background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq);
 }/* O form é só a caixa do input: sem altura, fundo, recuo nem raio próprios,
    que o globals dá a ele numa segunda `.cr-busca` e apareciam por trás da
@@ -1615,7 +1618,8 @@ h1{ margin:10px 0 0; font-size:clamp(26px,3.6vw,34px); font-weight:500; letter-s
    nesta largura. O plugin é sempre grade. O que sobrou é o que filtra, o que
    busca, o A/B e o selecionar várias, com folga entre eles. */
 .jn .cr-barra{ gap:8px; padding:0 14px; }
-.jn .cr-fbtn{ min-width:28px; height:28px; padding:0 6px; }
+.jn .cr-fbtn{ width:28px; min-width:28px; height:28px; padding:0; }
+.jn .cr-fbtn:has(.cr-ab-ico){ width:auto; padding:0 8px; }
 .jn .cr-fbtn svg{ width:14px; height:14px; }
 .jn .cr-fbtns{ gap:5px; }
 .jn .cr-busca{ width:170px; flex:0 1 170px; min-width:110px; }
