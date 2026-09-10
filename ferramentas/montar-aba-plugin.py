@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-Monta o artefato da aba Batch do plugin, a partir das folhas de produção.
+Monta o artefato de UMA aba do plugin, a partir das folhas de produção.
 
-    python montar-batch-plugin.py
+    python montar-aba-plugin.py batch
+    python montar-aba-plugin.py editar
 
-Le  : cora-plugin-batch.fonte.html
+Le  : cora-plugin-<aba>.fonte.html
       cora-plugin-janela.fonte.html   (a moldura `.jn`, para não ter duas)
       ../app/globals.css, cora-pagina.css, painel-pagina.css
       ../public/img/*.webp
-Faz : cora-plugin-batch.html
+Faz : cora-plugin-<aba>.html
 
 POR QUE ASSIM
 Mesma regra da janela: o artefato tem que ser o site, e não uma cópia do
 site desenhada de novo. Este script chama o MESMO peneirador e o MESMO
-botão de tamanho do `montar-janela-plugin.py`, e recorta a moldura do
-fonte da janela em vez de manter uma segunda cópia dela. Se a moldura
-mudar lá, muda aqui na próxima montagem.
+botão de tamanho do `montar-janela-plugin.py`, e recorta a moldura do fonte
+da janela em vez de guardar uma segunda cópia dela.
+
+E é UM script para todas as abas, e não um por aba: são onze, e onze cópias
+do mesmo arquivo desencontram na primeira correção.
 """
 
 import base64
@@ -23,14 +26,13 @@ import importlib.util
 import io
 import os
 import re
+import sys
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.dirname(AQUI)
 
-FONTE = os.path.join(AQUI, 'cora-plugin-batch.fonte.html')
 JANELA = os.path.join(AQUI, 'cora-plugin-janela.fonte.html')
 GERADOR = os.path.join(AQUI, 'montar-janela-plugin.py')
-SAIDA = os.path.join(AQUI, 'cora-plugin-batch.html')
 
 FOTOS = ['painel-escritorio.webp', 'painel-cozinha.webp',
          'painel-varanda.webp', 'painel-fachada.webp']
@@ -51,8 +53,7 @@ def moldura(fonte):
     """As regras `.jn*` do fonte da janela, sem as fotos de mentira dela."""
     ini = fonte.index(u'/* ── a janela ── */')
     fim = fonte.index(u'/* ── o banco de provas ── */')
-    css = fonte[ini:fim]
-    return re.sub(r'\.jn \.foto\.(f\d|ref-[ab])\{[^}]*\}\n?', u'', css)
+    return re.sub(r'\.jn \.foto\.(f\d|ref-[ab])\{[^}]*\}\n?', u'', fonte[ini:fim])
 
 
 def foto_uri(nome):
@@ -61,10 +62,13 @@ def foto_uri(nome):
     return "url('data:image/webp;base64," + dados + "')"
 
 
-def main():
-    mod = gerador()
-    fonte = ler(FONTE)
+def montar(aba):
+    fonte_p = os.path.join(AQUI, 'cora-plugin-%s.fonte.html' % aba)
+    saida_p = os.path.join(AQUI, 'cora-plugin-%s.html' % aba)
+    if not os.path.exists(fonte_p):
+        raise SystemExit(u'não achei o fonte: %s' % os.path.basename(fonte_p))
 
+    mod = gerador()
     globais = [mod.encolher(r) for r in
                mod.peneirar_globals(ler(os.path.join(SITE, 'app', 'globals.css')))]
     cora = mod.encolher(ler(os.path.join(SITE, 'app', 'cora-pagina.css')))
@@ -74,26 +78,27 @@ def main():
     if not m:
         raise SystemExit('não achei a --marca no painel-pagina.css')
 
+    # Aqui a moldura não é um `.jn` que envolve tudo: cada quadro é um pedaço
+    # solto da janela. Os tokens sobem para o `:root`.
     tokens = ["  --marca:url('" + m.group(1) + "');"]
     for i, nome in enumerate(FOTOS, start=1):
         tokens.append('  --foto%d:%s;' % (i, foto_uri(nome)))
-    # Aqui a moldura nao e um `.jn` que envolve tudo: cada quadro e um
-    # pedaco solto da janela. Os tokens sobem para o `:root`.
     extra = ':root{\n' + '\n'.join(tokens) + '\n}\n'
 
-    saida = fonte
+    saida = ler(fonte_p)
     saida = saida.replace('/*@GLOBAIS@*/', '\n'.join(globais))
     saida = saida.replace('/*@CORA@*/', cora + '\n' + moldura(ler(JANELA)) + '\n' + extra)
+    saida = ('<!-- ARQUIVO GERADO por montar-aba-plugin.py %s.\n'
+             '     NÃO editar aqui: editar cora-plugin-%s.fonte.html e rodar o\n'
+             '     script de novo, senão os dois desencontram na primeira mudança. -->\n'
+             % (aba, aba)) + saida
 
-    aviso = ('<!-- ARQUIVO GERADO por montar-batch-plugin.py.\n'
-             '     NÃO editar aqui: editar cora-plugin-batch.fonte.html e rodar o\n'
-             '     script de novo, senão os dois desencontram na primeira mudança. -->\n')
-    saida = aviso + saida
-
-    io.open(SAIDA, 'w', encoding='utf-8', newline='').write(saida)
+    io.open(saida_p, 'w', encoding='utf-8', newline='').write(saida)
     print('regras do globals: %d' % len(globais))
-    print('escrito:           %s (%.1f KB)' % (os.path.basename(SAIDA), len(saida) / 1024.0))
+    print('escrito:           %s (%.1f KB)' % (os.path.basename(saida_p), len(saida) / 1024.0))
 
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) < 2:
+        raise SystemExit('uso: python montar-aba-plugin.py <aba>   (ex.: batch, editar)')
+    montar(sys.argv[1])
