@@ -365,7 +365,7 @@
 }.co .bc__sub{ margin-top:12px; border-top:1px solid var(--line); }.co .bc__sub .fic__l:last-child{ border-bottom:0; }.co .bc__tirar{
   display:block; margin:12px auto 0; padding:2px 0; border:0; background:none;
   color:var(--ink3); font-size:var(--t-apoio2); cursor:pointer;
-  box-shadow:inset 0 -1px 0 var(--line2); transition:color var(--t), box-shadow var(--t);
+  box-shadow:inset 0 -2px 0 var(--lima); transition:color var(--t), box-shadow var(--t);
 }.co .bc__tirar:hover{ color:var(--alerta); box-shadow:inset 0 -1px 0 var(--alerta); }/* Na Animação e no Upscale o embrulho é o `up-painel`, e não o `cr-form`: a
    mesma respiração do Render (20/16/24), para os rótulos nascerem na mesma
    coluna em toda aba. */.co .up-painel{ padding:20px 16px 24px; }/* Uma pílula sozinha na barra não é a fila do Render, é um pedaço dela. Onde
@@ -827,7 +827,9 @@
 
    Ou a base não declara a propriedade, ou o modificador vem junto. Aqui vem
    junto, com o valor que o globals já tinha.
-   ══════════════════════════════════════════════════════════════════════ */.co .cr-hint--erro{ color:var(--alerta); }.co .cr-hint--ok{ color:var(--lima-txt); }.co .cr-b--voltar{ color:var(--lima-txt); font-size:var(--t-apoio); }.co .cr-pill-cfg--larga{ width:100%; justify-content:flex-start; }/* O `+` das referências tem o MESMO tracejado da imagem principal (`.cr-drop`):
+   ══════════════════════════════════════════════════════════════════════ */.co .cr-hint--erro{ color:var(--alerta); }.co .cr-hint--ok{ color:var(--lima-txt); }/* Ele e um caminho de volta, nao a acao principal: letra de texto comum.
+   Em lima ele competia com o botao de gerar logo abaixo, que e quem manda
+   naquela barra. */.co .cr-b--voltar{ color:var(--ink2); font-size:var(--t-apoio); }.co .cr-pill-cfg--larga{ width:100%; justify-content:flex-start; }/* O `+` das referências tem o MESMO tracejado da imagem principal (`.cr-drop`):
    é a mesma ação, escolher uma foto, e a mesma linha diz isso. */.co .cr-ref--add{ background:transparent; border:1px dashed var(--line2); }/* A caixa de todo modo do Editar tem a mesma altura, a do Mudar mood. Dois
    pesos a puxavam para baixo: `.co .cr-ta` esmagava o `.ed-ta` do globals, e
    nos modos com referências o `.cref textarea` (92px) entrava por cima. *//* Nos modos com referência o `.cref textarea` (92px) entrava por cima. */.co .cref .cr-ta{ min-height:var(--alt-ta); }.co .cr-tag--roxa{ color:var(--turq-txt); }.co .ed-card--travado{ cursor:default; }/* ══════════════════════════════════════════════════════════════════════
