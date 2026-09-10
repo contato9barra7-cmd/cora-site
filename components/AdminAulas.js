@@ -27,7 +27,10 @@ import {
 } from '../lib/aulas';
 import { useIdioma, tOpt } from '../lib/i18n';
 
-const LADO_CAPA = 520;          // a capa fica guardada com a largura do arquivo
+/* A capa fica guardada com a largura do arquivo. São duas medidas porque são
+   duas composições: o cartaz em pé vai na fila dos sete módulos, e a deitada
+   na tela do módulo, ao lado da lista de aulas. */
+const LADO_CAPA = { capa: 520, capah: 1168 };
 const MAX_ARQUIVO = 8 * 1024 * 1024;
 
 const Ico = {
@@ -211,20 +214,27 @@ export default function AdminAulas({ aba }) {
     e.target.value = '';
     if (!f || !alvoCapa) return;
     if (f.size > MAX_ARQUIVO) return;
+    const { id, campo } = alvoCapa;
+    const largura = LADO_CAPA[campo];
     const leitor = new FileReader();
     leitor.onload = () => {
       const img = new Image();
       img.onload = () => {
-        const alt = Math.round((img.height / img.width) * LADO_CAPA);
+        const alt = Math.round((img.height / img.width) * largura);
         const c = document.createElement('canvas');
-        c.width = LADO_CAPA; c.height = alt;
-        c.getContext('2d').drawImage(img, 0, 0, LADO_CAPA, alt);
-        gravar(alvoCapa, 'capa', c.toDataURL('image/webp', 0.86)).catch(() => {});
+        c.width = largura; c.height = alt;
+        c.getContext('2d').drawImage(img, 0, 0, largura, alt);
+        gravar(id, campo, c.toDataURL('image/webp', 0.86)).catch(() => {});
         setAlvoCapa(null);
       };
       img.src = leitor.result;
     };
     leitor.readAsDataURL(f);
+  }
+
+  function trocarCapa(id, campo) {
+    setAlvoCapa({ id, campo });
+    setTimeout(() => arquivo.current?.click(), 0);
   }
 
   if (carregando) return <div className="adm-com"><p className="adm-com__vazio">{t('comum_carregando')}</p></div>;
@@ -299,9 +309,15 @@ export default function AdminAulas({ aba }) {
             >{Ico.pega}</span>
             <span className="adm-cat__capa">
               <img src={m.capa} alt="" />
-              <button onClick={() => { setAlvoCapa(m.id); setTimeout(() => arquivo.current?.click(), 0); }}>
-                {t('adm_cat_capa')}
-              </button>
+              <button onClick={() => trocarCapa(m.id, 'capa')}>{t('adm_cat_capa')}</button>
+            </span>
+            {/* A deitada, que é a que aparece na tela do módulo. Ela fica ao
+                lado da em pé para as duas serem trocadas no mesmo lugar: são
+                duas composições da mesma arte, e esquecer uma delas deixa o
+                módulo com uma capa nova na fila e a velha lá dentro. */}
+            <span className="adm-cat__capa adm-cat__capa--h">
+              <img src={m.capaH || m.capa} alt="" />
+              <button onClick={() => trocarCapa(m.id, 'capah')}>{t('adm_cat_capa_h')}</button>
             </span>
             <span className="adm-cat__txt">
               <p className="adm-cat__olho">
@@ -310,6 +326,11 @@ export default function AdminAulas({ aba }) {
                 {m.capaTrocada && (
                   <button className="apr-bt apr-bt--txt" onClick={() => gravar(m.id, 'capa', '')}>
                     {Ico.volta}{t('adm_cat_capa_volta')}
+                  </button>
+                )}
+                {m.capaHTrocada && (
+                  <button className="apr-bt apr-bt--txt" onClick={() => gravar(m.id, 'capah', '')}>
+                    {Ico.volta}{t('adm_cat_capa_h_volta')}
                   </button>
                 )}
               </p>

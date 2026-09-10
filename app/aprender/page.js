@@ -184,6 +184,14 @@ export default function Aprender() {
     [vistas]
   );
 
+  /* A primeira aula do módulo que ainda não foi vista. É o que o botão da capa
+     abre, e é ele que decide se o rótulo diz começar ou continuar. Nulo quando
+     o módulo acabou. */
+  const proximaDoModulo = useCallback(
+    (m) => m.aulas.find((a) => !vistas.has(a.id)) || null,
+    [vistas]
+  );
+
   async function alternarVisto() {
     const novo = !vistas.has(aulaId);
     setEstado((e) => ({
@@ -258,26 +266,51 @@ export default function Aprender() {
 
         {/* ── 2. AS AULAS DO MÓDULO ── */}
         {modulo && !aula && (
-          <div className="apr-col">
-            <button className="apr-volta" onClick={() => setModId(null)}>
+          <div className="apr-mtela">
+            <button className="apr-volta apr-volta--topo" onClick={() => setModId(null)}>
               {Ico.esq}{t('apr_voltar_mod')}
             </button>
-            <div className="apr-mcab">
-              <img src={modulo.capa} alt="" />
-              <div>
-                <p>{t('apr_modulo')} {modulo.id} · {quantas(modulo.aulas.length)}</p>
-                <h1>{tOpt(modulo.titulo)}</h1>
+
+            {/* A capa deitada e o que ela precisa em volta.
+                Uma imagem sozinha à esquerda lê como metade de alguma coisa, e
+                aí qualquer sobra de altura vira erro de encaixe. Com o
+                progresso e o botão embaixo, ela vira uma coluna de verdade, e
+                a lista do lado pode ser mais curta ou mais longa sem estranhar.
+                De quebra a tela ganha a ação que faltava: quem abre um módulo
+                pela metade não precisa mais caçar na lista onde parou. */}
+            <div className="apr-mcol">
+              <img className="apr-mcapa" src={modulo.capaH || modulo.capa} alt=""
+                   width="1168" height="668" />
+              <div className="apr-mprog">
+                {/* Sem número dentro: quem conta é o texto ao lado, e dois
+                    números dizendo a mesma coisa em 34px brigariam. */}
+                <Anel dentro="" pct={Math.round((vistasDo(modulo) / modulo.aulas.length) * 100)} tam={34} />
+                <span>
+                  <b>{vistasDo(modulo)} {t('apr_de')} {modulo.aulas.length}</b>
+                  <em>{t('apr_assistidas')}</em>
+                </span>
               </div>
+              <button className="apr-mcta" disabled={!proximaDoModulo(modulo)}
+                      onClick={() => { const p = proximaDoModulo(modulo); if (p) abrirAula(p.id, modulo.id); }}>
+                {!proximaDoModulo(modulo) ? t('apr_mod_pronto')
+                  : vistasDo(modulo) === 0 ? t('apr_mod_comecar')
+                  : t('apr_mod_continuar')}
+              </button>
             </div>
-            <div className="apr-lista">
-              {modulo.aulas.map((a, i) => (
-                <button key={a.id} className="apr-aula" onClick={() => abrirAula(a.id, modulo.id)}>
-                  <span className="apr-aula__n">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="apr-aula__t">{tOpt(a.titulo)}</span>
-                  {vistas.has(a.id) && <span className="apr-pip apr-pip--ok">{Ico.visto}</span>}
-                  {!urlDoVideo(a.panda) && <span className="apr-aula__tag">{t('apr_breve')}</span>}
-                </button>
-              ))}
+
+            <div className="apr-mlado">
+              <p className="apr-molho">{t('apr_modulo')} {modulo.id} · {quantas(modulo.aulas.length)}</p>
+              <h1 className="apr-mtit">{tOpt(modulo.titulo)}</h1>
+              <div className="apr-lista">
+                {modulo.aulas.map((a, i) => (
+                  <button key={a.id} className="apr-aula" onClick={() => abrirAula(a.id, modulo.id)}>
+                    <span className="apr-aula__n">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="apr-aula__t">{tOpt(a.titulo)}</span>
+                    {vistas.has(a.id) && <span className="apr-pip apr-pip--ok">{Ico.visto}</span>}
+                    {!urlDoVideo(a.panda) && <span className="apr-aula__tag">{t('apr_breve')}</span>}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
