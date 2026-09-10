@@ -1,0 +1,310 @@
+<title>O logo na barra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     O LOGO NA BARRA DO SKETCHUP
+
+     ARQUIVO GERADO por `montar-icones-plugin.py`.
+
+     Os 22 ícones de ferramenta ficam COMO ESTÃO: são os PNGs que já estão na
+     barra hoje, entrando aqui sem tocar em nada. O que se decide nesta página
+     é só o primeiro botão, o que abre o painel, que é a marca.
+
+     Cada fileira é a barra inteira em tamanho real, com um acabamento de
+     marca na frente. É a única maneira honesta de julgar: sozinho, num fundo
+     branco de artefato, qualquer um deles parece bom.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<style>
+:root{
+  --ink:#111111; --ink2:#5B5B57; --ink3:#8E8E88;
+  --paper:#FFFFFF; --wash:#F6F6F4; --wash2:#EFEFEB;
+  --line:#E4E4DF; --line2:#D2D2CB;
+  --lima:#C4FBA7; --lima-txt:#256B2A;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC; --turq-txt:#196C5B; --turq-bg:#E6F7F3;
+  --r:20px; --r-peq:12px; --pill:100px;
+  --sombra:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+  --t-etiqueta:11px; --t-apoio2:12.5px; --t-apoio:13.5px; --t-corpo:14.5px;
+  --su-claro:#F0F0F0; --su-claro-fio:#D6D6D6;
+  --su-escuro:#3C3C3C; --su-escuro-fio:#2A2A2A;
+  --tam:24px;
+  color-scheme:light;
+}
+/*@TOKENS@*/
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+    --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+    --line:#2B2B30; --line2:#3A3A41;
+    --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+    --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F2F2EF; --ink2:#B6B5AE; --ink3:#8B8A83;
+  --paper:#17171A; --wash:#0F0F11; --wash2:#1E1E22;
+  --line:#2B2B30; --line2:#3A3A41;
+  --turq-txt:#8FDDCC; --lima-txt:#C4FBA7; --turq-bg:rgba(143,221,204,.16);
+  --sombra:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30);
+  color-scheme:dark;
+}
+
+*{ box-sizing:border-box; }
+body{
+  margin:0; padding:0 0 92px; background:var(--wash); color:var(--ink);
+  font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-size:var(--t-corpo); line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+button{ cursor:pointer; font-family:inherit; }
+:focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
+::selection{ background:var(--lima); color:#111111; }
+
+.pag{ max-width:1120px; margin:0 auto; padding:32px 24px 0; }
+.eb{ margin:0; font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); }
+h1{ margin:10px 0 0; font-size:clamp(26px,3.6vw,34px); font-weight:500; letter-spacing:-.033em; line-height:1.1; text-wrap:balance; }
+.lead{ margin:14px 0 0; max-width:68ch; color:var(--ink2); text-wrap:pretty; }
+.lead b{ color:var(--ink); font-weight:600; }
+code{ padding:1px 6px; border-radius:6px; background:var(--wash2); color:var(--ink); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+h2.sec{ margin:42px 0 6px; font-size:20px; font-weight:500; letter-spacing:-.02em; }
+p.sec{ margin:0 0 14px; max-width:74ch; font-size:var(--t-apoio); color:var(--ink2); text-wrap:pretty; }
+p.sec b{ color:var(--ink); font-weight:600; }
+
+/* ── a fileira: o cabeçalho, a barra e a lupa ── */
+.fila{ margin:22px 0 0; padding:20px 22px 22px; border:1px solid var(--line); border-radius:var(--r); background:var(--paper); }
+.fila__cab{ display:flex; align-items:baseline; gap:12px; margin-bottom:14px; }
+.fila__n{ flex:none; width:26px; height:26px; border-radius:8px; display:grid; place-items:center; background:var(--wash2); font-size:var(--t-apoio2); font-weight:700; }
+.fila__t{ margin:0; font-size:var(--t-corpo); font-weight:600; }
+.fila__c{ margin-left:auto; padding:2px 10px; border-radius:var(--pill); font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.06em; background:var(--wash2); color:var(--ink3); font-variant-numeric:tabular-nums; }
+.fila__c[data-passa="nao"]{ background:#FCEDEC; color:#C8342A; }
+:root[data-theme="dark"] .fila__c[data-passa="nao"]{ background:rgba(200,52,42,.18); color:#F0A9A3; }
+.fila__c[data-passa="sim"]{ background:var(--turq-bg); color:var(--turq-txt); }
+.fila__d{ margin:12px 0 0; max-width:74ch; font-size:var(--t-apoio2); color:var(--ink2); text-wrap:pretty; }
+.fila__d b{ color:var(--ink); font-weight:600; }
+
+/* ── a barra, do jeito que o SketchUp desenha ── */
+.rolo{ overflow-x:auto; padding-bottom:6px; }
+.barra{
+  display:flex; align-items:center; gap:2px; padding:4px 5px; width:max-content; max-width:100%;
+  border:1px solid var(--su-claro-fio); border-radius:3px; background:var(--su-claro);
+}
+.barra--esc{ border-color:var(--su-escuro-fio); background:var(--su-escuro); }
+.barra__sep{ width:1px; align-self:stretch; margin:2px 5px; background:var(--su-claro-fio); }
+.barra--esc .barra__sep{ background:#555; }
+.bt{
+  position:relative; display:grid; place-items:center; border:0; background:none; padding:0;
+  width:calc(var(--tam) + 8px); height:calc(var(--tam) + 8px); border-radius:3px;
+}
+.bt:hover{ background:rgba(0,0,0,.09); }
+.barra--esc .bt:hover{ background:rgba(255,255,255,.14); }
+.bt img{ width:var(--tam); height:var(--tam); }
+.bt[data-tip]:hover::after{
+  content:attr(data-tip); position:absolute; top:calc(100% + 7px); left:50%; transform:translateX(-50%);
+  padding:4px 9px; border-radius:6px; background:var(--ink); color:var(--paper);
+  font-size:11px; font-weight:600; white-space:nowrap; z-index:9;
+}
+/* Na barra escura o PNG preto sumiria. O SketchUp inverte os ícones nativos,
+   e é o que a extensão vai ter que fazer também: aqui a inversão é só para a
+   prova, no plugin ela sai de um segundo arquivo. */
+.barra--esc .bt img[data-inverte]{ filter:invert(1) brightness(1.08); }
+
+/* ── a marca ── */
+.mk{ width:var(--tam); height:var(--tam); -webkit-mask:var(--marca9) no-repeat center / contain; mask:var(--marca9) no-repeat center / contain; }
+.pl{ width:var(--tam); height:var(--tam); background:var(--pelos) no-repeat center / contain; }
+/* A pastilha: canto de 22% do lado, que é o que não deixa virar nem quadrado
+   nem bolinha, e a marca ocupando 76%, para o respiro em volta existir. */
+.ap{ width:var(--tam); height:var(--tam); flex:none; border-radius:calc(var(--tam) * .22); display:grid; place-items:center; overflow:hidden; }
+.ap > *{ width:76%; height:76%; }
+.ap .pl{ width:88%; height:88%; }
+
+.lupa{ display:flex; align-items:center; gap:20px; margin-top:16px; }
+.lupa__c{ --tam:64px; flex:none; }
+.lupa__q{ display:grid; place-items:center; width:96px; height:96px; border:1px solid var(--su-claro-fio); border-radius:var(--r-peq); background:var(--su-claro); }
+.lupa__q.barra--esc{ border-color:var(--su-escuro-fio); background:var(--su-escuro); }
+.lupa__n{ display:block; margin-top:6px; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); text-align:center; }
+.lupa__c--peq{ --tam:16px; }
+.lupa__c--peq .lupa__q{ width:52px; height:52px; }
+
+/* ── o banco ── */
+.banco{
+  position:fixed; left:0; right:0; bottom:0; z-index:60;
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px 20px;
+  padding:12px 22px; background:#141416; color:#F2F2EF; box-shadow:0 -8px 28px rgba(0,0,0,.22);
+}
+.banco-g{ display:flex; align-items:center; gap:7px; }
+.banco-r{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#8B8A83; }
+.banco-b{ height:28px; padding:0 12px; border:0; border-radius:100px; background:rgba(255,255,255,.09); color:#B6B5AE; font-size:12.5px; font-weight:500; transition:background .14s, color .14s; }
+.banco-b:hover{ background:rgba(255,255,255,.16); color:#F2F2EF; }
+.banco-b.on{ background:#F2F2EF; color:#141416; font-weight:600; }
+.banco-n{ margin-left:auto; font-size:11px; color:#8B8A83; }
+
+.rod{ margin:44px 0 0; padding:20px 0 0; border-top:1px solid var(--line2); max-width:74ch; }
+.rod p{ margin:0 0 8px; font-size:var(--t-apoio); color:var(--ink2); text-wrap:pretty; }
+.rod b{ color:var(--ink); font-weight:600; }
+</style>
+
+<div class="pag">
+  <header>
+    <p class="eb">Cora Render · a barra do SketchUp</p>
+    <h1>O logo na frente da barra</h1>
+    <p class="lead">Os 22 ícones de ferramenta ficam <b>como estão</b>: são os
+      PNGs que já estão na barra, entrando aqui sem eu tocar em nada. O que se
+      decide nesta página é só o <b>primeiro botão</b>, o que abre o painel.
+      Cada fileira é a barra inteira em tamanho real com um acabamento na
+      frente, porque sozinho, num fundo branco de artefato, qualquer um deles
+      parece bom. O banco lá embaixo troca entre a barra clara e a escura do
+      SketchUp e entre 16, 24 e 32.</p>
+  </header>
+
+  <div id="filas"></div>
+
+  <footer class="rod">
+    <p><b>Sobre o contraste.</b> O número em cada fileira é a razão de
+      contraste entre a marca e o fundo da pastilha dela. Para uma forma
+      sólida ser vista com segurança o mínimo é 3, e é por isso que a turquesa
+      cheia com branco em cima não passa: ela é uma cor clara, feita para ser
+      fundo de tinta escura. É o mesmo motivo que fez o manual criar o
+      <code>--turq-txt</code>.</p>
+    <p><b>Sobre a barra escura.</b> O SketchUp 2024 tem tema escuro, e lá o
+      PNG preto de hoje some. Aqui a inversão é feita por filtro só para a
+      prova. No plugin ela sai de um segundo arquivo, que é como as extensões
+      nativas resolvem.</p>
+    <p><b>Este arquivo é gerado.</b> O molde é
+      <code>cora-plugin-icones.fonte.html</code> e quem monta é
+      <code>montar-icones-plugin.py</code>, que traz os PNGs de
+      <code>cora-plugin/src/ui/icons</code>, a marca de
+      <code>cora-plugin/icon@2x.png</code> e o ícone 3D do rebranding.</p>
+  </footer>
+</div>
+
+<div class="banco">
+  <div class="banco-g">
+    <span class="banco-r">A barra</span>
+    <button class="banco-b on" data-barra="claro">Clara</button>
+    <button class="banco-b" data-barra="escuro">Escura</button>
+  </div>
+  <div class="banco-g">
+    <span class="banco-r">Tamanho</span>
+    <button class="banco-b" data-tam="16">16</button>
+    <button class="banco-b on" data-tam="24">24</button>
+    <button class="banco-b" data-tam="32">32</button>
+  </div>
+  <div class="banco-g">
+    <span class="banco-r">Tema da página</span>
+    <button class="banco-b" data-tema="light">Claro</button>
+    <button class="banco-b" data-tema="dark">Escuro</button>
+  </div>
+  <span class="banco-n">Passe o mouse nos ícones para ver o nome</span>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var raiz = document.documentElement;
+  var ICONES = /*@DADOS@*/;
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+
+  // A ordem das quatro barras do plugin. O cursor do spot fica fora: não é botão.
+  var ORDEM = [
+    'assets_materiais', 'assets_blocos', 'assets_historico', 'assets_otimizar', 'assets_purge',
+    'assets_espelho', 'assets_fume', 'randomizar', 'ripado', 'random_material', '|',
+    'proj_triplanar_mundo', 'proj_triplanar_ajustada', 'proj_esferica_mundo', 'proj_esferica_ajustada',
+    'posicionar', 'rotacionar_90cw', 'rotacionar_90ccw', 'rotacionar_custom', 'alinhar_borda', '|',
+    'luz_linear', 'luz_spot', 'luz_plafon'
+  ];
+  var porId = {};
+  ICONES.forEach(function (i) { porId[i.id] = i; });
+
+  var ferramentas = ORDEM.map(function (id) {
+    if (id === '|') return '<span class="barra__sep"></span>';
+    var i = porId[id];
+    return '<button class="bt" data-tip="' + esc(i.nome) + '" aria-label="' + esc(i.nome) + '">' +
+      '<img src="' + i.antes + '" alt="" data-inverte></button>';
+  }).join('');
+
+  // ── os acabamentos da marca ──
+  var MARCAS = [
+    { t: 'Como é hoje', tipo: 'chapa', cor: '#1D1D1F', contraste: null, inverte: true,
+      d: 'A marca preta, chapada, sem fundo. É o PNG que o plugin já manda. Na barra escura ela precisa de um segundo arquivo, senão some.' },
+    { t: 'Os pelos, no branco', tipo: 'pastilha', fundo: '#FFFFFF', dentro: 'pelos', contraste: null,
+      d: 'A foto do ícone 3D sobre pastilha branca. Na barra clara a pastilha quase some e sobra só a marca, que é o efeito que você queria ver. Na barra escura ela vira uma placa branca e passa a ser a coisa mais forte da fileira.' },
+    { t: 'Turquesa com a marca branca', tipo: 'pastilha', fundo: '#ADECDF', dentro: 'marca', cor: '#FFFFFF', contraste: 1.3,
+      d: 'A turquesa cheia da marca com o desenho branco chapado. Ela é uma cor <b>clara</b>, feita para ser fundo de tinta escura, e por isso o branco em cima dela dá 1,3 de contraste. Em 16 a marca praticamente desaparece: vale trocar o tamanho no banco.' },
+    { t: 'Turquesa com a marca preta', tipo: 'pastilha', fundo: '#ADECDF', dentro: 'marca', cor: '#111111', contraste: 12.1,
+      d: 'A mesma turquesa, com a marca em <b>#111111</b>, que é o que o manual manda usar sobre lima e turquesa cheias. Mesma cor de fundo, e a marca aguenta os 16.' }
+  ];
+
+  function marcaHtml(m) {
+    if (m.tipo === 'chapa') {
+      return '<span class="mk" style="background:' + m.cor + '"' + (m.inverte ? ' data-chapa' : '') + '></span>';
+    }
+    var dentro = m.dentro === 'pelos'
+      ? '<span class="pl"></span>'
+      : '<span class="mk" style="background:' + m.cor + '"></span>';
+    return '<span class="ap" style="background:' + m.fundo + '">' + dentro + '</span>';
+  }
+
+  document.getElementById('filas').innerHTML = MARCAS.map(function (m, i) {
+    var selo = m.contraste === null ? ''
+      : '<span class="fila__c" data-passa="' + (m.contraste >= 3 ? 'sim' : 'nao') + '">' +
+        String(m.contraste).replace('.', ',') + ' de contraste</span>';
+    return '<section class="fila">' +
+      '<div class="fila__cab"><span class="fila__n">' + (i + 1) + '</span>' +
+      '<h2 class="fila__t">' + m.t + '</h2>' + selo + '</div>' +
+      '<div class="rolo"><div class="barra" data-barra-alvo>' +
+      '<button class="bt" data-tip="Cora Render" aria-label="Cora Render">' + marcaHtml(m) + '</button>' +
+      '<span class="barra__sep"></span>' + ferramentas + '</div></div>' +
+      '<div class="lupa">' +
+      '<div class="lupa__c"><div class="lupa__q" data-barra-alvo>' + marcaHtml(m) + '</div>' +
+      '<span class="lupa__n">64</span></div>' +
+      '<div class="lupa__c lupa__c--peq"><div class="lupa__q" data-barra-alvo>' + marcaHtml(m) + '</div>' +
+      '<span class="lupa__n">16</span></div>' +
+      '<p class="fila__d" style="margin:0">' + m.d + '</p></div>' +
+      '</section>';
+  }).join('');
+
+  // A marca chapada preta também inverte na barra escura, pelo mesmo motivo
+  // dos ícones: sem isso ela sumiria no fundo.
+  function pintarBarra(qual) {
+    var escura = qual === 'escuro';
+    document.querySelectorAll('[data-barra-alvo]').forEach(function (b) {
+      b.classList.toggle('barra--esc', escura);
+      b.querySelectorAll('[data-chapa]').forEach(function (m) {
+        m.style.background = escura ? '#EDEDEA' : '#1D1D1F';
+      });
+    });
+    document.querySelectorAll('[data-barra]').forEach(function (b) { b.classList.toggle('on', b.dataset.barra === qual); });
+  }
+  document.querySelectorAll('[data-barra]').forEach(function (b) {
+    b.addEventListener('click', function () { pintarBarra(b.dataset.barra); });
+  });
+  document.querySelectorAll('[data-tam]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      raiz.style.setProperty('--tam', b.dataset.tam + 'px');
+      document.querySelectorAll('[data-tam]').forEach(function (o) { o.classList.toggle('on', o === b); });
+    });
+  });
+
+  // O tema da PÁGINA é o do Cora. O da barra é o do SketchUp, e são coisas
+  // diferentes: dá para ter a página escura e a barra clara.
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  var escolhido = null;
+  function pintarTema() {
+    raiz.setAttribute('data-theme', escolhido || (mq.matches ? 'dark' : 'light'));
+    document.querySelectorAll('[data-tema]').forEach(function (b) { b.classList.toggle('on', escolhido === b.dataset.tema); });
+  }
+  mq.addEventListener('change', pintarTema);
+  document.querySelectorAll('[data-tema]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      escolhido = escolhido === b.dataset.tema ? null : b.dataset.tema;
+      pintarTema();
+    });
+  });
+
+  pintarBarra('claro');
+  pintarTema();
+})();
+</script>

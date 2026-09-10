@@ -1,0 +1,2012 @@
+<title>A janela do plugin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     A JANELA DO PLUGIN · o desenho da web, dentro do SketchUp
+
+     ARQUIVO GERADO por `montar-janela-plugin.py`. Editar este .fonte.html e
+     rodar o script de novo. O gerado é `cora-plugin-janela.html`.
+
+     As folhas entram inteiras, sem uma regra minha:
+       app/globals.css      as regras que MEDEM
+       app/cora-pagina.css  a folha escopada em `.co`, que PINTA
+     Nessa ordem, a mesma do `app/layout.js`.
+
+     O QUE MUDA DA WEB PARA O PLUGIN, e por quê
+     1. A janela tem cabeça própria, com o logo e a conta. Na web isso mora
+        no AppShell, que o plugin não tem.
+     2. São 11 abas, e não 8. As três a mais são de SketchUp: 360, Materiais
+        e Blocos. O Histórico saiu: quem faz esse trabalho agora é o feed, do
+        lado direito, que a versão antiga do plugin não tinha.
+     3. Não existe "Imagem do modelo": o plugin captura o viewport. No lugar
+        dela entra o enquadramento, que é a proporção do safe frame mais
+        terços, salvar cena e exportar.
+     4. O botão de gerar diz o motivo de estar apagado no próprio rótulo, e o
+        aviso que ficava embaixo dele sai.
+     5. A barra do feed cabe numa linha só. Ver a nota "A barra do feed".
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<style>/*@GLOBAIS@*/</style>
+<style>/*@CORA@*/</style>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   A MOLDURA
+   Só o que a web não tem: a página em volta, a janela do SketchUp, a
+   cabeça dela e o banco de provas. Entra DEPOIS das folhas de produção,
+   porque precisa vencer a medida delas em alguns pontos.
+   ══════════════════════════════════════════════════════════════════ */
+/* `--line2` e `--ink3` tambem no `:root`: o `*::-webkit-scrollbar-thumb` do
+   globals le eles, e ele e um seletor SEM escopo, entao nao alcança os
+   tokens que moram dentro do `.co`. Sem esta linha a barra de rolagem sai
+   branca no meio do painel escuro, que e exatamente o que essas regras
+   existem para evitar. */
+:root{ color-scheme:light; --pag-fundo:#F6F6F4; --pag-tinta:#111111; --pag-apoio:#5B5B57; --pag-fraco:#8E8E88; --pag-fio:#E4E4DF; --pag-fio2:#D2D2CB; --line2:#D2D2CB; --ink3:#8E8E88; }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ color-scheme:dark; --pag-fundo:#0F0F11; --pag-tinta:#F2F2EF; --pag-apoio:#B6B5AE; --pag-fraco:#8B8A83; --pag-fio:#2B2B30; --pag-fio2:#3A3A41; --line2:#3A3A41; --ink3:#8B8A83; }
+}
+:root[data-theme="dark"]{ color-scheme:dark; --pag-fundo:#0F0F11; --pag-tinta:#F2F2EF; --pag-apoio:#B6B5AE; --pag-fraco:#8B8A83; --pag-fio:#2B2B30; --pag-fio2:#3A3A41; --line2:#3A3A41; --ink3:#8B8A83; }
+
+*{ box-sizing:border-box; }
+body{
+  margin:0; padding:0 0 92px; background:var(--pag-fundo); color:var(--pag-tinta);
+  font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-size:14.5px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+button{ cursor:pointer; font-family:inherit; }
+:focus-visible{ outline:2px solid #8FDDCC; outline-offset:2px; }
+::selection{ background:#C4FBA7; color:#111111; }
+
+.pag{ max-width:1180px; margin:0 auto; padding:30px 24px 0; }
+.pag-cab{ margin-bottom:24px; }
+.eb{ margin:0; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--pag-fraco); }
+h1{ margin:10px 0 0; font-size:clamp(26px,3.6vw,34px); font-weight:500; letter-spacing:-.033em; line-height:1.1; text-wrap:balance; }
+.lead{ margin:14px 0 0; max-width:64ch; color:var(--pag-apoio); text-wrap:pretty; }
+.lead b{ color:var(--pag-tinta); font-weight:600; }
+.lead code, .notas code, .rod code{ padding:1px 6px; border-radius:6px; background:var(--pag-fio); color:var(--pag-tinta); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+
+.dupla{ display:grid; gap:34px; align-items:start; grid-template-columns:1fr; }
+@media (min-width:1330px){ .dupla{ grid-template-columns:880px minmax(0,1fr); } }
+
+/* ── a janela ── */
+.jn-fora{ overflow-x:auto; padding-bottom:4px; }
+.jn{
+  position:relative;
+  width:880px; height:980px; flex:none; display:flex; flex-direction:column; overflow:hidden;
+  border:1px solid var(--pag-fio2); border-radius:12px; background:var(--wash);
+  box-shadow:0 18px 44px rgba(17,17,17,.10), 0 2px 6px rgba(17,17,17,.05);
+}
+:root[data-theme="dark"] .jn{ box-shadow:0 18px 44px rgba(0,0,0,.44), 0 2px 6px rgba(0,0,0,.30); }
+.jn .cmp{ position:static; }
+/* A web mede a tela pela altura do navegador. Aqui quem manda é a janela. */
+.jn .cr-tela{ flex:1; min-height:0; height:auto; }
+.jn > .cr-pills{ flex:none; }
+/* Na web quem esconde o popover é o React, que não o renderiza. Aqui ele
+   existe sempre, e o `display:flex` do `.cr-pop--res` ganha do `hidden` do
+   navegador, que é só um `display:none` de agente. */
+.jn [hidden]{ display:none; }
+
+/* ── a cabeça, que na web mora no AppShell ── */
+.jn-cab{
+  flex:none; height:56px; display:flex; align-items:center; gap:10px;
+  padding:0 12px 0 16px; background:var(--paper); border-bottom:1px solid var(--line);
+}
+/* A marca é máscara, e não imagem: ela toma a cor do texto e atravessa o tema
+   escuro sem precisar de um segundo arquivo. É o `.app-logo` do painel. */
+.jn-marca{
+  display:block; width:96px; height:23px; flex:none; background:var(--ink);
+  -webkit-mask:var(--marca) no-repeat left center / contain;
+  mask:var(--marca) no-repeat left center / contain;
+}
+.jn-cab-dir{ margin-left:auto; display:flex; align-items:center; gap:2px; }
+.jn-fer{
+  position:relative; width:30px; height:30px; padding:0; border:0; border-radius:9px;
+  background:transparent; color:var(--ink3); display:flex; align-items:center; justify-content:center;
+  transition:background var(--t), color var(--t);
+}
+.jn-fer:hover{ background:var(--wash2); color:var(--ink); }
+.jn-risco{ width:1px; height:20px; margin:0 8px; background:var(--line); }
+.jn-saldo{
+  display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 11px;
+  border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
+  font-size:12.5px; font-weight:600; font-variant-numeric:tabular-nums;
+}
+.jn-saldo svg{ color:var(--ink3); }
+/* O avatar é o do site: quadrado de canto redondo, e o anel de crédito
+   acompanha a forma dele. Redondo era o molde antigo. */
+.jn-av{ position:relative; width:46px; height:46px; margin-left:4px; padding:0; border:0; background:none; display:grid; place-items:center; }
+.jn-av .app-anel{ position:absolute; inset:0; pointer-events:none; }
+.jn-av .app-anel-bg{ fill:none; stroke:var(--line); stroke-width:3; }
+.jn-av .app-anel-fill{ fill:none; stroke:var(--turquesa); stroke-width:3; stroke-linecap:round; }
+.jn-av .app-avatar{
+  width:34px; height:34px; border-radius:10px; display:grid; place-items:center;
+  background:var(--ink); color:var(--paper); font-size:14.5px; font-weight:600;
+  background-size:cover; background-position:center;
+}
+
+/* ── o enquadramento, a única peça que a web não tem ──
+   Ela usa as classes de produção: o campo é o `.cmp` de toda escolha do app,
+   e os três botões são o `.cr-b` do resto do painel. */
+.enq-b{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:10px; }
+.enq-b .cr-b{ width:100%; display:flex; align-items:center; justify-content:center; gap:6px; }
+.enq-b .cr-b svg{ flex:none; }
+.enq-b .cr-b[aria-pressed="true"]{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); font-weight:600; }
+
+/* ── a barra do feed, numa linha só ──
+   O feed do plugin tem 478 e o da web quase o dobro. Duas coisas saíram: os
+   quatro degraus de tamanho, que num feed de duas colunas não têm o que
+   fazer, e o lista/grade, porque em lista a miniatura fica pequena demais
+   nesta largura. O plugin é sempre grade. O que sobrou é o que filtra, o que
+   busca, o A/B e o selecionar várias, com folga entre eles. */
+.jn .cr-barra{ gap:8px; padding:0 14px; }
+.jn .cr-fbtn{ min-width:28px; height:28px; padding:0 6px; }
+.jn .cr-fbtn svg{ width:14px; height:14px; }
+.jn .cr-fbtns{ gap:5px; }
+.jn .cr-busca{ width:170px; flex:0 1 170px; min-width:110px; }
+.jn .cr-busca input{ height:28px; padding:0 12px 0 30px; font-size:var(--t-apoio2); }
+.jn .cr-busca svg{ left:10px; }
+.jn .cr-barra-dir{ gap:6px; }
+.jn .cr-barra-dir > .cr-ft-wrap{ margin-left:2px; }
+.jn .cr-ab-ico{ font-size:10.5px; }
+
+/* O cartão do feed: a etiqueta "Plugin" saiu. No feed do plugin só entra o
+   que saiu do plugin, então ela não diz nada, e era ela que empurrava a data
+   para uma segunda linha. Na web ela continua, porque lá o feed mistura os
+   dois. */
+.jn .cr-card-info{ gap:5px; padding:16px 8px 7px; }
+.jn .cr-card-info span{ font-size:10px; white-space:nowrap; }
+.jn .cr-card-fer{ padding:2px 6px; }
+
+/* ── as janelas ──
+   A moldura é a do painel de filtros: cabeça, corpo e pé. Nenhuma forma
+   nova, e o fundo escuro é o `.cr-overlay` do próprio app. */
+/* `flex`, e nao `grid`: com `place-items:center` a trilha se dimensiona pelo
+   item e o `max-width:calc(100% - 40px)` dele passa a medir contra a propria
+   largura, tirando 40px de toda janela. O `.cf` do site tem o mesmo
+   `calc(100vw - 40px)` dentro, e sofria igual. */
+.jn .cr-overlay{ position:absolute; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; background:rgba(17,17,17,.42); }
+.jn-jan{
+  width:380px; max-width:840px; max-height:calc(100% - 80px);
+  display:flex; flex-direction:column; overflow:hidden;
+  border:1px solid var(--line); border-radius:var(--r); background:var(--paper); box-shadow:var(--sombra);
+}
+.jn-jan .ft__corpo{ max-height:none; }
+.jn-jan-x{
+  flex:none; width:30px; height:30px; padding:0; border:0; border-radius:50%;
+  background:transparent; color:var(--ink3); display:grid; place-items:center;
+  transition:background var(--t), color var(--t);
+}
+.jn-jan-x:hover{ background:var(--wash2); color:var(--ink); }
+.jn-lista-cenas{
+  display:flex; flex-direction:column; gap:1px; max-height:186px; overflow-y:auto;
+  margin-top:6px; padding:4px; border:1px solid var(--line); border-radius:var(--r-peq); background:var(--wash);
+}
+.jn-campo{ display:flex; gap:6px; margin-top:6px; }
+.jn-campo input{
+  flex:1; min-width:0; height:var(--alt-ctrl); padding:0 14px;
+  border:1px solid var(--line); border-radius:var(--pill);
+  background:var(--paper); color:var(--ink); font-size:var(--t-apoio); font-family:inherit; outline:none;
+}
+.jn-campo input::placeholder{ color:var(--ink3); }
+.jn-campo input:focus{ border-color:var(--line2); }
+.jn-pasta-b{ flex:none; width:var(--alt-ctrl); padding:0; display:flex; align-items:center; justify-content:center; }
+.jn .cr-card{ cursor:pointer; }
+.jn .cr-card--ab{ box-shadow:0 0 0 2px var(--turquesa-esc); }
+.jn .cr-card-ab{ position:absolute; top:8px; left:8px; z-index:3; display:grid; place-items:center; width:24px; height:24px; border-radius:50%; background:var(--turquesa); color:#111111; font-size:11px; font-weight:700; }
+.jn .cr-ab-aviso{ margin:0; padding:9px 20px; border-bottom:1px solid var(--line); background:var(--turq-bg); color:var(--turq-txt); font-size:var(--t-apoio2); }
+.jn-res{ display:flex; gap:4px; margin-top:6px; }
+.jn-res .cr-pop-res{ flex:1; }
+.jn-prog{ margin:2px 0 0; font-size:var(--t-apoio2); color:var(--turq-txt); }
+.jn-linha{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:7px 0; border-bottom:1px solid var(--line); font-size:var(--t-apoio); }
+.jn-linha:last-child{ border-bottom:0; }
+.jn-linha span{ color:var(--ink3); }
+.jn-linha b{ color:var(--ink); font-weight:500; text-align:right; }
+.jn-jan .cr-base{ margin-top:6px; height:150px; border-radius:var(--r-peq); overflow:hidden; }
+.jn-jan .cr-base i{ display:block; width:100%; height:150px; }
+
+/* O cartão da escolha tem que ficar ACIMA da janela, senão a resolução do
+   Exportar abre por baixo do fundo escuro dela. */
+.jn .cmp__pop{ z-index:90; }
+
+/* ── o visualizador ──
+   É o `Visualizador.js` da web inteiro. O `.vz` de lá mede 1120 por 82vh,
+   contra o navegador. Aqui a tela é a janela, e é ela quem manda. */
+.jn .vz{ width:auto; height:auto; min-height:0; max-width:none; max-height:none; position:absolute; inset:22px; }
+/* A proporção da imagem vem do item. A ALTURA continua sendo 100%, como no
+   globals: é ela que é definida (a área é um flex esticado), e a proporção
+   tira a largura dela. Trocada por `height:auto`, as duas medidas ficam
+   indefinidas ao mesmo tempo e a caixa colapsa para zero. */
+.jn .vz-par, .jn .vz-sbs--um > .vz-sbs-lado{ aspect-ratio:var(--ar,4/5); height:100%; width:auto; max-width:100%; }
+/* A cortina NÃO encolhe: ela é do tamanho da caixa e o que muda é o recorte.
+   Estreitando a caixa, a imagem de baixo encolhe junto e as duas param de
+   coincidir, e aí a barra parece arrastar a foto em vez de descobri-la. Com
+   `clip-path` as duas ficam exatamente uma sobre a outra, sempre. */
+.jn .vz-cortina{ position:absolute; inset:0; width:auto; height:auto; overflow:hidden; }
+.jn .vz-img--fixa{ position:absolute; inset:0; width:100%; height:100%; max-width:none; }
+/* No Side by Side cada lado é metade da área, e a proporção tira a altura
+   dessa metade. Antes os dois disputavam a largura e saíam com alturas
+   diferentes, um deles cortado embaixo. */
+.jn .vz-sbs:not(.vz-sbs--um){ align-items:center; }
+.jn .vz-sbs:not(.vz-sbs--um) > .vz-sbs-lado{
+  display:block; flex:0 0 auto; width:calc(50% - 5px); height:auto;
+  aspect-ratio:var(--ar,4/5); max-height:100%; overflow:hidden;
+}
+.jn .vz-sbs:not(.vz-sbs--um) > .vz-sbs-lado > .vz-img{ width:100%; height:100%; }
+/* A pastilha fica SOBRE a imagem, no canto de cima, nos três modos. */
+.jn .vz-sbs:not(.vz-sbs--um) > .vz-sbs-lado > .vz-tag{ position:absolute; top:10px; left:10px; margin:0; }
+/* O print é a captura do viewport, e o render é o que a IA devolveu. O que
+   separa os dois no olho é a cor: o print do SketchUp é quase sem saturação. */
+.jn .vz-print{ filter:saturate(.1) contrast(.92) brightness(1.07); }
+.jn .vz-img--seg{ position:absolute; inset:0; }
+.jn .vz-pano{ cursor:ew-resize; }
+.jn .vz-modos{ flex:none; }
+.jn .vz-acoes{ gap:4px; padding:10px 12px; }
+.jn .vz-cab{ padding:10px 12px; }
+.jn .vz-img{ background-size:cover; background-position:center; }
+/* O Material ID é um jeito de VER a imagem, como o Split e o Single, e por
+   isso mora na cabeça junto dos modos, e não entre as ações. Ele troca o
+   render pelo passe de cor sólida por material, que o SketchUp gera a partir
+   da cena que originou a imagem. */
+.jn .vz-matid{ margin-left:auto; }
+.jn .vz-modo:disabled{ color:var(--ink3); opacity:.55; cursor:default; }
+.jn .vz-modo:disabled:hover{ color:var(--ink3); }
+/* O passe de Material ID: cada material da cena vira uma cor sólida. Aqui é
+   um desenho, no plugin é o PNG que o SketchUp devolve. */
+.jn .vz-passe{
+  display:grid; place-items:center; width:100%; height:100%; border-radius:12px;
+  background:conic-gradient(from 210deg at 34% 42%, #E86A5A 0 14%, #F2C14E 0 27%, #4FB6A0 0 44%, #5B7FD1 0 61%, #C77DD6 0 74%, #6FBF5B 0 88%, #E86A5A 0 100%);
+}
+.jn .vz-passe span{
+  padding:5px 12px; border-radius:var(--pill);
+  background:rgba(17,17,17,.62); color:#fff; font-size:var(--t-apoio2); font-weight:600;
+}
+
+/* O painel de filtros do feed é um cartão flutuante, e na web ele nasce
+   ancorado no funil. Aqui ele fica dentro da janela pelo mesmo motivo do
+   cartão da escolha. */
+.jn .ft{ position:absolute; z-index:70; background:var(--paper); border:1px solid var(--line); box-shadow:var(--sombra); }
+.jn .ft-fundo{ position:absolute; inset:0; z-index:69; }
+
+/* As fotos. Na web são <img> com URL assinada. */
+.jn .foto{ display:block; width:100%; height:100%; background-size:cover; background-position:center; }
+.jn .cr-card .foto{ aspect-ratio:4/5; }
+.jn .foto.f1{ background-image:var(--foto1); }
+.jn .foto.f2{ background-image:var(--foto2); }
+.jn .foto.f3{ background-image:var(--foto3); aspect-ratio:16/9; }
+.jn .foto.f4{ background-image:var(--foto4); aspect-ratio:16/9; }
+.jn .foto.ref-a{ background-image:var(--foto2); }
+.jn .foto.ref-b{ background-image:var(--foto4); }
+.jn .cref-op .foto{ width:26px; height:26px; flex:none; border-radius:6px; }
+
+/* ── o banco de provas ── */
+.banco{
+  position:fixed; left:0; right:0; bottom:0; z-index:60;
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px 20px;
+  padding:12px 22px; background:#141416; color:#F2F2EF;
+  box-shadow:0 -8px 28px rgba(0,0,0,.22);
+}
+.banco-g{ display:flex; align-items:center; gap:7px; }
+.banco-r{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#8B8A83; }
+.banco-b{
+  height:28px; padding:0 12px; border:0; border-radius:100px;
+  background:rgba(255,255,255,.09); color:#B6B5AE; font-size:12.5px; font-weight:500;
+  transition:background .14s, color .14s;
+}
+.banco-b:hover{ background:rgba(255,255,255,.16); color:#F2F2EF; }
+.banco-b.on{ background:#F2F2EF; color:#141416; font-weight:600; }
+.banco-n{ margin-left:auto; font-size:11px; color:#8B8A83; }
+
+/* ── as notas ── */
+.notas h2{ margin:0 0 4px; font-size:20px; font-weight:500; letter-spacing:-.02em; }
+.notas h2:not(:first-child){ margin-top:28px; }
+.notas p{ margin:0 0 10px; font-size:13.5px; color:var(--pag-apoio); text-wrap:pretty; }
+.notas p b{ color:var(--pag-tinta); font-weight:600; }
+.mapa{ margin:12px 0 0; width:100%; border-collapse:collapse; font-size:12.5px; }
+.mapa th{ text-align:left; padding:0 12px 7px 0; border-bottom:1px solid var(--pag-fio); font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--pag-fraco); }
+.mapa td{ padding:8px 12px 8px 0; border-bottom:1px solid var(--pag-fio); color:var(--pag-apoio); vertical-align:top; }
+.mapa td:first-child{ color:var(--pag-tinta); font-weight:500; }
+.rod{ margin:44px 0 0; padding:20px 0 0; border-top:1px solid var(--pag-fio2); max-width:72ch; }
+.rod p{ margin:0 0 8px; font-size:13.5px; color:var(--pag-apoio); text-wrap:pretty; }
+.rod b{ color:var(--pag-tinta); font-weight:600; }
+</style>
+
+<div class="pag co" id="pag">
+  <header class="pag-cab">
+    <p class="eb">Cora Render · a janela do SketchUp</p>
+    <h1>O trilho das onze, e a aba Render</h1>
+    <p class="lead">A janela em <b>tamanho real</b>, 880 por 980, que é o que o
+      <code>panel.rb</code> abre hoje. O desenho é o do <code>/app</code> que
+      está no ar, montado com as classes e as folhas de produção.
+      <b>Tudo abre</b>: os campos, os popovers, o Exportar, o Salvar cena, o
+      Resetar, os filtros do feed e os detalhes de cada imagem. O tema e o
+      estado dos materiais trocam na barra preta lá embaixo.</p>
+  </header>
+
+  <div class="dupla">
+    <div class="jn-fora">
+    <div class="jn" id="jn">
+
+      <!-- ══════════ a cabeça ══════════ -->
+      <div class="jn-cab">
+        <span class="jn-marca" role="img" aria-label="Cora Render"></span>
+
+        <div class="jn-cab-dir">
+          <button class="jn-fer" data-tip="Espelho, gera o reflexo do espelho selecionado" aria-label="Espelho">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="6.4" ry="9"/><path d="M9.4 14.4L13 9.2M11.6 15l3.6-5.2"/></svg>
+          </button>
+          <button class="jn-fer" data-tip="Vidros refletivos" aria-label="Vidros refletivos">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8 8l5.5 5.5M8 12.5l3 3"/></svg>
+          </button>
+          <button class="jn-fer" data-tip="Otimizar o modelo, limpa geometria e o que não é usado" aria-label="Otimizar modelo">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19l9.5-9.5"/><path d="M17 3.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" fill="currentColor"/><path d="M6 5v2.5M4.75 6.25h2.5"/></svg>
+          </button>
+          <button class="jn-fer" data-tip="Purge, tira componente, material, tag e estilo sem uso" aria-label="Purge">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5h16"/><path d="M9.5 6.5v-2h5v2"/><path d="M6 6.5L7 20h10l1-13.5"/><path d="M10 10l.4 6.5M14 10l-.4 6.5"/></svg>
+          </button>
+
+          <span class="jn-risco"></span>
+
+          <span class="jn-saldo">
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+            1.284
+          </span>
+
+          <button class="jn-av" data-tip="Minha conta" aria-label="Minha conta">
+            <svg class="app-anel" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
+              <rect class="app-anel-bg" x="2.5" y="2.5" width="41" height="41" rx="13" pathLength="100"/>
+              <rect class="app-anel-fill" x="2.5" y="2.5" width="41" height="41" rx="13" pathLength="100" stroke-dasharray="100" stroke-dashoffset="26"/>
+            </svg>
+            <span class="app-avatar">M</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ══════════ o trilho ══════════
+           `Trilho.js`, sem tirar nem pôr: ícone puro, a ativa abre com o nome
+           dentro da pílula branca, e as fechadas dizem o nome no tooltip. O
+           ícone nunca ganha cor, nem na ativa. -->
+      <div class="cr-pills">
+        <div class="cr-sulco" role="tablist">
+          <div class="cr-trilho" id="trilho"></div>
+        </div>
+      </div>
+
+      <div class="cr-tela">
+
+        <!-- ══════════ o painel, 400 ══════════ -->
+        <aside class="cr-painel">
+          <div class="cr-painel-corpo">
+            <div class="cr-aba">
+              <div class="cr-form" id="form">
+
+                <!-- ══ O enquadramento ══
+                     No lugar da "Imagem do modelo" da web. O plugin não
+                     escolhe imagem: ele captura o viewport, e o que a pessoa
+                     ajusta é o recorte. A proporção aqui e a pílula da barra
+                     de baixo são o MESMO estado, como já são no plugin. -->
+                <div class="cr-sec">O enquadramento</div>
+                <div class="cmp" data-aberta="nao" id="cmp-safe">
+                  <span class="cmp__rot">Safe frame</span>
+                  <button type="button" class="cmp__b" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="cmp__val" data-vazio="nao" id="safe-val">4:5</span>
+                    <svg class="cmp__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+                <div class="enq-b">
+                  <button class="cr-b" id="b-tercos" aria-pressed="false">
+                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="2.5" width="15" height="15" rx="1.5"/><path d="M7.5 2.5v15M12.5 2.5v15M2.5 7.5h15M2.5 12.5h15"/></svg>
+                    Terços
+                  </button>
+                  <button class="cr-b" data-jan="cena">
+                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4v12M4 10h12"/></svg>
+                    Salvar cena
+                  </button>
+                  <button class="cr-b" data-jan="exportar">
+                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v9M6.5 8.5L10 12l3.5-3.5M3.5 14.5V16h13v-1.5"/></svg>
+                    Exportar
+                  </button>
+                </div>
+
+                <!-- ══ Ambiente ══
+                     Vem ANTES de Materiais, e não é ordem estética: o
+                     `lerMateriais(imagem, tipo)` manda o tipo para o servidor,
+                     e é ele que decide qual promptador roda. -->
+                <div class="fic fic--solta" id="fic-ambiente"></div>
+
+                <!-- ══ Materiais ══ -->
+                <div class="cr-sec">Materiais</div>
+                <div class="cr-mat-acoes cr-mat-acoes--pilha">
+                  <button class="cr-b cr-b--tenho" data-mat="tenho">Já tenho a análise</button>
+                  <button class="cr-b-ler" data-mat="ler">
+                    <span id="mat-ler-rot">Ler materiais</span>
+                    <span class="cr-custo-tag" id="mat-ler-tag">
+                      <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg> 16
+                    </span>
+                  </button>
+                </div>
+
+                <div id="mat-caixa" hidden>
+                  <textarea class="cr-ta cr-ta--mat" id="mat-texto" placeholder="Cole aqui a análise que você já tem..." spellcheck="false"></textarea>
+                  <div id="mat-revisar" hidden>
+                    <p class="cr-hint">Materiais identificados, edite se precisar</p>
+                    <div class="cr-g2 cr-mat-acoes">
+                      <button class="cr-b" data-mat="focar">Editar</button>
+                      <button class="cr-b-conf" data-mat="confirmar">Tá bom, seguir assim</button>
+                    </div>
+                  </div>
+                  <button class="cr-b-editar-mat" data-mat="editar" hidden>Editar materiais</button>
+                </div>
+
+                <!-- ══ A FICHA ══ -->
+                <div class="fic" id="ficha"></div>
+
+                <!-- ══ Referências ══ -->
+                <div class="cr-sec">Referências <span class="cr-opc">Opcional</span></div>
+                <div class="cr-refs">
+                  <div class="cr-ref"><i class="foto ref-a"></i><button class="cr-ref-x" aria-label="Remover referência">×</button><span class="cr-ref-n">@ref01</span></div>
+                  <div class="cr-ref"><i class="foto ref-b"></i><button class="cr-ref-x" aria-label="Remover referência">×</button><span class="cr-ref-n">@ref02</span></div>
+                  <button class="cr-ref cr-ref--add"><span class="cr-ref-mais">+</span><span class="cr-ref-c">2/10</span></button>
+                </div>
+                <!-- Digitar @ abre a lista das referências, para clicar. É o
+                     CampoRefs: sem ele a pessoa tem que lembrar o número de
+                     cada uma, e um @ref03 num painel com duas não referencia
+                     nada. -->
+                <div class="cref" id="cref">
+                  <textarea class="cr-ta" id="ref-texto" placeholder="Digite @ para escolher uma referência" spellcheck="false"></textarea>
+                  <div class="cref-menu" id="cref-menu" hidden></div>
+                </div>
+                <p class="cr-hint" id="ref-hint">Use @ref01, @ref02... para referenciar cada imagem carregada.</p>
+
+              </div><!-- /cr-form -->
+
+              <!-- ══ A barra fixa ══ -->
+              <div class="cr-barra-ger">
+                <div class="cr-pills-cfg">
+                  <div class="cr-qty">
+                    <button data-qty="-1" aria-label="Menos uma">−</button>
+                    <span id="qty">1</span>
+                    <button data-qty="1" aria-label="Mais uma">+</button>
+                  </div>
+
+                  <div class="cr-pill-wrap">
+                    <button class="cr-pill-cfg" data-pop="ratio">
+                      <svg viewBox="0 0 20 20" width="15" height="15" fill="none"><rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                      <span id="ratio-rot">4:5</span>
+                      <svg class="cr-seta" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="cr-pop" id="pop-ratio" hidden></div>
+                  </div>
+
+                  <div class="cr-pill-wrap">
+                    <button class="cr-pill-cfg" data-pop="res">
+                      <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/></svg>
+                      <span id="res-rot">2K</span>
+                      <svg class="cr-seta" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="cr-pop cr-pop--res" id="pop-res" hidden>
+                      <button class="cr-pop-res" data-res="1k">1K</button>
+                      <button class="cr-pop-res cr-pop-res--on" data-res="2k">2K</button>
+                      <button class="cr-pop-res" data-res="4k">4K</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- A única mudança em cima da web: o motivo de o botão estar
+                     apagado passa a ser o RÓTULO dele, e o aviso que ficava
+                     embaixo sai. -->
+                <button class="cr-btn-gerar" id="gerar" disabled>
+                  <span id="gerar-rot">Leia os materiais primeiro</span>
+                  <span class="cr-custo-tag">
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+                    <span id="gerar-custo">142</span>
+                  </span>
+                </button>
+
+                <button class="cr-resetar" data-jan="resetar">Resetar configurações</button>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- ══════════ o feed ══════════ -->
+        <section class="cr-feed">
+          <header class="cr-barra">
+            <div class="cr-fbtns" id="filtros"></div>
+            <div class="cr-barra-dir">
+              <button class="cr-fbtn" id="b-ab" data-tip="Comparar duas imagens" aria-label="Comparar A/B"><span class="cr-ab-ico">A/B</span></button>
+              <button class="cr-fbtn" id="b-sel" data-tip="Selecionar várias" aria-label="Selecionar várias">
+                <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="14" height="14" rx="2.5"/><path d="M7 10l2.2 2.2L14 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="cr-ft-wrap">
+                <button class="cr-fbtn" id="b-filtros" data-tip="Filtros" aria-label="Filtros">
+                  <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h14M6 10h8M8 14h4" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+              <form class="cr-busca" onsubmit="return false">
+                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M12.5 12.5L17 17" stroke-linecap="round"/></svg>
+                <input type="text" placeholder="Buscar" spellcheck="false">
+              </form>
+            </div>
+          </header>
+
+          <div class="cr-feed-corpo">
+            <div class="cr-lista" id="lista"></div>
+          </div>
+        </section>
+
+      </div><!-- /cr-tela -->
+
+      <div id="janelas"></div>
+    </div><!-- /jn -->
+    </div>
+
+    <!-- ══════════════════ as notas ══════════════════ -->
+    <div class="notas">
+      <h2>O que veio do web, e de onde</h2>
+      <table class="mapa">
+        <thead><tr><th>Peça</th><th>Arquivo</th></tr></thead>
+        <tbody>
+          <tr><td>O trilho</td><td>components/Trilho.js</td></tr>
+          <tr><td>Os ícones</td><td>components/IconesFerramentas.js</td></tr>
+          <tr><td>O campo e a lista</td><td>components/CoraFicha.js</td></tr>
+          <tr><td>O seletor de cor</td><td>components/PickerCor.js</td></tr>
+          <tr><td>O campo do @</td><td>components/CampoRefs.js</td></tr>
+          <tr><td>O formulário e a barra</td><td>components/PainelRender.js</td></tr>
+          <tr><td>O feed e o cartão</td><td>app/app/page.js, components/Card.js</td></tr>
+          <tr><td>Os filtros e os detalhes</td><td>components/Filtros.js, ModalDetalhes.js</td></tr>
+          <tr><td>O avatar e o anel</td><td>components/AppShell.js</td></tr>
+          <tr><td>As opções e os preços</td><td>lib/render.js</td></tr>
+          <tr><td>A medida</td><td>app/globals.css</td></tr>
+          <tr><td>A pintura</td><td>app/cora-pagina.css</td></tr>
+        </tbody>
+      </table>
+
+      <h2>O que mudou no web também</h2>
+      <p><b>O tique que ia parar no canto do cartão.</b> Com "Dia" escolhido
+        aparecia um tique ao lado de "Noite", que não quer dizer nada. O check
+        é <b>irmão</b> da amostra, e não filho dela, e sem
+        <code>position:relative</code> no <code>.am__b</code> ele procurava o
+        ancestral posicionado mais próximo, que é o cartão inteiro. Consertado
+        no <code>ferramentas/cora.html</code> e regerado.</p>
+
+      <h2>As cinco diferenças do plugin, e o motivo de cada uma</h2>
+      <p><b>A cabeça.</b> Logo, as quatro ferramentas do modelo, o saldo e a
+        conta. Na web isso mora no AppShell, que o plugin não tem. O avatar é
+        o mesmo: quadrado de canto redondo, com o anel de crédito
+        acompanhando a forma.</p>
+      <p><b>Onze abas, e o Histórico saiu.</b> As três a mais são de SketchUp:
+        360, Materiais e Blocos. Quem faz o trabalho do Histórico agora é o
+        feed, do lado direito, que a versão antiga do plugin não tinha. Onze
+        ícones não cabem nos 400 do painel, então o trilho atravessa a
+        janela.</p>
+      <p><b>O enquadramento no lugar da imagem.</b> O plugin não escolhe
+        imagem, ele captura o viewport. A proporção do safe frame, os terços,
+        salvar cena e exportar entram onde a web põe "Imagem do modelo". A
+        proporção aqui e a pílula da barra são o mesmo estado, e abrem a mesma
+        grade.</p>
+      <p><b>O botão diz o motivo.</b> Apagado, ele lê "Leia os materiais
+        primeiro", e depois de confirmar vira "Renderizar" em lima. O aviso
+        que ficava embaixo dele sai.</p>
+      <p><b>A barra do feed cabe numa linha.</b> Com todos os controles da web
+        ela precisaria de 586, e o feed do plugin tem 478. Saíram os três que
+        só fazem sentido num feed largo: comparar A/B, selecionar várias e os
+        quatro degraus de tamanho. Em 478 cabem duas colunas, e quatro
+        degraus não têm o que fazer ali.</p>
+
+      <h2>O que a aba Render cobra</h2>
+      <table class="mapa">
+        <thead><tr><th>O quê</th><th>1K e 2K</th><th>4K</th></tr></thead>
+        <tbody>
+          <tr><td>Ler materiais</td><td>16</td><td>16</td></tr>
+          <tr><td>O prompt, uma vez por lote</td><td>8</td><td>8</td></tr>
+          <tr><td>Cada imagem</td><td>134</td><td>231</td></tr>
+        </tbody>
+      </table>
+      <p>É o <code>custoRender</code> do <code>lib/render.js</code>. Uma imagem
+        em 2K dá 142. Quem cobra de verdade é o servidor, e quem decide se a
+        pessoa pode gerar agora é o <code>pode_gerar</code>. A tela só
+        mostra.</p>
+    </div>
+  </div>
+
+  <footer class="rod">
+    <p><b>Este arquivo é gerado.</b> A fonte é
+      <code>cora-plugin-janela.fonte.html</code>, e quem monta é
+      <code>montar-janela-plugin.py</code>. Ele copia as folhas de produção
+      para dentro, então mexer no CSS aqui desencontra do site na primeira
+      mudança.</p>
+    <p><b>O tamanho é o de hoje.</b> 880 por 980 é o que o
+      <code>panel.rb</code> abre, com mínimo de 460 por 500.</p>
+  </footer>
+</div>
+
+<div class="banco">
+  <div class="banco-g">
+    <span class="banco-r">Tema</span>
+    <button class="banco-b" data-tema="light">Claro</button>
+    <button class="banco-b" data-tema="dark">Escuro</button>
+  </div>
+  <div class="banco-g">
+    <span class="banco-r">Materiais</span>
+    <button class="banco-b on" data-est="vazio">Vazio</button>
+    <button class="banco-b" data-est="lendo">Lendo</button>
+    <button class="banco-b" data-est="revisar">Revisar</button>
+    <button class="banco-b" data-est="confirmado">Confirmado</button>
+  </div>
+  <div class="banco-g">
+    <span class="banco-r">Imagem</span>
+    <button class="banco-b on" data-prova="cena">Com cena</button>
+    <button class="banco-b" data-prova="sem">Sem cena</button>
+    <button class="banco-b" data-prova="360">360°</button>
+  </div>
+  <div class="banco-g">
+    <span class="banco-r">Plano</span>
+    <button class="banco-b on" data-plano="pro">Pro</button>
+    <button class="banco-b" data-plano="starter">Starter</button>
+  </div>
+  <span class="banco-n">Clique numa imagem do feed para abrir o visualizador</span>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var raiz = document.documentElement;
+  var janela = document.getElementById('jn');
+
+  // ══ o tema ══
+  // A web carimba `data-theme` no html. Aqui o padrão do sistema não carimba
+  // nada, então o carimbo sai daqui até alguém escolher no banco.
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  var temaEscolhido = null;
+  function pintarTema() {
+    raiz.setAttribute('data-theme', temaEscolhido || (mq.matches ? 'dark' : 'light'));
+    document.querySelectorAll('[data-tema]').forEach(function (b) {
+      b.classList.toggle('on', temaEscolhido === b.dataset.tema);
+    });
+  }
+  mq.addEventListener('change', pintarTema);
+  document.querySelectorAll('[data-tema]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      temaEscolhido = temaEscolhido === b.dataset.tema ? null : b.dataset.tema;
+      pintarTema();
+    });
+  });
+  pintarTema();
+
+  // ══ os dados, os mesmos do lib/render.js ══
+  var ICONES = {
+    render:    'M3.5 5.5h17v13h-17z M3.5 14l5-4.5 4 3.5 3-2.5 5 4',
+    batch:     'M7 3.5h13.5V17 M3.5 7h13.5v13.5H3.5z',
+    planta:    'M3.5 3.5h17v17h-17z M3.5 10h8 M11.5 10v10.5 M11.5 6h9',
+    editar:    'M4 20h4L19 9l-4-4L4 16v4z M14.5 5.5l4 4',
+    upscale:   'M5 10.5V5h5.5 M19 13.5V19h-5.5 M5 5l5.5 5.5 M19 19l-5.5-5.5',
+    pos:       'M4 6h16 M4 12h11 M4 18h7',
+    animacao:  'M3.5 5.5h17v13h-17z M8 5.5v13 M16 5.5v13 M3.5 12h17',
+    analises:  'M4 20V10 M10 20V4 M16 20v-7 M22 20H2',
+    r360:      'M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17z M3.5 12h17 M12 3.5c2.3 2.3 3.5 5 3.5 8.5S14.3 18.2 12 20.5c-2.3-2.3-3.5-5-3.5-8.5S9.7 5.8 12 3.5z',
+    materiais: 'M3.5 3.5h9v9h-9z M20.5 16a5 5 0 1 1-10 0 5 5 0 0 1 10 0z',
+    blocos:    'M12 2.8l8.5 4.8v9.4L12 21.2 3.5 16.4V7.6z M12 12l8.5-4.4 M12 12v9.2 M12 12L3.5 7.6'
+  };
+  var ABAS = [
+    { id: 'render',    rotulo: 'Render' },
+    { id: 'batch',     rotulo: 'Batch' },
+    { id: 'editar',    rotulo: 'Editar' },
+    { id: 'planta',    rotulo: 'Planta baixa' },
+    { id: 'pos',       rotulo: 'Pós-produção' },
+    { id: 'animacao',  rotulo: 'Animação' },
+    { id: 'upscale',   rotulo: 'Upscale' },
+    { id: 'analises',  rotulo: 'Análises' },
+    { id: 'r360',      rotulo: '360°' },
+    { id: 'materiais', rotulo: 'Materiais' },
+    { id: 'blocos',    rotulo: 'Blocos' }
+  ];
+  var BLOQUEADAS = ['animacao', 'pos'];
+
+  var PROPORCOES = [
+    { val: 'auto', x: 4, y: 4, w: 20, h: 20 },
+    { val: '1:1',  x: 4, y: 4, w: 20, h: 20 },
+    { val: '21:9', x: 1, y: 8, w: 26, h: 12 },
+    { val: '16:9', x: 2, y: 6, w: 24, h: 16 },
+    { val: '9:16', x: 8, y: 2, w: 12, h: 24 },
+    { val: '4:3',  x: 2, y: 5, w: 24, h: 18 },
+    { val: '4:5',  x: 6, y: 2, w: 16, h: 24 },
+    { val: '5:4',  x: 2, y: 6, w: 24, h: 16 },
+    { val: '3:4',  x: 7, y: 2, w: 14, h: 24 },
+    { val: '3:2',  x: 2, y: 7, w: 24, h: 14 },
+    { val: '2:3',  x: 7, y: 2, w: 14, h: 24 }
+  ];
+  var CEU = {
+    'Dia claro editorial': 'linear-gradient(175deg,#cfe0ec,#f2f4f4 60%,#e6e4de)',
+    'Manhã':               'linear-gradient(175deg,#d8e3ea,#f7efe2 58%,#eeddc8)',
+    'Meio dia':            'linear-gradient(175deg,#c2d8e8,#f4f7f8 55%,#e9ebea)',
+    'Tarde':               'linear-gradient(175deg,#e2cfb4,#f2e2c8 50%,#d6b489)',
+    'Amanhecer':           'linear-gradient(175deg,#cfd4e2,#efdcd2 55%,#e3b9a4)',
+    'Golden hour':         'linear-gradient(175deg,#e8c99a,#f2d9a8 50%,#cf9a5e)',
+    'Blue hour':           'linear-gradient(175deg,#8fa0bd,#b7c2d4 55%,#6c7c9c)',
+    'Nublado':             'linear-gradient(175deg,#cfd3d4,#e4e6e6 58%,#c8cccd)',
+    'Neve':                'linear-gradient(175deg,#dde4e8,#f4f7f9 58%,#e6ebee)',
+    'Chuvoso':             'linear-gradient(175deg,#b9c1c6,#d2d8db 55%,#a8b1b7)',
+    'Neblina':             'linear-gradient(175deg,#d6d8d6,#e8e9e7 58%,#cdd0ce)',
+    'Noite clara':         'linear-gradient(175deg,#2f3a4d,#4a5670 55%,#232a37)',
+    'Noite estrelada':     'linear-gradient(175deg,#1e2636,#2f3a52 55%,#141a26)',
+    'Noite escura':        'linear-gradient(175deg,#1a1e26,#262c38 55%,#10131a)',
+    'Noite chuvosa':       'linear-gradient(175deg,#232a33,#363f4b 55%,#171c23)'
+  };
+  var QUALIDADE = {
+    Direta: 'linear-gradient(112deg,#f8f4ea 0 44%,#b3aa99 44%,#8f8677)',
+    Difusa: 'linear-gradient(112deg,#f2efe8,#dcd7cd 55%,#cbc5ba)'
+  };
+  // A sala fica no MESMO ponto nas seis, e só a seta anda em volta.
+  var SALA = '<rect class="pl-sala" x="37" y="16" width="26" height="12" rx="1.5"/>';
+  var PLANTA = {
+    'Frontal':          SALA + '<path class="pl-luz" d="M50 9.5v4.5M50 14l-2.2-2.2M50 14l2.2-2.2"/>',
+    'Lateral esquerda': SALA + '<path class="pl-luz" d="M28.5 22h6.5M35 22l-2.2-2.2M35 22l-2.2 2.2"/>',
+    'Lateral direita':  SALA + '<path class="pl-luz" d="M71.5 22H65M65 22l2.2-2.2M65 22l2.2 2.2"/>',
+    'Pelo fundo':       SALA + '<path class="pl-luz" d="M50 34.5V30M50 30l-2.2 2.2M50 30l2.2 2.2"/>',
+    'Diagonal':         SALA + '<path class="pl-luz" d="M68.5 12.5l-4 4M64.5 16.5l3.1-.3M64.5 16.5l.3-3.1"/>',
+    'Zenital':          '<path class="pl-sala" d="M39 28v-7l11-6 11 6v7"/><path class="pl-luz" d="M50 12v-2.6M45.8 12.8l-1-2.2M54.2 12.8l1-2.2"/>'
+  };
+  var KELVIN = { 'Desligada': null, '2700K': '#f0c07a', '3000K': '#f5d2a2', '4000K': '#f6e6cd', '5500K': '#eef2f6', 'Outro': null };
+  var MOODS = [
+    { grupo: 'Dia',       itens: ['Dia claro editorial', 'Manhã', 'Meio dia', 'Tarde'] },
+    { grupo: 'Especiais', itens: ['Amanhecer', 'Golden hour', 'Blue hour'] },
+    { grupo: 'Difuso',    itens: ['Nublado', 'Neve', 'Chuvoso', 'Neblina'] },
+    { grupo: 'Noite',     itens: ['Noite clara', 'Noite estrelada', 'Noite escura', 'Noite chuvosa'] }
+  ];
+  var DIRECOES = ['Frontal', 'Lateral esquerda', 'Lateral direita', 'Pelo fundo', 'Diagonal', 'Zenital'];
+  var ATMOSFERAS = ['Céu azul limpo', 'Nuvens leves', 'Nublado difuso', 'Pós-chuva com reflexos sutis', 'Leve neblina', 'Clima tropical seco'];
+  var CORES_LUZ = ['Desligada', '2700K', '3000K', '4000K', '5500K', 'Outro'];
+  var INTENSIDADES = ['Suave', 'Média', 'Intensa'];
+  var ENTORNOS = ['Jardim', 'Casa térrea', 'Vista urbana', 'Bairro residencial', 'Montanhas', 'Praia'];
+  var CREDITOS = { prompt: 8, materiais: 16, imagem: { '1k': 134, '2k': 134, '4k': 231 } };
+  var REFS = [{ n: '@ref01', c: 'ref-a' }, { n: '@ref02', c: 'ref-b' }];
+
+  // ══ o estado ══
+  var est = {
+    aba: 'render', plano: 'pro',
+    proporcao: '4:5', resolucao: '2k', quantidade: 1,
+    matEstado: 'vazio', tipo: 'Interno',
+    luzTipo: 'Direta', mood: 'Dia claro editorial', familiaHora: 'Dia',
+    direcoes: [], atmosfera: [], corLuz: 'Desligada', intensidade: 'Média',
+    tagsEntorno: [], linhaAberta: null,
+    cor: { modo: 'branco', kelvin: 4200, h: 30, s: 1, v: 1, hex: '#FFC38B', rotulo: '4200K', nota: 'branco neutro' }
+  };
+
+  var SETA = '<svg class="cmp__seta" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var CHECK = '<span class="am__ok"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M3 8.4l3.4 3.4L13 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+  var TIQUE = '<svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg>';
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function resumir(lista, plural) {
+    if (!lista.length) return '';
+    return lista.length === 1 ? lista[0] : lista.length + ' ' + plural;
+  }
+  function alterna(lista, v) {
+    var i = lista.indexOf(v);
+    if (i >= 0) lista.splice(i, 1); else lista.push(v);
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  O CARTÃO DA ESCOLHA
+  //  Nasce fora do formulário, como o portal do CoraFicha: o formulário
+  //  rola, e um filho absoluto dele seria comido pelo recorte da rolagem.
+  //  Na web ele vai para o `document.body`, porque lá o painel ocupa a tela.
+  //  Aqui a tela é a JANELA, e é dentro dela que ele tem que caber.
+  // ══════════════════════════════════════════════════════════════
+  var portal = document.createElement('div');
+  portal.className = 'cmp__pop cora-dd-lista cora-dd-lista--portal';
+  portal.style.position = 'absolute';
+  portal.hidden = true;
+  janela.appendChild(portal);
+  var portalDono = null;
+
+  function fecharPortal() {
+    portal.hidden = true;
+    portal.innerHTML = '';
+    portalDono = null;
+  }
+  function abrirPortal(caixa, html, dono) {
+    var r = caixa.getBoundingClientRect();
+    var j = janela.getBoundingClientRect();
+    var abaixo = j.bottom - r.bottom - 12;
+    var acima = r.top - j.top - 12;
+    portal.innerHTML = html;
+    portal.hidden = false;
+    portal.style.left = (r.left - j.left) + 'px';
+    portal.style.width = r.width + 'px';
+    // Mede antes de abrir, e se não cabe embaixo abre em cima. É o `medir()`
+    // do CoraFicha, com a janela no lugar do navegador.
+    if (abaixo >= 240 || abaixo >= acima) {
+      portal.style.top = (r.bottom - j.top + 6) + 'px';
+      portal.style.bottom = 'auto';
+      portal.style.maxHeight = Math.max(160, Math.min(420, abaixo)) + 'px';
+    } else {
+      portal.style.top = 'auto';
+      portal.style.bottom = (j.bottom - r.top + 6) + 'px';
+      portal.style.maxHeight = Math.max(160, Math.min(420, acima)) + 'px';
+    }
+    portalDono = dono;
+  }
+
+  // ══ o campo ══
+  // `inline` é caixa de texto, e abre POR DENTRO do painel. Um cartão
+  // flutuante é para escolher; para escrever, não. E é por isso que o campo
+  // inline não fecha quando a pessoa clica fora ou rola: ela está escrevendo.
+  var pendente = null;
+  function campo(id, rot, valor, vazio, corpo, inline) {
+    var aberta = est.linhaAberta === id;
+    if (aberta && !inline) pendente = { id: id, html: corpo };
+    return '<div class="cmp" data-aberta="' + (aberta ? 'sim' : 'nao') + '" data-campo="' + id + '"' + (inline ? ' data-inline="sim"' : '') + '>' +
+      '<span class="cmp__rot">' + esc(rot) + '</span>' +
+      '<button type="button" class="cmp__b" aria-haspopup="listbox" aria-expanded="' + aberta + '">' +
+      '<span class="cmp__val" data-vazio="' + (valor ? 'nao' : 'sim') + '">' + esc(valor || vazio || '') + '</span>' + SETA +
+      '</button>' +
+      (aberta && inline ? '<div class="cmp__corpo">' + corpo() + '</div>' : '') +
+      '</div>';
+  }
+  function amostra(nome, fundo, planta, marcada) {
+    return '<button type="button" class="am__b' + (planta ? ' am__b--planta' : '') + '" role="checkbox" aria-checked="' + marcada + '" data-am="' + esc(nome) + '">' +
+      '<span class="am__q"' + (planta ? '' : ' style="background:' + fundo + '"') + '>' +
+      (planta ? '<svg viewBox="0 0 100 44" aria-hidden="true">' + planta + '</svg>' : '') + '</span>' +
+      CHECK + '<span class="am__n">' + esc(nome) + '</span></button>';
+  }
+  function item(nome, marcada, uma, extra) {
+    return '<div class="cora-dd-opt cora-dd-opt--multi' + (uma ? ' cora-dd-opt--uma' : '') + (marcada ? ' cora-dd-opt--sel' : '') +
+      '" role="option" aria-selected="' + marcada + '" tabindex="0" ' + (extra || '') + ' data-item="' + esc(nome) + '">' +
+      '<span class="cora-dd-check" aria-hidden="true">' + (marcada ? TIQUE : '') + '</span>' + esc(nome) + '</div>';
+  }
+  // A grade da proporção: o bloquinho é sempre a forma de verdade. O campo do
+  // safe frame e a pílula da barra abrem a MESMA, porque são o mesmo estado.
+  function gradeProporcao() {
+    return '<div class="cr-pop-grade">' + PROPORCOES.map(function (p) {
+      return '<button class="cr-pop-b' + (est.proporcao === p.val ? ' cr-pop-b--on' : '') + '" data-ratio="' + p.val + '">' +
+        '<svg viewBox="0 0 28 28" fill="none"><rect x="' + p.x + '" y="' + p.y + '" width="' + p.w + '" height="' + p.h + '" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>' +
+        '<span>' + (p.val === 'auto' ? 'Auto' : p.val) + '</span></button>';
+    }).join('') + '</div>';
+  }
+
+  // ══ o seletor de cor do "Outro" ══
+  // Kelvin vira RGB pela aproximação do Tanner Helland, que é a que se usa
+  // para desenhar régua de temperatura.
+  function kelvinParaRgb(k) {
+    var x = k / 100, r, g, b;
+    if (x <= 66) {
+      r = 255;
+      g = 99.4708025861 * Math.log(x) - 161.1195681661;
+      b = x <= 19 ? 0 : 138.5177312231 * Math.log(x - 10) - 305.0447927307;
+    } else {
+      r = 329.698727446 * Math.pow(x - 60, -0.1332047592);
+      g = 288.1221695283 * Math.pow(x - 60, -0.0755148492);
+      b = 255;
+    }
+    return [r, g, b].map(function (v) { return Math.max(0, Math.min(255, Math.round(v))); });
+  }
+  function hsvParaRgb(h, s, v) {
+    var c = v * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = v - c;
+    var t = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x]
+          : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+    return t.map(function (n) { return Math.round((n + m) * 255); });
+  }
+  function paraHex(rgb) {
+    return '#' + rgb.map(function (v) {
+      var s = v.toString(16);
+      return s.length < 2 ? '0' + s : s;
+    }).join('').toUpperCase();
+  }
+  function nomeDaTemp(k) {
+    if (k < 2400) return 'muito quente';
+    if (k < 3200) return 'quente';
+    if (k < 4600) return 'branco neutro';
+    if (k < 5600) return 'branco frio';
+    return 'luz do dia';
+  }
+  function doKelvin(k) {
+    est.cor = { modo: 'branco', kelvin: k, h: est.cor.h, s: est.cor.s, v: est.cor.v,
+                hex: paraHex(kelvinParaRgb(k)), rotulo: k + 'K', nota: nomeDaTemp(k) };
+  }
+  function daCor(h, s, v) {
+    var hex = paraHex(hsvParaRgb(h, s, v));
+    est.cor = { modo: 'colorida', kelvin: est.cor.kelvin, h: h, s: s, v: v, hex: hex, rotulo: hex, nota: 'cor livre' };
+  }
+  function pickerCor() {
+    var c = est.cor, branco = c.modo === 'branco';
+    return '<div class="cor">' +
+      '<div class="cor__topo"><span class="cor__bola" style="background:' + c.hex + '"></span>' +
+      '<span class="cor__k">' + (branco ? c.kelvin + 'K' : c.hex) + ' <small>· ' + c.nota + '</small></span></div>' +
+      '<div class="cor__abas" role="tablist">' +
+      '<button type="button" class="cor__aba" role="tab" aria-checked="' + branco + '" data-cormodo="branco">Branco</button>' +
+      '<button type="button" class="cor__aba" role="tab" aria-checked="' + !branco + '" data-cormodo="colorida">Colorida</button>' +
+      '</div>' +
+      '<div class="cor__painel"' + (branco ? '' : ' hidden') + '>' +
+      '<input class="cor__regua cor__regua--k" id="cor-kelvin" type="range" min="1800" max="6500" step="50" value="' + c.kelvin + '" aria-label="Temperatura de cor da luz">' +
+      '<div class="cor__pes"><span>1800K quente</span><span>6500K frio</span></div></div>' +
+      '<div class="cor__painel"' + (branco ? ' hidden' : '') + '>' +
+      '<div class="cor__quadro" id="cor-quadro" tabindex="0" role="application" style="background:' + paraHex(hsvParaRgb(c.h, 1, 1)) + '" aria-label="Escolher a cor: horizontal muda a saturação, vertical muda o brilho">' +
+      '<span class="cor__alvo" style="left:' + (c.s * 100) + '%;top:' + ((1 - c.v) * 100) + '%"></span></div>' +
+      '<input class="cor__regua cor__regua--h" id="cor-matiz" type="range" min="0" max="360" step="1" value="' + c.h + '" aria-label="Matiz"></div>' +
+      '<div class="cor__hex"><span class="cor__rot">ou</span>' +
+      '<input class="cor__campo" id="cor-hex" value="' + c.hex + '" spellcheck="false" aria-label="Cor em hexadecimal"></div>' +
+      '</div>';
+  }
+
+  // ══ o trilho ══
+  function pintarTrilho() {
+    var cad = '<svg class="cr-pill-cad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>';
+    document.getElementById('trilho').innerHTML = ABAS.map(function (a) {
+      var on = est.aba === a.id;
+      var trancada = est.plano === 'starter' && BLOQUEADAS.indexOf(a.id) >= 0;
+      return '<button role="tab" aria-selected="' + on + '" aria-label="' + esc(a.rotulo) + '"' +
+        ' class="cr-pill' + (on ? ' cr-pill--on' : '') + (trancada ? ' cr-pill--trancada' : '') + '"' +
+        ' data-aba="' + a.id + '"' + (on ? '' : ' data-tip="' + esc(a.rotulo) + '"') + '>' +
+        '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + ICONES[a.id] + '"/></svg>' +
+        '<span class="cr-pill__nome">' + esc(a.rotulo) + '</span>' + (trancada ? cad : '') + '</button>';
+    }).join('');
+  }
+  document.getElementById('trilho').addEventListener('click', function (e) {
+    var b = e.target.closest('.cr-pill');
+    if (!b || b.classList.contains('cr-pill--trancada')) return;
+    est.aba = b.dataset.aba;
+    pintarTrilho();
+  });
+
+  // ══ o ambiente e a ficha ══
+  function pintarAmbiente() {
+    document.getElementById('fic-ambiente').innerHTML = campo('ambiente', 'Tipo de ambiente', est.tipo, '', function () {
+      return '<div class="cmp__lista cmp__lista--uma">' +
+        ['Interno', 'Externo'].map(function (t) { return item(t, est.tipo === t, true); }).join('') + '</div>';
+    });
+  }
+
+  // A ordem é a do PainelRender: iluminação, hora, direção, atmosfera,
+  // detalhes da luz natural, luz artificial, [intensidade e detalhes, se
+  // ligada], entorno.
+  function pintarFicha() {
+    var h = '';
+
+    h += campo('luz', 'Iluminação Natural', est.luzTipo === 'Direta' ? 'Luz direta' : 'Luz difusa', '', function () {
+      return '<div class="am">' +
+        amostra('Luz direta', QUALIDADE.Direta, null, est.luzTipo === 'Direta') +
+        amostra('Luz difusa', QUALIDADE.Difusa, null, est.luzTipo === 'Difusa') + '</div>';
+    });
+
+    h += campo('hora', 'Hora do dia', est.mood, '', function () {
+      var s = '<div class="sul" role="tablist">' + MOODS.map(function (g) {
+        return '<button type="button" class="sul__b" role="tab" aria-checked="' + (est.familiaHora === g.grupo) + '" data-fam="' + g.grupo + '">' + g.grupo + '</button>';
+      }).join('') + '</div>';
+      var fam = MOODS.filter(function (g) { return g.grupo === est.familiaHora; })[0] || MOODS[0];
+      return s + '<div class="am" style="margin-top:8px">' + fam.itens.map(function (m) {
+        return amostra(m, CEU[m], null, est.mood === m);
+      }).join('') + '</div>';
+    });
+
+    h += campo('direcao', 'Direção da Luz', resumir(est.direcoes, 'escolhidas'), 'nenhuma', function () {
+      return '<div class="am am--3">' + DIRECOES.map(function (d) {
+        return amostra(d, null, PLANTA[d], est.direcoes.indexOf(d) >= 0);
+      }).join('') + '</div>';
+    });
+
+    h += campo('atmosfera', 'Atmosfera / clima', resumir(est.atmosfera, 'escolhidas'), 'nenhuma', function () {
+      return '<div class="cmp__lista">' + ATMOSFERAS.map(function (a) {
+        return item(a, est.atmosfera.indexOf(a) >= 0, false);
+      }).join('') + '</div>' +
+        '<input class="cr-ta ta--curta" style="min-height:0;height:42px" placeholder="Outra (descreva)…" spellcheck="false">';
+    });
+
+    h += campo('detalhes', 'Detalhes da luz natural', '', '', function () {
+      return '<p class="fic__grp">Sobre a iluminação natural</p>' +
+        '<textarea class="cr-ta ta--curta" placeholder="Opcional: detalhes adicionais sobre a iluminação natural..." spellcheck="false"></textarea>' +
+        '<p class="fic__grp">Sobre a direção</p>' +
+        '<textarea class="cr-ta ta--curta" placeholder="Opcional: descreva como a luz entra no espaço..." spellcheck="false"></textarea>' +
+        '<p class="cr-hint">Ex: “luz entra pela porta-janela lateral direita e pelo fundo”</p>';
+    }, true);
+
+    h += campo('artificial', 'Luz Artificial', est.corLuz === 'Outro' ? est.cor.rotulo : est.corLuz, '', function () {
+      return '<div class="kel">' + CORES_LUZ.map(function (c) {
+        var bola = KELVIN[c] || (c === 'Outro' && est.corLuz === 'Outro' ? est.cor.hex : 'var(--wash2)');
+        return '<button type="button" class="kel__b" role="radio" aria-checked="' + (est.corLuz === c) + '" data-kel="' + c + '">' +
+          '<span class="kel__q" style="background:' + bola + '"></span>' + c + '</button>';
+      }).join('') + '</div>' +
+      // O seletor só existe com "Outro" marcado. Sem ele, "Outro" era uma
+      // palavra que ia para o prompt sem cor nenhuma dentro.
+      (est.corLuz === 'Outro' ? pickerCor() : '');
+    });
+
+    // Intensidade e detalhes só existem com a luz ligada: intensidade de uma
+    // lâmpada apagada não é pergunta.
+    if (est.corLuz !== 'Desligada') {
+      h += campo('intensidade', 'Intensidade', est.intensidade, '', function () {
+        return '<div class="cmp__lista cmp__lista--uma">' + INTENSIDADES.map(function (i) {
+          return item(i, est.intensidade === i, true);
+        }).join('') + '</div>';
+      });
+      h += campo('detalhesArt', 'Detalhes da luz artificial', '', '', function () {
+        return '<textarea class="cr-ta ta--curta" placeholder="Opcional: detalhes adicionais sobre a luz artificial..." spellcheck="false"></textarea>';
+      }, true);
+    }
+
+    h += campo('entorno', 'Entorno', resumir(est.tagsEntorno, 'escolhidos'), 'nenhum', function () {
+      return '<div class="cmp__lista">' + ENTORNOS.map(function (e) {
+        return item(e, est.tagsEntorno.indexOf(e) >= 0, false);
+      }).join('') + '</div>' +
+        '<textarea class="cr-ta ta--curta" placeholder="Descreva com suas palavras o entorno..." spellcheck="false"></textarea>' +
+        '<p class="cr-hint">Melhores resultados quando você dá mais especificações.</p>';
+    });
+
+    document.getElementById('ficha').innerHTML = h;
+  }
+
+  function pintarTudo() {
+    pendente = null;
+    pintarAmbiente();
+    pintarFicha();
+    if (pendente) {
+      var alvo = document.querySelector('[data-campo="' + pendente.id + '"] .cmp__b');
+      if (alvo) abrirPortal(alvo, pendente.html(), 'ficha');
+      pendente = null;
+    } else if (portalDono === 'ficha') {
+      fecharPortal();
+    }
+  }
+  // Uma linha aberta por vez, que é o que mantém o painel curto.
+  function abrir(id) {
+    est.linhaAberta = est.linhaAberta === id ? null : id;
+    if (est.linhaAberta) fecharSafe();
+    pintarTudo();
+  }
+
+  function escolher(e, qual) {
+    if (!qual) return;
+    var am = e.target.closest('.am__b');
+    if (am) {
+      var n = am.dataset.am;
+      if (qual === 'luz') est.luzTipo = n === 'Luz direta' ? 'Direta' : 'Difusa';
+      if (qual === 'hora') est.mood = n;
+      if (qual === 'direcao') alterna(est.direcoes, n);
+      pintarTudo();
+      return;
+    }
+    var fam = e.target.closest('[data-fam]');
+    if (fam) { est.familiaHora = fam.dataset.fam; pintarTudo(); return; }
+
+    var kel = e.target.closest('[data-kel]');
+    if (kel) { est.corLuz = kel.dataset.kel; pintarTudo(); return; }
+
+    var modo = e.target.closest('[data-cormodo]');
+    if (modo) {
+      if (modo.dataset.cormodo === 'branco') doKelvin(est.cor.kelvin); else daCor(est.cor.h, est.cor.s, est.cor.v);
+      pintarTudo();
+      return;
+    }
+
+    var it = e.target.closest('[data-item]');
+    if (it) {
+      var v = it.dataset.item;
+      if (qual === 'ambiente') { est.tipo = v; est.linhaAberta = null; }
+      if (qual === 'atmosfera') alterna(est.atmosfera, v);
+      if (qual === 'entorno') alterna(est.tagsEntorno, v);
+      // Escolha única fecha o cartão depois de escolher, várias ficam abertas.
+      if (qual === 'intensidade') { est.intensidade = v; est.linhaAberta = null; }
+      pintarTudo();
+    }
+  }
+
+  function aoClicarNoCampo(e) {
+    var cab = e.target.closest('.cmp__b');
+    if (cab) { abrir(cab.closest('.cmp').dataset.campo); return; }
+    var c = e.target.closest('.cmp');
+    escolher(e, c && c.dataset.campo);
+  }
+  document.getElementById('ficha').addEventListener('click', aoClicarNoCampo);
+  document.getElementById('fic-ambiente').addEventListener('click', aoClicarNoCampo);
+
+  portal.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (portalDono === 'ficha') escolher(e, est.linhaAberta);
+    if (portalDono === 'safe') escolherProporcao(e);
+    if (portalDono === 'expres') {
+      var r = e.target.closest('[data-expres]');
+      if (!r) return;
+      expRes = r.dataset.expres;
+      document.getElementById('expres-val').textContent = rotuloRes();
+      document.getElementById('exp-custom').hidden = expRes !== 'custom';
+      var c = document.getElementById('cmp-expres');
+      c.dataset.aberta = 'nao';
+      c.querySelector('.cmp__b').setAttribute('aria-expanded', 'false');
+      fecharPortal();
+    }
+  });
+
+  // ── o quadro e as réguas do seletor de cor ──
+  // O quadro segue o dedo e o mouse. `setPointerCapture` é o que faz o
+  // arraste continuar valendo quando o ponteiro sai da caixinha.
+  document.addEventListener('input', function (e) {
+    if (e.target.id === 'cor-kelvin') { doKelvin(+e.target.value); pintarTudo(); }
+    else if (e.target.id === 'cor-matiz') { daCor(+e.target.value, est.cor.s, est.cor.v); pintarTudo(); }
+    else if (e.target.id === 'cor-hex') {
+      var m = /^#?([0-9a-f]{6})$/i.exec(e.target.value.trim());
+      if (m) {
+        var hex = '#' + m[1].toUpperCase();
+        est.cor = { modo: 'colorida', kelvin: est.cor.kelvin, h: est.cor.h, s: est.cor.s, v: est.cor.v, hex: hex, rotulo: hex, nota: 'cor livre' };
+        pintarTudo();
+      }
+    }
+  });
+  function noQuadro(e, q) {
+    var r = q.getBoundingClientRect();
+    daCor(est.cor.h,
+      Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)),
+      Math.max(0, Math.min(1, 1 - (e.clientY - r.top) / r.height)));
+    pintarTudo();
+  }
+  document.addEventListener('pointerdown', function (e) {
+    var q = e.target.closest('#cor-quadro');
+    if (q) { q.setPointerCapture(e.pointerId); noQuadro(e, q); }
+  });
+  document.addEventListener('pointermove', function (e) {
+    var q = e.target.closest('#cor-quadro');
+    if (q && e.buttons) noQuadro(e, q);
+  });
+
+  // ══ o campo do safe frame ══
+  var cmpSafe = document.getElementById('cmp-safe');
+  function fecharSafe() {
+    cmpSafe.dataset.aberta = 'nao';
+    cmpSafe.querySelector('.cmp__b').setAttribute('aria-expanded', 'false');
+  }
+  function escolherProporcao(e) {
+    var b = e.target.closest('[data-ratio]');
+    if (!b) return;
+    est.proporcao = b.dataset.ratio;
+    fecharSafe();
+    fecharPortal();
+    pintarProporcao();
+    conta();
+  }
+  cmpSafe.addEventListener('click', function (e) {
+    if (!e.target.closest('.cmp__b')) return;
+    e.stopPropagation();
+    if (cmpSafe.dataset.aberta === 'sim') { fecharSafe(); fecharPortal(); return; }
+    est.linhaAberta = null;
+    pintarTudo();
+    cmpSafe.dataset.aberta = 'sim';
+    cmpSafe.querySelector('.cmp__b').setAttribute('aria-expanded', 'true');
+    abrirPortal(cmpSafe.querySelector('.cmp__b'), gradeProporcao(), 'safe');
+  });
+
+  // Clicar fora fecha, e rolar também: o cartão é fixo e não acompanharia. O
+  // campo INLINE fica: ali a pessoa está escrevendo, e fechar apagaria a
+  // caixa de texto no meio da frase.
+  function fecharEscolhas() {
+    var aberta = est.linhaAberta;
+    var inline = aberta && document.querySelector('[data-campo="' + aberta + '"][data-inline="sim"]');
+    if (aberta && !inline) { est.linhaAberta = null; pintarTudo(); }
+    if (cmpSafe.dataset.aberta === 'sim') fecharSafe();
+    if (!inline) fecharPortal();
+  }
+  document.addEventListener('mousedown', function (e) {
+    if (portal.contains(e.target) || e.target.closest('.cmp') || e.target.closest('.jn-jan') || e.target.closest('.cf') || e.target.closest('.ft')) return;
+    fecharEscolhas();
+  });
+  window.addEventListener('scroll', function (e) {
+    if (portal.contains(e.target)) return;
+    fecharEscolhas();
+  }, true);
+  window.addEventListener('resize', fecharEscolhas);
+  addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (caixaJanelas.innerHTML) { fecharJanela(); return; }
+    fecharEscolhas();
+  });
+
+  // ══ a barra de baixo ══
+  function pintarProporcao() {
+    document.getElementById('safe-val').textContent = est.proporcao === 'auto' ? 'Auto' : est.proporcao;
+    document.getElementById('ratio-rot').textContent = est.proporcao === 'auto' ? 'Auto' : est.proporcao;
+    document.getElementById('pop-ratio').innerHTML = gradeProporcao();
+  }
+  function fecharPops(menos) {
+    ['ratio', 'res'].forEach(function (k) {
+      if (k === menos) return;
+      document.getElementById('pop-' + k).hidden = true;
+      document.querySelector('[data-pop="' + k + '"]').classList.remove('cr-pill-cfg--on');
+    });
+  }
+  document.querySelectorAll('[data-pop]').forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var p = document.getElementById('pop-' + b.dataset.pop);
+      var abrindo = p.hidden;
+      fecharPops(abrindo ? b.dataset.pop : null);
+      p.hidden = !abrindo;
+      b.classList.toggle('cr-pill-cfg--on', abrindo);
+    });
+  });
+  document.querySelectorAll('.cr-pop').forEach(function (p) {
+    p.addEventListener('click', function (e) { e.stopPropagation(); });
+  });
+  document.addEventListener('click', function () { fecharPops(null); });
+
+  document.getElementById('pop-ratio').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-ratio]');
+    if (!b) return;
+    est.proporcao = b.dataset.ratio;
+    pintarProporcao();
+    conta();
+    fecharPops(null);
+  });
+  document.getElementById('pop-res').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-res]');
+    if (!b) return;
+    est.resolucao = b.dataset.res;
+    document.querySelectorAll('[data-res]').forEach(function (o) { o.classList.toggle('cr-pop-res--on', o === b); });
+    document.getElementById('res-rot').textContent = b.textContent;
+    conta();
+    fecharPops(null);
+  });
+  document.querySelectorAll('[data-qty]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      est.quantidade = Math.max(1, Math.min(10, est.quantidade + (+b.dataset.qty)));
+      document.getElementById('qty').textContent = est.quantidade;
+      conta();
+    });
+  });
+  // O mesmo custoRender do lib/render.js: prompt uma vez, imagem por unidade.
+  function conta() {
+    var porImagem = CREDITOS.imagem[est.resolucao] || CREDITOS.imagem['2k'];
+    document.getElementById('gerar-custo').textContent = CREDITOS.prompt + est.quantidade * porImagem;
+  }
+
+  // ══ os materiais ══
+  var LEITURA = [
+    'PISO · porcelanato bege claro, 90x90, acabamento acetinado, rejunte fino no tom.',
+    'PAREDE DO FUNDO · massa lisa pintada de branco quente, sem textura aparente.',
+    'PAINEL RIPADO · ripas de madeira clara na vertical, largura 4cm, vão de 1cm.',
+    'ESQUADRIA · alumínio preto fosco, perfil fino, vidro incolor.',
+    'SOFÁ · linho cru, trama visível, almofadas no mesmo tecido.',
+    'MESA DE CENTRO · tampo de mármore branco com veio cinza, base metálica preta.',
+    'TAPETE · lã bege, pelo baixo, sem estampa.',
+    'CORTINA · voil branco, do teto ao piso, franzido leve.'
+  ].join('\n');
+
+  var caixaMat = document.getElementById('mat-caixa');
+  var textoMat = document.getElementById('mat-texto');
+  var revisar = document.getElementById('mat-revisar');
+  var btEditarMat = document.querySelector('[data-mat="editar"]');
+  var btTenho = document.querySelector('[data-mat="tenho"]');
+  var btLer = document.querySelector('.cr-b-ler');
+  var gerar = document.getElementById('gerar');
+  var gerarRot = document.getElementById('gerar-rot');
+
+  function pintarMat() {
+    var e = est.matEstado;
+    btTenho.hidden = e !== 'vazio';
+    btLer.disabled = e === 'lendo';
+    document.getElementById('mat-ler-rot').textContent =
+      e === 'lendo' ? 'Lendo a imagem...' : e === 'confirmado' ? 'Ler materiais de novo' : 'Ler materiais';
+    document.getElementById('mat-ler-tag').hidden = e === 'lendo';
+
+    caixaMat.hidden = !(e === 'revisar' || e === 'confirmado');
+    revisar.hidden = e !== 'revisar';
+    btEditarMat.hidden = e !== 'confirmado';
+    textoMat.readOnly = e === 'confirmado';
+    textoMat.placeholder = textoMat.value ? 'Edite os materiais aqui...' : 'Cole aqui a análise que você já tem...';
+
+    // A mudança autorizada: o motivo de estar apagado é o rótulo do botão, e
+    // o aviso que ficava embaixo dele sai.
+    var pronto = e === 'confirmado';
+    gerar.disabled = !pronto;
+    gerarRot.textContent = pronto ? 'Renderizar'
+      : e === 'revisar' ? 'Confirme os materiais'
+      : 'Leia os materiais primeiro';
+
+    document.querySelectorAll('[data-est]').forEach(function (b) { b.classList.toggle('on', b.dataset.est === e); });
+  }
+  function irPara(e) {
+    est.matEstado = e;
+    if ((e === 'revisar' || e === 'confirmado') && !textoMat.value) textoMat.value = LEITURA;
+    if (e === 'vazio') textoMat.value = '';
+    pintarMat();
+  }
+  document.getElementById('form').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-mat]');
+    if (!b) return;
+    var o = b.dataset.mat;
+    if (o === 'tenho') { textoMat.value = ''; irPara('revisar'); }
+    if (o === 'ler') { irPara('lendo'); setTimeout(function () { textoMat.value = LEITURA; irPara('revisar'); }, 1400); }
+    if (o === 'confirmar') irPara('confirmado');
+    if (o === 'editar') irPara('revisar');
+    if (o === 'focar') textoMat.focus();
+  });
+  document.querySelectorAll('[data-est]').forEach(function (b) {
+    b.addEventListener('click', function () { textoMat.value = b.dataset.est === 'vazio' ? '' : LEITURA; irPara(b.dataset.est); });
+  });
+
+  // ══ o campo do @ ══
+  var refArea = document.getElementById('ref-texto');
+  var refMenu = document.getElementById('cref-menu');
+  var refMarcado = 0, refInicio = -1;
+
+  function pintarMenuRef() {
+    refMenu.innerHTML = REFS.map(function (r, i) {
+      return '<button class="cref-op' + (refMarcado === i ? ' cref-op--on' : '') + '" data-ref="' + i + '" type="button">' +
+        '<i class="foto ' + r.c + '"></i><span>' + r.n + '</span></button>';
+    }).join('');
+  }
+  function inserirRef(i) {
+    var rotulo = REFS[i].n;
+    var cursor = refArea.selectionStart;
+    var antes = refArea.value.slice(0, refInicio);
+    var depois = refArea.value.slice(cursor);
+    refArea.value = antes + rotulo + ' ' + depois;
+    refMenu.hidden = true;
+    var pos = (antes + rotulo + ' ').length;
+    requestAnimationFrame(function () { refArea.focus(); refArea.setSelectionRange(pos, pos); });
+    contarRefs();
+  }
+  refArea.addEventListener('input', function (e) {
+    var cursor = e.target.selectionStart;
+    // Achou um "@" solto logo antes do cursor? Abre a lista.
+    var m = e.target.value.slice(0, cursor).match(/@(\w*)$/);
+    if (m && REFS.length) {
+      refInicio = cursor - m[0].length;
+      refMarcado = 0;
+      pintarMenuRef();
+      refMenu.hidden = false;
+    } else {
+      refMenu.hidden = true;
+    }
+    contarRefs();
+  });
+  refArea.addEventListener('keydown', function (e) {
+    if (refMenu.hidden) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); refMarcado = (refMarcado + 1) % REFS.length; pintarMenuRef(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); refMarcado = (refMarcado - 1 + REFS.length) % REFS.length; pintarMenuRef(); }
+    else if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); inserirRef(refMarcado); }
+    else if (e.key === 'Escape') { refMenu.hidden = true; }
+  });
+  refMenu.addEventListener('mousedown', function (e) { e.preventDefault(); });
+  refMenu.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-ref]');
+    if (b) inserirRef(+b.dataset.ref);
+  });
+  document.addEventListener('mousedown', function (e) {
+    if (!document.getElementById('cref').contains(e.target)) refMenu.hidden = true;
+  });
+  // Confere se as @ref que a pessoa escreveu existem mesmo.
+  function contarRefs() {
+    var hint = document.getElementById('ref-hint');
+    var citadas = [], re = /@ref(\d{1,2})/gi, m;
+    while ((m = re.exec(refArea.value))) citadas.push(parseInt(m[1], 10));
+    var unicas = citadas.filter(function (v, i) { return citadas.indexOf(v) === i; });
+    var orfas = unicas.filter(function (n) { return n < 1 || n > REFS.length; });
+    hint.className = 'cr-hint';
+    if (orfas.length) {
+      hint.classList.add('cr-hint--erro');
+      hint.textContent = orfas.map(function (n) { return '@ref' + (n < 10 ? '0' : '') + n; }).join(', ') +
+        (orfas.length === 1 ? ' não existe' : ' não existem') + ', você tem ' + REFS.length +
+        (REFS.length === 1 ? ' referência' : ' referências') + '.';
+    } else if (unicas.length) {
+      hint.classList.add('cr-hint--ok');
+      hint.textContent = unicas.length + (unicas.length === 1 ? ' referência citada' : ' referências citadas') + '.';
+    } else {
+      hint.textContent = 'Use @ref01, @ref02... para referenciar cada imagem carregada.';
+    }
+  }
+
+  // ══ os terços ══
+  var bt = document.getElementById('b-tercos');
+  bt.addEventListener('click', function () {
+    bt.setAttribute('aria-pressed', bt.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+  });
+
+  // ══ o plano ══
+  document.querySelectorAll('[data-plano]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      est.plano = b.dataset.plano;
+      if (est.plano === 'starter' && BLOQUEADAS.indexOf(est.aba) >= 0) est.aba = 'render';
+      document.querySelectorAll('[data-plano]').forEach(function (o) { o.classList.toggle('on', o === b); });
+      pintarTrilho();
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  AS JANELAS
+  //  A moldura é a do painel de filtros: cabeça, corpo e pé.
+  // ══════════════════════════════════════════════════════════════
+  var caixaJanelas = document.getElementById('janelas');
+  var X = '<button class="jn-jan-x" data-fechar aria-label="Fechar"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg></button>';
+
+  // A barra invertida do caminho do Windows, montada uma vez: escrita solta
+  // dentro de um literal ela come a letra seguinte.
+  var PB = String.fromCharCode(92);
+  var CENAS = ['Sala 01', 'Sala 02', 'Estar amplo', 'Fachada frente', 'Suíte', 'Cozinha'];
+  var cenasMarcadas = CENAS.map(function () { return true; });
+  // O rótulo diz o px e o apelido, porque quem pensa em "1K" e quem pensa em
+  // "1024" é a mesma pessoa em momentos diferentes. O personalizado abre um
+  // campo: qualquer teto fixo vira limite arbitrário.
+  var RESOLUCOES_EXP = [
+    { val: '1024', rotulo: '1024 px (1K)' },
+    { val: '2048', rotulo: '2048 px (2K)' },
+    { val: '4096', rotulo: '4096 px (4K)' },
+    { val: 'custom', rotulo: 'Personalizado…' }
+  ];
+  var expRes = '2048';
+  var expCustom = '3000';
+  function rotuloRes() {
+    if (expRes === 'custom') return expCustom + ' px';
+    var r = RESOLUCOES_EXP.filter(function (x) { return x.val === expRes; })[0];
+    return r ? r.rotulo : expRes + ' px';
+  }
+  var PASTA = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.1a1.5 1.5 0 0 1 1.06.44l1.28 1.28a1.5 1.5 0 0 0 1.06.44h7.5A1.5 1.5 0 0 1 21 8.66V18a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18z"/></svg>';
+
+  function janelaExportar() {
+    return '<div class="jn-jan">' +
+      '<div class="ft__cab"><h3>Exportar as cenas</h3>' + X + '</div>' +
+      '<div class="ft__corpo">' +
+        '<div class="cmp"><span class="cmp__rot">Cenas do modelo</span>' +
+        '<div class="jn-lista-cenas" id="exp-cenas"></div>' +
+        '<div class="cr-g2" style="margin-top:8px"><button class="cr-b" data-exp="todas">Marcar todas</button>' +
+        '<button class="cr-b" data-exp="nenhuma">Desmarcar</button></div></div>' +
+        // A resolução é uma escolha, e toda escolha do app tem a mesma
+        // forma: rótulo em cima, caixa larga embaixo, e a mesma lista.
+        '<div class="cmp" data-aberta="nao" data-campo="expres" id="cmp-expres">' +
+        '<span class="cmp__rot">Resolução</span>' +
+        '<button type="button" class="cmp__b" aria-haspopup="listbox" aria-expanded="false">' +
+        '<span class="cmp__val" data-vazio="nao" id="expres-val">' + rotuloRes() + '</span>' + SETA + '</button></div>' +
+        '<div class="jn-campo" id="exp-custom"' + (expRes === 'custom' ? '' : ' hidden') + '>' +
+        '<input type="number" id="exp-custom-v" value="' + expCustom + '" min="256" max="12000" step="1" placeholder="Lado maior em px"></div>' +
+        '<div class="cmp"><span class="cmp__rot">Pasta de destino</span>' +
+        '<div class="jn-campo"><input type="text" id="exp-pasta" placeholder="Escolha uma pasta..." spellcheck="false" readonly>' +
+        '<button class="cr-b jn-pasta-b" data-exp="pasta" data-tip="Escolher a pasta" aria-label="Escolher a pasta">' + PASTA + '</button></div></div>' +
+        '<p class="jn-prog" id="exp-prog" hidden></p>' +
+      '</div>' +
+      '<div class="ft__pe"><span class="ft__conta" id="exp-conta"></span>' +
+      '<button class="ft-ver" data-exp="ir">Exportar PNG</button></div>' +
+      '</div>';
+  }
+  function pintarCenas() {
+    var box = document.getElementById('exp-cenas');
+    if (!box) return;
+    box.innerHTML = CENAS.map(function (c, i) {
+      return item(c, cenasMarcadas[i], false, 'data-cena="' + i + '"');
+    }).join('');
+    var n = cenasMarcadas.filter(Boolean).length;
+    document.getElementById('exp-conta').textContent = n + (n === 1 ? ' cena marcada' : ' cenas marcadas');
+  }
+
+  function janelaCena() {
+    return '<div class="jn-jan" style="width:340px">' +
+      '<div class="ft__cab"><h3>Salvar a cena</h3>' + X + '</div>' +
+      '<div class="ft__corpo">' +
+        '<div class="cmp"><span class="cmp__rot">Nome da cena</span>' +
+        '<div class="jn-campo"><input type="text" value="Estar amplo 02" spellcheck="false"></div></div>' +
+        '<p class="cr-hint">A cena guarda a câmera, o safe frame e o estilo de agora. Ela aparece no SketchUp como qualquer outra.</p>' +
+      '</div>' +
+      '<div class="ft__pe"><span class="ft__conta">6 cenas no modelo</span>' +
+      '<button class="ft-ver" data-fechar>Salvar</button></div>' +
+      '</div>';
+  }
+
+  // Recomeçar do zero pede confirmação: os materiais lidos custaram créditos,
+  // e apagá-los sem querer é perder dinheiro.
+  function janelaResetar() {
+    return '<div class="cf"><h3>Resetar tudo?</h3>' +
+      '<p>Todos os campos voltam ao padrão, inclusive os materiais que você leu, e ler de novo custa ' + CREDITOS.materiais + ' créditos.</p>' +
+      '<div class="cf-acoes"><button class="cf-nao" data-fechar>Cancelar</button>' +
+      '<button class="cf-sim" data-reset>Resetar</button></div></div>';
+  }
+
+  function janelaDetalhes() {
+    var linha = function (r, v) { return '<div class="jn-linha"><span>' + r + '</span><b>' + v + '</b></div>'; };
+    return '<div class="jn-jan" style="width:400px">' +
+      '<div class="ft__cab"><h3>Detalhes da imagem</h3>' + X + '</div>' +
+      '<div class="ft__corpo">' +
+        '<div class="cr-base"><i class="foto f1"></i></div>' +
+        '<div class="cmp"><span class="cmp__rot">O que entrou</span>' +
+        linha('Ambiente', 'Interno') + linha('Iluminação', 'Luz direta') +
+        linha('Hora do dia', 'Dia claro editorial') + linha('Direção', 'Lateral direita') +
+        linha('Luz artificial', 'Desligada') + linha('Referências', '@ref01, @ref02') +
+        linha('Custo', '142 créditos') + '</div>' +
+      '</div>' +
+      '<div class="ft__pe"><span class="ft__conta">Render · 4:5 · 2K · há 2 horas</span>' +
+      '<button class="ft-ver" data-fechar>Fechar</button></div>' +
+      '</div>';
+  }
+
+  var JANELAS = { exportar: janelaExportar, cena: janelaCena, resetar: janelaResetar, detalhes: janelaDetalhes };
+
+  function abrirJanela(id) {
+    fecharEscolhas();
+    caixaJanelas.innerHTML = '<div class="cr-overlay" data-fundo>' + JANELAS[id]() + '</div>';
+    if (id === 'exportar') pintarCenas();
+  }
+  function fecharJanela() { caixaJanelas.innerHTML = ''; }
+
+  document.addEventListener('click', function (e) {
+    var abre = e.target.closest('[data-jan]');
+    if (abre) abrirJanela(abre.dataset.jan);
+  });
+  caixaJanelas.addEventListener('click', function (e) {
+    if (e.target.hasAttribute('data-fundo') || e.target.closest('[data-fechar]')) { fecharJanela(); return; }
+    if (e.target.closest('[data-reset]')) {
+      est.matEstado = 'vazio'; textoMat.value = '';
+      est.direcoes = []; est.atmosfera = []; est.tagsEntorno = [];
+      est.corLuz = 'Desligada'; est.mood = 'Dia claro editorial'; est.luzTipo = 'Direta';
+      est.quantidade = 1; document.getElementById('qty').textContent = 1;
+      refArea.value = ''; contarRefs();
+      pintarMat(); pintarTudo(); conta();
+      fecharJanela();
+      return;
+    }
+    var cena = e.target.closest('[data-cena]');
+    if (cena) { var i = +cena.dataset.cena; cenasMarcadas[i] = !cenasMarcadas[i]; pintarCenas(); return; }
+    var exp = e.target.closest('[data-exp]');
+    if (exp) {
+      var o = exp.dataset.exp;
+      if (o === 'todas') { cenasMarcadas = CENAS.map(function () { return true; }); pintarCenas(); }
+      if (o === 'nenhuma') { cenasMarcadas = CENAS.map(function () { return false; }); pintarCenas(); }
+      if (o === 'pasta') document.getElementById('exp-pasta').value = 'C:' + PB + 'Projetos' + PB + 'Estar amplo' + PB + 'cenas';
+      if (o === 'ir') {
+        var p = document.getElementById('exp-prog');
+        p.hidden = false;
+        p.textContent = 'Exportando 1 de ' + cenasMarcadas.filter(Boolean).length + '...';
+      }
+      return;
+    }
+    var cab = e.target.closest('#cmp-expres .cmp__b');
+    if (cab) {
+      e.stopPropagation();
+      var c = document.getElementById('cmp-expres');
+      if (c.dataset.aberta === 'sim') { c.dataset.aberta = 'nao'; cab.setAttribute('aria-expanded', 'false'); fecharPortal(); return; }
+      c.dataset.aberta = 'sim';
+      cab.setAttribute('aria-expanded', 'true');
+      abrirPortal(cab, '<div class="cmp__lista cmp__lista--uma">' + RESOLUCOES_EXP.map(function (r) {
+        return item(r.rotulo, expRes === r.val, true, 'data-expres="' + r.val + '"');
+      }).join('') + '</div>', 'expres');
+    }
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  O VISUALIZADOR
+  //  É o `Visualizador.js` da web, com as mesmas classes: os modos na cabeça,
+  //  a área com zoom e navegação, e as ações no pé.
+  //
+  //  ELE ABRE SEMPRE COMPARANDO, e é assim na web também: toda geração tem a
+  //  imagem que a originou, e no plugin essa imagem é o print do viewport.
+  //  Split, Side by Side e Single são três jeitos de ver esse mesmo par, e por
+  //  isso os três estão à mão desde o primeiro clique. O A/B do feed troca o
+  //  lado esquerdo por outro render.
+  //
+  //  O plugin acrescenta três coisas que só existem aqui: o Material ID, o
+  //  Ver 360 e o abrir em tamanho real.
+  // ══════════════════════════════════════════════════════════════
+  var AR = { '4:5': '4/5', '16:9': '16/9', '1:1': '1/1', '9:16': '9/16', '2:1': '2/1' };
+  var IMAGENS = [
+    { f: 'f1', fer: 'Render', prop: '4:5',  quando: 'há 2 horas', cena: 'Estar amplo' },
+    { f: 'f2', fer: 'Render', prop: '4:5',  quando: 'há 2 horas', cena: 'Estar amplo' },
+    { f: 'f3', fer: 'Render', prop: '16:9', quando: 'ontem',      cena: null },
+    { f: 'f4', fer: 'Render', prop: '16:9', quando: 'ontem',      cena: 'Fachada frente' }
+  ];
+  // O banco de provas troca isto para ver as três situações do visualizador.
+  var vzProva = 'cena';
+  var vz = { aberto: false, i: 0, modo: 'split', par: 'print', corte: 50, zoom: 1, ver: 'render', giro: 50 };
+  var caixaVz = document.createElement('div');
+  janela.appendChild(caixaVz);
+
+  var MODOS_VZ = [
+    { id: 'split', rotulo: 'Split', ico: '<rect x="1" y="1" width="5" height="12" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="1" width="5" height="12" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="7" y1="0" x2="7" y2="14" stroke="currentColor" stroke-width="1.5"/>' },
+    { id: 'sbs', rotulo: 'Side by Side', ico: '<rect x="1" y="1" width="5" height="12" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="1" width="5" height="12" rx="1" stroke="currentColor" stroke-width="1.2"/>' },
+    { id: 'single', rotulo: 'Single', ico: '<rect x="1" y="1" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.2"/>' }
+  ];
+  // Os desenhos são os do `Visualizador.js`, com o mesmo quadro e a mesma
+  // espessura de traço. O check é o `points="2,8 6,12 14,4"`, o mesmo do
+  // plugin, e o coração é o de dois arcos, sem degrau no bico.
+  var ICO_VZ = {
+    aprovar: { vb: 16, tam: 15, w: 2.2, d: '<polyline points="2,8 6,12 14,4"/>' },
+    favorito: { vb: 24, tam: 18, w: 1.7, d: '<path d="M12 20.3l-1.5-1.4C5.2 14.1 2 11.2 2 7.6A4.6 4.6 0 016.6 3c1.6 0 3.1.7 4.1 1.9l1.3 1.5 1.3-1.5A5.4 5.4 0 0117.4 3 4.6 4.6 0 0122 7.6c0 3.6-3.2 6.5-8.5 11.3L12 20.3z" stroke-linejoin="round" stroke-linecap="round"/>' },
+    baixar: { vb: 20, tam: 17, w: 1.5, d: '<path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 14v1.5A1.5 1.5 0 005 17h10a1.5 1.5 0 001.5-1.5V14" stroke-linecap="round"/>' },
+    detalhes: { vb: 20, tam: 17, w: 1.5, d: '<circle cx="10" cy="10" r="7.5"/><path d="M10 9.2v4.3" stroke-linecap="round"/><circle cx="10" cy="6.4" r=".8" fill="currentColor" stroke="none"/>' },
+    externo: { vb: 20, tam: 17, w: 1.5, d: '<path d="M11 3.5h5.5V9" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.5 3.5L9 11" stroke-linecap="round"/><path d="M15 12.5v3.5a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1h3.5" stroke-linecap="round"/>' },
+    excluir: { vb: 20, tam: 17, w: 1.5, d: '<path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" stroke-linecap="round"/><path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" stroke-linecap="round"/>' },
+    editar: { vb: 20, tam: 17, w: 1.5, d: '<path d="M13.5 3.5l3 3L7 16l-3.5.5L4 13l9.5-9.5z" stroke-linejoin="round"/>' },
+    upscale: { vb: 20, tam: 17, w: 1.5, d: '<path d="M11 3.5h5.5V9M16.5 3.5L11 9" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 16.5H3.5V11M3.5 16.5L9 11" stroke-linecap="round" stroke-linejoin="round"/>' },
+    inicio: { vb: 24, tam: 18, w: 1.5, d: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M7.5 5v14" stroke-linecap="round"/><circle cx="12" cy="10" r="1.1"/><path d="M10 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" stroke-linecap="round" stroke-linejoin="round"/>' },
+    fim: { vb: 24, tam: 18, w: 1.5, d: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M16.5 5v14" stroke-linecap="round"/><circle cx="8" cy="10" r="1.1"/><path d="M5.5 16.5l2.6-2.6 2.2 2.2 1.4-1.2 2.3 2" stroke-linecap="round" stroke-linejoin="round"/>' },
+    pos: { vb: 20, tam: 17, w: 1.6, d: '<path d="M3 5h8M3 10h13M3 15h6" stroke-linecap="round"/><circle cx="14.5" cy="5" r="1.7"/><circle cx="11" cy="15" r="1.7"/>' }
+  };
+  // Aprovar e favoritar têm marcação PRÓPRIA, e não uma genérica: aprovada é a
+  // pastilha de lima cheia com o traço escuro, favorita é o coração turquesa
+  // preenchido. Aprovada não é favorita, e as duas não podem parecer a mesma.
+  var MARCA_VZ = { aprovar: 'vz-ico--ok', favorito: 'vz-ico--fav' };
+  var ligados = {};
+  function icoVz(id, rot, extra) {
+    var i = ICO_VZ[id];
+    var on = ligados[id];
+    var cheio = id === 'favorito' && on ? 'currentColor' : 'none';
+    return '<button class="vz-ico' + (extra || '') + (on && MARCA_VZ[id] ? ' ' + MARCA_VZ[id] : '') +
+      '" data-vz="' + id + '" data-tip="' + rot + '" aria-label="' + rot + '">' +
+      '<svg viewBox="0 0 ' + i.vb + ' ' + i.vb + '" width="' + i.tam + '" height="' + i.tam +
+      '" fill="' + cheio + '" stroke="currentColor" stroke-width="' + i.w + '">' + i.d + '</svg></button>';
+  }
+  function imgVz(f, print) {
+    return '<i class="vz-img foto ' + f + (print ? ' vz-print' : '') + '"></i>';
+  }
+  function itemVz() {
+    var it = IMAGENS[vz.i];
+    // O banco de provas: mesma imagem, três situações.
+    if (vzProva === 'sem') return { f: it.f, prop: it.prop, quando: it.quando, cena: null, t360: false };
+    if (vzProva === '360') return { f: 'f3', prop: '2:1', quando: it.quando, cena: 'Panorama sala', t360: true };
+    return { f: it.f, prop: it.prop, quando: it.quando, cena: it.cena || 'Estar amplo', t360: false };
+  }
+
+  function pintarVz() {
+    if (!vz.aberto) { caixaVz.innerHTML = ''; return; }
+    var it = itemVz();
+    var ar = AR[it.prop] || '4/5';
+    var abEsq = vz.par !== 'print' ? IMAGENS[vz.par] : null;
+    var rotEsq = abEsq ? 'A' : 'Print';
+    var rotDir = abEsq ? 'B' : 'Render';
+    var fEsq = abEsq ? abEsq.f : it.f;
+
+    // ── a cabeça: os modos, e os jeitos de ver que só o plugin tem ──
+    var cab = '<header class="vz-cab"><div class="vz-modos">' + MODOS_VZ.map(function (m) {
+      // Sem tooltip: o nome já está escrito ao lado do desenho, e um balão
+      // repetindo o que está na tela é ruído.
+      return '<button class="vz-modo' + (vz.modo === m.id && vz.ver === 'render' ? ' vz-modo--on' : '') +
+        '" data-modo="' + m.id + '"' + (vz.ver === 'render' ? '' : ' disabled') + '>' +
+        '<svg viewBox="0 0 14 14" width="13" height="13" fill="none">' + m.ico + '</svg><span>' + m.rotulo + '</span></button>';
+    }).join('') + '</div><div class="vz-modos vz-matid">';
+
+    // O Material ID é gerado a partir da CENA que originou o render: o plugin
+    // reposiciona a câmera nela e devolve o passe. Sem cena salva não há para
+    // onde reposicionar, e usar a câmera que está no modelo agora daria o
+    // passe de outro enquadramento. Então ali ele fica apagado, e diz por quê.
+    cab += '<button class="vz-modo' + (vz.ver === 'matid' ? ' vz-modo--on' : '') + '" data-ver="matid"' +
+      (it.cena ? ' data-tip="O passe sai da cena ' + esc(it.cena) + '"' : ' disabled data-tip="Este render não veio de uma cena salva, então não há de onde tirar o passe"') + '>' +
+      '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="1" width="12" height="12" rx="1"/><path d="M1 7h12M7 1v12"/></svg>' +
+      '<span>Material ID</span></button>';
+
+    // O Ver 360 só existe em imagem 360, que é a que sai da aba 360°.
+    if (it.t360) {
+      cab += '<button class="vz-modo' + (vz.ver === 't360' ? ' vz-modo--on' : '') + '" data-ver="t360" data-tip="Girar o panorama">' +
+        '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="7" r="5.6"/><path d="M1.4 7h11.2"/><path d="M7 1.4c1.6 1.5 2.4 3.3 2.4 5.6S8.6 11 7 12.6C5.4 11 4.6 9.3 4.6 7S5.4 2.9 7 1.4z"/></svg>' +
+        '<span>Ver 360°</span></button>';
+    }
+    cab += '</div></header>';
+
+    // ── o palco ──
+    var palco;
+    if (vz.ver === 'matid') {
+      palco = '<div class="vz-sbs vz-sbs--um"><div class="vz-sbs-lado" style="--ar:' + ar + '">' +
+        '<span class="vz-passe"><span>Material ID · ' + esc(it.cena) + '</span></span></div></div>';
+    } else if (vz.ver === 't360') {
+      palco = '<div class="vz-sbs vz-sbs--um"><div class="vz-sbs-lado vz-pano" id="vz-pano" style="--ar:2/1">' +
+        '<i class="vz-img foto ' + it.f + '" style="background-position:' + vz.giro + '% center;background-size:auto 100%"></i>' +
+        '<span class="vz-tag vz-tag--esq">360°</span>' +
+        '<span class="vz-tag vz-tag--baixo">Arraste para girar</span></div></div>';
+    } else if (vz.modo === 'split') {
+      palco = '<div class="vz-par" id="vz-par" style="--ar:' + ar + '">' + imgVz(it.f) +
+        '<div class="vz-cortina" style="clip-path:inset(0 ' + (100 - vz.corte) + '% 0 0)"><i class="vz-img vz-img--fixa foto ' + fEsq + (abEsq ? '' : ' vz-print') + '"></i></div>' +
+        '<div class="vz-handle" style="left:' + vz.corte + '%"><span class="vz-handle-bola">' +
+        '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7 4 12l5 5M15 7l5 5-5 5M4 12h16"/></svg>' +
+        '</span></div><span class="vz-tag vz-tag--esq">' + rotEsq + '</span><span class="vz-tag vz-tag--dir">' + rotDir + '</span></div>';
+    } else if (vz.modo === 'sbs') {
+      palco = '<div class="vz-sbs"><div class="vz-sbs-lado" style="--ar:' + ar + '">' + imgVz(fEsq, !abEsq) +
+        '<span class="vz-tag vz-tag--esq">' + rotEsq + '</span></div>' +
+        '<div class="vz-sbs-lado" style="--ar:' + ar + '">' + imgVz(it.f) +
+        '<span class="vz-tag vz-tag--esq">' + rotDir + '</span></div></div>';
+    } else {
+      palco = '<div class="vz-sbs vz-sbs--um"><div class="vz-sbs-lado vz-sbs-lado--segura" style="--ar:' + ar + '" data-segura>' +
+        imgVz(it.f) + '<i class="vz-img vz-img--seg foto ' + fEsq + (abEsq ? '' : ' vz-print') + '" hidden></i>' +
+        '<span class="vz-tag vz-tag--esq" data-rot>' + rotDir + '</span>' +
+        '<span class="vz-tag vz-tag--baixo" data-dica>Segure para ver o ' + rotEsq + '</span></div></div>';
+    }
+
+    // ── o pé: as ações. Excluir e abrir fora ficam na direita, como na web ──
+    var acoes = '<footer class="vz-acoes">' +
+      icoVz('aprovar', 'Aprovar') + icoVz('favorito', 'Favoritar') + icoVz('baixar', 'Baixar') +
+      icoVz('detalhes', 'Detalhes') +
+      '<div class="vz-div"></div><span class="vz-envia-rot">Enviar</span>' +
+      icoVz('editar', 'Editar') + icoVz('upscale', 'Upscale') +
+      icoVz('inicio', 'Usar como imagem inicial') + icoVz('fim', 'Usar como imagem final') + icoVz('pos', 'Ajustar na Pós-produção') +
+      '<div class="vz-acoes-fim">' + icoVz('externo', 'Abrir em tamanho real') +
+      icoVz('excluir', 'Excluir', ' vz-ico--perigo') + '</div></footer>';
+
+    caixaVz.innerHTML = '<div class="cr-overlay" data-vzfundo><div class="vz">' +
+      '<button class="vz-x" data-vzfechar aria-label="Fechar"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9" stroke-linecap="round"/></svg></button>' +
+      cab +
+      '<div class="vz-area">' +
+      '<button class="vz-nav vz-nav--prev" data-vznav="-1" aria-label="Anterior"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
+      '<button class="vz-nav vz-nav--next" data-vznav="1" aria-label="Próxima"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
+      '<span class="vz-pos">' + (vz.i + 1) + ' de ' + IMAGENS.length + '</span>' +
+      (vz.zoom > 1 ? '<button class="vz-zoom-badge" data-vzzoom>' + Math.round(vz.zoom * 100) + '%</button>' : '') +
+      '<div class="vz-zoom" style="transform:scale(' + vz.zoom + ')">' + palco + '</div>' +
+      '</div>' + acoes + '</div></div>';
+  }
+  function abrirVz(i, ab) {
+    vz.aberto = true;
+    vz.i = i;
+    vz.par = (ab === undefined || ab === null) ? 'print' : ab;
+    vz.zoom = 1;
+    vz.ver = 'render';
+    vz.modo = 'split';
+    pintarVz();
+  }
+  function fecharVz() { vz.aberto = false; pintarVz(); }
+
+  caixaVz.addEventListener('click', function (e) {
+    if (e.target.hasAttribute('data-vzfundo') || e.target.closest('[data-vzfechar]')) { fecharVz(); return; }
+    var m = e.target.closest('[data-modo]');
+    if (m) { vz.modo = m.dataset.modo; vz.ver = 'render'; pintarVz(); return; }
+    var v = e.target.closest('[data-ver]');
+    if (v) { vz.ver = vz.ver === v.dataset.ver ? 'render' : v.dataset.ver; pintarVz(); return; }
+    var n = e.target.closest('[data-vznav]');
+    if (n) { vz.i = (vz.i + (+n.dataset.vznav) + IMAGENS.length) % IMAGENS.length; vz.zoom = 1; vz.ver = 'render'; pintarVz(); return; }
+    if (e.target.closest('[data-vzzoom]')) { vz.zoom = 1; pintarVz(); return; }
+    var a = e.target.closest('[data-vz]');
+    if (a && a.dataset.vz === 'detalhes') { abrirJanela('detalhes'); return; }
+    if (a && MARCA_VZ[a.dataset.vz]) { ligados[a.dataset.vz] = !ligados[a.dataset.vz]; pintarVz(); }
+  });
+
+  // ── o Single: segure para ver o outro lado ──
+  // Sem redesenhar tudo a cada aperto, que é o que faz a imagem piscar.
+  caixaVz.addEventListener('pointerdown', function (e) {
+    var seg = e.target.closest('[data-segura]');
+    if (seg) {
+      var base = seg.querySelector('.vz-img:not(.vz-img--seg)');
+      var outro = seg.querySelector('.vz-img--seg');
+      var rot = seg.querySelector('[data-rot]');
+      var dica = seg.querySelector('[data-dica]');
+      var alvo = vz.par !== 'print' ? 'A' : 'Print';
+      var atual = vz.par !== 'print' ? 'B' : 'Render';
+      base.hidden = true; outro.hidden = false;
+      rot.textContent = alvo;
+      dica.textContent = 'Solte para ver o ' + atual;
+      var solta = function () {
+        base.hidden = false; outro.hidden = true;
+        rot.textContent = atual;
+        dica.textContent = 'Segure para ver o ' + alvo;
+        window.removeEventListener('pointerup', solta);
+      };
+      window.addEventListener('pointerup', solta);
+      return;
+    }
+    // ── o 360: arrastar gira o panorama ──
+    var pano = e.target.closest('#vz-pano');
+    if (pano) {
+      var img = pano.querySelector('.vz-img');
+      var x0 = e.clientX, g0 = vz.giro;
+      function gira(ev) {
+        vz.giro = Math.max(0, Math.min(100, g0 - (ev.clientX - x0) / 4));
+        img.style.backgroundPosition = vz.giro + '% center';
+      }
+      function larga() {
+        window.removeEventListener('pointermove', gira);
+        window.removeEventListener('pointerup', larga);
+      }
+      window.addEventListener('pointermove', gira);
+      window.addEventListener('pointerup', larga);
+      return;
+    }
+    // ── o Split: a cortina segue o arraste ──
+    var par = e.target.closest('#vz-par');
+    if (!par) return;
+    function mover(ev) {
+      var r = par.getBoundingClientRect();
+      vz.corte = Math.max(0, Math.min(100, ((ev.clientX - r.left) / r.width) * 100));
+      var c = caixaVz.querySelector('.vz-cortina');
+      var h = caixaVz.querySelector('.vz-handle');
+      if (c) c.style.clipPath = 'inset(0 ' + (100 - vz.corte) + '% 0 0)';
+      if (h) h.style.left = vz.corte + '%';
+    }
+    function soltar() {
+      window.removeEventListener('pointermove', mover);
+      window.removeEventListener('pointerup', soltar);
+    }
+    mover(e);
+    window.addEventListener('pointermove', mover);
+    window.addEventListener('pointerup', soltar);
+  });
+  caixaVz.addEventListener('wheel', function (e) {
+    if (!vz.aberto || !e.target.closest('.vz-area')) return;
+    e.preventDefault();
+    vz.zoom = Math.max(1, Math.min(6, vz.zoom * (e.deltaY < 0 ? 1.12 : 0.89)));
+    pintarVz();
+  }, { passive: false });
+
+  document.querySelectorAll('[data-prova]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      vzProva = b.dataset.prova;
+      document.querySelectorAll('[data-prova]').forEach(function (o) { o.classList.toggle('on', o === b); });
+      if (vz.aberto) { vz.ver = 'render'; pintarVz(); } else abrirVz(vz.i, null);
+    });
+  });
+
+  // ══ o feed ══
+  var FILTROS = [
+    { id: 'tudo', rotulo: 'Tudo', ico: '<rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/><rect x="2.5" y="11.5" width="6" height="6" rx="1"/><rect x="11.5" y="11.5" width="6" height="6" rx="1"/>' },
+    { id: 'imagem', rotulo: 'Imagens', ico: '<rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/><path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>' },
+    { id: 'video', rotulo: 'Vídeos', ico: '<rect x="2.5" y="5" width="10" height="10" rx="1.5"/><path d="M12.5 8.5l5-2.5v8l-5-2.5" stroke-linejoin="round"/>' },
+    { id: 'upscale', rotulo: 'Upscales', ico: '<path d="M11 3.5h5.5V9M16.5 3.5L11 9" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 16.5H3.5V11M3.5 16.5L9 11" stroke-linecap="round" stroke-linejoin="round"/>' },
+    { id: 'pos', rotulo: 'Pós-produção', ico: '<path d="M3 6h14M3 10h9M3 14h6" stroke-linecap="round"/>' },
+    { id: 'favoritos', rotulo: 'Favoritos', ico: '<path d="M10 16.5S3.5 12.6 3.5 8.2A3.4 3.4 0 0 1 10 6.6a3.4 3.4 0 0 1 6.5 1.6c0 4.4-6.5 8.3-6.5 8.3z" stroke-linejoin="round"/>' }
+  ];
+  document.getElementById('filtros').innerHTML = FILTROS.map(function (f, i) {
+    return '<button class="cr-fbtn' + (i === 0 ? ' cr-fbtn--on' : '') + '" data-filtro="' + f.id + '" data-tip="' + f.rotulo + '" aria-label="' + f.rotulo + '">' +
+      '<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6">' + f.ico + '</svg></button>';
+  }).join('');
+  document.getElementById('filtros').addEventListener('click', function (e) {
+    var b = e.target.closest('.cr-fbtn');
+    if (!b) return;
+    document.querySelectorAll('#filtros .cr-fbtn').forEach(function (o) { o.classList.toggle('cr-fbtn--on', o === b); });
+  });
+
+  // ── o painel de filtros, ancorado no funil ──
+  var bFiltros = document.getElementById('b-filtros');
+  var PERIODOS = ['Qualquer', 'Hoje', 'Últimos 7 dias', 'Últimos 30 dias', 'Este ano'];
+  var FERRS = ['Render', 'Batch', 'Editar', 'Planta baixa', 'Upscale', 'Animação'];
+  var SO = ['Aprovadas', 'Favoritas', 'Com referência'];
+  var filtro = { periodo: 'Qualquer', ferramentas: [], so: [] };
+  var painelFt = null;
+
+  function pintarFiltros() {
+    if (!painelFt) return;
+    var usados = (filtro.periodo !== 'Qualquer' ? 1 : 0) + filtro.ferramentas.length + filtro.so.length;
+    painelFt.innerHTML =
+      '<div class="ft__cab"><h3>Filtros</h3>' +
+      '<button class="ft-limpar-t" data-ftlimpar' + (usados ? '' : ' disabled') + '>Limpar tudo</button></div>' +
+      '<div class="ft__corpo">' +
+        '<div class="cmp"><span class="cmp__rot">Período</span><div class="cora-dd-lista">' +
+        PERIODOS.map(function (p) { return item(p, filtro.periodo === p, true, 'data-ftper="' + esc(p) + '"'); }).join('') +
+        '</div></div>' +
+        '<div class="cmp"><span class="cmp__rot">Ferramenta</span><div class="cora-dd-lista">' +
+        FERRS.map(function (f) { return item(f, filtro.ferramentas.indexOf(f) >= 0, false, 'data-ftfer="' + esc(f) + '"'); }).join('') +
+        '</div></div>' +
+        '<div class="cmp"><span class="cmp__rot">Mostrar só</span><div class="cora-dd-lista">' +
+        SO.map(function (s) { return item(s, filtro.so.indexOf(s) >= 0, false, 'data-ftso="' + esc(s) + '"'); }).join('') +
+        '</div></div>' +
+      '</div>' +
+      '<div class="ft__pe"><span class="ft__conta">4 de 4 imagens</span>' +
+      '<button class="ft-ver" data-ftfechar>Ver resultados</button></div>';
+  }
+  function abrirFiltros() {
+    if (painelFt) { fecharFiltros(); return; }
+    var fundo = document.createElement('div');
+    fundo.className = 'ft-fundo';
+    painelFt = document.createElement('div');
+    painelFt.className = 'ft';
+    janela.appendChild(fundo);
+    janela.appendChild(painelFt);
+    pintarFiltros();
+    var r = bFiltros.getBoundingClientRect();
+    var j = janela.getBoundingClientRect();
+    painelFt.style.top = (r.bottom - j.top + 8) + 'px';
+    painelFt.style.right = (j.right - r.right) + 'px';
+    bFiltros.classList.add('cr-fbtn--on');
+    fundo.addEventListener('mousedown', fecharFiltros);
+    painelFt.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (e.target.closest('[data-ftfechar]')) { fecharFiltros(); return; }
+      if (e.target.closest('[data-ftlimpar]')) { filtro = { periodo: 'Qualquer', ferramentas: [], so: [] }; pintarFiltros(); return; }
+      var p = e.target.closest('[data-ftper]');
+      if (p) { filtro.periodo = p.dataset.ftper; pintarFiltros(); return; }
+      var f = e.target.closest('[data-ftfer]');
+      if (f) { alterna(filtro.ferramentas, f.dataset.ftfer); pintarFiltros(); return; }
+      var s = e.target.closest('[data-ftso]');
+      if (s) { alterna(filtro.so, s.dataset.ftso); pintarFiltros(); }
+    });
+  }
+  function fecharFiltros() {
+    if (!painelFt) return;
+    janela.removeChild(painelFt);
+    var f = janela.querySelector('.ft-fundo');
+    if (f) janela.removeChild(f);
+    painelFt = null;
+    bFiltros.classList.remove('cr-fbtn--on');
+  }
+  bFiltros.addEventListener('click', function (e) { e.stopPropagation(); abrirFiltros(); });
+
+  // ── os cartões ──
+  var ACOES = [
+    { c: 'cr-ca', tip: 'Aprovar', d: '<path d="M4 10.5l4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/>' },
+    { c: 'cr-ca', tip: 'Favoritar', d: '<path d="M10 16.5S3.5 12.6 3.5 8.2A3.4 3.4 0 0 1 10 6.6a3.4 3.4 0 0 1 6.5 1.6c0 4.4-6.5 8.3-6.5 8.3z" stroke-linejoin="round"/>' },
+    { c: 'cr-ca', tip: 'Baixar', d: '<path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 14v1.5A1.5 1.5 0 005 17h10a1.5 1.5 0 001.5-1.5V14" stroke-linecap="round"/>' },
+    { c: 'cr-ca cr-ca--perigo', tip: 'Excluir', d: '<path d="M3.5 5.5h13M8 5.5V4a1 1 0 011-1h2a1 1 0 011 1v1.5" stroke-linecap="round"/><path d="M5.5 5.5l.7 10a1.5 1.5 0 001.5 1.4h4.6a1.5 1.5 0 001.5-1.4l.7-10" stroke-linecap="round"/>' },
+    { c: 'cr-ca', tip: 'Detalhes', jan: 'detalhes', d: '<circle cx="10" cy="10" r="7.5"/><path d="M10 9.2v4.3" stroke-linecap="round"/><circle cx="10" cy="6.4" r=".8" fill="currentColor" stroke="none"/>' },
+    { div: true },
+    { c: 'cr-ca', tip: 'Editar', d: '<path d="M13.5 3.5l3 3L7 16l-3.5.5L4 13l9.5-9.5z" stroke-linejoin="round"/>' },
+    { c: 'cr-ca', tip: 'Upscale', d: '<path d="M11 3.5h5.5V9M16.5 3.5L11 9" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 16.5H3.5V11M3.5 16.5L9 11" stroke-linecap="round" stroke-linejoin="round"/>' },
+    { c: 'cr-ca', tip: 'Animar', d: '<rect x="2.5" y="5" width="10" height="10" rx="1.5"/><path d="M12.5 8.5l5-2.5v8l-5-2.5" stroke-linejoin="round"/>' }
+  ];
+  var acoesHtml = ACOES.map(function (a) {
+    if (a.div) return '<span class="cr-ca-div"></span>';
+    return '<button class="' + a.c + '"' + (a.jan ? ' data-jan="' + a.jan + '"' : '') + ' data-tip="' + a.tip + '" aria-label="' + a.tip + '">' +
+      '<svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5">' + a.d + '</svg></button>';
+  }).join('');
+
+  var LOTES = [
+    { fer: 'Render', prop: '4:5', quando: 'há 2 horas', fotos: ['f1', 'f2'] },
+    { fer: 'Render', prop: '16:9', quando: 'ontem', fotos: ['f3', 'f4'] }
+  ];
+  document.getElementById('lista').innerHTML = LOTES.map(function (l) {
+    return '<article class="cr-lote">' +
+      '<header class="cr-lote-cab"><span class="cr-lote-obs"></span>' +
+      '<span class="cr-tag cr-tag--marca">' + l.fer + '</span>' +
+      '<span class="cr-tag">' + l.prop + '</span>' +
+      '<span class="cr-lote-data">' + l.quando + '</span></header>' +
+      '<div class="cr-cards cr-cards--grade cr-cards--p">' +
+      l.fotos.map(function (f) {
+        return '<div class="cr-card" data-img="' + IMAGENS.map(function (x) { return x.f; }).indexOf(f) + '"><i class="foto ' + f + '"></i>' +
+          '<div class="cr-card-acoes">' + acoesHtml + '</div>' +
+          '<span class="cr-card-info"><span class="cr-card-fer">' + l.fer + '</span>' +
+          '<span>' + l.prop + '</span>' +
+          '<span class="cr-card-quando">' + l.quando + '</span></span></div>';
+      }).join('') +
+      '</div></article>';
+  }).join('');
+
+
+  // ══ o A/B e o clique na imagem ══
+  // O A/B é um modo do FEED: liga, escolhe as duas no grid, e o visualizador
+  // abre comparando. Era isso que a aba Histórico fazia com o botão A/B na
+  // cabeça da comparação.
+  var modoAB = false, ladoA = null, modoSel = false;
+  var bAB = document.getElementById('b-ab');
+  var bSel = document.getElementById('b-sel');
+  var barraFeed = document.querySelector('.cr-feed .cr-barra');
+
+  function pintarAB() {
+    bAB.classList.toggle('cr-fbtn--on', modoAB);
+    var aviso = document.getElementById('ab-aviso');
+    if (modoAB && !aviso) {
+      var p = document.createElement('p');
+      p.className = 'cr-ab-aviso';
+      p.id = 'ab-aviso';
+      p.textContent = 'Modo A/B: clique em duas imagens para comparar.';
+      barraFeed.parentNode.insertBefore(p, barraFeed.nextSibling);
+    }
+    if (!modoAB && aviso) aviso.remove();
+    document.querySelectorAll('#lista .cr-card').forEach(function (c) {
+      var eA = modoAB && ladoA !== null && +c.dataset.img === ladoA;
+      c.classList.toggle('cr-card--ab', eA);
+      var m = c.querySelector('.cr-card-ab');
+      if (eA && !m) c.insertAdjacentHTML('afterbegin', '<span class="cr-card-ab">A</span>');
+      if (!eA && m) m.remove();
+    });
+  }
+  bAB.addEventListener('click', function () {
+    modoAB = !modoAB;
+    ladoA = null;
+    pintarAB();
+  });
+  bSel.addEventListener('click', function () {
+    modoSel = !modoSel;
+    bSel.classList.toggle('cr-fbtn--on', modoSel);
+  });
+
+  document.getElementById('lista').addEventListener('click', function (e) {
+    // As ações do hover têm dono próprio: o clique nelas não abre a imagem.
+    if (e.target.closest('.cr-card-acoes')) return;
+    var c = e.target.closest('.cr-card');
+    if (!c) return;
+    var i = +c.dataset.img;
+    if (!modoAB) { abrirVz(i, null); return; }
+    if (ladoA === null) { ladoA = i; pintarAB(); return; }
+    if (ladoA === i) { ladoA = null; pintarAB(); return; }
+    abrirVz(i, ladoA);
+    modoAB = false;
+    ladoA = null;
+    pintarAB();
+  });
+
+  // ══ o começo ══
+  pintarTrilho();
+  pintarTudo();
+  pintarProporcao();
+  pintarMat();
+  conta();
+})();
+</script>
