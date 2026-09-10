@@ -14,7 +14,9 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useState } from 'react';
-import { acharAula, lerFilaComentarios, marcarFilaVista, moderarComentario } from '../lib/aulas';
+import {
+  acharAula, comCatalogo, lerCatalogo, lerFilaComentarios, marcarFilaVista, moderarComentario,
+} from '../lib/aulas';
 import { useIdioma, tOpt } from '../lib/i18n';
 
 const Ico = {
@@ -28,6 +30,16 @@ export default function AdminComentarios({ aba }) {
   const [linhas, setLinhas] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [rascunhos, setRascunhos] = useState({});
+  /* O catálogo, só para saber de que aula veio cada comentário. Sem ele, uma
+     aula criada no admin não existe em `lib/aulas.js` e a linha mostraria o
+     identificador cru no lugar do nome. */
+  const [cat, setCat] = useState(null);
+
+  useEffect(() => {
+    let vivo = true;
+    lerCatalogo().then((c) => { if (vivo) setCat(c); });
+    return () => { vivo = false; };
+  }, []);
 
   const estado = aba === 'todos' ? null : 'espera';
 
@@ -61,7 +73,7 @@ export default function AdminComentarios({ aba }) {
   }
 
   function onde(id) {
-    const achado = acharAula(id);
+    const achado = acharAula(id, cat ? comCatalogo(cat, true) : undefined);
     if (!achado) return id;
     return `${t('apr_modulo')} ${achado.modulo.id} · ${tOpt(achado.aula.titulo)}`;
   }

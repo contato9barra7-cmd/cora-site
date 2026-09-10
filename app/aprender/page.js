@@ -24,7 +24,7 @@ import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import { lerConta, atualizarConta } from '../../lib/auth';
 import {
-  MODULOS as MODULOS_ARQUIVO, TOTAL_AULAS, urlDoVideo, comCatalogo, lerCatalogo,
+  contarAulas, urlDoVideo, comCatalogo, lerCatalogo,
   lerEstadoAulas, marcarVisto, votar, lerComentarios, comentar,
 } from '../../lib/aulas';
 import { useIdioma, tOpt } from '../../lib/i18n';
@@ -75,6 +75,10 @@ export default function Aprender() {
      a API fora, com os nomes que vieram no código. */
   const [cat, setCat] = useState(null);
   const MODULOS = useMemo(() => comCatalogo(cat), [cat]);
+  /* Contra o total DE AGORA, e não contra as 33 do arquivo: desde que dá para
+     criar e remover aula no admin, os dois números se separam, e o progresso
+     tem que medir contra a lista que a pessoa está vendo. */
+  const totalAulas = useMemo(() => contarAulas(MODULOS), [MODULOS]);
   /* A lista plana das 33, para o Anterior e o Próxima andarem pelo curso e não
      pelo módulo: no fim do módulo, o Próxima rola para o seguinte. */
   const FILA = useMemo(
@@ -222,7 +226,7 @@ export default function Aprender() {
   const joinha = estado.joinhas[aulaId] || { cima: 0, baixo: 0 };
   const meuVoto = estado.votos[aulaId] || null;
   const totalVistas = estado.vistas.length;
-  const pctCurso = Math.round((totalVistas / TOTAL_AULAS) * 100);
+  const pctCurso = Math.round((totalVistas / (totalAulas || 1)) * 100);
 
   return (
     <AppShell>
@@ -300,7 +304,7 @@ export default function Aprender() {
                   <Anel dentro={`${pctCurso}%`} pct={pctCurso} tam={32} />
                   <span className="apr-prog__txt">
                     <b>{t('apr_progresso')}</b>
-                    <em>{totalVistas} {t('apr_de')} {TOTAL_AULAS} {t('apr_aulas')}</em>
+                    <em>{totalVistas} {t('apr_de')} {totalAulas} {t('apr_aulas')}</em>
                   </span>
                 </div>
               </div>

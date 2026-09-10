@@ -8,14 +8,22 @@
 //  que é editado vai para o banco. Desfazer é apagar a linha, e o original
 //  volta com a tradução dele junto.
 //
-//  O que esta tela NÃO faz, de propósito: criar aula, apagar aula e trocar a
-//  ordem. Isso é estrutura do curso, e estrutura merece ficar no histórico do
-//  git com data e motivo. Trocar o nome de uma aula não.
+//  A ESTRUTURA também se edita aqui: criar aula, remover e trocar a ordem das
+//  aulas e dos módulos. Duas regras seguram isso de pé:
+//
+//  Remover ESCONDE, não apaga. A aula sai da lista de quem estuda, mas os
+//  comentários e o assistido dela continuam de pé, e trazer de volta é um
+//  clique. Uma aula que junta trinta comentários não pode sumir por engano.
+//
+//  A ordem vai para o banco como a LISTA INTEIRA daquele nível, e nunca como
+//  "esta subiu uma casa": a posição de um item sozinho não diz nada sem a dos
+//  outros. Enquanto ninguém arrastou nada, a ordem é a do arquivo.
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  MODULOS, TOTAL_AULAS, comCatalogo, urlDoVideo, lerPainelAulas, salvarCatalogo,
+  MODULOS, comCatalogo, contarAulas, urlDoVideo, lerPainelAulas, salvarCatalogo,
+  criarAula, salvarOrdem,
 } from '../lib/aulas';
 import { useIdioma, tOpt } from '../lib/i18n';
 
@@ -28,6 +36,9 @@ const Ico = {
   olho: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" /><circle cx="12" cy="12" r="3" /></svg>),
   cima: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10.5v9H4.5a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z" /><path d="M7 10.5l4-6.5a2 2 0 0 1 2.9 2.4l-1 3.6h4.7a2 2 0 0 1 2 2.4l-1.2 6a2 2 0 0 1-2 1.6H7z" /></svg>),
   baixo: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M7 13.5v-9H4.5a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1z" /><path d="M7 13.5l4 6.5a2 2 0 0 0 2.9-2.4l-1-3.6h4.7a2 2 0 0 0 2-2.4l-1.2-6a2 2 0 0 0-2-1.6H7z" /></svg>),
+  mais: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"><path d="M12 5.5v13M5.5 12h13" /></svg>),
+  x: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" /></svg>),
+  pega: (<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6" /><circle cx="15" cy="6" r="1.6" /><circle cx="9" cy="12" r="1.6" /><circle cx="15" cy="12" r="1.6" /><circle cx="9" cy="18" r="1.6" /><circle cx="15" cy="18" r="1.6" /></svg>),
   balao: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M20 13.5a3 3 0 0 1-3 3H9l-4 3.5v-3.5H7a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3z" /></svg>),
 };
 
@@ -73,6 +84,13 @@ export default function AdminAulas({ aba }) {
   const [carregando, setCarregando] = useState(true);
   const arquivo = useRef(null);
   const [alvoCapa, setAlvoCapa] = useState(null);
+  /* A fila que está sendo arrastada. Ela existe só enquanto o dedo está em
+     cima, e mais um instante depois: soltar dispara o POST, e a fila continua
+     mandando no desenho até o catálogo voltar do banco, senão a lista pularia
+     para a ordem velha no meio do caminho. */
+  const [fila, setFila] = useState(null);
+  const [pronto, setPronto] = useState(null);      // a linha que a alça soltou
+  const [abrindo, setAbrindo] = useState({});      // módulos com as removidas à vista
 
   useEffect(() => {
     let vivo = true;
@@ -89,22 +107,60 @@ export default function AdminAulas({ aba }) {
     return () => { vivo = false; };
   }, []);
 
-  const lista = useMemo(() => comCatalogo(cat), [cat]);
+  const lista = useMemo(() => comCatalogo(cat, true), [cat]);
 
   async function gravar(id, campo, valor) {
     const d = await salvarCatalogo(id, campo, valor);
+    /* O servidor devolve a linha já enxuta, ou nada quando ela se apagou por
+       não guardar mais nenhuma edição. */
     setCat((c) => {
       const novo = { ...c };
-      if (d.item && (d.item.titulo || d.item.capa || d.item.panda)) {
-        novo[id] = {};
-        if (d.item.titulo != null) novo[id].titulo = d.item.titulo;
-        if (d.item.capa != null) novo[id].capa = d.item.capa;
-        if (d.item.panda != null) novo[id].panda = d.item.panda;
-      } else {
-        delete novo[id];
-      }
+      if (d.item) novo[id] = d.item; else delete novo[id];
       return novo;
     });
+  }
+
+  async function nova(modulo) {
+    const d = await criarAula(modulo);
+    if (d?.id) setCat((c) => ({ ...c, [d.id]: { modulo } }));
+  }
+
+  /* ── ARRASTAR ──
+     A alça é que decide: `draggable` só liga na linha cuja alça foi apertada.
+     Sem isso, arrastar de dentro de um campo de texto viraria arrastar a linha
+     inteira, e ninguém mais conseguiria selecionar o que escreveu. */
+  function pegar(pai, itens, id) {
+    setFila({ pai, ids: itens.map((x) => x.id), movendo: id, salvando: false });
+  }
+  function sobre(id) {
+    setFila((f) => {
+      if (!f || f.salvando || f.movendo === id) return f;
+      const de = f.ids.indexOf(f.movendo);
+      const para = f.ids.indexOf(id);
+      if (de < 0 || para < 0) return f;
+      const ids = f.ids.slice();
+      ids.splice(para, 0, ids.splice(de, 1)[0]);
+      return { ...f, ids };
+    });
+  }
+  async function soltar() {
+    setPronto(null);
+    const f = fila;
+    if (!f || f.salvando) return;
+    setFila({ ...f, salvando: true });
+    try {
+      const d = await salvarOrdem(f.pai, f.ids);
+      if (d?.catalogo) setCat(d.catalogo);
+    } catch (e) {}
+    setFila(null);
+  }
+
+  /* Enquanto a fila está viva, quem manda no desenho é ela. */
+  function naOrdem(pai, itens) {
+    if (!fila || fila.pai !== pai) return itens;
+    const por = new Map(itens.map((x) => [x.id, x]));
+    const posto = fila.ids.map((id) => por.get(id)).filter(Boolean);
+    return posto.length === itens.length ? posto : itens;
   }
 
   /* A capa vai como data URL, do mesmo jeito que a foto do perfil: ela é
@@ -136,7 +192,8 @@ export default function AdminAulas({ aba }) {
   /* ── PROGRESSO ── */
   if (aba === 'progresso') {
     const comecaram = pessoas.length;
-    const terminaram = pessoas.filter((n) => n >= TOTAL_AULAS).length;
+    const total = contarAulas(comCatalogo(cat));
+    const terminaram = pessoas.filter((n) => n >= total).length;
     /* Quanto de cada módulo foi assistido, somando as aulas dele. A queda é a
        diferença para o módulo anterior: barra baixa no fim do curso é gente
        ainda chegando, queda brusca no meio é aula que perde a pessoa. */
@@ -187,9 +244,22 @@ export default function AdminAulas({ aba }) {
   return (
     <>
       <input ref={arquivo} type="file" accept="image/*" hidden onChange={escolherCapa} />
-      {lista.map((m) => (
-        <div className="adm-cat" key={m.id}>
+      {naOrdem('', lista).map((m) => (
+        <div
+          className={'adm-cat' + (fila?.movendo === m.id ? ' adm-cat--movendo' : '')}
+          key={m.id}
+          draggable={pronto === m.id}
+          onDragStart={() => pegar('', lista, m.id)}
+          onDragOver={(e) => { if (fila?.pai === '') { e.preventDefault(); sobre(m.id); } }}
+          onDragEnd={soltar}
+          onDrop={(e) => { e.preventDefault(); soltar(); }}
+        >
           <div className="adm-cat__mod">
+            <span
+              className="adm-cat__pega" title={t('adm_cat_mover')}
+              onMouseDown={() => setPronto(m.id)}
+              onMouseUp={() => setPronto(null)}
+            >{Ico.pega}</span>
             <span className="adm-cat__capa">
               <img src={m.capa} alt="" />
               <button onClick={() => { setAlvoCapa(m.id); setTimeout(() => arquivo.current?.click(), 0); }}>
@@ -214,16 +284,30 @@ export default function AdminAulas({ aba }) {
             </span>
           </div>
 
-          {m.aulas.map((a, i) => {
+          {naOrdem(m.id, m.aulas.filter((a) => !a.removido)).map((a, i) => {
             const n = numeros[a.id] || { vistas: 0, cima: 0, baixo: 0, com: 0 };
             const noAr = !!urlDoVideo(a.panda);
             return (
-              <div className="adm-cat__aula" key={a.id}>
+              <div
+                className={'adm-cat__aula' + (fila?.movendo === a.id ? ' adm-cat__aula--movendo' : '')}
+                key={a.id}
+                draggable={pronto === a.id}
+                onDragStart={() => pegar(m.id, m.aulas.filter((x) => !x.removido), a.id)}
+                onDragOver={(e) => { if (fila?.pai === m.id) { e.preventDefault(); sobre(a.id); } }}
+                onDragEnd={soltar}
+                onDrop={(e) => { e.preventDefault(); soltar(); }}
+              >
+                <span
+                  className="adm-cat__pega" title={t('adm_cat_mover')}
+                  onMouseDown={() => setPronto(a.id)}
+                  onMouseUp={() => setPronto(null)}
+                >{Ico.pega}</span>
                 <span className="adm-cat__n">{String(i + 1).padStart(2, '0')}</span>
                 <span className="adm-cat__nome">
                   <Campo
                     valor={a.titulo}
-                    original={cat[a.id]?.titulo != null ? true : null}
+                    placeholder={t('adm_cat_nome')}
+                    original={cat[a.id]?.titulo != null && !a.nova ? true : null}
                     onSalvar={(v) => gravar(a.id, 'titulo', v)}
                   />
                   {a.editado && <span className="apr-tag apr-tag--trad">{t('adm_cat_sem_trad')}</span>}
@@ -250,9 +334,38 @@ export default function AdminAulas({ aba }) {
                   <span>{Ico.baixo}{n.baixo}</span>
                   <span>{Ico.balao}{n.com}</span>
                 </span>
+                <button className="apr-bt apr-bt--so adm-cat__tira" title={t('adm_cat_remover')}
+                        onClick={() => gravar(a.id, 'removido', '1')}>{Ico.x}</button>
               </div>
             );
           })}
+
+          {/* O pé do módulo: criar uma aula, e as removidas dobradas. Elas
+              ficam dobradas e não sumidas porque remover aqui é esconder: o
+              que a aula juntou de comentário e de assistido continua lá. */}
+          <div className="adm-cat__pe">
+            <button className="apr-bt apr-bt--txt" onClick={() => nova(m.id)}>
+              {Ico.mais}{t('adm_cat_nova')}
+            </button>
+            {m.aulas.some((a) => a.removido) && (
+              <button className="apr-bt apr-bt--txt"
+                      onClick={() => setAbrindo((o) => ({ ...o, [m.id]: !o[m.id] }))}>
+                {m.aulas.filter((a) => a.removido).length} {t('adm_cat_removidas')}
+                {' · '}{abrindo[m.id] ? t('adm_cat_esconder') : t('adm_cat_mostrar')}
+              </button>
+            )}
+          </div>
+
+          {abrindo[m.id] && m.aulas.filter((a) => a.removido).map((a) => (
+            <div className="adm-cat__aula adm-cat__aula--fora" key={a.id}>
+              <span className="adm-cat__n">—</span>
+              <span className="adm-cat__nome"><s>{tOpt(a.titulo) || t('adm_cat_nome')}</s></span>
+              <button className="apr-bt apr-bt--txt"
+                      onClick={() => gravar(a.id, 'removido', '')}>
+                {Ico.volta}{t('adm_cat_voltar_aula')}
+              </button>
+            </div>
+          ))}
         </div>
       ))}
     </>

@@ -1992,6 +1992,22 @@
    ══════════════════════════════════════════════════════════════════════ */
 .adm-cat{ margin-bottom:18px; border:1px solid var(--line); border-radius:var(--r);
   background:var(--paper); overflow:hidden; }
+/* A alça. Ela não some no hover porque a linha tem quatro campos e dois
+   botões: um alvo que só aparece quando o mouse chega perto vira caça ao
+   tesouro numa lista de trinta e três. */
+.adm-cat__pega{
+  flex:none; display:grid; place-items:center; width:18px; height:26px;
+  color:var(--ink3); cursor:grab; opacity:.55;
+}
+.adm-cat__pega:active{ cursor:grabbing; }
+.adm-cat__pega:hover{ opacity:1; }
+.adm-cat__pega svg{ width:14px; height:14px; }
+.adm-cat--movendo, .adm-cat__aula--movendo{ opacity:.4; }
+.adm-cat__tira{ flex:none; color:var(--ink3); }
+.adm-cat__tira:hover{ color:#B3261E; border-color:#B3261E; }
+.adm-cat__pe{ display:flex; gap:14px; align-items:center; padding:10px 18px; border-top:1px solid var(--line); }
+.adm-cat__aula--fora{ opacity:.6; }
+.adm-cat__aula--fora s{ font-size:var(--t-apoio2); color:var(--ink2); }
 .adm-cat__mod{ display:flex; gap:16px; align-items:flex-start; padding:18px;
   border-bottom:1px solid var(--line); background:var(--wash); }
 .adm-cat__capa{ position:relative; flex:none; width:78px; aspect-ratio:520/909;
