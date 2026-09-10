@@ -639,7 +639,10 @@
 .heroi{
   display:grid; grid-template-columns:var(--pad-heroi) minmax(0,1fr);
   border:1px solid var(--line); border-radius:var(--r-heroi); overflow:hidden;
-  background:var(--paper); min-height:330px;
+  /* Os tres quadros medem o mesmo: quem manda e o MAIS ALTO, e nao cada um a
+     sua altura. Com 330 o quadro do IA Studio esticava para 339 por causa da
+     segunda linha do apoio, e o cartao pulava a cada volta do carrossel. */
+  background:var(--paper); min-height:344px;
 }
 .heroi__pad{
   background:var(--faixa-pe-agora) repeat-y center;
@@ -2061,6 +2064,9 @@
 .apr-col{ max-width:820px; margin:0 auto; }
 
 /* ── o voltar ── */
+/* O voltar mora fora da grade da aula, entao ele precisa da mesma caixa
+   dela para comecar na mesma margem do titulo. */
+.apr-topo{ max-width:1180px; margin:0 auto; }
 .apr-volta{
   display:inline-flex; align-items:center; gap:7px; margin-bottom:20px;
   padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:var(--pill);
@@ -2142,7 +2148,10 @@
    aulas, e as duas passam a ter a mesma esquina dos dois lados. */
 .apr-prog{
   display:flex; align-items:center; gap:11px; padding:8px 18px 8px 9px;
-  border-radius:var(--pill); background:var(--turq-bg); color:var(--turq-txt);
+  /* A turquesa cheia, e nao o fundo lavado dela: a pilula e a unica coisa
+     colorida da coluna, e no `--turq-bg` ela sumia contra o branco do indice
+     logo abaixo. */
+  border-radius:var(--pill); background:var(--turquesa); color:var(--turq-txt);
 }
 .apr-prog__txt{ min-width:0; }
 .apr-prog b{ display:block; font-size:var(--t-apoio2); font-weight:700; line-height:1.25; }
@@ -2152,7 +2161,7 @@
 }
 .apr-prog .apr-anel{ width:32px; height:32px; }
 .apr-prog .apr-anel svg{ width:32px; height:32px; }
-.apr-prog .apr-anel .tri{ stroke:rgba(25,108,91,.2); }
+.apr-prog .apr-anel .tri{ stroke:rgba(25,108,91,.22); }
 .apr-prog .apr-anel .ch{ stroke:currentColor; }
 .apr-prog .apr-anel i{ font-size:9px; color:currentColor; }
 

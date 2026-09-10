@@ -260,9 +260,11 @@ export default function Aprender() {
         {/* ── 3. A AULA ── */}
         {modulo && aula && (
           <>
-            <button className="apr-volta" onClick={() => setAulaId(null)}>
-              {Ico.esq}{t('apr_voltar_aulas')}
-            </button>
+            <div className="apr-topo">
+              <button className="apr-volta" onClick={() => setAulaId(null)}>
+                {Ico.esq}{t('apr_voltar_aulas')}
+              </button>
+            </div>
 
             <div className="apr-tela">
               <div className="apr-tela__t1">
