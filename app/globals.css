@@ -12340,8 +12340,11 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    peça tinha a sua opacidade e a linha saía manchada — o vão entre os links
    faz o trabalho dele. */
 .rodape-legal {
-  border-top: 1px solid var(--line);
-  padding: 13px 24px 14px;
+  /* O fio não vai de ponta a ponta: ele é recuado e centrado, como no rodapé
+     dos Promptadores. De ponta a ponta ele fecha a tela como se fosse uma
+     borda de caixa; recuado, ele só separa. */
+  position: relative;
+  padding: 14px 24px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -12354,6 +12357,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .rodape-legal .rl-link { color: inherit; text-decoration: none; opacity: 1; }
 .rodape-legal .rl-link:hover { color: var(--ink2); text-decoration: none; }
 .rodape-legal .rl-sep { display: none; }
+.rodape-legal::before {
+  content: "";
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: min(calc(100% - 48px), 760px); height: 1px; background: var(--line);
+}
+/* O do feed tem o fio dele, colado na coluna. */
+.rodape-legal--feed::before { display: none; }
 
 /* ===== Página de suporte (SAC) ===== */
 .sup-wrap { max-width: 620px; margin: 0 auto; padding: 40px 22px 60px; }

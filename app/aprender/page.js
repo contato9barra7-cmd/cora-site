@@ -82,10 +82,17 @@ export default function Aprender() {
         {/* ── 1. OS MÓDULOS ── */}
         {!modulo && (
           <>
-            <header className="apr-cab">
-              <h1>{t('apr_titulo')}</h1>
-              <p>{t('apr_intro')}</p>
-            </header>
+            {/* A mesma cabeça das outras telas da conta: olho, título grande
+                e uma linha de apoio ao lado. Sem foto, o nome e o apoio se
+                encontram na linha de base, e quem faz isso é o `:has()` da
+                folha — não precisa de classe aqui. */}
+            <div className="conta-cabeca">
+              <div className="conta-cabeca__txt">
+                <p className="eyebrow">{t('apr_titulo')}</p>
+                <h1 className="conta-cabeca__nome">{t('pn_apr_tit')}</h1>
+                <p className="conta-cabeca__email">{t('apr_sub')}</p>
+              </div>
+            </div>
             <div className="apr-grade">
               {MODULOS.map((m) => (
                 <button key={m.id} className="apr-mod" onClick={() => abrirModulo(m.id)}>
@@ -135,6 +142,8 @@ export default function Aprender() {
               {Seta}{t('apr_voltar_aulas')}
             </button>
             <div className="apr-palco">
+              <p className="apr-palco__onde">{t('apr_modulo')} {modulo.id} · {tOpt(modulo.titulo)}</p>
+              <h1>{tOpt(aula.titulo)}</h1>
               <div className="apr-palco__quadro">
                 {urlDoVideo(aula.panda) ? (
                   <iframe
@@ -150,8 +159,6 @@ export default function Aprender() {
                   </div>
                 )}
               </div>
-              <p className="apr-palco__onde">{t('apr_modulo')} {modulo.id} · {tOpt(modulo.titulo)}</p>
-              <h1>{tOpt(aula.titulo)}</h1>
               {/* Quem dá a aula assina embaixo dela, como na área de membros.
                   É a mesma peça de lá, e ela fecha a tela sem precisar de
                   mais uma caixa em volta. */}

@@ -366,7 +366,9 @@ function ContaConteudo() {
               <div className="heroi__marca" role="img" aria-label="Cora Render" />
               <p className="eyebrow">{t('pn_apr_olho')}</p>
               <h1>{t('pn_apr_tit')}</h1>
-              <p className="heroi__sub">{t('pn_apr_sub')}</p>
+              {/* `--largo` porque a frase cabe inteira numa linha, e o limite
+                  de 52ch do apoio normal só serviria para quebrá-la no meio. */}
+              <p className="heroi__sub heroi__sub--largo">{t('pn_apr_sub')}</p>
               <div className="heroi__acoes">
                 <button className="dash-btn-cta" onClick={() => router.push('/aprender')}>
                   {t('pn_apr_btn')}
