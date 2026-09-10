@@ -12,7 +12,7 @@
 //  trabalho, e aqui se mexe em dez coisas por aula.
 // ═══════════════════════════════════════════════════════════════════════════
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { urlDoVideo } from '../lib/aulas';
 import { useIdioma, tOpt } from '../lib/i18n';
 
@@ -61,6 +61,64 @@ function Campo({ valor, onSalvar, placeholder, mono, alto }) {
 function Texto({ valor, onSalvar, t }) {
   const caixa = useRef(null);
   const arquivo = useRef(null);
+  /* A imagem escolhida, e a caixa das alças por cima dela. A largura é gravada
+     em PORCENTAGEM e não em pixel: a mesma imagem é vista numa coluna de 760 no
+     admin e de 900 na aula, e um número em pixel sairia de tamanho diferente
+     nas duas. */
+  const [escolhida, setEscolhida] = useState(null);
+  const [moldura, setMoldura] = useState(null);
+
+  const medir = useCallback(() => {
+    const img = escolhida;
+    const pai = caixa.current;
+    if (!img || !pai || !pai.contains(img)) { setMoldura(null); return; }
+    const a = img.getBoundingClientRect();
+    const b = pai.getBoundingClientRect();
+    setMoldura({ x: a.left - b.left, y: a.top - b.top + pai.scrollTop, w: a.width, h: a.height });
+  }, [escolhida]);
+
+  useEffect(() => { medir(); }, [medir, valor]);
+  useEffect(() => {
+    if (!escolhida) return undefined;
+    window.addEventListener('resize', medir);
+    return () => window.removeEventListener('resize', medir);
+  }, [escolhida, medir]);
+
+  /* Arrastar uma alça. O canto que se puxa decide o sinal: pela esquerda, ir
+     para a esquerda aumenta. */
+  function arrastar(ev, canto) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const img = escolhida;
+    const pai = caixa.current;
+    if (!img || !pai) return;
+    const x0 = ev.clientX;
+    const larg0 = img.getBoundingClientRect().width;
+    const dentro = pai.clientWidth - 2;   // o quanto a coluna dá, sem a borda
+    const sinal = canto === 'esq' ? -1 : 1;
+
+    function mover(e) {
+      const nova = Math.max(60, Math.min(dentro, larg0 + (e.clientX - x0) * sinal));
+      img.style.width = (nova / dentro * 100).toFixed(1) + '%';
+      img.style.height = 'auto';
+      medir();
+    }
+    function soltar() {
+      document.removeEventListener('pointermove', mover);
+      document.removeEventListener('pointerup', soltar);
+      salvar();
+    }
+    document.addEventListener('pointermove', mover);
+    document.addEventListener('pointerup', soltar);
+  }
+
+  function largura(pct) {
+    if (!escolhida) return;
+    escolhida.style.width = pct + '%';
+    escolhida.style.height = 'auto';
+    medir();
+    salvar();
+  }
 
   useEffect(() => {
     if (caixa.current && caixa.current.innerHTML !== (valor || '')) {
@@ -124,12 +182,17 @@ function Texto({ valor, onSalvar, t }) {
         <button data-dica={t('adm_au_lista_n')} onMouseDown={(e) => e.preventDefault()}
                 onClick={() => mandar('insertOrderedList')}>1.</button>
       </div>
+      <div className="adm-au__palco">
       <div
         ref={caixa}
         className="adm-au__campo adm-au__campo--rico"
         contentEditable
         suppressContentEditableWarning
         data-vazio={t('adm_au_texto_vazio')}
+        onScroll={medir}
+        /* Clicar numa imagem escolhe ela. Clicar em qualquer outro lugar
+           desfaz a escolha, senão as alças ficariam boiando sobre o texto. */
+        onMouseUp={(e) => setEscolhida(e.target.tagName === 'IMG' ? e.target : null)}
         onBlur={salvar}
         /* Colar SEM formatação: o texto que vem do Word carrega fonte, cor e
            tamanho de lá, e a aula passa a ter a cara do editor da pessoa. */
@@ -142,6 +205,20 @@ function Texto({ valor, onSalvar, t }) {
           if (f && /^image\//.test(f.type)) { e.preventDefault(); porImagem(f); }
         }}
       />
+      {moldura && (
+        <div className="adm-au__alcas" style={{ left: moldura.x, top: moldura.y, width: moldura.w, height: moldura.h }}>
+          <span className="adm-au__alca adm-au__alca--ce" onPointerDown={(e) => arrastar(e, 'esq')} />
+          <span className="adm-au__alca adm-au__alca--cd" onPointerDown={(e) => arrastar(e, 'dir')} />
+          <span className="adm-au__alca adm-au__alca--be" onPointerDown={(e) => arrastar(e, 'esq')} />
+          <span className="adm-au__alca adm-au__alca--bd" onPointerDown={(e) => arrastar(e, 'dir')} />
+          <span className="adm-au__medidas" onPointerDown={(e) => e.preventDefault()}>
+            <button onClick={() => largura(33)}>33%</button>
+            <button onClick={() => largura(50)}>50%</button>
+            <button onClick={() => largura(100)}>{t('adm_au_img_toda')}</button>
+          </span>
+        </div>
+      )}
+      </div>
       <input ref={arquivo} type="file" accept="image/*" hidden
              onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; porImagem(f); }} />
     </div>
@@ -153,13 +230,30 @@ function Texto({ valor, onSalvar, t }) {
    precisa do R2, porque um .skp de 40 MB não cabe onde as capas cabem. Quando
    ele entrar, é mais um botão nesta mesma lista. */
 function Materiais({ lista, onSalvar, t }) {
+  /* A LISTA MORA AQUI enquanto se digita. O servidor joga fora item sem nome e
+     sem link, e com razão: linha vazia gravada é lixo. Só que era isso que
+     fazia o "Adicionar material" não fazer nada, porque a linha nasce vazia,
+     ia para o servidor, voltava sem ela e sumia antes de aparecer. Agora ela
+     aparece na hora e só vai para o banco quando tem o que guardar. */
+  const [locais, setLocais] = useState(lista);
+  useEffect(() => {
+    /* Só aceita de volta o que veio do banco quando ele diz algo diferente do
+       que está na tela sem contar as linhas vazias. */
+    const cheias = locais.filter((m) => m.nome || m.link);
+    if (JSON.stringify(cheias) !== JSON.stringify(lista)) setLocais(lista);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lista]);
+
+  function aplicar(nova) {
+    setLocais(nova);
+    onSalvar(nova.filter((m) => m.nome || m.link));
+  }
   function trocar(i, campo, v) {
-    const nova = lista.map((m, j) => (j === i ? { ...m, [campo]: v } : m));
-    onSalvar(nova);
+    aplicar(locais.map((m, j) => (j === i ? { ...m, [campo]: v } : m)));
   }
   return (
     <div className="adm-au__mat">
-      {lista.map((m, i) => (
+      {locais.map((m, i) => (
         <div className="adm-au__mat-item" key={i}>
           <span className="adm-au__mat-ico">{Ico.elo}</span>
           <span className="adm-au__mat-txt">
@@ -169,11 +263,11 @@ function Materiais({ lista, onSalvar, t }) {
                    onSalvar={(v) => trocar(i, 'link', v)} />
           </span>
           <button className="apr-bt apr-bt--so" title={t('adm_au_mat_tira')}
-                  onClick={() => onSalvar(lista.filter((_, j) => j !== i))}>{Ico.x}</button>
+                  onClick={() => aplicar(locais.filter((_, j) => j !== i))}>{Ico.x}</button>
         </div>
       ))}
-      <button className="apr-bt apr-bt--txt"
-              onClick={() => onSalvar([...lista, { nome: '', link: '' }])}>
+      <button className="adm-au__mais"
+              onClick={() => setLocais([...locais, { nome: '', link: '' }])}>
         {Ico.mais}{t('adm_au_mat_novo')}
       </button>
     </div>

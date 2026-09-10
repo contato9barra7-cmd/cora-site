@@ -2072,6 +2072,10 @@
 .adm-au__cab{ display:flex; align-items:center; gap:14px; flex-wrap:wrap;
   padding:16px 20px; border-bottom:1px solid var(--line); }
 .adm-au__tit{ flex:1; min-width:200px; }
+/* O `apr-volta` nasceu com 20px de margem embaixo, para a tela do modulo. Aqui
+   ele divide a linha com o titulo e com a pastilha, e essa margem empurrava so
+   ele para cima. */
+.adm-au__cab .apr-volta{ margin-bottom:0; }
 .adm-au__tit p{ margin:0; line-height:1; font-size:var(--t-etiqueta); font-weight:700;
   letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }
 .adm-au__tit h2{ margin:4px 0 0; font-size:21px; font-weight:500; letter-spacing:-.02em;
@@ -2119,6 +2123,35 @@
 .adm-au__campo--rico{ min-height:220px; border:0; border-radius:0; }
 .adm-au__campo--rico:empty::before{ content:attr(data-vazio); color:var(--ink3); }
 .adm-au__campo--rico img{ max-width:100%; height:auto; border-radius:var(--r-peq); margin:8px 0; }
+
+/* ── AS ALÇAS DA IMAGEM ──
+   A moldura mora FORA da caixa que se edita, num palco por cima dela: dentro
+   do `contentEditable` ela viraria conteúdo, e o navegador tentaria editá-la
+   junto com o texto. */
+.adm-au__palco{ position:relative; }
+.adm-au__alcas{ position:absolute; pointer-events:none; outline:2px solid var(--turquesa-esc);
+  outline-offset:1px; border-radius:var(--r-peq); }
+.adm-au__alca{
+  position:absolute; width:12px; height:12px; border-radius:50%;
+  background:var(--paper); border:2px solid var(--turquesa-esc);
+  pointer-events:auto; cursor:ew-resize;
+}
+.adm-au__alca--ce{ left:-7px; top:-7px; }
+.adm-au__alca--cd{ right:-7px; top:-7px; }
+.adm-au__alca--be{ left:-7px; bottom:-7px; }
+.adm-au__alca--bd{ right:-7px; bottom:-7px; }
+/* As medidas prontas, para quem não quer mirar: um terço, metade e a largura
+   toda cobrem quase todo caso, e o arrasto fica para o resto. */
+.adm-au__medidas{
+  position:absolute; left:50%; bottom:-17px; transform:translateX(-50%);
+  display:flex; gap:2px; padding:3px; border-radius:var(--pill);
+  background:var(--ink); pointer-events:auto; white-space:nowrap;
+}
+.adm-au__medidas button{
+  border:0; border-radius:var(--pill); background:none; color:var(--paper);
+  padding:3px 9px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer;
+}
+.adm-au__medidas button:hover{ background:rgba(255,255,255,.16); }
 .adm-au__campo--rico a{ color:var(--turq-txt); }
 .adm-au__campo--rico ul, .adm-au__campo--rico ol{ padding-left:22px; }
 
@@ -2130,6 +2163,16 @@
   border-radius:9px; background:var(--wash2); color:var(--ink2); }
 .adm-au__mat-ico svg{ width:16px; height:16px; stroke:currentColor; fill:none; }
 .adm-au__mat-txt{ flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+/* A mesma pilula do "Voltar as aulas": as duas sao a mesma peca do painel, e
+   uma mais baixa que a outra na mesma tela le como dois desenhos. */
+.adm-au__mais{
+  display:inline-flex; align-items:center; gap:7px; align-self:flex-start;
+  padding:7px 16px 7px 12px; border:1px solid var(--line); border-radius:var(--pill);
+  background:var(--paper); color:var(--ink2); font-family:inherit; font-size:var(--t-apoio);
+  font-weight:600; cursor:pointer; transition:color var(--t), border-color var(--t);
+}
+.adm-au__mais:hover{ color:var(--ink); border-color:var(--line2); }
+.adm-au__mais svg{ width:14px; height:14px; stroke:currentColor; fill:none; }
 
 /* o interruptor da assinatura */
 .adm-au__liga{ display:flex; align-items:center; justify-content:space-between; gap:14px; }
