@@ -465,7 +465,10 @@ export default function TelaPincel({
       const v = Math.max(0, (lados.includes('cima') || lados.includes('baixo'))
         ? (m0.cima + m0.baixo) / 2 + cresceV
         : (m0.cima + m0.baixo) / 2);
-      setM(travar({ esq: h, dir: h, cima: v, baixo: v }, lados));
+      const razaoDaImagem = ev.shiftKey && nativo.current.h
+        ? nativo.current.w / nativo.current.h
+        : null;
+      setM(travar({ esq: h, dir: h, cima: v, baixo: v }, lados, razaoDaImagem));
     }
     function soltar() {
       window.removeEventListener('mousemove', mover);
@@ -487,13 +490,20 @@ export default function TelaPincel({
   //  Agora: quem arrasta manda no seu eixo, e o OUTRO eixo é calculado para
   //  fechar a proporção. Puxar a lateral ajusta a altura; puxar o topo ajusta
   //  a largura.
-  function travar(novo, lados = []) {
-    if (!proporcao || proporcao === 'livre') return novo;
-    const [pw, ph] = proporcao.split(':').map(Number);
-    if (!pw || !ph) return novo;
+  //  `alvoForcado` e o Shift: segurando Shift, a moldura cresce na proporcao
+  //  da PROPRIA imagem, seja qual for a proporcao escolhida na pilula. E o
+  //  gesto que todo editor de imagem tem, e aqui ele quer dizer "mais espaco
+  //  em volta, sem mudar o formato".
+  function travar(novo, lados = [], alvoForcado = null) {
+    let alvo = alvoForcado;
+    if (!alvo) {
+      if (!proporcao || proporcao === 'livre') return novo;
+      const [pw, ph] = proporcao.split(':').map(Number);
+      if (!pw || !ph) return novo;
+      alvo = pw / ph;
+    }
     const { w: W, h: H } = nativo.current;
     if (!W) return novo;
-    const alvo = pw / ph;
     // Qual eixo a pessoa está movendo?
     const mexeH = lados.includes('esq')  || lados.includes('dir');
     const mexeV = lados.includes('cima') || lados.includes('baixo');

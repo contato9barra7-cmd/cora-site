@@ -598,7 +598,8 @@
 .pk-previa img{max-width: 100%; max-height: 100%; border-radius: 9px; object-fit: contain; display: block;}
 .pk-item--on{box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--accent);}
 .pk-item{position: relative;}
-.pk-fav{position: absolute; top: 5px; left: 5px; z-index: 2; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--line2); color: var(--turquesa-esc); box-shadow: 0 1px 4px rgba(0, 0, 0, .22); pointer-events: none;}
+.pk-fav{position: absolute; top: 5px; left: 5px; z-index: 2; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(17, 17, 17, .45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: var(--turquesa); pointer-events: none;}
+.pk-fav svg{width: 12px; height: 12px;}
 .pk-visto{position: absolute; top: 5px; right: 5px; z-index: 1; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: var(--accent-txt);}
 .pk-ok{display: flex; align-items: center; gap: 11px; padding: 11px 16px; border-top: 1px solid var(--turquesa-esc); background: var(--turq-bg);}
 .pk-ok-mini{flex-shrink: 0; width: 30px; height: 30px; border-radius: 6px; object-fit: cover; display: block;}
@@ -1021,9 +1022,9 @@
    A `.ed-faixa` continua se chamando faixa, e não é mais uma faixa: virou a
    pastilha do desenho. O nome fica porque é ele que está no componente, e
    trocar nome de classe transforma "troca de folha" em "reescrita de JSX".
-   ══════════════════════════════════════════════════════════════════════ */.co .ed-cards{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }/* As ferramentas das Sequências: os mesmos cards, numa coluna só. */.co .ed-cards--coluna{ grid-template-columns:1fr; grid-auto-rows:1fr; }.co .ed-card{
+   ══════════════════════════════════════════════════════════════════════ */.co .ed-cards{ display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }/* As ferramentas das Sequências: os mesmos cards, numa coluna só. */.co .ed-cards--coluna{ grid-template-columns:1fr; grid-auto-rows:1fr; }.co .ed-card{
   position:relative; overflow:hidden; display:block; width:100%;
-  padding:24px 12px 12px; text-align:left;
+  padding:16px 12px 9px; text-align:left;
   border:1px solid var(--line); border-radius:var(--r-peq);
   background:var(--paper); cursor:pointer;
   transition:border-color var(--t), box-shadow var(--t);
@@ -1039,12 +1040,20 @@
   background:var(--faixa) repeat-x var(--desl,0) center; background-size:80px 100%;
   pointer-events:none;
 }.co .ed-cards > .ed-card:nth-child(2){ --desl:-12px; }.co .ed-cards > .ed-card:nth-child(3){ --desl:-27px; }.co .ed-cards > .ed-card:nth-child(4){ --desl:-42px; }.co .ed-cards > .ed-card:nth-child(5){ --desl:-57px; }.co .ed-cards > .ed-card:nth-child(6){ --desl:-70px; }.co .ed-cards > .ed-card:nth-child(7){ --desl:-20px; }.co .ed-cards > .ed-card:nth-child(8){ --desl:-50px; }.co .ed-faixa{
-  width:34px; height:34px; margin-bottom:10px; border-radius:50%;
+  width:29px; height:29px; margin-bottom:6px; border-radius:50%;
   background:var(--wash2); color:var(--ink2);
   display:flex; align-items:center; justify-content:center;
   transition:background var(--t), color var(--t);
-}.co .ed-faixa svg{ width:17px; height:17px; }.co .ed-card--on .ed-faixa{ background:var(--turq-bg); color:var(--turq-txt); }/* O padding agora é do card, e não do corpo. Sem zerar aqui, o do globals
-   (11px 12px 13px) se soma ao meu e o texto fica com 25px de recuo. */.co .ed-corpo{ display:block; padding:0; }.co .ed-corpo strong{ display:block; font-size:var(--t-corpo); font-weight:600; color:var(--ink); }.co .ed-corpo span{ display:block; margin-top:4px; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.45;  text-wrap:pretty; }/* Modo trancado pelo plano: o cadeado no canto, e o card apagado. */.co .ed-card--travado{ opacity:.55; }.co .ed-cad{ position:absolute; top:20px; right:12px; color:var(--ink3); }/* ══════════════════════════════════════════════════════════════════════
+}.co .ed-faixa svg{ width:15px; height:15px; }.co .ed-card--on .ed-faixa{ background:var(--turq-bg); color:var(--turq-txt); }/* O padding agora é do card, e não do corpo. Sem zerar aqui, o do globals
+   (11px 12px 13px) se soma ao meu e o texto fica com 25px de recuo. */.co .ed-corpo{ display:block; padding:0; }.co .ed-corpo strong{ display:block; font-size:var(--t-corpo); font-weight:600; color:var(--ink); }.co .ed-corpo span{ display:block; margin-top:3px; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.35;  text-wrap:pretty; }/* Modo trancado pelo plano: o cadeado no canto, e o card apagado. */.co .ed-card--travado{ opacity:.55; }.co .ed-cad{ position:absolute; top:14px; right:12px; color:var(--ink3); }/* ── A TELA DOS OITO MODOS ──
+   Aqui a coluna e disputada: os oito cartoes tem que caber sem rolagem, e o
+   respiro de cima cede o que falta. Vale so nesta tela, pelo `:has`, e nas
+   outras abas o espacamento continua o de sempre. */
+.co .cr-form:has(> .ed-cards){ padding-top:16px; padding-bottom:12px; }
+.co .cr-form:has(> .ed-cards) > .cr-sec{ margin-top:18px; margin-bottom:8px; }
+.co .cr-form:has(> .ed-cards) > .cr-sec:first-child{ margin-top:0; }
+.co .cr-form:has(> .ed-cards) > .cr-hint{ margin-top:6px; }
+.co .cr-form:has(> .ed-cards) > .ed-cards{ margin-bottom:0; }/* ══════════════════════════════════════════════════════════════════════
    OS DOIS PRIMOS DO CARD DE MODO
    O Upscale e as Sequências repetem a mesma peça com outro nome de classe, e
    traziam a mesma herança: azul e coral no Upscale, três pastéis nas
