@@ -2212,6 +2212,19 @@
 .adm-pl__lista{ margin:0 0 8px; padding:14px 20px 14px 38px; background:var(--wash);
   border:1px solid var(--line); border-radius:var(--r); }
 .adm-pl__lista li{ font-size:var(--t-apoio); color:var(--ink2); margin-bottom:4px; }
+/* O conserto do aviso fica DOBRADO: quase toda visita a esta tela e para
+   publicar uma versao, e nao para consertar a de ontem. */
+.adm-pl__consertar{ margin:0 0 8px; padding:0 20px; background:var(--paper);
+  border:1px solid var(--line); border-radius:var(--r); }
+.adm-pl__consertar summary{ padding:15px 0; font-size:var(--t-apoio); font-weight:600;
+  cursor:pointer; list-style:none; }
+.adm-pl__consertar summary::-webkit-details-marker{ display:none; }
+.adm-pl__consertar summary::before{ content:"+ "; color:var(--ink3); }
+.adm-pl__consertar[open] summary{ border-bottom:1px solid var(--line); }
+.adm-pl__consertar[open] summary::before{ content:"– "; }
+.adm-pl__consertar > *:last-child{ margin-bottom:20px; }
+.adm-pl__consertar .adm-pl__dica{ margin-top:16px; max-width:74ch; line-height:1.5; }
+
 .adm-pl__forma{ margin-top:14px; padding:20px; background:var(--paper);
   border:1px solid var(--line); border-radius:var(--r); }
 .adm-pl__forma > .adm-au__rot:first-child{ margin-top:0; }

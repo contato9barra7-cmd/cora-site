@@ -65,13 +65,49 @@ export default function AdminPlugin() {
   const [erro, setErro] = useState('');
   const [pronto, setPronto] = useState(false);
 
+  /* ── CORRIGIR O AVISO DA VERSAO QUE JA ESTA NO AR ──
+     Republicar o manifesto com o MESMO numero nao avisa ninguem de novo: quem
+     ja atualizou continua atualizado, e quem ainda nao passa a ler o texto
+     novo. E o conserto do erro de digitacao, e tambem o jeito de trancar uma
+     versao que ja saiu sem ter que subir o arquivo outra vez. */
+  const [avisoTxt, setAvisoTxt] = useState('');
+  const [avisoObrig, setAvisoObrig] = useState(false);
+  const [salvandoAviso, setSalvandoAviso] = useState(false);
+  const [avisoSalvo, setAvisoSalvo] = useState(false);
+
   useEffect(() => {
     let vivo = true;
     lerPlugin()
-      .then((d) => { if (vivo) { setAgora(d); setCarregando(false); } })
+      .then((d) => {
+        if (!vivo) return;
+        setAgora(d);
+        semear(d);
+        setCarregando(false);
+      })
       .catch(() => { if (vivo) { setNaoLeu(true); setCarregando(false); } });
     return () => { vivo = false; };
   }, []);
+
+  function semear(d) {
+    setAvisoTxt((d?.manifesto?.novidades || []).join('\n'));
+    setAvisoObrig(d?.manifesto?.obrigatoria === true);
+  }
+
+  async function salvarAviso() {
+    setErro(''); setAvisoSalvo(false); setSalvandoAviso(true);
+    try {
+      const d = await publicarPluginVersao({
+        versao: noAr,
+        novidades: avisoTxt.split('\n').map((l) => l.trim()).filter(Boolean),
+        obrigatoria: avisoObrig,
+      });
+      setAgora((a) => ({ ...(a || {}), manifesto: d.manifesto }));
+      setAvisoSalvo(true);
+    } catch (e) {
+      setErro(e.message);
+    }
+    setSalvandoAviso(false);
+  }
 
   const noAr = agora?.manifesto?.versao || null;
   const podeIr = !!arquivo && /^\d+\.\d+\.\d+$/.test(versao.trim()) && !indo;
@@ -93,7 +129,8 @@ export default function AdminPlugin() {
       setAgora((a) => ({ ...(a || {}), manifesto: d.manifesto }));
       setArquivo(null);
       setPronto(true);
-      lerPlugin().then(setAgora).catch(() => {});
+      semear({ manifesto: d.manifesto });
+      lerPlugin().then((novo) => { setAgora(novo); semear(novo); }).catch(() => {});
     } catch (e) {
       setErro(e.message);
     }
@@ -130,10 +167,42 @@ export default function AdminPlugin() {
         )}
       </div>
 
+      {/* O que foi anunciado, à vista. Ele existe para a pergunta "o que essa
+          versão dizia mesmo?", que é a que se faz olhando de longe. */}
       {(agora?.manifesto?.novidades || []).length > 0 && (
         <ul className="adm-pl__lista">
           {agora.manifesto.novidades.map((n, i) => <li key={i}>{n}</li>)}
         </ul>
+      )}
+
+      {/* CORRIGIR O QUE JÁ ESTÁ NO AR, sem tocar no arquivo. Ele fica dobrado
+          porque é o caso raro: quase toda visita a esta tela é para publicar
+          uma versão, e não para consertar a de ontem. */}
+      {noAr && (
+        <details className="adm-pl__consertar">
+          <summary>{t('adm_pl_consertar')}</summary>
+          <p className="adm-pl__dica">{t('adm_pl_consertar_q').replace('{v}', noAr)}</p>
+
+          <label className="adm-au__rot">{t('adm_pl_novidades')}</label>
+          <textarea className="adm-au__campo adm-au__campo--alto" rows={5} value={avisoTxt}
+                    placeholder={t('adm_pl_novidades_q')}
+                    onChange={(e) => { setAvisoTxt(e.target.value); setAvisoSalvo(false); }} />
+
+          <div className="adm-au__liga" style={{ marginTop: 18 }}>
+            <span>
+              <b>{t('adm_pl_obrig')}</b>
+              <em>{t('adm_pl_obrig_q')}</em>
+            </span>
+            <button className={'adm-au__chave' + (avisoObrig ? ' adm-au__chave--on' : '')}
+                    onClick={() => { setAvisoObrig((o) => !o); setAvisoSalvo(false); }} />
+          </div>
+
+          {avisoSalvo && <p className="adm-pl__pronto">{Ico.ok}{t('adm_pl_aviso_salvo')}</p>}
+          <button className="adm-au__mais" style={{ marginTop: 16 }}
+                  disabled={salvandoAviso} onClick={salvarAviso}>
+            {salvandoAviso ? t('adm_pl_indo_versao') : t('adm_pl_salvar_aviso')}
+          </button>
+        </details>
       )}
 
       <h2 className="conta-h2">{t('adm_pl_nova')}</h2>
