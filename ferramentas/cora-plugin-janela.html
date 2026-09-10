@@ -569,6 +569,8 @@
 .cr-chip:hover{border-color: var(--lima-txt);}
 .cr-chip--on{border-color: var(--lima-txt); color: var(--lima-txt); background: var(--accent-bg);}
 .ed-cards{display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 4px;}
+.cr-form:has(> .ed-cards){display: flex; flex-direction: column;}
+.cr-form > .ed-cards:not(.ed-cards--coluna){flex: 1 1 auto; min-height: 0; grid-auto-rows: minmax(min-content, 1fr);}
 .ed-card{position: relative; display: flex; flex-direction: column; padding: 0; overflow: hidden; border: 1px solid var(--line2); border-radius: 12px; background: var(--paper); text-align: left; cursor: pointer; transition: border-color .15s, transform .15s; font-family: inherit;}
 .cr-sul{display: flex; gap: 2px; padding: 3px; border-radius: 100px; background: var(--wash2);}
 .cr-sul__b{flex: 1; min-width: 0; height: 38px; padding: 0 10px; border: 0; border-radius: 100px; display: flex; align-items: center; justify-content: center; gap: 8px; background: transparent; color: var(--ink3); font-family: inherit; font-size: 12.2px; font-weight: 600; cursor: pointer;}
@@ -621,7 +623,7 @@
 .pk-previa img{max-width: 100%; max-height: 100%; border-radius: 9px; object-fit: contain; display: block;}
 .pk-item--on{box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--accent);}
 .pk-item{position: relative;}
-.pk-fav{position: absolute; top: 5px; left: 5px; z-index: 2; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--wash); color: var(--turquesa-esc); box-shadow: 0 1px 4px rgba(0, 0, 0, .22); pointer-events: none;}
+.pk-fav{position: absolute; top: 5px; left: 5px; z-index: 2; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--line2); color: var(--turquesa-esc); box-shadow: 0 1px 4px rgba(0, 0, 0, .22); pointer-events: none;}
 .pk-visto{position: absolute; top: 5px; right: 5px; z-index: 1; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: var(--accent-txt);}
 .pk-ok{display: flex; align-items: center; gap: 11px; padding: 11px 16px; border-top: 1px solid var(--turquesa-esc); background: var(--turq-bg);}
 .pk-ok-mini{flex-shrink: 0; width: 30px; height: 30px; border-radius: 6px; object-fit: cover; display: block;}

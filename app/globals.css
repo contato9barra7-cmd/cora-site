@@ -6584,6 +6584,23 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   margin-bottom: 4px;
 }
 
+/* A grade ocupa a altura que sobra na coluna, e as quatro fileiras dividem
+   esse espaco por igual. Com a altura do texto de cada card, a grade passava
+   do pe do painel e a pessoa tinha que rolar para ver os dois ultimos. */
+.cr-form:has(> .ed-cards) {
+  display: flex;
+  flex-direction: column;
+}
+
+.cr-form > .ed-cards:not(.ed-cards--coluna) {
+  flex: 1 1 auto;
+  min-height: 0;
+  /* `minmax(min-content, 1fr)`, e nao `1fr` seco: as fileiras dividem o que
+     SOBRA, mas nunca encolhem abaixo do texto de cada card. Com `1fr` puro,
+     numa janela baixa elas espremiam e a descricao ficava cortada. */
+  grid-auto-rows: minmax(min-content, 1fr);
+}
+
 /* Cada modo tem uma FAIXA colorida com o icone. A cor e propria de cada um:
    a pessoa aprende a reconhecer o card pela cor, nao so pelo texto.
    (As cores sao provisorias — entram as da marca depois.) */
@@ -7298,7 +7315,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--wash);
+  /* Cinza, e nao `--wash`: sobre uma foto clara o wash le como branco, e o
+     disco sumia. */
+  background: var(--line2);
   color: var(--turquesa-esc);
   box-shadow: 0 1px 4px rgba(0, 0, 0, .22);
   pointer-events: none;
