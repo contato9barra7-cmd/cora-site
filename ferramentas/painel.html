@@ -2071,6 +2071,12 @@
    quem muda é a largura, senão a linha do módulo teria dois blocos de alturas
    diferentes disputando o alinhamento com o nome. */
 .adm-cat__capa--h{ aspect-ratio:1168/668; }
+/* O lugar da capa antes de existir uma. Riscado na diagonal para ler como
+   vazio, e nao como imagem cinza que nao carregou. */
+.adm-cat__semcapa{
+  display:block; width:100%; height:100%;
+  background:repeating-linear-gradient(45deg, transparent 0 6px, var(--line) 6px 7px);
+}
 .adm-cat__capa button{
   position:absolute; inset:auto 0 0 0; padding:5px 0; border:0; cursor:pointer;
   background:rgba(17,17,17,.72); color:#fff; font:inherit; font-size:9.5px; font-weight:700;

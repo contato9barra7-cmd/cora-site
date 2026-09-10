@@ -1304,7 +1304,11 @@
    com o nome ao lado e nenhum dos dois ganharia. */.pn .adm-cat__capa{ position:relative; flex:none; height:120px; width:auto; aspect-ratio:520/909;
   border-radius:var(--r-peq); overflow:hidden; background:var(--wash2); }.pn .adm-cat__capa img{ width:100%; height:100%; object-fit:cover; display:block; }/* A deitada ao lado da em pé, na mesma altura: as duas medem o mesmo de alto e
    quem muda é a largura, senão a linha do módulo teria dois blocos de alturas
-   diferentes disputando o alinhamento com o nome. */.pn .adm-cat__capa--h{ aspect-ratio:1168/668; }.pn .adm-cat__capa button{
+   diferentes disputando o alinhamento com o nome. */.pn .adm-cat__capa--h{ aspect-ratio:1168/668; }/* O lugar da capa antes de existir uma. Riscado na diagonal para ler como
+   vazio, e nao como imagem cinza que nao carregou. */.pn .adm-cat__semcapa{
+  display:block; width:100%; height:100%;
+  background:repeating-linear-gradient(45deg, transparent 0 6px, var(--line) 6px 7px);
+}.pn .adm-cat__capa button{
   position:absolute; inset:auto 0 0 0; padding:5px 0; border:0; cursor:pointer;
   background:rgba(17,17,17,.72); color:#fff; font:inherit; font-size:9.5px; font-weight:700;
 }.pn .adm-cat__txt{ flex:1; min-width:0; }.pn .adm-cat__olho{

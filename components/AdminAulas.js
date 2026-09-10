@@ -23,7 +23,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   MODULOS, comCatalogo, contarAulas, urlDoVideo, lerPainelAulas, salvarCatalogo,
-  criarAula, salvarOrdem,
+  criarAula, criarModulo, salvarOrdem,
 } from '../lib/aulas';
 import { useIdioma, tOpt } from '../lib/i18n';
 
@@ -148,31 +148,19 @@ export default function AdminAulas({ aba }) {
     });
   }
 
-  /* Existe alguma posição gravada? É o que decide se o botão de desfazer a
-     ordem aparece: sem nada gravado, a ordem já é a do arquivo. */
-  const temOrdem = useMemo(
-    () => Object.keys(cat).some((id) => cat[id].ordem != null),
-    [cat]
-  );
-
-  /* Apaga TODAS as posições de uma vez e a ordem volta a ser a do arquivo, nos
-     dois níveis. É o desfazer do arrasto: sem ele, quem arrastou sem querer
-     precisa lembrar onde cada coisa estava. */
-  async function voltarOrdem() {
-    const ids = Object.keys(cat).filter((id) => cat[id].ordem != null);
-    if (!ids.length) return;
-    for (const id of ids) {
-      try { await salvarCatalogo(id, 'ordem', ''); } catch (e) {}
-    }
-    try {
-      const d = await lerPainelAulas();
-      if (d?.catalogo) setCat(d.catalogo);
-    } catch (e) {}
-  }
-
   async function nova(modulo) {
     const d = await criarAula(modulo);
-    if (d?.id) setCat((c) => ({ ...c, [d.id]: { modulo } }));
+    if (d?.id) setCat((c) => ({ ...c, [d.id]: { criado: true, modulo } }));
+  }
+
+  /* O módulo novo nasce vazio: sem nome, sem capa e sem aula. Ele entra no fim
+     da fila e o resto chega por onde já chegava, campo a campo. */
+  async function novoModulo() {
+    const d = await criarModulo();
+    if (d?.id) {
+      setCat((c) => ({ ...c, [d.id]: { criado: true } }));
+      setFechados((f) => ({ ...f, [d.id]: false }));
+    }
   }
 
   /* Quem é arrastável é a ALÇA, e não a linha. Ligado na linha, arrastar de
@@ -303,7 +291,7 @@ export default function AdminAulas({ aba }) {
             const queda = i > 0 ? linhas[i - 1].pct - l.pct : 0;
             return (
               <div className={'adm-barra' + (queda >= 20 ? ' adm-barra--queda' : '')} key={l.m.id}>
-                <span className="adm-barra__n">{l.m.id}</span>
+                <span className="adm-barra__n">{l.m.numero || l.m.id}</span>
                 <span className="adm-barra__t">
                   {tOpt(l.m.titulo)}
                   {queda >= 20 && <span className="adm-queda">{t('adm_pg_caiu')} {queda}</span>}
@@ -334,11 +322,9 @@ export default function AdminAulas({ aba }) {
           {Ico.dobrar}
           {lista.every((m) => fechados[m.id]) ? t('adm_cat_abrir_tudo') : t('adm_cat_fechar_tudo')}
         </button>
-        {temOrdem && (
-          <button className="apr-bt apr-bt--txt" onClick={voltarOrdem}>
-            {Ico.volta}{t('adm_cat_ordem_volta')}
-          </button>
-        )}
+        <button className="apr-bt apr-bt--txt" onClick={novoModulo}>
+          {Ico.mais}{t('adm_cat_novo_mod')}
+        </button>
       </div>
 
       {naOrdem('', lista).map((m) => (
@@ -359,8 +345,10 @@ export default function AdminAulas({ aba }) {
                     onClick={() => setFechados((f) => ({ ...f, [m.id]: !f[m.id] }))}>
               {Ico.seta}
             </button>
+            {/* Módulo novo não tem capa nenhuma até alguém subir uma, então o
+                lugar dela fica vazio em vez de mostrar um <img> quebrado. */}
             <span className="adm-cat__capa">
-              <img src={m.capa} alt="" />
+              {m.capa ? <img src={m.capa} alt="" /> : <span className="adm-cat__semcapa" />}
               <button onClick={() => trocarCapa(m.id, 'capa')}>{t('adm_cat_capa')}</button>
             </span>
             {/* A deitada, que é a que aparece na tela do módulo. Ela fica ao
@@ -368,12 +356,14 @@ export default function AdminAulas({ aba }) {
                 duas composições da mesma arte, e esquecer uma delas deixa o
                 módulo com uma capa nova na fila e a velha lá dentro. */}
             <span className="adm-cat__capa adm-cat__capa--h">
-              <img src={m.capaH || m.capa} alt="" />
+              {(m.capaH || m.capa)
+                ? <img src={m.capaH || m.capa} alt="" />
+                : <span className="adm-cat__semcapa" />}
               <button onClick={() => trocarCapa(m.id, 'capah')}>{t('adm_cat_capa_h')}</button>
             </span>
             <span className="adm-cat__txt">
               <p className="adm-cat__olho">
-                {t('apr_modulo')} {m.id} · {m.aulas.length} {t('apr_aulas')}
+                {t('apr_modulo')} {m.numero || m.id} · {m.aulas.length} {t('apr_aulas')}
                 {m.editado && <span className="apr-tag apr-tag--trad">{t('adm_cat_sem_trad')}</span>}
                 {m.capaTrocada && (
                   <button className="apr-bt apr-bt--txt" onClick={() => gravar(m.id, 'capa', '')}>
@@ -388,7 +378,8 @@ export default function AdminAulas({ aba }) {
               </p>
               <Campo
                 valor={m.titulo}
-                original={cat[m.id]?.titulo != null ? true : null}
+                placeholder={t('adm_cat_nome_mod')}
+                original={cat[m.id]?.titulo != null && !m.novo ? true : null}
                 onSalvar={(v) => gravar(m.id, 'titulo', v)}
               />
             </span>

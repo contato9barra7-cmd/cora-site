@@ -255,7 +255,7 @@ export default function Aprender() {
                   <span className="apr-mod__capa">
                     <img src={m.capa} alt="" loading="lazy" />
                   </span>
-                  <span className="apr-mod__n">{t('apr_modulo')} {m.id}</span>
+                  <span className="apr-mod__n">{t('apr_modulo')} {m.numero || m.id}</span>
                   <span className="apr-mod__t">{tOpt(m.titulo)}</span>
                   <span className="apr-mod__q">{quantas(m.aulas.length)}</span>
                 </button>
@@ -281,7 +281,7 @@ export default function Aprender() {
               {Ico.esq}{t('apr_voltar_mod')}
             </button>
 
-            <p className="apr-molho">{t('apr_modulo')} {modulo.id} · {quantas(modulo.aulas.length)}</p>
+            <p className="apr-molho">{t('apr_modulo')} {modulo.numero || modulo.id} · {quantas(modulo.aulas.length)}</p>
             <h1 className="apr-mtit">{tOpt(modulo.titulo)}</h1>
 
             <img className="apr-mcapa" src={modulo.capaH || modulo.capa} alt=""

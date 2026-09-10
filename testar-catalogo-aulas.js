@@ -22,7 +22,11 @@ const { MODULOS, comCatalogo, contarAulas } = new Function(
 )(() => {});
 
 let falhas = 0;
+let feitas = 0;
+/* A conta sai daqui, e não de um número escrito à mão no fim: aquele já ficou
+   para trás e passou a mentir sobre quantas checagens rodaram. */
 function e(nome, cond) {
+  feitas++;
   if (!cond) falhas++;
   console.log((cond ? 'ok   ' : 'FALHA') + ' ' + nome);
 }
@@ -49,6 +53,26 @@ e('o total do curso sobe', contarAulas(l) === 34);
 e('e ela não vaza para outro módulo', l[1].aulas.length === MODULOS[1].aulas.length);
 l = comCatalogo({ '00-n2': { modulo: '00' }, '00-n1': { modulo: '00' } });
 e('duas criadas saem na ordem em que nasceram', ids(l[0].aulas.slice(5)) === '00-n1,00-n2');
+
+// ── criar módulo ──
+l = comCatalogo({ n01: { criado: true, titulo: 'Módulo novo' } });
+e('o módulo criado entra na fila', l.length === 8);
+e('e entra no fim, sem ordem', l[7].id === 'n01');
+e('com o nome que foi escrito', l[7].titulo === 'Módulo novo');
+e('e nasce sem aula nenhuma', l[7].aulas.length === 0);
+e('sem mexer no total do curso', contarAulas(l) === 33);
+l = comCatalogo({
+  n01: { criado: true, titulo: 'Módulo novo' },
+  'n01-n1': { criado: true, modulo: 'n01', titulo: 'Primeira' },
+});
+e('a aula criada acha o módulo criado', l[7].aulas.length === 1);
+e('com o nome dela', l[7].aulas[0].titulo === 'Primeira');
+e('e agora o curso tem 34', contarAulas(l) === 34);
+l = comCatalogo({ n01: { criado: true, ordem: 0 }, '00': { ordem: 1 } });
+e('o módulo criado pode ir para o topo', l[0].id === 'n01');
+l = comCatalogo({ n01: { criado: true, removido: true } });
+e('módulo removido some da fila', l.length === 7);
+e('mas o admin continua vendo', comCatalogo({ n01: { criado: true, removido: true } }, true).length === 8);
 
 // ── remover ──
 l = comCatalogo({ '00-03': { removido: true } });
@@ -81,5 +105,5 @@ l = comCatalogo({
 e('a criada pode ir para o topo', l[0].aulas[0].id === '00-n1');
 e('e a removida sai do meio', ids(l[0].aulas) === '00-n1,00-01,00-02,00-04,00-05');
 
-console.log(falhas ? `\n${falhas} falha(s)` : '\ntudo certo — 24 checagens');
+console.log(falhas ? `\n${falhas} falha(s)` : `\ntudo certo — ${feitas} checagens`);
 process.exit(falhas ? 1 : 0);
