@@ -33,7 +33,13 @@ function e(nome, cond) {
 const ids = (l) => l.map((x) => x.id).join();
 
 // ── o berço sozinho ──
-e('sem catálogo, devolve o próprio arquivo', comCatalogo({}) === MODULOS);
+/* O catálogo vazio NÃO devolve o arquivo cru: ele passa pela fusão do mesmo
+   jeito, senão as aulas voltam sem estado, sem materiais e sem número, e a
+   tela mostra a chave de tradução no lugar da pastilha. */
+e('sem catálogo, a lista sai igual à do arquivo', ids(comCatalogo({})) === ids(MODULOS));
+e('mas já com estado em cada aula', comCatalogo({})[0].aulas[0].estado === 'no_ar');
+e('e com o número de cada módulo', comCatalogo({})[3].numero === '03');
+e('sem catálogo nenhum também', ids(comCatalogo(null)) === ids(MODULOS));
 e('o arquivo tem 33 aulas', contarAulas(MODULOS) === 33);
 e('e sete módulos', MODULOS.length === 7);
 

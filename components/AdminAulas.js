@@ -451,7 +451,6 @@ export default function AdminAulas({ aba }) {
                 : <span className="adm-cat__semcapa" />}
               <button onClick={() => trocarCapa(m.id, 'capah')}>{t('adm_cat_capa_h')}</button>
             </span>
-            <Estado valor={m.estado} t={t} onTrocar={(e) => gravar(m.id, 'estado', e)} />
             <span className="adm-cat__txt">
               <p className="adm-cat__olho">
                 {t('apr_modulo')} {m.numero || m.id} · {m.aulas.length} {t('apr_aulas')}
@@ -474,6 +473,10 @@ export default function AdminAulas({ aba }) {
                 onSalvar={(v) => gravar(m.id, 'titulo', v)}
               />
             </span>
+            {/* O estado do módulo fica no FIM da linha, na mesma vertical dos
+                das aulas: uma coluna de pastilhas se lê de cima a baixo, uma
+                pastilha no meio de cada linha não se lê. */}
+            <Estado valor={m.estado} t={t} onTrocar={(e) => gravar(m.id, 'estado', e)} />
           </div>
 
           {!fechados[m.id] && naOrdem(m.id, m.aulas.filter((a) => !a.removido)).map((a, i) => {
