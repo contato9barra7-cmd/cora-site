@@ -743,6 +743,7 @@ export default function TelaPincel({
           </svg>
           <input
             type="range" min="100" max="400" value={zoom}
+            style={{ '--pct': ((zoom - 100) / 3) + '%' }}
             onChange={(e) => mudarZoom(+e.target.value)}
           />
           <span>{zoom}%</span>

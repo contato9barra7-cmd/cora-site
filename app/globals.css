@@ -3515,6 +3515,12 @@ select.perfil-input {
   display: grid;
   grid-template-columns: repeat(5, 1fr);   /* 6 deixava tudo miudo demais */
   gap: 9px;
+
+  /* `start`, e nao o `stretch` de fabrica: esticado, o card ganha altura
+     definida da linha e o `aspect-ratio: 1` dele passa a ser ignorado. O
+     resultado eram fileiras de alturas diferentes, cada uma no formato da
+     primeira foto que caiu ali. */
+  align-items: start;
 }
 
 /* Sem moldura: so a imagem. A borda cinza em volta de cada miniatura fazia a
@@ -7279,13 +7285,22 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .pk-item { position: relative; }
 
+/* O coracao mora num disco claro, e e turquesa. Solto sobre a foto ele
+   sumia nas imagens claras, e a lima punha dois verdes diferentes na mesma
+   miniatura: o do coracao e o do visto ao lado. */
 .pk-fav {
   position: absolute;
-  top: 4px; left: 4px;
+  top: 5px; left: 5px;
   z-index: 2;
-  display: flex; line-height: 0;
-  color: var(--lima-txt);
-  filter: drop-shadow(0 0 2px rgba(0,0,0,.55));
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--wash);
+  color: var(--turquesa-esc);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .22);
   pointer-events: none;
 }
 
@@ -7538,7 +7553,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .pn-zoombar input {
   width: 80px;
-  accent-color: var(--turquesa-esc);
   cursor: pointer;
 }
 
@@ -7577,7 +7591,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .pn-calibre input {
   flex: 1;
-  accent-color: var(--turquesa-esc);
   cursor: pointer;
 }
 
@@ -7614,7 +7627,67 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .pn-ico--on { background: var(--turq-bg); color: var(--turq-txt); border-color: var(--turquesa-esc); }
 .pn-ico:disabled { opacity: .4; cursor: default; }
 .pn-sep { width: 1px; height: 20px; background: var(--line2); flex: 0 0 auto; }
-.pn-bar-range { flex: 1; min-width: 70px; accent-color: var(--turquesa-esc); cursor: pointer; }
+.pn-bar-range { flex: 1; min-width: 70px; cursor: pointer; }
+
+/* ── As reguas ──
+   Com o desenho de fabrica, o trilho vinha do sistema: preto, cravado no meio
+   de uma barra clara. Aqui ele e desenhado, e o pedaco ja percorrido e pintado
+   por um degrade que para no `--pct` que o JS escreve. Sem `--pct` o trilho
+   fica todo claro, que ja e melhor do que preto. */
+.pn-bar-range,
+.pn-calibre input[type=range],
+.pn-zoombar input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 5px;
+  border-radius: 100px;
+  outline: none;
+  background: linear-gradient(to right,
+    var(--turquesa-esc) 0 var(--pct, 0%),
+    var(--wash2) var(--pct, 0%) 100%);
+}
+
+.pn-bar-range::-webkit-slider-runnable-track,
+.pn-calibre input[type=range]::-webkit-slider-runnable-track,
+.pn-zoombar input[type=range]::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: 100px;
+  background: transparent;
+}
+
+.pn-bar-range::-webkit-slider-thumb,
+.pn-calibre input[type=range]::-webkit-slider-thumb,
+.pn-zoombar input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -4.5px;
+  border-radius: 50%;
+  border: 2px solid var(--paper);
+  background: var(--turquesa-esc);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .14);
+  cursor: pointer;
+}
+
+.pn-bar-range::-moz-range-track,
+.pn-calibre input[type=range]::-moz-range-track,
+.pn-zoombar input[type=range]::-moz-range-track {
+  height: 5px;
+  border-radius: 100px;
+  background: transparent;
+}
+
+.pn-bar-range::-moz-range-thumb,
+.pn-calibre input[type=range]::-moz-range-thumb,
+.pn-zoombar input[type=range]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--paper);
+  background: var(--turquesa-esc);
+  cursor: pointer;
+}
 .pn-chip {
   min-width: 32px; flex: 0 0 auto;
   text-align: center;

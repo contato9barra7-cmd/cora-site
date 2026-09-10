@@ -33,11 +33,10 @@ export default function PainelPincel({
   aoDigitarRazao,                // os campos mandam de volta
   aoInverter,
   limpar,                        // a tela expõe o "limpar"
-  // O texto e a quantidade moram na PÁGINA, não aqui. Gerar fecha o pincel, e
-  // fechar desmonta este componente — com um useState local, o pedido que a
-  // pessoa escreveu morria junto. Lá em cima ele sobrevive (e é salvo).
-  texto, setTexto,
-  quantidade, setQuantidade
+  // O texto mora na PÁGINA, não aqui. Gerar fecha o pincel, e fechar desmonta
+  // este componente — com um useState local, o pedido que a pessoa escreveu
+  // morria junto. Lá em cima ele sobrevive (e é salvo).
+  texto, setTexto
 }) {
   const { t } = useIdioma();
   const [erro, setErro]   = useState('');
@@ -61,7 +60,10 @@ export default function PainelPincel({
   async function gerar() {
     setErro('');
     try {
-      await onGerar({ modo, texto: (texto || '').trim(), quantidade });
+      // Sempre UMA. Preenchimento e expansao trabalham sobre uma marcacao
+      // feita a mao: pedir quatro devolve quatro versoes da mesma pincelada,
+      // e a escolha ja foi feita ao pintar.
+      await onGerar({ modo, texto: (texto || '').trim(), quantidade: 1 });
     } catch (e) {
       setErro(e.message);
     }
@@ -117,9 +119,12 @@ export default function PainelPincel({
 
             <span className="pn-sep" />
 
+            {/* O `--pct` diz ate onde o trilho vai pintado. Sem ele o
+                desenho de fabrica entrava, e vinha preto. */}
             <input
               className="pn-bar-range"
               type="range" min="8" max="90" value={tamanho}
+              style={{ '--pct': ((tamanho - 8) / 82 * 100) + '%' }}
               onChange={(e) => setTamanho(+e.target.value)}
               aria-label={t('painelpincel_tamanho')}
             />
@@ -243,32 +248,18 @@ export default function PainelPincel({
 
     </div>
 
-    {/* A MESMA barra do Render, do Batch e do Editar: a quantidade à
-        esquerda, o Gerar à direita. O custo aparece só no hover
-        (.cr-custo-tag) — não polui o botão em repouso.
+    {/* Só o Gerar. As outras abas têm a quantidade à esquerda; aqui ela
+        não faz sentido, e o custo aparece só no hover (.cr-custo-tag) —
+        não polui o botão em repouso.
 
         Sem `disabled={ocupado}`: a geração roda no servidor, no canal
         próprio. Prender o painel aqui era o que impedia de marcar a próxima
         área enquanto a anterior saía. */}
     <div className="cr-barra-ger">
-      <div className="cr-pills-cfg">
-        <div className="cr-qty">
-          <button
-            onClick={() => setQuantidade(Math.max(1, quantidade - 1))}
-            aria-label={t('paineleditar_menos_um')}
-          >−</button>
-          <span>{quantidade}</span>
-          <button
-            onClick={() => setQuantidade(Math.min(10, quantidade + 1))}
-            aria-label={t('paineleditar_mais_um')}
-          >+</button>
-        </div>
-      </div>
-
       <button className="cr-btn-gerar" onClick={gerar}>
         <span>{t('painelpincel_gerar')}</span>
         <span className="cr-custo-tag">
-          <IconeCredito /> {custoGenerativa() * quantidade}
+          <IconeCredito /> {custoGenerativa()}
         </span>
       </button>
     </div>

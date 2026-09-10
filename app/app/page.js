@@ -251,9 +251,9 @@ export default function AppPage() {
   const [pnRw, setPnRw]       = useState('');
   const [pnRh, setPnRh]       = useState('');
 
-  // ── O pedido escrito e a quantidade ──
+  // ── O pedido escrito ──
   //
-  //  Moram AQUI, não no PainelPincel. Gerar fecha o pincel, e fechar desmonta
+  //  Mora AQUI, não no PainelPincel. Gerar fecha o pincel, e fechar desmonta
   //  o painel — com o texto dentro dele, o que a pessoa escreveu morria a cada
   //  geração. Aqui sobrevive ao vaivém, e o localStorage o faz sobreviver
   //  também a fechar a aba.
@@ -261,7 +261,6 @@ export default function AppPage() {
   //  Um texto por MODO: o que se pede a um preenchimento não é o que se pede
   //  a uma expansão.
   const [pnTexto, setPnTexto] = useState({ preenchimento: '', expansao: '' });
-  const [pnQtd, setPnQtd]     = useState(1);
 
   // A chave do rascunho é por conta: só lemos depois que a conta chegou.
   const pincelLido = useRef(false);
@@ -276,13 +275,12 @@ export default function AppPage() {
         expansao:      d.texto.expansao || ''
       });
     }
-    if (d.quantidade) setPnQtd(d.quantidade);
   }, [conta]);
 
   useEffect(() => {
     if (!pincelLido.current) return;
-    salvarRascunho('pincel', { texto: pnTexto, quantidade: pnQtd });
-  }, [pnTexto, pnQtd]);
+    salvarRascunho('pincel', { texto: pnTexto });
+  }, [pnTexto]);
 
   // edExpRatioSel: escolher uma proporção PREENCHE os campos. Sem isto eles
   // ficam vazios, e o inverter não tem o que trocar.
@@ -1200,7 +1198,6 @@ export default function AppPage() {
               medidas={pnMed}
               texto={pnTexto[pincel.modo] || ''}
               setTexto={(v) => setPnTexto((s) => ({ ...s, [pincel.modo]: v }))}
-              quantidade={pnQtd}    setQuantidade={setPnQtd}
               rw={pnRw}
               rh={pnRh}
               aoDigitarRazao={(eixo, v) => {

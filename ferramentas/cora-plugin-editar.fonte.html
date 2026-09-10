@@ -371,8 +371,9 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
       h += '<textarea class="cr-ta ed-ta" placeholder="Ex: continuar o jardim e o céu; estender o piso…" spellcheck="false"></textarea>';
     }
 
-    var b = '<div class="cr-pills-cfg"><div class="cr-qty"><button aria-label="Menos uma">−</button><span>1</span><button aria-label="Mais uma">+</button></div></div>';
-    b += '<button class="cr-btn-gerar"><span>Gerar</span><span class="cr-custo-tag">' + MOEDA + ' 28</span></button>';
+    // Só o Gerar: pedir quatro versões da mesma pincelada não faz sentido, e
+    // a escolha já foi feita ao marcar a área.
+    var b = '<button class="cr-btn-gerar"><span>Gerar</span><span class="cr-custo-tag">' + MOEDA + ' 28</span></button>';
     return '<div class="col"><div class="cr-form">' + h + '</div><div class="cr-barra-ger">' + b + '</div></div>';
   }
 
