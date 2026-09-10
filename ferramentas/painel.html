@@ -1322,7 +1322,9 @@
   column-gap:16px; align-items:start; margin-bottom:30px;
 }
 .conta-cabeca__txt{ display:contents; }
-.conta-cabeca > .conta-cabeca__txt > .eyebrow{ grid-column:1 / -1; margin-bottom:10px; }
+/* 5px mais a meia entrelinha do nome dao os mesmos 6px do Aprender: o olho e o
+   titulo sao uma peca so, em qualquer tela. */
+.conta-cabeca > .conta-cabeca__txt > .eyebrow{ grid-column:1 / -1; margin-bottom:5px; }
 .conta-cabeca__foto{ grid-row:2 / 4; }
 .conta-cabeca__foto{
   width:56px; height:56px; flex:none; border-radius:16px; display:grid; place-items:center;
@@ -2043,6 +2045,18 @@
 .adm-cat__tira{ flex:none; color:var(--ink3); }
 .adm-cat__tira:hover{ color:#B3261E; border-color:#B3261E; }
 .adm-cat__pe{ display:flex; gap:14px; align-items:center; padding:10px 18px; border-top:1px solid var(--line); }
+.adm-cat__barra{ display:flex; gap:14px; align-items:center; margin-bottom:14px; }
+/* A seta que dobra o módulo. Ela fica junto da alça, no canto de cima, porque
+   as duas fazem a mesma coisa: mexer no módulo inteiro, e não no que tem
+   dentro dele. */
+.adm-cat__dobra{
+  flex:none; align-self:flex-start; display:grid; place-items:center;
+  width:26px; height:26px; margin-top:-2px; border:0; border-radius:50%;
+  background:none; color:var(--ink3); cursor:pointer; transition:transform var(--t), color var(--t);
+}
+.adm-cat__dobra:hover{ color:var(--ink); background:var(--wash2); }
+.adm-cat__dobra svg{ width:16px; height:16px; }
+.adm-cat__dobra--off svg{ transform:rotate(-90deg); }
 .adm-cat__aula--fora{ opacity:.6; }
 .adm-cat__aula--fora s{ font-size:var(--t-apoio2); color:var(--ink2); }
 .adm-cat__mod{ display:flex; gap:16px; align-items:flex-start; padding:18px;
@@ -2228,18 +2242,22 @@
    descia sozinha do lado dela. Empilhado, três ou nove só deixam a página mais
    curta ou mais longa.
 
-   A capa para em 720 e não acompanha a coluna. Na largura toda ela daria 900
-   por 515 e a primeira aula cairia a 741px do topo, fora da tela: quem abrisse
-   o módulo veria a arte e mais nada. Em 720 ela dá 412 de altura e a primeira
-   aula sobe para 638, que cabe numa janela de 900. */
+   A capa acompanha a COLUNA, de ponta a ponta: ela, a linha do progresso e as
+   aulas comecam e terminam na mesma vertical. Uma capa mais estreita que o
+   resto deixava uma borda irregular do lado direito, e o olho lia isso como
+   peca fora do lugar. O preco e altura: a 900 de coluna ela da 515, e a
+   primeira aula desce para depois da dobra. */
 .apr-mtela{ max-width:900px; margin:0 auto; }
 .apr-mcapa{
-  display:block; width:100%; max-width:720px; height:auto; aspect-ratio:1168/668;
+  display:block; width:100%; height:auto; aspect-ratio:1168/668;
   object-fit:cover; border-radius:var(--r); border:1px solid var(--line);
 }
 .apr-molho{ margin:0; line-height:1; font-size:var(--t-etiqueta); font-weight:700;
   letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }
-.apr-mtit{ margin:8px 0 20px; font-size:clamp(24px,2.6vw,34px); font-weight:500;
+/* O olho e o titulo sao UMA peca, e por isso andam juntos: 4px aqui mais a meia
+   entrelinha do titulo dao os 6px que se veem. Mesmo vao da cabeca de Minha
+   conta, para os dois lugares lerem igual. */
+.apr-mtit{ margin:4px 0 20px; font-size:clamp(24px,2.6vw,34px); font-weight:500;
   letter-spacing:-.028em; line-height:1.1; text-wrap:balance; }
 
 /* O progresso e o botão dividem uma linha só: são a mesma frase, onde eu parei
@@ -2248,7 +2266,13 @@
   display:flex; align-items:center; justify-content:space-between; gap:20px;
   flex-wrap:wrap; margin:18px 0 26px;
 }
-.apr-mprog{ display:flex; align-items:center; gap:11px; }
+.apr-mprog{ display:flex; align-items:center; gap:14px; }
+/* O anel sobe para a altura do botao preto ao lado, 48px, e o traco engorda
+   junto: em 34 ele era um detalhe perdido perto de um botao de 48, e os dois
+   dividem a mesma linha. */
+.apr-mprog .apr-anel{ width:48px; height:48px; }
+.apr-mprog .apr-anel svg{ width:48px; height:48px; }
+.apr-mprog .apr-anel rect{ stroke-width:3; }
 .apr-mprog > span{ display:block; line-height:1.2; }
 .apr-mprog b{ display:block; font-size:var(--t-apoio); font-weight:600; color:var(--ink);
   font-variant-numeric:tabular-nums; }
