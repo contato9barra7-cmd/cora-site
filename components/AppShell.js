@@ -731,25 +731,15 @@ export default function AppShell({ children }) {
                     desenhada, e não só em cor. */}
                 <div className="app-user-faixa" aria-hidden="true" />
                 <div className="app-user-miolo">
-                {/* A foto anda junto do nome: o avatar da barra fica atrás
-                    do próprio menu quando ele abre, e quem abre quer ver de
-                    quem é a conta. Mesma peça que o plugin usa. */}
-                <div className="app-user-quem">
-                  <span
-                    className="app-avatar app-avatar--menu"
-                    style={conta?.foto_url ? { backgroundImage: `url(${conta.foto_url})`, color: 'transparent' } : undefined}
-                  >
-                    {conta?.foto_url ? '' : inicial}
-                  </span>
-                  <div className="app-user-quem-txt">
-                    <div className="app-user-nome">
-                      {conta?.nome || conta?.email}
-                    </div>
-                    {conta?.plano && (
-                      <div className="app-user-plano">{rotuloPlano(conta, t)}</div>
-                    )}
-                  </div>
+                {/* Irmãos, não aninhados: aninhado, o padding do plano
+                    somava ao do nome e ele saía 12px mais à direita. */}
+                <div className="app-user-nome">
+                  {conta?.nome || conta?.email}
                 </div>
+
+                {conta?.plano && (
+                  <div className="app-user-plano">{rotuloPlano(conta, t)}</div>
+                )}
 
                 {!ilimitado && conta && total > 0 && (
                   <div className="cred-card">
