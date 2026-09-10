@@ -261,6 +261,10 @@ export default function AppShell({ children }) {
   // continuam de pé para quem chegar por link, e o `promptador_cursos` da
   // conta segue valendo logo abaixo, onde ele decide que aluno do curso não
   // leva bloqueio de tela cheia no Cora.
+  /* O "Início" e o logo levam os dois ao painel, e isso é de propósito. Ele
+     chegou a sair da lista em 09/09/2026, e voltou no mesmo dia: com a
+     lateral recolhida o logo dá lugar ao símbolo, que é o botão de abrir a
+     barra, e sem o item não sobrava caminho nenhum de volta para o Início. */
   const TODOS_ITENS = [
     { href: '/conta', rotulo: t('nav_dashboard'), icone: Icone.dashboard, admin: false },
     // "Prancheta", e nao "Cora Render": o produto ja e o logo em cima do
@@ -544,10 +548,11 @@ export default function AppShell({ children }) {
             botão de recolher não existe na gaveta, e o logo tinha ido junto.
 
             O logo é uma máscara em CSS, então o elemento é vazio de propósito
-            e quem diz o nome é o `aria-label`. Ele leva à landing. Para voltar
-            ao painel, o caminho é o item "Início" do menu. */}
+            e quem diz o nome é o `aria-label`. Ele leva ao INÍCIO do painel,
+            e não à landing: dentro do produto, clicar na marca é o gesto de
+            voltar para casa, e a casa de quem já entrou é o painel. */}
         <div className="app-side-topo">
-          <Link href="/" className="app-logo" aria-label="Cora Render" />
+          <Link href="/conta" className="app-logo" aria-label={t('nav_dashboard')} />
 
           <button
             className="app-side-toggle"

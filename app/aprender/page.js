@@ -103,7 +103,7 @@ export default function Aprender() {
 
         {/* ── 2. AS AULAS DO MÓDULO ── */}
         {modulo && !aula && (
-          <>
+          <div className="apr-col">
             <button className="apr-volta" onClick={() => setModId(null)}>
               {Seta}{t('apr_voltar_mod')}
             </button>
@@ -125,12 +125,12 @@ export default function Aprender() {
                 </button>
               ))}
             </div>
-          </>
+          </div>
         )}
 
         {/* ── 3. A AULA ── */}
         {modulo && aula && (
-          <>
+          <div className="apr-col">
             <button className="apr-volta" onClick={() => setAulaId(null)}>
               {Seta}{t('apr_voltar_aulas')}
             </button>
@@ -152,8 +152,18 @@ export default function Aprender() {
               </div>
               <p className="apr-palco__onde">{t('apr_modulo')} {modulo.id} · {tOpt(modulo.titulo)}</p>
               <h1>{tOpt(aula.titulo)}</h1>
+              {/* Quem dá a aula assina embaixo dela, como na área de membros.
+                  É a mesma peça de lá, e ela fecha a tela sem precisar de
+                  mais uma caixa em volta. */}
+              <img
+                className="apr-assina"
+                src="/img/aulas/assinatura.webp"
+                alt="Marilia Fischer · 9BARRA7 Academy"
+                width="1251"
+                height="209"
+              />
             </div>
-          </>
+          </div>
         )}
       </div>
     </AppShell>

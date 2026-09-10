@@ -151,7 +151,9 @@
   width:26px; height:26px; display:block; background:var(--ink);
   -webkit-mask:var(--simbolo) no-repeat center / contain;
   mask:var(--simbolo) no-repeat center / contain;
-}.pn .app-side-toggle--so:hover .app-side-c{ opacity:1; }.pn .app-nav{ padding:14px 10px; display:flex; flex-direction:column; gap:2px; }.pn .app-nav-div{ height:1px; background:var(--line); margin:12px 10px; }/* ══════════════════════════════════════════════════════════════════════
+}.pn .app-side-toggle--so:hover .app-side-c{ opacity:1; }/* `flex:1` para o convite poder descer até o pé com `margin-top:auto`. Sem
+   `overflow` aqui: a lista do botão Criar sai por fora da lateral, e qualquer
+   overflow nesta caixa recortaria ela. */.pn .app-nav{ flex:1; min-height:0; padding:14px 10px; display:flex; flex-direction:column; gap:2px; }.pn .app-nav-div{ height:1px; background:var(--line); margin:12px 10px; }/* ══════════════════════════════════════════════════════════════════════
    O ADMIN VIROU TRÊS TELAS, E NÃO UMA COM OITO ABAS
 
    Oito abas, mais os filtros, mais o controle de colunas, mais dois ícones
@@ -250,7 +252,7 @@
    encostam — que é o único jeito de elas conviverem sem parecer erro de
    impressão.
    ══════════════════════════════════════════════════════════════════════ */.pn .app-convite{
-  display:block; margin:14px 0 4px; border:1px solid var(--line);
+  display:block; margin:14px 0 4px; margin-top:auto; border:1px solid var(--line);
   border-radius:var(--r-peq); overflow:hidden; background:var(--paper);
   text-decoration:none; transition:border-color var(--t), box-shadow var(--t);
 }.pn .app-convite:hover{ border-color:var(--line2); box-shadow:var(--sombra); }/* O balão encosta nos mesmos 12px em que o título e o link começam. Centrado
@@ -270,7 +272,7 @@
    pé, separado dos ícones do Cora pelo vazio. Ele não é uma aba, então não
    ganha o formato de aba — quem diz o nome é o balão do hover. */.pn .app-convite--selo{ display:none; }.pn .app-shell.recolhido .app-convite{ display:none; }.pn .app-shell.recolhido .app-convite--selo{
   display:grid; place-items:center; width:34px; height:34px; margin:16px auto 4px;
-  border-radius:10px; background:var(--ia-azul);
+  margin-top:auto; border-radius:10px; background:var(--ia-azul);
   transition:transform var(--t);
 }.pn .app-shell.recolhido .app-convite--selo:hover{ transform:scale(1.06); }.pn .app-convite--selo i{
   width:19px; height:19px; background:#fff;
@@ -1211,11 +1213,19 @@
 }.pn .apr-cab{ margin-bottom:28px; }/* ── os módulos ──
    As capas são as da plataforma de membros, e elas são cartaz em pé
    (520x909). Forçar 16/9 nelas cortava o número e o título fora, e sobrava o
-   meio do desenho. A grade acompanha: coluna estreita, cartaz inteiro. */.pn .apr-grade{ display:grid; grid-template-columns:repeat(auto-fill,minmax(186px,1fr)); gap:22px; }/* `flex`, e nao `block`: o <button> tem um bloco anonimo por dentro que nao
+   meio do desenho.
+
+   `flex`, e não `grid`: são sete cartazes, e numa grade a última linha ficaria
+   encostada à esquerda com um vão de um cartaz à direita. No flex, as duas
+   linhas se centram sozinhas. A largura da caixa é a de quatro cartazes, e é
+   ela que garante o 4 em cima, 3 embaixo. */.pn .apr-grade{
+  display:flex; flex-wrap:wrap; justify-content:center; gap:22px;
+  max-width:calc(196px * 4 + 22px * 3); margin:0 auto;
+}/* `flex`, e nao `block`: o <button> tem um bloco anonimo por dentro que nao
    soma a altura dos filhos, entao com `block` o cartao media o tamanho da
    capa e o rotulo escorria por baixo, em cima da linha seguinte da grade. */.pn .apr-mod{
   display:flex; flex-direction:column; align-items:stretch;
-  width:100%; padding:0; border:0; background:none; text-align:left;
+  width:196px; padding:0; border:0; background:none; text-align:left;
   cursor:pointer; color:inherit;
 }.pn .apr-mod__capa{
   width:100%; aspect-ratio:520/909; border-radius:var(--r-peq); overflow:hidden;
@@ -1234,7 +1244,10 @@
    a linha "5 clases" de um cartao ficava mais alta que a do vizinho. */.pn .apr-mod__q{
   display:block; margin-top:auto; padding-top:5px;
   font-size:var(--t-apoio2); color:var(--ink3);
-}/* ── o voltar ── */.pn .apr-volta{
+}/* ── a coluna do miolo ──
+   O módulo e a aula moram numa coluna central, da mesma largura da grade dos
+   cartazes. Encostadas à esquerda elas deixavam meia tela vazia à direita, e
+   o vídeo ficava fora do eixo de quem olha. */.pn .apr-col{ max-width:calc(196px * 4 + 22px * 3); margin:0 auto; }/* ── o voltar ── */.pn .apr-volta{
   display:inline-flex; align-items:center; gap:7px; margin-bottom:20px;
   padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:var(--pill);
   background:var(--paper); color:var(--ink2); font-size:var(--t-apoio); font-weight:600;
@@ -1246,7 +1259,7 @@
   margin:6px 0 0; font-size:clamp(21px,2.1vw,28px); font-weight:500;
   letter-spacing:-.028em; line-height:1.14; text-wrap:balance;
 }.pn .apr-mcab p{ margin:0; font-size:var(--t-etiqueta); font-weight:700;
-  letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }/* ── a lista de aulas ── */.pn .apr-lista{ display:flex; flex-direction:column; gap:7px; max-width:780px; }.pn .apr-aula{
+  letter-spacing:.09em; text-transform:uppercase; color:var(--ink3); }/* ── a lista de aulas ── */.pn .apr-lista{ display:flex; flex-direction:column; gap:7px; }.pn .apr-aula{
   display:flex; align-items:center; gap:14px; width:100%; padding:13px 16px;
   border:1px solid var(--line); border-radius:var(--r-peq); background:var(--paper);
   text-align:left; cursor:pointer; color:inherit;
@@ -1258,7 +1271,7 @@
    não uma linha morta que não responde. */.pn .apr-aula__tag{
   flex:none; padding:3px 10px; border-radius:var(--pill); background:var(--wash2);
   font-size:var(--t-etiqueta); font-weight:600; color:var(--ink3);
-}/* ── a aula ── */.pn .apr-palco{ max-width:920px; }.pn .apr-palco__quadro{
+}/* ── a aula ── */.pn .apr-palco{ margin:0 auto; }.pn .apr-palco__quadro{
   aspect-ratio:16/9; border-radius:var(--r-heroi); overflow:hidden; background:var(--wash2);
   display:flex; align-items:center; justify-content:center;
 }.pn .apr-palco__quadro iframe{ display:block; width:100%; height:100%; border:0; }.pn .apr-breve{ padding:28px; text-align:center; }.pn .apr-breve b{ display:block; font-size:var(--t-titulo); font-weight:600; color:var(--ink); }.pn .apr-breve span{
@@ -1270,7 +1283,9 @@
 }.pn .apr-palco h1{
   margin:6px 0 0; font-size:clamp(20px,2vw,27px); font-weight:500;
   letter-spacing:-.028em; line-height:1.14; text-wrap:balance;
-}
+}/* A assinatura da Marilia fecha a aula. Ela é a mesma peça da área de membros
+   e vem com os cantos já arredondados no arquivo, então não leva raio nem
+   fio: qualquer um dos dois desenharia uma segunda borda em volta dela. */.pn .apr-assina{ display:block; width:100%; max-width:660px; margin:34px 0 0; }
 
 @media (prefers-reduced-motion:reduce){.pn .heroi--entra, .pn .ia-disco, .pn .ia-anel{ animation:none; }.pn .ia-anel{ opacity:0; }.pn .apr-mod:hover .apr-mod__capa img{ transform:none; }}/* ══════════════════════════════════════════════════════════════════════
    ATÉ 1024px a lateral vira gaveta, e a esteira deita

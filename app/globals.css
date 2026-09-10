@@ -12334,18 +12334,26 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .cad-aceite--erro { color: #c0392b; }
 .cad-aceite--erro input { outline: 2px solid #c0392b; outline-offset: 1px; border-radius: 3px; }
 
-/* ===== Rodapé legal global (público + painel) ===== */
+/* ===== Rodapé legal global (público + painel) =====
+   O desenho é o do rodapé do feed, adotado no site inteiro em 09/09/2026:
+   fio de 1px, pouco respiro, e um tom só. O ponto separador saiu porque cada
+   peça tinha a sua opacidade e a linha saía manchada — o vão entre os links
+   faz o trabalho dele. */
 .rodape-legal {
   border-top: 1px solid var(--line);
-  padding: 22px 24px;
-  text-align: center;
+  padding: 13px 24px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
   font-size: 12.5px;
   color: var(--ink3);
   background: transparent;
 }
-.rodape-legal .rl-link { color: inherit; text-decoration: none; opacity: .9; }
-.rodape-legal .rl-link:hover { opacity: 1; text-decoration: underline; }
-.rodape-legal .rl-sep { margin: 0 8px; opacity: .5; }
+.rodape-legal .rl-link { color: inherit; text-decoration: none; opacity: 1; }
+.rodape-legal .rl-link:hover { color: var(--ink2); text-decoration: none; }
+.rodape-legal .rl-sep { display: none; }
 
 /* ===== Página de suporte (SAC) ===== */
 .sup-wrap { max-width: 620px; margin: 0 auto; padding: 40px 22px 60px; }

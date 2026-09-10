@@ -58,16 +58,23 @@ function ContaConteudo() {
   useEffect(() => { setVerComo(lerModo()); }, []);
   function escolherVerComo(m) { setVerComo(gravarModo(m)); }
 
-  /* O herói anda sozinho de nove em nove segundos. Nove porque o quadro do
-     meio tem duas linhas de frase, e sete não dava para ler até o fim.
-     Quem pediu menos movimento no sistema fica no primeiro quadro e usa os
-     pontinhos — a mesma regra do resto do painel. */
+  /* O herói anda sozinho de sete em sete segundos.
+
+     Sete porque o que manda aqui não é o tempo de LER o quadro inteiro, é o
+     tempo até a pessoa PRESENCIAR uma troca. Quem chega no painel olha o topo
+     por poucos segundos e desce; virando em nove ou dez, a maioria nunca
+     descobre que existe um segundo quadro. Sete dá para ler o título e o
+     apoio com folga, e quem quiser ler cada palavra do quadro do IA Studio
+     para ele só de passar o mouse.
+
+     Quem pediu menos movimento no sistema fica no primeiro quadro e anda
+     pelos pontinhos — a mesma regra do resto do painel. */
   useEffect(() => {
     if (pausado) return undefined;
     try {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
     } catch (e) {}
-    const id = setInterval(() => setQuadro((q) => (q + 1) % 3), 9000);
+    const id = setInterval(() => setQuadro((q) => (q + 1) % 3), 7000);
     return () => clearInterval(id);
   }, [pausado]);
 
@@ -354,6 +361,23 @@ function ContaConteudo() {
 
         {quadro === 1 && (
           <div className="heroi heroi--entra" key="q1">
+            <div className="heroi__pad" aria-hidden="true" />
+            <div className="heroi__txt">
+              <div className="heroi__marca" role="img" aria-label="Cora Render" />
+              <p className="eyebrow">{t('pn_apr_olho')}</p>
+              <h1>{t('pn_apr_tit')}</h1>
+              <p className="heroi__sub">{t('pn_apr_sub')}</p>
+              <div className="heroi__acoes">
+                <button className="dash-btn-cta" onClick={() => router.push('/aprender')}>
+                  {t('pn_apr_btn')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {quadro === 2 && (
+          <div className="heroi heroi--entra" key="q2">
             {/* A coluna do IA Studio é um objeto, e não textura andando: a
                 outra marca se apresenta pelo símbolo dela. */}
             <div className="heroi__pad heroi__pad--ia" aria-hidden="true">
@@ -380,23 +404,6 @@ function ContaConteudo() {
                     <path d="M17 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h5" />
                   </svg>
                 </a>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {quadro === 2 && (
-          <div className="heroi heroi--entra" key="q2">
-            <div className="heroi__pad" aria-hidden="true" />
-            <div className="heroi__txt">
-              <div className="heroi__marca" role="img" aria-label="Cora Render" />
-              <p className="eyebrow">{t('pn_apr_olho')}</p>
-              <h1>{t('pn_apr_tit')}</h1>
-              <p className="heroi__sub">{t('pn_apr_sub')}</p>
-              <div className="heroi__acoes">
-                <button className="dash-btn-cta" onClick={() => router.push('/aprender')}>
-                  {t('pn_apr_btn')}
-                </button>
               </div>
             </div>
           </div>
