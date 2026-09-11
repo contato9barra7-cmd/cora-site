@@ -21,7 +21,7 @@ import { listarUploads, bytesDoUpload, salvarUpload } from '../lib/uploads';
 import { useIdioma, localeDeIdioma } from '../lib/i18n';
 
 // Enviar vem primeiro: quase sempre a pessoa quer subir uma imagem nova.
-// Quem vai buscar no histórico procura; quem vai subir, encontra na frente.
+// Quem vai subir uma imagem nova encontra essa origem na frente.
 const ORIGENS = [
   {
     id: 'enviar',
@@ -109,7 +109,6 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro]             = useState('');
   const [pegando, setPegando]       = useState(null);
-  const [busca, setBusca]           = useState('');
   // Modo múltiplo: acumula seleções (do feed e/ou upload) e confirma tudo junto.
   const [multiSel, setMultiSel]     = useState([]);   // [{id?, base64?, previa, nome?}]
   const [confirmandoMulti, setConfirmandoMulti] = useState(false);
@@ -118,7 +117,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
   // não fecha o picker sozinho — a pessoa vê o que carregou e confirma.
   const [pendente, setPendente] = useState(null);   // { base64, previa }
 
-  const carregarFeed = useCallback(async (origemAtual, termo) => {
+  const carregarFeed = useCallback(async (origemAtual) => {
     setCarregando(true);
     setErro('');
     try {
@@ -126,14 +125,13 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
       if (origemAtual === 'uploads') {
         // A galeria de uploads: as miniaturas já vêm inline (base64), então
         // não há URL assinada por item — abre rápido.
-        const itens = await listarUploads({ busca: termo || undefined, limite: 80 });
+        const itens = await listarUploads({ limite: 80 });
         setGrupos(agruparUploadsPorMes(itens, locale));
       } else {
         // 24 enche a tela; o resto vem ao rolar (cada imagem custa uma URL do R2).
         const d = await listarGeracoes({
           tipo: 'imagem',
           favorito: origemAtual === 'favoritos',
-          busca: termo || undefined,
           limite: 24
         });
         setGrupos(agruparPorMes(d, locale));
@@ -147,14 +145,8 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
 
   useEffect(() => {
     if (!aberto || origem === 'enviar') return;
-    // Digitar dispara este efeito a CADA tecla, e cada carga faz o servidor
-    // assinar URLs do R2. O respiro junta a digitação numa busca só — e o
-    // cleanup descarta o timer da tecla anterior, o que também corta a race
-    // de uma resposta velha chegar por cima da nova. Abrir/trocar de aba
-    // (busca vazia) continua carregando na hora.
-    const tm = setTimeout(() => { carregarFeed(origem, busca); }, busca ? 300 : 0);
-    return () => clearTimeout(tm);
-  }, [aberto, origem, busca, carregarFeed]);
+    carregarFeed(origem);
+  }, [aberto, origem, carregarFeed]);
 
   // Blob URLs (as prévias de upload) seguram o ARQUIVO INTEIRO na memória até
   // serem revogadas — e nada revogava: sessão longa acumulava dezenas. Só as
@@ -394,21 +386,6 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
                 : rotuloOrigem(origem)}
             </span>
 
-            {origem !== 'enviar' && (
-              <div className="pk-busca">
-                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <circle cx="8.5" cy="8.5" r="5"/><path d="M12.5 12.5L17 17" strokeLinecap="round"/>
-                </svg>
-                <input
-                  type="text"
-                  placeholder={t('pickerimagem_buscar')}
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                  spellCheck={false}
-                />
-              </div>
-            )}
-
           </header>
 
           <div className="pk-corpo">
@@ -469,8 +446,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
 
                 {vazio && (
                   <p className="cr-msg">
-                    {busca ? t('pickerimagem_nada_busca')
-                      : origem === 'favoritos'
+                    {origem === 'favoritos'
                         ? t('pickerimagem_sem_favoritos')
                         : origem === 'uploads'
                           ? t('pickerimagem_sem_uploads')

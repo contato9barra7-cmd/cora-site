@@ -332,19 +332,23 @@ export default function PainelEditar({
             Uma só, para todos os modos — como no plugin. */}
         <div className="cr-sec">{t('paineleditar_imagem_base')}</div>
 
-        <div className="cr-refs">
+        <div className="cr-ed-base">
           {previa ? (
-            <div className="cr-ref">
+            <div className="cr-base">
               <img src={previa} alt="" />
               <button
-                className="cr-ref-x"
+                className="cr-base-x"
                 onClick={() => { setBase(null); setPrevia(null); setModo(null); }}
                 aria-label={t('paineleditar_remover_base')}
               >×</button>
             </div>
           ) : (
-            <button className="cr-ref cr-ref--add" onClick={() => setPicker('base')}>
-              <span className="cr-ref-mais">+</span>
+            <button className="cr-drop" onClick={() => setPicker('base')}>
+              <svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.4">
+                <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/>
+                <path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/>
+              </svg>
+              <span>{t('painelupscale_escolher_imagem')}</span>
             </button>
           )}
         </div>
@@ -431,6 +435,7 @@ export default function PainelEditar({
                     valor={t(escolhas[c.chave] || c.padrao)}
                     aberta={linhaAberta === c.chave}
                     aoAbrir={() => setLinhaAberta((a) => (a === c.chave ? null : c.chave))}
+                    inline
                   >
                     <Lista uma>
                       {c.opcoes.map((o) => (

@@ -587,8 +587,6 @@ export default function AppPage() {
   const [posImgEditada, setPosImgEditada] = useState(null); // base64 que volta para o slot
 
   const [filtro, setFiltro]         = useState('tudo');
-  const [busca, setBusca]           = useState('');
-  const [buscaAtiva, setBuscaAtiva] = useState('');
 
   // Guarda só IDs: a imagem em si vem sempre de `lotes`, que é a fonte
   // única. Guardar uma cópia aqui fazia as duas divergirem (o favorito
@@ -658,7 +656,6 @@ export default function AppPage() {
       if (filtro === 'favoritos') f.favorito = true;
       if (filtro === 'upscale')   f.ferramenta = 'upscale';
       if (filtro === 'pos')       f.ferramenta = 'pos';
-      if (buscaAtiva) f.busca = buscaAtiva;
 
       // Os avançados (do painel de ajustes) somam aos rápidos
       if (avancados.de)  f.de  = avancados.de;
@@ -695,7 +692,7 @@ export default function AppPage() {
     } finally {
       setCarregando(false);
     }
-  }, [filtro, buscaAtiva, avancados]);
+  }, [filtro, avancados]);
 
   useEffect(() => {
     const c = lerConta();
@@ -1425,21 +1422,6 @@ export default function AppPage() {
                 />
               </div>
 
-              <form
-                className="cr-busca"
-                onSubmit={(e) => { e.preventDefault(); setBuscaAtiva(busca.trim()); }}
-              >
-                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <circle cx="8.5" cy="8.5" r="5"/><path d="M12.5 12.5L17 17" strokeLinecap="round"/>
-                </svg>
-                <input
-                  type="text"
-                  placeholder={t('app_buscar')}
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                  spellCheck={false}
-                />
-              </form>
             </div>
           </header>
 
@@ -1672,7 +1654,7 @@ export default function AppPage() {
                 <div className="cr-vazio-faixa" aria-hidden="true" />
                 <h2>{t('app_nada_aqui')}</h2>
                 <p>
-                  {buscaAtiva || filtro !== 'tudo'
+                  {filtro !== 'tudo'
                     ? t('app_nenhuma_geracao_filtro')
                     : t('app_geracoes_aparecem_aqui')}
                 </p>

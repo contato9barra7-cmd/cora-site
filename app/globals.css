@@ -6777,9 +6777,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .seq-modo-int-btn:hover:not(:disabled) { border-color: var(--turq-txt); }
 .seq-modo-int-btn--on {
   border-color: var(--turq-txt);
-  background: color-mix(in srgb, var(--roxo) 10%, transparent);
+  background: var(--turq-bg);
 }
-.seq-modo-int-btn strong { font-size: 12.5px; }
+.seq-modo-int-btn strong { font-size: 12.5px; color:var(--turq-txt); }
 .seq-modo-int-btn span { font-size: 11px; color: var(--text-2, #666); line-height: 1.3; }
 .seq-modo-int-btn:disabled { cursor: default; opacity: .7; }
 

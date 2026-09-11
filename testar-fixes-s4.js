@@ -222,9 +222,9 @@ checar('Editar foca o textarea', REND.includes('onClick={() => matRef.current &&
 checar('textarea tem a ref', REND.includes('ref={matRef}'));
 checar('Seguir assim continua confirmando', /cr-b-conf" onClick=\{\(\) => setMatEstado\('confirmado'\)\}/.test(REND));
 
-console.log('— #121 busca com debounce —');
-checar('setTimeout no efeito da busca', PICKER.includes("const tm = setTimeout(() => { carregarFeed(origem, busca); }, busca ? 300 : 0);"));
-checar('cleanup limpa o timer', PICKER.includes('return () => clearTimeout(tm);'));
+console.log('— #121 busca por prompt removida —');
+checar('picker não mostra busca por prompt', !PICKER.includes('className="pk-busca"'));
+checar('picker não envia termo de busca', !PICKER.includes('busca: termo'));
 
 console.log('— #122 blob URLs revogadas —');
 checar('helper soltarPrevia com revoke', PICKER.includes('URL.revokeObjectURL(p.previa);'));

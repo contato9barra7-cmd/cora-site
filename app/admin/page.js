@@ -773,9 +773,9 @@ export default function Admin() {
 
       {verGeo && geo.totalClientes > 0 && (
         <div className="cr-overlay cr-overlay--alto" onClick={() => setVerGeo(false)}>
-          <div className="adm-geo-janela" onClick={(e) => e.stopPropagation()}>
+          <div className="admin-geo-janela adm-geo-janela" onClick={(e) => e.stopPropagation()}>
 
-            <div className="adm-geo-cab-j">
+            <div className="admin-geo-cab-j adm-geo-cab-j">
               <div>
                 <strong>{t('adm_origem_geo')}</strong>
                 <span>
@@ -784,7 +784,7 @@ export default function Admin() {
                 </span>
               </div>
 
-              <div className="adm-geo-cab-acoes">
+              <div className="admin-geo-cab-acoes adm-geo-cab-acoes">
                 <button className="adm-btn-linha" onClick={exportarGeo}>
                   <svg viewBox="0 0 20 20" width="14" height="14" fill="none"
                        stroke="currentColor" strokeWidth="1.6">
@@ -803,7 +803,7 @@ export default function Admin() {
               </div>
             </div>
 
-            <div className="adm-geo-scroll">
+            <div className="admin-geo-scroll adm-geo-scroll">
     <div className="adm-geo-corpo">
 
                   <div className="adm-geo">
@@ -817,9 +817,9 @@ export default function Admin() {
                           </span>
                         </div>
                         <div className="adm-geo-barra">
-                          <div className="adm-geo-fill admin-geo-fill--n"
+                          <div className="adm-geo-fill admin-geo-fill admin-geo-fill--n"
                                style={{ width: `${p.pctClientes}%` }} />
-                          <div className="adm-geo-fill admin-geo-fill--r"
+                          <div className="adm-geo-fill admin-geo-fill admin-geo-fill--r"
                                style={{ width: `${p.pctValor}%` }} />
                         </div>
                       </div>

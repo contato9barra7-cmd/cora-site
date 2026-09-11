@@ -49,6 +49,7 @@ export default function Perfil() {
   const relogioCopia = useRef(null);
   const [deletando, setDeletando] = useState(false);
   const [dispositivos, setDispositivos] = useState([]);
+  const [erroDispositivo, setErroDispositivo] = useState('');
   const [modalAjuda, setModalAjuda] = useState(false);
 
   async function carregarDispositivos() {
@@ -58,7 +59,8 @@ export default function Perfil() {
       // próprio navegador que está lendo esta tela não aparecia nela.
       //
       // É idempotente: o mesmo device_id não duplica.
-      await registrarDispositivoWeb();
+      const registro = await registrarDispositivoWeb();
+      setErroDispositivo(registro?.ok ? '' : (registro?.erro || 'Não foi possível registrar este navegador.'));
 
       const lista = await listarDispositivos();
       setDispositivos(lista);
@@ -444,7 +446,8 @@ export default function Perfil() {
                         <div>
                           <div className="disp-nome">
                             {d.nome_pc || t('perfil_dispositivo')}
-                            {d.ativo_agora && <span className="disp-ativo">{t('perfil_em_uso')}</span>}
+                            {d.neste_navegador && <span className="disp-ativo">{t('perfil_este_navegador')}</span>}
+                            {!d.neste_navegador && d.ativo_agora && <span className="disp-ativo">{t('perfil_plugin_conectado')}</span>}
                           </div>
                           <div className="disp-sub">
                             {t('perfil_ultimo_acesso')} {d.ultimo_acesso ? new Date(d.ultimo_acesso).toLocaleString(localeDeIdioma(idioma)) : '—'}
@@ -461,6 +464,7 @@ export default function Perfil() {
               <>
                 {grupo('Plugin (SketchUp)', plugins, 2)}
                 {grupo(t('perfil_versao_web'), webs, 3)}
+                {erroDispositivo && <p className="perfil-erro" role="status">{erroDispositivo}</p>}
               </>
             );
           })()}

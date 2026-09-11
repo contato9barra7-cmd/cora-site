@@ -2,7 +2,7 @@
 
 // ═══════════════════════════════════════════════════════════
 //  Enviar e-mail aos assinantes (admin) — composição livre + prévia.
-//  Público: assinantes ativos / todos os cadastrados / alunos.
+//  Público: assinantes ativos / todos os cadastrados do Cora.
 // ═══════════════════════════════════════════════════════════
 
 import { useEffect, useState } from 'react';
@@ -13,7 +13,6 @@ import DropdownCora from './DropdownCora';
 const PUBLICOS_ASSIN = [
   { v: 'ativos', k: 'emailassinantes_pub_assin_ativos' },
   { v: 'todos', k: 'emailassinantes_pub_todos_cad' },
-  { v: 'alunos', k: 'emailassinantes_pub_alunos_prompt' },
 ];
 /* ── O "MODO CURSO" SAIU (08/09/2026) ──
    Este componente sabia mandar e-mail para os alunos dos Promptadores, com o
@@ -24,8 +23,8 @@ const PUBLICOS_ASSIN = [
    e-mail para os alunos, e passaria a procurar o botao. Os Promptadores tem
    site proprio (`cora-promptadores`), e e de la que esse e-mail sai.
 
-   As ROTAS no cora-auth continuam de pe, e de proposito: e aquele site que as
-   chama. Apagar la derrubaria o produto que vende para os alunos. */
+   O envio dos Promptadores continua na rota e na tela próprias daquele
+   produto. Este componente trabalha exclusivamente com contas do Cora. */
 export default function EmailAssinantes({ onClose }) {
   const { t } = useIdioma();
   const PUBLICOS = PUBLICOS_ASSIN;
