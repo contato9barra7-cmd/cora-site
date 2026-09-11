@@ -2770,8 +2770,13 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
   // O mouse é solto na JANELA, não no canvas: quem arrasta para fora da tela e
   // solta lá espera que o traço termine mesmo assim.
   useEffect(() => {
-    window.addEventListener('mouseup', subir);
-    return () => window.removeEventListener('mouseup', subir);
+    const terminar = (e) => { if (e.isPrimary) subir(); };
+    window.addEventListener('pointerup', terminar);
+    window.addEventListener('pointercancel', terminar);
+    return () => {
+      window.removeEventListener('pointerup', terminar);
+      window.removeEventListener('pointercancel', terminar);
+    };
   });
 
   // …e o ARRASTE também continua fora da imagem. O onMouseMove vive na folha, e
@@ -2782,13 +2787,14 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
   // imagem) e a máscara — do tamanho da imagem — recorta sozinha, como no plugin.
   useEffect(() => {
     const janelaMove = (e) => {
+      if (!e.isPrimary) return;
       const g = gesto.current;
       if (!g || !(g.ativo || (ferr === 'lacoPoli' && g.poli.length))) return;
       if (e.target && e.target.closest && e.target.closest('.ps-folha')) return;
       mover(e);
     };
-    window.addEventListener('mousemove', janelaMove);
-    return () => window.removeEventListener('mousemove', janelaMove);
+    window.addEventListener('pointermove', janelaMove);
+    return () => window.removeEventListener('pointermove', janelaMove);
   });
 
   // ═══ Os atalhos ═══
@@ -3121,7 +3127,8 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
           className="ps-tela"
           ref={telaRef}
           data-mao={comEspaco ? '1' : undefined}
-          onMouseDown={(e) => {
+          onPointerDown={(e) => {
+            if (!e.isPrimary || e.button !== 0) return;
             if (espaco.current) return;   // com o espaço, o clique é da mão
             if (e.target !== e.currentTarget) return;   // caiu na imagem, não aqui
 
@@ -3330,9 +3337,18 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                 // O xadrez é dividido pela escala para não crescer com o zoom
                 '--xadrez': `${10 / escala}px`
               }}
-              onMouseDown={descer}
-              onMouseMove={mover}
-              onMouseLeave={() => setPincelEm(null)}
+              onPointerDown={(e) => {
+                if (!e.isPrimary || e.button !== 0) return;
+                // A captura mantém o traço ao sair do canvas, com mouse,
+                // dedo ou caneta. O botão do meio continua sendo do pan.
+                e.currentTarget.setPointerCapture(e.pointerId);
+                descer(e);
+              }}
+              onPointerMove={(e) => { if (e.isPrimary) mover(e); }}
+              onPointerUp={(e) => { if (e.isPrimary) subir(); }}
+              onPointerCancel={(e) => { if (e.isPrimary) subir(); }}
+              onLostPointerCapture={subir}
+              onPointerLeave={() => setPincelEm(null)}
               onDoubleClick={duploClique}
               data-ferr={ferr}
               data-alca={sobreAlca || undefined}

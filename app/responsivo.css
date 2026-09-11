@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    RESPONSIVO — Cora Render
 
-   Este arquivo entra DEPOIS do globals.css (ver app/layout.js). Nada aqui
+   Este arquivo entra DEPOIS das folhas de desenho (ver app/layout.js). Nada aqui
    redesenha o site: ele só ensina o layout de desktop a caber em telas
    menores. Por vir por último, uma regra daqui vence a de lá quando as duas
    têm o mesmo peso — então dá para corrigir sem mexer no original.
@@ -1183,10 +1183,176 @@ img, video, iframe {
   .app-avatar { width: 30px; height: 30px; font-size: 13.5px; }
   .app-anel { width: 38px; height: 38px; }
 
-  /* Com a tela deitada há largura para as duas colunas do studio de volta. */
-  .cr-tela[data-mob] { flex-direction: row; }
-  .cr-mobtabs { display: none; }
-  .cr-tela[data-mob='feed'] .cr-painel,
-  .cr-tela[data-mob='painel'] .cr-feed { display: flex; }
-  .cr-painel { width: 46%; max-width: 340px; flex: 0 0 auto; border-right: 1px solid var(--line); }
+  /* Mantém Criar/Galeria também deitado: duas colunas estreitas mais as
+     barras fixas deixavam o formulário sem espaço para rolar. */
+}
+
+/* As telas atuais usam escopos (.co, .pn, .pr, .hm). As regras antigas sem
+   escopo não vencem suas medidas. Geometria responsiva fica aqui, depois
+   das folhas geradas; não precisa alterar o desenho dos artefatos. */
+.co .cr-feed, .co .cr-painel-corpo, .co .cr-aba,
+.pn .app-main, .pn .app-main-conteudo { min-width: 0; }
+.co .cr-pill-wrap { min-width: 0; }
+.co .ps { min-height: 0; }
+/* O editor calcula a escala da imagem e da máscara juntas. O flex não
+   pode encolher só a imagem depois e deslocar o traço em relação a ela. */
+.co .pn-pilha { flex-shrink: 0; }
+.co .pn-canvas { max-width: none; }
+.co .cr-mobtab--on {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--sombra-peq);
+}
+.co .cr-mobtabs { background: var(--wash2); }
+
+/* A galeria pode ser estreita mesmo em desktop (lateral e formulário
+   abertos). A consulta mede o feed, não a largura inteira do monitor. */
+.co .cr-feed { container-type: inline-size; }
+@container (max-width: 760px) {
+  .co .cr-barra {
+    height: auto; min-height: 58px; padding: 10px 12px;
+    flex-wrap: wrap; gap: 8px; overflow: visible;
+  }
+  .co .cr-barra-dir { flex: 1 1 100%; flex-wrap: wrap; justify-content: flex-start; }
+  .co .cr-busca { flex: 1 1 120px; width: auto; }
+  .co .cr-barra-dir > .cr-ft-wrap { margin-left: auto; }
+}
+
+@media (max-width: 1024px) {
+  .pn .app-side, .pn .app-shell.recolhido .app-side { width: min(264px, 86vw); }
+  .pn .app-header, .pn .app-shell.recolhido .app-header {
+    padding-left: max(12px, var(--seg-esq));
+    padding-right: max(12px, var(--seg-dir));
+    padding-top: var(--seg-topo);
+  }
+  .co .cr-painel { border-right: 0; }
+  .co .cr-mobtabs { padding: 6px 12px; }
+  .co .cr-mobtab { min-height: 38px; padding: 8px; }
+  .co .cr-barra-ger { padding-bottom: calc(12px + var(--seg-base)); }
+  .co .cr-barra { overflow: visible; }
+  /* O filtro é irmão visual da barra, não conteúdo da sua rolagem.
+     Fixo, cabe também quando o botão está perto da margem esquerda. */
+  .co .ft {
+    position: fixed; top: calc(var(--header-h) + var(--seg-topo) + 64px);
+    right: max(12px, var(--seg-dir)); left: auto;
+    width: min(340px, calc(100vw - 24px - var(--seg-esq) - var(--seg-dir)));
+    max-height: calc(var(--altura-tela) - var(--header-h) - var(--seg-topo) - var(--seg-base) - 80px);
+    display: flex; flex-direction: column;
+  }
+  .co .ft__corpo { flex: 1; min-height: 0; }
+  .co .ft__cab, .co .ft__pe { flex: none; }
+  .co .vz { min-height: 0; height: min(82dvh, 860px); }
+  .co .vz-acoes { flex-wrap: wrap; gap: 6px; }
+}
+
+@media (max-width: 820px) {
+  .co .cr-barra {
+    flex-wrap: wrap; height: auto; padding: 8px 12px;
+    gap: 8px; overflow: visible;
+  }
+  .co .cr-barra-dir { flex-wrap: wrap; }
+  .co .cr-busca input { width: 100%; }
+  .co .cr-form, .co .up-painel { padding: 14px 12px 20px; }
+  .co .cr-form, .co .up-painel, .co .cr-barra-ger { min-width: 0; }
+  .co .cr-pop { max-width: calc(100vw - 48px); }
+  .pn .perfil-sec { padding: 20px 18px; }
+  .pn .perfil-wrap { grid-template-columns: minmax(0, 1fr); }
+  .pn .perfil-idx { display: none; }
+}
+
+@media (max-width: 640px) {
+  .pn .admin-wrap, .pn .apr-wrap { padding: 20px 14px 36px; }
+  .pn .heroi__txt { padding: 24px 18px; }
+  .pn .dash-cartoes { grid-template-columns: minmax(0, 1fr); }
+  .pn .perfil-sec { padding: 18px 14px; }
+  .pn .perfil-toggle-linha { gap: 14px; }
+  .pn .perfil-salvar-barra .btn { width: 100%; }
+  .pn .as-plano-topo { padding: 20px 18px; gap: 18px; }
+  .pn .as-plano-pe { padding: 14px 18px; }
+  .pn .as-plano-preco { text-align: left; }
+  .pn .apr-mcab { flex-wrap: wrap; }
+  .pn .apr-com__cab { flex-wrap: wrap; }
+  .pn .apr-prog { min-width: 0; }
+  .pn .app-user-menu { max-width: calc(100vw - 24px); }
+  .co .cr-pills { padding: 8px; }
+  .co .cr-sulco .cr-trilho { flex-wrap: wrap; }
+  .co .cr-pill { flex: 1 1 21%; min-height: 34px; }
+  .co .cr-pills-cfg { gap: 5px; }
+  .co .cr-pill-cfg { padding: 0 8px; gap: 4px; font-size: 12.5px; }
+  .co .cr-barra-ger { padding-left: 12px; padding-right: 12px; }
+  .co .cr-pop-grade { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .co .cr-pop { min-width: min(250px, calc(100vw - 48px)); }
+  .co .cr-pop--res { min-width: 0; }
+  .co .fic__cab { gap: 8px; }
+  .co .fic__nome { letter-spacing: .04em; }
+  .co .cr-btn-gerar .cr-custo-tag, .co .cr-b-ler .cr-custo-tag {
+    position: static; transform: none; flex: none;
+  }
+  .co .cr-btn-gerar, .co .cr-b-ler { gap: 8px; }
+  .co .vz-acoes { padding: 8px; }
+  .co .vz-acoes-fim { margin-left: 0; }
+  .co .vz-prompt-janela { max-width: 100%; max-height: calc(100dvh - 32px); }
+  .co .cr-selbar { flex-wrap: wrap; }
+  .co .cr-selbar-acoes { flex-wrap: wrap; }
+  .co .cf { padding: 22px 18px; }
+  .co .cf-acoes button { min-width: 0; height: auto; min-height: 46px; padding: 10px; }
+  .co .ps-top { gap: 6px; }
+  .co .ps-col { max-width: calc(100vw - 24px); }
+  .co .ps-fly, .co .mc { max-height: 65dvh; overflow-y: auto; }
+}
+
+@media (pointer: coarse) {
+  /* Alvos reais em grupos: pseudo-elementos de 44px em círculos de 26px
+     invadiam o vizinho. O favorito fica acessível sem hover; as demais
+     ações continuam na janela que abre ao tocar na imagem. */
+  .co .cr-fbtn, .co .cr-seg-lay .cr-fbtn { width: 40px; min-width: 40px; height: 40px; }
+  .co .cr-tam { width: 40px; min-width: 34px; height: 40px; padding: 0 6px; }
+  .co .cr-fbtn::after { content: none; }
+  .co .cr-qty { height: 44px; padding: 0 3px; }
+  .co .cr-qty button { width: 36px; height: 40px; }
+  .co .cr-qty span { min-width: 18px; }
+  .co .cr-pill-cfg { height: 44px; }
+  .co .cr-pop-res, .co .ft__corpo .cora-dd-opt { min-height: 40px; }
+  .co .cr-card .cr-card-acoes {
+    opacity: 1; pointer-events: auto; transform: none;
+    left: auto; right: 6px; top: 6px; padding: 0;
+    width: auto; max-width: none; border-radius: 50%;
+  }
+  .co .cr-card-acoes > :not(.cr-ca--favoritar) { display: none; }
+  .co .cr-card-acoes .cr-ca--favoritar { width: 44px; height: 44px; }
+  .co .cr-card-fav { display: none; }
+  .co .cr-ca--fav, .co .cr-ca--fav:hover { color: var(--turquesa); }
+  .co .cr-card .cr-card-info { opacity: 1; }
+  .co .ps-folha { touch-action: none; }
+  .co .pn-draw, .co .pn-canvas--move, .co .pn-alca { touch-action: none; }
+  .pn .perfil-avatar-box .perfil-avatar-editar,
+  .pn .perfil-avatar-box .perfil-avatar-x { opacity: 1; }
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+  .pn { --header-h: 48px; }
+  .pn .app-header { height: calc(var(--header-h) + var(--seg-topo)); }
+  .co .cr-mobtabs { padding: 3px 10px; }
+  .co .cr-mobtab { min-height: 30px; padding: 4px; }
+  .co .cr-barra-ger { padding-top: 6px; padding-bottom: calc(6px + var(--seg-base)); }
+  .co .cr-barra-ger .cr-resetar { margin-top: 6px; }
+  .co .ft { top: calc(var(--header-h) + 12px); max-height: calc(100dvh - var(--header-h) - 24px); }
+  .co .vz-x { top: 8px; right: 8px; z-index: 10; }
+}
+
+/* Grades públicas: o tamanho mínimo da mídia e das tabelas não pode
+   alargar a coluna. A tabela continua rolando dentro do próprio cartão. */
+.pr .teams__lado, .pr .teams__tabelas { min-width: 0; }
+@media (max-width: 767px) {
+  .hm .passos__palco { width: 100%; aspect-ratio: auto; }
+  .hm .passos__lista, .hm .passo { min-width: 0; }
+  .hm .passo { grid-template-columns: 22px minmax(0, 1fr); }
+  .hm .passo__t, .hm .passo__x { overflow-wrap: anywhere; }
+  .hm .passos__nota { white-space: normal; }
+  .hm .provas { grid-template-columns: minmax(0, 1fr); }
+  .hm .prova { min-width: 0; }
+  .hm .prova__quadro { width: 100%; aspect-ratio: auto; min-height: 360px; }
+}
+@media (max-width: 480px) {
+  .pr .teams__lado, .pr .teams__tabelas { padding: 22px 16px; }
 }

@@ -1,6 +1,5 @@
 import './globals.css';
-import './responsivo.css';
-// Depois dos dois de cima de proposito: as telas de conta reescrevem
+// Depois do globals de proposito: as telas de conta reescrevem
 // regras que nascem no globals.css.
 import './telas-de-conta.css';
 import './paginas-legais.css';
@@ -11,9 +10,12 @@ import './painel-pagina.css';
 // Depois da folha do painel de propósito: o admin vive dentro da mesma
 // casca e precisa poder ajustar o que ela deixa passar.
 import './admin-pagina.css';
-// Por último: a janela do Cora é a tela mais específica do site, e nenhuma
-// folha depois dela precisa reescrever o que ela diz.
+// A janela do Cora é o desenho mais específico do site.
+// Só as adaptações responsivas entram depois dela.
 import './cora-pagina.css';
+// O responsivo adapta as folhas do desenho e entra depois delas. Os ajustes
+// usam o mesmo escopo de cada tela para preservar a cascata em qualquer largura.
+import './responsivo.css';
 import RodapeGlobal from '../components/RodapeGlobal';
 import CookieConsent from '../components/CookieConsent';
 import { IdiomaProvider } from '../lib/i18n';

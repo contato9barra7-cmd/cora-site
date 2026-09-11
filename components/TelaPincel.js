@@ -185,7 +185,7 @@ export default function TelaPincel({
     const wrap = wrapRef.current;
     const bc = baseRef.current;
     const img = imgRef.current;
-    if (!wrap || !bc || !img) return;
+    if (!wrap || !bc || !img || !wrap.clientWidth || !wrap.clientHeight) return;
     const { w: W, h: H } = nativo.current;
     if (!W) return;
     // O bounding box, em pixels nativos
@@ -246,9 +246,16 @@ export default function TelaPincel({
   }, [m, ehExpansao]);
   useEffect(() => {
     const r = () => ajustar();
+    // A aba móvel e a lateral mudam a área útil depois do resize da janela.
+    // Observe a área final também, inclusive quando Imagem volta a aparecer.
+    const observer = new ResizeObserver(r);
+    if (wrapRef.current) observer.observe(wrapRef.current);
     window.addEventListener('resize', r);
-    return () => window.removeEventListener('resize', r);
-  });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', r);
+    };
+  }, [m, ehExpansao]);
   // ── Pintar (só no preenchimento) ──
   useEffect(() => {
     const dc = drawRef.current;
@@ -291,7 +298,8 @@ export default function TelaPincel({
       setPintou(true);
     }
     function down(e) {
-      if (e.button !== 0) return;   // só o esquerdo pinta; o meio (pan) não marca
+      if (!e.isPrimary || e.button !== 0) return;
+      dc.setPointerCapture(e.pointerId);
       e.preventDefault();
       // O foco vem PARA CÁ. Sem isto ele ficava no campo do pedido (o
       // preventDefault impede que o clique o mova sozinho), e o Ctrl+Z ia
@@ -307,6 +315,7 @@ export default function TelaPincel({
       traco(null, ultimo);
     }
     function move(e) {
+      if (!e.isPrimary) return;
       // O alvo segue o mouse, no tamanho real do pincel na tela
       const cur = cursorRef.current;
       if (cur) {
@@ -324,20 +333,24 @@ export default function TelaPincel({
       traco(ultimo, p);
       ultimo = p;
     }
-    function up() { desenhando = false; ultimo = null; }
+    function up(e) { if (e.isPrimary) { desenhando = false; ultimo = null; } }
     function sair() {
       const cur = cursorRef.current;
       if (cur) cur.style.display = 'none';
     }
-    dc.addEventListener('mousedown', down);
-    dc.addEventListener('mousemove', move);
-    dc.addEventListener('mouseleave', sair);
-    window.addEventListener('mouseup', up);
+    dc.addEventListener('pointerdown', down);
+    dc.addEventListener('pointermove', move);
+    dc.addEventListener('pointerleave', sair);
+    dc.addEventListener('lostpointercapture', up);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
     return () => {
-      dc.removeEventListener('mousedown', down);
-      dc.removeEventListener('mousemove', move);
-      dc.removeEventListener('mouseleave', sair);
-      window.removeEventListener('mouseup', up);
+      dc.removeEventListener('pointerdown', down);
+      dc.removeEventListener('pointermove', move);
+      dc.removeEventListener('pointerleave', sair);
+      dc.removeEventListener('lostpointercapture', up);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
       sair();
     };
   }, [ehExpansao]);
@@ -395,7 +408,7 @@ export default function TelaPincel({
   //  O centro tem ímã: é para onde se volta, e acertá-lo no olho é impossível.
   function pegarImagem(e) {
     if (!ehExpansao) return;
-    if (e.button !== 0) return;
+    if (!e.isPrimary || e.button !== 0) return;
     e.preventDefault();
     e.stopPropagation();
     empilhar();
@@ -407,6 +420,7 @@ export default function TelaPincel({
     const larg = bc.clientWidth;
     const alt  = bc.clientHeight;
     function mover(ev) {
+      if (ev.pointerId !== e.pointerId) return;
       const dx = (ev.clientX - x0) / larg * 100;
       const dy = (ev.clientY - y0) / alt  * 100;
       // O quanto a imagem pode andar: metade da folga de cada eixo
@@ -423,12 +437,15 @@ export default function TelaPincel({
       setImanado(noX && noY);
       setDesl({ x, y });
     }
-    function soltar() {
-      window.removeEventListener('mousemove', mover);
-      window.removeEventListener('mouseup', soltar);
+    function soltar(ev) {
+      if (ev.pointerId !== e.pointerId) return;
+      window.removeEventListener('pointermove', mover);
+      window.removeEventListener('pointerup', soltar);
+      window.removeEventListener('pointercancel', soltar);
     }
-    window.addEventListener('mousemove', mover);
-    window.addEventListener('mouseup', soltar);
+    window.addEventListener('pointermove', mover);
+    window.addEventListener('pointerup', soltar);
+    window.addEventListener('pointercancel', soltar);
   }
   // ── Puxar uma alça expande por igual, com a imagem no centro ──
   //
@@ -438,6 +455,7 @@ export default function TelaPincel({
   //
   //  Quem quiser a imagem fora do centro, arrasta a imagem depois.
   function pegarAlca(e, lados) {
+    if (!e.isPrimary || e.button !== 0) return;
     e.preventDefault();
     e.stopPropagation();
     empilhar();
@@ -449,6 +467,7 @@ export default function TelaPincel({
     const larg = bc.clientWidth;
     const alt  = bc.clientHeight;
     function mover(ev) {
+      if (ev.pointerId !== e.pointerId) return;
       const dx = (ev.clientX - x0) / larg * 100;
       const dy = (ev.clientY - y0) / alt  * 100;
       // O quanto a alça pediu para crescer, no seu próprio eixo
@@ -470,12 +489,15 @@ export default function TelaPincel({
         : null;
       setM(travar({ esq: h, dir: h, cima: v, baixo: v }, lados, razaoDaImagem));
     }
-    function soltar() {
-      window.removeEventListener('mousemove', mover);
-      window.removeEventListener('mouseup', soltar);
+    function soltar(ev) {
+      if (ev.pointerId !== e.pointerId) return;
+      window.removeEventListener('pointermove', mover);
+      window.removeEventListener('pointerup', soltar);
+      window.removeEventListener('pointercancel', soltar);
     }
-    window.addEventListener('mousemove', mover);
-    window.addEventListener('mouseup', soltar);
+    window.addEventListener('pointermove', mover);
+    window.addEventListener('pointerup', soltar);
+    window.addEventListener('pointercancel', soltar);
   }
   // ── A proporção manda: o eixo livre acompanha o que se arrasta ──
   //
@@ -706,7 +728,7 @@ export default function TelaPincel({
                 <span
                   key={nome}
                   className={'pn-alca pn-alca--' + nome}
-                  onMouseDown={(e) => pegarAlca(e, lados)}
+                  onPointerDown={(e) => pegarAlca(e, lados)}
                 />
               ))}
               {molW > 0 && (
@@ -723,7 +745,7 @@ export default function TelaPincel({
             style={ehExpansao
               ? { transform: `translate(${desl.x}%, ${desl.y}%)` }
               : undefined}
-            onMouseDown={pegarImagem}
+            onPointerDown={pegarImagem}
           />
           {/* As guias do centro: aparecem só quando a imagem grudou nele.
               Sem elas, o ímã age sem dizer que agiu. */}

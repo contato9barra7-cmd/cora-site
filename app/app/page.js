@@ -1123,14 +1123,14 @@ export default function AppPage() {
             onClick={() => setAbaMob('painel')}
             role="tab"
             aria-selected={abaMob === 'painel'}
-          >{t('app_aba_criar')}</button>
+          >{t(pincel && ferramenta === 'editar' ? 'janelaajustes_titulo' : 'app_aba_criar')}</button>
           <button
             className={'cr-mobtab' + (abaMob === 'feed' ? ' cr-mobtab--on' : '')}
             onClick={() => setAbaMob('feed')}
             role="tab"
             aria-selected={abaMob === 'feed'}
           >
-            {t('app_aba_galeria')}
+            {t(pincel && ferramenta === 'editar' ? 'app_imagem' : 'app_aba_galeria')}
             {feedNovo && <span className="cr-mobtab-bolha" />}
           </button>
         </div>
@@ -1238,6 +1238,7 @@ export default function AppPage() {
                 setPnRatio('livre');
                 setPnMed(null);
                 setPincel(p);
+                setAbaMob('feed');
               }}
             />
           </div>
