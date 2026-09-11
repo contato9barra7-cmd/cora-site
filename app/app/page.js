@@ -602,11 +602,11 @@ export default function AppPage() {
   const [layout, setLayout]   = useState('linha');   // grade | linha — lista por padrão
   const [tamanho, setTamanho] = useState('g');       // p | m | g | gg — G por padrão
 
-  // P precisa de largura para manter ações e legendas legíveis. Em notebooks,
-  // tablets e celulares ele vira M e sai do seletor; ao voltar para uma tela
-  // ampla, as quatro opções reaparecem sem alterar a escolha atual.
+  // P precisa de largura para manter ações e legendas legíveis. Em tablets e
+  // celulares ele vira M e sai do seletor; notebooks continuam com as quatro
+  // opções porque ainda há largura para o card completo.
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 1700px)');
+    const mq = window.matchMedia('(max-width: 1024px), (pointer: coarse)');
     const ajustar = () => {
       if (mq.matches) setTamanho((atual) => atual === 'p' ? 'm' : atual);
     };

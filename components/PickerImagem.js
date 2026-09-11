@@ -134,7 +134,13 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
           favorito: origemAtual === 'favoritos',
           limite: 24
         });
-        setGrupos(agruparPorMes(d, locale));
+        const agrupados = agruparPorMes(d, locale);
+        /* O filtro de favoritos já garante que todas as imagens desta origem
+           são favoritas. Alguns registros antigos não trazem a flag no item;
+           a origem continua sendo a fonte segura para desenhar o coração. */
+        setGrupos(origemAtual === 'favoritos'
+          ? agrupados.map((g) => ({ ...g, itens: g.itens.map((i) => ({ ...i, favorito: true })) }))
+          : agrupados);
       }
     } catch (e) {
       setErro(e.message);
@@ -488,7 +494,7 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
                           {/* A miniatura, não a original: aqui o card tem
                               uns 100px. Baixar 4 MB para isso era o que
                               deixava a gaveta lenta. */}
-                          <img src={i.thumb || i.url} alt="" loading="lazy" />
+                          <img src={i.thumb || i.url} alt="" />
                         </button>
                       ))}
                     </div>

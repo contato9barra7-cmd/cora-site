@@ -1466,3 +1466,257 @@ img, video, iframe {
 @media (max-width: 480px) {
   .pr .teams__lado, .pr .teams__tabelas { padding: 22px 16px; }
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   16. CONFERÊNCIA VISUAL — iPad horizontal, vertical e notebooks estreitos
+
+   Este bloco reúne as correções medidas nos dois relatórios de 03/09. São
+   apenas regras de encaixe: cores estruturais continuam nas folhas de desenho.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Sobre a faixa da marca, a pastilha é vidro sem um segundo contorno. */
+.pn .app-header--faixa .app-header-aqui { border-color: transparent; }
+
+/* `.pr` é a casca da página pública de preços e carrega `min-height:100vh`.
+   Dentro da Assinatura ela é só a grade; a altura de página criava o grande
+   retângulo cinza que sobrava abaixo dos planos. */
+.pn .as-planos {
+  display: block;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+}
+.pn .as-planos .plano--atual { border-color: var(--line); }
+
+/* O campo de comentário precisa respirar depois do conteúdo da aula, e o
+   cartão de edição conserva o contorno inteiro mesmo quando vira uma coluna. */
+.pn .apr-com { margin-top: 38px; }
+.pn .adm-au {
+  border-color: transparent;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+/* A coluna de estado termina sempre no mesmo lugar, no fim da linha. */
+.pn .adm-cat__mod > .adm-est-wrap {
+  margin-left: auto;
+  margin-right: 92px;
+  align-self: center;
+}
+.pn .adm-cat__aula > .adm-est-wrap {
+  margin-left: auto;
+  align-self: center;
+}
+.pn .adm-cat__aula > .adm-cat__abre { flex: 1 1 260px; }
+
+/* Linhas e campos administrativos mantêm a escala de apoio em tablets. */
+@media (min-width: 641px) and (max-width: 1280px) {
+  .pn .adm-cat__mod { align-items: center; }
+  .pn .adm-cat__capa { height: 76px; }
+  .pn .adm-cat__olho { font-size: 10px; }
+  .pn .adm-cat__campo input { font-size: 12.5px !important; }
+  .pn .adm-cat__aula { gap: 10px; padding: 10px 14px; flex-wrap: nowrap; }
+  .pn .adm-cat__num { gap: 8px; font-size: 10.5px; }
+  .pn .adm-est { font-size: 10.5px; padding-inline: 10px; }
+  .pn .adm-au__campo--mono { font-size: 11.5px !important; }
+
+  .pn .ad .fat { font-size: 11.5px; }
+  .pn .ad .fat th { padding: 0 7px 7px; font-size: 9.5px; letter-spacing: .08em; }
+  .pn .ad .fat td { padding: 8px 7px; }
+  .pn .ad .adm-nome { font-size: 12px; }
+  .pn .ad .adm-sub { font-size: 10px; }
+  .pn .ad .adm-sub-txt { max-width: 132px; }
+  .pn .ad .fat-selo { font-size: 9.5px; padding: 2px 7px; }
+  .pn .adm-btn-ficha { height: 38px; padding-inline: 12px; font-size: 12.5px; }
+  .pn .adm-card { padding: 16px 18px 18px; }
+  .pn .adm-card > .fat-rolo { margin-left: -18px; margin-right: -18px; }
+  .pn .adm-card > .fat-rolo .fat th:first-child,
+  .pn .adm-card > .fat-rolo .fat td:first-child { padding-left: 18px; }
+  .pn .adm-card > .fat-rolo .fat th:last-child,
+  .pn .adm-card > .fat-rolo .fat td:last-child { padding-right: 18px; }
+}
+
+@media (max-width: 1100px) {
+  .pn .adm-cat__mod > .adm-est-wrap { margin-right: 0; }
+  .pn .adm-ficha-cab,
+  .pn .admin-ac__topo { flex-wrap: wrap; gap: 10px; }
+  .pn .adm-ficha-cab .adm-busca,
+  .pn .admin-ac__busca { flex: 1 1 220px; width: 100%; max-width: none !important; }
+  .pn .admin-ac__nums { flex-wrap: wrap; }
+}
+
+@media (max-width: 900px) {
+  .pn .adm-cat__aula { flex-wrap: wrap; }
+  .pn .adm-cat__aula > .adm-cat__abre { flex-basis: calc(100% - 90px); }
+  .pn .adm-cat__num { order: 3; margin-left: 50px; }
+  .pn .adm-cat__aula > .adm-est-wrap { order: 3; margin-left: auto; }
+}
+
+/* No tablet os três planos continuam comparáveis lado a lado. No telefone a
+   leitura volta a uma coluna, pois três cartões de 100px não seriam úteis. */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .pn .as-planos .planos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .pn .as-planos .plano { padding: 18px 12px 14px; border-radius: 14px; }
+  .pn .as-planos .plano__nome { font-size: 17px; }
+  .pn .as-planos .plano__valor { font-size: 24px; }
+  .pn .as-planos .plano__desc,
+  .pn .as-planos .plano__lista { font-size: 11px; }
+  .pn .as-planos .btn { min-width: 0; padding-inline: 10px; font-size: 11.5px; }
+  .pn .as-planos .plano__aqui { height: 42px; font-size: 11.5px; }
+}
+@media (max-width: 640px) {
+  .pn .as-planos .planos { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Criar/Galeria são estados da mesma tela: turquesa lavada em repouso e
+   turquesa cheia na escolhida. O preto permanece legível nos dois temas. */
+@media (max-width: 1024px) {
+  .co .cr-mobtabs { background: var(--paper); }
+  .co .cr-mobtab {
+    background: var(--turq-bg);
+    color: var(--turq-txt);
+    box-shadow: none;
+  }
+  .co .cr-mobtab--on {
+    background: var(--turquesa);
+    color: #111111;
+    box-shadow: none;
+  }
+
+  /* O painel passa a usar a largura disponível. O limite antigo de 680px
+     deixava duas faixas vazias grandes no Render e no Batch. */
+  .co .cr-form,
+  .co .cr-painel-vazio,
+  .co .cr-sulco { max-width: none; }
+
+  /* P não tem espaço para texto e sete ações no tablet. */
+  .co .cr-tams .cr-tam:first-child { display: none; }
+
+  /* A barra do feed e os controles do editor ficam acima do conteúdo, sem
+     entrar por baixo do cabeçalho da aplicação. */
+  .co .cr-barra { position: relative; z-index: 24; flex-shrink: 0; }
+  .co .ps-top { position: relative; z-index: 70; }
+
+  /* A janela do picker mantém o mesmo corpo em todas as origens. */
+  .co .pk {
+    height: min(640px, calc(var(--altura-tela) - 40px));
+    min-height: min(520px, calc(var(--altura-tela) - 40px));
+  }
+  .co .pk-main,
+  .co .pk-corpo { min-height: 0; }
+
+  /* Com opções ativas, Camadas desce uma linha e não cobre os controles. */
+  .co .ps:has(.ps-opts) .ps-col-abrir { top: 66px; }
+}
+
+/* Em notebook P continua disponível; o corte anterior em 1700px escondia a
+   opção em monitores onde ela cabe com folga. */
+@media (min-width: 1025px) {
+  .co .cr-tams .cr-tam:first-child { display: grid; }
+}
+
+/* O check externo e a barra preta dividem a mesma linha. A cor de seleção e
+   favorito é a turquesa do produto, inclusive no Safari do iPad. */
+@media (pointer: coarse) {
+  .co .cr-tams .cr-tam:first-child { display: none; }
+  .co .cr-card .cr-card-acoes {
+    left: 36px;
+    right: 6px;
+    width: auto;
+    max-width: none;
+    transform: none;
+    justify-content: center;
+  }
+  .co .cr-card-selo {
+    top: 6px;
+    left: 6px;
+    width: 26px;
+    height: 26px;
+    background: var(--turquesa);
+    color: #111111;
+    box-shadow: 0 0 0 1px var(--paper);
+  }
+  .co .cr-card-fav {
+    display: flex;
+    color: var(--turquesa);
+  }
+  .co .cr-ca--on,
+  .co .cr-ca--fav,
+  .co .cr-ca--fav:hover { color: var(--turquesa); }
+  .co .cr-cards--m .cr-card-info,
+  .co .cr-mas--m .cr-card-info { padding-inline: 6px 28px; gap: 3px; }
+  .co .cr-cards--m .cr-card-info span,
+  .co .cr-mas--m .cr-card-info span { font-size: 9.5px; }
+}
+
+/* Feed mais denso no tablet: mantém as imagens próximas e reduz a altura
+   morta entre gerações sem mudar a proporção de nenhum arquivo. */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .co .cr-lista { padding: 12px 14px; }
+  .co .cr-lote { padding: 10px 0 12px; }
+  .co .cr-lote-cab { margin-bottom: 7px; }
+  .co .cr-lote-data { font-size: 10.5px; }
+  .co .cr-tag { font-size: 10px; padding: 3px 8px; }
+  .co .cr-mes { margin-bottom: 20px; }
+  .co .cr-mes-tit { margin-bottom: 8px; }
+}
+
+/* A topbar cabe inteira no iPad; manter overflow nela recortava os menus que
+   abrem para baixo. No telefone ela pode usar duas linhas. */
+@media (min-width: 481px) and (max-width: 1240px) {
+  .co .ps-top { flex-wrap: nowrap; overflow: visible; }
+  .co .ps-top .ps-b { padding-inline: 8px; }
+  .co .ps-top .ps-sep { margin-inline: 0; }
+  .co .ps-fly { z-index: 90; }
+}
+@media (max-width: 480px) {
+  .co .ps-top {
+    flex-wrap: wrap;
+    overflow: visible;
+    row-gap: 4px;
+  }
+  .co .ps-esticar { display: none; }
+  .co .ps-fly { z-index: 90; }
+}
+
+/* A barra de recorte permanece numa linha lateral. Se a tela for muito curta,
+   ela rola dentro da própria cápsula sem cortar o último controle. */
+@media (max-width: 1240px) {
+  .co .ps-opts {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: visible;
+    min-height: 42px;
+  }
+  .co .ps-opts .ps-opt-l,
+  .co .ps-opts .ps-opt-v { font-size: 10.5px; }
+}
+
+/* A prévia dos Ajustes conserva a mesma altura ao trocar de aba. */
+@media (max-width: 820px) {
+  .co .aj-previa {
+    flex: 0 0 min(44dvh, 420px);
+    min-height: 260px;
+    padding: 16px;
+  }
+  .co .aj-lado { flex: 1 1 auto; max-height: none; min-height: 0; }
+  .co .aj-painel { min-height: 0; }
+}
+
+/* Um único anel no nome do preset; o Safari acrescentava a aparência nativa
+   por fora da borda desenhada pelo Cora. */
+.co .up-modal-input {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.co .up-modal-input:focus {
+  outline: none;
+  border-color: var(--turquesa-esc);
+  box-shadow: 0 0 0 3px var(--turq-bg);
+}
+
+/* Cards de ferramenta da animação precisam de altura para título e descrição
+   em iPad vertical, sem encavalar a linha seguinte. */
+@media (min-width: 641px) and (max-width: 820px) {
+  .co .ed-cards--coluna .ed-card { min-height: 112px; }
+}

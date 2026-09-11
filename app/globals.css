@@ -10443,7 +10443,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-weight: 500;
 }
 .aj-wb-dica {
-  font-size: 10.5px;
+  font-size: 12.5px;
   color: var(--ink3);
   line-height: 1.45;
   margin: 0 0 18px;
@@ -10476,7 +10476,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .aj-antes-btn:hover { color: var(--ink); border-color: var(--ink3); }
 .aj-antes-btn--on {
   background: var(--accent);
-  color: var(--accent-txt);
+  color: #111111;
   border-color: var(--turq-txt);
 }
 
