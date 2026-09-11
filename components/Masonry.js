@@ -24,7 +24,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 
 // A largura mínima de coluna de cada tamanho — os mesmos números que estavam
 // nos minmax() do CSS, para que P/M/G/GG continuem significando o mesmo.
-const MIN_COL = { p: 150, m: 230, g: 330, gg: 460 };
+const MIN_COL = { p: 200, m: 230, g: 330, gg: 460 };
 
 const GAP = 10;   // o mesmo gap de .cr-cards
 
@@ -101,7 +101,7 @@ export default function Masonry({ itens, tamanho, children }) {
   return (
     <div
       ref={ref}
-      className="cr-mas"
+      className={`cr-mas cr-mas--${tamanho}`}
       style={{ gap: GAP + 'px' }}
     >
       {colunas.map((col, c) => (

@@ -4172,7 +4172,7 @@ select.perfil-input {
   align-items: start;
 }
 
-.cr-cards--grade.cr-cards--p  { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.cr-cards--grade.cr-cards--p  { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 .cr-cards--grade.cr-cards--m  { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
 .cr-cards--grade.cr-cards--g  { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
 .cr-cards--grade.cr-cards--gg { grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); }
@@ -4189,10 +4189,10 @@ select.perfil-input {
 /* Largura por proporção da largura disponível: cabem exatamente N por linha
    (sem barra lateral) e o resto quebra pra baixo. gap = 8px; o -1px extra dá
    folga contra arredondamento (senão o último às vezes pula de linha).
-   P=8 · M=6 · G=4 · GG=3 por linha. */
+   P=6 · M=5 · G=4 · GG=3 por linha. */
 .cr-cards--linha .cr-card { flex-shrink: 0; }
-.cr-cards--linha.cr-cards--p  .cr-card { width: calc((100% - 57px) / 8); }
-.cr-cards--linha.cr-cards--m  .cr-card { width: calc((100% - 41px) / 6); }
+.cr-cards--linha.cr-cards--p  .cr-card { width: calc((100% - 41px) / 6); }
+.cr-cards--linha.cr-cards--m  .cr-card { width: calc((100% - 33px) / 5); }
 .cr-cards--linha.cr-cards--g  .cr-card { width: calc((100% - 25px) / 4); }
 .cr-cards--linha.cr-cards--gg .cr-card { width: calc((100% - 17px) / 3); }
 
@@ -4839,8 +4839,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 /* Na lista, o slot tem a MESMA largura do card (mesma conta de N por linha) —
    senão o "gerando" teria um tamanho e a imagem pronta, outro. */
-.cr-cards--linha.cr-cards--p  .cr-slot { width: calc((100% - 57px) / 8); }
-.cr-cards--linha.cr-cards--m  .cr-slot { width: calc((100% - 41px) / 6); }
+.cr-cards--linha.cr-cards--p  .cr-slot { width: calc((100% - 41px) / 6); }
+.cr-cards--linha.cr-cards--m  .cr-slot { width: calc((100% - 33px) / 5); }
 .cr-cards--linha.cr-cards--g  .cr-slot { width: calc((100% - 25px) / 4); }
 .cr-cards--linha.cr-cards--gg .cr-slot { width: calc((100% - 17px) / 3); }
 
@@ -4895,6 +4895,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .cr-card-info span {
   font-size: 11px;
   color: #fff;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cr-card-fer {
@@ -5186,6 +5190,20 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   margin: 0 3px;
   background: rgba(255, 255, 255, .22);
 }
+
+/* P e M continuam completos, mas os controles acompanham a largura do card.
+   O círculo permanece quadrado para não virar a oval vista em telas menores. */
+.cr-cards--p .cr-card-acoes, .cr-mas--p .cr-card-acoes { gap:1px; padding:3px; }
+.cr-cards--p .cr-ca, .cr-mas--p .cr-ca { width:20px; height:20px; }
+.cr-cards--p .cr-ca svg, .cr-mas--p .cr-ca svg { width:12px; height:12px; }
+.cr-cards--p .cr-ca-div, .cr-mas--p .cr-ca-div { margin:0 1px; height:13px; }
+.cr-cards--m .cr-card-acoes, .cr-mas--m .cr-card-acoes { gap:1px; padding:3px; }
+.cr-cards--m .cr-ca, .cr-mas--m .cr-ca { width:20px; height:20px; }
+.cr-cards--m .cr-ca svg, .cr-mas--m .cr-ca svg { width:12px; height:12px; }
+.cr-cards--p .cr-card-info, .cr-mas--p .cr-card-info { gap:3px; padding:16px 6px 5px; }
+.cr-cards--m .cr-card-info, .cr-mas--m .cr-card-info { gap:4px; padding:17px 7px 6px; }
+.cr-cards--p .cr-card-fer, .cr-mas--p .cr-card-fer,
+.cr-cards--p .cr-card-plugin, .cr-mas--p .cr-card-plugin { padding:2px 5px; }
 
 /* O tooltip destas ações desce (há espaço abaixo, dentro da imagem) */
 .cr-card-acoes [data-tip]:hover::after {
@@ -11786,7 +11804,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .df-cx input {
   width: 15px;
   height: 15px;
-  accent-color: var(--lima-txt);
+  accent-color: var(--turquesa);
   cursor: pointer;
   margin: 0;
 }

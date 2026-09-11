@@ -534,7 +534,7 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
 
   return (
     <>
-      <div className="cr-form">
+      <div className="cr-form cr-form--planta">
 
         {/* ═══ SELETOR DE MODO (2D / 3D) ═══
             Cores e ícones IGUAIS ao plugin (e ao padrão da aba Editar):

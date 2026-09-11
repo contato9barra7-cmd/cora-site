@@ -326,7 +326,7 @@ export default function PainelEditar({
 
   return (
     <>
-      <div className="cr-form">
+      <div className="cr-form cr-form--editar">
 
         {/* ── A imagem base ──
             Uma só, para todos os modos — como no plugin. */}

@@ -817,9 +817,9 @@ export default function Admin() {
                           </span>
                         </div>
                         <div className="adm-geo-barra">
-                          <div className="adm-geo-fill admin-geo-fill admin-geo-fill--n"
+                          <div className="adm-geo-fill adm-geo-fill--n"
                                style={{ width: `${p.pctClientes}%` }} />
-                          <div className="adm-geo-fill admin-geo-fill admin-geo-fill--r"
+                          <div className="adm-geo-fill adm-geo-fill--r"
                                style={{ width: `${p.pctValor}%` }} />
                         </div>
                       </div>

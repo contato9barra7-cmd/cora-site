@@ -706,6 +706,12 @@ img, video, iframe {
   /* Notebook pequeno / iPad deitado: o painel cede largura para o feed antes
      de precisar virar aba. */
   .cr-painel { width: 340px; }
+  .co .cr-pills { padding-inline:8px; }
+  .co .cr-sulco { padding:3px; }
+  .co .cr-sulco .cr-trilho { gap:1px; }
+  .co .cr-pill { min-width:24px; height:30px; min-height:30px; }
+  .co .cr-pill > svg { width:15px; height:15px; }
+  .co .cr-pill--on { padding:0 7px 0 6px; gap:3px; font-size:11px; }
 }
 
 @media (max-width: 1024px) {
@@ -1229,7 +1235,7 @@ img, video, iframe {
   .co .cr-cards--linha.cr-cards--gg .cr-card,
   .co .cr-cards--linha.cr-cards--gg .cr-slot { width:100%; }
   .co .cr-card-acoes { flex-wrap:nowrap; gap:0; padding:3px; max-width:calc(100% - 8px); }
-  .co .cr-ca { width:18px; height:22px; }
+  .co .cr-ca { width:20px; height:20px; }
   .co .cr-ca svg { width:12px; height:12px; }
   .co .cr-ca-div { margin:0 1px; }
   .co .rodape-legal--feed { flex-wrap:nowrap; gap:10px; padding:9px 8px 10px; font-size:11px; white-space:nowrap; }
@@ -1316,7 +1322,7 @@ img, video, iframe {
   .co .cr-selbar-acoes { flex-wrap: wrap; }
   .co .cf { padding: 22px 18px; }
   .co .cf-acoes button { min-width: 0; height: auto; min-height: 46px; padding: 10px; }
-  .co .ps-top { gap: 4px; padding:7px 8px; flex-wrap:nowrap; overflow-x:auto; }
+  .co .ps-top { gap:4px; padding:7px 14px 7px 8px; flex-wrap:nowrap; overflow-x:auto; }
   .co .ps-top .ps-b { height:30px; padding:0 9px; font-size:11px; gap:4px; }
   .co .ps-top .ps-ic { width:30px; height:30px; }
   .co .ps-sep { margin:0 1px; height:18px; }
@@ -1356,24 +1362,59 @@ img, video, iframe {
   .co .cr-cards--linha.cr-cards--g .cr-slot,
   .co .cr-cards--linha.cr-cards--gg .cr-card,
   .co .cr-cards--linha.cr-cards--gg .cr-slot { width:100%; }
-  .co .cr-ca { width:19px; }
+  .co .cr-ca { width:20px; height:20px; }
 }
 
 /* As escolhas das plantas são conteúdo curto; não devem preencher toda a
    altura livre do formulário. */
 .co .ed-cards--coluna { grid-auto-rows:auto; align-content:start; }
+.co .cr-form--planta > .ed-cards {
+  flex:none; grid-auto-rows:auto; align-content:start;
+}
+.co .cr-form--editar > .ed-cards {
+  grid-template-rows:repeat(4,minmax(0,1fr)); grid-auto-rows:unset;
+}
 .co .cr-ed-base .cr-base { width:100%; height:auto; aspect-ratio:16/9; }
 .co .cr-ed-base .cr-base img { width:100%; height:100%; object-fit:cover; }
 .co .an-filtros + * { margin-top:14px; }
 .co input[type="checkbox"] { accent-color:var(--turquesa); }
 
 @media (max-width: 1240px) {
-  .co .ps-top { gap:4px; padding:8px 10px; flex-wrap:nowrap; overflow-x:auto; }
+  .co .ps-top { gap:4px; padding:8px 16px 8px 10px; flex-wrap:nowrap; overflow-x:auto; }
   .co .ps-top .ps-b { height:30px; padding:0 10px; font-size:11px; gap:4px; }
   .co .ps-top .ps-ic { width:30px; height:30px; }
-  .co .ps-opts { flex-wrap:nowrap; gap:5px; overflow-x:auto; padding:7px 9px; }
+  .co .ps-top > :last-child { margin-right:2px; }
+  .co .ps-opts { flex-wrap:nowrap; gap:5px; overflow-x:auto; padding:6px 8px; }
   .co .ps-opts .ps-b { height:30px; padding:0 9px; font-size:11px; }
   .co .ps-opts .ps-num { width:58px; height:30px; font-size:11px; }
+  .co .ps-opts .cora-sel-wrap.ps-sel--min { height:30px; min-width:104px; }
+  .co .ps-opts .cora-sel-trigger {
+    height:30px; min-height:30px; padding:0 9px; gap:5px;
+    border-radius:100px; font-size:11px;
+  }
+}
+
+@media (max-height: 900px) and (min-width: 641px) {
+  .co .cr-form--editar { padding:10px 12px 8px; }
+  .co .cr-form--editar .cr-sec { margin:8px 0 6px; }
+  .co .cr-form--editar .cr-hint { margin-top:4px; font-size:11px; }
+  .co .cr-form--editar > .ed-cards { gap:5px; }
+  .co .cr-form--editar .ed-card { padding:17px 10px 7px; }
+  .co .cr-form--editar .ed-faixa { width:26px; height:26px; margin-bottom:4px; }
+  .co .cr-form--editar .ed-faixa svg { width:14px; height:14px; }
+  .co .cr-form--editar .ed-corpo strong { font-size:12.5px; line-height:1.15; }
+  .co .cr-form--editar .ed-corpo > span { font-size:11px; line-height:1.22; }
+}
+
+@container (min-width: 761px) and (max-width: 1100px) {
+  .co .cr-cards--linha.cr-cards--m .cr-card,
+  .co .cr-cards--linha.cr-cards--m .cr-slot { width:calc((100% - 25px) / 4); }
+}
+
+@media (max-width: 1700px) {
+  .co .cr-tams .cr-tam:first-child { display:none; }
+  .co .cr-cards--linha.cr-cards--p .cr-card,
+  .co .cr-cards--linha.cr-cards--p .cr-slot { width:calc((100% - 33px) / 5); }
 }
 
 /* O admin também vive dentro do escopo .pn; esta regra de cartões não pode
