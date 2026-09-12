@@ -79,7 +79,7 @@ export default function PainelNovidades({ contas }) {
         </div>
       </div>
 
-      <div className="conta-card adm-card">
+      <div className="conta-card adm-card admin-nov">
         <div className="adm-ficha-cab">
           <div className="adm-abas" role="tablist" style={{ margin: 0, border: 0 }}>
             {[['todos', t('adm_nov_todos'), total],

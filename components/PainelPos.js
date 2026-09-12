@@ -69,6 +69,9 @@ const IC = {
   lacoPoli: 'M4 6l7-2 9 5-4 8-8 1z',
   crop:     'M6 2v14a2 2 0 0 0 2 2h14|M2 6h14a2 2 0 0 1 2 2v14',
   baixar:   'M12 3v12M7 10l5 5 5-5M5 21h14',
+  imagem:   'M4 5h16v14H4z|M7 15l3-3 2 2 2-2 3 3|M15.5 9.5h.01',
+  historico:'M4 5v5h5|M4.7 10A8 8 0 1 1 6 17.5|M12 8v5l3 2',
+  upscale:  'M8 3H3v5M3 3l6 6M16 3h5v5M21 3l-6 6M8 21H3v-5M3 21l6-6M16 21h5v-5M21 21l-6-6',
   teclado:  'M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9 14h6',
   mais:     'M12 6v12M6 12h12',
   volta:    'M12 4l-5 6 5 6',
@@ -2951,15 +2954,18 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
         <Dica texto={t('painelpos_voltar')}>
           <button className="ps-b" onClick={aoSair}>
-            <Svg d={IC.volta} /> {t('painelpos_voltar')}
+            <Svg d={IC.volta} /> <span className="ps-b-lbl">{t('painelpos_voltar')}</span>
           </button>
         </Dica>
 
-        <button
-          className="ps-b ps-b--on"
-          onClick={() => (temImagem ? setConfirmando(true) : setPicker('nova'))}
-          disabled={ocupado}
-        >{t('painelpos_abrir_imagem')}</button>
+        <Dica texto={t('painelpos_abrir_imagem')}>
+          <button
+            className="ps-b ps-b--on"
+            onClick={() => (temImagem ? setConfirmando(true) : setPicker('nova'))}
+            disabled={ocupado}
+            aria-label={t('painelpos_abrir_imagem')}
+          ><Svg d={IC.imagem} /><span className="ps-b-lbl">{t('painelpos_abrir_imagem')}</span></button>
+        </Dica>
 
         <Dica texto={t('painelpos_add_camada')}>
           <button className="ps-ic" onClick={() => setPicker('camada')}
@@ -3015,8 +3021,17 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
                 <button
                   className={'ps-ic' + (ligado ? ' ps-ic--on' : '')}
                   onClick={() => {
-                    if (g.acao) setDesfocando(it.id);
-                    else setFerr(it.id);
+                    // Desfoque sempre volta à escolha Gaussiano/Movimento.
+                    // Nos outros grupos, tocar de novo na ferramenta ativa a
+                    // fecha e devolve o editor à ferramenta de mover.
+                    if (g.acao) {
+                      setAberto((a) => ({ [g.grupo]: !a[g.grupo] }));
+                    } else if (ligado) {
+                      setFerr('mover');
+                      setAberto({});
+                    } else {
+                      setFerr(it.id);
+                    }
                   }}
                   // O botão direito no ícone abre o grupo. É o gesto do
                   // Photoshop — e mirar no triângulo, que tem uns poucos pixels,
@@ -3093,13 +3108,20 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
           </button>
         </Dica>
 
-        <button className="ps-b" onClick={salvarNoHist} disabled={!temImagem || salvandoHist}>
-          {salvandoHist ? t('comum_salvando') : t('painelpos_salvar_hist')}
-        </button>
+        <Dica texto={salvandoHist ? t('comum_salvando') : t('painelpos_salvar_hist')}>
+          <button className="ps-b" onClick={salvarNoHist} disabled={!temImagem || salvandoHist}
+                  aria-label={salvandoHist ? t('comum_salvando') : t('painelpos_salvar_hist')}>
+            <Svg d={IC.historico} />
+            <span className="ps-b-lbl">{salvandoHist ? t('comum_salvando') : t('painelpos_salvar_hist')}</span>
+          </button>
+        </Dica>
 
-        <button className="ps-b" onClick={paraUpscale} disabled={!temImagem}>
-          {t('painelpos_fazer_upscale')}
-        </button>
+        <Dica texto={t('painelpos_fazer_upscale')}>
+          <button className="ps-b" onClick={paraUpscale} disabled={!temImagem}
+                  aria-label={t('painelpos_fazer_upscale')}>
+            <Svg d={IC.upscale} /><span className="ps-b-lbl">{t('painelpos_fazer_upscale')}</span>
+          </button>
+        </Dica>
 
         <Dica texto={t('painelpos_baixar')}>
           <button className="ps-ic" onClick={baixar}

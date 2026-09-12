@@ -120,6 +120,9 @@ export default function PickerImagem({ aberto, onFechar, onEscolher, onEscolherV
   const carregarFeed = useCallback(async (origemAtual) => {
     setCarregando(true);
     setErro('');
+    // Não deixa a origem anterior aparecer por um instante enquanto a nova
+    // resposta chega. Esse flash parecia imagem carregando e desaparecendo.
+    setGrupos([]);
     try {
       const locale = localeDeIdioma(idioma);
       if (origemAtual === 'uploads') {

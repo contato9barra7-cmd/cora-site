@@ -1727,5 +1727,200 @@ img, video, iframe {
 /* Cards de ferramenta da animação precisam de altura para título e descrição
    em iPad vertical, sem encavalar a linha seguinte. */
 @media (min-width: 641px) and (max-width: 820px) {
-  .co .ed-cards--coluna .ed-card { min-height: 112px; }
+  .co .ed-cards--coluna { grid-auto-rows: auto; align-content: start; }
+  .co .ed-cards--coluna .ed-card { min-height: 0; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   17. CONFERÊNCIA VISUAL — iPad vertical
+
+   Ajustes medidos no relatório vertical: mantêm a escala do desktop e
+   comprimem apenas o que precisa dividir a largura de um tablet.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* O título fica ao lado do menu, igual ao cabeçalho deitado. */
+@media (max-width: 1024px) {
+  .pn .app-burger { margin-right: 10px; }
+}
+
+/* Selos de assinatura continuam legíveis no tema escuro. */
+.pn .as-planos .plano__selo--atual {
+  background: var(--turquesa);
+  color: #111111;
+}
+.pn .rec-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  padding-block: 0;
+  line-height: normal;
+}
+
+/* O Antes/Depois é um controle sobre fotografia: preto sobre a lima garante
+   leitura em cenas claras e escuras, sem um segundo contorno. */
+.co .aj-antes-btn,
+.co .aj-antes-btn:hover,
+.co .aj-antes-btn--on {
+  background: var(--lima);
+  color: #111111;
+  border-color: transparent;
+}
+
+/* No tablet, os rótulos longos da Pós viram ícones com dica. A barra fica
+   inteira em uma linha e os menus continuam livres para abrir para baixo. */
+@media (min-width: 481px) and (max-width: 820px) {
+  .co .ps-top {
+    gap: 1px;
+    padding: 7px 8px;
+    overflow: visible;
+  }
+  .co .ps-top .ps-b,
+  .co .ps-top .ps-ic {
+    flex: 0 0 27px;
+    width: 27px;
+    min-width: 27px;
+    height: 28px;
+    padding: 0;
+    justify-content: center;
+  }
+  .co .ps-top .ps-b-lbl,
+  .co .ps-top > .ps-esticar { display: none; }
+  .co .ps-top .ps-b svg,
+  .co .ps-top .ps-ic svg { width: 13px; height: 13px; }
+  .co .ps-top .ps-sep { margin-inline: 0; }
+  .co .ps-grupo { flex: 0 0 auto; }
+  .co .ps-tri-btn { width: 8px; }
+
+  .co .ps-opts {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    gap: 4px;
+    justify-content: space-between;
+    overflow: visible;
+  }
+  .co .ps-opts .ps-num {
+    width: 50px;
+    min-width: 50px;
+    font-size: 10px !important;
+  }
+  .co .ps-opts .cora-sel-wrap.ps-sel--min { min-width: 92px; }
+  .co .ps-opts .ps-b { padding-inline: 7px; font-size: 10px; }
+  .co .ps-opts .ps-caixa { gap: 4px; font-size: 10px; white-space: nowrap; }
+}
+@media (min-width: 821px) and (max-width: 1240px) {
+  .co .ps-top { gap: 2px; padding: 7px 10px; }
+  .co .ps-top .ps-b,
+  .co .ps-top .ps-ic {
+    flex: 0 0 28px;
+    width: 28px;
+    min-width: 28px;
+    height: 30px;
+    padding: 0;
+    justify-content: center;
+  }
+  .co .ps-top .ps-b-lbl { display: none; }
+  .co .ps-top .ps-b svg,
+  .co .ps-top .ps-ic svg { width: 14px; height: 14px; }
+  .co .ps-top .ps-sep { margin-inline: 1px; }
+  .co .ps-tri-btn { width: 9px; }
+}
+
+/* A aula volta a ser uma linha de leitura: título, números, publicação e
+   ações. Todos os blocos podem encolher sem empurrar os botões para baixo. */
+@media (min-width: 641px) and (max-width: 900px) {
+  .pn .adm-cat__aula { flex-wrap: nowrap; gap: 7px; padding: 9px 10px; }
+  .pn .adm-cat__pega { width: 12px; }
+  .pn .adm-cat__n { width: 19px; font-size: 10px; }
+  .pn .adm-cat__aula > .adm-cat__abre {
+    flex: 1 1 150px;
+    min-width: 80px;
+  }
+  .pn .adm-cat__abre b { font-size: 11.5px; }
+  .pn .adm-cat__abre em { font-size: 9.5px; }
+  .pn .adm-cat__num {
+    order: initial;
+    margin-left: 0;
+    gap: 5px;
+    font-size: 9px;
+  }
+  .pn .adm-cat__num > span { gap: 2px; }
+  .pn .adm-cat__num svg { width: 10px; height: 10px; }
+  .pn .adm-cat__aula > .adm-est-wrap {
+    order: initial;
+    margin-left: auto;
+  }
+  .pn .adm-cat__aula .adm-est { padding-inline: 8px; font-size: 9.5px; }
+  .pn .adm-cat__aula .apr-bt--so { width: 28px; height: 28px; }
+}
+
+/* Novidades usa a mesma escala da data e termina exatamente na coluna do
+   estado. Em telefone, busca e abas continuam quebrando naturalmente. */
+.pn .admin-nov .fat th:last-child,
+.pn .admin-nov .fat td:last-child {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+}
+@media (min-width: 641px) and (max-width: 1100px) {
+  .pn .admin-nov .adm-ficha-cab { flex-wrap: nowrap; }
+  .pn .admin-nov .adm-ficha-cab .adm-busca {
+    flex: 0 1 260px;
+    width: 260px;
+    max-width: 260px !important;
+  }
+  .pn .admin-nov .adm-busca .perfil-input { font-size: 11px !important; }
+}
+
+/* Na aula, o índice cai abaixo do comentário; este espaço separa os dois
+   cartões e deixa claro que começa outro bloco. */
+@media (max-width: 1080px) {
+  .pn .apr-idx { margin-top: 28px; }
+}
+
+/* O corpo volta a ser a área rolável entre a barra e o rodapé. As regras
+   antigas do tablet liberavam o overflow e deixavam cards por baixo do pé. */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .co .cr-feed { overflow: hidden; }
+  .co .cr-feed-corpo { overflow: hidden; }
+  .co .cr-lista { overflow-x: hidden; overflow-y: auto; min-height: 0; }
+}
+
+/* Mais imagens por linha no feed estreito, mantendo uma escala diferente
+   entre M, G e GG. */
+@container (min-width: 431px) and (max-width: 760px) {
+  .co .cr-cards--linha.cr-cards--p .cr-card,
+  .co .cr-cards--linha.cr-cards--p .cr-slot,
+  .co .cr-cards--linha.cr-cards--m .cr-card,
+  .co .cr-cards--linha.cr-cards--m .cr-slot { width: calc((100% - 25px) / 4); }
+  .co .cr-cards--linha.cr-cards--g .cr-card,
+  .co .cr-cards--linha.cr-cards--g .cr-slot { width: calc((100% - 17px) / 3); }
+  .co .cr-cards--linha.cr-cards--gg .cr-card,
+  .co .cr-cards--linha.cr-cards--gg .cr-slot { width: calc((100% - 9px) / 2); }
+}
+@container (min-width: 761px) and (max-width: 1100px) {
+  .co .cr-cards--linha.cr-cards--g .cr-card,
+  .co .cr-cards--linha.cr-cards--g .cr-slot { width: calc((100% - 17px) / 3); }
+  .co .cr-cards--linha.cr-cards--gg .cr-card,
+  .co .cr-cards--linha.cr-cards--gg .cr-slot { width: calc((100% - 9px) / 2); }
+}
+
+/* No toque, todos os comandos cabem numa única faixa e aprovação usa a lima
+   da versão web. Favorito conserva o turquesa próprio. */
+@media (pointer: coarse) {
+  .co .cr-card .cr-card-acoes { flex-wrap: nowrap; gap: 0; padding: 3px; }
+  .co .cr-card .cr-ca { width: 18px; height: 18px; }
+  .co .cr-card .cr-ca svg { width: 11px; height: 11px; }
+  .co .cr-card .cr-ca-div { height: 12px; margin-inline: 0; }
+  .co .cr-card-selo,
+  .co .cr-card-check--on {
+    background: var(--lima);
+    border-color: var(--lima-txt);
+    color: #111111;
+  }
+  .co .cr-ca--on,
+  .co .cr-ca--on:hover { color: var(--lima); }
+  .co .cr-ca--fav,
+  .co .cr-ca--fav:hover { color: var(--turquesa); }
 }
