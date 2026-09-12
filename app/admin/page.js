@@ -838,9 +838,9 @@ export default function Admin() {
                             </span>
                           </div>
                           <div className="adm-geo-barra">
-                            <div className="adm-geo-fill admin-geo-fill--n"
+                            <div className="adm-geo-fill adm-geo-fill--n"
                                  style={{ width: `${e.pctClientes}%` }} />
-                            <div className="adm-geo-fill admin-geo-fill--r"
+                            <div className="adm-geo-fill adm-geo-fill--r"
                                  style={{ width: `${e.pctValor}%` }} />
                           </div>
                         </div>
@@ -858,9 +858,9 @@ export default function Admin() {
                             </span>
                           </div>
                           <div className="adm-geo-barra">
-                            <div className="adm-geo-fill admin-geo-fill--n"
+                            <div className="adm-geo-fill adm-geo-fill--n"
                                  style={{ width: `${c.pctClientes}%` }} />
-                            <div className="adm-geo-fill admin-geo-fill--r"
+                            <div className="adm-geo-fill adm-geo-fill--r"
                                  style={{ width: `${c.pctValor}%` }} />
                           </div>
                         </div>
@@ -869,8 +869,8 @@ export default function Admin() {
                   </div>
 
                   <div className="adm-geo-legenda">
-                    <span><i className="adm-geo-p admin-geo-p--n" />{t('adm_legenda_clientes')}</span>
-                    <span><i className="adm-geo-p admin-geo-p--r" />{t('adm_legenda_receita')}</span>
+                    <span><i className="adm-geo-p adm-geo-p--n" />{t('adm_legenda_clientes')}</span>
+                    <span><i className="adm-geo-p adm-geo-p--r" />{t('adm_legenda_receita')}</span>
                   </div>
                 </div>
             </div>

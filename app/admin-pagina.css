@@ -197,10 +197,10 @@
    ══════════════════════════════════════════════════════════════════════ */.adm-geo + .adm-geo{ margin-top:26px; }.adm-geo-sub{
   margin:0 0 14px; font-size:11px; font-weight:700;
   letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
-}.adm-geo-linha + .adm-geo-linha{ margin-top:15px; }.adm-geo-cab{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; }.adm-geo-k{ font-size:14.5px; font-weight:600; letter-spacing:-.01em; }.adm-geo-v{ font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }.adm-geo-barra{ margin-top:7px; display:grid; gap:3px; }.adm-geo-fill{ height:8px; border-radius:var(--pill); min-width:3px; }.adm-geo-fill--n{ background:var(--turquesa); }.adm-geo-fill--r{ background:var(--lima); }.adm-geo-legenda{
+}.adm-geo-linha + .adm-geo-linha{ margin-top:15px; }.adm-geo-cab{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; }.adm-geo-k{ font-size:14.5px; font-weight:600; letter-spacing:-.01em; }.adm-geo-v{ font-size:12.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }.adm-geo-barra{ margin-top:7px; display:grid; gap:3px; }.adm-geo-fill{ height:8px; border-radius:var(--pill); min-width:3px; }.adm-geo-fill--n{ background:var(--turquesa); }.adm-geo-fill--r{ background:color-mix(in srgb, var(--turquesa) 48%, var(--paper)); }.adm-geo-legenda{
   margin-top:24px; padding-top:16px; border-top:1px solid var(--line);
   display:flex; gap:20px; flex-wrap:wrap; font-size:13.5px; color:var(--ink3);
-}.adm-geo-legenda span{ display:inline-flex; align-items:center; gap:8px; }.adm-geo-p{ width:14px; height:8px; border-radius:var(--pill); display:inline-block; }.adm-geo-p--n{ background:var(--turquesa); }.adm-geo-p--r{ background:var(--lima); }/* ══════════════════════════════════════════════════════════════════════
+}.adm-geo-legenda span{ display:inline-flex; align-items:center; gap:8px; }.adm-geo-p{ width:14px; height:8px; border-radius:var(--pill); display:inline-block; }.adm-geo-p--n{ background:var(--turquesa); }.adm-geo-p--r{ background:color-mix(in srgb, var(--turquesa) 48%, var(--paper)); }/* ══════════════════════════════════════════════════════════════════════
    AS ABAS DE DENTRO DA FICHA
 
    Elas eram a barra cinza com a pastilha branca por cima, o desenho que

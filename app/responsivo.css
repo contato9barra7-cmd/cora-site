@@ -131,9 +131,11 @@ img, video, iframe {
      `.login-input`) ganharia do seletor de elemento e o zoom voltaria — foi
      exatamente o que a auditoria pegou. `<select>` fica de fora: no iOS ele
      abre uma roleta nativa, não dá zoom. */
-  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']),
-  textarea {
-    font-size: 16px !important;
+  @media (max-width: 640px) {
+    input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']),
+    textarea {
+      font-size: 16px !important;
+    }
   }
 
   /* ── Tooltip de hover não existe no toque ──
@@ -883,7 +885,7 @@ img, video, iframe {
 .ps-col-fechar { display: none; }
 .ps-col-veu { display: none; }
 
-@media (max-width: 1024px) {
+@media (max-width: 1240px) {
   /* A coluna de camadas passa a deslizar por cima da tela do editor. */
   .ps-col {
     position: absolute;
@@ -921,6 +923,7 @@ img, video, iframe {
     box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
   }
   .ps.camadas-abertas .ps-col-abrir { display: none; }
+  .ps:has(.ps-opts) .ps-col-abrir { top: 66px; }
 
   .ps-col-fechar {
     display: flex;
@@ -1386,7 +1389,7 @@ img, video, iframe {
   .co .ps-top > :last-child { margin-right:2px; }
   .co .ps-opts { flex-wrap:nowrap; gap:5px; overflow-x:auto; padding:6px 8px; }
   .co .ps-opts .ps-b { height:30px; padding:0 9px; font-size:11px; }
-  .co .ps-opts .ps-num { width:58px; height:30px; font-size:11px; }
+  .co .ps-opts .ps-num { width:58px; height:30px; font-size:11px !important; }
   .co .ps-opts .cora-sel-wrap.ps-sel--min { height:30px; min-width:104px; }
   .co .ps-opts .cora-sel-trigger {
     height:30px; min-height:30px; padding:0 9px; gap:5px;
@@ -1528,6 +1531,7 @@ img, video, iframe {
   .pn .ad .adm-sub-txt { max-width: 132px; }
   .pn .ad .fat-selo { font-size: 9.5px; padding: 2px 7px; }
   .pn .adm-btn-ficha { height: 38px; padding-inline: 12px; font-size: 12.5px; }
+  .pn .admin-ac__busca { height: 34px; max-width: 280px; font-size: 12.5px !important; }
   .pn .adm-card { padding: 16px 18px 18px; }
   .pn .adm-card > .fat-rolo { margin-left: -18px; margin-right: -18px; }
   .pn .adm-card > .fat-rolo .fat th:first-child,
@@ -1690,6 +1694,11 @@ img, video, iframe {
   }
   .co .ps-opts .ps-opt-l,
   .co .ps-opts .ps-opt-v { font-size: 10.5px; }
+  .co .ps-opts .ps-num {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
 }
 
 /* A prévia dos Ajustes conserva a mesma altura ao trocar de aba. */
