@@ -1074,9 +1074,15 @@ export default function AppPage() {
     ? lotes.filter((l) => !lotesAtivos.has(l.loteId))
     : lotes;
 
-  // A grade contínua: todas as imagens, por mês (sem separar por lote)
+  // Os meses continuam ordenando os itens e alimentando o aviso de expiração,
+  // mas não podem reiniciar as colunas. Cada reinício deixava um buraco até o
+  // mês seguinte na coluna que terminava primeiro.
   const porMes = agruparPorMes(lotesVisiveis);
-  const vazio  = !carregando && porMes.length === 0 && !gerandoAlgo && upsAtivos.length === 0;
+  const itensDaGrade = porMes.flatMap((mes) => mes.itens);
+  const diasDaGrade = itensDaGrade.length
+    ? diasAteExpirar(itensDaGrade[itensDaGrade.length - 1].criadoEm)
+    : null;
+  const vazio  = !carregando && itensDaGrade.length === 0 && !gerandoAlgo && upsAtivos.length === 0;
 
   // A Pós não cabe num painel de 380px: um editor de camadas espremido numa
   // coluna seria inútil. Enquanto ela está aberta, o painel e o feed saem.
@@ -1674,31 +1680,19 @@ export default function AppPage() {
               </div>
             )}
 
-            {/* ── GRADE: contínua por mês, sem lote (como o Magnific) ──
-                Todas as imagens juntas, cada uma na sua proporção. É como as
-                pessoas procuram: pela imagem, não pela geração. */}
-            {!carregando && layout === 'grade' && porMes.map((mes) => (
-              <section key={mes.chave} className="cr-mes">
-                <h3 className="cr-mes-tit">
-                  {tOpt(mes.mes)} {mes.ano}
-                  {(() => {
-                    const velha = mes.itens[mes.itens.length - 1];
-                    const dias = diasAteExpirar(velha.criadoEm);
-                    if (dias === null || dias > 15) return null;
-                    return (
-                      <span className="cr-mes-expira">
-                        {dias === 0
-                          ? t('app_algumas_apagadas_hoje')
-                          : `${t('app_algumas_apagadas_em')} ${dias} ${dias === 1 ? t('app_dia') : t('app_dias')}`}
-                      </span>
-                    );
-                  })()}
-                </h3>
-
-                {/* Sem CSS Grid: as linhas rígidas deixavam buracos ao lado
-                    das imagens verticais. O Masonry joga cada card na coluna
-                    mais curta e o vazio some. */}
-                <Masonry itens={mes.itens} tamanho={tamanho}>
+            {/* ── GRADE: um masonry único, sem lote nem quebra por mês ──
+                Toda imagem entra na coluna mais curta, inclusive quando a
+                data muda. As proporções diferentes formam um mosaico contínuo. */}
+            {!carregando && layout === 'grade' && itensDaGrade.length > 0 && (
+              <section className="cr-mes cr-mes--continuo">
+                {diasDaGrade !== null && diasDaGrade <= 15 && (
+                  <p className="cr-mes-expira cr-mes-expira--grade">
+                    {diasDaGrade === 0
+                      ? t('app_algumas_apagadas_hoje')
+                      : `${t('app_algumas_apagadas_em')} ${diasDaGrade} ${diasDaGrade === 1 ? t('app_dia') : t('app_dias')}`}
+                  </p>
+                )}
+                <Masonry itens={itensDaGrade} tamanho={tamanho}>
                   {(it, i, medir, razao) => (
                     <Card
                       key={it.id}
@@ -1726,7 +1720,7 @@ export default function AppPage() {
                   )}
                 </Masonry>
               </section>
-            ))}
+            )}
 
             {/* ── LISTA: agrupada por lote ──
                 Aqui o lote importa: as N variações de uma mesma configuração

@@ -1624,27 +1624,34 @@ img, video, iframe {
 @media (pointer: coarse) {
   .co .cr-tams .cr-tam:first-child { display: none; }
   .co .cr-card .cr-card-acoes {
+    left: 50%;
+    right: auto;
+    width: max-content;
+    max-width: calc(100% - 12px);
+    transform: translateX(-50%);
+    justify-content: center;
+  }
+  .co .cr-card:has(.cr-card-selo) .cr-card-acoes {
     left: 36px;
     right: 6px;
     width: auto;
     max-width: none;
     transform: none;
-    justify-content: center;
   }
   .co .cr-card-selo {
     top: 6px;
     left: 6px;
     width: 26px;
     height: 26px;
-    background: var(--turquesa);
+    background: var(--lima);
     color: #111111;
-    box-shadow: 0 0 0 1px var(--paper);
+    box-shadow: none;
   }
   .co .cr-card-fav {
     display: flex;
     color: var(--turquesa);
   }
-  .co .cr-ca--on,
+  .co .cr-ca--on { color: var(--lima); }
   .co .cr-ca--fav,
   .co .cr-ca--fav:hover { color: var(--turquesa); }
   .co .cr-cards--m .cr-card-info,
@@ -1728,7 +1735,7 @@ img, video, iframe {
    em iPad vertical, sem encavalar a linha seguinte. */
 @media (min-width: 641px) and (max-width: 820px) {
   .co .ed-cards--coluna { grid-auto-rows: auto; align-content: start; }
-  .co .ed-cards--coluna .ed-card { min-height: 0; }
+  .co .ed-cards--coluna .ed-card { min-height: 130px; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1743,10 +1750,33 @@ img, video, iframe {
   .pn .app-burger { margin-right: 10px; }
 }
 
-/* Selos de assinatura continuam legíveis no tema escuro. */
-.pn .as-planos .plano__selo--atual {
+/* A barra da Pós sobe para 70 no tablet. Quando o menu do avatar abre, o
+   cabeçalho inteiro precisa passar dela; aumentar só o filho não atravessa o
+   contexto de empilhamento criado pelo z-index do cabeçalho. */
+.pn .app-header:has(.app-user-menu) { z-index: 100; }
+
+/* O escopo `.pr` da tabela pública trazia os tokens claros para dentro da
+   Assinatura. No tema escuro isso deixava três cartões brancos no meio da
+   página. Dentro do painel, a tabela usa a paleta escura e os dois selos
+   mantêm papéis diferentes: destaque em turquesa, plano atual em cinza. */
+[data-theme="dark"] .pn .as-planos {
+  --ink: #F2F2EF;
+  --ink2: #B6B5AE;
+  --ink3: #8B8A83;
+  --paper: #17171A;
+  --wash: #0F0F11;
+  --wash2: #1E1E22;
+  --line: #2B2B30;
+  --line2: #3A3A41;
+}
+[data-theme="dark"] .pn .as-planos .plano--destaque { border-color: var(--turquesa); }
+[data-theme="dark"] .pn .as-planos .plano__selo {
   background: var(--turquesa);
   color: #111111;
+}
+[data-theme="dark"] .pn .as-planos .plano__selo--atual {
+  background: var(--wash2);
+  color: var(--ink2);
 }
 .pn .rec-tag {
   display: inline-flex;
@@ -1757,23 +1787,25 @@ img, video, iframe {
   line-height: normal;
 }
 
-/* O Antes/Depois é um controle sobre fotografia: preto sobre a lima garante
-   leitura em cenas claras e escuras, sem um segundo contorno. */
+/* O estado da comparação precisa aparecer antes mesmo de olhar a fotografia:
+   Depois usa turquesa e Antes usa lima. */
 .co .aj-antes-btn,
-.co .aj-antes-btn:hover,
-.co .aj-antes-btn--on {
-  background: var(--lima);
+.co .aj-antes-btn:hover {
+  background: var(--turquesa);
   color: #111111;
   border-color: transparent;
 }
+.co .aj-antes-btn--on,
+.co .aj-antes-btn--on:hover { background: var(--lima); }
 
 /* No tablet, os rótulos longos da Pós viram ícones com dica. A barra fica
    inteira em uma linha e os menus continuam livres para abrir para baixo. */
 @media (min-width: 481px) and (max-width: 820px) {
   .co .ps-top {
-    gap: 1px;
+    gap: 2px;
     padding: 7px 8px;
     overflow: visible;
+    justify-content: space-between;
   }
   .co .ps-top .ps-b,
   .co .ps-top .ps-ic {

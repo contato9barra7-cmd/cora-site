@@ -3004,7 +3004,10 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
               <Dica key={g.id} texto={t(g.nome)}>
                 <button
                   className={'ps-ic' + (ferr === g.id ? ' ps-ic--on' : '')}
-                  onClick={() => setFerr(g.id)}
+                  onClick={() => {
+                    setFerr((ativaAgora) => ativaAgora === g.id ? 'mover' : g.id);
+                    setAberto({});
+                  }}
                   disabled={!temImagem}
                   aria-label={t(g.nome)}
                 ><Svg d={g.d} /></button>
