@@ -543,7 +543,7 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
         {modo === null && (
           <>
             <div className="cr-sec">{L.oque_fazer}</div>
-            <div className="ed-cards">
+            <div className="ed-cards ed-cards--coluna">
               <button className="ed-card" onClick={() => setModo('2d')} disabled={ocupado}>
                 <div className="ed-faixa">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"
