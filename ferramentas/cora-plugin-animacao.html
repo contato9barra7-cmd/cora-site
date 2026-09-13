@@ -501,10 +501,41 @@
 .cr-slot--agora{border-style: solid; border-color: var(--lima-txt); overflow: hidden;}
 .cr-slot--agora::after{content: ''; position: absolute; inset: 0; background: linear-gradient( 105deg, transparent 38%, color-mix(in srgb, var(--accent) 30%, transparent) 50%, transparent 62% ); background-size: 220% 100%; animation: cr-varre 1.7s ease-in-out infinite; pointer-events: none;}
 .cr-slot .cr-spin{position: relative; z-index: 2;}
+.an-busca{position: relative; margin-top: 14px;}
+.an-busca input{width: 100%; min-height: 44px; padding: 11px 16px 11px 42px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); color: var(--ink); font-size: 12.2px; font-family: inherit; outline: none;}
+.an-busca input::placeholder{color: var(--ink3);}
+.an-busca input:focus{border-color: var(--turquesa-esc); box-shadow: 0 0 0 3px var(--turq-bg);}
+.an-busca > svg{position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; stroke: var(--ink3); fill: none; pointer-events: none;}
+.an-item{margin-bottom: 6px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; transition: border-color .15s;}
+.an-item:hover{border-color: var(--line2);}
+.an-item--on{border-color: var(--turquesa-esc);}
+.an-cab{width: 100%; display: flex; align-items: flex-start; gap: 10px; padding: 10px; border: none; background: transparent; text-align: left; cursor: pointer; font-family: inherit;}
+.an-cab:hover{background: var(--wash);}
+.an-thumb{flex-shrink: 0; width: 46px; height: 46px; object-fit: cover; border-radius: 10px; background: var(--wash2);}
+.an-thumb--vazia{display: block;}
+.an-txt{flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px;}
+.an-topo{display: flex; align-items: center; flex-wrap: wrap; gap: 5px;}
+.an-tit{flex: 1 1 100%; font-size: 12.2px; font-weight: 600; color: var(--ink);}
+.an-tag{flex-shrink: 0; padding: 1px 7px; border-radius: 100px; background: var(--wash2); color: var(--ink3); font-size: 9.5px; font-weight: 500;}
+.an-tag--vers{background: var(--wash2); color: var(--ink2); font-weight: 600;}
+.an-quando{font-size: 9.9px; color: var(--ink3);}
+.an-prev{font-size: 11.2px; line-height: 1.45; color: var(--ink3); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
+.an-seta{flex-shrink: 0; color: var(--ink3); padding-top: 3px; transition: transform .18s;}
+.an-seta--on{transform: rotate(180deg);}
+.an-corpo{padding: 0 10px 10px; border-top: 1px solid var(--line);}
+.an-materiais{max-height: 380px; overflow-y: auto; padding: 10px; margin: 10px 0; border-radius: 8px; background: var(--wash); font-size: 11.2px; line-height: 1.65; color: var(--ink2); white-space: pre-wrap;}
+.an-acoes{display: flex; gap: 8px; align-items: center; margin-top: 10px;}
 .an-acoes .cr-b, .an-acoes .cr-b-conf{flex: 1 1 0; min-width: 0; height: 38px;}
 .an-acoes .cr-b-conf{background: var(--turquesa); color: #111111;}
+.an-lixo{flex-shrink: 0; width: 38px; height: 38px; border: 1px solid var(--line2); border-radius: 50%; background: transparent; color: var(--ink3); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: all .15s;}
+.an-lixo:hover{border-color: var(--alerta); background: var(--alerta); color: #fff;}
+.an-vazio{padding: 34px 16px; text-align: center;}
+.an-vazio p{font-size: 12.2px; line-height: 1.6; color: var(--ink3); margin: 0;}
+.an-pe{margin-top: 14px; font-size: 9.9px; color: var(--ink3); text-align: center;}
 .cr-b--tenho{width: 100%; height: 40px; font-size: 12.2px; margin-top: 10px; margin-bottom: 10px; border-style: dashed; color: var(--ink3);}
 .cr-b--tenho:hover{border-style: solid; border-color: var(--lima-txt); color: var(--lima-txt);}
+.an-tag--plugin{background: color-mix(in srgb, var(--lima) 40%, transparent); color: var(--ink2);}
+.an-tag--web{background: var(--turq-bg); color: var(--turq-txt);}
 .dt{width: 100%; max-width: 440px; max-height: 82vh; display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;}
 .dt-cab{display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--line);}
 .dt-cab h3{margin: 0; font-size: 11.2px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink3);}
@@ -541,7 +572,7 @@
 .cora-check-bola{-webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 6px; border: 1.5px solid var(--line2); background: transparent; cursor: pointer; position: relative; flex-shrink: 0; transition: background .12s, border-color .12s;}
 .cora-check-bola:hover{border-color: var(--turquesa-esc);}
 .cora-check-bola:checked{background: var(--turquesa); border-color: var(--turquesa-esc);}
-.cora-check-bola:checked::after{content: ''; position: absolute; left: 50%; top: 47%; width: 5px; height: 9px; border: solid #111111; border-width: 0 2px 2px 0; transform: translate(-50%, -50%) rotate(45deg);}
+.cora-check-bola:checked::after{content: ''; position: absolute; left: 50%; top: 47%; width: 5px; height: 9px; border: solid #111111; border-width: 0 2px 2px 0; border-radius: 0; background: none; transform: translate(-50%, -50%) rotate(45deg);}
 .anim-contador{text-align: right; font-size: 9.9px; color: var(--ink3); margin: 4px 0 0;}
 .anim-pills{display: flex; gap: 8px; flex-wrap: wrap;}
 .anim-pill-wrap{position: relative;}
@@ -1361,7 +1392,7 @@
    Cada um é o campo da janela, e o campo dá 14px de respiro em cima para
    separar um do outro quando eles descem em coluna. Numa fila de dois isso
    vira um degrau: o da esquerda nasce mais alto que o da direita. O respiro
-   passa a ser da fila, e os campos começam os dois na mesma linha. */.co .an-filtros{ display:grid; grid-template-columns:1fr 1fr; gap:8px; align-items:start; margin-top:10px; }.co .an-filtros .cmp{ margin-top:0; }/* ── Análises: os dois botões da linha aberta ──
+   passa a ser da fila, e os campos começam os dois na mesma linha. */.co .an-filtros{ display:grid; grid-template-columns:1fr 1fr; gap:8px; align-items:start; margin-top:10px; margin-bottom:14px; }.co .an-filtros .cmp{ margin-top:0; }/* ── Análises: os dois botões da linha aberta ──
    Do mesmo tamanho, começando e terminando na linha da caixa, e o lixo
    fechando a fila. Nada nesta aba gasta crédito: nenhum botão dela é lima.
    Levar a análise para o Render abre uma porta, e porta é turquesa. */.co .an-acoes{ display:flex; align-items:center; gap:8px; margin-top:10px; }.co .an-acoes .cr-b, .co .an-acoes .cr-b-conf{
@@ -1857,7 +1888,12 @@
   backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
   color:var(--turquesa); filter:none;
-}.co .cr-card-fav svg{ width:14px; height:14px; }/* Aprovada: o disco de lima, e nada de anel em volta. A borda toma a cor do
+}.co .cr-card-fav svg{ width:14px; height:14px; }/* A fita das ações sobre a imagem: uma linha só, sempre. Ela nunca quebra
+   em duas, porque duas linhas viram um bloco preto no meio da foto. Quando a
+   largura aperta (cartão estreito, ou o tique e o coração nos cantos), quem
+   cede é o tamanho dos botões: cada um encolhe junto e continua redondo, e o
+   ícone acompanha. O fundo é cinza escuro, e não quase preto: sobre foto
+   escura o preto sumia, e a fita parecia um buraco. */.co .cr-card .cr-card-acoes{ flex-wrap:nowrap; background:rgba(46,46,50,.9); }.co .cr-card .cr-card-acoes > .cr-ca{ flex:0 1 auto; min-width:0; height:auto; aspect-ratio:1; }.co .cr-card .cr-card-acoes > .cr-ca svg{ flex:none; width:62%; max-width:14px; height:auto; }.co .cr-card .cr-card-acoes > .cr-ca-div{ flex:none; }/* Aprovada: o disco de lima, e nada de anel em volta. A borda toma a cor do
    fundo para sumir sem mudar a medida do botão. */.co .vz-ico--ok{ border-color:var(--lima); background:var(--lima); color:#111111; }.co .vz-ico--ok:hover{ border-color:var(--lima-esc); background:var(--lima-esc); color:#111111; }/* A janela do prompt cabe DENTRO da janela do preview, e por isso é menor nos
    dois eixos: o preview tem 1120px por 82vh, com teto de 860px. */.co .vz-prompt-janela{ max-width:660px; max-height:70vh; }.co .vz-prompt-corpo{ font-size:var(--t-apoio2); }/* A linha do Ambiente mora sozinha, fora da ficha grande. Ela respira em
    cima (estava colada no picker da imagem) e encosta no rótulo de Materiais
