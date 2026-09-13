@@ -44,11 +44,15 @@ SAIDA = os.path.join(AQUI, 'cora-plugin-janela.html')
 # Os seletores que interessam dentro do globals.
 ALVO = re.compile(
     r'(^|[\s,>+~])\.(cr-|cmp\b|cmp__|cora-dd-|am\b|am__|am--|kel\b|kel__'
-    r'|sul\b|sul__|fic\b|fic__|fic--|pl-sala|pl-luz|ta--curta'
+    r'|sul\b|sul__|fic\b|fic__|fic--|pl-|ta--curta'
     # o seletor de cor, o campo do @, o painel de filtros, as janelas
     r'|cor\b|cor__|cref\b|cref-|ft\b|ft-|ft__|cf\b|cf-|nm-|ps-b|dt\b|dt-'
     # a aba Editar e as duas telas de pincel
     r'|ed-|pn-|pk'
+    # o menu do botao direito, a linha de camada (a lista do Blocos e do
+    # Materiais), o renomear na linha, o botao de icone e o aviso passageiro,
+    # todos da Pos da web
+    r'|mc\b|mc-|ps-cam|ps-thumb|ps-nome|ps-conta|ps-mini|ps-toast'
     # e o visualizador, que e o `Visualizador.js` inteiro
     r'|vz\b|vz-)'
 )

@@ -1,0 +1,578 @@
+<meta charset="utf-8">
+<title>A Planta baixa do plugin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<style>/*@GLOBAIS@*/</style>
+<style>/*@CORA@*/</style>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   A PLANTA BAIXA DO PLUGIN · o desenho da web, dentro do SketchUp
+
+   ARQUIVO GERADO por `montar-aba-plugin.py planta`. Editar este
+   .fonte.html e rodar o script de novo.
+
+   Dois caminhos, e não oito modos: 2D e 3D. Os dois moram na coluna, com o
+   feed do lado. Nada aqui toma a janela.
+
+   O 2D é o `PainelPlanta.js` da web, campo por campo, na mesma ordem.
+
+   O 3D NÃO é. Na web ele pede que a pessoa suba uma imagem do projeto 3D,
+   porque o navegador não tem o modelo. Aqui o modelo está aberto na tela,
+   e a cena do SketchUp é a entrada. É a única divergência de propósito
+   desta aba, e ela existe porque o plugin sabe uma coisa que o site não
+   sabe.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root{
+  color-scheme:light;
+  --pag-fundo:#F1F1EE; --pag-tinta:#111111; --pag-apoio:#5B5B57; --pag-fraco:#8E8E88;
+  --pag-fio:#E4E4DF; --line2:#D2D2CB; --ink3:#8E8E88;
+  --pag-barra:#EDEDE9; --pag-barra-tinta:#5B5B57;
+  --pag-sombra:0 18px 48px rgba(17,17,17,.13);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --pag-fundo:#121215; --pag-tinta:#F2F2EF; --pag-apoio:#B6B5AE; --pag-fraco:#8B8A83;
+    --pag-fio:#2B2B30; --line2:#44444C; --ink3:#8B8A83;
+    --pag-barra:#26262C; --pag-barra-tinta:#B8B8B2;
+    --pag-sombra:0 18px 48px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --pag-fundo:#121215; --pag-tinta:#F2F2EF; --pag-apoio:#B6B5AE; --pag-fraco:#8B8A83;
+  --pag-fio:#2B2B30; --line2:#44444C; --ink3:#8B8A83;
+  --pag-barra:#26262C; --pag-barra-tinta:#B8B8B2;
+  --pag-sombra:0 18px 48px rgba(0,0,0,.5);
+}
+
+*{ box-sizing:border-box; }
+body{
+  margin:0; padding:0 24px 90px; background:var(--pag-fundo); color:var(--pag-tinta);
+  font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-size:14.5px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+button{ cursor:pointer; font-family:inherit; }
+:focus-visible{ outline:2px solid #8FDDCC; outline-offset:2px; }
+::selection{ background:#C4FBA7; color:#111111; }
+
+.topo{ max-width:1120px; margin:0 auto; padding:56px 0 0; }
+.topo h1{ margin:0 0 12px; font-size:34px; line-height:1.12; font-weight:600; letter-spacing:-.022em; text-wrap:balance; }
+.topo p{ margin:0 0 10px; max-width:62ch; color:var(--pag-apoio); text-wrap:pretty; }
+.ctrl{ display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
+.ctrl button{
+  height:34px; padding:0 16px; border-radius:100px; border:1px solid var(--line2);
+  background:transparent; color:var(--pag-apoio); font-size:13px; font-weight:500;
+  transition:border-color .15s, color .15s;
+}
+.ctrl button:hover{ border-color:var(--pag-fraco); color:var(--pag-tinta); }
+
+h2.secao{
+  max-width:1120px; margin:64px auto 4px; font-size:11px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--pag-fraco);
+}
+h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-size:14px; }
+.env{ max-width:1120px; margin:0 auto; }
+
+/* O aviso de divergência, para o 3D. Ele não é enfeite: é a única coisa
+   desta aba que o site não pode ter, e precisa ficar dito. */
+.nota-div{
+  max-width:62ch; margin:0 auto 26px; padding:14px 16px; border-radius:12px;
+  border:1px solid var(--line2); border-left:3px solid #8FDDCC;
+  background:var(--pag-barra); color:var(--pag-apoio); font-size:13.5px;
+}
+.nota-div b{ color:var(--pag-tinta); font-weight:600; }
+
+/* ── a janela do SketchUp ── */
+.moldura{
+  display:inline-flex; flex-direction:column; overflow:hidden; vertical-align:top;
+  border:1px solid var(--pag-fio); border-radius:12px; background:var(--wash);
+  box-shadow:var(--pag-sombra);
+}
+.moldura-barra{
+  flex:none; height:30px; display:flex; align-items:center; gap:7px; padding:0 10px;
+  background:var(--pag-barra); border-bottom:1px solid var(--pag-fio);
+  color:var(--pag-barra-tinta); font-size:11px;
+}
+.moldura-barra .ico{ width:12px; height:12px; border-radius:3px; background:linear-gradient(135deg,#8FDDCC,#A5F37D); }
+.moldura-barra .vazio{ flex:1; }
+.moldura-barra i{ width:11px; height:1.4px; background:currentColor; opacity:.55; }
+.moldura-barra i.q{ width:9px; height:9px; background:transparent; border:1.4px solid currentColor; border-radius:1px; }
+.moldura-barra i.x{
+  width:10px; height:10px; background:none; opacity:.55; transform:rotate(45deg);
+  background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);
+  background-size:100% 1.4px,1.4px 100%; background-position:center; background-repeat:no-repeat;
+}
+
+.jn-cheia{ width:880px; max-width:100%; }
+.jn-cheia .miolo{ height:950px; display:grid; grid-template-columns:400px minmax(0,1fr); grid-template-rows:auto auto minmax(0,1fr); background:var(--wash); }
+.jn-cheia .jn-cab{ grid-area:1/1/2/3; }
+.jn-cheia .cr-pills{ grid-area:2/1/3/3; }
+.jn-cheia .col{ grid-area:3/1/4/2; }
+.jn-cheia .direita{ grid-area:3/2/4/3; min-width:0; display:flex; flex-direction:column; }
+
+.col{
+  width:400px; min-width:0; display:flex; flex-direction:column; position:relative;
+  background:var(--paper); border-right:1px solid var(--line);
+}
+.etapa .col{ height:760px; border-right:0; }
+.col .cr-form{ flex:1; min-height:0; overflow-y:auto; }
+.col .cr-barra-ger{ flex:none; }
+.col .cr-overlay{ position:absolute; }
+
+/* A grade dos oito do Editar estica para ocupar a altura toda. Esta NÃO:
+   são dois cartões, e esticados eles viravam dois retângulos de 350px com o
+   texto perdido no meio. A folha de produção já faz esse corte, no
+   `:not(.ed-cards--coluna)` do globals. Aqui não há regra nenhuma, que é o
+   jeito certo de concordar com ela. */
+
+.etapas{ display:flex; flex-wrap:wrap; gap:40px 26px; max-width:1120px; margin:0 auto; }
+.etapa{ display:flex; flex-direction:column; gap:13px; width:402px; margin:0; }
+.etapa figcaption .n{ display:block; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--pag-fraco); margin-bottom:3px; }
+.etapa figcaption b{ display:block; font-size:16px; font-weight:600; margin-bottom:4px; }
+.etapa figcaption p{ margin:0; font-size:13px; color:var(--pag-apoio); text-wrap:pretty; }
+
+/* As fotos de prova. A medida fica com quem hospeda. */
+.foto{ display:block; background-size:cover; background-position:center; }
+.cr-ref > .foto, .feed-card > .foto, .cr-base > .foto, .cr-bcena-cab > .foto{ width:100%; height:100%; }
+.cr-base > .foto{ height:auto; aspect-ratio:16/11; }
+.cr-bcena-cab > .foto{ width:34px; height:26px; border-radius:6px; flex:none; }
+.f1{ background-image:var(--foto1); }
+.f2{ background-image:var(--foto2); }
+.f3{ background-image:var(--foto3); }
+.f4{ background-image:var(--foto4); }
+
+/* O feed de prova. */
+.feed-corpo{ flex:1; min-height:0; overflow-y:auto; padding:16px; }
+.feed-grade{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.feed-card{ aspect-ratio:4/5; border-radius:10px; border:1px solid var(--line); overflow:hidden; background:var(--wash); }
+</style>
+
+<header class="topo">
+  <h1>A Planta baixa do plugin</h1>
+  <p>Dois caminhos, e não oito modos. Uma planta 2D que vira render humanizado, e a cena 3D do SketchUp que vira planta. Os dois moram na coluna, com o feed do lado. Nada aqui toma a janela.</p>
+  <p>O 2D é o painel da web campo por campo, na mesma ordem. O 3D <b>não é</b>, e isso é de propósito: na web ele pede uma imagem do projeto, porque o navegador não tem o modelo. Aqui o modelo está aberto na tela.</p>
+  <div class="ctrl"><button id="tema" type="button">Ver no escuro</button></div>
+</header>
+
+<h2 class="secao">Onde ela mora</h2>
+<p>A janela inteira, no tamanho de verdade. Os dois caminhos na coluna, o feed à direita.</p>
+<div class="env"><div class="moldura jn-cheia co co-cartao-curto" id="jn1"></div></div>
+
+<h2 class="secao">O 2D, passo a passo</h2>
+<p>Cada quadro é a coluna da Planta no tamanho de verdade, 400px, com a barra de gerar no pé. São quinze campos, e é o formulário mais longo do plugin: o que segura a leitura é o rótulo de seção antes de cada um, e a ordem, que vai do que a imagem é até o que a IA deve inventar.</p>
+<div class="etapas" id="etapas2d"></div>
+
+<h2 class="secao">O 3D, que só o plugin tem</h2>
+<div class="nota-div">
+  <b>Aqui a web e o plugin divergem de propósito.</b> No site a pessoa sobe uma
+  imagem do projeto 3D, porque o navegador não tem o modelo aberto. No plugin a
+  cena do SketchUp é a entrada, e a própria câmera decide o resultado: vista
+  superior paralela sai como planta ortogonal, perspectiva sai perspectivada.
+  Pedir um print de uma coisa que está na tela seria trabalho à toa.
+  O desenho é o da web, a entrada é a do plugin.
+</div>
+<div class="etapas" id="etapas3d"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var ABAS = [
+    { id:'render',    r:'Render',        d:'M3.5 5.5h17v13h-17z M3.5 14l5-4.5 4 3.5 3-2.5 5 4' },
+    { id:'batch',     r:'Batch',         d:'M7 3.5h13.5V17 M3.5 7h13.5v13.5H3.5z' },
+    { id:'editar',    r:'Editar',        d:'M4 20h4L19 9l-4-4L4 16v4z M14.5 5.5l4 4' },
+    { id:'planta',    r:'Planta baixa',  d:'M3.5 3.5h17v17h-17z M3.5 10h8 M11.5 10v10.5 M11.5 6h9' },
+    { id:'pos',       r:'Pós-produção',  d:'M4 6h16 M4 12h11 M4 18h7' },
+    { id:'animacao',  r:'Animação',      d:'M3.5 5.5h17v13h-17z M8 5.5v13 M16 5.5v13 M3.5 12h17' },
+    { id:'upscale',   r:'Upscale',       d:'M5 10.5V5h5.5 M19 13.5V19h-5.5 M5 5l5.5 5.5 M19 19l-5.5-5.5' },
+    { id:'analises',  r:'Análises',      d:'M4 20V10 M10 20V4 M16 20v-7 M22 20H2' },
+    { id:'r360',      r:'360°',          d:'M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17z M3.5 12h17 M12 3.5c2.3 2.3 3.5 5 3.5 8.5S14.3 18.2 12 20.5c-2.3-2.3-3.5-5-3.5-8.5S9.7 5.8 12 3.5z' },
+    { id:'materiais', r:'Materiais',     d:'M3.5 3.5h9v9h-9z M20.5 16a5 5 0 1 1-10 0 5 5 0 0 1 10 0z' },
+    { id:'blocos',    r:'Blocos',        d:'M12 2.8l8.5 4.8v9.4L12 21.2 3.5 16.4V7.6z M12 12l8.5-4.4 M12 12v9.2 M12 12L3.5 7.6' }
+  ];
+
+  var TIQUE = '<svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg>';
+  var MOEDA = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 4l8 8-8 8-8-8z"/></svg>';
+  var CSETA = '<svg class="cr-seta" viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var DDSETA = '<svg class="cora-dd-seta" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6.5l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var DDTIQUE = '<svg class="cora-dd-tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5,8.5 6,12 13.5,4"/></svg>';
+  var VOLTA = '<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4l-5 6 5 6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ICO_FOTO = '<svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/><path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/></svg>';
+
+  function cabeca() {
+    return '<div class="jn-cab"><span class="jn-marca" role="img" aria-label="Cora"></span>' +
+      '<div class="jn-cab-dir">' +
+      '<button class="jn-fer" data-tip="Espelho" aria-label="Espelho"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="6.4" ry="9"/><path d="M9.4 14.4L13 9.2M11.6 15l3.6-5.2"/></svg></button>' +
+      '<button class="jn-fer" data-tip="Vidros" aria-label="Vidros"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8 8l5.5 5.5M8 12.5l3 3"/></svg></button>' +
+      '<button class="jn-fer" data-tip="Otimizar" aria-label="Otimizar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19l9.5-9.5"/><path d="M17 3.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" fill="currentColor"/><path d="M6 5v2.5M4.75 6.25h2.5"/></svg></button>' +
+      '<button class="jn-fer" data-tip="Purge" aria-label="Purge"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5h16"/><path d="M9.5 6.5v-2h5v2"/><path d="M6 6.5L7 20h10l1-13.5"/><path d="M10 10l.4 6.5M14 10l-.4 6.5"/></svg></button>' +
+      '<span class="jn-risco"></span>' +
+      '<span class="jn-saldo"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 4l8 8-8 8-8-8z"/></svg><b>∞</b></span>' +
+      '<span class="jn-av"><svg class="jn-anel" viewBox="0 0 46 46" width="46" height="46" aria-hidden="true"><rect class="jn-anel-bg" x="2.5" y="2.5" width="41" height="41" rx="13" pathLength="94.24777960769379"/><rect class="jn-anel-fill" x="2.5" y="2.5" width="41" height="41" rx="13" pathLength="94.24777960769379" stroke-dasharray="94.24777960769379" stroke-dashoffset="0"/></svg><span class="jn-foto">M</span></span>' +
+      '</div></div>';
+  }
+  function trilho() {
+    return '<div class="cr-pills"><div class="cr-sulco"><div class="cr-trilho">' + ABAS.map(function (a) {
+      var on = a.id === 'planta';
+      return '<button class="cr-pill' + (on ? ' cr-pill--on' : '') + '"' + (on ? '' : ' data-tip="' + a.r + '"') + '>' +
+        '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + a.d + '"/></svg>' +
+        '<span class="cr-pill__nome">' + a.r + '</span></button>';
+    }).join('') + '</div></div></div>';
+  }
+  function feed() {
+    return '<div class="cr-feed direita"><div class="cr-barra">' +
+      '<div class="cr-fbtns">' +
+      '<button class="cr-fbtn cr-fbtn--on" data-tip="Tudo" aria-label="Tudo"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg></button>' +
+      '<button class="cr-fbtn" data-tip="Imagens" aria-label="Imagens"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="4" width="15" height="12" rx="1.5"/><path d="M2.5 12l4-3.5 3.5 3 2.5-2 5 4"/></svg></button>' +
+      '</div><div class="cr-barra-dir">' +
+      '<button class="cr-fbtn" data-tip="Comparar A/B" aria-label="Comparar A/B"><span class="cr-ab-ico">A/B</span></button>' +
+      '<div class="cr-seg-lay">' +
+      '<button class="cr-fbtn cr-fbtn--on" data-tip="Lista" aria-label="Lista"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"/></svg></button>' +
+      '<button class="cr-fbtn" data-tip="Grade" aria-label="Grade"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/><rect x="2.5" y="11.5" width="6" height="6" rx="1"/><rect x="11.5" y="11.5" width="6" height="6" rx="1"/></svg></button>' +
+      '</div>' +
+      '<div class="cr-tams"><button class="cr-tam cr-tam--on" data-tam="m">M</button><button class="cr-tam" data-tam="g">G</button></div>' +
+      '<div class="cr-ft-wrap"><button class="cr-fbtn" data-tip="Filtros" aria-label="Filtros"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h14M6 10h8M8 14h4" stroke-linecap="round"/></svg></button></div>' +
+      '</div></div><div class="feed-corpo"><article class="cr-lote">' +
+      '<header class="cr-lote-cab"><span class="cr-lote-obs"></span><span class="cr-tag cr-tag--marca">Planta baixa</span><span class="cr-tag">16:9</span><span class="cr-lote-data">há 4 min</span></header>' +
+      '<div class="feed-grade">' + [1,2,3,4].map(function (i) { return '<div class="feed-card"><i class="foto f' + i + '"></i></div>'; }).join('') +
+      '</div></article></div></div>';
+  }
+
+  // ══ as peças do formulário ══
+
+  // O `foco` é só do artefato: marca o rótulo que o quadro quer mostrar, e
+  // depois de pintar a coluna rola até ele. Este formulário tem quinze
+  // campos e mais de mil pixels de altura. Sem isso, onze quadros mostrariam
+  // onze vezes o mesmo topo, e o que cada um tem de diferente ficaria fora
+  // da vista.
+  function sec(txt, opc, foco) {
+    return '<div class="cr-sec"' + (foco ? ' data-foco="' + foco + '"' : '') + '>' +
+      txt + (opc ? ' <span class="cr-opc">' + opc + '</span>' : '') + '</div>';
+  }
+
+  // O dropdown de uma escolha. É o `DropdownCora caixinha` da web: botão com
+  // o valor de agora, e a lista num cartão logo abaixo.
+  function dd(valor, opcoes, aberta, ph) {
+    var h = '<div class="cora-dd' + (aberta ? ' cora-dd--aberto' : '') + '">' +
+      '<button type="button" class="cora-dd-btn"><span class="cora-dd-mio">' +
+      '<span class="cora-dd-val' + (valor ? '' : ' cora-dd-ph') + '">' + (valor || ph || 'Selecione…') + '</span>' +
+      '</span>' + DDSETA + '</button>';
+    if (aberta) {
+      h += '<div class="cora-dd-lista">' + opcoes.map(function (o) {
+        var on = o === valor;
+        return '<div class="cora-dd-opt cora-dd-opt--multi cora-dd-opt--uma' + (on ? ' cora-dd-opt--sel' : '') + '" role="option" aria-selected="' + on + '">' +
+          '<span class="cora-dd-check" aria-hidden="true">' + (on ? TIQUE : '') + '</span>' + o + '</div>';
+      }).join('') + '</div>';
+    }
+    return h + '</div>';
+  }
+
+  // O de várias escolhas. Mesmo botão, e o rótulo é a lista do que está
+  // marcado. Sem nada marcado ele fica no cinza do placeholder.
+  function ddm(marcados, opcoes, aberta) {
+    var rot = marcados.length ? marcados.join(', ') : 'Selecione';
+    var h = '<div class="cora-dd' + (aberta ? ' cora-dd--aberto' : '') + '">' +
+      '<button type="button" class="cora-dd-btn"><span class="' + (marcados.length ? '' : 'cora-dd-ph') + '">' + rot + '</span>' + DDSETA + '</button>';
+    if (aberta) {
+      h += '<div class="cora-dd-lista">' + opcoes.map(function (o) {
+        var on = marcados.indexOf(o) >= 0;
+        return '<div class="cora-dd-opt cora-dd-opt--multi' + (on ? ' cora-dd-opt--sel' : '') + '" role="option" aria-selected="' + on + '">' +
+          '<span class="cora-dd-check" aria-hidden="true">' + (on ? TIQUE : '') + '</span>' + o + DDTIQUE + '</div>';
+      }).join('') + '</div>';
+    }
+    return h + '</div>';
+  }
+
+  function refs(n, max, textoPh) {
+    var h = '<div class="cr-refs">';
+    for (var i = 0; i < n; i++) {
+      h += '<div class="cr-ref"><i class="foto f' + ((i % 4) + 1) + '"></i>' +
+        '<button class="cr-ref-x" aria-label="Remover">×</button>' +
+        '<span class="cr-ref-n">@ref' + (i < 9 ? '0' : '') + (i + 1) + '</span></div>';
+    }
+    h += '<button class="cr-ref cr-ref--add"><span class="cr-ref-mais">+</span><span class="cr-ref-c">' + n + '/' + max + '</span></button></div>';
+    return h + '<textarea class="cr-ta" placeholder="' + textoPh.replace(/"/g, '&quot;') + '" spellcheck="false"></textarea>';
+  }
+
+  // A barra de gerar. A mesma do Render, do Batch e do Editar.
+  function barra(op) {
+    op = op || {};
+    var b = '<div class="cr-pills-cfg">';
+    b += '<div class="cr-qty"><button aria-label="Menos uma">−</button><span>' + (op.qtd || 1) + '</span><button aria-label="Mais uma">+</button></div>';
+    b += '<div class="cr-pill-wrap"><button class="cr-pill-cfg' + (op.pop ? ' cr-pill-cfg--on' : '') + '">' +
+      '<svg viewBox="0 0 20 20" width="15" height="15" fill="none"><rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="2" width="9" height="14" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>' +
+      '<span>' + (op.ratio || 'Auto') + '</span>' + CSETA + '</button>';
+    if (op.pop) {
+      var P = [['Auto',5,7,18,14],['1:1',6,6,16,16],['4:5',7,4,14,20],['5:4',4,7,20,14],['2:3',7,3,14,22],['3:2',3,7,22,14],
+               ['9:16',9,2,10,24],['16:9',2,9,24,10],['3:4',7,5,14,18],['4:3',5,7,18,14],['21:9',1,10,26,8],['Custom',5,6,18,16]];
+      b += '<div class="cr-pop"><div class="cr-pop-grade">' + P.map(function (p) {
+        return '<button class="cr-pop-b' + (p[0] === (op.ratio || 'Auto') ? ' cr-pop-b--on' : '') + '">' +
+          '<svg viewBox="0 0 28 28" fill="none"><rect x="' + p[1] + '" y="' + p[2] + '" width="' + p[3] + '" height="' + p[4] + '" rx="1" stroke="currentColor" stroke-width="1.5"' + (p[0] === 'Custom' ? ' stroke-dasharray="3 2"' : '') + '/></svg>' +
+          '<span>' + p[0] + '</span></button>';
+      }).join('') + '</div></div>';
+    }
+    b += '</div>';
+    b += '<div class="cr-pill-wrap"><button class="cr-pill-cfg">' +
+      '<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M7 17h6"/></svg><span>2K</span>' + CSETA + '</button></div>';
+    b += '</div>';
+    b += '<button class="cr-btn-gerar"' + (op.travado ? ' disabled' : '') + '><span>' + (op.rotulo || 'Renderizar') + '</span>' +
+      (op.travado ? '' : '<span class="cr-custo-tag">' + MOEDA + ' ' + (op.custo || 28) + '</span>') + '</button>';
+    b += '<button class="cr-resetar">Resetar configurações</button>';
+    return b;
+  }
+
+  function coluna(form, b) {
+    return '<div class="col"><div class="cr-form">' + form + '</div>' +
+      (b ? '<div class="cr-barra-ger">' + b + '</div>' : '') + '</div>';
+  }
+
+  function voltar(rot) {
+    return '<button class="cr-voltar">' + VOLTA + rot + '</button>';
+  }
+
+  // ══ a escolha do caminho ══
+  // Os dois cartões são os `ed-card` do Editar, só que empilhados: são dois,
+  // e lado a lado num quadro de 400px cada um ficaria com 190px de largura
+  // para três linhas de texto.
+  function escolha() {
+    return sec('O que você quer fazer') +
+      '<div class="ed-cards ed-cards--coluna">' +
+      '<button class="ed-card"><div class="ed-faixa">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>' +
+      '</div><div class="ed-corpo"><strong>Planta 2D</strong><span>Suba uma planta 2D e humanize com materiais, mobília e luz.</span></div></button>' +
+      '<button class="ed-card"><div class="ed-faixa">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 2v20M3 7l9 5 9-5"/></svg>' +
+      '</div><div class="ed-corpo"><strong>Planta 3D</strong><span>Direto do SketchUp: a cena vira planta usando fotos do seu projeto.</span></div></button>' +
+      '</div>';
+  }
+
+  // ══ o 2D ══
+  var OP = {
+    leitura:  ['Isométrica', 'Vista superior com perspectiva'],
+    realismo: ['Fotorrealista', 'Gráfico / estilo desenho'],
+    mood:     ['Leve e clean', 'Aconchegante', 'Sofisticada', 'Minimalista', 'Natural / biofílica', 'Contemporânea neutra'],
+    paleta:   ['Neutra clara', 'Neutra quente', 'Neutra fria', 'Natural / orgânica', 'Contrastada'],
+    sombras:  ['Difusas', 'Suaves', 'Médias', 'Marcadas'],
+    origem:   ['Zenital', 'Lateral', 'Uniforme'],
+    parCor:   ['Branco', 'Off-white', 'Cinza claro', 'Cinza médio', 'Cinza escuro', 'Preto'],
+    parTrat:  ['Leve sombra interna', 'Chapada', 'Textura sutil'],
+    veg:      ['Estilizada', 'Realista', 'Mínima', 'Sem'],
+    fundo:    ['Branco', 'Cinza claro', 'Escuro', 'Sombra projetada', 'Transparente'],
+    intima:   ['Mesmo piso', 'Diferente (descrever)']
+  };
+
+  function form2d(op) {
+    op = op || {};
+    var h = voltar('Planta 2D');
+
+    h += sec('Imagem da planta', 'obrigatório');
+    h += op.base
+      ? '<div class="cr-base"><i class="foto f' + (op.base) + '"></i><button class="cr-base-x" data-tip="Remover imagem" aria-label="Remover imagem">×</button></div>'
+      : '<button class="cr-drop">' + ICO_FOTO + '<span>Escolher imagem</span></button>';
+
+    h += sec('Projeção', '', 'projecao');
+    h += '<div class="cr-g2">' +
+      '<button class="cr-b' + (op.proj === 'iso' ? '' : ' cr-b--on') + '">Ortogonal</button>' +
+      '<button class="cr-b' + (op.proj === 'iso' ? ' cr-b--on' : '') + '">Perspectivada</button></div>';
+
+    if (op.proj === 'iso') {
+      h += sec('Tipo de leitura', '', 'leitura');
+      h += dd(op.leitura || '', OP.leitura, op.aberta === 'leitura', 'Selecione…');
+    }
+
+    h += sec('Nível de realismo') + dd('Fotorrealista', OP.realismo, op.aberta === 'realismo');
+    h += sec('Mood', '', 'mood') + ddm(op.mood || ['Aconchegante'], OP.mood, op.aberta === 'mood');
+    h += sec('Paleta') + ddm(['Neutra clara'], OP.paleta, op.aberta === 'paleta');
+    h += sec('Iluminação: sombras') + dd('Difusas', OP.sombras, op.aberta === 'sombras');
+    h += sec('Iluminação: origem') + dd('Zenital', OP.origem, op.aberta === 'origem');
+    h += sec('Espessura das paredes: cor') + dd('Branco', OP.parCor, op.aberta === 'parcor');
+    h += sec('Espessura das paredes: tratamento') + ddm(['Leve sombra interna'], OP.parTrat, op.aberta === 'partrat');
+    h += sec('Vegetação') + dd('Estilizada', OP.veg, op.aberta === 'veg');
+    h += sec('Fundo') + dd('Branco', OP.fundo, op.aberta === 'fundo');
+
+    h += sec('Piso por zona', 'opcional', 'piso');
+    if (!op.piso) {
+      h += '<button class="pl-optadd">＋ Definir piso por zona</button>';
+    } else {
+      h += '<div class="pl-optbox">' +
+        '<div class="pl-oh"><b>Piso por zona</b><button class="pl-ox" aria-label="Fechar">✕</button></div>' +
+        '<div class="pl-sub">Área social: tipo, tom e acabamento</div>' +
+        '<textarea class="cr-ta" placeholder="ex.: porcelanato bege acetinado grande formato" spellcheck="false">' +
+        (op.pisoSocial || '') + '</textarea>' +
+        '<div class="pl-sub">Área íntima</div>' +
+        dd(op.intima || 'Mesmo piso', OP.intima, op.aberta === 'intima');
+      if (op.intima === 'Diferente (descrever)') {
+        h += '<textarea class="cr-ta" style="margin-top:6px" placeholder="ex.: piso vinílico amadeirado tom médio" spellcheck="false"></textarea>';
+      }
+      if (op.zona) {
+        h += '<div class="pl-zona">' +
+          '<div class="pl-oh"><b>Outra zona</b><button class="pl-ox" aria-label="Remover zona">✕</button></div>' +
+          '<div class="pl-sub">Nome da zona (ex.: varanda, cozinha)</div>' +
+          '<input class="pl-inp" placeholder="nome da zona" value="' + (op.zonaNome || '') + '" spellcheck="false">' +
+          '<div class="pl-sub">Piso: tipo, tom e acabamento</div>' +
+          '<textarea class="cr-ta" placeholder="ex.: deck de madeira" spellcheck="false">' + (op.zonaPiso || '') + '</textarea>' +
+          '</div>';
+      }
+      h += '<button class="pl-optadd" style="margin-top:10px">＋ Adicionar outra zona</button></div>';
+    }
+
+    h += sec('Descrição adicional', 'opcional');
+    h += '<textarea class="cr-ta" placeholder="Detalhes extras que a IA deve considerar" spellcheck="false">' + (op.desc || '') + '</textarea>';
+
+    h += sec('Referências', 'opcional', 'refs');
+    h += refs(op.refs || 0, 10, (op.refs ? 'Cite as referências com @ref01, @ref02…' : 'Descreva como usar as referências (adicione imagens acima)'));
+
+    return h;
+  }
+
+  // ══ o 3D ══
+  function form3dFase1(op) {
+    op = op || {};
+    var h = voltar('Planta 3D');
+
+    h += '<div class="cr-sec"><span>Referências do projeto<span class="cr-sec-sub2">(materiais e iluminação)</span></span><span class="cr-opc">opcional</span></div>';
+    h += refs(op.refs || 0, 10, 'Use @ref01, @ref02… para referenciar cada imagem');
+    h += '<p class="cr-hint">Envie fotos reais do seu projeto. Elas definem materiais, cores, acabamentos e atmosfera. A geometria vem da cena.</p>';
+
+    h += sec('Cena do modelo', '', 'cena');
+    h += dd(op.cena || 'Vista atual', ['Vista atual', 'Cena 1 — Térreo', 'Cena 2 — Superior', 'Cena 3 — Implantação'], op.aberta === 'cena');
+    h += '<p class="cr-hint">A própria cena define o enquadramento. Câmera em vista superior paralela sai como planta ortogonal, câmera em perspectiva sai perspectivada.</p>';
+
+    return h;
+  }
+
+  function barra3dFase1() {
+    return '<button class="cr-btn-gerar"><span>Analisar materiais</span><span class="cr-custo-tag">' + MOEDA + ' 8</span></button>' +
+      '<p class="cr-custo">A IA cruza a cena com as referências e monta os materiais. A análise fica salva na aba Análises.</p>' +
+      '<button class="cr-resetar">Já tenho a análise</button>';
+  }
+
+  // A verificação. O cartão é o `.cr-bcena` do Batch, um por ambiente: a
+  // análise vem separada assim, e juntar tudo num campo só faria a pessoa
+  // caçar o parágrafo do quarto no meio do texto da sala.
+  var AMBIENTES = [
+    { nome: 'Sala e varanda', foto: 2, txt: 'Piso: porcelanato bege acetinado 90x90, junta mínima.\nParedes: massa lisa off-white.\nMadeira: freijó natural acetinado nos painéis.\nTecidos: linho cru no sofá, lã bouclé na poltrona.\nMetais: latão escovado nos detalhes.' },
+    { nome: 'Cozinha', foto: 4, txt: 'Bancada: quartzito branco com veios cinza, espessura 3cm.\nMarcenaria: laca fosca grafite nos inferiores, freijó nos superiores.\nBacksplash: mesma pedra da bancada.\nMetais: inox escovado.' }
+  ];
+
+  function form3dFase2(op) {
+    op = op || {};
+    var h = voltar('Voltar para referências');
+
+    h += sec('Referências');
+    h += '<div class="cr-refs">' + [1, 2].map(function (i) {
+      return '<div class="cr-ref"><i class="foto f' + i + '"></i><span class="cr-ref-n">@ref0' + i + '</span></div>';
+    }).join('') + '</div>';
+
+    h += sec('Materiais identificados', '', 'materiais');
+    h += '<p class="cr-hint cr-hint--topo">A IA cruzou a cena com as referências. Revise, edite e confirme antes de gerar.</p>';
+    h += AMBIENTES.map(function (a) {
+      var ok = op.confirmado;
+      return '<div class="cr-bcena' + (ok ? ' cr-bcena--ok' : '') + '">' +
+        '<div class="cr-bcena-cab"><i class="foto f' + a.foto + '"></i><span>' + a.nome + '</span></div>' +
+        '<textarea class="cr-ta cr-ta--mat" spellcheck="false"' + (ok ? ' readonly' : '') + '>' + a.txt + '</textarea>' +
+        '<div class="cr-g2 cr-bcena-acoes">' +
+        '<button class="cr-b"' + (ok ? '' : ' disabled') + '>Editar</button>' +
+        (ok ? '<button class="cr-b cr-b--on">✓ Materiais confirmados</button>'
+            : '<button class="cr-b-conf">Confirmar materiais</button>') +
+        '</div></div>';
+    }).join('');
+
+    return h;
+  }
+
+  function janela(miolo) {
+    return '<div class="moldura-barra"><span class="ico"></span>Cora Render<span class="vazio"></span><i></i><i class="q"></i><i class="x"></i></div>' +
+      '<div class="miolo">' + cabeca() + trilho() + miolo + '</div>';
+  }
+
+  // ══ a página ══
+  document.getElementById('jn1').innerHTML = janela(coluna(escolha()) + feed());
+
+  function quadros(alvo, lista) {
+    var caixa = document.getElementById(alvo);
+    caixa.innerHTML = lista.map(function (e) {
+      return '<figure class="etapa"><div class="moldura co co-cartao-curto"><div class="moldura-barra">' +
+        '<span class="ico"></span>Cora Render<span class="vazio"></span><i></i><i class="q"></i><i class="x"></i></div>' +
+        e.html + '</div><figcaption><span class="n">' + e.n + '</span><b>' + e.t + '</b><p>' + e.d + '</p></figcaption></figure>';
+    }).join('');
+
+    // Cada quadro abre já rolado até o campo de que ele fala, com um respiro
+    // em cima para não cortar o rótulo. Quadro sem `foco` fica no topo.
+    [].forEach.call(caixa.querySelectorAll('.etapa'), function (fig, i) {
+      var foco = lista[i].foco;
+      if (!foco) return;
+      var form = fig.querySelector('.cr-form');
+      var alvoEl = form && form.querySelector('[data-foco="' + foco + '"]');
+      if (!alvoEl) return;
+      // Pela posição na tela, e não por `offsetTop`: o pai de referência do
+      // `offsetTop` é o primeiro ancestral posicionado, que aqui às vezes é
+      // a coluna e às vezes a peça de dentro. A distância medida não erra.
+      var r = alvoEl.getBoundingClientRect(), rf = form.getBoundingClientRect();
+      form.scrollTop += (r.top - rf.top) - 14;
+    });
+  }
+
+  quadros('etapas2d', [
+    { n:'Etapa 1', t:'A escolha do caminho',
+      d:'Dois cartões empilhados, e não lado a lado: são dois, e numa coluna de 400px cada um teria 190px para três linhas de texto. Empilhados, o texto de cada um cabe em duas.',
+      html: coluna(escolha()) },
+    { n:'Etapa 2', t:'Sem a planta ainda',
+      d:'A imagem é a primeira coisa, e a única obrigatória. Nada gera sem ela, e por isso ela vem antes dos quinze campos. O quadro tracejado diz que é para subir, sem precisar de rótulo explicando.',
+      html: coluna(form2d({}), barra({ travado:true })) },
+    { n:'Etapa 3', t:'A planta escolhida',
+      d:'Escolhida, ela aparece inteira e no tamanho que dá para conferir se é a certa. O × remove. Só agora o botão de gerar acende, com o custo à direita.',
+      html: coluna(form2d({ base:3 }), barra({ custo:28 })) },
+    { n:'Etapa 4', t:'Perspectivada abre um campo a mais', foco:'leitura',
+      d:'Ortogonal não pede nada. Perspectivada pede o tipo de leitura, e o campo nasce ali, embaixo da escolha que o pediu. Campo que não serve para a escolha de agora não fica ocupando espaço.',
+      html: coluna(form2d({ base:3, proj:'iso', leitura:'' }), barra({ custo:28 })) },
+    { n:'Etapa 5', t:'Uma lista aberta', foco:'leitura',
+      d:'A mesma lista do resto do app, com o turquesa na escolhida e o tique ao lado. Cor sozinha não basta: para quem não separa bem as duas, o tique diz a mesma coisa em forma.',
+      html: coluna(form2d({ base:3, proj:'iso', leitura:'Isométrica', aberta:'leitura' }), barra({ custo:28 })) },
+    { n:'Etapa 6', t:'Mood, que aceita vários', foco:'mood',
+      d:'Quatro dos quinze campos aceitam mais de uma escolha. O botão mostra as marcadas separadas por vírgula, e a lista continua aberta enquanto se escolhe: marcar três não é três idas e voltas.',
+      html: coluna(form2d({ base:3, mood:['Aconchegante','Sofisticada'], aberta:'mood' }), barra({ custo:28 })) },
+    { n:'Etapa 7', t:'Piso por zona, fechado', foco:'piso',
+      d:'É opcional, e a maior parte das plantas não usa. Fechado ele é uma linha só. Abrir é uma decisão, e não o estado de partida de um bloco que quase ninguém preenche.',
+      html: coluna(form2d({ base:3, piso:false }), barra({ custo:28 })) },
+    { n:'Etapa 8', t:'Piso por zona, aberto', foco:'piso',
+      d:'Aberto, ele vira uma caixa com borda própria: o que está dentro dela pertence a ela, e não ao formulário em volta. Social e íntima já vêm, e o resto é por adição.',
+      html: coluna(form2d({ base:3, piso:true, pisoSocial:'porcelanato bege acetinado 90x90, junta mínima', intima:'Diferente (descrever)' }), barra({ custo:28 })) },
+    { n:'Etapa 9', t:'Uma zona a mais', foco:'piso',
+      d:'Cada zona extra entra com um fio em cima separando da anterior, nome e piso. O ✕ de cada uma remove só ela. Quantas quiser, e a caixa cresce para baixo.',
+      html: coluna(form2d({ base:3, piso:true, pisoSocial:'porcelanato bege acetinado 90x90', intima:'Mesmo piso', zona:true, zonaNome:'varanda', zonaPiso:'deck de cumaru natural' }), barra({ custo:28 })) },
+    { n:'Etapa 10', t:'As referências', foco:'refs',
+      d:'Elas vêm depois dos campos e antes de gerar, porque são o ajuste fino. O número em cima de cada miniatura é como se cita ela no texto, e o texto embaixo só fala em @ref depois que existe alguma.',
+      html: coluna(form2d({ base:3, refs:3, desc:'sala integrada com a varanda, jardim interno junto à escada' }), barra({ qtd:2, custo:56 })) },
+    { n:'Etapa 11', t:'A proporção',
+      d:'A mesma barra do Render, do Batch e do Editar: quantidade, proporção, resolução, o botão com o custo, e o resetar embaixo. Planta pede formato deitado, e por isso 16:9 e 3:2 são os mais usados aqui.',
+      html: coluna(form2d({ base:3, refs:1 }), barra({ pop:true, ratio:'16:9', custo:28 })) }
+  ]);
+
+  quadros('etapas3d', [
+    { n:'Etapa 1', t:'As referências do projeto',
+      d:'Aqui elas não são ajuste fino, são a matéria-prima: a geometria vem da cena do SketchUp, e tudo o que é material, cor e luz vem destas fotos. Por isso vêm primeiro.',
+      html: coluna(form3dFase1({ refs:0 }), barra3dFase1()) },
+    { n:'Etapa 2', t:'A cena, que é a entrada', foco:'cena',
+      d:'É aqui que o plugin se separa da web. A lista traz as cenas salvas do modelo mais a vista de agora, e a câmera de cada uma decide o resultado: paralela de cima sai ortogonal, perspectiva sai perspectivada.',
+      html: coluna(form3dFase1({ refs:3, cena:'Cena 2 — Superior', aberta:'cena' }), barra3dFase1()) },
+    { n:'Etapa 3', t:'Os materiais lidos', foco:'materiais',
+      d:'A análise volta separada por ambiente, e cada um ganha o cartão do Batch: miniatura, nome e o texto editável. Juntar tudo num campo só faria caçar o parágrafo do quarto no meio do texto da sala.',
+      html: coluna(form3dFase2({ confirmado:false })) },
+    { n:'Etapa 4', t:'Confirmados, e aí sim gerar', foco:'materiais',
+      d:'Confirmar tranca o texto e acende o cartão. Enquanto nenhum estiver confirmado não há o que gerar, e a barra só aparece quando há. Voltar para referências refaz a análise.',
+      html: coluna(form3dFase2({ confirmado:true }), barra({ custo:28 })) }
+  ]);
+
+  var raiz = document.documentElement, btn = document.getElementById('tema');
+  function escuro() { var t = raiz.getAttribute('data-theme'); return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function rotular() { btn.textContent = escuro() ? 'Ver no claro' : 'Ver no escuro'; }
+  rotular();
+  btn.addEventListener('click', function () { raiz.setAttribute('data-theme', escuro() ? 'light' : 'dark'); rotular(); });
+})();
+</script>
