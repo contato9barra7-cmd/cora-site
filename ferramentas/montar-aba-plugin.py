@@ -44,11 +44,8 @@ FOTOS = ['painel-escritorio.webp', 'painel-cozinha.webp',
 FAMILIAS = {
     # A Animação morou aqui enquanto o artefato dela era só um artefato; agora
     # que a aba está portada, `anim-`, `seq-` e `narr-` subiram para o ALVO,
-    # que é onde vale para os dois lados.
-    #
-    # As Análises: a busca, o cartão de cada leitura, as etiquetas, o texto e
-    # os botões do cartão aberto.
-    'analises': r'an-',
+    # que é onde vale para os dois lados. As Análises fizeram o mesmo com
+    # `an-`, quando foram portadas.
 }
 
 

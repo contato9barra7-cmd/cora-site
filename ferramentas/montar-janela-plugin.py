@@ -66,6 +66,10 @@ ALVO = re.compile(
     # sliders, a dica do ? e a janela do preset. So a aba Upscale de antes
     # usava `up-`, e ela fica escondida como fonte de estado.
     r'|up-'
+    # as Analises da web: a busca, o cartao de cada leitura, as etiquetas, o
+    # texto e os botoes do cartao aberto. A folha da aba de antes usava as
+    # mesmas classes e sai no `portar-janela.py`.
+    r'|an-'
     # o menu do botao direito, a linha de camada (a lista do Blocos e do
     # Materiais), o renomear na linha, o botao de icone e o aviso passageiro,
     # todos da Pos da web
