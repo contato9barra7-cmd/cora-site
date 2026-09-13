@@ -127,13 +127,20 @@ export default function EmailAssinantes({ onClose }) {
             <div className="ea-assunto">{t('emailassinantes_assunto')}: <b>{assunto || t('emailassinantes_sem_assunto')}</b></div>
             <div className="ea-mb">
               <div className="ea-prev">
-                <div className="ea-prev-top">Cora Render</div>
+                <div className="ea-prev-faixa">
+                  <img src="/img/email-faixa.png" alt="" />
+                </div>
+                <div className="ea-prev-logo">
+                  <img src="/img/email-logo.png" alt="Cora Render" width="108" height="26" />
+                </div>
                 <div className="ea-prev-body">
                   {titulo && <h4>{titulo}</h4>}
                   <p>{mensagem.split('\n').map((linha, i) => <span key={i}>{linha}<br /></span>)}</p>
                   {botaoTexto && botaoLink && <span className="ea-prev-cta">{botaoTexto}</span>}
                 </div>
-                <div className="ea-prev-rod">9barra7 Academy</div>
+                <div className="ea-prev-rod">
+                  9barra7 Academy · <a href="https://corarender.com" target="_blank" rel="noreferrer">corarender.com</a>
+                </div>
               </div>
               {erro && <p className="ea-erro">{erro}</p>}
             </div>

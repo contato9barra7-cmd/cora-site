@@ -570,7 +570,17 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
     // Repintar a coluna inteira zera a rolagem, e quem clicou num campo lá
     // embaixo seria jogado de volta para o topo a cada escolha.
     var novo = jn1.querySelector('.cr-form');
-    if (novo) novo.scrollTop = onde;
+    if (!novo) return;
+    novo.scrollTop = onde;
+
+    // A lista aberta no pé da coluna fica cortada pela rolagem do
+    // formulário. Na web ela escapa por um portal; aqui a coluna desce o
+    // tanto que falta, que dá no mesmo para quem está olhando.
+    var lista = novo.querySelector('.cora-dd--aberto .cora-dd-lista');
+    if (!lista) return;
+    var rl = lista.getBoundingClientRect(), rn = novo.getBoundingClientRect();
+    var falta = rl.bottom - rn.bottom + 12;
+    if (falta > 0) novo.scrollTop += falta;
   }
 
   jn1.addEventListener('click', function (ev) {

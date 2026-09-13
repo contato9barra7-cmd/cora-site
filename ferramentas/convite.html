@@ -546,6 +546,11 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
   .login-form-lado .login-titulo { margin-top: 22px; }
 }
 .login-logo { font-size: 17px; font-weight: 600; text-align: center; }
+:root[data-theme="dark"] .login-logo img,
+[data-theme="dark"] .login-logo img { filter: invert(1); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .login-logo img { filter: invert(1); }
+}
 .login-titulo { font-size: 28px; font-weight: 600; text-align: center; margin-top: 22px; }
 .login-sub { text-align: center; color: var(--ink2); font-size: 14.5px; margin-top: 6px; margin-bottom: 24px; }
 /* ── RITMO DOS CAMPOS ───────────────────────────────────────────────────────
@@ -10232,8 +10237,11 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .aj-previa canvas {
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;
+  width: auto;
+  height: auto;
+  display: block;
   box-shadow: 0 2px 24px rgba(0, 0, 0, .12);
+  background: #ffffff;
 }
 
 .aj-lado {
@@ -12214,8 +12222,16 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
 }
 .cora-dd-btn:hover { border-color: var(--ink3); }
-.cora-dd-btn:focus-visible { outline: 0; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(17,17,17,.08); }
 .cora-dd--aberto .cora-dd-btn { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(17,17,17,.08); }
+.cora-dd--erro .cora-dd-btn,
+.cora-dd-btn--erro {
+  border-color: #C8342A !important;
+}
+.cora-dd--erro .cora-dd-btn:focus-visible,
+.cora-dd-btn--erro:focus-visible {
+  border-color: #C8342A !important;
+  box-shadow: 0 0 0 3px rgba(200,52,42,.12) !important;
+}
 
 /* COM RÓTULO DENTRO
    O nome do campo mora dentro do próprio controle, em cima do valor. Numa
@@ -12695,14 +12711,17 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 .ea-previa { background:var(--paper); color: var(--turq-txt); border:1.5px solid var(--roxo); }
 .ea-enviar { background:var(--verde); color:#0d2b06; }
 
-/* prévia do e-mail */
-.ea-prev { border:1px solid var(--line); border-radius:14px; overflow:hidden; }
-.ea-prev-top { background:#14141a; color:#fff; font-weight:800; font-size:14.5px; padding:15px 20px; }
-.ea-prev-body { padding:20px; background:#fff; }
-.ea-prev-body h4 { font-size:17px; font-weight:800; margin-bottom:10px; color:#14141a; }
-.ea-prev-body p { font-size:12.5px; color:#55555c; line-height:1.6; margin-bottom:14px; }
-.ea-prev-cta { display:inline-block; background:#C4FBA7; color:#111111; font-size:12.5px; font-weight:800; padding:11px 24px; border-radius:100px; }
-.ea-prev-rod { padding:14px 20px; border-top:1px solid #f0f0f2; background:#fff; font-size:11px; color:#a0a0a8; }
+.ea-prev { border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff; box-shadow:0 4px 20px rgba(0,0,0,.06); }
+.ea-prev-faixa { background:#C4FBA7; line-height:0; font-size:0; }
+.ea-prev-faixa img { width:100%; height:auto; display:block; }
+.ea-prev-logo { padding:22px 28px 0; background:#fff; }
+.ea-prev-logo img { width:108px; height:26px; display:block; }
+.ea-prev-body { padding:18px 28px 24px; background:#fff; }
+.ea-prev-body h4 { font-size:22px; font-weight:600; letter-spacing:-.025em; line-height:1.2; margin-bottom:12px; color:#111111; }
+.ea-prev-body p { font-size:13.5px; color:#5B5B57; line-height:1.6; margin-bottom:16px; }
+.ea-prev-cta { display:inline-block; background:#C4FBA7; color:#111111; font-size:13.5px; font-weight:700; padding:12px 26px; border-radius:100px; text-decoration:none; }
+.ea-prev-rod { padding:14px 28px; border-top:1px solid #E4E4DF; background:#FAFAF8; font-size:11.5px; color:#8A8880; }
+.ea-prev-rod a { color:#8A8880 !important; text-decoration:underline; }
 
 /* resultado */
 .ea-result { padding:34px 30px; text-align:center; }
@@ -14828,7 +14847,7 @@ img, video, iframe {
   .co .ps-top { flex-wrap: nowrap; overflow: visible; }
   .co .ps-top .ps-b { padding-inline: 8px; }
   .co .ps-top .ps-sep { margin-inline: 0; }
-  .co .ps-fly { z-index: 90; }
+  .co .ps-fly { z-index: 301; }
 }
 @media (max-width: 480px) {
   .co .ps-top {
@@ -14837,7 +14856,7 @@ img, video, iframe {
     row-gap: 4px;
   }
   .co .ps-esticar { display: none; }
-  .co .ps-fly { z-index: 90; }
+  .co .ps-fly { z-index: 301; }
 }
 
 /* A barra de recorte permanece numa linha lateral. Se a tela for muito curta,
@@ -15607,7 +15626,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
    cor certa, e o texto fica preto por cima. */
 .tc .cad-passo-tag{
   display:inline-block; margin:0 0 var(--e-3); padding:5px 12px;
-  background:var(--turquesa); color:var(--ink); border-radius:var(--r-pill);
+  background:var(--turquesa); color:#111111 !important; border-radius:var(--r-pill);
   font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
 }
 .tc .cad-passo-tag + .login-titulo{ margin-top:0; }
@@ -15723,6 +15742,11 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 
 .tc .login-logo{ display:block; margin-bottom:var(--e-7); }
 .tc .login-logo img{ height:34px; width:auto; display:block; }
+:root[data-theme="dark"] .tc .login-logo img,
+[data-theme="dark"] .tc .login-logo img{ filter:invert(1); }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .tc .login-logo img{ filter:invert(1); }
+}
 .tc .login-titulo{ font-size:34px; font-weight:500; letter-spacing:-.03em; line-height:1.1; text-align:left; margin:0; }
 .tc .login-sub{ margin:var(--e-2) 0 0; color:var(--ink2); font-size:14.5px; text-align:left; }
 .tc .login-card{ width:100%; max-width:360px; }

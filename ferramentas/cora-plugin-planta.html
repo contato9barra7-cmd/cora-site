@@ -18,9 +18,11 @@
 .modal-dd .cora-dd-opt{padding: 11px 14px; border-radius: 10px; font-size: 12.2px;}
 :root{--tarja-h: 42px;}
 :root{--side-w: 240px; --side-w-min: 68px; --header-h: 60px;}
+.perfil-linha .cora-dd{flex: 1;}
 .perfil-linha .cora-dd-btn{padding: 11px 18px; font-size: 13.1px;}
 .app-user-pref-dd .cora-dd-btn{padding: 6px 14px; font-size: 12.2px;}
 .ws-mover-quem .cora-dd-btn{height: 42px; padding: 0 18px; border-radius: 100px; border-color: var(--line2); font-size: 13.1px;}
+.ws-mover-quem .cora-dd{width: 100%;}
 .cr-wrap{display: flex; gap: 0; width: 100%; height: calc(100vh - var(--header-h)); background: var(--paper); overflow: hidden;}
 .cr-painel{width: 400px; flex-shrink: 0; border-right: 1px solid var(--line); background: var(--wash); display: flex; flex-direction: column; overflow-y: auto;}
 .cr-feed{flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; position: relative;}
@@ -749,6 +751,8 @@
 .ps-toast-link{border: none; background: none; color: var(--turq-txt); font-size: 11.2px; font-weight: 500; cursor: pointer; padding: 0;}
 .ps-toast-link:hover{text-decoration: underline;}
 .up-refs .cr-ref{max-width: 72px;}
+.up-preset > .cora-dd{flex: 1; min-width: 0;}
+.cora-dd{position: relative; width: 100%;}
 .cora-dd-btn{width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font-size: 12.2px; font-family: inherit; cursor: pointer; text-align: left; line-height: 1.35; transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;}
 .cora-dd-btn:hover{border-color: var(--ink3);}
 .cora-dd--aberto .cora-dd-btn{border-color: var(--ink); box-shadow: 0 0 0 3px rgba(17,17,17,.08);}
@@ -1447,6 +1451,7 @@
      escolhido aparecia um tique ao lado de "Noite", que nao quer dizer nada. */
   
   position:relative;
+  display:flex; flex-direction:column; justify-content:flex-start;
   padding:0; border:1px solid var(--line); border-radius:10px;
   background:var(--paper); overflow:hidden; text-align:center;
   transition:border-color var(--t), box-shadow var(--t);
@@ -1466,7 +1471,8 @@
 }.co .am__b[aria-checked="true"] .am__ok{ opacity:1; }.co .am__n{
   display:block; padding:6px 6px 7px; font-size:var(--t-etiqueta);
   color:var(--ink2); font-weight:500; line-height:1.25; text-wrap:pretty;
-}.co .am__b[aria-checked="true"] .am__n{ color:var(--ink); font-weight:600; }/* A planta da direção da luz: a sala vista de cima e por onde a luz entra.
+}.co .am__b[aria-checked="true"] .am__n{ color:var(--ink); font-weight:600; }
+.co .am--3 .am__n{ font-size:9.5px; padding:5px 2px 6px; letter-spacing:-.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }/* A planta da direção da luz: a sala vista de cima e por onde a luz entra.
    Voltou depois de eu ter trocado por gradiente: seis amostras bege quase
    iguais não separavam "frontal" de "lateral esquerda", e a seta separa sem
    precisar comparar uma com a outra. *//* O desenho é referência, e não ilustração: ele só precisa dizer de que
@@ -2465,7 +2471,17 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
     // Repintar a coluna inteira zera a rolagem, e quem clicou num campo lá
     // embaixo seria jogado de volta para o topo a cada escolha.
     var novo = jn1.querySelector('.cr-form');
-    if (novo) novo.scrollTop = onde;
+    if (!novo) return;
+    novo.scrollTop = onde;
+
+    // A lista aberta no pé da coluna fica cortada pela rolagem do
+    // formulário. Na web ela escapa por um portal; aqui a coluna desce o
+    // tanto que falta, que dá no mesmo para quem está olhando.
+    var lista = novo.querySelector('.cora-dd--aberto .cora-dd-lista');
+    if (!lista) return;
+    var rl = lista.getBoundingClientRect(), rn = novo.getBoundingClientRect();
+    var falta = rl.bottom - rn.bottom + 12;
+    if (falta > 0) novo.scrollTop += falta;
   }
 
   jn1.addEventListener('click', function (ev) {

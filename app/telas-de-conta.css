@@ -370,7 +370,7 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
    cor certa, e o texto fica preto por cima. */
 .tc .cad-passo-tag{
   display:inline-block; margin:0 0 var(--e-3); padding:5px 12px;
-  background:var(--turquesa); color:var(--ink); border-radius:var(--r-pill);
+  background:var(--turquesa); color:#111111 !important; border-radius:var(--r-pill);
   font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
 }
 .tc .cad-passo-tag + .login-titulo{ margin-top:0; }
@@ -486,6 +486,11 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 
 .tc .login-logo{ display:block; margin-bottom:var(--e-7); }
 .tc .login-logo img{ height:34px; width:auto; display:block; }
+:root[data-theme="dark"] .tc .login-logo img,
+[data-theme="dark"] .tc .login-logo img{ filter:invert(1); }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .tc .login-logo img{ filter:invert(1); }
+}
 .tc .login-titulo{ font-size:34px; font-weight:500; letter-spacing:-.03em; line-height:1.1; text-align:left; margin:0; }
 .tc .login-sub{ margin:var(--e-2) 0 0; color:var(--ink2); font-size:14.5px; text-align:left; }
 .tc .login-card{ width:100%; max-width:360px; }

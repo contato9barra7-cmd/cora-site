@@ -1693,7 +1693,7 @@ img, video, iframe {
   .co .ps-top { flex-wrap: nowrap; overflow: visible; }
   .co .ps-top .ps-b { padding-inline: 8px; }
   .co .ps-top .ps-sep { margin-inline: 0; }
-  .co .ps-fly { z-index: 90; }
+  .co .ps-fly { z-index: 301; }
 }
 @media (max-width: 480px) {
   .co .ps-top {
@@ -1702,7 +1702,7 @@ img, video, iframe {
     row-gap: 4px;
   }
   .co .ps-esticar { display: none; }
-  .co .ps-fly { z-index: 90; }
+  .co .ps-fly { z-index: 301; }
 }
 
 /* A barra de recorte permanece numa linha lateral. Se a tela for muito curta,

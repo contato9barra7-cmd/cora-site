@@ -43,7 +43,12 @@ SAIDA = os.path.join(AQUI, 'cora-plugin-janela.html')
 
 # Os seletores que interessam dentro do globals.
 ALVO = re.compile(
-    r'(^|[\s,>+~])\.(cr-|cmp\b|cmp__|cora-dd-|am\b|am__|am--|kel\b|kel__'
+    # `cora-dd` sem o hifen de proposito: escrito `cora-dd-`, a CAIXA do
+    # dropdown ficava de fora e so as pecas de dentro entravam. E a caixa que
+    # carrega o `position:relative`, entao a lista aberta ia se ancorar no
+    # primeiro pai posicionado la longe e abria fora da tela. Passavam quinze
+    # regras e faltava a que segura todas.
+    r'(^|[\s,>+~])\.(cr-|cmp\b|cmp__|cora-dd|am\b|am__|am--|kel\b|kel__'
     r'|sul\b|sul__|fic\b|fic__|fic--|pl-|ta--curta'
     # o seletor de cor, o campo do @, o painel de filtros, as janelas
     r'|cor\b|cor__|cref\b|cref-|ft\b|ft-|ft__|cf\b|cf-|nm-|ps-b|dt\b|dt-'

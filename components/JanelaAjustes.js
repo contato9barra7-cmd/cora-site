@@ -103,12 +103,39 @@ function calcularAutoLuz(src) {
   } catch (e) { return null; }
 }
 
+function fundirParams(iniciais) {
+  const padrao = paramsPadrao();
+  if (!iniciais) return padrao;
+  return {
+    luz:     { ...padrao.luz, ...(iniciais.luz || {}) },
+    cor:     { ...padrao.cor, ...(iniciais.cor || {}) },
+    efeitos: { ...padrao.efeitos, ...(iniciais.efeitos || {}) },
+    detalhe: { ...padrao.detalhe, ...(iniciais.detalhe || {}) },
+    curva: {
+      rgb: Array.isArray(iniciais.curva?.rgb) ? iniciais.curva.rgb : padrao.curva.rgb,
+      r:   Array.isArray(iniciais.curva?.r)   ? iniciais.curva.r   : padrao.curva.r,
+      g:   Array.isArray(iniciais.curva?.g)   ? iniciais.curva.g   : padrao.curva.g,
+      b:   Array.isArray(iniciais.curva?.b)   ? iniciais.curva.b   : padrao.curva.b,
+    },
+    mixer: {
+      vermelho: { ...padrao.mixer.vermelho, ...(iniciais.mixer?.vermelho || {}) },
+      laranja:  { ...padrao.mixer.laranja,  ...(iniciais.mixer?.laranja  || {}) },
+      amarelo:  { ...padrao.mixer.amarelo,  ...(iniciais.mixer?.amarelo  || {}) },
+      verde:    { ...padrao.mixer.verde,    ...(iniciais.mixer?.verde    || {}) },
+      ciano:    { ...padrao.mixer.ciano,    ...(iniciais.mixer?.ciano    || {}) },
+      azul:     { ...padrao.mixer.azul,     ...(iniciais.mixer?.azul     || {}) },
+      roxo:     { ...padrao.mixer.roxo,     ...(iniciais.mixer?.roxo     || {}) },
+      magenta:  { ...padrao.mixer.magenta,  ...(iniciais.mixer?.magenta  || {}) }
+    }
+  };
+}
+
 export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) {
   const { t } = useIdioma();
   // Reabrindo um filtro de Ajustes, os controles nascem com os valores DELE.
   // O `camada.ajustes` é o caminho antigo, das camadas rasterizadas — ali o
   // ajuste é único e vive na própria camada.
-  const [p, setP]     = useState(() => inicial || camada.ajustes || paramsPadrao());
+  const [p, setP]     = useState(() => fundirParams(inicial || camada?.ajustes));
   const [aba, setAba] = useState('luz');
   const [canal, setCanal] = useState('rgb');
   const [cor, setCor]     = useState('vermelho');
@@ -119,7 +146,10 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   // `mascaras` é a lista; `mascaraAtiva` é o índice em edição (null = global,
   // ajusta a imagem toda). `ferramenta` é pincel/linear/radial; `modoComp` diz
   // se a próxima pincelada soma ou subtrai; `brush` guarda tamanho/fluxo/etc.
-  const [mascaras, setMascaras] = useState([]);
+  const [mascaras, setMascaras] = useState(() => {
+    const ini = inicial || camada?.ajustes;
+    return ini?._mascaras || [];
+  });
   const [mascaraAtiva, setMascaraAtiva] = useState(null);
   const [ferramenta, setFerramenta] = useState(null);
   const [modoComp, setModoComp] = useState('add');
@@ -142,12 +172,18 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   const telaRef  = useRef(null);
   const baseRef  = useRef(null);   // a cópia reduzida, já pronta
   const timerRef = useRef(null);
+  const [telaPronta, setTelaPronta] = useState(false);
+  const setTelaRef = useCallback((el) => {
+    telaRef.current = el;
+    if (el) setTelaPronta(true);
+  }, []);
 
   // ── A base do preview ──
   // Reduzida uma vez, no início. Reduzir a cada slider seria refazer trabalho
   // que não muda.
   useEffect(() => {
-    const src = camada.canvas;
+    const src = camada?.canvas;
+    if (!src || !src.width || !src.height) return;
     const r = Math.min(1, LADO_PREVIA / Math.max(src.width, src.height));
 
     const c = document.createElement('canvas');
@@ -156,9 +192,23 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
 
     baseRef.current = c;
-    desenhar(p, [], null, false);
+    desenhar(p, mascaras, mascaraAtiva, false);
+    requestAnimationFrame(() => {
+      desenhar(p, mascaras, mascaraAtiva, false);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camada]);
+  }, [camada?.canvas]);
+
+  // Redesenha assim que a tela e a base estiverem prontas (essencial no Safari/iPad)
+  useEffect(() => {
+    if (telaPronta && baseRef.current) {
+      desenhar(p, mascaras, mascaraAtiva, mascaraAtiva != null);
+      requestAnimationFrame(() => {
+        desenhar(p, mascaras, mascaraAtiva, mascaraAtiva != null);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [telaPronta]);
 
   // O ref acompanha o estado para a pintura ao vivo ler a versão mais recente
   // sem esperar o React re-renderizar.
@@ -202,49 +252,58 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
     if (!base || !tela) return;
 
     const w = base.width, h = base.height;
-    tela.width = w; tela.height = h;
+    if (tela.width !== w) tela.width = w;
+    if (tela.height !== h) tela.height = h;
 
     const cx = tela.getContext('2d');
+    if (!cx) return;
     cx.drawImage(base, 0, 0);
 
     // Prévia "Antes" (botão / tecla \): mostra a imagem original, sem ajustes.
     if (mostrarAntesRef.current) return;
 
-    const lista = masks || [];
-    const mAtiva = ativa != null ? lista[ativa] : null;
+    try {
+      const lista = masks || [];
+      const mAtiva = ativa != null ? lista[ativa] : null;
 
-    // Modo leve (usado durante a pincelada): mostra só a imagem + o overlay
-    // vermelho da máscara ativa. Reaplicar todos os ajustes a cada frame é o que
-    // travava; isso fica para quando a pessoa solta o mouse.
-    if (leve) {
-      if (mAtiva && mAtiva.componentes.length) {
+      // Modo leve (usado durante a pincelada): mostra só a imagem + o overlay
+      // vermelho da máscara ativa. Reaplicar todos os ajustes a cada frame é o que
+      // travava; isso fica para quando a pessoa solta o mouse.
+      if (leve) {
+        if (mAtiva && mAtiva.componentes?.length) {
+          const ov = overlayVermelho(mAtiva, w, h);
+          cx.drawImage(ov, 0, 0);
+        }
+        return;
+      }
+
+      const temGlobal = temAjuste(params);
+      const temMasc = lista.some((m) => m.visivel !== false && temAjuste(m.params));
+
+      if (temGlobal || temMasc) {
+        const img = cx.getImageData(0, 0, w, h);
+        if (temGlobal) aplicarPixels(img.data, w, h, params);
+        if (temMasc) aplicarMascaras(img.data, w, h, lista);
+        cx.putImageData(img, 0, 0);
+      }
+
+      // O overlay vermelho: aparece só enquanto a máscara está sendo DESENHADA e
+      // ainda não recebeu ajuste. Assim que um slider mexe, o vermelho some e dá
+      // lugar ao efeito real. Máscara oculta não mostra overlay.
+      const mostrarOverlay = mAtiva
+        && mAtiva.visivel !== false
+        && mAtiva.componentes?.length
+        && (forcarOverlay || (verOverlay && !temAjuste(mAtiva.params)));
+
+      if (mostrarOverlay) {
         const ov = overlayVermelho(mAtiva, w, h);
         cx.drawImage(ov, 0, 0);
       }
-      return;
-    }
-
-    const temGlobal = temAjuste(params);
-    const temMasc = lista.some((m) => m.visivel !== false && temAjuste(m.params));
-
-    if (temGlobal || temMasc) {
-      const img = cx.getImageData(0, 0, w, h);
-      if (temGlobal) aplicarPixels(img.data, w, h, params);
-      if (temMasc) aplicarMascaras(img.data, w, h, lista);
-      cx.putImageData(img, 0, 0);
-    }
-
-    // O overlay vermelho: aparece só enquanto a máscara está sendo DESENHADA e
-    // ainda não recebeu ajuste. Assim que um slider mexe, o vermelho some e dá
-    // lugar ao efeito real. Máscara oculta não mostra overlay.
-    const mostrarOverlay = mAtiva
-      && mAtiva.visivel !== false
-      && mAtiva.componentes.length
-      && (forcarOverlay || (verOverlay && !temAjuste(mAtiva.params)));
-
-    if (mostrarOverlay) {
-      const ov = overlayVermelho(mAtiva, w, h);
-      cx.drawImage(ov, 0, 0);
+    } catch (err) {
+      console.error('[JanelaAjustes] Erro ao desenhar preview:', err);
+      try {
+        cx.drawImage(base, 0, 0);
+      } catch {}
     }
   }, []);
 
@@ -504,15 +563,16 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
   function retanguloDaImagem() {
     const base = baseRef.current;
     const tela = telaRef.current;
+    if (!base || !tela) return { left: 0, top: 0, w: 1, h: 1, escala: 1 };
     const r = tela.getBoundingClientRect();
 
-    const escala = Math.min(r.width / base.width, r.height / base.height);
+    const escala = Math.min(r.width / (base.width || 1), r.height / (base.height || 1));
     const w = base.width * escala;
     const h = base.height * escala;
     return {
       left: r.left + (r.width - w) / 2,
       top: r.top + (r.height - h) / 2,
-      w, h, escala
+      w: w || 1, h: h || 1, escala: escala || 1
     };
   }
 
@@ -805,7 +865,7 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
             onWheel={aoRolar}
           >
             <canvas
-              ref={telaRef}
+              ref={setTelaRef}
               onClick={clicarWB}
               onMouseDown={comecarPincel}
               onMouseMove={pintarEm}
