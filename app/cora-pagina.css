@@ -304,13 +304,80 @@
 }.co .ed-faixa svg{ width:15px; height:15px; }.co .ed-card--on .ed-faixa{ background:var(--turq-bg); color:var(--turq-txt); }/* O padding agora é do card, e não do corpo. Sem zerar aqui, o do globals
    (11px 12px 13px) se soma ao meu e o texto fica com 25px de recuo. */.co .ed-corpo{ display:block; padding:0; }.co .ed-corpo strong{ display:block; font-size:var(--t-corpo); font-weight:600; color:var(--ink); }.co .ed-corpo span{ display:block; margin-top:3px; font-size:var(--t-apoio2); color:var(--ink2); line-height:1.35;  text-wrap:pretty; }/* Modo trancado pelo plano: o cadeado no canto, e o card apagado. */.co .ed-card--travado{ opacity:.55; }.co .ed-cad{ position:absolute; top:14px; right:12px; color:var(--ink3); }/* ── A TELA DOS OITO MODOS ──
    Aqui a coluna e disputada: os oito cartoes tem que caber sem rolagem, e o
-   respiro de cima cede o que falta. Vale so nesta tela, pelo `:has`, e nas
-   outras abas o espacamento continua o de sempre. */
-.co .cr-form:has(> .ed-cards){ padding-top:16px; padding-bottom:12px; }
-.co .cr-form:has(> .ed-cards) > .cr-sec{ margin-top:18px; margin-bottom:8px; }
-.co .cr-form:has(> .ed-cards) > .cr-sec:first-child{ margin-top:0; }
-.co .cr-form:has(> .ed-cards) > .cr-hint{ margin-top:6px; }
-.co .cr-form:has(> .ed-cards) > .ed-cards{ margin-bottom:0; }/* ══════════════════════════════════════════════════════════════════════
+   respiro de cima cede o que falta. Vale nesta tela, pelo :has e pelo
+   .cr-form--editar, em todos os idiomas (PT, EN, ES) e no iPad. */
+.co .cr-form--editar:has(> .ed-cards),
+.co .cr-form:has(> .ed-cards){
+  padding:8px 12px 6px; overscroll-behavior:contain;
+}
+.co .cr-form--editar:has(> .ed-cards) > .cr-sec,
+.co .cr-form:has(> .ed-cards) > .cr-sec{
+  margin-top:6px; margin-bottom:3px; font-size:10.5px;
+}
+.co .cr-form--editar:has(> .ed-cards) > .cr-sec:first-child,
+.co .cr-form:has(> .ed-cards) > .cr-sec:first-child{
+  margin-top:0;
+}
+.co .cr-form--editar:has(> .ed-cards) .cr-drop,
+.co .cr-form:has(> .ed-cards) .cr-drop{
+  height:48px; min-height:48px; flex-direction:row; gap:8px; padding:0 12px;
+}
+.co .cr-form--editar:has(> .ed-cards) .cr-drop svg,
+.co .cr-form:has(> .ed-cards) .cr-drop svg{
+  width:18px; height:18px; flex-shrink:0;
+}
+.co .cr-form--editar:has(> .ed-cards) .cr-drop span,
+.co .cr-form:has(> .ed-cards) .cr-drop span{
+  font-size:11.5px;
+}
+.co .cr-form--editar:has(> .ed-cards) .cr-ed-base .cr-base,
+.co .cr-form:has(> .ed-cards) .cr-ed-base .cr-base{
+  max-height:72px; width:auto; aspect-ratio:16/9; margin:0 auto;
+}
+.co .cr-form--editar:has(> .ed-cards) > .cr-hint,
+.co .cr-form:has(> .ed-cards) > .cr-hint{
+  margin-top:2px; font-size:10px; line-height:1.2;
+}
+.co .cr-form--editar > .ed-cards,
+.co .cr-form:has(> .ed-cards) > .ed-cards{
+  gap:4px; margin-bottom:0;
+}
+.co .cr-form--editar .ed-card,
+.co .cr-form:has(> .ed-cards) .ed-card{
+  padding:8px 7px 5px;
+}
+.co .cr-form--editar .ed-card::after,
+.co .cr-form:has(> .ed-cards) .ed-card::after{
+  height:6px;
+}
+.co .cr-form--editar .ed-card--on::before,
+.co .cr-form:has(> .ed-cards) .ed-card--on::before{
+  top:6px;
+}
+.co .cr-form--editar .ed-faixa,
+.co .cr-form:has(> .ed-cards) .ed-faixa{
+  width:18px; height:18px; margin-bottom:2px;
+}
+.co .cr-form--editar .ed-faixa svg,
+.co .cr-form:has(> .ed-cards) .ed-faixa svg{
+  width:11px; height:11px;
+}
+.co .cr-form--editar .ed-corpo strong,
+.co .cr-form:has(> .ed-cards) .ed-corpo strong{
+  font-size:11px; line-height:1.15;
+}
+.co .cr-form--editar .ed-corpo > span,
+.co .cr-form:has(> .ed-cards) .ed-corpo > span{
+  font-size:9.5px; line-height:1.15; margin-top:2px;
+}
+.co .cr-form--editar .ed-cad,
+.co .cr-form:has(> .ed-cards) .ed-cad{
+  top:6px; right:6px;
+}
+.co .cr-form--editar .ed-cad svg,
+.co .cr-form:has(> .ed-cards) .ed-cad svg{
+  width:11px; height:11px;
+}/* ══════════════════════════════════════════════════════════════════════
    OS DOIS PRIMOS DO CARD DE MODO
    O Upscale e as Sequências repetem a mesma peça com outro nome de classe, e
    traziam a mesma herança: azul e coral no Upscale, três pastéis nas

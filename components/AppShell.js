@@ -546,9 +546,9 @@ export default function AppShell({ children }) {
   // A padronagem no cabeçalho fica só em Minha conta e Assinatura, do jeito
   // que o PromptHub faz. No Início ela já mora na esteira do herói, e duas na
   // mesma tela competem. Foi a mesma conclusão do lado dos Promptadores, e é
-  // por isso que lá o cabeçalho liso é o normal e a faixa é a exceção.
   const TELAS_COM_FAIXA = ['/conta/perfil', '/assinatura', '/admin', '/workspace', '/aprender'];
   const cabecalhoComFaixa = TELAS_COM_FAIXA.includes(pathname);
+  const ehApp = pathname?.startsWith('/app');
 
   return (
     // `pn` é a classe da página. Todo o desenho aprovado do painel vive em
@@ -556,9 +556,10 @@ export default function AppShell({ children }) {
     // especificidade, sem `!important`, e nada dele vaza para o resto do site.
     // A folha é GERADA a partir de ferramentas/painel.html, que é o artefato.
     // Mexer no desenho é mexer lá e rodar o gerador, nunca editar a folha.
-    <div className="pn">
+    <div className={'pn' + (ehApp ? ' pn--app' : '')}>
     <div className={'app-shell' + (recolhido ? ' recolhido' : '') + (gaveta ? ' gaveta' : '')
-      + (conta?.personificado ? ' com-tarja' : '')}>
+      + (conta?.personificado ? ' com-tarja' : '')
+      + (ehApp ? ' app-shell--app' : '')}>
       {/* ── TARJA DE PERSONIFICAÇÃO ──
           Fica no AppShell, e não só no /admin, porque o ponto todo de "ver como
           o cliente" é sair do painel e andar pelas telas dele. É justamente

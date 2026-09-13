@@ -170,6 +170,7 @@ html, body {
   font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
+  overscroll-behavior-y: none;
 }
 /* sticky footer nas páginas públicas: o conteúdo cresce e empurra o
    RodapeGlobal pro fim da tela, sem esticar o conteúdo em si. */

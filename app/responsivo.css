@@ -1398,15 +1398,40 @@ img, video, iframe {
 }
 
 @media (max-height: 900px) and (min-width: 641px) {
-  .co .cr-form--editar { padding:10px 12px 8px; }
-  .co .cr-form--editar .cr-sec { margin:8px 0 6px; }
-  .co .cr-form--editar .cr-hint { margin-top:4px; font-size:11px; }
-  .co .cr-form--editar > .ed-cards { gap:5px; }
-  .co .cr-form--editar .ed-card { padding:13px 8px 6px; }
-  .co .cr-form--editar .ed-faixa { width:22px; height:22px; margin-bottom:3px; }
-  .co .cr-form--editar .ed-faixa svg { width:12px; height:12px; }
-  .co .cr-form--editar .ed-corpo strong { font-size:11.5px; line-height:1.15; }
-  .co .cr-form--editar .ed-corpo > span { font-size:10.5px; line-height:1.2; }
+  .co .cr-form--editar { padding:7px 10px 4px; overscroll-behavior:contain; }
+  .co .cr-form--editar .cr-sec { margin:4px 0 2px; font-size:10px; }
+  .co .cr-form--editar .cr-sec:first-child { margin-top:0; }
+  .co .cr-form--editar .cr-drop { height:44px; min-height:44px; flex-direction:row; gap:8px; padding:0 10px; }
+  .co .cr-form--editar .cr-drop svg { width:16px; height:16px; flex-shrink:0; }
+  .co .cr-form--editar .cr-drop span { font-size:11px; }
+  .co .cr-form--editar .cr-ed-base .cr-base { max-height:64px; }
+  .co .cr-form--editar .cr-hint { margin-top:1px; font-size:9.5px; line-height:1.15; }
+  .co .cr-form--editar > .ed-cards { gap:4px; }
+  .co .cr-form--editar .ed-card { padding:7px 6px 4px; }
+  .co .cr-form--editar .ed-card::after { height:5px; }
+  .co .cr-form--editar .ed-card--on::before { top:5px; }
+  .co .cr-form--editar .ed-faixa { width:17px; height:17px; margin-bottom:2px; }
+  .co .cr-form--editar .ed-faixa svg { width:10px; height:10px; }
+  .co .cr-form--editar .ed-corpo strong { font-size:10.5px; line-height:1.1; }
+  .co .cr-form--editar .ed-corpo > span { font-size:9.5px; line-height:1.12; margin-top:1px; }
+  .co .cr-form--editar .ed-cad { top:5px; right:5px; }
+  .co .cr-form--editar .ed-cad svg { width:10px; height:10px; }
+}
+
+@media (max-height: 750px) and (min-width: 641px) {
+  .co .cr-form--editar { padding:4px 8px 3px; }
+  .co .cr-form--editar .cr-sec { margin:3px 0 2px; font-size:9.5px; }
+  .co .cr-form--editar .cr-drop { height:38px; min-height:38px; gap:6px; padding:0 8px; }
+  .co .cr-form--editar .cr-drop svg { width:14px; height:14px; }
+  .co .cr-form--editar .cr-drop span { font-size:10px; }
+  .co .cr-form--editar .cr-ed-base .cr-base { max-height:54px; }
+  .co .cr-form--editar .cr-hint { margin-top:1px; font-size:9px; line-height:1.1; }
+  .co .cr-form--editar > .ed-cards { gap:3px; }
+  .co .cr-form--editar .ed-card { padding:5px 5px 3px; }
+  .co .cr-form--editar .ed-faixa { width:15px; height:15px; margin-bottom:1px; }
+  .co .cr-form--editar .ed-faixa svg { width:9px; height:9px; }
+  .co .cr-form--editar .ed-corpo strong { font-size:10px; line-height:1.05; }
+  .co .cr-form--editar .ed-corpo > span { font-size:9px; line-height:1.08; margin-top:1px; }
 }
 
 @container (min-width: 761px) and (max-width: 1100px) {
@@ -1959,4 +1984,127 @@ img, video, iframe {
   .co .cr-ca--on:hover { color: var(--lima); }
   .co .cr-ca--fav,
   .co .cr-ca--fav:hover { color: var(--turquesa); }
+}
+
+/* ── TRAVAMENTO DE TELA NA PRANCHETA (/app) ──
+   A Prancheta é um ambiente de trabalho tipo aplicação (como Figma/Photoshop):
+   o cabeçalho e a lateral ficam fixos, e só o formulário e a galeria rolam
+   internamente. O documento (html e body) tem que ficar estritamente travado
+   em 100dvh para impedir rolagem no nível da janela do navegador e evitar
+   o overscroll / rubber-band do Safari no iPad que revela o fundo preto. */
+html:has(.cr-tela),
+body:has(.cr-tela) {
+  height: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+}
+
+.pn--app,
+.pn:has(.cr-tela) {
+  height: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.pn .app-shell.app-shell--app,
+.pn:has(.cr-tela) .app-shell,
+.app-shell:has(.cr-tela) {
+  height: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.pn .app-shell.app-shell--app .app-main,
+.pn:has(.cr-tela) .app-main,
+.app-main:has(.cr-tela) {
+  height: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  padding-bottom: 0;
+}
+
+.pn .app-shell.app-shell--app .app-main-conteudo,
+.pn:has(.cr-tela) .app-main-conteudo,
+.app-main:has(.cr-tela) .app-main-conteudo {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pn .app-shell.app-shell--app .app-side,
+.pn:has(.cr-tela) .app-side,
+.app-shell:has(.cr-tela) .app-side {
+  height: 100dvh;
+  max-height: 100dvh;
+  bottom: 0;
+  overscroll-behavior: contain;
+}
+
+.co:has(.cr-tela) {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.co .cr-tela {
+  height: calc(100dvh - var(--header-h));
+  max-height: calc(100dvh - var(--header-h));
+  overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+  .cr-tela {
+    height: calc(100dvh - var(--header-h) - var(--seg-topo));
+    max-height: calc(100dvh - var(--header-h) - var(--seg-topo));
+  }
+}
+
+.co .cr-painel {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.co .cr-painel-corpo {
+  height: calc(100% - 58px);
+  max-height: calc(100% - 58px);
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.co .cr-aba {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.co .cr-aba > .cr-form,
+.co .cr-aba > .up-painel {
+  overscroll-behavior: contain;
+}
+
+.co .cr-feed {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.co .cr-feed-corpo {
+  overscroll-behavior: contain;
+}
+
+.co .cr-lista {
+  overscroll-behavior: contain;
 }
