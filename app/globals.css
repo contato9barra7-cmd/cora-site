@@ -6362,6 +6362,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .cora-check-bola:checked::after {
   content: ''; position: absolute; left: 50%; top: 47%;
   width: 5px; height: 9px; border: solid #111111; border-width: 0 2px 2px 0;
+  /* Canto e fundo ditos com todas as letras: a caixa redonda de antes do
+     plugin desenhava um ponto preto de 6px neste mesmo `::after`, e o tique
+     herdava o canto e o fundo dele e virava uma bolha. */
+  border-radius: 0; background: none;
   transform: translate(-50%, -50%) rotate(45deg);
 }
 .anim-contador { text-align: right; font-size: 11px; color: var(--ink3); margin: 4px 0 0; }

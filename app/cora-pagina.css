@@ -831,7 +831,12 @@
   backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
   color:var(--turquesa); filter:none;
-}.co .cr-card-fav svg{ width:14px; height:14px; }/* Aprovada: o disco de lima, e nada de anel em volta. A borda toma a cor do
+}.co .cr-card-fav svg{ width:14px; height:14px; }/* A fita das ações sobre a imagem: uma linha só, sempre. Ela nunca quebra
+   em duas, porque duas linhas viram um bloco preto no meio da foto. Quando a
+   largura aperta (cartão estreito, ou o tique e o coração nos cantos), quem
+   cede é o tamanho dos botões: cada um encolhe junto e continua redondo, e o
+   ícone acompanha. O fundo é cinza escuro, e não quase preto: sobre foto
+   escura o preto sumia, e a fita parecia um buraco. */.co .cr-card .cr-card-acoes{ flex-wrap:nowrap; background:rgba(46,46,50,.9); }.co .cr-card .cr-card-acoes > .cr-ca{ flex:0 1 auto; min-width:0; height:auto; aspect-ratio:1; }.co .cr-card .cr-card-acoes > .cr-ca svg{ flex:none; width:62%; max-width:14px; height:auto; }.co .cr-card .cr-card-acoes > .cr-ca-div{ flex:none; }/* Aprovada: o disco de lima, e nada de anel em volta. A borda toma a cor do
    fundo para sumir sem mudar a medida do botão. */.co .vz-ico--ok{ border-color:var(--lima); background:var(--lima); color:#111111; }.co .vz-ico--ok:hover{ border-color:var(--lima-esc); background:var(--lima-esc); color:#111111; }/* A janela do prompt cabe DENTRO da janela do preview, e por isso é menor nos
    dois eixos: o preview tem 1120px por 82vh, com teto de 860px. */.co .vz-prompt-janela{ max-width:660px; max-height:70vh; }.co .vz-prompt-corpo{ font-size:var(--t-apoio2); }/* A linha do Ambiente mora sozinha, fora da ficha grande. Ela respira em
    cima (estava colada no picker da imagem) e encosta no rótulo de Materiais

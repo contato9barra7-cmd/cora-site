@@ -79,41 +79,46 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
    Aqui ele é a janela, sem caixa, sem sombra e sem canto. O menu e o
    aviso medem contra a janela, e não contra a tela, pelo mesmo motivo do
    `.cr-overlay` da moldura. */
-.jn .pk{ flex:1; min-height:0; width:auto; max-width:none; height:auto; border:0; border-radius:0; box-shadow:none; overflow:hidden; background:var(--paper); }
-.jn .pk-lado, .jn .pk-main{ border-radius:0; }
+/* Tudo aqui mora dentro do `pk--biblioteca`. O escolhedor de imagem também é
+   um `.pk`, e com as regras soltas ele herdava o `flex:1` e a largura
+   automática da biblioteca: perdia a caixa fixa da web e esticava na largura
+   da janela, cada vez de um tamanho. */
+.jn .pk--biblioteca{ flex:1; min-height:0; width:auto; max-width:none; height:auto; border:0; border-radius:0; box-shadow:none; overflow:hidden; background:var(--paper); }
+.jn .pk--biblioteca .pk-lado, .jn .pk--biblioteca .pk-main{ border-radius:0; }
 /* Mais larga que os 132px do escolhedor: aqui ela carrega nomes de pasta,
-   que são da pessoa e costumam ser compridos, e não quatro palavras curtas. */
-.jn .pk-lado{ width:200px; overflow-y:auto; padding:14px 10px; gap:5px; }
+   que são da pessoa e costumam ser compridos. O nome que ainda assim não
+   cabe sai com reticências, e a dica mostra ele inteiro no hover. */
+.jn .pk--biblioteca .pk-lado{ width:232px; overflow-y:auto; padding:14px 10px; gap:5px; }
 /* A pasta marcada é o item marcado do menu lateral da web (`.app-nav-item`
    do painel): pastilha branca, fio de lima de 3px e o texto em 600. O traço
    de 2px do escolhedor era outro gesto. O hover não mexe na marcada. */
-.jn .pk-origem{
+.jn .pk--biblioteca .pk-origem{
   position:relative; flex:none; height:40px; gap:12px; padding:0 12px; border-radius:var(--r-peq);
   color:var(--ink2); font-size:var(--t-apoio); font-weight:500; letter-spacing:-.004em;
   transition:background-color var(--t), color var(--t);
 }
-.jn .pk-origem svg{ flex:none; width:16px; height:16px; color:var(--ink3); transition:color var(--t); }
-.jn .pk-origem:not(.pk-origem--on):hover{ background:rgba(255,255,255,.55); color:var(--ink); }
-[data-theme="dark"] .jn .pk-origem:not(.pk-origem--on):hover{ background:rgba(255,255,255,.08); }
-.jn .pk-origem:hover svg{ color:var(--ink); }
-.jn .pk-origem.pk-origem--on{ background:var(--paper); color:var(--ink); font-weight:600; box-shadow:0 1px 2px rgba(17,17,17,.05); }
-.jn .pk-origem.pk-origem--on svg{ color:var(--ink); }
-.jn .pk-origem.pk-origem--on::before{
+.jn .pk--biblioteca .pk-origem svg{ flex:none; width:16px; height:16px; color:var(--ink3); transition:color var(--t); }
+.jn .pk--biblioteca .pk-origem:not(.pk-origem--on):hover{ background:rgba(255,255,255,.55); color:var(--ink); }
+[data-theme="dark"] .jn .pk--biblioteca .pk-origem:not(.pk-origem--on):hover{ background:rgba(255,255,255,.08); }
+.jn .pk--biblioteca .pk-origem:hover svg{ color:var(--ink); }
+.jn .pk--biblioteca .pk-origem.pk-origem--on{ background:var(--paper); color:var(--ink); font-weight:600; box-shadow:0 1px 2px rgba(17,17,17,.05); }
+.jn .pk--biblioteca .pk-origem.pk-origem--on svg{ color:var(--ink); }
+.jn .pk--biblioteca .pk-origem.pk-origem--on::before{
   content:""; position:absolute; left:0; top:50%; transform:translateY(-50%);
   width:3px; height:18px; background:var(--lima);
 }
 /* A lista é a linha de camada da Pós. O respiro já vem do corpo. */
-.pk-corpo .ps-camadas{ padding:0; }
+.pk--biblioteca .pk-corpo .ps-camadas{ padding:0; }
 /* A frase de lista vazia é aviso, e não corpo de texto: no tamanho de apoio. */
-.pk-corpo > .cr-msg{ font-size:var(--t-apoio2); }
+.pk--biblioteca .pk-corpo > .cr-msg{ font-size:var(--t-apoio2); }
 /* O vazio da biblioteca fala baixo: a frase desce para o tamanho de apoio.
    Na espera (lendo a pasta, preparando as miniaturas) desce tudo, porque
    ela passa e não é a tela que a pessoa veio ver. */
-.pk-corpo .cr-vazio p{ font-size:var(--t-apoio); }
-.pk-corpo .cr-vazio--espera h2{ font-size:var(--t-corpo); }
-.pk-corpo .cr-vazio--espera p, .pk-corpo .cr-vazio--espera .cr-prog{ font-size:var(--t-apoio2); }
-.jn .pk-cab{ flex:none; height:58px; padding:0 14px 0 16px; }
-.jn .pk-busca input{ flex:1; width:auto; min-width:0; }
+.pk--biblioteca .pk-corpo .cr-vazio p{ font-size:var(--t-apoio); }
+.pk--biblioteca .pk-corpo .cr-vazio--espera h2{ font-size:var(--t-corpo); }
+.pk--biblioteca .pk-corpo .cr-vazio--espera p, .pk--biblioteca .pk-corpo .cr-vazio--espera .cr-prog{ font-size:var(--t-apoio2); }
+.jn .pk--biblioteca .pk-cab{ flex:none; height:58px; padding:0 14px 0 16px; }
+.jn .pk--biblioteca .pk-busca input{ flex:1; width:auto; min-width:0; }
 .jn .mc{ position:absolute; }
 .jn .ps-toast{ position:absolute; bottom:70px; }
 
@@ -541,7 +546,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 
   function janela(op, ctx) {
     return cabeca() + trilho() +
-      '<div class="pk">' + lado(op, ctx) + '<div class="pk-main">' + cab(op, ctx) + aviso(op) +
+      '<div class="pk pk--biblioteca">' + lado(op, ctx) + '<div class="pk-main">' + cab(op, ctx) + aviso(op) +
       '<div class="pk-corpo">' + corpo(op, ctx) + '</div>' + pe(op, ctx) + '</div></div>' +
       menu(op) + confirma(op, ctx) + extras(op);
   }
@@ -744,6 +749,32 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
   el.addEventListener('focusout', function (e) {
     if (e.target.matches('.ps-nome-edit') && vivo.renomeando) renomear(e.target.value);
   });
+  // O nome da pasta que não coube: a dica mostra ele inteiro no hover. Mora
+  // no <body> com `position:fixed`, porque a lateral rola e cortaria um
+  // tooltip de CSS puro. É a mesma do plugin (`nomeLigar`).
+  var nomeDica = null;
+  function nomeFechar() { if (nomeDica) { nomeDica.remove(); nomeDica = null; } }
+  document.addEventListener('mouseover', function (e) {
+    var bt = e.target.closest ? e.target.closest('.pk--biblioteca .pk-origem') : null;
+    var rot = bt && bt.querySelector('.blc-rot');
+    if (!rot || rot.scrollWidth <= rot.clientWidth) { nomeFechar(); return; }
+    if (nomeDica && nomeDica._dono === bt) return;
+    nomeFechar();
+    var r = bt.getBoundingClientRect();
+    nomeDica = document.createElement('div');
+    nomeDica.className = 'cr-dica';
+    nomeDica.setAttribute('role', 'tooltip');
+    nomeDica.textContent = rot.textContent;
+    nomeDica.style.left = (r.right + 8) + 'px';
+    nomeDica.style.top = (r.top + r.height / 2) + 'px';
+    nomeDica.style.transform = 'translateY(-50%)';
+    nomeDica._dono = bt;
+    document.body.appendChild(nomeDica);
+  });
+  document.documentElement.addEventListener('mouseleave', nomeFechar);
+  document.addEventListener('mousedown', nomeFechar, true);
+  document.addEventListener('scroll', nomeFechar, true);
+
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape' || (!vivo.menu && !vivo.excluir && !vivo.eliminar)) return;
     vivo.menu = null; vivo.excluir = null; vivo.eliminar = false; pintar();
