@@ -335,7 +335,7 @@
    Cada um é o campo da janela, e o campo dá 14px de respiro em cima para
    separar um do outro quando eles descem em coluna. Numa fila de dois isso
    vira um degrau: o da esquerda nasce mais alto que o da direita. O respiro
-   passa a ser da fila, e os campos começam os dois na mesma linha. */.co .an-filtros{ display:grid; grid-template-columns:1fr 1fr; gap:8px; align-items:start; margin-top:10px; }.co .an-filtros .cmp{ margin-top:0; }/* ── Análises: os dois botões da linha aberta ──
+   passa a ser da fila, e os campos começam os dois na mesma linha. */.co .an-filtros{ display:grid; grid-template-columns:1fr 1fr; gap:8px; align-items:start; margin-top:10px; margin-bottom:14px; }.co .an-filtros .cmp{ margin-top:0; }/* ── Análises: os dois botões da linha aberta ──
    Do mesmo tamanho, começando e terminando na linha da caixa, e o lixo
    fechando a fila. Nada nesta aba gasta crédito: nenhum botão dela é lima.
    Levar a análise para o Render abre uma porta, e porta é turquesa. */.co .an-acoes{ display:flex; align-items:center; gap:8px; margin-top:10px; }.co .an-acoes .cr-b, .co .an-acoes .cr-b-conf{
