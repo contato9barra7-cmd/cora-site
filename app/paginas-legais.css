@@ -125,7 +125,14 @@
   gap: 48px;
   align-items: start;
 }
-@media (min-width: 1040px) {
+@media (min-width: 768px) {
+  .legal-grade {
+    grid-template-columns: 196px minmax(0, 520px);
+    gap: 28px;
+    justify-content: space-between;
+  }
+}
+@media (min-width: 1024px) {
   .legal-grade {
     grid-template-columns: 216px minmax(0, 520px);
     gap: 56px;
@@ -134,7 +141,7 @@
 }
 
 .legal-indice { display: none; }
-@media (min-width: 1040px) {
+@media (min-width: 768px) {
   .legal-indice {
     display: block;
     position: sticky;
@@ -184,6 +191,9 @@
 /* 520px em 15,5px dá 74 caracteres por linha. Valor em pixel de propósito:
    ver a nota 3 no topo sobre por que `ch` engana aqui. */
 .legal-doc { max-width: 520px; margin-inline: auto; }
+@media (min-width: 768px) and (max-width: 1023px) {
+  .legal-doc { margin-inline: 0; }
+}
 
 .legal-titulo {
   margin: 0 0 10px;

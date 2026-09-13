@@ -146,8 +146,8 @@
   @media (hover:hover) and (pointer:fine){/* Sem retângulo de fundo no hover: só o texto escurece. */.hm .cabecalho__nav a:hover{ color:var(--ink); }.hm .burger:hover{ background:var(--wash2); }}
   @media (min-width:768px){
     .hm .cabecalho__interno{ gap:12px; padding-inline:16px; }
-    .hm .cabecalho__nav{ display:flex; gap:8px; font-size:13px; }
-    .hm .cabecalho__nav a{ padding-inline:3px; }
+    .hm .cabecalho__nav{ display:flex; gap:16px; font-size:13px; }
+    .hm .cabecalho__nav a{ padding-inline:5px; }
     .hm .cabecalho__acoes{ display:flex; margin-left:auto; min-width:auto; gap:8px; }
     .hm .cabecalho__acoes .btn{ min-width:88px; padding:0 20px; height:38px; font-size:13px; white-space:nowrap; }
     .hm .burger{ display:none; }

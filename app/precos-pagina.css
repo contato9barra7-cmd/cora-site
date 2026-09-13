@@ -204,8 +204,8 @@
     @media (hover: hover) and (pointer: fine) {.pr .cabecalho__nav a:hover{ color: var(--ink); }.pr .burger:hover{ background: var(--wash2); }}
     @media (min-width: 768px) {
       .pr .cabecalho__interno{ gap: 12px; padding-inline: 16px; }
-      .pr .cabecalho__nav{ display: flex; gap: 8px; font-size: 13px; }
-      .pr .cabecalho__nav a{ padding-inline: 3px; }
+      .pr .cabecalho__nav{ display: flex; gap: 16px; font-size: 13px; }
+      .pr .cabecalho__nav a{ padding-inline: 5px; }
       .pr .cabecalho__acoes{ display: flex; margin-left: auto; min-width: auto; gap: 8px; }
       .pr .cabecalho__acoes .btn{ min-width: 88px; padding: 0 20px; height: 38px; font-size: 13px; white-space: nowrap; }
       .pr .burger{ display: none; }
