@@ -139,21 +139,25 @@
   }.hm .cabecalho__interno{ position:relative; display:flex; align-items:center; gap:var(--e-5); min-height:var(--altura-cabecalho); }.hm .cabecalho__marca{ margin-right:auto; }.hm .cabecalho__marca img{ width:auto; height:20px; }
   @media (min-width:1024px){.hm .cabecalho__marca img{ height:24px; }}.hm .cabecalho__nav{ display:none; gap:var(--e-5); font-size:14.5px; letter-spacing:-.005em; }/* Alvo de toque de 44px também nos links de navegação (WCAG 2.5.5) */.hm .cabecalho__nav a{
     display:inline-flex; align-items:center; min-height:44px; padding-inline:var(--e-2);
-    border-radius:var(--r-sm); color:var(--ink2);
+    border-radius:var(--r-sm); color:var(--ink2); white-space:nowrap;
     transition:color var(--tr-rapida) var(--easing), background-color var(--tr-rapida) var(--easing);
   }.hm .cabecalho__acoes{ display:none; gap:var(--e-2); }/* Largura idêntica já vem do `min-width:160px` do `.btn` base — não precisa
      mais de regra própria aqui. 328 = 160 + 160 + 8 do gap. */.hm .cabecalho__acoes{ min-width:328px; }.hm .cabecalho__marca{ display:inline-flex; align-items:center; min-height:44px; }.hm .menu a{ display:flex; align-items:center; min-height:44px; }.hm .burger{ display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-left:auto; border-radius:var(--r-sm); transition:transform var(--tr-press) var(--easing), background-color var(--tr-padrao) var(--easing); }.hm .burger:active{ transform:scale(0.97); }
   @media (hover:hover) and (pointer:fine){/* Sem retângulo de fundo no hover: só o texto escurece. */.hm .cabecalho__nav a:hover{ color:var(--ink); }.hm .burger:hover{ background:var(--wash2); }}
   @media (min-width:768px){
-    .hm .cabecalho__nav{ display:flex; gap:16px; font-size:13.5px; }
-    .hm .cabecalho__acoes{ display:flex; margin-left:auto; min-width:auto; gap:8px; }
-    .hm .cabecalho__acoes .btn{ min-width:auto; padding:0 16px; height:38px; font-size:13px; }
+    .hm .cabecalho__interno{ gap:10px; }
+    .hm .cabecalho__nav{ display:flex; gap:10px; font-size:13px; }
+    .hm .cabecalho__nav a{ padding-inline:4px; }
+    .hm .cabecalho__acoes{ display:flex; margin-left:auto; min-width:auto; gap:6px; }
+    .hm .cabecalho__acoes .btn{ min-width:auto; padding:0 12px; height:36px; font-size:12.5px; white-space:nowrap; }
     .hm .burger{ display:none; }
     .hm .menu{ display:none; }
   }
   @media (min-width:1024px){
+    .hm .cabecalho__interno{ gap:var(--e-5); }
     .hm .cabecalho__marca img{ height:24px; }
     .hm .cabecalho__nav{ gap:var(--e-5); font-size:14.5px; }
+    .hm .cabecalho__nav a{ padding-inline:var(--e-2); }
     .hm .cabecalho__acoes{ min-width:328px; gap:var(--e-2); }
     .hm .cabecalho__acoes .btn{ min-width:160px; height:42px; font-size:14px; padding:0 22px; }
   }
