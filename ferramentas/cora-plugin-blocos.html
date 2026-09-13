@@ -2008,6 +2008,12 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 .pk-corpo .ps-camadas{ padding:0; }
 /* A frase de lista vazia é aviso, e não corpo de texto: no tamanho de apoio. */
 .pk-corpo > .cr-msg{ font-size:var(--t-apoio2); }
+/* O vazio da biblioteca fala baixo: a frase desce para o tamanho de apoio.
+   Na espera (lendo a pasta, preparando as miniaturas) desce tudo, porque
+   ela passa e não é a tela que a pessoa veio ver. */
+.pk-corpo .cr-vazio p{ font-size:var(--t-apoio); }
+.pk-corpo .cr-vazio--espera h2{ font-size:var(--t-corpo); }
+.pk-corpo .cr-vazio--espera p, .pk-corpo .cr-vazio--espera .cr-prog{ font-size:var(--t-apoio2); }
 .ps-cam .ps-thumb{ background-color:#FFFFFF; background-size:contain; }
 .jn .pk-cab{ flex:none; height:58px; padding:0 14px 0 16px; }
 .jn .pk-busca input{ flex:1; width:auto; min-width:0; }
@@ -2282,7 +2288,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
   function corpo(op, ctx) {
     if (!mostraLista(op)) {
       if (op.estado === 'lendo') {
-        return '<div class="cr-vazio"><h2>Lendo a pasta</h2><p>312 de 486 arquivos</p><p class="cr-prog">64%</p></div>';
+        return '<div class="cr-vazio cr-vazio--espera"><h2>Lendo a pasta</h2><p>312 de 486 arquivos</p><p class="cr-prog">64%</p></div>';
       }
       return '<div class="cr-vazio"><span class="cr-vazio-faixa"></span><h2>Nenhuma pasta aberta</h2>' +
         '<p>Escolha a pasta da sua biblioteca. Cada subpasta vira uma pasta aqui, e cada arquivo .skp dentro dela vira um bloco.</p>' +
