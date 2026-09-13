@@ -692,7 +692,7 @@
 
 /* O popover sobe: a barra mora no pé do painel, e para baixo não há espaço. */
 .cr-pop{
-  position:absolute; bottom:calc(100% + 8px); left:0; right:0; min-width:250px;
+  position:absolute; bottom:calc(100% + 8px); left:50%; right:auto; transform:translateX(-50%); min-width:250px;
   padding:10px; border:1px solid var(--line); border-radius:var(--r-peq);
   background:var(--paper); box-shadow:var(--sombra); z-index:20;
 }
@@ -709,7 +709,7 @@
   background:var(--turq-bg); color:var(--turq-txt); font-weight:600;
   box-shadow:inset 0 0 0 1px var(--turquesa-esc);
 }
-.cr-pop--res{ min-width:0; display:flex; flex-direction:column; gap:4px; }
+.cr-pop--res{ min-width:0; left:auto; right:0; transform:none; display:flex; flex-direction:column; gap:4px; }
 .cr-pop-res{
   height:34px; border:0; border-radius:var(--pill);
   background:transparent; color:var(--ink2); font-size:var(--t-apoio); cursor:pointer;
@@ -1196,7 +1196,7 @@
 /* a régua, usada pelo Kelvin e pelo matiz */
 .cor__regua{
   -webkit-appearance:none; appearance:none; width:100%; height:14px;
-  border-radius:var(--pill); outline:none; cursor:pointer;
+  border-radius:var(--pill); outline:none; cursor:pointer; touch-action:none;
   box-shadow:inset 0 0 0 1px rgba(17,17,17,.10);
 }
 .cor__regua--k{ background:linear-gradient(90deg,#ff9c3f,#ffbe6b 22%,#ffd9a8 42%,#f4ead9 58%,#e4ecf7 76%,#cfe0ff); }

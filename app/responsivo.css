@@ -1375,7 +1375,7 @@ img, video, iframe {
   flex:none; grid-auto-rows:auto; align-content:start;
 }
 .co .cr-form--editar > .ed-cards {
-  grid-template-rows:repeat(4,minmax(0,1fr)); grid-auto-rows:unset;
+  grid-template-rows:repeat(4,minmax(min-content,1fr)); grid-auto-rows:unset;
 }
 .co .cr-ed-base .cr-base { width:100%; height:auto; aspect-ratio:16/9; }
 .co .cr-ed-base .cr-base img { width:100%; height:100%; object-fit:cover; }
@@ -1402,11 +1402,11 @@ img, video, iframe {
   .co .cr-form--editar .cr-sec { margin:8px 0 6px; }
   .co .cr-form--editar .cr-hint { margin-top:4px; font-size:11px; }
   .co .cr-form--editar > .ed-cards { gap:5px; }
-  .co .cr-form--editar .ed-card { padding:17px 10px 7px; }
-  .co .cr-form--editar .ed-faixa { width:26px; height:26px; margin-bottom:4px; }
-  .co .cr-form--editar .ed-faixa svg { width:14px; height:14px; }
-  .co .cr-form--editar .ed-corpo strong { font-size:12.5px; line-height:1.15; }
-  .co .cr-form--editar .ed-corpo > span { font-size:11px; line-height:1.22; }
+  .co .cr-form--editar .ed-card { padding:13px 8px 6px; }
+  .co .cr-form--editar .ed-faixa { width:22px; height:22px; margin-bottom:3px; }
+  .co .cr-form--editar .ed-faixa svg { width:12px; height:12px; }
+  .co .cr-form--editar .ed-corpo strong { font-size:11.5px; line-height:1.15; }
+  .co .cr-form--editar .ed-corpo > span { font-size:10.5px; line-height:1.2; }
 }
 
 @container (min-width: 761px) and (max-width: 1100px) {
@@ -1809,10 +1809,12 @@ img, video, iframe {
   }
   .co .ps-top .ps-b,
   .co .ps-top .ps-ic {
-    flex: 0 0 27px;
-    width: 27px;
-    min-width: 27px;
+    flex: 0 0 28px;
+    width: 28px;
+    min-width: 28px;
     height: 28px;
+    aspect-ratio: 1;
+    border-radius: 50%;
     padding: 0;
     justify-content: center;
   }
@@ -1845,10 +1847,12 @@ img, video, iframe {
   .co .ps-top { gap: 2px; padding: 7px 10px; }
   .co .ps-top .ps-b,
   .co .ps-top .ps-ic {
-    flex: 0 0 28px;
-    width: 28px;
-    min-width: 28px;
+    flex: 0 0 30px;
+    width: 30px;
+    min-width: 30px;
     height: 30px;
+    aspect-ratio: 1;
+    border-radius: 50%;
     padding: 0;
     justify-content: center;
   }

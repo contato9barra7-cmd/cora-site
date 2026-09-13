@@ -1497,9 +1497,10 @@
 .app-nav-ic{ flex:none; display:flex; color:var(--ink3); transition:color var(--t); }
 .app-nav-ic svg{ width:16px; height:16px; }
 .app-nav-lbl{ overflow:hidden; text-overflow:ellipsis; }
-/* Sobre o cinza da barra, o item aceso vira uma pastilha BRANCA. O cinza que
-   ele usava antes era o mesmo tom do fundo de agora, e ele sumia. */
+.app-nav{ gap:5px; }
 .app-nav-item:hover{ background:rgba(255,255,255,.55); color:var(--ink); }
+[data-theme="dark"] .app-nav-item:hover,
+:root[data-theme="dark"] .app-nav-item:hover{ background:rgba(255,255,255,.08); color:var(--ink); }
 .app-nav-item:hover .app-nav-ic{ color:var(--ink); }
 
 .app-nav-item.ativo{
@@ -1963,15 +1964,16 @@
   mask:var(--balao) no-repeat center / contain;
   background:linear-gradient(105deg, transparent 40%, rgba(255,255,255,.9) 50%, transparent 60%);
   background-size:280% 100%; background-repeat:no-repeat;
-  mix-blend-mode:screen; animation:pn-ia-luz 7.5s ease-in-out infinite;
+  mix-blend-mode:screen; animation:pn-ia-luz 9s ease-in-out infinite;
 }
 @keyframes pn-ia-respira{
   0%,100%{ transform:scale(1); }
   50%    { transform:scale(1.055); }
 }
 @keyframes pn-ia-luz{
-  0%,58%{ background-position:170% 0; }
-  100%  { background-position:-80% 0; }
+  0%,10%{ background-position:170% 0; }
+  32%{ background-position:-80% 0; }
+  100%{ background-position:-80% 0; }
 }
 /* A marca do IA Studio no lugar da do Cora, no quadro dele. Ela é mais larga
    que a do Cora na mesma altura de letra, então a largura vem da proporção
@@ -3248,6 +3250,9 @@
 .as-planos .plano{ padding:22px 20px 20px; }
 .as-planos .plano__nome{ font-size:22px; }
 .as-planos .plano__valor{ font-size:30px; }
+.as-planos .plano__selo{ left:50%; transform:translateX(-50%); width:max-content; max-width:calc(100% - 16px); text-align:center; }
+/* A faixa lima fica clara nos dois temas; o texto dela precisa ficar preto. */
+.as-planos .btn--lima{ color:#111111; }
 .as-planos__nota{ margin:14px 0 0; font-size:var(--t-apoio2); color:var(--ink3); text-wrap:pretty; }
 
 /* O cartao do plano de agora. O selo preto ja e do destaque, e dois selos
@@ -4061,7 +4066,7 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   ATÉ 1024px a lateral vira gaveta, e a esteira deita
+   ATÉ 1024px a lateral vira gaveta
    ══════════════════════════════════════════════════════════════════════ */
 @media (max-width:1024px){
   .app-side{ transform:translateX(-100%); width:var(--side-w); transition:transform var(--t); }
@@ -4093,10 +4098,18 @@
   .criar__lista{ position:static; width:auto; margin:4px 0 8px; box-shadow:none; }
   .admin-wrap{ padding:26px 20px 48px; }
 
+  .heroi__txt{ padding:30px 26px; }
+  .apr-wrap{ padding:24px 18px 48px; }
+  .apr-mcab{ gap:14px; }
+  .apr-mcab img{ width:72px; }
+  .trial-card{ right:16px; left:16px; bottom:calc(16px + var(--h-cookies, 0px)); width:auto; }
+}
+
+@media (max-width:640px){
   /* Deitada, a esteira troca de ladrilho e de eixo. Esticar o de pé na
      horizontal esmagaria os círculos em elipses. */
   .heroi{ grid-template-columns:1fr; min-height:0; }
-  .heroi__pad{
+  .heroi__pad:not(.heroi__pad--ia){
     height:var(--pad-deitado);
     background:var(--faixa-agora) repeat-x left center;
     background-size:calc(var(--pad-deitado) * 8) 100%;
@@ -4106,7 +4119,6 @@
     from{ background-position:0 center; }
     to  { background-position:calc(var(--pad-deitado) * 8) center; }
   }
-  .heroi__txt{ padding:30px 26px; }
   /* Deitada, a coluna do IA Studio mede pela altura: 66% da largura, ali,
      seria um disco maior que a faixa inteira. */
   /* Deitada, o balao mede pela altura da faixa: 84% da largura, ali, seria um
@@ -4114,10 +4126,6 @@
   .heroi__pad--ia{ height:var(--pad-deitado); }
   .heroi__pad--ia .ia-balao{ width:auto; height:78%; }
   .heroi__pad--ia .ia-balao span{ height:100%; width:auto; aspect-ratio:560/512; }
-  .apr-wrap{ padding:24px 18px 48px; }
-  .apr-mcab{ gap:14px; }
-  .apr-mcab img{ width:72px; }
-  .trial-card{ right:16px; left:16px; bottom:calc(16px + var(--h-cookies, 0px)); width:auto; }
 }
 
 

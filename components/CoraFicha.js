@@ -128,6 +128,7 @@ export function Linha({ nome, valor, vazio, aberta, aoAbrir, inline, children })
   const ref = useRef(null);
   const popRef = useRef(null);
   const [pos, setPos] = useState(null);
+  const tocandoPopRef = useRef(false);
 
   // Mede antes de abrir, para não piscar. Se não cabe embaixo, abre em cima.
   function medir() {
@@ -150,23 +151,34 @@ export function Linha({ nome, valor, vazio, aberta, aoAbrir, inline, children })
   useEffect(() => {
     if (!aberta || inline) return;
     medir();
-    function fora(e) {
+    function onPointerDownDoc(e) {
+      if (popRef.current && popRef.current.contains(e.target)) {
+        tocandoPopRef.current = true;
+        return;
+      }
       if (ref.current && ref.current.contains(e.target)) return;
-      if (popRef.current && popRef.current.contains(e.target)) return;
       aoAbrir();
     }
+    function onPointerUpDoc() {
+      tocandoPopRef.current = false;
+    }
     // Rolar o painel fecha: o cartão é fixo e não acompanharia. Rolar
-    // DENTRO do cartão não fecha.
+    // DENTRO do cartão não fecha, e arrastar na paleta de cores / controles não fecha.
     function aoRolar(e) {
+      if (tocandoPopRef.current) return;
       if (popRef.current && popRef.current.contains(e.target)) return;
       aoAbrir();
     }
     function aoRedimensionar() { aoAbrir(); }
-    document.addEventListener('mousedown', fora);
+    document.addEventListener('pointerdown', onPointerDownDoc);
+    window.addEventListener('pointerup', onPointerUpDoc);
+    window.addEventListener('pointercancel', onPointerUpDoc);
     window.addEventListener('scroll', aoRolar, true);
     window.addEventListener('resize', aoRedimensionar);
     return () => {
-      document.removeEventListener('mousedown', fora);
+      document.removeEventListener('pointerdown', onPointerDownDoc);
+      window.removeEventListener('pointerup', onPointerUpDoc);
+      window.removeEventListener('pointercancel', onPointerUpDoc);
       window.removeEventListener('scroll', aoRolar, true);
       window.removeEventListener('resize', aoRedimensionar);
     };

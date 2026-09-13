@@ -105,9 +105,12 @@ export default function PickerCor({ valor, onMudar }) {
     if (m === v.modo) return;
     if (m === 'branco') doKelvin(v.kelvin); else daCor(v.h, v.s, v.v);
   }
+  const arrastando = useRef(false);
+
   // O quadro segue o dedo e o mouse. `setPointerCapture` é o que faz o
   // arraste continuar valendo quando o ponteiro sai da caixinha.
   function noQuadro(e) {
+    if (!quadro.current) return;
     const r = quadro.current.getBoundingClientRect();
     daCor(v.h, trava((e.clientX - r.left) / r.width), trava(1 - (e.clientY - r.top) / r.height));
   }
@@ -149,9 +152,23 @@ export default function PickerCor({ valor, onMudar }) {
         <div
           className="cor__quadro" ref={quadro} tabIndex={0} role="application"
           aria-label={t('pickercor_quadro_aria')}
-          style={{ background: paraHex(hsvParaRgb(v.h, 1, 1)) }}
-          onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); noQuadro(e); }}
-          onPointerMove={(e) => { if (e.buttons) noQuadro(e); }}
+          style={{ background: paraHex(hsvParaRgb(v.h, 1, 1)), touchAction: 'none' }}
+          onPointerDown={(e) => {
+            arrastando.current = true;
+            try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {}
+            noQuadro(e);
+          }}
+          onPointerMove={(e) => {
+            if (arrastando.current || e.buttons > 0) noQuadro(e);
+          }}
+          onPointerUp={(e) => {
+            arrastando.current = false;
+            try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (_) {}
+          }}
+          onPointerCancel={(e) => {
+            arrastando.current = false;
+            try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (_) {}
+          }}
         >
           <span className="cor__alvo" style={{ left: (v.s * 100) + '%', top: ((1 - v.v) * 100) + '%' }} />
         </div>

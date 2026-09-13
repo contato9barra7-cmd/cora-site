@@ -1131,7 +1131,7 @@ select.login-input { padding-right: 34px; }
   padding: 0;
 }
 
-.app-nav { padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; }
+.app-nav { padding: 12px 10px; display: flex; flex-direction: column; gap: 5px; }
 /* ── O menu lateral ──
    O ícone é NU: sem cápsula em volta, sem pílula gorda no ativo. Um traço
    na borda marca onde a pessoa está, e o texto é o protagonista. */
@@ -2627,11 +2627,6 @@ select.perfil-input {
   }
   .cr-feed { overflow: visible; }
   .cr-lista { overflow: visible; }
-  .cr-card {
-    width: calc(50% - 5px);
-    height: auto;
-    aspect-ratio: 16 / 9;
-  }
   .cr-lado { flex-direction: column; }
   .cr-busca { margin-left: 0; width: 100%; }
   .cr-busca input { width: 100%; }
@@ -2997,8 +2992,9 @@ select.perfil-input {
 .cr-pop {
   position: absolute;
   bottom: calc(100% + 6px);
-  left: 0;
-  right: 0;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
   min-width: 250px;
   padding: 10px;
   border: 1px solid var(--line2);
@@ -3043,6 +3039,9 @@ select.perfil-input {
 
 .cr-pop--res {
   min-width: 0;
+  left: auto;
+  right: 0;
+  transform: none;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -4164,6 +4163,10 @@ select.perfil-input {
   min-width: 0;
 }
 
+/* Na grade o card ocupa a coluna inteira em qualquer tamanho. A lista tem
+   larguras próprias; elas não devem reduzir novamente o card da grade. */
+.cr-mas-col > .cr-card { width: 100%; flex: none; }
+
 /* Os slots de "gerando" continuam em CSS Grid: ali todos têm a MESMA
    proporção (a da geração em curso), então não há buraco a evitar. */
 .cr-cards--grade {
@@ -5255,6 +5258,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   width: 21px;
   height: 21px;
   border-radius: 50%;
+  border: 0;
+  outline: 0;
   background: var(--accent);
   color: var(--accent-txt);
   display: flex;

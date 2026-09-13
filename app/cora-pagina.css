@@ -400,18 +400,24 @@
   flex:none; width:13px; height:13px; padding:0; border:0; border-radius:0;
   background:transparent; color:var(--ink3); transition:transform .18s;
 }.co .cr-pill-cfg .cr-seta:hover{ background:transparent; }.co .cr-pill-cfg:hover .cr-seta, .co .cr-pill-cfg--on .cr-seta{ color:var(--ink); }.co .cr-pill-cfg .cr-seta--on{ transform:rotate(180deg); }/* O popover sobe: a barra mora no pé do painel, e para baixo não há espaço. */.co .cr-pop{
-  position:absolute; bottom:calc(100% + 8px); left:0; right:0; min-width:250px;
+  position:absolute; bottom:calc(100% + 8px); left:50%; right:auto; transform:translateX(-50%); min-width:250px;
   padding:10px; border:1px solid var(--line); border-radius:var(--r-peq);
   background:var(--paper); box-shadow:var(--sombra); z-index:20;
-}.co .cr-pop-grade{ display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }.co .cr-pop-b{
+}
+.co .cr-pop-grade{ display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+.co .cr-pop-b{
   display:flex; flex-direction:column; align-items:center; gap:3px;
   padding:7px 2px; border:0; border-radius:10px;
   background:transparent; color:var(--ink3); font-size:10px; cursor:pointer;
   transition:background var(--t), color var(--t);
-}.co .cr-pop-b svg{ width:24px; height:24px; }.co .cr-pop-b:hover{ background:var(--wash2); color:var(--ink2); }.co .cr-pop-b--on{
+}
+.co .cr-pop-b svg{ width:24px; height:24px; }
+.co .cr-pop-b:hover{ background:var(--wash2); color:var(--ink2); }
+.co .cr-pop-b--on{
   background:var(--turq-bg); color:var(--turq-txt); font-weight:600;
   box-shadow:inset 0 0 0 1px var(--turquesa-esc);
-}.co .cr-pop--res{ min-width:0; display:flex; flex-direction:column; gap:4px; }.co .cr-pop-res{
+}
+.co .cr-pop--res{ min-width:0; left:auto; right:0; transform:none; display:flex; flex-direction:column; gap:4px; }.co .cr-pop-res{
   height:34px; border:0; border-radius:var(--pill);
   background:transparent; color:var(--ink2); font-size:var(--t-apoio); cursor:pointer;
   transition:background var(--t), color var(--t);
@@ -696,7 +702,7 @@
   transition:color var(--t), background var(--t), box-shadow var(--t);
 }.cor__aba:hover[aria-checked="false"]{ color:var(--ink); }.cor__aba[aria-checked="true"]{ background:var(--paper); color:var(--ink); box-shadow:var(--sombra-peq); }.cor__painel[hidden]{ display:none; }/* a régua, usada pelo Kelvin e pelo matiz */.cor__regua{
   -webkit-appearance:none; appearance:none; width:100%; height:14px;
-  border-radius:var(--pill); outline:none; cursor:pointer;
+  border-radius:var(--pill); outline:none; cursor:pointer; touch-action:none;
   box-shadow:inset 0 0 0 1px rgba(17,17,17,.10);
 }.cor__regua--k{ background:linear-gradient(90deg,#ff9c3f,#ffbe6b 22%,#ffd9a8 42%,#f4ead9 58%,#e4ecf7 76%,#cfe0ff); }.cor__regua--h{ background:linear-gradient(90deg,#f00,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00); }.cor__regua::-webkit-slider-thumb{
   -webkit-appearance:none; width:20px; height:20px; border-radius:50%;

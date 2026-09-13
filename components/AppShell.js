@@ -135,6 +135,28 @@ export default function AppShell({ children }) {
     if (localStorage.getItem('cora_menu_recolhido') === '1') setRecolhido(true);
   }, []);
   const [menuUser, setMenuUser] = useState(false);
+  const btnUserRef = useRef(null);
+  const menuUserRef = useRef(null);
+
+  useEffect(() => {
+    if (!menuUser) return;
+    function aoClicarFora(e) {
+      if (btnUserRef.current && btnUserRef.current.contains(e.target)) return;
+      if (menuUserRef.current && menuUserRef.current.contains(e.target)) return;
+      if (e.target.closest && e.target.closest('.cora-dd-lista--portal')) return;
+      setMenuUser(false);
+    }
+    function aoTeclar(e) {
+      if (e.key === 'Escape') setMenuUser(false);
+    }
+    document.addEventListener('pointerdown', aoClicarFora);
+    document.addEventListener('keydown', aoTeclar);
+    return () => {
+      document.removeEventListener('pointerdown', aoClicarFora);
+      document.removeEventListener('keydown', aoTeclar);
+    };
+  }, [menuUser]);
+
   const [credCardVisivel, setCredCardVisivel] = useState(false);
   // ── A gaveta (só existe até 1024px, ver responsivo.css) ──
   // No desktop a lateral é fixa e este estado nunca muda nada. No tablet e no
@@ -696,7 +718,7 @@ export default function AppShell({ children }) {
                 {comNovos > 9 ? '9+' : comNovos}
               </Link>
             )}
-            <button className="app-user-btn" onClick={() => setMenuUser(!menuUser)} title={t('nav_minhaconta')}>
+            <button ref={btnUserRef} className="app-user-btn" onClick={() => setMenuUser(!menuUser)} title={t('nav_minhaconta')}>
               {/* anel de créditos ao redor do avatar (estilo Magnific).
                   Admin/ilimitado mostra o anel SEMPRE CHEIO. */}
               {/* O anel acompanha a foto e é quadrado de canto redondo.
@@ -725,7 +747,7 @@ export default function AppShell({ children }) {
               </span>
             </button>
             {menuUser && (
-              <div className="app-user-menu" onMouseLeave={() => setMenuUser(false)}>
+              <div ref={menuUserRef} className="app-user-menu" onMouseLeave={() => setMenuUser(false)}>
                 {/* A faixa fecha o menu por cima, como fecha o cartão do
                     e-mail. É o único lugar da moldura onde a marca aparece
                     desenhada, e não só em cor. */}

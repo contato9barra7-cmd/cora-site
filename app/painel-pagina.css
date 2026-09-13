@@ -210,8 +210,7 @@
   color:var(--ink2); font-size:var(--t-apoio); font-weight:500; letter-spacing:-.004em;
   white-space:nowrap; transition:background-color var(--t), color var(--t);
 }/* 16px, a medida dos desenhos da lateral dos Promptadores. Os SVG nascem com
-   20 no atributo, e quem manda e o CSS. */.pn .app-nav-ic{ flex:none; display:flex; color:var(--ink3); transition:color var(--t); }.pn .app-nav-ic svg{ width:16px; height:16px; }.pn .app-nav-lbl{ overflow:hidden; text-overflow:ellipsis; }/* Sobre o cinza da barra, o item aceso vira uma pastilha BRANCA. O cinza que
-   ele usava antes era o mesmo tom do fundo de agora, e ele sumia. */.pn .app-nav-item:hover{ background:rgba(255,255,255,.55); color:var(--ink); }.pn .app-nav-item:hover .app-nav-ic{ color:var(--ink); }.pn .app-nav-item.ativo{
+   20 no atributo, e quem manda e o CSS. */.pn .app-nav-ic{ flex:none; display:flex; color:var(--ink3); transition:color var(--t); }.pn .app-nav-ic svg{ width:16px; height:16px; }.pn .app-nav-lbl{ overflow:hidden; text-overflow:ellipsis; }.pn .app-nav{ gap:5px; }.pn .app-nav-item:hover{ background:rgba(255,255,255,.55); color:var(--ink); }.pn [data-theme="dark"] .app-nav-item:hover, [data-theme="dark"] .pn .app-nav-item:hover{ background:rgba(255,255,255,.08); color:var(--ink); }.pn .app-nav-item:hover .app-nav-ic{ color:var(--ink); }.pn .app-nav-item.ativo{
   background:var(--paper); color:var(--ink); font-weight:600;
   box-shadow:0 1px 2px rgba(17,17,17,.05);
 }.pn .app-nav-item.ativo .app-nav-ic{ color:var(--ink); }.pn .app-nav-item.ativo::before{
@@ -519,15 +518,16 @@
   mask:var(--balao) no-repeat center / contain;
   background:linear-gradient(105deg, transparent 40%, rgba(255,255,255,.9) 50%, transparent 60%);
   background-size:280% 100%; background-repeat:no-repeat;
-  mix-blend-mode:screen; animation:pn-ia-luz 7.5s ease-in-out infinite;
+  mix-blend-mode:screen; animation:pn-ia-luz 9s ease-in-out infinite;
 }
 @keyframes pn-ia-respira{
   0%,100%{ transform:scale(1); }
   50%    { transform:scale(1.055); }
 }
 @keyframes pn-ia-luz{
-  0%,58%{ background-position:170% 0; }
-  100%  { background-position:-80% 0; }
+  0%,10%{ background-position:170% 0; }
+  32%{ background-position:-80% 0; }
+  100%{ background-position:-80% 0; }
 }/* A marca do IA Studio no lugar da do Cora, no quadro dele. Ela é mais larga
    que a do Cora na mesma altura de letra, então a largura vem da proporção
    do arquivo e não de um número redondo. */.pn .heroi__marca.heroi__marca--ia{
@@ -1284,7 +1284,7 @@
    O desenho inteiro vem de `precos-pagina.css`, escopado em `.pr`, e a folha
    e carregada no layout. Aqui so cabe o que muda POR ESTAR NO PAINEL: sao
    tres planos e nao quatro, e a coluna e mais estreita que a do site.
-   ══════════════════════════════════════════════════════════════════════ */.pn .as-planos{ margin-top:16px; }.pn .as-planos .planos{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }.pn .as-planos .plano{ padding:22px 20px 20px; }.pn .as-planos .plano__nome{ font-size:22px; }.pn .as-planos .plano__valor{ font-size:30px; }.pn .as-planos__nota{ margin:14px 0 0; font-size:var(--t-apoio2); color:var(--ink3); text-wrap:pretty; }/* O cartao do plano de agora. O selo preto ja e do destaque, e dois selos
+   ══════════════════════════════════════════════════════════════════════ */.pn .as-planos{ margin-top:16px; }.pn .as-planos .planos{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }.pn .as-planos .plano{ padding:22px 20px 20px; }.pn .as-planos .plano__nome{ font-size:22px; }.pn .as-planos .plano__valor{ font-size:30px; }.pn .as-planos .plano__selo{ left:50%; transform:translateX(-50%); width:max-content; max-width:calc(100% - 16px); text-align:center; }/* A faixa lima fica clara nos dois temas; o texto dela precisa ficar preto. */.pn .as-planos .btn--lima{ color:#111111; }.pn .as-planos__nota{ margin:14px 0 0; font-size:var(--t-apoio2); color:var(--ink3); text-wrap:pretty; }/* O cartao do plano de agora. O selo preto ja e do destaque, e dois selos
    pretos lado a lado disputariam a mesma leitura: este vira turquesa, que e a
    cor de "isto e seu" no resto do painel. */.pn .as-planos .plano--atual{ border-color:var(--turquesa-esc); }.pn .as-planos .plano__selo--atual{ background:var(--turq-bg); color:var(--turq-txt); }/* Ele ocupa a MESMA altura do botao dos outros dois (48px), senao a lista de
    recursos do cartao atual subiria 23px e as tres colunas parariam de casar. */.pn .as-planos .plano__aqui{
@@ -1684,7 +1684,7 @@
    assinatura saía esticada. */.pn .apr-assina{ display:block; width:100%; height:auto; margin:30px 0 0; }
 
 @media (prefers-reduced-motion:reduce){.pn .heroi--entra, .pn .ia-balao, .pn .ia-balao i{ animation:none; }.pn .apr-mod:hover .apr-mod__capa img{ transform:none; }}/* ══════════════════════════════════════════════════════════════════════
-   ATÉ 1024px a lateral vira gaveta, e a esteira deita
+   ATÉ 1024px a lateral vira gaveta
    ══════════════════════════════════════════════════════════════════════ */
 
 
@@ -1697,8 +1697,10 @@
     display:grid; place-items:center; width:34px; height:34px; border:0; border-radius:50%;
     background:none; color:var(--ink3); font-size:20px; line-height:1; cursor:pointer;
   }.pn .app-side-fechar:hover{ background:var(--wash2); color:var(--ink); }.pn .app-shell.recolhido .app-nav-item{ width:auto; margin:0; justify-content:flex-start; padding:0 12px; }.pn .app-shell.recolhido .app-nav-lbl{ display:block; }/* Na gaveta a lista não flutua para fora da tela: abre embaixo do botão,
-     na largura da própria gaveta. */.pn .criar__lista{ position:static; width:auto; margin:4px 0 8px; box-shadow:none; }.pn .admin-wrap{ padding:26px 20px 48px; }/* Deitada, a esteira troca de ladrilho e de eixo. Esticar o de pé na
-     horizontal esmagaria os círculos em elipses. */.pn .heroi{ grid-template-columns:1fr; min-height:0; }.pn .heroi__pad{
+     na largura da própria gaveta. */.pn .criar__lista{ position:static; width:auto; margin:4px 0 8px; box-shadow:none; }.pn .admin-wrap{ padding:26px 20px 48px; }.pn .heroi__txt{ padding:30px 26px; }.pn .apr-wrap{ padding:24px 18px 48px; }.pn .apr-mcab{ gap:14px; }.pn .apr-mcab img{ width:72px; }.pn .trial-card{ right:16px; left:16px; bottom:calc(16px + var(--h-cookies, 0px)); width:auto; }}
+
+@media (max-width:640px){/* Deitada, a esteira troca de ladrilho e de eixo. Esticar o de pé na
+     horizontal esmagaria os círculos em elipses. */.pn .heroi{ grid-template-columns:1fr; min-height:0; }.pn .heroi__pad:not(.heroi__pad--ia){
     height:var(--pad-deitado);
     background:var(--faixa-agora) repeat-x left center;
     background-size:calc(var(--pad-deitado) * 8) 100%;
@@ -1707,9 +1709,9 @@
   @keyframes pn-esteira-deitada{
     from{ background-position:0 center; }
     to  { background-position:calc(var(--pad-deitado) * 8) center; }
-  }.pn .heroi__txt{ padding:30px 26px; }/* Deitada, a coluna do IA Studio mede pela altura: 66% da largura, ali,
+  }/* Deitada, a coluna do IA Studio mede pela altura: 66% da largura, ali,
      seria um disco maior que a faixa inteira. *//* Deitada, o balao mede pela altura da faixa: 84% da largura, ali, seria um
-     balao maior que a tela. */.pn .heroi__pad--ia{ height:var(--pad-deitado); }.pn .heroi__pad--ia .ia-balao{ width:auto; height:78%; }.pn .heroi__pad--ia .ia-balao span{ height:100%; width:auto; aspect-ratio:560/512; }.pn .apr-wrap{ padding:24px 18px 48px; }.pn .apr-mcab{ gap:14px; }.pn .apr-mcab img{ width:72px; }.pn .trial-card{ right:16px; left:16px; bottom:calc(16px + var(--h-cookies, 0px)); width:auto; }}
+     balao maior que a tela. */.pn .heroi__pad--ia{ height:var(--pad-deitado); }.pn .heroi__pad--ia .ia-balao{ width:auto; height:78%; }.pn .heroi__pad--ia .ia-balao span{ height:100%; width:auto; aspect-ratio:560/512; }}
 
 /* ── a fonte, em tamanho nominal ──
    Ver a nota no gerador: o site serve a DM Sans com size-adjust de 88%, o que

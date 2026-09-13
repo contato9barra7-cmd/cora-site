@@ -14,13 +14,10 @@ import RodapeLegal from './RodapeLegal';
 // "/em-construcao". Quem tira o rodapé daquela tela é uma regra de CSS na
 // própria página. O caminho continua listado porque visitar `/em-construcao`
 // direto, sem reescrita, também não deve trazer rodapé.
-const PREFIXOS_APP = ['/conta', '/app', '/admin', '/workspace', '/assinatura', '/aprender', '/promptadores', '/em-construcao'];
-
-// As telas de entrar e criar conta seguem com a tira fina que já tinham. Elas
-// ocupam a janela inteira, painel de imagem de um lado e cartão do outro, e o
-// rodapé de quatro colunas ali embaixo viraria uma segunda página inteira
-// depois de um formulário de dois campos.
-const TIRA_FINA = ['/login', '/cadastro', '/esqueci-senha', '/nova-senha', '/verificar', '/convite'];
+const PREFIXOS_APP = [
+  '/conta', '/app', '/admin', '/gerente', '/teams', '/workspace',
+  '/assinatura', '/aprender', '/promptadores', '/em-construcao'
+];
 
 function combina(pathname, lista) {
   return lista.some((p) => pathname === p || pathname.startsWith(p + '/'));
@@ -29,9 +26,8 @@ function combina(pathname, lista) {
 export default function RodapeGlobal() {
   const pathname = usePathname() || '';
   if (combina(pathname, PREFIXOS_APP)) return null;
-  if (combina(pathname, TIRA_FINA)) return <RodapeLegal />;
-  // Nas páginas de conteúdo, o rodapé de quatro colunas do artefato. Ele
-  // esteve fora do ar desde que a home foi portada, e o que aparecia no lugar
-  // era a tira fina, que nasceu para caber ao lado da barra do painel.
-  return <RodapeCora />;
+  // O rodapé de quatro colunas é exclusivo da Home.
+  if (pathname === '/') return <RodapeCora />;
+  // Nas demais páginas públicas (preços, suporte, termos, login, etc.), o rodapé fino padrão.
+  return <RodapeLegal />;
 }

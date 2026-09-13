@@ -1151,7 +1151,7 @@ select.login-input { padding-right: 34px; }
   padding: 0;
 }
 
-.app-nav { padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; }
+.app-nav { padding: 12px 10px; display: flex; flex-direction: column; gap: 5px; }
 /* ── O menu lateral ──
    O ícone é NU: sem cápsula em volta, sem pílula gorda no ativo. Um traço
    na borda marca onde a pessoa está, e o texto é o protagonista. */
@@ -2157,13 +2157,16 @@ select.perfil-input {
 }
 
 /* Filtros em ícone, com tooltip — iguais aos do histórico do plugin */
+/* Redondo, e nao 32 por 30 com canto arredondado: com larguras diferentes o
+   realce do botao ligado saia oval, e um oval no meio de uma fileira de
+   icones parece defeito, nao escolha. */
 .cr-fbtn {
-  width: 32px;
+  width: 30px;
   height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 50%;
   border: 1px solid var(--line2);
   background: transparent;
   color: var(--ink3);
@@ -2644,11 +2647,6 @@ select.perfil-input {
   }
   .cr-feed { overflow: visible; }
   .cr-lista { overflow: visible; }
-  .cr-card {
-    width: calc(50% - 5px);
-    height: auto;
-    aspect-ratio: 16 / 9;
-  }
   .cr-lado { flex-direction: column; }
   .cr-busca { margin-left: 0; width: 100%; }
   .cr-busca input { width: 100%; }
@@ -3014,8 +3012,9 @@ select.perfil-input {
 .cr-pop {
   position: absolute;
   bottom: calc(100% + 6px);
-  left: 0;
-  right: 0;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
   min-width: 250px;
   padding: 10px;
   border: 1px solid var(--line2);
@@ -3060,6 +3059,9 @@ select.perfil-input {
 
 .cr-pop--res {
   min-width: 0;
+  left: auto;
+  right: 0;
+  transform: none;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -3532,6 +3534,12 @@ select.perfil-input {
   display: grid;
   grid-template-columns: repeat(5, 1fr);   /* 6 deixava tudo miudo demais */
   gap: 9px;
+
+  /* `start`, e nao o `stretch` de fabrica: esticado, o card ganha altura
+     definida da linha e o `aspect-ratio: 1` dele passa a ser ignorado. O
+     resultado eram fileiras de alturas diferentes, cada uma no formato da
+     primeira foto que caiu ali. */
+  align-items: start;
 }
 
 /* Sem moldura: so a imagem. A borda cinza em volta de cada miniatura fazia a
@@ -3585,7 +3593,10 @@ select.perfil-input {
   transition: all .15s;
 }
 
-.pk-drop:hover, .pk-drop--on { border-color: var(--lima-txt); color: var(--lima-txt); }
+/* Turquesa, e não `--lima-txt`: a lima rebaixada até virar texto legível
+   perde a marca e lê como verde de sistema. Turquesa é o que marca escolha
+   aqui dentro, e a lima fica cheia nos botões que executam. */
+.pk-drop:hover, .pk-drop--on { border-color: var(--turquesa-esc); color: var(--turq-txt); }
 .pk-drop-t { font-size: 14.5px; color: var(--ink2); }
 .pk-drop-s { font-size: 13.5px; }
 
@@ -4172,6 +4183,10 @@ select.perfil-input {
   min-width: 0;
 }
 
+/* Na grade o card ocupa a coluna inteira em qualquer tamanho. A lista tem
+   larguras próprias; elas não devem reduzir novamente o card da grade. */
+.cr-mas-col > .cr-card { width: 100%; flex: none; }
+
 /* Os slots de "gerando" continuam em CSS Grid: ali todos têm a MESMA
    proporção (a da geração em curso), então não há buraco a evitar. */
 .cr-cards--grade {
@@ -4180,7 +4195,7 @@ select.perfil-input {
   align-items: start;
 }
 
-.cr-cards--grade.cr-cards--p  { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.cr-cards--grade.cr-cards--p  { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 .cr-cards--grade.cr-cards--m  { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
 .cr-cards--grade.cr-cards--g  { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
 .cr-cards--grade.cr-cards--gg { grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); }
@@ -4197,10 +4212,10 @@ select.perfil-input {
 /* Largura por proporção da largura disponível: cabem exatamente N por linha
    (sem barra lateral) e o resto quebra pra baixo. gap = 8px; o -1px extra dá
    folga contra arredondamento (senão o último às vezes pula de linha).
-   P=8 · M=6 · G=4 · GG=3 por linha. */
+   P=6 · M=5 · G=4 · GG=3 por linha. */
 .cr-cards--linha .cr-card { flex-shrink: 0; }
-.cr-cards--linha.cr-cards--p  .cr-card { width: calc((100% - 57px) / 8); }
-.cr-cards--linha.cr-cards--m  .cr-card { width: calc((100% - 41px) / 6); }
+.cr-cards--linha.cr-cards--p  .cr-card { width: calc((100% - 41px) / 6); }
+.cr-cards--linha.cr-cards--m  .cr-card { width: calc((100% - 33px) / 5); }
 .cr-cards--linha.cr-cards--g  .cr-card { width: calc((100% - 25px) / 4); }
 .cr-cards--linha.cr-cards--gg .cr-card { width: calc((100% - 17px) / 3); }
 
@@ -4847,8 +4862,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 /* Na lista, o slot tem a MESMA largura do card (mesma conta de N por linha) —
    senão o "gerando" teria um tamanho e a imagem pronta, outro. */
-.cr-cards--linha.cr-cards--p  .cr-slot { width: calc((100% - 57px) / 8); }
-.cr-cards--linha.cr-cards--m  .cr-slot { width: calc((100% - 41px) / 6); }
+.cr-cards--linha.cr-cards--p  .cr-slot { width: calc((100% - 41px) / 6); }
+.cr-cards--linha.cr-cards--m  .cr-slot { width: calc((100% - 33px) / 5); }
 .cr-cards--linha.cr-cards--g  .cr-slot { width: calc((100% - 25px) / 4); }
 .cr-cards--linha.cr-cards--gg .cr-slot { width: calc((100% - 17px) / 3); }
 
@@ -4903,6 +4918,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .cr-card-info span {
   font-size: 11px;
   color: #fff;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cr-card-fer {
@@ -5126,20 +5145,34 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    (escolher o lado da comparação).
    ═══════════════════════════════════════════════════════════ */
 
+/* Centrada na imagem, e não presa à direita: num card largo ela ficava
+   encostada num canto, e num estreito a borda do card (que corta) comia os
+   botões da esquerda. Centrada, ela nasce do meio da imagem em qualquer
+   largura. Quando os sete botões não cabem numa linha, a fila quebra em duas
+   — também centradas — em vez de sumir por baixo do corte. */
 .cr-card-acoes {
   position: absolute;
   top: 8px;
-  right: 8px;
+  left: 50%;
   z-index: 4;
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  /* max-content, senão o encaixe automático de uma caixa absoluta erra por
+     causa das margens do risco divisor e o último botão cai sozinho para a
+     segunda fila mesmo sobrando espaço. */
+  width: max-content;
+  max-width: calc(100% - 16px);
   gap: 3px;
   padding: 4px;
-  border-radius: 100px;
+  /* 18 é metade da altura de uma linha (27 do botão + 8 do respiro): dá a
+     pílula exata com uma fila, e um retângulo de canto macio com duas. */
+  border-radius: 18px;
   background: rgba(20, 20, 22, .72);
   backdrop-filter: blur(6px);
   opacity: 0;
-  transform: translateY(-3px);
+  transform: translate(-50%, -3px);
   transition: opacity .14s, transform .14s;
   pointer-events: none;
 }
@@ -5147,7 +5180,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .cr-card:hover .cr-card-acoes,
 .cr-card:focus-within .cr-card-acoes {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate(-50%, 0);
   pointer-events: auto;
 }
 
@@ -5180,6 +5213,20 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   margin: 0 3px;
   background: rgba(255, 255, 255, .22);
 }
+
+/* P e M continuam completos, mas os controles acompanham a largura do card.
+   O círculo permanece quadrado para não virar a oval vista em telas menores. */
+.cr-cards--p .cr-card-acoes, .cr-mas--p .cr-card-acoes { gap:1px; padding:3px; }
+.cr-cards--p .cr-ca, .cr-mas--p .cr-ca { width:20px; height:20px; }
+.cr-cards--p .cr-ca svg, .cr-mas--p .cr-ca svg { width:12px; height:12px; }
+.cr-cards--p .cr-ca-div, .cr-mas--p .cr-ca-div { margin:0 1px; height:13px; }
+.cr-cards--m .cr-card-acoes, .cr-mas--m .cr-card-acoes { gap:1px; padding:3px; }
+.cr-cards--m .cr-ca, .cr-mas--m .cr-ca { width:20px; height:20px; }
+.cr-cards--m .cr-ca svg, .cr-mas--m .cr-ca svg { width:12px; height:12px; }
+.cr-cards--p .cr-card-info, .cr-mas--p .cr-card-info { gap:3px; padding:16px 6px 5px; }
+.cr-cards--m .cr-card-info, .cr-mas--m .cr-card-info { gap:4px; padding:17px 7px 6px; }
+.cr-cards--p .cr-card-fer, .cr-mas--p .cr-card-fer,
+.cr-cards--p .cr-card-plugin, .cr-mas--p .cr-card-plugin { padding:2px 5px; }
 
 /* O tooltip destas ações desce (há espaço abaixo, dentro da imagem) */
 .cr-card-acoes [data-tip]:hover::after {
@@ -5231,12 +5278,14 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   width: 21px;
   height: 21px;
   border-radius: 50%;
+  border: 0;
+  outline: 0;
   background: var(--accent);
   color: var(--accent-txt);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+  box-shadow: none;
   pointer-events: none;
 }
 
@@ -5822,21 +5871,30 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    parecidos, e ninguém saberia qual é qual.
    ═══════════════════════════════════════════════════════════ */
 
-.an-busca {
+/* O buscar é a caixa da janela: 44 de altura, canto de 14, recuo de 16, e a
+   lupa por dentro à esquerda. Era uma pílula de 36 com outra letra. */
+.an-busca { position: relative; margin-top: 14px; }
+.an-busca input {
   width: 100%;
-  height: 36px;
-  padding: 0 14px;
-  margin-bottom: 10px;
-  border: 1px solid var(--line2);
-  border-radius: 100px;
-  background: var(--wash);
+  min-height: 44px;
+  padding: 11px 16px 11px 42px;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
   color: var(--ink);
   font-size: 13.5px;
   font-family: inherit;
   outline: none;
 }
-
-.an-busca:focus { border-color: var(--lima-txt); }
+.an-busca input::placeholder { color: var(--ink3); }
+.an-busca input:focus { border-color: var(--turquesa-esc); box-shadow: 0 0 0 3px var(--turq-bg); }
+.an-busca > svg {
+  position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+  width: 16px; height: 16px; stroke: var(--ink3); fill: none; pointer-events: none;
+}
+/* A grade dos dois filtros mora na folha da janela: lá ela ganha do respiro
+   que o próprio campo dá, que aqui viraria um degrau entre um e outro. */
 
 
 
@@ -5849,7 +5907,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 .an-item:hover { border-color: var(--line2); }
-.an-item--on   { border-color: var(--lima-txt); }
+.an-item--on   { border-color: var(--turquesa-esc); }
 
 .an-cab {
   width: 100%;
@@ -5868,10 +5926,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .an-thumb {
   flex-shrink: 0;
-  width: 52px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   object-fit: cover;
-  border-radius: 7px;
+  border-radius: 10px;
   background: var(--wash2);
 }
 
@@ -5888,16 +5946,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .an-topo {
   display: flex;
   align-items: center;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
+/* O título fica com a linha inteira, e as etiquetas descem juntas para a
+   linha seguinte. Ele dividia a linha com até três delas: o nome saía cortado
+   por reticências numas linhas e as etiquetas quebravam no meio noutras. */
 .an-tit {
+  flex: 1 1 100%;
   font-size: 13.5px;
   font-weight: 600;
   color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .an-tag {
@@ -5911,19 +5971,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 /* Tag "N versões" e o seletor de versões (mesma imagem = várias leituras) */
-.an-tag--vers { background: var(--accent-bg); color: var(--lima-txt); font-weight: 600; }
-.an-vers-label { font-size: 10px; color: var(--ink3); text-transform: uppercase; letter-spacing: .05em; margin: 10px 0 5px; }
-.an-vers-sel {
-  width: 100%;
-  margin-bottom: 8px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--line2);
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 12.5px;
-  cursor: pointer;
-}
+.an-tag--vers { background: var(--wash2); color: var(--ink2); font-weight: 600; }
+
+
 
 .an-quando {
   font-size: 11px;
@@ -5970,17 +6020,22 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .an-acoes {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
+  margin-top: 10px;
 }
 
+/* Do mesmo tamanho, começando e terminando na linha da caixa. */
 .an-acoes .cr-b,
-.an-acoes .cr-b-conf { flex: 1; }
+.an-acoes .cr-b-conf { flex: 1 1 0; min-width: 0; height: 38px; }
+/* Nada nesta aba gasta crédito, e por isso nenhum botão dela é lima. Levar a
+   análise para o Render abre uma porta, e porta é turquesa. */
+.an-acoes .cr-b-conf { background: var(--turquesa); color: #111111; }
 
 .an-lixo {
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   border: 1px solid var(--line2);
   border-radius: 50%;
   background: transparent;
@@ -6037,22 +6092,24 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 
-/* A etiqueta do plugin: distingue sem gritar */
+/* De onde veio a leitura. As duas aparecem sempre, para ninguém precisar
+   deduzir pela ausência da outra.
+
+   O plugin vinha em lima e a web em cinza: uma colorida e a outra não, o que
+   lê como "o plugin é o caso especial". Elas não são caso e exceção, são as
+   DUAS metades do produto, e a marca tem exatamente duas cores. Cada metade
+   fica com uma. Aqui a cor não diz ação, diz procedência, e é o único par da
+   linha que carrega cor: por isso a etiqueta de versões voltou ao neutro, ou
+   três etiquetas coloridas seguidas diriam três coisas diferentes com o
+   mesmo alfabeto. */
 .an-tag--plugin {
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  background: color-mix(in srgb, var(--lima) 40%, transparent);
   color: var(--ink2);
 }
 
-/* De onde veio a leitura. As duas aparecem sempre — assim a pessoa não
-   precisa deduzir pela ausência da outra. */
 .an-tag--web {
-  background: var(--wash2);
-  color: var(--ink3);
-}
-
-.an-tag--plugin {
-  background: color-mix(in srgb, var(--accent) 20%, transparent);
-  color: var(--ink2);
+  background: var(--turq-bg);
+  color: var(--turq-txt);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -6063,93 +6120,32 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    filtra — e vê de relance como a lista está filtrada.
    ═══════════════════════════════════════════════════════════ */
 
-.an-filtros {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-}
+/* O .an-filtros de agora é a grade de dois campos, lá em cima, junto do
+   buscar. Este era a fila do dropdown próprio da aba, que saiu. */
 
-.an-esc {
-  position: relative;
-  flex: 1;
-}
 
-.an-esc-b {
-  width: 100%;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 12px 0 14px;
-  border: 1px solid var(--line2);
-  border-radius: 100px;
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 13.5px;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color .15s;
-}
 
-.an-esc-b:hover     { border-color: var(--ink3); }
-.an-esc-b--on       { border-color: var(--lima-txt); }
+
+
+
+
 
 /* O rótulo é a legenda do campo: discreto, mas sempre presente */
-.an-esc-rot {
-  color: var(--ink3);
-  font-size: 12.5px;
-}
 
-.an-esc-val {
-  flex: 1;
-  text-align: left;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
-.an-esc-seta {
-  flex-shrink: 0;
-  color: var(--ink3);
-  transition: transform .18s;
-}
 
-.an-esc-seta--on { transform: rotate(180deg); }
 
-.an-esc-menu {
-  position: absolute;
-  top: calc(100% + 5px);
-  left: 0;
-  right: 0;
-  z-index: 20;
-  padding: 5px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--paper);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .13);
-}
 
-.an-esc-op {
-  width: 100%;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--ink2);
-  font-size: 13.5px;
-  font-family: inherit;
-  text-align: left;
-  cursor: pointer;
-}
 
-.an-esc-op:hover { background: var(--wash); }
 
-.an-esc-op--on {
-  background: var(--accent-bg);
-  color: var(--ink);
-  font-weight: 500;
-}
+
+
+
+
+
+
+
+
 
 /* ═══════════════════════════════════════════════════════════
    Detalhes da geração
@@ -6269,10 +6265,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink3); cursor: pointer; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 8px; padding: 0;
 }
-.anim-card:hover { border-color: var(--lima-txt); color: var(--ink2); }
+.anim-card:hover { border-color: var(--turq-txt); color: var(--ink2); }
 .anim-card svg { width: 26px; height: 26px; }
 .anim-card-lbl { font-size: 11px; font-weight: 500; }
-.anim-card--obrig .anim-card-lbl::after { content: ' *'; color: var(--lima-txt); }
+.anim-card--obrig .anim-card-lbl::after { content: ' *'; color: var(--turq-txt); }
 .anim-card--img { border-style: solid; }
 .anim-card--img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 11px; }
 .anim-card-x {
@@ -6287,7 +6283,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: var(--paper); color: var(--ink2); display: flex; align-items: center;
   justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.15);
 }
-.anim-seta:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.anim-seta:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 .anim-seta svg { width: 18px; height: 18px; }
 
 .anim-check { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink); cursor: pointer; font-weight: 500; }
@@ -6310,9 +6306,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border: 1px solid var(--line2); background: var(--wash); color: var(--ink2);
   font-size: 12.5px; font-family: inherit; cursor: pointer; white-space: nowrap;
 }
-.anim-pill:hover { border-color: var(--lima-txt); }
+.anim-pill:hover { border-color: var(--turq-txt); }
 .anim-pill svg { width: 14px; height: 14px; opacity: .8; }
-.anim-pill--on { border-color: var(--lima-txt); color: var(--lima-txt); }
+.anim-pill--on { border-color: var(--turq-txt); color: var(--turq-txt); }
 .anim-pop {
   position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 30;
   background: var(--paper); border: 1px solid var(--line2); border-radius: 12px;
@@ -6323,8 +6319,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   background: transparent; border: none; color: var(--ink2); font-family: inherit;
   font-size: 12.5px; padding: 8px 12px; border-radius: 9px; cursor: pointer; text-align: left; white-space: nowrap;
 }
-.anim-pop button:hover { background: var(--accent-bg); color: var(--lima-txt); }
-.anim-pop button.sel { background: var(--accent-bg); color: var(--lima-txt); font-weight: 600; }
+.anim-pop button:hover { background: var(--turq-bg); color: var(--turq-txt); }
+.anim-pop button.sel { background: var(--turq-bg); color: var(--turq-txt); font-weight: 600; }
 
 /* Capa "gerando" sobre o slot (upscale, animação) */
 .cr-ger-capa {
@@ -6631,6 +6627,23 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   margin-bottom: 4px;
 }
 
+/* A grade ocupa a altura que sobra na coluna, e as quatro fileiras dividem
+   esse espaco por igual. Com a altura do texto de cada card, a grade passava
+   do pe do painel e a pessoa tinha que rolar para ver os dois ultimos. */
+.cr-form:has(> .ed-cards) {
+  display: flex;
+  flex-direction: column;
+}
+
+.cr-form > .ed-cards:not(.ed-cards--coluna) {
+  flex: 1 1 auto;
+  min-height: 0;
+  /* `minmax(min-content, 1fr)`, e nao `1fr` seco: as fileiras dividem o que
+     SOBRA, mas nunca encolhem abaixo do texto de cada card. Com `1fr` puro,
+     numa janela baixa elas espremiam e a descricao ficava cortada. */
+  grid-auto-rows: minmax(min-content, 1fr);
+}
+
 /* Cada modo tem uma FAIXA colorida com o icone. A cor e propria de cada um:
    a pessoa aprende a reconhecer o card pela cor, nao so pelo texto.
    (As cores sao provisorias — entram as da marca depois.) */
@@ -6650,59 +6663,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 /* ── Seletor Animação / Sequências (topo da aba) ── */
-.anim-seletor {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-.anim-sel-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 0;
-  overflow: hidden;
-  border: 0.5px solid var(--line2);
-  border-radius: 100px;
-  background: var(--paper);
-  text-align: left;
+/* O sulco mora na folha da janela (`.cr-sul`), que é onde a identidade dele
+   foi escrita. Aqui fica só o desenho de base, para ele não nascer sem forma
+   caso a folha escopada não tenha carregado. */
+.cr-sul { display: flex; gap: 2px; padding: 3px; border-radius: 100px; background: var(--wash2); }
+.cr-sul__b {
+  flex: 1; min-width: 0; height: 38px; padding: 0 10px; border: 0; border-radius: 100px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: transparent; color: var(--ink3); font-family: inherit; font-size: 13.5px; font-weight: 600;
   cursor: pointer;
-  font-family: inherit;
-  transition: border-color .15s, background .15s;
 }
-.anim-sel-faixa {
-  width: 42px;
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 100px 0 0 100px;
-  flex-shrink: 0;
-}
-.anim-sel-faixa svg { width: 18px; height: 18px; }
-
-/* Inativo: bloco da esquerda na versão clarinha, ícone na cor forte. */
-.anim-sel-faixa--anim { background: var(--wash); }
-.anim-sel-faixa--anim svg { stroke: var(--ink3); }
-.anim-sel-faixa--seq  { background: var(--wash); }
-.anim-sel-faixa--seq svg { stroke: var(--ink3); }
-
-/* Ativo: película fraquinha na cor + borda forte + bloco na cor cheia. */
-.anim-sel-btn--on { border-width: 1.5px; }
-.anim-sel-btn--anim-on { border-color: var(--turq-txt); background: rgba(143,221,204,.20); }
-.anim-sel-btn--anim-on .anim-sel-faixa--anim { background: var(--roxo); }
-.anim-sel-btn--anim-on .anim-sel-faixa--anim svg { stroke: #fff; }
-.anim-sel-btn--seq-on { border-color: #F0997B; background: rgba(240,153,123,.14); }
-.anim-sel-btn--seq-on .anim-sel-faixa--seq { background: #F0997B; }
-.anim-sel-btn--seq-on .anim-sel-faixa--seq svg { stroke: #fff; }
-
-.anim-sel-btn:hover:not(.anim-sel-btn--on) { border-color: var(--line); }
-.anim-sel-txt {
-  font-size: 12.5px;
-  font-weight: 500;
-  color: #111;
-  padding: 11px 0;
-}
+.cr-sul__b--on { background: var(--paper); color: var(--ink); box-shadow: 0 2px 8px rgba(17,17,17,.07); }
+.cr-sul--topo { margin-bottom: 20px; }
 :root[data-theme="dark"] .anim-sel-txt { color: var(--ink); }
 
 /* ── Cards de sequência (espelham os do Editar) ── */
@@ -6781,7 +6753,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   grid-column: 1 / -1; aspect-ratio: auto; height: 88px; padding: 0; gap: 6px;
   border: 1px dashed var(--line2); border-radius: 12px; background: var(--wash); color: var(--ink3);
 }
-.narr-add--full:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.narr-add--full:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 .narr-add--full .narr-add-txt { font-size: 12.5px; }
 
 .narr-roteiro-cab { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
@@ -6790,6 +6762,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border: 0.5px solid var(--border-strong, #b4b2a9); background: transparent; cursor: pointer;
 }
 .narr-copiar:hover { background: var(--surface-1, #f1efe8); }
+/* A ideia do roteiro, em cima dos takes, com o botão de copiar do prompt. */
+.narr-ideia { margin-top: 10px; padding: 12px 13px 13px; border-radius: 12px; background: var(--wash); }
+.narr-ideia-tit { display: block; margin-bottom: 6px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink3); }
+.narr-ideia-txt { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink); }
 .narr-takes { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
 .narr-take {
   border: 0.5px solid var(--border, #d3d1c7); border-radius: 12px;
@@ -6813,12 +6789,16 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
 }
 .narr-take-anim:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
-.narr-notas { display: flex; gap: 8px; margin-top: 10px; }
+/* Uma nota por linha, como no estudo: o roteiro falado é um parágrafo
+   inteiro e não cabe numa coluna estreita ao lado das outras duas. */
+.narr-notas { display: grid; gap: 6px; margin-top: 10px; }
 .narr-nota {
-  flex: 1; background: var(--surface-1, #f1efe8); border-radius: 8px; padding: 9px 12px;
+  background: var(--surface-1, #f1efe8); border-radius: 10px; padding: 9px 12px;
   font-size: 12.5px; color: var(--text-2, #666); display: flex; flex-direction: column; gap: 3px;
 }
 .narr-nota b { font-weight: 500; color: var(--text, #2c2c2a); font-size: 12.5px; }
+.narr-nota-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.narr-nota .vz-prompt-copiar { padding: 5px 11px; font-size: 12px; }
 
 .seq-modo-int {
   display: grid;
@@ -6840,9 +6820,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .seq-modo-int-btn:hover:not(:disabled) { border-color: var(--turq-txt); }
 .seq-modo-int-btn--on {
   border-color: var(--turq-txt);
-  background: color-mix(in srgb, var(--roxo) 10%, transparent);
+  background: var(--turq-bg);
 }
-.seq-modo-int-btn strong { font-size: 12.5px; }
+.seq-modo-int-btn strong { font-size: 12.5px; color:var(--turq-txt); }
 .seq-modo-int-btn span { font-size: 11px; color: var(--text-2, #666); line-height: 1.3; }
 .seq-modo-int-btn:disabled { cursor: default; opacity: .7; }
 
@@ -6860,7 +6840,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: border-color .15s, transform .15s;
   font-family: inherit;
 }
-.seq-card:hover { border-color: var(--lima-txt); transform: translateY(-1px); }
+.seq-card:hover { border-color: var(--turq-txt); transform: translateY(-1px); }
 .seq-faixa {
   width: 100%;
   height: 54px;
@@ -6892,16 +6872,19 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   color: var(--ink3);
   margin: 6px 0 16px;
 }
+/* Uma linha só, com letra menor: a frase do estado quebrava em duas em cima
+   da barra de progresso. O que não couber corta com reticências. */
 .seq-status {
-  font-size: 12.5px;
-  color: var(--lima-txt);
+  font-size: 11.5px;
+  color: var(--turq-txt);
   line-height: 1.5;
-  margin: 4px 0 0;
+  margin: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .seq-gerando { margin: 8px 0 0; }
 .seq-reembolso { font-size: 11px; color: var(--ink3); margin: 4px 0 0; }
 .seq-slot--clic { padding: 0; border: 0.5px solid var(--line2); cursor: pointer; font-family: inherit; }
-.seq-slot--clic:hover { border-color: var(--lima-txt); }
+.seq-slot--clic:hover { border-color: var(--turq-txt); }
 /* popover PNG/JPEG no visualizador do timelapse */
 .vz-pill-wrap { position: relative; display: inline-flex; }
 .vz-fmt-pop {
@@ -6955,7 +6938,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .seq-cel-cap { font-size: 10px; line-height: 1.3; color: var(--ink3); padding: 0 1px; }
 .seq-cel-cap b { color: var(--ink2); font-weight: 600; }
 /* barra de progresso */
-.seq-prog { height: 5px; border-radius: 100px; background: var(--wash); overflow: hidden; margin: 8px 0 0; }
+/* Colada no estado: os dois são uma coisa só, o que está acontecendo. */
+.seq-prog { height: 5px; border-radius: 100px; background: var(--wash); overflow: hidden; margin: 4px 0 0; }
 .seq-prog > span { display: block; height: 100%; background: var(--accent); border-radius: 100px; transition: width .3s; }
 /* controles do modo uma a uma */
 .seq-passo-box { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
@@ -6963,14 +6947,14 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   padding: 9px 0; border-radius: 100px; border: 1px solid var(--line2);
   background: transparent; color: var(--ink2); font-size: 12.5px; font-family: inherit; cursor: pointer;
 }
-.seq-refazer:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.seq-refazer:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 .seq-reset-box { margin-top: 16px; text-align: right; }
 .seq-reset {
   background: transparent; border: none; padding: 0; cursor: pointer;
   color: var(--ink3); font-size: 11px; font-weight: 600; font-family: inherit;
   text-decoration: underline; text-underline-offset: 2px;
 }
-.seq-reset:hover { color: var(--lima-txt); }
+.seq-reset:hover { color: var(--turq-txt); }
 .seq-slot {
   position: relative;
   aspect-ratio: 1;
@@ -7165,7 +7149,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .pn-lado input {
   width: 74px;
-  accent-color: var(--lima-txt);
+  accent-color: var(--turquesa-esc);
   cursor: pointer;
 }
 
@@ -7361,15 +7345,30 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .pk-item { position: relative; }
 
+/* A MESMA pastilha de vidro do coracao no feed: disco escuro translucido
+   com o fundo desfocado, e o coracao turquesa em cima. Sobre foto clara ele
+   e nitido, sobre foto escura e discreto, e em nenhuma das duas poe um
+   branco chapado por cima da imagem. Aqui ele so e menor, porque a
+   miniatura do escolhedor tambem e. */
 .pk-fav {
   position: absolute;
-  top: 4px; left: 4px;
+  top: 5px; left: 5px;
   z-index: 2;
-  display: flex; line-height: 0;
-  color: var(--lima-txt);
-  filter: drop-shadow(0 0 2px rgba(0,0,0,.55));
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(17, 17, 17, .45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14);
+  color: var(--turquesa);
   pointer-events: none;
 }
+
+.pk-fav svg { width: 12px; height: 12px; }
 
 .pk-visto {
   position: absolute;
@@ -7392,8 +7391,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   align-items: center;
   gap: 11px;
   padding: 11px 16px;
-  border-top: 1px solid var(--accent);
-  background: var(--accent-bg);
+  /* Turquesa, e não o verde da lima: o pé confirma uma escolha, não executa. */
+  border-top: 1px solid var(--turquesa-esc);
+  background: var(--turq-bg);
 }
 
 .pk-ok-mini {
@@ -7619,7 +7619,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .pn-zoombar input {
   width: 80px;
-  accent-color: var(--lima-txt);
   cursor: pointer;
 }
 
@@ -7658,14 +7657,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .pn-calibre input {
   flex: 1;
-  accent-color: var(--lima-txt);
   cursor: pointer;
 }
 
 .pn-disco {
   flex-shrink: 0;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--turquesa);
   opacity: .4;
   transition: width .1s, height .1s;
 }
@@ -7691,18 +7689,78 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer;
   transition: background .12s, color .12s, border-color .12s;
 }
-.pn-ico:hover { background: var(--accent-bg); color: var(--lima-txt); }
-.pn-ico--on { background: var(--accent-bg); color: var(--lima-txt); border-color: var(--lima-txt); }
+.pn-ico:hover { background: var(--turq-bg); color: var(--turq-txt); }
+.pn-ico--on { background: var(--turq-bg); color: var(--turq-txt); border-color: var(--turquesa-esc); }
 .pn-ico:disabled { opacity: .4; cursor: default; }
 .pn-sep { width: 1px; height: 20px; background: var(--line2); flex: 0 0 auto; }
-.pn-bar-range { flex: 1; min-width: 70px; accent-color: var(--lima-txt); cursor: pointer; }
+.pn-bar-range { flex: 1; min-width: 70px; cursor: pointer; }
+
+/* ── As reguas ──
+   Com o desenho de fabrica, o trilho vinha do sistema: preto, cravado no meio
+   de uma barra clara. Aqui ele e desenhado, e o pedaco ja percorrido e pintado
+   por um degrade que para no `--pct` que o JS escreve. Sem `--pct` o trilho
+   fica todo claro, que ja e melhor do que preto. */
+.pn-bar-range,
+.pn-calibre input[type=range],
+.pn-zoombar input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 5px;
+  border-radius: 100px;
+  outline: none;
+  background: linear-gradient(to right,
+    var(--turquesa-esc) 0 var(--pct, 0%),
+    var(--wash2) var(--pct, 0%) 100%);
+}
+
+.pn-bar-range::-webkit-slider-runnable-track,
+.pn-calibre input[type=range]::-webkit-slider-runnable-track,
+.pn-zoombar input[type=range]::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: 100px;
+  background: transparent;
+}
+
+.pn-bar-range::-webkit-slider-thumb,
+.pn-calibre input[type=range]::-webkit-slider-thumb,
+.pn-zoombar input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -4.5px;
+  border-radius: 50%;
+  border: 2px solid var(--paper);
+  background: var(--turquesa-esc);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .14);
+  cursor: pointer;
+}
+
+.pn-bar-range::-moz-range-track,
+.pn-calibre input[type=range]::-moz-range-track,
+.pn-zoombar input[type=range]::-moz-range-track {
+  height: 5px;
+  border-radius: 100px;
+  background: transparent;
+}
+
+.pn-bar-range::-moz-range-thumb,
+.pn-calibre input[type=range]::-moz-range-thumb,
+.pn-zoombar input[type=range]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--paper);
+  background: var(--turquesa-esc);
+  cursor: pointer;
+}
 .pn-chip {
   min-width: 32px; flex: 0 0 auto;
   text-align: center;
   font-size: 11px; font-weight: 600;
-  color: var(--lima-txt);
-  background: var(--accent-bg);
-  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--turq-txt);
+  background: var(--turq-bg);
+  border: 1px solid color-mix(in srgb, var(--turquesa) 55%, transparent);
   border-radius: 100px;
   padding: 2px 6px;
 }
@@ -9642,13 +9700,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   justify-content: center;
   gap: 6px;
 }
-.ps-b:hover:not(:disabled) { border-color: var(--lima-txt); color: var(--lima-txt); }
+.ps-b:hover:not(:disabled) { border-color: var(--turq-txt); color: var(--turq-txt); }
 .ps-b:disabled { opacity: .4; cursor: default; }
 
 .ps-b--on {
-  border-color: var(--lima-txt);
-  color: var(--lima-txt);
-  background: var(--accent-bg);
+  border-color: var(--turq-txt);
+  color: var(--turq-txt);
+  background: var(--turq-bg);
 }
 
 .ps-b--largo {
@@ -9677,13 +9735,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   align-items: center;
   justify-content: center;
 }
-.ps-ic:hover:not(:disabled) { border-color: var(--lima-txt); color: var(--lima-txt); }
+.ps-ic:hover:not(:disabled) { border-color: var(--turq-txt); color: var(--turq-txt); }
 .ps-ic:disabled { opacity: .4; cursor: default; }
 
 .ps-ic--on {
-  border-color: var(--lima-txt);
-  color: var(--lima-txt);
-  background: var(--accent-bg);
+  border-color: var(--turq-txt);
+  color: var(--turq-txt);
+  background: var(--turq-bg);
 }
 
 .ps-ic svg { width: 16px; height: 16px; }
@@ -9775,7 +9833,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer;
   transition: all .15s;
 }
-.ps-zoom:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.ps-zoom:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 
 .ps-vazio {
   display: flex;
@@ -9861,35 +9919,43 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   font-family: inherit;
   cursor: pointer;
 }
-.ps-sel:hover { border-color: var(--lima-txt); }
+.ps-sel:hover { border-color: var(--turq-txt); }
 
 /* ── Dropdown da marca (React CoraSelect): popup arredondado, destaque roxo/verde
    da marca, sem o azul do sistema. Igual ao seletor de idioma. ── */
 .cora-sel-wrap { position: relative; box-sizing: border-box; }
+/* A MESMA caixa do dropdown do resto da janela (`.cora-dd-btn`): canto de
+   14, recuo de 16, letra de 13,5. Era uma pílula de 34px com letra menor,
+   e a Pós parecia outro produto. */
 .cora-sel-trigger {
-  display: flex; align-items: center; gap: 8px; width: 100%; box-sizing: border-box;
-  background: var(--paper); border: 1px solid var(--line2); border-radius: 100px;
-  color: var(--ink2); font-size: 12.5px; font-family: inherit; padding: 0 14px; height: 34px;
-  cursor: pointer; transition: border-color .15s;
+  display: flex; align-items: center; gap: 10px; width: 100%; box-sizing: border-box;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+  color: var(--ink); font-size: 13.5px; font-family: inherit; padding: 11px 16px; min-height: 44px;
+  line-height: 1.35; cursor: pointer; transition: border-color .16s ease, box-shadow .16s ease;
 }
-.cora-sel-trigger:hover, .cora-sel-trigger.aberto { border-color: var(--lima-txt); }
+.cora-sel-trigger:hover { border-color: var(--ink3); }
+.cora-sel-trigger.aberto { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(17,17,17,.08); }
 .cora-sel-ico { flex: 0 0 auto; display: flex; align-items: center; color: var(--ink3); }
 .cora-sel-lbl { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
 .cora-sel-arrow { flex: 0 0 auto; display: flex; align-items: center; opacity: .5; transition: transform .15s; }
 .cora-sel-trigger.aberto .cora-sel-arrow { transform: rotate(180deg); }
+/* A lista e a opção são as do `.cora-dd-lista` e do `.cora-dd-opt`: cartão
+   de canto 16, opção com caixinha à esquerda e texto à direita, escolhida
+   em turquesa cheia. */
 .cora-sel-pop {
-  position: absolute; left: 0; right: 0; top: calc(100% + 5px); z-index: 100;
-  background: var(--paper); border: 1px solid var(--line2); border-radius: 12px; padding: 5px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.14); max-height: 300px; overflow-y: auto;
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 100;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 6px;
+  box-shadow: 0 18px 44px rgba(17,17,17,.14), 0 2px 6px rgba(17,17,17,.06);
+  max-height: 300px; overflow-y: auto; overscroll-behavior: contain;
 }
 .cora-sel-op {
-  padding: 8px 12px; border-radius: 9px; color: var(--ink2); font-size: 12.5px;
-  cursor: pointer; white-space: nowrap; transition: background .1s;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px; border-radius: 10px; color: var(--ink2); font-size: 13.5px;
+  cursor: pointer; white-space: nowrap; transition: background-color .12s ease, color .12s ease;
 }
-.cora-sel-op:hover, .cora-sel-op.sel {
-  background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--lima-txt);
-}
-.cora-sel-op.sel { font-weight: 600; }
+.cora-sel-op:hover { background: var(--wash); color: var(--ink); }
+.cora-sel-op.sel, .cora-sel-op.sel:hover { background: var(--turquesa); color: #111111; font-weight: 600; }
+.cora-sel-op.sel .cora-dd-check { background: #111111; border-color: #111111; color: #FFFFFF; }
 .cora-sel-trigger:disabled { opacity: .5; cursor: default; }
 .cora-sel-wrap.ps-sel--min { flex: 0 0 auto; height: auto; min-width: 124px; }
 .cora-sel-wrap.cora-sel-flex { flex: 1; min-width: 0; }
@@ -9920,7 +9986,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--turquesa);
   border: 2px solid var(--paper);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, .15);
   cursor: pointer;
@@ -9930,7 +9996,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--turquesa);
   border: 2px solid var(--paper);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, .15);
   cursor: pointer;
@@ -9967,26 +10033,28 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer;
   transition: all .15s;
 }
-.ps-mini:hover:not(:disabled) { background: var(--wash); color: var(--lima-txt); }
+.ps-mini:hover:not(:disabled) { background: var(--wash); color: var(--turq-txt); }
 .ps-mini:disabled { opacity: .35; cursor: default; }
 .ps-mini--perigo:hover:not(:disabled) { color: var(--alerta); }
 .ps-mini svg { width: 15px; height: 15px; }
 
 /* ── A pilha ── */
+/* Juntas: sete linhas com 7px de folga e 16px de canto liam como sete
+   cartões soltos, e uma pilha de camadas é uma pilha. */
 .ps-camadas {
   padding: 0 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 4px;
 }
 
 .ps-cam {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
+  padding: 7px 11px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--paper);
   cursor: pointer;
   transition: all .15s;
@@ -9995,18 +10063,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-cam:hover { border-color: var(--line2); }
 
 .ps-cam--on {
-  border-color: var(--lima-txt);
-  background: var(--accent-bg);
+  border-color: var(--turq-txt);
+  background: var(--turq-bg);
 }
-.ps-cam--on .ps-nome { color: var(--lima-txt); font-weight: 500; }
-.ps-cam--on .ps-olho { color: var(--lima-txt); }
+.ps-cam--on .ps-nome { color: var(--turq-txt); font-weight: 500; }
+.ps-cam--on .ps-olho { color: var(--turq-txt); }
 
 .ps-cam--off { opacity: .45; }
 
 /* Dentro de um grupo: recuada, com o fio do accent ligando ao pai */
 .ps-cam--dentro {
   margin-left: 16px;
-  border-left: 2px solid var(--accent);
+  border-left: 2px solid var(--turquesa);
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -10024,7 +10092,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   align-items: center;
   justify-content: center;
 }
-.ps-olho:hover { color: var(--lima-txt); }
+.ps-olho:hover { color: var(--turq-txt); }
 .ps-olho svg { width: 16px; height: 16px; }
 
 .ps-thumb {
@@ -10039,8 +10107,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* Qual dos dois está escolhido — a imagem ou a máscara. É o que diz onde a
    próxima pincelada vai cair. */
 .ps-thumb--sel {
-  border-color: var(--lima-txt);
-  box-shadow: 0 0 0 2px var(--accent-bg);
+  border-color: var(--turq-txt);
+  box-shadow: 0 0 0 2px var(--turq-bg);
 }
 .ps-thumb--masc { background-color: #000; }
 
@@ -10051,7 +10119,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--lima-txt);
+  color: var(--turq-txt);
 }
 .ps-pasta svg { width: 18px; height: 18px; }
 
@@ -10177,36 +10245,41 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 /* As seis abas. Numa coluna de 330px elas não cabem em fila: rolam. */
+/* Sem recuo próprio: a fila mora dentro do painel, que já recua 18px, e o
+   fio das máscaras logo acima vai de ponta a ponta desse recuo. As seis abas
+   começam onde o fio começa, acabam onde ele acaba, e dividem a largura em
+   partes iguais (`flex:1 1 0` com `min-width:0`). */
 .aj-abas {
   display: flex;
-  gap: 2px;
-  padding: 10px 12px;
+  gap: 4px;
+  padding: 10px 0;
   border-bottom: 1px solid var(--line);
   flex-shrink: 0;
 }
 
 .aj-aba {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 6px 4px;
-  border-radius: 8px;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 10px;
   border: none;
   background: transparent;
   color: var(--ink3);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
   transition: all .15s;
 }
-.aj-aba-ic { width: 15px; height: 15px; }
-.aj-aba:hover { color: var(--lima-txt); }
+.aj-aba-ic { width: 18px; height: 18px; }
+.aj-aba:hover { color: var(--turq-txt); }
 .aj-aba--on {
-  color: var(--lima-txt);
-  background: var(--accent-bg);
+  color: var(--turq-txt);
+  background: var(--turq-bg);
   font-weight: 600;
 }
 
@@ -10216,11 +10289,14 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   padding: 16px 18px 24px;
 }
 
+/* O par título/Resetar abre cada aba de ajuste, e encostava no fio das abas
+   logo acima. Ele precisa do mesmo ar que tem embaixo. */
 .aj-cab {
   display: flex;
   align-items: baseline;
-  margin-bottom: 14px;
+  margin: 16px 0 14px;
 }
+.aj-cab:first-child { margin-top: 4px; }
 .aj-cab-t {
   flex: 1;
   font-size: 12.5px;
@@ -10232,7 +10308,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .aj-reset {
   border: none;
   background: transparent;
-  color: var(--lima-txt);
+  color: var(--turq-txt);
   font-size: 11px;
   font-family: inherit;
   cursor: pointer;
@@ -10268,7 +10344,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   min-width: 34px;
   text-align: right;
 }
-.aj-sl-v:hover { background: var(--wash); color: var(--lima-txt); }
+.aj-sl-v:hover { background: var(--wash); color: var(--turq-txt); }
 
 .aj-sl input[type="range"] {
   -webkit-appearance: none;
@@ -10296,7 +10372,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--turquesa);
   border: 2px solid var(--paper);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, .15);
   cursor: pointer;
@@ -10306,7 +10382,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--turquesa);
   border: 2px solid var(--paper);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, .15);
   cursor: pointer;
@@ -10384,15 +10460,15 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer;
   transition: all .15s;
 }
-.aj-wb:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.aj-wb:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 .aj-wb--on {
-  border-color: var(--lima-txt);
-  background: var(--accent-bg);
-  color: var(--lima-txt);
+  border-color: var(--turq-txt);
+  background: var(--turq-bg);
+  color: var(--turq-txt);
   font-weight: 500;
 }
 .aj-wb-dica {
-  font-size: 10.5px;
+  font-size: 12.5px;
   color: var(--ink3);
   line-height: 1.45;
   margin: 0 0 18px;
@@ -10424,9 +10500,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .aj-antes-btn:hover { color: var(--ink); border-color: var(--ink3); }
 .aj-antes-btn--on {
-  background: var(--accent);
-  color: var(--accent-txt);
-  border-color: var(--lima-txt);
+  background: var(--lima);
+  color: #111111;
+  border-color: transparent;
 }
 
 /* O círculo que mostra o tamanho do pincel, seguindo o mouse. */
@@ -10466,7 +10542,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   justify-content: center;
   flex-shrink: 0;
 }
-.aj-msk-box--on { background: var(--accent); border-color: var(--lima-txt); }
+.aj-msk-box--on { background: var(--accent); border-color: var(--turq-txt); }
 
 /* ═══════════ Painel de máscaras ═══════════ */
 .aj-msk {
@@ -10487,7 +10563,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   padding: 0;
   margin-bottom: 10px;
 }
-.aj-msk-voltar:hover { color: var(--lima-txt); }
+.aj-msk-voltar:hover { color: var(--turq-txt); }
 
 .aj-auto-btn { margin-bottom: 8px; }
 .aj-msk-criar {
@@ -10506,10 +10582,10 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer;
   transition: all .15s;
 }
-.aj-msk-criar:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.aj-msk-criar:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 .aj-msk-circ {
   width: 15px; height: 15px;
-  border: 1.6px dashed var(--accent);
+  border: 1.6px dashed var(--turquesa-esc);
   border-radius: 50%;
 }
 
@@ -10529,7 +10605,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: background .12s;
 }
 .aj-msk-item:hover { background: var(--wash); }
-.aj-msk-item--on { background: var(--accent-bg); }
+.aj-msk-item--on { background: var(--turq-bg); }
 .aj-msk-thumb {
   width: 26px; height: 26px;
   border-radius: 6px;
@@ -10548,7 +10624,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.aj-msk-item--on .aj-msk-nome { color: var(--lima-txt); font-weight: 500; }
+.aj-msk-item--on .aj-msk-nome { color: var(--turq-txt); font-weight: 500; }
 .aj-msk-olho, .aj-msk-del {
   background: none;
   border: none;
@@ -10559,7 +10635,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   align-items: center;
 }
 .aj-msk-del { font-size: 14.5px; line-height: 1; }
-.aj-msk-olho:hover, .aj-msk-del:hover { color: var(--lima-txt); }
+.aj-msk-olho:hover, .aj-msk-del:hover { color: var(--turq-txt); }
 
 .aj-msk-modo {
   display: flex;
@@ -10579,9 +10655,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: all .15s;
 }
 .aj-msk-modo-b--on {
-  border-color: var(--lima-txt);
-  background: var(--accent-bg);
-  color: var(--lima-txt);
+  border-color: var(--turq-txt);
+  background: var(--turq-bg);
+  color: var(--turq-txt);
   font-weight: 500;
 }
 
@@ -10607,9 +10683,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: all .15s;
 }
 .aj-msk-ferr--on {
-  border-color: var(--lima-txt);
-  background: var(--accent-bg);
-  color: var(--lima-txt);
+  border-color: var(--turq-txt);
+  background: var(--turq-bg);
+  color: var(--turq-txt);
   font-weight: 500;
 }
 
@@ -10665,15 +10741,20 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 /* ── O misturador ── */
+/* Uma fila só, dividindo a largura do painel em partes iguais. Elas eram
+   28px fixos e sobrava um vão à direita, com a última fora de alinhamento
+   com tudo o que vem abaixo. */
 .aj-cores {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   gap: 6px;
   margin-bottom: 16px;
-  flex-wrap: wrap;
 }
 .aj-cor {
-  width: 28px;
-  height: 28px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
   border-radius: 100px;
   border: 2px solid transparent;
   cursor: pointer;
@@ -10723,7 +10804,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border-bottom: 4px solid var(--ink3);
   opacity: .65;
 }
-.ps-tri-btn:hover .ps-tri { border-bottom-color: var(--lima-txt); opacity: 1; }
+.ps-tri-btn:hover .ps-tri { border-bottom-color: var(--turq-txt); opacity: 1; }
 
 /* O véu fecha o flyout ao clicar fora. Sem ele, o menu ficaria preso aberto —
    e um menu que não fecha é pior que um menu que não abre. */
@@ -10763,7 +10844,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: all .12s;
 }
 .ps-fly-it:hover { background: var(--wash); color: var(--ink); }
-.ps-fly-it--on   { background: var(--accent-bg); color: var(--lima-txt); font-weight: 500; }
+.ps-fly-it--on   { background: var(--turq-bg); color: var(--turq-txt); font-weight: 500; }
 .ps-fly-it svg   { width: 15px; height: 15px; flex-shrink: 0; }
 
 /* ── A barra de opções ──
@@ -10827,7 +10908,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .ps-faixa input[type="range"] {
   width: 92px;
-  accent-color: var(--lima-txt);
+  accent-color: var(--turq-txt);
   cursor: pointer;
 }
 
@@ -10866,7 +10947,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-modo:hover { color: var(--ink); }
 .ps-modo--on {
   background: var(--paper);
-  color: var(--lima-txt);
+  color: var(--turq-txt);
   box-shadow: 0 1px 2px rgba(0, 0, 0, .07);
 }
 .ps-modo svg { width: 15px; height: 15px; }
@@ -10882,7 +10963,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   flex-shrink: 0;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06);
 }
-.ps-cor:hover { border-color: var(--lima-txt); }
+.ps-cor:hover { border-color: var(--turq-txt); }
 
 /* ── O overlay ──
    As formiguinhas e o crop vivem num canvas SEPARADO, exatamente por cima do
@@ -11084,7 +11165,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   box-shadow: inset 0 -2px 0 -0.5px var(--accent);
 }
 .ps-cam--dentro-alvo {
-  background: var(--accent-bg);
+  background: var(--turq-bg);
   box-shadow: inset 0 0 0 1.5px var(--accent);
 }
 
@@ -11193,7 +11274,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   outline: none;
   flex: 0 0 auto;
 }
-.ps-num:focus { border-color: var(--lima-txt); }
+.ps-num:focus { border-color: var(--turq-txt); }
 
 /* As setinhas do number são feias e não cabem num campo redondo */
 .ps-num::-webkit-outer-spin-button,
@@ -11215,7 +11296,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   cursor: pointer;
   transition: all .13s;
 }
-.ps-troca:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.ps-troca:hover { border-color: var(--turq-txt); color: var(--turq-txt); }
 
 /* ── A zona de fuga do grupo ── */
 .ps-fuga {
@@ -11230,9 +11311,9 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   opacity: .55;
 }
 .ps-fuga--on {
-  border-color: var(--lima-txt);
-  background: var(--accent-bg);
-  color: var(--lima-txt);
+  border-color: var(--turq-txt);
+  background: var(--turq-bg);
+  color: var(--turq-txt);
   opacity: 1;
 }
 
@@ -11254,7 +11335,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-tag {
   font-size: 9.5px;
   line-height: 1.4;
-  color: var(--lima-txt);
+  color: var(--turq-txt);
   white-space: nowrap;
 }
 
@@ -11289,7 +11370,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-caixa input {
   width: 14px;
   height: 14px;
-  accent-color: var(--lima-txt);
+  accent-color: var(--turq-txt);
   cursor: pointer;
   margin: 0;
 }
@@ -11586,7 +11667,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   top: 50%;
   margin-left: -215px;      /* metade da largura */
   margin-top: -120px;       /* aprox. metade da altura */
-  z-index: 60;
+  z-index: 10001;
 
   width: 430px;
   max-width: calc(100vw - 32px);
@@ -11748,7 +11829,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .df-cx input {
   width: 15px;
   height: 15px;
-  accent-color: var(--lima-txt);
+  accent-color: var(--turquesa);
   cursor: pointer;
   margin: 0;
 }
@@ -11813,13 +11894,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    dos filtros acompanham. É o que faz "a camada e seus filtros" parecerem uma
    coisa só, selecionada junto. */
 .ps-bloco--on .ps-filtros {
-  border-left-color: var(--lima-txt);
+  border-left-color: var(--turq-txt);
 }
 .ps-bloco--on .ps-filtro {
-  color: var(--lima-txt);
+  color: var(--turq-txt);
 }
 .ps-bloco--on .ps-filtro:hover {
-  background: var(--accent-bg);
+  background: var(--turq-bg);
 }
 
 /* O filtro desligado continua ali, apenas mudo. Apagá-lo seria perder a
@@ -12047,7 +12128,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .ps-toast-link {
   border: none;
   background: none;
-  color: var(--lima-txt);
+  color: var(--turq-txt);
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
@@ -12092,46 +12173,19 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .up-remover:hover { background: #e0405a; }
 
-/* Modo Precisão / Criativo */
-.up-modo-row { display: flex; gap: 8px; }
-.up-modo {
-  flex: 1; display: flex; align-items: center; gap: 11px; padding: 0;
-  overflow: hidden; border-radius: 100px; border: 0.5px solid var(--line2);
-  background: var(--paper); cursor: pointer; font-family: inherit;
-  transition: border-color .15s, background .15s;
+/* A conta do tamanho, colada na imagem: é a consequência do fator de escala,
+   e as duas moram na mesma altura do olho. */
+.up-dim {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  margin: 10px 0 0; font-size: 12.5px; color: var(--ink2);
+  font-variant-numeric: tabular-nums;
 }
-.up-modo-faixa {
-  width: 42px; align-self: stretch; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 100px 0 0 100px;
-  background: var(--wash);
-}
-.up-modo-faixa svg { width: 18px; height: 18px; stroke: var(--ink3); }
-.up-modo-txt { font-size: 12.5px; font-weight: 500; color: var(--ink); padding: 10px 0; }
-.up-modo:hover:not(.up-modo--on) { border-color: var(--line); }
-/* Precisão = azul · Criativo = coral (só quando selecionado) */
-.up-modo--prec.up-modo--on  { border: 1.5px solid #378ADD; background: rgba(55,138,221,.14); }
-.up-modo--prec.up-modo--on .up-modo-faixa { background: #378ADD; }
-.up-modo--prec.up-modo--on .up-modo-faixa svg { stroke: #fff; }
-.up-modo--criat.up-modo--on { border: 1.5px solid #D85A30; background: rgba(216,90,48,.13); }
-.up-modo--criat.up-modo--on .up-modo-faixa { background: #D85A30; }
-.up-modo--criat.up-modo--on .up-modo-faixa svg { stroke: #fff; }
+.up-dim b { color: var(--ink); font-weight: 600; }
+.up-dim-seta { color: var(--turq-txt); font-weight: 700; }
 
-/* Fator de escala */
-.up-scale-row { display: flex; gap: 8px; }
-.up-scale {
-  flex: 1; padding: 9px 0; border-radius: 100px; border: 1px solid var(--line2);
-  background: transparent; color: var(--ink2); font-size: 12.5px; font-weight: 600;
-  cursor: pointer; font-family: inherit; transition: all .15s;
-}
-.up-scale:hover { border-color: var(--lima-txt); }
-.up-scale--on { background: var(--accent); color: var(--accent-txt, #111); border-color: var(--lima-txt); }
-
-/* Rótulos e selects (semicírculo, como o resto do site) */
-.up-lbl {
-  display: flex; align-items: center; gap: 6px; font-size: 12.5px;
-  font-weight: 600; color: var(--ink2); margin: 14px 0 7px;
-}
+/* Preset: a caixa do campo, e ao lado salvar e apagar na mesma altura dela */
+.up-preset { display: flex; gap: 6px; align-items: stretch; }
+.up-preset > .cora-dd { flex: 1; min-width: 0; }
 .up-select {
   width: 100%; padding: 10px 14px; border-radius: 100px; border: 1px solid var(--line2);
   background: var(--wash); color: var(--ink); font-size: 12.5px; font-family: inherit;
@@ -12216,6 +12270,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .cora-dd-opt--sel .cora-dd-tique { opacity: 1; }
 /* Lista no portal (fixed em document.body) — acima de painéis/overlays */
 .cora-dd-lista--portal { z-index: 9999; }
+/* O cartão que o campo da janela (Render, Editar, Batch) abre: é ESTE
+   cartão, com um respiro a mais para as amostras de céu e de direção, que
+   são grades e não linhas. Ele nasce no body, por isso mora aqui. */
+.cmp__pop { padding: 8px; }
+.cmp__pop .cmp__lista { display: flex; flex-direction: column; gap: 1px; }
+.cmp__pop .cora-dd-opt { outline: none; }
+.cmp__pop .cora-dd-opt:focus-visible { box-shadow: inset 0 0 0 2px var(--turquesa-esc); }
 
 /* Placeholder do gatilho (multi sem nada marcado) */
 .cora-dd-ph { color: var(--ink3); }
@@ -12259,20 +12320,32 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .pl-inp:focus { border-color: var(--lima-txt); outline: none; }
 .pl-inp::placeholder { color: var(--ink3); }
 
-/* Sliders */
-.up-slider { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px; margin: 12px 0; }
-.up-slider label { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink2); }
+/* Sliders: o rótulo em caixa alta como todo rótulo da janela, o valor à
+   direita na mesma linha dele, e o miolo turquesa como o dos pincéis. */
+.up-sl { margin-top: 16px; }
+.up-sl-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
+.up-sl-rot {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink3);
+}
+.up-sl-val { font-size: 12.5px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.up-slider { display: block; margin: 0; }
 .up-slider input[type=range] {
   -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
   border-radius: 100px; background: var(--line2); outline: none;
 }
+/* O miolo turquesa, o mesmo dos sliders do pincel: aqui era o --accent, que
+   no tema claro é a lima, e lima na janela é o que executa e gasta crédito. */
 .up-slider input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
-  background: var(--accent); cursor: pointer; border: 2px solid var(--paper);
+  -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%;
+  background: var(--turquesa); cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--turquesa-esc), 0 2px 8px rgba(17,17,17,.07);
 }
 .up-slider input[type=range]::-moz-range-thumb {
-  width: 14px; height: 14px; border-radius: 50%; background: var(--accent);
-  cursor: pointer; border: 2px solid var(--paper);
+  width: 15px; height: 15px; border-radius: 50%; background: var(--turquesa);
+  cursor: pointer; border: 0;
+  box-shadow: inset 0 0 0 1px var(--turquesa-esc), 0 2px 8px rgba(17,17,17,.07);
 }
 .up-slider > span { font-size: 12.5px; color: var(--ink3); min-width: 34px; text-align: right; }
 
@@ -12304,11 +12377,12 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .up-preset-row { display: flex; gap: 6px; align-items: center; }
 .up-preset-row .up-select { flex: 1; }
 .up-mini {
-  width: 38px; height: 38px; flex-shrink: 0; border-radius: 50%;
-  border: 1px solid var(--line2); background: var(--wash); color: var(--ink2);
+  width: 44px; height: auto; flex-shrink: 0; border-radius: 14px;
+  border: 1px solid var(--line); background: var(--paper); color: var(--ink2);
   font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: border-color .15s, color .15s;
 }
-.up-mini:hover { border-color: var(--lima-txt); color: var(--lima-txt); }
+.up-mini:hover:not(:disabled) { border-color: var(--turquesa-esc); color: var(--turq-txt); }
 .up-mini--danger:hover { border-color: #e0405a; color: #e0405a; }
 .up-mini:disabled { opacity: .4; cursor: default; }
 
@@ -12318,7 +12392,7 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border: 1px solid var(--line2); background: var(--wash); color: var(--ink);
   font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 54px;
 }
-.up-textarea:focus { outline: none; border-color: var(--lima-txt); }
+.up-textarea:focus { outline: none; border-color: var(--turq-txt); }
 
 /* Modal de salvar preset (central) */
 .up-modal-fundo {
@@ -12402,18 +12476,36 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .cad-aceite--erro { color: #c0392b; }
 .cad-aceite--erro input { outline: 2px solid #c0392b; outline-offset: 1px; border-radius: 3px; }
 
-/* ===== Rodapé legal global (público + painel) ===== */
+/* ===== Rodapé legal global (público + painel) =====
+   O desenho é o do rodapé do feed, adotado no site inteiro em 09/09/2026:
+   fio de 1px, pouco respiro, e um tom só. O ponto separador saiu porque cada
+   peça tinha a sua opacidade e a linha saía manchada — o vão entre os links
+   faz o trabalho dele. */
 .rodape-legal {
-  border-top: 1px solid var(--line);
-  padding: 22px 24px;
-  text-align: center;
+  /* O fio não vai de ponta a ponta: ele é recuado e centrado, como no rodapé
+     dos Promptadores. De ponta a ponta ele fecha a tela como se fosse uma
+     borda de caixa; recuado, ele só separa. */
+  position: relative;
+  padding: 14px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
   font-size: 12.5px;
   color: var(--ink3);
   background: transparent;
 }
-.rodape-legal .rl-link { color: inherit; text-decoration: none; opacity: .9; }
-.rodape-legal .rl-link:hover { opacity: 1; text-decoration: underline; }
-.rodape-legal .rl-sep { margin: 0 8px; opacity: .5; }
+.rodape-legal .rl-link { color: inherit; text-decoration: none; opacity: 1; }
+.rodape-legal .rl-link:hover { color: var(--ink2); text-decoration: none; }
+.rodape-legal .rl-sep { display: none; }
+.rodape-legal::before {
+  content: "";
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: min(calc(100% - 48px), 760px); height: 1px; background: var(--line);
+}
+/* O do feed tem o fio dele, colado na coluna. */
+.rodape-legal--feed::before { display: none; }
 
 /* ===== Página de suporte (SAC) ===== */
 .sup-wrap { max-width: 620px; margin: 0 auto; padding: 40px 22px 60px; }
@@ -12437,7 +12529,7 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
    tamanho dos campos em pílula. */
 .sup-select { margin-bottom: 18px; }
 .sup-select .cora-sel-trigger { height: auto; padding: 12px 20px; font-size: 14.5px; color: var(--ink); border-color: var(--line2); }
-.sup-select .cora-sel-arrow { opacity: .6; color: var(--lima-txt); }
+.sup-select .cora-sel-arrow { opacity: .6; color: var(--turq-txt); }
 .sup-select--erro .cora-sel-trigger { border-color: #c0392b; }
 
 .sup-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -12549,6 +12641,9 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 .coradp--aberto .coradp-btn { border-color: var(--turq-txt); }
 .coradp-ph { color: var(--ink3); }
 .coradp-pop { position: absolute; top: calc(100% + 6px); left: 0; z-index: 200; width: 268px; background: var(--paper); border: 1px solid var(--line2); border-radius: 16px; box-shadow: 0 14px 40px rgba(0,0,0,.2); padding: 12px; }
+/* Desenhado no corpo da página, e não dentro do campo: o painel de filtros
+   rola, e rolagem recorta o que transborda. O `z-index` sobe acima dele. */
+.coradp-pop--fora { z-index: 3000; }
 .coradp-cab { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .coradp-mes { font-size: 12.5px; font-weight: 700; color: var(--ink); text-transform: capitalize; }
 .coradp-nav { width: 28px; height: 28px; border-radius: 8px; border: 0; background: var(--wash2); color: var(--ink2); display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -12557,8 +12652,10 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 .coradp-dh { text-align: center; font-size: 10.5px; font-weight: 700; color: var(--ink3); padding: 4px 0; }
 .coradp-dia { border: 0; background: transparent; color: var(--ink); font-size: 12.5px; font-family: inherit; height: 32px; border-radius: 9px; cursor: pointer; }
 .coradp-dia:hover { background: var(--accent-bg); color: var(--turq-txt); }
-.coradp-dia.hoje { box-shadow: inset 0 0 0 1.5px var(--roxo); color: var(--turq-txt); font-weight: 700; }
-.coradp-dia.sel { background: var(--roxo); color: #1a1650; font-weight: 800; }
+/* Hoje é um anel, o escolhido é a turquesa cheia. O texto era #1a1650, um
+   azul que sobrou do roxo antigo e não é de nenhuma das duas cores. */
+.coradp-dia.hoje { box-shadow: inset 0 0 0 1.5px var(--turquesa-esc); color: var(--turq-txt); font-weight: 700; }
+.coradp-dia.sel { background: var(--turquesa); color: #111111; font-weight: 700; }
 .coradp-pe { display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
 .coradp-hoje { border: 0; background: none; color: var(--turq-txt); font-size: 12.5px; font-weight: 700; cursor: pointer; }
 
@@ -12770,6 +12867,106 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
   white-space: nowrap; cursor: pointer;
 }
 .admin-ac-ver:hover { border-color: var(--ink); }
+/* Os dois botoes da linha ficavam colados e presos a esquerda da celula, e a
+   celula e a ultima da tabela: o olho ja esta indo para a direita quando
+   chega neles. Alinhados a direita eles formam uma coluna com o "Avisar" da
+   lista de cima, que e a mesma acao no mesmo lugar. */
+.admin-ac .admin-tabela td:last-child { text-align: right; white-space: nowrap; }
+.admin-ac-ver + .admin-ac-ver { margin-left: 8px; }
+
+/* ══════════════════════════════════════════════════════
+   QUEM AINDA DEVE O ACEITE (dentro da aba Aceites)
+
+   O numero vermelho "N contas sem prova de aceite" era so um numero: para
+   agir sobre ele alguem teria que abrir o banco. Agora ele abre esta lista, e
+   daqui sai o e-mail que avisa a pessoa de que o texto mudou.
+
+   Ele vira BOTAO sem virar botao: mesma cor, mesmo tamanho, so ganha o
+   ponteiro e um sinal de mais. Um numero que muda de aparencia ao virar
+   clicavel some do lugar onde a pessoa ja aprendeu a olhar.
+   ══════════════════════════════════════════════════════ */
+/* SEM `color: inherit` aqui. O reset de botao costuma levar a cor junto, e
+   aqui isso apagava o vermelho do `.admin-ac__falta`: a frase inteira voltava
+   para o cinza e so o <strong> do numero ficava vermelho. O vermelho e do
+   conteudo, e nao do estado do elemento, entao ele nao pode sair porque o
+   <span> virou <button>. */
+.admin-ac__falta--btn {
+  padding: 0; border: 0; background: none; font: inherit;
+  cursor: pointer;
+}
+/* ── O SINAL E DESENHO, E NAO LETRA ──
+   Era o caractere "+" centrado por `place-items:center`. So que isso centra a
+   CAIXA DE LINHA do glifo, e nao a tinta dele: o "+" de uma fonte de texto
+   mora na altura do eixo matematico, acima do meio da caixa, e o "-" e um
+   hifen, que e curto e mais alto ainda. Resultado: os dois desenhavam tortos
+   dentro da bolha, cada um para um lado.
+
+   Duas barras posicionadas por geometria nao tem esse problema. Elas cruzam
+   exatamente no centro porque e isso que `top:50%; left:50%` com
+   `translate(-50%,-50%)` quer dizer, seja qual for a fonte da pagina.
+
+   A bolha usa o vermelho do proprio numero. Ela deixou de ser um fundinho
+   claro atras de um sinal e virou o sinal inteiro, que e o que faz alguem
+   entender que da para clicar ali. */
+/* ── TUDO EM PIXEL INTEIRO ──
+   A primeira versao usava bolha de 19px com barras de 9 por 1,6. Duas contas
+   erradas ali: 19 e impar, entao o centro cai em 9,5 e as barras nascem em
+   meio pixel; e 1,6 nao existe na tela, entao cada barra virava duas linhas
+   de cinza claro em vez de uma branca. O cruzamento saia grosso e borrado.
+
+   16 com barras de 8 por 2 fecha em inteiro dos dois lados: o centro e 8, a
+   barra deitada vai de 4 a 12 e a em pe de 7 a 9. Sem meio pixel, sem
+   antialias, e a cruz sai limpa.
+
+   E 16 e o tamanho que combina com um texto de 13,5px. 19 com fundo cheio
+   pesava mais que a frase que ele acompanha, e o sinal e o acessorio, nao o
+   assunto. */
+.admin-ac__seta {
+  position: relative; display: inline-block; width: 16px; height: 16px;
+  margin-left: 7px; border-radius: 100px; background: #C8342A;
+  vertical-align: middle; font-size: 0;
+}
+.admin-ac__seta::before,
+.admin-ac__seta::after {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  background: #FFFFFF;
+  transform: translate(-50%, -50%);
+}
+.admin-ac__seta::before { width: 8px; height: 2px; }
+.admin-ac__seta::after  { width: 2px; height: 8px; }
+/* Aberto, a barra em pe some e sobra o menos. */
+.admin-ac__seta[data-aberto="sim"]::after { display: none; }
+.admin-ac__falta--btn:hover .admin-ac__seta { background: #A82A22; }
+.admin-pend {
+  margin: 0 0 18px; padding: 16px 18px;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--paper);
+}
+.admin-pend__topo {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 14px; margin-bottom: 14px;
+}
+/* Sem teto de largura: com 62ch a frase quebrava e sobrava "aceitarem."
+   sozinho na segunda linha, que e a quebra feia que a gente persegue nos
+   e-mails. Quem limita aqui e a propria fila flex, e ela so quebra quando a
+   tela estreita de verdade. */
+.admin-pend__diz { margin: 0; min-width: 0; font-size: 13.5px; line-height: 1.5; color: var(--ink2); }
+.admin-pend__diz strong { color: var(--ink); font-weight: 600; }
+.admin-pend__erro { margin: 0 0 12px; font-size: 13px; color: #C8342A; }
+.admin-pend__feito { margin: 0 0 12px; font-size: 13px; color: #1F7A44; }
+/* Uma linha por pessoa: quem, em que pe esta, e o botao. A coluna do meio tem
+   largura propria para os "parou na versao X" ficarem alinhados entre si. */
+.admin-pend__linha {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 0; border-top: 1px solid var(--line);
+}
+.admin-pend__quem { flex: 1; min-width: 0; }
+.admin-pend__estado { flex: none; width: 190px; font-size: 12.5px; color: var(--ink3); }
+.admin-pend__avisado { margin-top: 2px; font-size: 11px; color: var(--ink3); }
+
+@media (max-width: 700px) {
+  .admin-pend__linha { flex-wrap: wrap; }
+  .admin-pend__estado { width: auto; }
+}
 
 /* ══════════════════════════════════════════════════════════
    AUDITORIA (aba Auditoria do admin e do gerente)
@@ -12938,7 +13135,7 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 /* ═══════════════════════════════════════════════════════════════════════════
    RESPONSIVO — Cora Render
 
-   Este arquivo entra DEPOIS do globals.css (ver app/layout.js). Nada aqui
+   Este arquivo entra DEPOIS das folhas de desenho (ver app/layout.js). Nada aqui
    redesenha o site: ele só ensina o layout de desktop a caber em telas
    menores. Por vir por último, uma regra daqui vence a de lá quando as duas
    têm o mesmo peso — então dá para corrigir sem mexer no original.
@@ -13068,9 +13265,11 @@ img, video, iframe {
      `.login-input`) ganharia do seletor de elemento e o zoom voltaria — foi
      exatamente o que a auditoria pegou. `<select>` fica de fora: no iOS ele
      abre uma roleta nativa, não dá zoom. */
-  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']),
-  textarea {
-    font-size: 16px !important;
+  @media (max-width: 640px) {
+    input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']),
+    textarea {
+      font-size: 16px !important;
+    }
   }
 
   /* ── Tooltip de hover não existe no toque ──
@@ -13643,6 +13842,12 @@ img, video, iframe {
   /* Notebook pequeno / iPad deitado: o painel cede largura para o feed antes
      de precisar virar aba. */
   .cr-painel { width: 340px; }
+  .co .cr-pills { padding-inline:8px; }
+  .co .cr-sulco { padding:3px; }
+  .co .cr-sulco .cr-trilho { gap:1px; }
+  .co .cr-pill { min-width:24px; height:30px; min-height:30px; }
+  .co .cr-pill > svg { width:15px; height:15px; }
+  .co .cr-pill--on { padding:0 7px 0 6px; gap:3px; font-size:11px; }
 }
 
 @media (max-width: 1024px) {
@@ -13814,7 +14019,7 @@ img, video, iframe {
 .ps-col-fechar { display: none; }
 .ps-col-veu { display: none; }
 
-@media (max-width: 1024px) {
+@media (max-width: 1240px) {
   /* A coluna de camadas passa a deslizar por cima da tela do editor. */
   .ps-col {
     position: absolute;
@@ -13852,6 +14057,7 @@ img, video, iframe {
     box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
   }
   .ps.camadas-abertas .ps-col-abrir { display: none; }
+  .ps:has(.ps-opts) .ps-col-abrir { top: 66px; }
 
   .ps-col-fechar {
     display: flex;
@@ -14120,12 +14326,773 @@ img, video, iframe {
   .app-avatar { width: 30px; height: 30px; font-size: 13.5px; }
   .app-anel { width: 38px; height: 38px; }
 
-  /* Com a tela deitada há largura para as duas colunas do studio de volta. */
-  .cr-tela[data-mob] { flex-direction: row; }
-  .cr-mobtabs { display: none; }
-  .cr-tela[data-mob='feed'] .cr-painel,
-  .cr-tela[data-mob='painel'] .cr-feed { display: flex; }
-  .cr-painel { width: 46%; max-width: 340px; flex: 0 0 auto; border-right: 1px solid var(--line); }
+  /* Mantém Criar/Galeria também deitado: duas colunas estreitas mais as
+     barras fixas deixavam o formulário sem espaço para rolar. */
+}
+
+/* As telas atuais usam escopos (.co, .pn, .pr, .hm). As regras antigas sem
+   escopo não vencem suas medidas. Geometria responsiva fica aqui, depois
+   das folhas geradas; não precisa alterar o desenho dos artefatos. */
+.co .cr-feed, .co .cr-painel-corpo, .co .cr-aba,
+.pn .app-main, .pn .app-main-conteudo { min-width: 0; }
+.co .cr-pill-wrap { min-width: 0; }
+.co .ps { min-height: 0; }
+/* O editor calcula a escala da imagem e da máscara juntas. O flex não
+   pode encolher só a imagem depois e deslocar o traço em relação a ela. */
+.co .pn-pilha { flex-shrink: 0; }
+.co .pn-canvas { max-width: none; }
+.co .cr-mobtab--on {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--sombra-peq);
+}
+.co .cr-mobtabs { background: var(--wash2); }
+
+/* A galeria pode ser estreita mesmo em desktop (lateral e formulário
+   abertos). A consulta mede o feed, não a largura inteira do monitor. */
+.co .cr-feed { container-type: inline-size; }
+@container (max-width: 760px) {
+  .co .cr-barra {
+    height: 58px; min-height: 58px; padding: 0 8px;
+    flex-wrap: nowrap; gap: 2px; overflow: visible;
+  }
+  .co .cr-barra-dir { flex: 1 1 auto; flex-wrap: nowrap; justify-content: flex-end; gap:2px; }
+  .co .cr-fbtn { min-width:26px; height:28px; padding:0 6px; gap:2px; }
+  .co .cr-fbtn svg { width:13px; height:13px; }
+  .co .cr-tams, .co .cr-seg-lay { gap:0; padding:2px; }
+  .co .cr-tam { min-width:22px; height:24px; padding:0 4px; font-size:11px; }
+  .co .cr-seg-lay .cr-fbtn { width:24px; height:24px; }
+  .co .cr-barra-dir > .cr-seg-lay, .co .cr-barra-dir > .cr-ft-wrap { margin-left:2px; }
+  .co .cr-cards--linha.cr-cards--p .cr-card,
+  .co .cr-cards--linha.cr-cards--p .cr-slot { width:calc((100% - 17px) / 3); }
+  .co .cr-cards--linha.cr-cards--m .cr-card,
+  .co .cr-cards--linha.cr-cards--m .cr-slot { width:calc((100% - 17px) / 3); }
+  .co .cr-cards--linha.cr-cards--g .cr-card,
+  .co .cr-cards--linha.cr-cards--g .cr-slot { width:calc((100% - 9px) / 2); }
+  .co .cr-cards--linha.cr-cards--gg .cr-card,
+  .co .cr-cards--linha.cr-cards--gg .cr-slot { width:100%; }
+  .co .cr-card-acoes { flex-wrap:nowrap; gap:0; padding:3px; max-width:calc(100% - 8px); }
+  .co .cr-ca { width:20px; height:20px; }
+  .co .cr-ca svg { width:12px; height:12px; }
+  .co .cr-ca-div { margin:0 1px; }
+  .co .rodape-legal--feed { flex-wrap:nowrap; gap:10px; padding:9px 8px 10px; font-size:11px; white-space:nowrap; }
+}
+
+@media (max-width: 1024px) {
+  .pn .app-side, .pn .app-shell.recolhido .app-side { width: min(264px, 86vw); }
+  .pn .app-header, .pn .app-shell.recolhido .app-header {
+    padding-left: max(12px, var(--seg-esq));
+    padding-right: max(12px, var(--seg-dir));
+    padding-top: var(--seg-topo);
+  }
+  .co .cr-painel { border-right: 0; }
+  .co .cr-mobtabs { padding: 6px 12px; }
+  .co .cr-mobtab { min-height: 38px; padding: 8px; }
+  .co .cr-barra-ger { padding-bottom: calc(12px + var(--seg-base)); }
+  .co .cr-barra { overflow: visible; }
+  /* O filtro é irmão visual da barra, não conteúdo da sua rolagem.
+     Fixo, cabe também quando o botão está perto da margem esquerda. */
+  .co .ft {
+    position: fixed; top: calc(var(--header-h) + var(--seg-topo) + 64px);
+    right: max(12px, var(--seg-dir)); left: auto;
+    width: min(340px, calc(100vw - 24px - var(--seg-esq) - var(--seg-dir)));
+    max-height: calc(var(--altura-tela) - var(--header-h) - var(--seg-topo) - var(--seg-base) - 80px);
+    display: flex; flex-direction: column;
+  }
+  .co .ft__corpo { flex: 1; min-height: 0; }
+  .co .ft__cab, .co .ft__pe { flex: none; }
+  .co .vz { min-height: 0; height: min(82dvh, 860px); }
+  .co .vz-acoes { flex-wrap: wrap; gap: 6px; }
+}
+
+@media (max-width: 820px) {
+  .co .cr-form, .co .up-painel { padding: 14px 12px 20px; }
+  .co .cr-form, .co .up-painel, .co .cr-barra-ger { min-width: 0; }
+  .co .cr-pop { max-width: calc(100vw - 48px); }
+  .pn .perfil-sec { padding: 20px 18px; }
+  .pn .perfil-wrap { grid-template-columns: minmax(0, 1fr); }
+  .pn .perfil-idx { display: none; }
+}
+
+/* iPad e outros tablets de toque: a largura permite campos compactos e não
+   sofre o zoom automático que exige 16px no iPhone. */
+@media (pointer: coarse) and (min-width: 641px) {
+  .co input, .co textarea, .co select,
+  .pn input, .pn textarea, .pn select { font-size:13.5px !important; }
+}
+
+@media (max-width: 640px) {
+  .pn .admin-wrap, .pn .apr-wrap { padding: 20px 14px 36px; }
+  .pn .heroi__txt { padding: 24px 18px; }
+  .pn .dash-cartoes { grid-template-columns: minmax(0, 1fr); }
+  .pn .perfil-sec { padding: 18px 14px; }
+  .pn .perfil-toggle-linha { gap: 14px; }
+  .pn .perfil-salvar-barra .btn { width: 100%; }
+  .pn .as-plano-topo { padding: 20px 18px; gap: 18px; }
+  .pn .as-plano-pe { padding: 14px 18px; }
+  .pn .as-plano-preco { text-align: left; }
+  .pn .apr-mcab { flex-wrap: wrap; }
+  .pn .apr-com__cab { flex-wrap: wrap; }
+  .pn .apr-prog { min-width: 0; }
+  .pn .app-user-menu { max-width: calc(100vw - 24px); }
+  .co .cr-pills { padding: 8px; }
+  .co .cr-sulco .cr-trilho { flex-wrap: nowrap; }
+  .co .cr-pill { min-width:22px; height:30px; min-height:30px; }
+  .co .cr-pill > svg { width:15px; height:15px; }
+  .co .cr-pill--on { padding:0 7px; gap:3px; font-size:11px; }
+  .co .cr-pills-cfg { gap: 5px; }
+  .co .cr-pill-cfg { padding: 0 8px; gap: 4px; font-size: 12.5px; }
+  .co .cr-barra-ger { padding-left: 12px; padding-right: 12px; }
+  .co .cr-pop-grade { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .co .cr-pop { min-width: min(250px, calc(100vw - 48px)); }
+  .co .cr-pop--res { min-width: 0; }
+  .co .fic__cab { gap: 8px; }
+  .co .fic__nome { letter-spacing: .04em; }
+  .co .cr-btn-gerar .cr-custo-tag, .co .cr-b-ler .cr-custo-tag {
+    position: static; transform: none; flex: none;
+  }
+  .co .cr-btn-gerar, .co .cr-b-ler { gap: 8px; }
+  .co .vz-acoes { padding: 8px; }
+  .co .vz-acoes-fim { margin-left: 0; }
+  .co .vz-prompt-janela { max-width: 100%; max-height: calc(100dvh - 32px); }
+  .co .cr-selbar { flex-wrap: wrap; }
+  .co .cr-selbar-acoes { flex-wrap: wrap; }
+  .co .cf { padding: 22px 18px; }
+  .co .cf-acoes button { min-width: 0; height: auto; min-height: 46px; padding: 10px; }
+  .co .ps-top { gap:4px; padding:7px 14px 7px 8px; flex-wrap:nowrap; overflow-x:auto; }
+  .co .ps-top .ps-b { height:30px; padding:0 9px; font-size:11px; gap:4px; }
+  .co .ps-top .ps-ic { width:30px; height:30px; }
+  .co .ps-sep { margin:0 1px; height:18px; }
+  .co .ps-col { max-width: calc(100vw - 24px); }
+  .co .ps-fly, .co .mc { max-height: 65dvh; overflow-y: auto; }
+}
+
+@media (pointer: coarse) {
+  /* No toque as ações ficam visíveis; os botões compactos dividem a mesma
+     faixa sem invadir o vizinho. */
+  .co .cr-fbtn::after { content: none; }
+  .co .cr-qty { height: 44px; padding: 0 3px; }
+  .co .cr-qty button { width: 36px; height: 40px; }
+  .co .cr-qty span { min-width: 18px; }
+  .co .cr-pill-cfg { height: 44px; }
+  .co .cr-pop-res, .co .ft__corpo .cora-dd-opt { min-height: 40px; }
+  .co .cr-card .cr-card-acoes {
+    opacity: 1; pointer-events: auto; transform: none;
+    left: 50%; right:auto; top:6px;
+    transform:translateX(-50%); border-radius:18px;
+  }
+  .co .cr-card-fav { display: none; }
+  .co .cr-ca--fav, .co .cr-ca--fav:hover { color: var(--turquesa); }
+  .co .cr-card .cr-card-info { opacity: 1; }
+  .co .ps-folha { touch-action: none; }
+  .co .pn-draw, .co .pn-canvas--move, .co .pn-alca { touch-action: none; }
+  .pn .perfil-avatar-box .perfil-avatar-editar,
+  .pn .perfil-avatar-box .perfil-avatar-x { opacity: 1; }
+}
+
+@container (max-width: 430px) {
+  .co .cr-cards--linha.cr-cards--p .cr-card,
+  .co .cr-cards--linha.cr-cards--p .cr-slot,
+  .co .cr-cards--linha.cr-cards--m .cr-card,
+  .co .cr-cards--linha.cr-cards--m .cr-slot { width:calc((100% - 9px) / 2); }
+  .co .cr-cards--linha.cr-cards--g .cr-card,
+  .co .cr-cards--linha.cr-cards--g .cr-slot,
+  .co .cr-cards--linha.cr-cards--gg .cr-card,
+  .co .cr-cards--linha.cr-cards--gg .cr-slot { width:100%; }
+  .co .cr-ca { width:20px; height:20px; }
+}
+
+/* As escolhas das plantas são conteúdo curto; não devem preencher toda a
+   altura livre do formulário. */
+.co .ed-cards--coluna { grid-auto-rows:auto; align-content:start; }
+.co .cr-form--planta > .ed-cards {
+  flex:none; grid-auto-rows:auto; align-content:start;
+}
+.co .cr-form--editar > .ed-cards {
+  grid-template-rows:repeat(4,minmax(min-content,1fr)); grid-auto-rows:unset;
+}
+.co .cr-ed-base .cr-base { width:100%; height:auto; aspect-ratio:16/9; }
+.co .cr-ed-base .cr-base img { width:100%; height:100%; object-fit:cover; }
+.co .an-filtros + * { margin-top:14px; }
+.co input[type="checkbox"] { accent-color:var(--turquesa); }
+
+@media (max-width: 1240px) {
+  .co .ps-top { gap:4px; padding:8px 16px 8px 10px; flex-wrap:nowrap; overflow-x:auto; }
+  .co .ps-top .ps-b { height:30px; padding:0 10px; font-size:11px; gap:4px; }
+  .co .ps-top .ps-ic { width:30px; height:30px; }
+  .co .ps-top > :last-child { margin-right:2px; }
+  .co .ps-opts { flex-wrap:nowrap; gap:5px; overflow-x:auto; padding:6px 8px; }
+  .co .ps-opts .ps-b { height:30px; padding:0 9px; font-size:11px; }
+  .co .ps-opts .ps-num { width:58px; height:30px; font-size:11px !important; }
+  .co .ps-opts .cora-sel-wrap.ps-sel--min { height:30px; min-width:104px; }
+  .co .ps-opts .cora-sel-trigger {
+    height:30px; min-height:30px; padding:0 9px; gap:5px;
+    border-radius:100px; font-size:11px;
+  }
+}
+
+@media (max-height: 900px) and (min-width: 641px) {
+  .co .cr-form--editar { padding:10px 12px 8px; }
+  .co .cr-form--editar .cr-sec { margin:8px 0 6px; }
+  .co .cr-form--editar .cr-hint { margin-top:4px; font-size:11px; }
+  .co .cr-form--editar > .ed-cards { gap:5px; }
+  .co .cr-form--editar .ed-card { padding:13px 8px 6px; }
+  .co .cr-form--editar .ed-faixa { width:22px; height:22px; margin-bottom:3px; }
+  .co .cr-form--editar .ed-faixa svg { width:12px; height:12px; }
+  .co .cr-form--editar .ed-corpo strong { font-size:11.5px; line-height:1.15; }
+  .co .cr-form--editar .ed-corpo > span { font-size:10.5px; line-height:1.2; }
+}
+
+@container (min-width: 761px) and (max-width: 1100px) {
+  .co .cr-cards--linha.cr-cards--m .cr-card,
+  .co .cr-cards--linha.cr-cards--m .cr-slot { width:calc((100% - 25px) / 4); }
+}
+
+@media (max-width: 1700px) {
+  .co .cr-tams .cr-tam:first-child { display:none; }
+  .co .cr-cards--linha.cr-cards--p .cr-card,
+  .co .cr-cards--linha.cr-cards--p .cr-slot { width:calc((100% - 33px) / 5); }
+}
+
+/* O admin também vive dentro do escopo .pn; esta regra de cartões não pode
+   transformar células numéricas de tabela em grades. */
+.pn table .adm-num { display:table-cell; }
+.pn div.adm-sub { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.pn .disp-item { border:0; border-radius:0; padding:11px 4px; background:transparent; }
+.pn .disp-item + .disp-item { border-top:1px solid var(--line); }
+.pn .rec-op { min-height:100%; }
+.pn .rec-comprar { margin-top:auto; }
+.pn .as-planos { padding:18px; }
+.pn .as-planos .planos { margin-top:0; gap:14px; }
+
+@media (max-width: 1280px) {
+  .pn .adm-cat__mod { gap:10px; padding:14px; }
+  .pn .adm-cat__capa { height:82px; }
+  .pn .adm-cat__mod > .adm-est-wrap { margin-right:0; }
+  .pn .rec-op, .pn .rec-op--pop { padding:20px 12px; }
+  .pn .rec-op strong { font-size:22px; }
+  .pn .rec-frase { font-size:12.5px; line-height:1.4; }
+  .pn .rec-prazo { font-size:11px; }
+  .pn .rec-comprar { height:38px; font-size:13.5px; }
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+  .pn { --header-h: 48px; }
+  .pn .app-header { height: calc(var(--header-h) + var(--seg-topo)); }
+  .co .cr-mobtabs { padding: 3px 10px; }
+  .co .cr-mobtab { min-height: 30px; padding: 4px; }
+  .co .cr-barra-ger { padding-top: 6px; padding-bottom: calc(6px + var(--seg-base)); }
+  .co .cr-barra-ger .cr-resetar { margin-top: 6px; }
+  .co .ft { top: calc(var(--header-h) + 12px); max-height: calc(100dvh - var(--header-h) - 24px); }
+  .co .vz-x { top: 8px; right: 8px; z-index: 10; }
+}
+
+/* Grades públicas: o tamanho mínimo da mídia e das tabelas não pode
+   alargar a coluna. A tabela continua rolando dentro do próprio cartão. */
+.pr .teams__lado, .pr .teams__tabelas { min-width: 0; }
+@media (max-width: 767px) {
+  .hm .passos__palco { width: 100%; aspect-ratio: auto; }
+  .hm .passos__lista, .hm .passo { min-width: 0; }
+  .hm .passo { grid-template-columns: 22px minmax(0, 1fr); }
+  .hm .passo__t, .hm .passo__x { overflow-wrap: anywhere; }
+  .hm .passos__nota { white-space: normal; }
+  .hm .provas { grid-template-columns: minmax(0, 1fr); }
+  .hm .prova { min-width: 0; }
+  .hm .prova__quadro { width: 100%; aspect-ratio: auto; min-height: 360px; }
+}
+@media (max-width: 480px) {
+  .pr .teams__lado, .pr .teams__tabelas { padding: 22px 16px; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   16. CONFERÊNCIA VISUAL — iPad horizontal, vertical e notebooks estreitos
+
+   Este bloco reúne as correções medidas nos dois relatórios de 03/09. São
+   apenas regras de encaixe: cores estruturais continuam nas folhas de desenho.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Sobre a faixa da marca, a pastilha é vidro sem um segundo contorno. */
+.pn .app-header--faixa .app-header-aqui { border-color: transparent; }
+
+/* `.pr` é a casca da página pública de preços e carrega `min-height:100vh`.
+   Dentro da Assinatura ela é só a grade; a altura de página criava o grande
+   retângulo cinza que sobrava abaixo dos planos. */
+.pn .as-planos {
+  display: block;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+}
+.pn .as-planos .plano--atual { border-color: var(--line); }
+
+/* O campo de comentário precisa respirar depois do conteúdo da aula, e o
+   cartão de edição conserva o contorno inteiro mesmo quando vira uma coluna. */
+.pn .apr-com { margin-top: 38px; }
+.pn .adm-au {
+  border-color: transparent;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+/* A coluna de estado termina sempre no mesmo lugar, no fim da linha. */
+.pn .adm-cat__mod > .adm-est-wrap {
+  margin-left: auto;
+  margin-right: 92px;
+  align-self: center;
+}
+.pn .adm-cat__aula > .adm-est-wrap {
+  margin-left: auto;
+  align-self: center;
+}
+.pn .adm-cat__aula > .adm-cat__abre { flex: 1 1 260px; }
+
+/* Linhas e campos administrativos mantêm a escala de apoio em tablets. */
+@media (min-width: 641px) and (max-width: 1280px) {
+  .pn .adm-cat__mod { align-items: center; }
+  .pn .adm-cat__capa { height: 76px; }
+  .pn .adm-cat__olho { font-size: 10px; }
+  .pn .adm-cat__campo input { font-size: 12.5px !important; }
+  .pn .adm-cat__aula { gap: 10px; padding: 10px 14px; flex-wrap: nowrap; }
+  .pn .adm-cat__num { gap: 8px; font-size: 10.5px; }
+  .pn .adm-est { font-size: 10.5px; padding-inline: 10px; }
+  .pn .adm-au__campo--mono { font-size: 11.5px !important; }
+
+  .pn .ad .fat { font-size: 11.5px; }
+  .pn .ad .fat th { padding: 0 7px 7px; font-size: 9.5px; letter-spacing: .08em; }
+  .pn .ad .fat td { padding: 8px 7px; }
+  .pn .ad .adm-nome { font-size: 12px; }
+  .pn .ad .adm-sub { font-size: 10px; }
+  .pn .ad .adm-sub-txt { max-width: 132px; }
+  .pn .ad .fat-selo { font-size: 9.5px; padding: 2px 7px; }
+  .pn .adm-btn-ficha { height: 38px; padding-inline: 12px; font-size: 12.5px; }
+  .pn .admin-ac__busca { height: 34px; max-width: 280px; font-size: 12.5px !important; }
+  .pn .adm-card { padding: 16px 18px 18px; }
+  .pn .adm-card > .fat-rolo { margin-left: -18px; margin-right: -18px; }
+  .pn .adm-card > .fat-rolo .fat th:first-child,
+  .pn .adm-card > .fat-rolo .fat td:first-child { padding-left: 18px; }
+  .pn .adm-card > .fat-rolo .fat th:last-child,
+  .pn .adm-card > .fat-rolo .fat td:last-child { padding-right: 18px; }
+}
+
+@media (max-width: 1100px) {
+  .pn .adm-cat__mod > .adm-est-wrap { margin-right: 0; }
+  .pn .adm-ficha-cab,
+  .pn .admin-ac__topo { flex-wrap: wrap; gap: 10px; }
+  .pn .adm-ficha-cab .adm-busca,
+  .pn .admin-ac__busca { flex: 1 1 220px; width: 100%; max-width: none !important; }
+  .pn .admin-ac__nums { flex-wrap: wrap; }
+}
+
+@media (max-width: 900px) {
+  .pn .adm-cat__aula { flex-wrap: wrap; }
+  .pn .adm-cat__aula > .adm-cat__abre { flex-basis: calc(100% - 90px); }
+  .pn .adm-cat__num { order: 3; margin-left: 50px; }
+  .pn .adm-cat__aula > .adm-est-wrap { order: 3; margin-left: auto; }
+}
+
+/* No tablet os três planos continuam comparáveis lado a lado. No telefone a
+   leitura volta a uma coluna, pois três cartões de 100px não seriam úteis. */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .pn .as-planos .planos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .pn .as-planos .plano { padding: 18px 12px 14px; border-radius: 14px; }
+  .pn .as-planos .plano__nome { font-size: 17px; }
+  .pn .as-planos .plano__valor { font-size: 24px; }
+  .pn .as-planos .plano__desc,
+  .pn .as-planos .plano__lista { font-size: 11px; }
+  .pn .as-planos .btn { min-width: 0; padding-inline: 10px; font-size: 11.5px; }
+  .pn .as-planos .plano__aqui { height: 42px; font-size: 11.5px; }
+}
+@media (max-width: 640px) {
+  .pn .as-planos .planos { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Criar/Galeria são estados da mesma tela: turquesa lavada em repouso e
+   turquesa cheia na escolhida. O preto permanece legível nos dois temas. */
+@media (max-width: 1024px) {
+  .co .cr-mobtabs { background: var(--paper); }
+  .co .cr-mobtab {
+    background: var(--turq-bg);
+    color: var(--turq-txt);
+    box-shadow: none;
+  }
+  .co .cr-mobtab--on {
+    background: var(--turquesa);
+    color: #111111;
+    box-shadow: none;
+  }
+
+  /* O painel passa a usar a largura disponível. O limite antigo de 680px
+     deixava duas faixas vazias grandes no Render e no Batch. */
+  .co .cr-form,
+  .co .cr-painel-vazio,
+  .co .cr-sulco { max-width: none; }
+
+  /* P não tem espaço para texto e sete ações no tablet. */
+  .co .cr-tams .cr-tam:first-child { display: none; }
+
+  /* A barra do feed e os controles do editor ficam acima do conteúdo, sem
+     entrar por baixo do cabeçalho da aplicação. */
+  .co .cr-barra { position: relative; z-index: 24; flex-shrink: 0; }
+  .co .ps-top { position: relative; z-index: 70; }
+
+  /* A janela do picker mantém o mesmo corpo em todas as origens. */
+  .co .pk {
+    height: min(640px, calc(var(--altura-tela) - 40px));
+    min-height: min(520px, calc(var(--altura-tela) - 40px));
+  }
+  .co .pk-main,
+  .co .pk-corpo { min-height: 0; }
+
+  /* Com opções ativas, Camadas desce uma linha e não cobre os controles. */
+  .co .ps:has(.ps-opts) .ps-col-abrir { top: 66px; }
+}
+
+/* Em notebook P continua disponível; o corte anterior em 1700px escondia a
+   opção em monitores onde ela cabe com folga. */
+@media (min-width: 1025px) {
+  .co .cr-tams .cr-tam:first-child { display: grid; }
+}
+
+/* O check externo e a barra preta dividem a mesma linha. A cor de seleção e
+   favorito é a turquesa do produto, inclusive no Safari do iPad. */
+@media (pointer: coarse) {
+  .co .cr-tams .cr-tam:first-child { display: none; }
+  .co .cr-card .cr-card-acoes {
+    left: 50%;
+    right: auto;
+    width: max-content;
+    max-width: calc(100% - 12px);
+    transform: translateX(-50%);
+    justify-content: center;
+  }
+  .co .cr-card:has(.cr-card-selo) .cr-card-acoes {
+    left: 36px;
+    right: 6px;
+    width: auto;
+    max-width: none;
+    transform: none;
+  }
+  .co .cr-card-selo {
+    top: 6px;
+    left: 6px;
+    width: 26px;
+    height: 26px;
+    background: var(--lima);
+    color: #111111;
+    box-shadow: none;
+  }
+  .co .cr-card-fav {
+    display: flex;
+    color: var(--turquesa);
+  }
+  .co .cr-ca--on { color: var(--lima); }
+  .co .cr-ca--fav,
+  .co .cr-ca--fav:hover { color: var(--turquesa); }
+  .co .cr-cards--m .cr-card-info,
+  .co .cr-mas--m .cr-card-info { padding-inline: 6px 28px; gap: 3px; }
+  .co .cr-cards--m .cr-card-info span,
+  .co .cr-mas--m .cr-card-info span { font-size: 9.5px; }
+}
+
+/* Feed mais denso no tablet: mantém as imagens próximas e reduz a altura
+   morta entre gerações sem mudar a proporção de nenhum arquivo. */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .co .cr-lista { padding: 12px 14px; }
+  .co .cr-lote { padding: 10px 0 12px; }
+  .co .cr-lote-cab { margin-bottom: 7px; }
+  .co .cr-lote-data { font-size: 10.5px; }
+  .co .cr-tag { font-size: 10px; padding: 3px 8px; }
+  .co .cr-mes { margin-bottom: 20px; }
+  .co .cr-mes-tit { margin-bottom: 8px; }
+}
+
+/* A topbar cabe inteira no iPad; manter overflow nela recortava os menus que
+   abrem para baixo. No telefone ela pode usar duas linhas. */
+@media (min-width: 481px) and (max-width: 1240px) {
+  .co .ps-top { flex-wrap: nowrap; overflow: visible; }
+  .co .ps-top .ps-b { padding-inline: 8px; }
+  .co .ps-top .ps-sep { margin-inline: 0; }
+  .co .ps-fly { z-index: 90; }
+}
+@media (max-width: 480px) {
+  .co .ps-top {
+    flex-wrap: wrap;
+    overflow: visible;
+    row-gap: 4px;
+  }
+  .co .ps-esticar { display: none; }
+  .co .ps-fly { z-index: 90; }
+}
+
+/* A barra de recorte permanece numa linha lateral. Se a tela for muito curta,
+   ela rola dentro da própria cápsula sem cortar o último controle. */
+@media (max-width: 1240px) {
+  .co .ps-opts {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: visible;
+    min-height: 42px;
+  }
+  .co .ps-opts .ps-opt-l,
+  .co .ps-opts .ps-opt-v { font-size: 10.5px; }
+  .co .ps-opts .ps-num {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+}
+
+/* A prévia dos Ajustes conserva a mesma altura ao trocar de aba. */
+@media (max-width: 820px) {
+  .co .aj-previa {
+    flex: 0 0 min(44dvh, 420px);
+    min-height: 260px;
+    padding: 16px;
+  }
+  .co .aj-lado { flex: 1 1 auto; max-height: none; min-height: 0; }
+  .co .aj-painel { min-height: 0; }
+}
+
+/* Um único anel no nome do preset; o Safari acrescentava a aparência nativa
+   por fora da borda desenhada pelo Cora. */
+.co .up-modal-input {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.co .up-modal-input:focus {
+  outline: none;
+  border-color: var(--turquesa-esc);
+  box-shadow: 0 0 0 3px var(--turq-bg);
+}
+
+/* Cards de ferramenta da animação precisam de altura para título e descrição
+   em iPad vertical, sem encavalar a linha seguinte. */
+@media (min-width: 641px) and (max-width: 820px) {
+  .co .ed-cards--coluna { grid-auto-rows: auto; align-content: start; }
+  .co .ed-cards--coluna .ed-card { min-height: 130px; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   17. CONFERÊNCIA VISUAL — iPad vertical
+
+   Ajustes medidos no relatório vertical: mantêm a escala do desktop e
+   comprimem apenas o que precisa dividir a largura de um tablet.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* O título fica ao lado do menu, igual ao cabeçalho deitado. */
+@media (max-width: 1024px) {
+  .pn .app-burger { margin-right: 10px; }
+}
+
+/* A barra da Pós sobe para 70 no tablet. Quando o menu do avatar abre, o
+   cabeçalho inteiro precisa passar dela; aumentar só o filho não atravessa o
+   contexto de empilhamento criado pelo z-index do cabeçalho. */
+.pn .app-header:has(.app-user-menu) { z-index: 100; }
+
+/* O escopo `.pr` da tabela pública trazia os tokens claros para dentro da
+   Assinatura. No tema escuro isso deixava três cartões brancos no meio da
+   página. Dentro do painel, a tabela usa a paleta escura e os dois selos
+   mantêm papéis diferentes: destaque em turquesa, plano atual em cinza. */
+[data-theme="dark"] .pn .as-planos {
+  --ink: #F2F2EF;
+  --ink2: #B6B5AE;
+  --ink3: #8B8A83;
+  --paper: #17171A;
+  --wash: #0F0F11;
+  --wash2: #1E1E22;
+  --line: #2B2B30;
+  --line2: #3A3A41;
+}
+[data-theme="dark"] .pn .as-planos .plano--destaque { border-color: var(--turquesa); }
+[data-theme="dark"] .pn .as-planos .plano__selo {
+  background: var(--turquesa);
+  color: #111111;
+}
+[data-theme="dark"] .pn .as-planos .plano__selo--atual {
+  background: var(--wash2);
+  color: var(--ink2);
+}
+.pn .rec-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  padding-block: 0;
+  line-height: normal;
+}
+
+/* O estado da comparação precisa aparecer antes mesmo de olhar a fotografia:
+   Depois usa turquesa e Antes usa lima. */
+.co .aj-antes-btn,
+.co .aj-antes-btn:hover {
+  background: var(--turquesa);
+  color: #111111;
+  border-color: transparent;
+}
+.co .aj-antes-btn--on,
+.co .aj-antes-btn--on:hover { background: var(--lima); }
+
+/* No tablet, os rótulos longos da Pós viram ícones com dica. A barra fica
+   inteira em uma linha e os menus continuam livres para abrir para baixo. */
+@media (min-width: 481px) and (max-width: 820px) {
+  .co .ps-top {
+    gap: 2px;
+    padding: 7px 8px;
+    overflow: visible;
+    justify-content: space-between;
+  }
+  .co .ps-top .ps-b,
+  .co .ps-top .ps-ic {
+    flex: 0 0 28px;
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    padding: 0;
+    justify-content: center;
+  }
+  .co .ps-top .ps-b-lbl,
+  .co .ps-top > .ps-esticar { display: none; }
+  .co .ps-top .ps-b svg,
+  .co .ps-top .ps-ic svg { width: 13px; height: 13px; }
+  .co .ps-top .ps-sep { margin-inline: 0; }
+  .co .ps-grupo { flex: 0 0 auto; }
+  .co .ps-tri-btn { width: 8px; }
+
+  .co .ps-opts {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    gap: 4px;
+    justify-content: space-between;
+    overflow: visible;
+  }
+  .co .ps-opts .ps-num {
+    width: 50px;
+    min-width: 50px;
+    font-size: 10px !important;
+  }
+  .co .ps-opts .cora-sel-wrap.ps-sel--min { min-width: 92px; }
+  .co .ps-opts .ps-b { padding-inline: 7px; font-size: 10px; }
+  .co .ps-opts .ps-caixa { gap: 4px; font-size: 10px; white-space: nowrap; }
+}
+@media (min-width: 821px) and (max-width: 1240px) {
+  .co .ps-top { gap: 2px; padding: 7px 10px; }
+  .co .ps-top .ps-b,
+  .co .ps-top .ps-ic {
+    flex: 0 0 30px;
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    padding: 0;
+    justify-content: center;
+  }
+  .co .ps-top .ps-b-lbl { display: none; }
+  .co .ps-top .ps-b svg,
+  .co .ps-top .ps-ic svg { width: 14px; height: 14px; }
+  .co .ps-top .ps-sep { margin-inline: 1px; }
+  .co .ps-tri-btn { width: 9px; }
+}
+
+/* A aula volta a ser uma linha de leitura: título, números, publicação e
+   ações. Todos os blocos podem encolher sem empurrar os botões para baixo. */
+@media (min-width: 641px) and (max-width: 900px) {
+  .pn .adm-cat__aula { flex-wrap: nowrap; gap: 7px; padding: 9px 10px; }
+  .pn .adm-cat__pega { width: 12px; }
+  .pn .adm-cat__n { width: 19px; font-size: 10px; }
+  .pn .adm-cat__aula > .adm-cat__abre {
+    flex: 1 1 150px;
+    min-width: 80px;
+  }
+  .pn .adm-cat__abre b { font-size: 11.5px; }
+  .pn .adm-cat__abre em { font-size: 9.5px; }
+  .pn .adm-cat__num {
+    order: initial;
+    margin-left: 0;
+    gap: 5px;
+    font-size: 9px;
+  }
+  .pn .adm-cat__num > span { gap: 2px; }
+  .pn .adm-cat__num svg { width: 10px; height: 10px; }
+  .pn .adm-cat__aula > .adm-est-wrap {
+    order: initial;
+    margin-left: auto;
+  }
+  .pn .adm-cat__aula .adm-est { padding-inline: 8px; font-size: 9.5px; }
+  .pn .adm-cat__aula .apr-bt--so { width: 28px; height: 28px; }
+}
+
+/* Novidades usa a mesma escala da data e termina exatamente na coluna do
+   estado. Em telefone, busca e abas continuam quebrando naturalmente. */
+.pn .admin-nov .fat th:last-child,
+.pn .admin-nov .fat td:last-child {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+}
+@media (min-width: 641px) and (max-width: 1100px) {
+  .pn .admin-nov .adm-ficha-cab { flex-wrap: nowrap; }
+  .pn .admin-nov .adm-ficha-cab .adm-busca {
+    flex: 0 1 260px;
+    width: 260px;
+    max-width: 260px !important;
+  }
+  .pn .admin-nov .adm-busca .perfil-input { font-size: 11px !important; }
+}
+
+/* Na aula, o índice cai abaixo do comentário; este espaço separa os dois
+   cartões e deixa claro que começa outro bloco. */
+@media (max-width: 1080px) {
+  .pn .apr-idx { margin-top: 28px; }
+}
+
+/* O corpo volta a ser a área rolável entre a barra e o rodapé. As regras
+   antigas do tablet liberavam o overflow e deixavam cards por baixo do pé. */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .co .cr-feed { overflow: hidden; }
+  .co .cr-feed-corpo { overflow: hidden; }
+  .co .cr-lista { overflow-x: hidden; overflow-y: auto; min-height: 0; }
+}
+
+/* Mais imagens por linha no feed estreito, mantendo uma escala diferente
+   entre M, G e GG. */
+@container (min-width: 431px) and (max-width: 760px) {
+  .co .cr-cards--linha.cr-cards--p .cr-card,
+  .co .cr-cards--linha.cr-cards--p .cr-slot,
+  .co .cr-cards--linha.cr-cards--m .cr-card,
+  .co .cr-cards--linha.cr-cards--m .cr-slot { width: calc((100% - 25px) / 4); }
+  .co .cr-cards--linha.cr-cards--g .cr-card,
+  .co .cr-cards--linha.cr-cards--g .cr-slot { width: calc((100% - 17px) / 3); }
+  .co .cr-cards--linha.cr-cards--gg .cr-card,
+  .co .cr-cards--linha.cr-cards--gg .cr-slot { width: calc((100% - 9px) / 2); }
+}
+@container (min-width: 761px) and (max-width: 1100px) {
+  .co .cr-cards--linha.cr-cards--g .cr-card,
+  .co .cr-cards--linha.cr-cards--g .cr-slot { width: calc((100% - 17px) / 3); }
+  .co .cr-cards--linha.cr-cards--gg .cr-card,
+  .co .cr-cards--linha.cr-cards--gg .cr-slot { width: calc((100% - 9px) / 2); }
+}
+
+/* No toque, todos os comandos cabem numa única faixa e aprovação usa a lima
+   da versão web. Favorito conserva o turquesa próprio. */
+@media (pointer: coarse) {
+  .co .cr-card .cr-card-acoes { flex-wrap: nowrap; gap: 0; padding: 3px; }
+  .co .cr-card .cr-ca { width: 18px; height: 18px; }
+  .co .cr-card .cr-ca svg { width: 11px; height: 11px; }
+  .co .cr-card .cr-ca-div { height: 12px; margin-inline: 0; }
+  .co .cr-card-selo,
+  .co .cr-card-check--on {
+    background: var(--lima);
+    border-color: var(--lima-txt);
+    color: #111111;
+  }
+  .co .cr-ca--on,
+  .co .cr-ca--on:hover { color: var(--lima); }
+  .co .cr-ca--fav,
+  .co .cr-ca--fav:hover { color: var(--turquesa); }
 }
 
 /* ══ app/telas-de-conta.css ══ */
