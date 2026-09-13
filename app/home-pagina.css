@@ -144,21 +144,27 @@
   }.hm .cabecalho__acoes{ display:none; gap:var(--e-2); }/* Largura idêntica já vem do `min-width:160px` do `.btn` base — não precisa
      mais de regra própria aqui. 328 = 160 + 160 + 8 do gap. */.hm .cabecalho__acoes{ min-width:328px; }.hm .cabecalho__marca{ display:inline-flex; align-items:center; min-height:44px; }.hm .menu a{ display:flex; align-items:center; min-height:44px; }.hm .burger{ display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-left:auto; border-radius:var(--r-sm); transition:transform var(--tr-press) var(--easing), background-color var(--tr-padrao) var(--easing); }.hm .burger:active{ transform:scale(0.97); }
   @media (hover:hover) and (pointer:fine){/* Sem retângulo de fundo no hover: só o texto escurece. */.hm .cabecalho__nav a:hover{ color:var(--ink); }.hm .burger:hover{ background:var(--wash2); }}
-  @media (min-width:900px){/* Centralizada ENTRE o logo e os botões, com a mesma distância dos dois
-       lados (pedido do William, 21/08). O centro da janela não serve aqui: o
-       logo é estreito e o par de botões é largo, então centrar na página
-       deixava a nav visivelmente mais perto do logo. Como `.cabecalho__marca`
-       tem `margin-right:auto` e `.cabecalho__acoes` tem `margin-left:auto`, a
-       sobra de espaço é dividida em duas partes iguais pelo próprio flex —
-       basta a nav voltar ao fluxo. */.hm .cabecalho__nav{ display:flex; }.hm .cabecalho__acoes{ display:flex; margin-left:auto; }.hm .burger{ display:none; }}.hm .menu{
+  @media (min-width:768px){
+    .hm .cabecalho__nav{ display:flex; gap:16px; font-size:13.5px; }
+    .hm .cabecalho__acoes{ display:flex; margin-left:auto; min-width:auto; gap:8px; }
+    .hm .cabecalho__acoes .btn{ min-width:auto; padding:0 16px; height:38px; font-size:13px; }
+    .hm .burger{ display:none; }
+    .hm .menu{ display:none; }
+  }
+  @media (min-width:1024px){
+    .hm .cabecalho__marca img{ height:24px; }
+    .hm .cabecalho__nav{ gap:var(--e-5); font-size:14.5px; }
+    .hm .cabecalho__acoes{ min-width:328px; gap:var(--e-2); }
+    .hm .cabecalho__acoes .btn{ min-width:160px; height:42px; font-size:14px; padding:0 22px; }
+  }
+  .hm .menu{
     display:grid; gap:var(--e-2);
     padding:var(--e-4) var(--gutter) var(--e-6);
     border-top:1px solid var(--line); background:var(--paper);
     overscroll-behavior:contain; max-height:calc(100vh - var(--altura-cabecalho)); overflow-y:auto;
   }.hm .menu a{ padding:var(--e-3) 0; font-size:17px; letter-spacing:-.015em; }.hm .menu__acoes{ display:grid; gap:var(--e-2); margin-top:var(--e-4); }/* `display:grid` acima venceria o `display:none` que o atributo `hidden` aplica
-     pela folha de estilo do navegador — sem esta regra o menu nasce aberto. */.hm .menu[hidden]{ display:none; }/* E nunca aparece em desktop, mesmo se o atributo `hidden` sair */
-  
-  @media (min-width:900px){.hm .menu{ display:none; }}/* =========================================================
+     pela folha de estilo do navegador — sem esta regra o menu nasce aberto. */.hm .menu[hidden]{ display:none; }/* E nunca aparece em desktop/iPad, mesmo se o atributo `hidden` sair */
+  @media (min-width:768px){.hm .menu{ display:none; }}/* =========================================================
      01 · HERO — CENTRALIZADO, densidade baixa
      ========================================================= *//* `--secao-y`, não `clamp(vh)`: o hero era o único bloco cuja respiração mudava
      com a ALTURA da janela (133px em 768, 100px em 1024, 140px em 1920, contra

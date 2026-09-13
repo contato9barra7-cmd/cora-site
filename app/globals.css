@@ -563,6 +563,35 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 /* O <select> herda a classe, mas o navegador desenha a setinha colada na borda
    quando o raio e grande — um respiro extra a direita resolve. */
 select.login-input { padding-right: 34px; }
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ink) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--paper) inset !important;
+  box-shadow: 0 0 0 1000px var(--paper) inset !important;
+  transition: background-color 50000s ease-in-out 0s !important;
+  caret-color: var(--ink) !important;
+}
+[data-theme="dark"] input:-webkit-autofill,
+[data-theme="dark"] input:-webkit-autofill:hover,
+[data-theme="dark"] input:-webkit-autofill:focus,
+[data-theme="dark"] input:-webkit-autofill:active,
+:root[data-theme="dark"] input:-webkit-autofill,
+:root[data-theme="dark"] input:-webkit-autofill:hover,
+:root[data-theme="dark"] input:-webkit-autofill:focus,
+:root[data-theme="dark"] input:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--paper, #141416) inset !important;
+  box-shadow: 0 0 0 1000px var(--paper, #141416) inset !important;
+  caret-color: #ffffff !important;
+}
 
 .login-aviso {
   margin-top: 16px; text-align: center; font-size: 14.5px; color: var(--ink3);
@@ -9867,8 +9896,16 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border-left: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   background: var(--paper);
+  position: relative;
+}
+
+.ps-col-corpo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .ps-bloco {

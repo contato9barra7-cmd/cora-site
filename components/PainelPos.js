@@ -3427,15 +3427,20 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
         {/* ══ A coluna ══ */}
         <aside className="ps-col">
-          {/* O X da gaveta, no topo da coluna. */}
+          {/* O X da gaveta, flutuando no canto esquerdo da coluna. */}
           <button
             className="ps-col-fechar"
             onClick={() => setCamadasAbertas(false)}
             aria-label={t('fechar')}
-          >×</button>
+          >
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
 
-
-          <div className="ps-bloco">
+          <div className="ps-col-corpo">
+            <div className="ps-bloco">
             <button
               className="ps-b ps-b--on ps-b--largo"
               onClick={() => setAjustando(true)}
@@ -3717,7 +3722,8 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
             })}
 
           </div>
-        </aside>
+        </div>
+      </aside>
       </div>
 
       {/* ── A janela de Ajustes ──

@@ -583,6 +583,35 @@ table.custo thead td { font-weight: 600; color: var(--ink3) !important; font-siz
 /* O <select> herda a classe, mas o navegador desenha a setinha colada na borda
    quando o raio e grande — um respiro extra a direita resolve. */
 select.login-input { padding-right: 34px; }
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ink) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--paper) inset !important;
+  box-shadow: 0 0 0 1000px var(--paper) inset !important;
+  transition: background-color 50000s ease-in-out 0s !important;
+  caret-color: var(--ink) !important;
+}
+[data-theme="dark"] input:-webkit-autofill,
+[data-theme="dark"] input:-webkit-autofill:hover,
+[data-theme="dark"] input:-webkit-autofill:focus,
+[data-theme="dark"] input:-webkit-autofill:active,
+:root[data-theme="dark"] input:-webkit-autofill,
+:root[data-theme="dark"] input:-webkit-autofill:hover,
+:root[data-theme="dark"] input:-webkit-autofill:focus,
+:root[data-theme="dark"] input:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--paper, #141416) inset !important;
+  box-shadow: 0 0 0 1000px var(--paper, #141416) inset !important;
+  caret-color: #ffffff !important;
+}
 
 .login-aviso {
   margin-top: 16px; text-align: center; font-size: 14.5px; color: var(--ink3);
@@ -5292,8 +5321,14 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   align-items: center;
   justify-content: center;
   box-shadow: none;
-  pointer-events: none;
+  padding: 0;
+  /* Ela é o botão de desaprovar, e não um adesivo. Era `pointer-events:none`
+     de quando quem desaprovava era o tique da fita preta. */
+  cursor: pointer;
+  transition: transform .12s, box-shadow .12s;
 }
+
+.cr-card-selo:hover { transform: scale(1.08); box-shadow: 0 2px 8px rgba(17,17,17,.22); }
 
 .cr-card-selo svg { width: 12px; height: 12px; }
 
@@ -9881,8 +9916,16 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   border-left: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   background: var(--paper);
+  position: relative;
+}
+
+.ps-col-corpo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .ps-bloco {
@@ -14051,6 +14094,7 @@ img, video, iframe {
     transform: translateX(100%);
     transition: transform .22s cubic-bezier(.4, 0, .2, 1);
     box-shadow: -10px 0 34px rgba(0, 0, 0, .18);
+    overflow: visible;
   }
   .ps.camadas-abertas .ps-col { transform: translateX(0); }
 
@@ -14083,19 +14127,28 @@ img, video, iframe {
     display: flex;
     align-items: center;
     justify-content: center;
-    align-self: flex-end;
-    flex-shrink: 0;
-    width: 34px;
-    height: 34px;
-    margin: 8px 10px 0 0;
+    position: absolute;
+    top: 14px;
+    left: 0;
+    transform: translateX(-50%);
+    z-index: 70;
+    width: 32px;
+    height: 32px;
+    margin: 0;
     padding: 0;
-    border: none;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--ink3);
-    font-size: 22px;
-    line-height: 1;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--ink);
     cursor: pointer;
+    box-shadow: -2px 2px 10px rgba(0, 0, 0, .14);
+    transition: transform .14s ease, background-color .14s ease;
+  }
+  .ps-col-fechar:hover {
+    background: var(--wash2);
+  }
+  .ps-col-fechar:active {
+    transform: translateX(-50%) scale(0.92);
   }
 
   /* Tocar na imagem fecha a gaveta — o gesto natural de "sair daqui". */
@@ -15732,6 +15785,20 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 }
 .tc .login-input::placeholder{ color:var(--ink3); }
 .tc .login-input:focus{ outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+.tc .login-input:-webkit-autofill,
+.tc .login-input:-webkit-autofill:hover,
+.tc .login-input:-webkit-autofill:focus,
+.tc .login-input:-webkit-autofill:active,
+.tc .campo input:-webkit-autofill,
+.tc .campo input:-webkit-autofill:hover,
+.tc .campo input:-webkit-autofill:focus,
+.tc .campo input:-webkit-autofill:active{
+  -webkit-text-fill-color:var(--ink) !important;
+  -webkit-box-shadow:0 0 0 1000px var(--paper) inset !important;
+  box-shadow:0 0 0 1000px var(--paper) inset !important;
+  transition:background-color 50000s ease-in-out 0s !important;
+  caret-color:var(--ink) !important;
+}
 .tc .senha-campo .login-input{ padding-right:52px; }
 .tc .senha-olho{
   position:absolute; right:12px; top:50%; transform:translateY(-50%);
@@ -15786,7 +15853,6 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 @media (min-width:900px) and (max-height:900px){
   .tc--denso .lado-form{ padding-top:var(--e-4); padding-bottom:var(--e-4); }
   .tc--denso .login-logo{ margin-bottom:var(--e-4); }
-  .tc--denso .login-logo img{ height:25px; }
   .tc--denso .login-titulo, .tc .cartao h1{ font-size:24px; }
   .tc--denso .login-sub, .tc .cartao__apoio{ font-size:13.5px; }
   .tc--denso .login-label, .tc .campo label{ margin-top:var(--e-3); margin-bottom:4px; font-size:12.5px; }
@@ -15798,7 +15864,6 @@ body:has(.tc.login-split) .rodape-legal{ display:none; }
 @media (min-width:900px) and (max-height:790px){
   .tc--denso .lado-form{ padding-top:var(--e-3); padding-bottom:var(--e-3); }
   .tc--denso .login-logo{ margin-bottom:10px; }
-  .tc--denso .login-logo img{ height:21px; }
   .tc--denso .cad-passo-tag{ font-size:11px; padding:4px 10px; margin-bottom:6px; }
   .tc--denso .login-titulo, .tc .cartao h1{ font-size:21px; }
   .tc--denso .login-sub, .tc .cartao__apoio{ font-size:12.5px; }

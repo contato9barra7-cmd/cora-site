@@ -149,7 +149,9 @@
     }.pr .btn:active{ transform: scale(0.97); }.pr .btn--largo{ width: 100%; }.pr .btn--lima{ background: var(--lima); color: var(--ink); }.pr .btn--escuro{ background: var(--ink); color: var(--paper); }.pr .btn--linha{ border-color: var(--ink3); color: var(--ink); background: transparent; }.pr .btn--claro{ background: var(--paper); color: var(--ink); border-color: var(--line); }
     @media (hover: hover) and (pointer: fine) {.pr .btn--lima:hover{ background: var(--lima-esc); }.pr .btn--escuro:hover{ background: #242424; }.pr .btn--linha:hover{ background: var(--wash2); border-color: var(--ink); }.pr .btn--claro:hover{ background: var(--wash2); }}/* ===== Cabeçalho (Idêntico à Home) ===== */.pr .cabecalho{
       position: sticky; top: 0; z-index: 50;
-      background: var(--wash);
+      background: color-mix(in srgb, var(--wash) 94%, transparent);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--line);
     }.pr .cabecalho__interno{
       position: relative;
@@ -199,7 +201,20 @@
       transition: transform var(--tr-press) var(--easing), background-color var(--tr-padrao) var(--easing);
     }.pr .burger:active{ transform: scale(0.94); }
     @media (hover: hover) and (pointer: fine) {.pr .cabecalho__nav a:hover{ color: var(--ink); }.pr .burger:hover{ background: var(--wash2); }}
-    @media (min-width: 900px) {.pr .cabecalho__nav{ display: flex; }.pr .cabecalho__acoes{ display: flex; margin-left: auto; }.pr .burger{ display: none; }}.pr .menu{
+    @media (min-width: 768px) {
+      .pr .cabecalho__nav{ display: flex; gap: 16px; font-size: 13.5px; }
+      .pr .cabecalho__acoes{ display: flex; margin-left: auto; min-width: auto; gap: 8px; }
+      .pr .cabecalho__acoes .btn{ min-width: auto; padding: 0 16px; height: 38px; font-size: 13px; }
+      .pr .burger{ display: none; }
+      .pr .menu{ display: none; }
+    }
+    @media (min-width: 1024px) {
+      .pr .cabecalho__marca img{ height: 24px; }
+      .pr .cabecalho__nav{ gap: var(--e-5); font-size: 14.5px; }
+      .pr .cabecalho__acoes{ min-width: 328px; gap: var(--e-2); }
+      .pr .cabecalho__acoes .btn{ min-width: 160px; height: 42px; font-size: 14px; padding: 0 22px; }
+    }
+    .pr .menu{
       display: grid;
       gap: var(--e-2);
       padding: var(--e-4) var(--gutter) var(--e-6);

@@ -73,7 +73,7 @@
              border-color var(--tr-padrao) var(--easing),
              color var(--tr-padrao) var(--easing);
 }.sp .btn:active{ transform:scale(.97); }.sp .btn--largo{ width:100%; }.sp .btn--lima{ background:var(--lima); color:#111111; }.sp .btn--escuro{ background:var(--ink); color:var(--paper); }.sp .btn--linha{ border-color:var(--ink3); color:var(--ink); background:transparent; }.sp .btn--claro{ background:var(--paper); color:var(--ink); border-color:var(--line); }.sp .btn[disabled]{ background:var(--wash2); color:var(--ink3); cursor:not-allowed; }.sp .btn[disabled]:active{ transform:none; }
-@media (hover:hover) and (pointer:fine){.sp .btn--lima:hover{ background:var(--lima-esc); color:#111111; }.sp .btn--escuro:hover{ background:#242424; }.sp .btn--linha:hover{ background:var(--wash2); border-color:var(--ink); }.sp .btn--claro:hover{ background:var(--wash2); }.sp .btn[disabled]:hover{ background:var(--wash2); }}/* cabecalho */.sp .cabecalho{ position:sticky; top:0; z-index:50; background:var(--wash);
+@media (hover:hover) and (pointer:fine){.sp .btn--lima:hover{ background:var(--lima-esc); color:#111111; }.sp .btn--escuro:hover{ background:#242424; }.sp .btn--linha:hover{ background:var(--wash2); border-color:var(--ink); }.sp .btn--claro:hover{ background:var(--wash2); }.sp .btn[disabled]:hover{ background:var(--wash2); }}/* cabecalho */.sp .cabecalho{ position:sticky; top:0; z-index:50; background:color-mix(in srgb, var(--wash) 94%, transparent); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
   border-bottom:1px solid var(--line); }.sp .cabecalho__interno{ position:relative; display:flex; align-items:center;
   gap:var(--e-5); min-height:var(--altura-cabecalho); }.sp .cabecalho__marca{ margin-right:auto; display:inline-flex; align-items:center; min-height:44px; }.sp .cabecalho__marca img{ width:auto; height:20px; }
 @media (min-width:1024px){.sp .cabecalho__marca img{ height:24px; }}.sp .cabecalho__nav{ display:none; gap:var(--e-5); font-size:14.5px; letter-spacing:-.005em; }.sp .cabecalho__nav a{ display:inline-flex; align-items:center; min-height:44px;
@@ -82,10 +82,23 @@
   margin-left:auto; border-radius:var(--r-sm); border:none; background:transparent;
   color:var(--ink); cursor:pointer; transition:background-color var(--tr-padrao) var(--easing); }
 @media (hover:hover) and (pointer:fine){.sp .cabecalho__nav a:hover{ color:var(--ink); }.sp .burger:hover{ background:var(--wash2); }}
-@media (min-width:900px){.sp .cabecalho__nav{ display:flex; }.sp .cabecalho__acoes{ display:flex; margin-left:auto; }.sp .burger{ display:none; }}.sp .menu{ display:grid; gap:var(--e-2); padding:var(--e-4) var(--gutter) var(--e-6);
+@media (min-width:768px){
+  .sp .cabecalho__nav{ display:flex; gap:16px; font-size:13.5px; }
+  .sp .cabecalho__acoes{ display:flex; margin-left:auto; min-width:auto; gap:8px; }
+  .sp .cabecalho__acoes .btn{ min-width:auto; padding:0 16px; height:38px; font-size:13px; }
+  .sp .burger{ display:none; }
+  .sp .menu{ display:none; }
+}
+@media (min-width:1024px){
+  .sp .cabecalho__marca img{ height:24px; }
+  .sp .cabecalho__nav{ gap:var(--e-5); font-size:14.5px; }
+  .sp .cabecalho__acoes{ min-width:328px; gap:var(--e-2); }
+  .sp .cabecalho__acoes .btn{ min-width:160px; height:42px; font-size:14px; padding:0 22px; }
+}
+.sp .menu{ display:grid; gap:var(--e-2); padding:var(--e-4) var(--gutter) var(--e-6);
   border-top:1px solid var(--line); background:var(--paper); }.sp .menu a{ display:flex; align-items:center; min-height:44px; padding:var(--e-3) 0;
   font-size:17px; letter-spacing:-.015em; color:var(--ink); text-decoration:none; }.sp .menu__acoes{ display:grid; gap:var(--e-2); margin-top:var(--e-4); }.sp .menu[hidden]{ display:none; }
-@media (min-width:900px){.sp .menu{ display:none; }}/* conteudo */.sp main{ flex:1; }.sp .secao{ padding-block:var(--secao-y); }.sp .olho{ display:inline-block; font-size:11px; font-weight:600; letter-spacing:.14em;
+@media (min-width:768px){.sp .menu{ display:none; }}/* conteudo */.sp main{ flex:1; }.sp .secao{ padding-block:var(--secao-y); }.sp .olho{ display:inline-block; font-size:11px; font-weight:600; letter-spacing:.14em;
   text-transform:uppercase; color:var(--ink3); }/* campos */.sp .campo{ display:grid; gap:var(--e-2); }.sp .campo > label{ font-size:12.5px; font-weight:500; color:var(--ink2); }.sp .campo input, .sp .campo select, .sp .campo textarea{
   width:100%; font-family:inherit; font-size:14.5px; color:var(--ink);
   background:var(--paper); border:1px solid var(--line);
