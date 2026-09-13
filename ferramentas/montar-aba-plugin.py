@@ -37,6 +37,18 @@ GERADOR = os.path.join(AQUI, 'montar-janela-plugin.py')
 FOTOS = ['painel-escritorio.webp', 'painel-cozinha.webp',
          'painel-varanda.webp', 'painel-fachada.webp']
 
+# Famílias de classe que só uma aba usa e que a peneira ainda não leva. Elas
+# entram só no artefato daquela aba: pôr direto no ALVO mudaria o panel.html
+# na próxima portagem de QUALQUER aba, antes de esta ser aprovada. Quando a
+# aba for portada, a família sobe para o ALVO e sai daqui.
+FAMILIAS = {
+    'upscale': r'up-',
+    # A Animação empresta a casca do Upscale (`up-painel`, `up-bloco`) e traz
+    # três famílias próprias: os cards de imagem inicial e final, as telas de
+    # sequência e as do Diretor de Narrativa.
+    'animacao': r'up-|anim-|seq-|narr-',
+}
+
 
 def ler(caminho):
     return io.open(caminho, encoding='utf-8').read()
@@ -69,6 +81,9 @@ def montar(aba):
         raise SystemExit(u'não achei o fonte: %s' % os.path.basename(fonte_p))
 
     mod = gerador()
+    if aba in FAMILIAS:
+        # O ALVO termina no `)` do grupo das famílias: a nova entra antes dele.
+        mod.ALVO = re.compile(mod.ALVO.pattern[:-1] + '|' + FAMILIAS[aba] + ')')
     globais = [mod.encolher(r) for r in
                mod.peneirar_globals(ler(os.path.join(SITE, 'app', 'globals.css')))]
     cora = mod.encolher(ler(os.path.join(SITE, 'app', 'cora-pagina.css')))
