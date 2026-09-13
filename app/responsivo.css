@@ -1223,7 +1223,14 @@ img, video, iframe {
     flex-wrap: nowrap; gap: 2px; overflow: visible;
   }
   .co .cr-barra-dir { flex: 1 1 auto; flex-wrap: nowrap; justify-content: flex-end; gap:2px; }
-  .co .cr-fbtn { min-width:26px; height:28px; padding:0 6px; gap:2px; }
+  .co .cr-fbtn {
+    width:28px; min-width:28px; height:28px; padding:0;
+    border-radius:50%; aspect-ratio:1/1; flex-shrink:0;
+  }
+  .co .cr-fbtn:has(.cr-ab-ico) {
+    width:auto; min-width:auto; height:28px; padding:0 8px;
+    border-radius:var(--pill); aspect-ratio:auto;
+  }
   .co .cr-fbtn svg { width:13px; height:13px; }
   .co .cr-tams, .co .cr-seg-lay { gap:0; padding:2px; }
   .co .cr-tam { min-width:22px; height:24px; padding:0 4px; font-size:11px; }
