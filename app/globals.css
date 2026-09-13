@@ -6880,19 +6880,31 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    Ele não some de todo porque é a ação mais usada do roteiro: a narração em
    off existe para ser colada no editor de vídeo. Escondê-la até o hover
    custaria mais do que o ruído custava. */
+/* SÓ O ÍCONE, sem a palavra.
+   O problema nunca foi a cor. Com o rótulo, o botão media 79px num cartão de
+   368: um quinto da linha do título, para uma ação secundária, e só uma das
+   três notas o tem. Pintar de branco, de vazado ou de turquesa mudava o
+   quanto ele gritava, e não o quanto ele ocupava.
+
+   Sem a palavra ele fica com 26px. O glifo de copiar é universal e o título
+   do cartão já diz o que vai ser copiado, então não se perde compreensão. É
+   também como o resto do produto faz: a fita do cartão do feed e as ações do
+   visualizador são só ícone, e a palavra aqui é que era a exceção.
+
+   O "Copiar tudo" do cabeçalho do roteiro continua com a palavra: ele copia
+   a coisa inteira, é a ação principal daquele bloco, e ali ela trabalha. */
 .narr-nota .vz-prompt-copiar {
-  padding: 5px 11px; font-size: 12px;
-  /* Cheio do turquesa da marca, com a letra verde: a mesma dupla da placa
-     do take. Branco era botao elevado e saltava na frente do texto; vazado
-     sumia dentro do cartao e virava uma linha a mais. Cheio, no tom acima do
-     fundo, ele e um objeto separado sem ser o assunto. */
-  background: var(--turquesa, #ADECDF);
+  width: 26px; height: 26px; padding: 0; gap: 0;
+  justify-content: center;
+  background: transparent;
   border-color: transparent;
   color: var(--turq-txt, #196C5B);
-  font-weight: 500;
+  font-size: 0;
+  transition: background .12s;
 }
+.narr-nota .vz-prompt-copiar svg { width: 15px; height: 15px; flex: none; }
 .narr-nota .vz-prompt-copiar:hover {
-  background: var(--turquesa-esc, #8FDDCC);
+  background: var(--turquesa, #ADECDF);
   border-color: transparent;
   color: var(--turq-txt, #196C5B);
 }
