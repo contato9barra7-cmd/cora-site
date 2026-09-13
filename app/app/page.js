@@ -599,22 +599,19 @@ export default function AppPage() {
   const [detalhes, setDetalhes]   = useState(null);   // { lote, item }
 
   // Como o feed se apresenta
-  const [layout, setLayout]   = useState('linha');   // grade | linha — lista por padrão
-  const [tamanho, setTamanho] = useState('g');       // p | m | g | gg — G por padrão
+  const [layout, setLayout] = useState('linha');   // grade | linha — lista por padrão
 
-  // P precisa de largura para manter ações e legendas legíveis; GG fica do mesmo
-  // tamanho que G no iPad/celular. Ambos saem do seletor no mobile/tablet.
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 1024px), (pointer: coarse)');
-    const ajustar = () => {
-      if (mq.matches) {
-        setTamanho((atual) => (atual === 'gg' ? 'g' : atual === 'p' ? 'm' : atual));
-      }
-    };
-    ajustar();
-    mq.addEventListener?.('change', ajustar);
-    return () => mq.removeEventListener?.('change', ajustar);
-  }, []);
+  // O TAMANHO SAIU DE ESCOLHA E VIROU CONSEQUÊNCIA DO LAYOUT.
+  //
+  // Eram quatro tamanhos num seletor, e dois deles sumiam no iPad por um
+  // media query, o que já dizia que a escolha não estava valendo o que
+  // custava. Cada layout tem um tamanho em que ele funciona: na lista as
+  // imagens correm de lado e pedem largura, na grade elas empilham e cabem
+  // mais. Fora desses dois pontos o resultado era ou legenda ilegível ou
+  // uma coluna só.
+  //
+  // Um controle a menos na barra, e nenhuma combinação ruim possível.
+  const tamanho = layout === 'grade' ? 'm' : 'g';
 
   // Filtros avançados (o painel do ícone de ajustes)
   const [painelFiltros, setPainelFiltros] = useState(false);
@@ -1404,17 +1401,8 @@ export default function AppPage() {
                 </button>
               </div>
 
-              {/* Tamanho das miniaturas */}
-              <div className="cr-tams">
-                {['p', 'm', 'g', 'gg'].map((tt) => (
-                  <button
-                    key={tt}
-                    data-tam={tt}
-                    className={'cr-tam' + (tamanho === tt ? ' cr-tam--on' : '')}
-                    onClick={() => setTamanho(tt)}
-                  >{tt.toUpperCase()}</button>
-                ))}
-              </div>
+              {/* O seletor de tamanho saiu: agora o layout decide (lista = G,
+                  grade = M). Ver o comentário do `tamanho`, lá em cima. */}
 
               {/* Filtros avançados */}
               <div className="cr-ft-wrap">

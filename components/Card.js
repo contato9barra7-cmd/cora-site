@@ -141,11 +141,22 @@ export default function Card({
       {modoAB && ehA && <span className="cr-card-ab">A</span>}
       {modoAB && ehB && <span className="cr-card-ab">B</span>}
 
-      {/* Aprovada: a badge fica à mostra — é o que o Batch vai usar */}
+      {/* Aprovada: a badge fica à mostra, e é ELA que desaprova. O tique
+          aparecia em dois lugares ao mesmo tempo, aceso na fita preta e
+          aceso na bolinha, dizendo a mesma coisa duas vezes. Agora o botão
+          sai da fita quando a imagem é aprovada, e a bolinha assume: clicar
+          nela desaprova e devolve o botão para a fita. De quebra, a fita
+          perde um botão justamente no cartão em que a bolinha está tomando
+          espaço dela. */}
       {it.aprovado && !modoAB && (
-        <span className="cr-card-selo" data-tip={t('card_tip_selo_aprovada')}>
+        <button
+          className="cr-card-selo"
+          onClick={so(() => onAprovar(it))}
+          data-tip={t('card_tip_remover_aprovacao')}
+          aria-label={t('card_tip_remover_aprovacao')}
+        >
           <Check />
-        </span>
+        </button>
       )}
 
       {/* Favoritada: o coração também fica à mostra */}
@@ -157,14 +168,16 @@ export default function Card({
           clique tem outro significado (escolher o lado). */}
       {!modoAB && (
         <div className="cr-card-acoes">
-          <button
-            className={'cr-ca' + (it.aprovado ? ' cr-ca--on' : '')}
-            onClick={so(() => onAprovar(it))}
-            data-tip={it.aprovado ? t('card_tip_remover_aprovacao') : t('card_tip_aprovar')}
-            aria-label={it.aprovado ? t('card_tip_remover_aprovacao') : t('card_aprovar')}
-          >
-            <Check />
-          </button>
+          {!it.aprovado && (
+            <button
+              className="cr-ca"
+              onClick={so(() => onAprovar(it))}
+              data-tip={t('card_tip_aprovar')}
+              aria-label={t('card_aprovar')}
+            >
+              <Check />
+            </button>
+          )}
 
           <button
             className={'cr-ca cr-ca--favoritar' + (it.favorito ? ' cr-ca--fav' : '')}

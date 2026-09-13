@@ -5272,8 +5272,14 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   align-items: center;
   justify-content: center;
   box-shadow: none;
-  pointer-events: none;
+  padding: 0;
+  /* Ela é o botão de desaprovar, e não um adesivo. Era `pointer-events:none`
+     de quando quem desaprovava era o tique da fita preta. */
+  cursor: pointer;
+  transition: transform .12s, box-shadow .12s;
 }
+
+.cr-card-selo:hover { transform: scale(1.08); box-shadow: 0 2px 8px rgba(17,17,17,.22); }
 
 .cr-card-selo svg { width: 12px; height: 12px; }
 
