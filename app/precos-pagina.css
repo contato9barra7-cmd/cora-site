@@ -203,16 +203,16 @@
     }.pr .burger:active{ transform: scale(0.94); }
     @media (hover: hover) and (pointer: fine) {.pr .cabecalho__nav a:hover{ color: var(--ink); }.pr .burger:hover{ background: var(--wash2); }}
     @media (min-width: 768px) {
-      .pr .cabecalho__interno{ gap: 10px; }
-      .pr .cabecalho__nav{ display: flex; gap: 10px; font-size: 13px; }
-      .pr .cabecalho__nav a{ padding-inline: 4px; }
-      .pr .cabecalho__acoes{ display: flex; margin-left: auto; min-width: auto; gap: 6px; }
-      .pr .cabecalho__acoes .btn{ min-width: auto; padding: 0 12px; height: 36px; font-size: 12.5px; white-space: nowrap; }
+      .pr .cabecalho__interno{ gap: 12px; padding-inline: 16px; }
+      .pr .cabecalho__nav{ display: flex; gap: 8px; font-size: 13px; }
+      .pr .cabecalho__nav a{ padding-inline: 3px; }
+      .pr .cabecalho__acoes{ display: flex; margin-left: auto; min-width: auto; gap: 8px; }
+      .pr .cabecalho__acoes .btn{ min-width: 88px; padding: 0 20px; height: 38px; font-size: 13px; white-space: nowrap; }
       .pr .burger{ display: none; }
       .pr .menu{ display: none; }
     }
     @media (min-width: 1024px) {
-      .pr .cabecalho__interno{ gap: var(--e-5); }
+      .pr .cabecalho__interno{ gap: var(--e-5); padding-inline: var(--gutter); }
       .pr .cabecalho__marca img{ height: 24px; }
       .pr .cabecalho__nav{ gap: var(--e-5); font-size: 14.5px; }
       .pr .cabecalho__nav a{ padding-inline: var(--e-2); }
