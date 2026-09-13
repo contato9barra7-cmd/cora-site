@@ -43,11 +43,10 @@ export const viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: 'cover',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FFFFFF' },
-    { media: '(prefers-color-scheme: dark)', color: '#1A1A1E' },
-  ],
+  themeColor: '#FFFFFF',
 };
+
+import TemaGuard from '../components/TemaGuard';
 
 export default function RootLayout({ children }) {
   return (
@@ -85,16 +84,23 @@ export default function RootLayout({ children }) {
                 if (localStorage.getItem('cora_menu_recolhido') === '1') {
                   document.documentElement.classList.add('menu-recolhido');
                 }
-                var _t = localStorage.getItem('cora_tema');
-                if (!_t) {
-                  try {
-                    var _c = JSON.parse(localStorage.getItem('cora_conta') || '{}');
-                    if (_c && _c.tema) _t = _c.tema;
-                  } catch (e) {}
+                var _p = window.location.pathname || '';
+                var _rotasDentro = ['/conta', '/app', '/admin', '/gerente', '/teams', '/workspace', '/assinatura', '/aprender', '/promptadores'];
+                var _ehDentro = _rotasDentro.some(function(r) { return _p === r || _p.indexOf(r + '/') === 0; });
+                if (_ehDentro) {
+                  var _t = localStorage.getItem('cora_tema');
+                  if (!_t) {
+                    try {
+                      var _c = JSON.parse(localStorage.getItem('cora_conta') || '{}');
+                      if (_c && _c.tema) _t = _c.tema;
+                    } catch (e) {}
+                  }
+                  var _dark = _t === 'escuro' || ((!_t || _t === 'sistema') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  if (_t === 'claro') _dark = false;
+                  document.documentElement.setAttribute('data-theme', _dark ? 'dark' : 'light');
+                } else {
+                  document.documentElement.setAttribute('data-theme', 'light');
                 }
-                var _dark = _t === 'escuro' || ((!_t || _t === 'sistema') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                if (_t === 'claro') _dark = false;
-                document.documentElement.setAttribute('data-theme', _dark ? 'dark' : 'light');
               } catch (e) {}
             `
           }}
@@ -109,6 +115,7 @@ export default function RootLayout({ children }) {
           />
         </noscript>
         <IdiomaProvider>
+          <TemaGuard />
           <div className="site-conteudo">{children}</div>
           <RodapeGlobal />
           <CookieConsent />
