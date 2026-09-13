@@ -12,7 +12,7 @@
 //  A classe `pn` que escopa tudo mora no AppShell, que é a moldura.
 // ═══════════════════════════════════════════════════════════════════════════
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import { lerModo, gravarModo, DEMO_TOTAL, DEMO_RESTANTES } from '../../lib/verComo';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -67,6 +67,25 @@ function ContaConteudo() {
   function aoEncher(e) {
     if (e.animationName !== 'pn-encher') return;
     setQuadro((q) => (q + 1) % 3);
+  }
+
+  /* Clicar no cartão passa o quadro: os 35% da esquerda voltam e o resto
+     avança, como na tela de entrar.
+
+     O clique mora aqui, no próprio carrossel, e não numa camada invisível
+     por cima. A animação de entrada deixa cada quadro com empilhamento
+     próprio, e a camada cobria os botões do quadro: "Abrir as aulas" trocava
+     de quadro em vez de abrir.
+
+     Botão e link seguem sendo botão e link. E segurar para pausar não conta
+     como clique ao soltar, senão pausar pularia o quadro. */
+  const apertouEm = useRef(0);
+  function aoClicarNoCarro(e) {
+    if (e.target.closest('button, a')) return;
+    if (Date.now() - apertouEm.current > 350) return;
+    const caixa = e.currentTarget.getBoundingClientRect();
+    const fracao = (e.clientX - caixa.left) / caixa.width;
+    setQuadro((q) => (fracao < 0.35 ? (q + 2) % 3 : (q + 1) % 3));
   }
 
   // As últimas imagens. Vêm do mesmo `/geracoes` que alimenta o feed dentro
@@ -328,11 +347,12 @@ function ContaConteudo() {
       <div
         className="heroi-carro"
         data-pausado={pausado ? 'true' : 'false'}
-        onPointerDown={() => setPausado(true)}
+        onPointerDown={() => { apertouEm.current = Date.now(); setPausado(true); }}
         onPointerUp={() => setPausado(false)}
         onPointerCancel={() => setPausado(false)}
         onPointerLeave={() => setPausado(false)}
         onAnimationEnd={aoEncher}
+        onClick={aoClicarNoCarro}
       >
         {quadro === 0 && (
           <div className="heroi heroi--entra" key="q0">
@@ -405,20 +425,6 @@ function ContaConteudo() {
             </div>
           </div>
         )}
-
-        {/* Metades invisíveis: clicar na esquerda volta, na direita avança (que nem na página de login) */}
-        <div className="heroi__toque" aria-hidden="true">
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); setQuadro((q) => (q - 1 + 3) % 3); }}
-            aria-label="Anterior"
-          />
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); setQuadro((q) => (q + 1) % 3); }}
-            aria-label="Próxima"
-          />
-        </div>
 
         <div className="heroi__pontos">
           {[0, 1, 2].map((i) => (

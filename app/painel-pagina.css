@@ -479,7 +479,11 @@
    O mesmo quadro conta três assuntos: quem chegou, o IA Studio e as aulas.
    Um de cada vez, e só o quadro do momento existe no HTML — empilhar os três
    em absoluto obrigaria a caixa a ter a altura do mais alto, e os dois mais
-   curtos ficariam com um vão embaixo do botão. */.pn .heroi-carro{ position:relative; }.pn .heroi--entra{ animation:pn-quadro .42s cubic-bezier(.16,1,.3,1) both; }
+   curtos ficariam com um vão embaixo do botão. */.pn .heroi-carro{ position:relative; cursor:pointer; }/* ── O CLIQUE QUE PASSA O QUADRO ──
+   Mora no próprio carrossel (app/conta/page.js), e não numa camada por cima.
+   A animação de entrada deixa cada quadro com empilhamento próprio, e uma
+   camada invisível por cima cobria os botões do quadro, que passavam a
+   trocar de quadro em vez de abrir. */.pn .heroi--entra{ animation:pn-quadro .42s cubic-bezier(.16,1,.3,1) both; }
 @keyframes pn-quadro{
   from{ opacity:0; transform:translateY(7px); }
   to  { opacity:1; transform:none; }
