@@ -1919,8 +1919,8 @@
    peças: o escolhedor de imagem (`PickerImagem.js`) na lateral e na grade,
    o P M G e o lista/grade do feed, a linha de camada da Pós na lista, o
    `MenuCamada.js` no botão direito e a confirmação do feed. O que só ele
-   tem é o balde de tintas, as ferramentas de textura, os materiais na cena
-   e o Material Resizer.
+   tem é o balde de tintas, os materiais na cena e o Material Resizer. As
+   ferramentas de textura ficam na barra Texturas do Cora, no SketchUp.
    ══════════════════════════════════════════════════════════════════════ */
 
 :root{ color-scheme:light; --pag-fundo:#F1F1EE; --pag-tinta:#111111; --pag-apoio:#5B5B57; --pag-fraco:#8E8E88; --pag-fio:#E4E4DF; --pag-fio2:#D2D2CB; --line2:#D2D2CB; --ink3:#8E8E88; }
@@ -1978,7 +1978,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 
 /* ── a biblioteca dentro da janela ──
    A mesma casca do Blocos. Na web o escolhedor flutua numa caixa de 880.
-   Aqui ele é a janela, sem caixa, sem sombra e sem canto. O menu, a dica e o
+   Aqui ele é a janela, sem caixa, sem sombra e sem canto. O menu e o
    aviso medem contra a janela, e não contra a tela, pelo mesmo motivo do
    `.cr-overlay` da moldura. */
 .jn .pk{ flex:1; min-height:0; width:auto; max-width:none; height:auto; border:0; border-radius:0; box-shadow:none; overflow:hidden; background:var(--paper); }
@@ -2016,7 +2016,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 .pk-corpo .cr-vazio--espera p, .pk-corpo .cr-vazio--espera .cr-prog{ font-size:var(--t-apoio2); }
 .jn .pk-cab{ flex:none; height:58px; padding:0 14px 0 16px; }
 .jn .pk-busca input{ flex:1; width:auto; min-width:0; }
-.jn .mc, .jn .cr-dica{ position:absolute; }
+.jn .mc{ position:absolute; }
 .jn .ps-toast{ position:absolute; bottom:70px; }
 
 /* ── as peças que as duas bibliotecas dividem ── */
@@ -2031,18 +2031,9 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 .cr-vazio .blc-escolher{ flex:none; margin-top:18px; display:inline-flex; align-items:center; gap:8px; padding:0 20px; }
 
 /* ── as peças que só o Materiais tem ──
-   A cor chapada é o material do .vrmat que tem cor de verdade e não textura.
-   A barra do pé segura as ferramentas de textura: elas mexem na seleção do
-   modelo, e não na biblioteca, então não moram na cabeça dela. */
+   A cor chapada é o material do .vrmat que tem cor de verdade e não textura. */
 .blc-cor{ display:block; width:100%; height:100%; }
 .cr-ab-aviso .ps-toast-link{ margin-left:8px; }
-.cf .jn-campo{ margin:0 0 18px; }
-.blc-ferr{
-  flex:none; height:52px; display:flex; align-items:center; gap:2px; padding:0 16px;
-  border-top:1px solid var(--line); background:var(--paper);
-}
-.blc-ferr-rot{ margin-right:10px; font-size:var(--t-apoio2); color:var(--ink3); white-space:nowrap; }
-.blc-ferr .jn-risco{ margin:0 6px; }
 
 /* ── o Material Resizer ──
    Era uma janela própria do SketchUp. Aqui ele é a lista da Pós, e o pé é o
@@ -2059,13 +2050,14 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
     <p class="eb">Cora Render · plugin do SketchUp · 13 de setembro de 2026</p>
     <h1>O Materiais do plugin</h1>
     <p class="lead">O Materiais toma a <b>janela inteira</b>, como o Blocos. As duas abas são a mesma biblioteca com conteúdo diferente, e por isso vestem as mesmas peças: a lateral e a grade do escolhedor de imagem da web, o lista e grade e o P M G do feed, e o menu do botão direito da Pós-produção.</p>
-    <p class="lead">O que só o Materiais tem mora em dois lugares. No pé, o <b>balde de tintas</b> e as <b>nove ferramentas de textura</b>, que agem sobre o que estiver selecionado no modelo. No alto da lateral, os <b>materiais na cena</b> e o <b>Material Resizer</b>, que agora abre aqui dentro.</p>
+    <p class="lead">O que só o Materiais tem mora em dois lugares. No pé, o <b>balde de tintas</b>. No alto da lateral, os <b>materiais na cena</b> e o <b>Material Resizer</b>, que agora abre aqui dentro.</p>
+    <p class="lead">As <b>ferramentas de textura</b> e as quatro do modelo saíram da janela. Elas ficam só nas barras do Cora no SketchUp, que já tinham todas, e no menu Extensões.</p>
     <p class="lead">As imagens são do cache real do plugin: prévias V-Ray na biblioteca e texturas de um modelo na cena. Os nomes, as pastas e as medidas em pixels foram inventados a partir do que aparece em cada uma.</p>
     <div class="ctrl"><button id="tema" type="button">Ver no escuro</button></div>
   </header>
 
   <h2 class="secao">A janela inteira</h2>
-  <p>880 por 980. Responde a tudo: pastas, busca, lista e grade, P M G, pôr no balde, a primeira carga dos materiais na cena, botão direito na biblioteca e na cena, substituto, renomear, duplicar, excluir, eliminar os fora de uso, as ferramentas de textura, girar num ângulo e o Resizer inteiro.</p>
+  <p>880 por 980. Responde a tudo: pastas, busca, lista e grade, P M G, pôr no balde, a primeira carga dos materiais na cena, botão direito na biblioteca e na cena, substituto, renomear, duplicar, excluir, eliminar os fora de uso e o Resizer inteiro.</p>
 
   <div class="dupla">
     <div class="jn-fora"><div class="jn co" id="jn-vivo"></div></div>
@@ -2079,7 +2071,8 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
         <div><dt>O balde</dt><dd>A barra de baixo dizia "No balde de tintas" com um visto. Agora é o pé turquesa do escolhedor, e ele diz o próximo gesto: clicar numa face.</dd></div>
         <div><dt>Fora de uso</dt><dd>Era a miniatura apagada. Desligado é cor, não transparência, então virou a legenda "Fora de uso" embaixo do nome.</dd></div>
         <div><dt>O substituto</dt><dd>A faixa que lembra da troca é a do A/B do feed, com Cancelar ali mesmo. No menu, Trocar só aparece quando há substituto, em vez de ficar apagado.</dd></div>
-        <div><dt>Ferramentas de textura</dt><dd>As nove saíram da cabeça e ganharam uma barra no pé, com o nome do que fazem. São o botão pequeno da Pós, com a dica curta da web.</dd></div>
+        <div><dt>Ferramentas de textura</dt><dd>Saíram da janela. As nove já estavam na barra Texturas do Cora, no SketchUp, e agora moram só lá e no menu Extensões.</dd></div>
+        <div><dt>A cabeça</dt><dd>Espelho, Vidros, Otimizar e Purge também saíram, porque a barra Assets do Cora já tem os quatro. Ficam a marca, o saldo e a conta.</dd></div>
         <div><dt>Excluir e eliminar</dt><dd>Excluir não pedia confirmação, e eliminar os fora de uso usava a caixa do SketchUp. Os dois passam a usar a confirmação do feed.</dd></div>
       </dl>
     </div>
@@ -2127,15 +2120,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
   function cabeca() {
-    var fer = function (tip, d) {
-      return '<button class="jn-fer" data-tip="' + tip + '" aria-label="' + tip + '"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg></button>';
-    };
     return '<div class="jn-cab"><span class="jn-marca" role="img" aria-label="Cora Render"></span><div class="jn-cab-dir">' +
-      fer('Espelho', '<ellipse cx="12" cy="12" rx="6.4" ry="9"/><path d="M9.4 14.4L13 9.2M11.6 15l3.6-5.2"/>') +
-      fer('Vidros refletivos', '<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8 8l5.5 5.5M8 12.5l3 3"/>') +
-      fer('Otimizar modelo', '<path d="M5 19l9.5-9.5"/><path d="M17 3.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" fill="currentColor"/><path d="M6 5v2.5M4.75 6.25h2.5"/>') +
-      fer('Purge', '<path d="M4 6.5h16"/><path d="M9.5 6.5v-2h5v2"/><path d="M6 6.5L7 20h10l1-13.5"/><path d="M10 10l.4 6.5M14 10l-.4 6.5"/>') +
-      '<span class="jn-risco"></span>' +
       '<span class="jn-saldo"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>1.284</span>' +
       '<button class="jn-av" data-tip="Minha conta" aria-label="Minha conta"><svg class="app-anel" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">' +
       '<rect class="app-anel-bg" x="2.5" y="2.5" width="41" height="41" rx="13" pathLength="100"/>' +
@@ -2169,21 +2154,6 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
   }
   var VISTO = '<span class="pk-visto"><svg viewBox="0 0 20 20" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4.5 10.5l3.5 3.5 7.5-8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
   var COLUNAS = { p: 7, m: 5, g: 4 };
-
-  // As nove ferramentas de textura, os mesmos desenhos de antes. A dica é
-  // uma linha só, porque a da web não quebra.
-  var FERR = [
-    { d: '<path d="M12 3 L21 8 L21 18 L12 23 L3 18 L3 8 Z"/><path d="M12 3 L12 23 M3 8 L12 13 L21 8"/>', dica: 'Projeção triplanar, no tamanho real da textura' },
-    { d: '<path d="M12 5 L19 9 L19 16.5 L12 20.5 L5 16.5 L5 9 Z"/><path d="M5 9 L12 13 L19 9 M12 13 L12 20.5"/><path d="M2.5 5 L2.5 2.5 L5 2.5 M21.5 5 L21.5 2.5 L19 2.5 M2.5 19 L2.5 21.5 L5 21.5 M21.5 19 L21.5 21.5 L19 21.5"/>', dica: 'Projeção triplanar, ajustada ao objeto' },
-    { d: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12 L21 12 M4.2 7.5 L19.8 7.5 M4.2 16.5 L19.8 16.5"/>', dica: 'Projeção esférica, no tamanho real da textura' },
-    { d: '<circle cx="12" cy="12" r="7.3"/><ellipse cx="12" cy="12" rx="3.3" ry="7.3"/><path d="M4.7 12 L19.3 12"/><path d="M2.5 5 L2.5 2.5 L5 2.5 M21.5 5 L21.5 2.5 L19 2.5 M2.5 19 L2.5 21.5 L5 21.5 M21.5 19 L21.5 21.5 L19 21.5"/>', dica: 'Projeção esférica, ajustada ao objeto' },
-    { d: '<rect x="3" y="3.5" width="7.5" height="6.5" rx="1.3"/><rect x="13.5" y="5.5" width="7.5" height="6.5" rx="1.3"/><rect x="3.5" y="13.5" width="7.5" height="6.5" rx="1.3"/><rect x="14" y="14" width="6.5" height="6.5" rx="1.3"/>', dica: 'Despadronizar, cada clique sorteia outra posição' },
-    { d: '<path d="M18 8 A8 8 0 1 0 19 15.5"/><path d="M18 3.2 L18 8 L13.2 8"/>', dica: 'Girar 90° para a esquerda' },
-    { d: '<path d="M6 8 A8 8 0 1 1 5 15.5"/><path d="M6 3.2 L6 8 L10.8 8"/>', dica: 'Girar 90° para a direita' },
-    { d: '<path d="M3 18 A9 9 0 0 1 21 18"/><path d="M3 18 L21 18"/><path d="M12 18 L18.5 9.5"/><circle cx="12" cy="18" r="1.3" fill="currentColor" stroke="none"/>', dica: 'Girar num ângulo' },
-    { d: '<path d="M4 3.5 L4 20.5"/><rect x="9" y="8" width="10.5" height="8" rx="1.2"/><path d="M9 12 L5.7 12 M7.2 10.3 L5.4 12 L7.2 13.7"/>', dica: 'Alinhar à borda selecionada' }
-  ];
-  var SEM_FACE = 'Selecione ao menos uma face.';
 
   // ══ os dados ══
   // As medidas em pixels das texturas da cena são de mentira, escolhidas para
@@ -2430,16 +2400,10 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
       h += '<footer class="pk-ok">' + miniatura(m, 'pk-ok-mini') +
         '<div class="pk-ok-txt"><strong>' + esc(m.nome) + '</strong><span>No balde de tintas. Clique numa face para pintar.</span></div></footer>';
     }
-    h += '<div class="blc-ferr" role="toolbar" aria-label="Textura na seleção"><span class="blc-ferr-rot">Textura na seleção</span>';
-    FERR.forEach(function (f, i) {
-      if (i === 4) h += '<span class="jn-risco"></span>';
-      h += '<button class="ps-mini" data-acao="ferr" data-i="' + i + '" aria-label="' + esc(f.dica) + '">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + f.d + '</svg></button>';
-    });
-    return h + '</div>';
+    return h;
   }
 
-  // ══ o menu, as confirmações, a dica e o aviso ══
+  // ══ o menu, as confirmações e o aviso ══
   function menu(op) {
     if (!op.menu) return '';
     var m = op.menu;
@@ -2472,16 +2436,10 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
       return dialogo('<h3>Eliminar ' + n + (n === 1 ? ' material fora de uso?' : ' materiais fora de uso?') + '</h3><p>Eles não estão aplicados em nada. Ctrl+Z desfaz.</p>' +
         '<div class="cf-acoes"><button class="cf-nao" data-acao="cf-nao">Cancelar</button><button class="cf-sim" data-acao="cf-sim">Eliminar</button></div>');
     }
-    if (op.girar) {
-      return dialogo('<h3>Girar a textura</h3><p>Em graus, nas faces selecionadas.</p>' +
-        '<div class="jn-campo"><input type="text" inputmode="decimal" value="45" aria-label="Ângulo em graus"></div>' +
-        '<div class="cf-acoes"><button class="cf-nao" data-acao="cf-nao">Cancelar</button><button class="cf-ok" data-acao="cf-girar">Girar</button></div>');
-    }
     return '';
   }
   function extras(op) {
-    return (op.dica !== undefined && op.dica !== null ? '<div class="cr-dica" role="tooltip" data-para="' + op.dica + '">' + esc(FERR[op.dica].dica) + '</div>' : '') +
-      (op.toast ? '<div class="ps-toast" role="status">' + esc(op.toast) + '</div>' : '');
+    return op.toast ? '<div class="ps-toast" role="status">' + esc(op.toast) + '</div>' : '';
   }
 
   function janela(op, ctx) {
@@ -2491,22 +2449,13 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
       menu(op) + confirma(op, ctx) + extras(op);
   }
 
-  // O menu vira para dentro da janela, e a dica senta em cima do botão dela.
+  // O menu vira para dentro da janela.
   function ajustar(jn, op) {
     var m = jn.querySelector('.mc');
     if (m && op.menu) {
       if (op.menu.x + m.offsetWidth > jn.clientWidth - 8) m.style.left = Math.max(8, op.menu.x - m.offsetWidth) + 'px';
       if (op.menu.y + m.offsetHeight > jn.clientHeight - 8) m.style.top = (jn.clientHeight - m.offsetHeight - 8) + 'px';
     }
-    var d = jn.querySelector('.cr-dica');
-    if (d) posicionarDica(jn, d, jn.querySelector('.ps-mini[data-i="' + d.getAttribute('data-para') + '"]'));
-  }
-  function posicionarDica(jn, d, b) {
-    if (!b) return;
-    var rj = jn.getBoundingClientRect(), rb = b.getBoundingClientRect();
-    d.style.left = (rb.left - rj.left + rb.width / 2) + 'px';
-    d.style.top = (rb.top - rj.top - 8) + 'px';
-    d.style.transform = 'translate(-50%, -100%)';
   }
 
   // ══ a janela viva ══
@@ -2519,7 +2468,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
   function pintar() {
     el.innerHTML = janela(vivo, ctxVivo);
     ajustar(el, vivo);
-    var campo = el.querySelector('.ps-nome-edit, .cf input');
+    var campo = el.querySelector('.ps-nome-edit');
     if (campo) { campo.focus(); campo.select(); }
   }
   function avisar(msg) {
@@ -2577,8 +2526,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 
   el.addEventListener('click', function (e) {
     var t = e.target;
-    if (t.closest('.ps-nome-edit, .cf input, .rz-campo')) return;
-    var dica = el.querySelector('.cr-dica'); if (dica && !vivo.dica) dica.remove();
+    if (t.closest('.ps-nome-edit, .rz-campo')) return;
     if (vivo.menu && !t.closest('.mc')) vivo.menu = null;
 
     var v = t.closest('[data-vista]');
@@ -2635,7 +2583,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
       }
       if (acao === 'excluir') vivo.excluir = alvo.nome;
       if (acao === 'eliminar') vivo.eliminar = true;
-      if (acao === 'cf-nao') { vivo.excluir = null; vivo.eliminar = false; vivo.girar = false; }
+      if (acao === 'cf-nao') { vivo.excluir = null; vivo.eliminar = false; }
       if (acao === 'cf-sim') {
         if (vivo.excluir) {
           var sai = vivo.excluir;
@@ -2649,11 +2597,6 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
           avisar(foram === 1 ? '1 material eliminado.' : foram + ' materiais eliminados.');
         }
         vivo.excluir = null; vivo.eliminar = false;
-      }
-      if (acao === 'cf-girar') { vivo.girar = false; avisar(SEM_FACE); }
-      if (acao === 'ferr') {
-        if (a.getAttribute('data-i') === '7') vivo.girar = true;
-        else avisar(SEM_FACE);
       }
       if (acao === 'baixar') avisar(texturas(ctxVivo).length + ' texturas salvas.');
       if (acao === 'fechar') { vivo.estado = 'vazio'; vivo.vista = null; vivo.balde = null; }
@@ -2678,21 +2621,6 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
     pintar();
   });
 
-  el.addEventListener('mouseover', function (e) {
-    var b = e.target.closest('.ps-mini');
-    if (!b || b.contains(e.relatedTarget)) return;
-    var d = document.createElement('div');
-    d.className = 'cr-dica'; d.setAttribute('role', 'tooltip');
-    d.textContent = FERR[+b.getAttribute('data-i')].dica;
-    el.appendChild(d);
-    posicionarDica(el, d, b);
-  });
-  el.addEventListener('mouseout', function (e) {
-    var b = e.target.closest('.ps-mini');
-    if (!b || b.contains(e.relatedTarget)) return;
-    el.querySelectorAll('.cr-dica').forEach(function (d) { d.remove(); });
-  });
-
   el.addEventListener('input', function (e) {
     if (e.target.matches('.rz-lado')) {
       var n = parseInt(e.target.value, 10);
@@ -2712,7 +2640,6 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
   el.addEventListener('keydown', function (e) {
     if (e.target.matches('.ps-cam') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.target.click(); return; }
     if (e.target.matches('.rz-lado') && e.key === 'Enter') { reduzir(); return; }
-    if (e.target.matches('.cf input') && e.key === 'Enter') { vivo.girar = false; avisar(SEM_FACE); return pintar(); }
     if (!e.target.matches('.ps-nome-edit')) return;
     if (e.key === 'Enter') renomear(e.target.value);
     if (e.key === 'Escape') { vivo.renomeando = null; pintar(); }
@@ -2721,8 +2648,8 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
     if (e.target.matches('.ps-nome-edit') && vivo.renomeando) renomear(e.target.value);
   });
   document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape' || (!vivo.menu && !vivo.excluir && !vivo.eliminar && !vivo.girar)) return;
-    vivo.menu = null; vivo.excluir = null; vivo.eliminar = false; vivo.girar = false; pintar();
+    if (e.key !== 'Escape' || (!vivo.menu && !vivo.excluir && !vivo.eliminar)) return;
+    vivo.menu = null; vivo.excluir = null; vivo.eliminar = false; pintar();
   });
 
   pintar();
@@ -2732,7 +2659,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
   var MARCADAS = ['Mármore Carrara', 'Mármore Branco', 'Pedra Mineira', 'Off White'];
   var ESTADOS = [
     { t: 'Nenhuma pasta aberta', op: { estado: 'vazio' },
-      d: 'Na cena e o Resizer ficam no alto da lateral, porque funcionam sem biblioteca. O resto é o vazio da marca, com a faixa, e as ferramentas de textura seguem no pé.' },
+      d: 'Na cena e o Resizer ficam no alto da lateral, porque funcionam sem biblioteca. O resto é o vazio da marca, com a faixa.' },
     { t: 'Lendo a pasta', op: { estado: 'lendo' },
       d: 'O número diz quanto falta. As prévias saem de dentro de cada .vrmat, e ficam guardadas para a próxima vez.' },
     { t: 'No balde', op: { vista: 'pasta', pasta: 'Madeiras', balde: { nome: 'Carvalho Natural', origem: 'bib' } },
@@ -2761,12 +2688,8 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
       d: 'Antes excluía sem perguntar. Agora pede a confirmação do feed e diz o que acontece com as faces.' },
     { t: 'Eliminar os fora de uso', op: { vista: 'modelo', eliminar: true },
       d: 'O número vem da própria lista. A varredura antes de apagar continua no Ruby, e o Ctrl+Z desfaz.' },
-    { t: 'A dica das ferramentas', op: { vista: 'todos', dica: 0 },
-      d: 'Os nove botões são o botão pequeno da Pós. A explicação longa de antes virou uma linha, que é o que a dica da web aguenta sem quebrar.' },
-    { t: 'Girar num ângulo', op: { vista: 'todos', girar: true },
-      d: 'A única ferramenta que pergunta alguma coisa. A janela é a da confirmação, com o campo que o Salvar cena já usa.' },
-    { t: 'O aviso passageiro', op: { vista: 'todos', toast: SEM_FACE },
-      d: 'Toda ferramenta responde no aviso da Pós, que some sozinho. Sem seleção, a resposta é esta, que é a mensagem que o Ruby já manda.' }
+    { t: 'O aviso passageiro', op: { vista: 'modelo', toast: '18 texturas salvas.' },
+      d: 'Baixar as texturas, eliminar e trocar respondem no aviso da Pós, que some sozinho.' }
   ];
 
   var caixa = document.getElementById('estados');
