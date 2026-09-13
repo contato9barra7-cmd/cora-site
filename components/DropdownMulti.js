@@ -19,6 +19,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { tOpt } from '../lib/i18n';
+import { posicionarPopover } from './DropdownCora';
 
 export default function DropdownMulti({ valores, opcoes, onToggle, placeholder = 'Selecione…' }) {
   const [aberto, setAberto] = useState(false);
@@ -32,7 +33,7 @@ export default function DropdownMulti({ valores, opcoes, onToggle, placeholder =
   function medir() {
     if (!ref.current) return;
     const r = ref.current.getBoundingClientRect();
-    setPos({ left: r.left, top: r.bottom + 5, width: r.width });
+    setPos(posicionarPopover(r));
   }
 
   function alternar() {
@@ -75,7 +76,7 @@ export default function DropdownMulti({ valores, opcoes, onToggle, placeholder =
         <div
           ref={listaRef}
           className="cora-dd-lista cora-dd-lista--portal"
-          style={{ position: 'fixed', left: pos.left, top: pos.top, width: pos.width, right: 'auto' }}
+          style={{ position: 'fixed', ...pos, right: 'auto' }}
         >
           {opcoes.map((o) => {
             const on = valores.includes(o.v);

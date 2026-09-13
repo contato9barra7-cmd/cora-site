@@ -19,6 +19,7 @@
 import { useState, useEffect } from 'react';
 import { adminGeracoesDaConta } from '../lib/geracoes';
 import DropdownCora from './DropdownCora';
+import { useIdioma } from '../lib/i18n';
 import {
   adminBuscarContas, adminFichaDaConta, adminExtratoDaConta, adminAuditoriaConsistencia, adminCreditar,
   adminMudarPlano, adminCancelar, adminDeletarConta, adminPersonificar, adminGerente, adminTirarAdmin, adminCreditosReais,
@@ -47,20 +48,20 @@ const stripeCliente = (email) =>
 // também a última chance de perceber que se está na conta errada.
 const DESTRUTIVAS = { cancelar: true, deletar: true };
 
-function data(d, comHora) {
+function formatarData(d, comHora, locale) {
   if (!d) return '—';
   const x = new Date(d);
-  const dia = x.toLocaleDateString('pt-BR');
-  return comHora ? `${dia} ${x.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : dia;
+  const dia = x.toLocaleDateString(locale);
+  return comHora ? `${dia} ${x.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}` : dia;
 }
 // Moeda não-BRL sai com o CÓDIGO na frente ("USD 29.00") — omitir deixava o
 // suporte lendo valor internacional como se fosse R$ na hora do reembolso.
-const dinheiro = (c, m) => {
+const formatarDinheiro = (c, m, locale) => {
   if (c == null) return '—';
   const moeda = (m || 'brl').toUpperCase();
-  return `${moeda === 'BRL' ? 'R$' : moeda} ${(c / 100).toFixed(2)}`;
+  return `${moeda === 'BRL' ? 'R$' : moeda} ${(c / 100).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
-const num = (n) => (n == null ? '—' : Number(n).toLocaleString('pt-BR'));
+const formatarNumero = (n, locale) => (n == null ? '—' : Number(n).toLocaleString(locale));
 
 // O motivo do bloqueio, em uma frase. É a primeira pergunta do suporte, e
 // deduzir isso de quatro campos era justamente o trabalho manual que sobrava.
@@ -68,20 +69,12 @@ const num = (n) => (n == null ? '—' : Number(n).toLocaleString('pt-BR'));
    O servidor devolve o TIPO, e nao o texto, porque a mesma causa e escrita
    diferente para quem paga ("este cartao venceu") e para o suporte ("o cartao
    dela venceu"). Aqui e a versao do suporte. */
-const FRASE_DO_PROBLEMA = {
-  expirado: 'O cartão venceu',
-  sem_saldo: 'A cobrança não passou por limite ou saldo',
-  dados: 'Algum dado do cartão está errado',
-  confirmar: 'O banco pediu uma confirmação que ficou pendente',
-  nao_aceito: 'O banco não aceita esta cobrança',
-  recusado: 'A última cobrança foi recusada',
-};
-
-function fraseDoProblema(p) {
+function fraseDoProblema(p, t, data) {
   if (!p) return null;
-  let f = FRASE_DO_PROBLEMA[p.tipo] || FRASE_DO_PROBLEMA.recusado;
-  if (p.desde) f += ' em ' + data(p.desde);
-  if (p.tentativas > 1) f += ', após ' + p.tentativas + ' tentativas';
+  let f = t(`ficha_problema_${p.tipo || 'recusado'}`);
+  if (f.startsWith('ficha_problema_')) f = t('ficha_problema_recusado');
+  if (p.desde) f += ' ' + t('ficha_em') + ' ' + data(p.desde);
+  if (p.tentativas > 1) f += t('ficha_tentativas').replace('{n}', p.tentativas);
   return f;
 }
 
@@ -95,20 +88,20 @@ function fraseDoProblema(p) {
    Agora nada que nao pode gerar recebe um rotulo dizendo que gera, por mais
    ilimitada que a conta seja. E o motivo vem junto: "BLOQUEADO" sozinho manda
    quem esta atendendo procurar em quatro abas. */
-function motivoDoAcesso(a, conta) {
-  if (!a) return { texto: 'sem plano', cor: '#8E8E88' };
+function motivoDoAcesso(a, conta, t) {
+  if (!a) return { texto: t('ficha_sem_plano'), cor: '#8E8E88' };
 
   if (!a.pode_gerar) {
     /* O reaceite primeiro: ele e o unico bloqueio que nao aparece em nenhum
        outro campo da ficha, entao e o que mais some sem esta linha. */
     if (a.precisa_aceitar) {
-      return { texto: 'BLOQUEADO: falta aceitar os documentos novos', cor: '#C8342A' };
+      return { texto: t('ficha_bloqueado_aceite'), cor: '#C8342A' };
     }
-    if (a.equipe_suspenso) return { texto: 'BLOQUEADO: suspenso pela equipe (excedente de assentos)', cor: '#C8342A' };
-    if (a.eh_trial && a.trial_expirado) return { texto: 'BLOQUEADO: teste de 7 dias terminou', cor: '#C8342A' };
-    if (a.status === 'inativo') return { texto: 'BLOQUEADO: pagamento falhou', cor: '#C8342A' };
-    if (a.status === 'expirado') return { texto: 'BLOQUEADO: período pago venceu', cor: '#C8342A' };
-    return { texto: `BLOQUEADO: ${a.status || 'sem plano ativo'}`, cor: '#C8342A' };
+    if (a.equipe_suspenso) return { texto: t('ficha_bloqueado_equipe'), cor: '#C8342A' };
+    if (a.eh_trial && a.trial_expirado) return { texto: t('ficha_bloqueado_trial'), cor: '#C8342A' };
+    if (a.status === 'inativo') return { texto: t('ficha_bloqueado_pagamento'), cor: '#C8342A' };
+    if (a.status === 'expirado') return { texto: t('ficha_bloqueado_periodo'), cor: '#C8342A' };
+    return { texto: t('ficha_bloqueado_status').replace('{status}', a.status || t('ficha_sem_plano_ativo')), cor: '#C8342A' };
   }
 
   /* Passou daqui, ela gera. O que muda e QUANTO.
@@ -117,13 +110,13 @@ function motivoDoAcesso(a, conta) {
      passou a chamar de admin quem nao e. */
   if (a.ilimitado) {
     return {
-      texto: conta?.is_admin ? 'Admin, acesso ilimitado'
-        : conta?.gerente ? 'Gerente, gera sem gastar crédito'
-        : 'Acesso ilimitado',
+      texto: conta?.is_admin ? t('ficha_admin_ilimitado')
+        : conta?.gerente ? t('ficha_gerente_ilimitado')
+        : t('ficha_acesso_ilimitado'),
       cor: '#111111',
     };
   }
-  return { texto: 'Pode gerar normalmente', cor: '#1F7A44' };
+  return { texto: t('ficha_pode_gerar'), cor: '#1F7A44' };
 }
 
 // ── Quanto já foi consumido, para decidir reembolso ──
@@ -182,22 +175,24 @@ function corDoConsumo(p) {
 // A cor carrega a leitura: verde = dinheiro devolvido, cinza = caso normal,
 // âmbar = ainda aberto, vermelho = precisa de gente. O texto de "em voo" ganha
 // a idade na hora de exibir — 10min é geração rodando, 5h é crédito preso.
-const SITUACAO_EXTRATO = {
-  devolvido:            { texto: 'devolvido ✓',            cor: '#1F7A44' },
-  devolvido_parcial:    { texto: 'devolvido parcial',      cor: '#B7791F' },
-  entregue:             { texto: 'entregue',               cor: 'var(--ink3)' },
-  em_voo:               { texto: 'em voo',                 cor: '#B7791F' },
-  conferir:             { texto: 'CONFERIR',               cor: '#C8342A' },
-  sem_registro:         { texto: '—',                      cor: 'var(--ink3)' },
-  devolucao:            { texto: 'devolução',              cor: '#1F7A44' },
-  devolucao_pos_deploy: { texto: 'devolução (pós-deploy)', cor: '#1F7A44' },
-};
+function situacoesExtrato(t) {
+  return {
+    devolvido:            { texto: t('ficha_sit_devolvido'), cor: '#1F7A44' },
+    devolvido_parcial:    { texto: t('ficha_sit_devolvido_parcial'), cor: '#B7791F' },
+    entregue:             { texto: t('ficha_sit_entregue'), cor: 'var(--ink3)' },
+    em_voo:               { texto: t('ficha_sit_em_voo'), cor: '#B7791F' },
+    conferir:             { texto: t('ficha_sit_conferir'), cor: '#C8342A' },
+    sem_registro:         { texto: '—', cor: 'var(--ink3)' },
+    devolucao:            { texto: t('ficha_sit_devolucao'), cor: '#1F7A44' },
+    devolucao_pos_deploy: { texto: t('ficha_sit_devolucao_deploy'), cor: '#1F7A44' },
+  };
+}
 
-function idade(d) {
+function idade(d, t) {
   const min = Math.round((Date.now() - new Date(d).getTime()) / 60000);
-  if (min < 60) return `há ${min}min`;
+  if (min < 60) return t('ficha_ha_min').replace('{n}', min);
   const h = Math.round(min / 60);
-  return h < 48 ? `há ${h}h` : `há ${Math.round(h / 24)}d`;
+  return h < 48 ? t('ficha_ha_h').replace('{n}', h) : t('ficha_ha_d').replace('{n}', Math.round(h / 24));
 }
 
 function Linha({ rotulo, children }) {
@@ -224,6 +219,12 @@ function Linha({ rotulo, children }) {
    oferecer o que vai ser recusado: botao que existe e recusa ensina a pessoa
    a tentar. */
 export default function FichaConta({ abrirConta, papel = 'admin' }) {
+  const { idioma, t } = useIdioma();
+  const locale = idioma === 'en' ? 'en-US' : idioma === 'es' ? 'es-ES' : 'pt-BR';
+  const data = (valor, comHora) => formatarData(valor, comHora, locale);
+  const dinheiro = (valor, moeda) => formatarDinheiro(valor, moeda, locale);
+  const num = (valor) => formatarNumero(valor, locale);
+  const SITUACAO_EXTRATO = situacoesExtrato(t);
   const ehPainelDeAdmin = papel !== 'gerente';
   const [busca, setBusca] = useState('');
   const [contas, setContas] = useState([]);
@@ -461,7 +462,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
 
   const a = ficha?.acesso;
   const consumo = consumoDaConta(ficha);
-  const motivo = motivoDoAcesso(a, ficha?.conta);
+  const motivo = motivoDoAcesso(a, ficha?.conta, t);
   /* Papel valendo, e sem a chave que o cancela. Enquanto isto for verdade o
      plano dela nao tem efeito nenhum, e mostra-lo ao lado de "sem limite"
      seria a tela se contradizendo. Com `creditos_reais` ligada o plano volta
@@ -474,7 +475,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
      versoes diferentes do mesmo cartao, e a divergencia so apareceria numa
      conversa em que uma das duas ja estivesse errada. */
   const cartao = ficha?.cobranca?.cartao || null;
-  const problemaCartao = fraseDoProblema(ficha?.cobranca?.problema);
+  const problemaCartao = fraseDoProblema(ficha?.cobranca?.problema, t, data);
   const faturasConta = ficha?.cobranca?.faturas || [];
   const aceitesConta = ficha?.aceites || [];
   /* Versao aceita diferente da que esta no ar quer dizer que a pessoa ainda
@@ -489,7 +490,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
         <div style={{ display: 'flex', gap: 12, alignItems: 'stretch', marginBottom: 20 }}>
           <input
             className="login-input" value={busca} onChange={(e) => setBusca(e.target.value)}
-            placeholder="e-mail, nome ou id da conta"
+            placeholder={t('ficha_busca_ph')}
             style={{ flex: 1, maxWidth: 420, marginBottom: 0 }}
           />
         </div>
@@ -498,11 +499,11 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
         {/* Uma conta deletada leva de volta para a lista — o aviso precisa
             sobreviver a essa volta, senão a ação parece não ter acontecido. */}
         {aviso && <div className="ficha-aviso" style={{ marginBottom: 14 }}>{aviso}</div>}
-        {carregando && <p style={{ color: 'var(--ink3)' }}>Carregando contas…</p>}
+        {carregando && <p style={{ color: 'var(--ink3)' }}>{t('ficha_carregando_contas')}</p>}
 
         {!carregando && filtradas.length === 0 && (
           <p style={{ color: 'var(--ink3)' }}>
-            {contas.length === 0 ? 'Nenhuma conta cadastrada.' : 'Nenhuma conta com esse termo.'}
+            {t(contas.length === 0 ? 'ficha_nenhuma_conta' : 'ficha_nenhum_resultado')}
           </p>
         )}
 
@@ -521,7 +522,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
                 }}
               >
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 700 }}>{c.nome || 'sem nome'}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>{c.nome || t('ficha_sem_nome')}</div>
                   <div style={{ fontSize: 13, color: 'var(--ink3)', marginTop: 2 }}>{c.email}</div>
                 </div>
                 <div style={{
@@ -556,7 +557,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 4.5L6.5 10l5.5 5.5M6.5 10H17" />
         </svg>
-        <span>Voltar para a lista</span>
+        <span>{t('ficha_voltar_lista')}</span>
       </div>
 
       {erro && <div className="login-erro" style={{ marginBottom: 14 }}>{erro}</div>}
@@ -585,14 +586,14 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
               : (ficha.conta.nome || ficha.conta.email || '?').trim().charAt(0).toUpperCase()}
           </div>
           <div className="conta-cabeca__txt">
-            <p className="eyebrow">Conta #{ficha.conta.id}</p>
+            <p className="eyebrow">{t('ficha_conta')} #{ficha.conta.id}</p>
             <h2 className="conta-cabeca__nome" style={{ fontSize: 24 }}>
-              {ficha.conta.nome || 'sem nome'}
+              {ficha.conta.nome || t('ficha_sem_nome')}
             </h2>
             <p className="conta-cabeca__email">
-              {ficha.conta.email} · desde {data(ficha.conta.criado_em)}
+              {ficha.conta.email} · {t('ficha_desde')} {data(ficha.conta.criado_em)}
               {ficha.conta.is_admin && ' · admin'}
-              {!ficha.conta.email_verificado && ' · e-mail não verificado'}
+              {!ficha.conta.email_verificado && ' · ' + t('ficha_email_nao_verificado')}
             </p>
           </div>
         </div>
@@ -621,11 +622,11 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
           {a && (
             <p className="adm-porque__p">
               {NOME_PLANO[a.plano] || a.plano}
-              {a.ilimitado ? ', sem limite de créditos'
-                : `, ${num(a.creditos_restantes)} créditos disponíveis`}
-              {a.creditos_recarga > 0 && ` (${num(a.creditos_recarga)} de recarga)`}
-              {a.expira_em && `. Vence em ${data(a.expira_em)}`}
-              {ficha.ja_usou_teste && '. Este e-mail já usou o teste antes'}
+              {a.ilimitado ? ', ' + t('ficha_sem_limite_creditos')
+                : `, ${num(a.creditos_restantes)} ${t('ficha_creditos_disponiveis')}`}
+              {a.creditos_recarga > 0 && ` (${num(a.creditos_recarga)} ${t('ficha_de_recarga')})`}
+              {a.expira_em && `. ${t('ficha_vence_em')} ${data(a.expira_em)}`}
+              {ficha.ja_usou_teste && '. ' + t('ficha_teste_usado')}
               {problemaCartao && `. ${problemaCartao}`}
             </p>
           )}
@@ -639,15 +640,15 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
       {cartao && (
         <div className="conta-card adm-card">
           <div className="adm-ficha-cab">
-            <h2 className="conta-h2">Cartão que paga</h2>
+            <h2 className="conta-h2">{t('ficha_cartao_titulo')}</h2>
             <a className="fat-ver" href={stripeCliente(ficha.conta.email)}
                target="_blank" rel="noopener noreferrer">Stripe ↗</a>
           </div>
           <p className="conta-p" style={{ marginBottom: 0 }}>
-            {(cartao.marca || 'cartão').replace(/^./, (c) => c.toUpperCase())}
-            {cartao.fim && ` terminado em ${cartao.fim}`}
+            {(cartao.marca || t('ficha_cartao')).replace(/^./, (c) => c.toUpperCase())}
+            {cartao.fim && ` ${t('ficha_cartao_final')} ${cartao.fim}`}
             {cartao.mes && cartao.ano
-              && `, vence ${String(cartao.mes).padStart(2, '0')}/${String(cartao.ano).slice(-2)}`}
+              && `, ${t('ficha_vence')} ${String(cartao.mes).padStart(2, '0')}/${String(cartao.ano).slice(-2)}`}
           </p>
           {problemaCartao && (
             <p className="conta-p" style={{ color: 'var(--alerta)', marginBottom: 0 }}>
@@ -663,37 +664,37 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
           precisa deste número ANTES de sair da tela. */}
       {consumo && (
       <div className="conta-card adm-card">
-            <h2 className="conta-h2">Já consumido</h2>
+            <h2 className="conta-h2">{t('ficha_consumido')}</h2>
             <div>
 
               <div style={{ display: 'flex', gap: 10, fontSize: 13, lineHeight: 1.7 }}>
-                <span style={{ minWidth: 110, color: 'var(--ink3)' }}>Ciclo atual</span>
+                <span style={{ minWidth: 110, color: 'var(--ink3)' }}>{t('ficha_ciclo_atual')}</span>
                 <span>
                   <b style={{ color: corDoConsumo(consumo.ciclo.pct) }}>
                     {consumo.ciclo.pct == null ? '—' : consumo.ciclo.pct + '%'}
                   </b>
-                  {' · '}{num(consumo.ciclo.usados)} de {num(consumo.ciclo.total)} créditos
+                  {' · '}{num(consumo.ciclo.usados)} {t('ficha_de')} {num(consumo.ciclo.total)} {t('ficha_creditos')}
                   {consumo.ciclo.equivalente != null && consumo.ciclo.cobranca > 0 && (
                     <span style={{ color: 'var(--ink3)' }}>
-                      {' ≈ '}{dinheiro(consumo.ciclo.equivalente, consumo.moeda)} de {dinheiro(consumo.ciclo.cobranca, consumo.moeda)}
+                      {' ≈ '}{dinheiro(consumo.ciclo.equivalente, consumo.moeda)} {t('ficha_de')} {dinheiro(consumo.ciclo.cobranca, consumo.moeda)}
                     </span>
                   )}
                 </span>
               </div>
 
               <div style={{ display: 'flex', gap: 10, fontSize: 13, lineHeight: 1.7 }}>
-                <span style={{ minWidth: 110, color: 'var(--ink3)' }}>Desde a compra</span>
+                <span style={{ minWidth: 110, color: 'var(--ink3)' }}>{t('ficha_desde_compra')}</span>
                 <span>
                   <b style={{ color: corDoConsumo(consumo.desde.pct) }}>
                     {consumo.desde.pct == null ? '—' : consumo.desde.pct + '%'}
                   </b>
-                  {' · '}{num(consumo.desde.creditos)} de {num(consumo.desde.contratado)} créditos
+                  {' · '}{num(consumo.desde.creditos)} {t('ficha_de')} {num(consumo.desde.contratado)} {t('ficha_creditos')}
                   {consumo.desde.equivalente != null && consumo.desde.pago > 0 && (
                     <span style={{ color: 'var(--ink3)' }}>
-                      {' ≈ '}{dinheiro(consumo.desde.equivalente, consumo.moeda)} de {dinheiro(consumo.desde.pago, consumo.moeda)} pagos
+                      {' ≈ '}{dinheiro(consumo.desde.equivalente, consumo.moeda)} {t('ficha_de')} {dinheiro(consumo.desde.pago, consumo.moeda)} {t('ficha_pagos')}
                     </span>
                   )}
-                  <span style={{ color: 'var(--ink3)' }}> · desde {data(consumo.desde.quando)}</span>
+                  <span style={{ color: 'var(--ink3)' }}> · {t('ficha_desde')} {data(consumo.desde.quando)}</span>
                 </span>
               </div>
 
@@ -702,7 +703,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
                   que o percentual cobriria tudo que a pessoa comprou. */}
               {a?.creditos_recarga > 0 && (
                 <div style={{ fontSize: 12, color: 'var(--ink3)', marginTop: 8 }}>
-                  Só o consumo do plano. A recarga é compra à parte — reembolsá-la revoga o saldo dela, não o plano.
+                  {t('ficha_consumo_nota')}
                 </div>
               )}
             </div>
@@ -720,7 +721,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
           e-mail digitado no painel de confirmação. */}
       <div className="ficha-acoes">
         <button className="ficha-btn-principal" onClick={() => abrirAcao('personificar')}>
-          Ver como o cliente
+          {t('ficha_ver_cliente')}
         </button>
 
         {ehPainelDeAdmin && (
@@ -730,7 +731,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
             onClick={(e) => { e.stopPropagation(); setMenu((v) => !v); }}
             aria-haspopup="menu"
             aria-expanded={menu}
-            aria-label="Mais ações"
+            aria-label={t('ficha_mais_acoes')}
           >
             {/* Três pontos desenhados: o caractere "⋯" muda de largura e de
                 altura conforme a fonte instalada e desalinha o círculo. */}
@@ -744,35 +745,35 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
           {menu && (
             <div className="ficha-menu" role="menu">
               <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('plano'); }}>
-                Trocar plano
+                {t('ficha_trocar_plano')}
               </button>
               <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('creditar'); }}>
-                Creditar
+                {t('ficha_creditar')}
               </button>
               {/* Promover e rebaixar são o mesmo item, com o rótulo dizendo o
                   que vai acontecer. Dois itens ("tornar" e "tirar") deixariam
                   sempre um deles sem efeito na tela, e um menu com metade dos
                   itens inertes é um menu que a pessoa para de ler. */}
               <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('gerente'); }}>
-                {ficha.conta.gerente ? 'Tirar de gerente' : 'Tornar gerente'}
+                {t(ficha.conta.gerente ? 'ficha_tirar_gerente' : 'ficha_tornar_gerente')}
               </button>
               {/* Só aparece quando há o que tirar. Um item permanente que não
                   faz nada na maioria das fichas vira um item que ninguém lê. */}
               {ficha.conta.is_admin && (
                 <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('tirar-admin'); }}>
-                  Tirar o admin
+                  {t('ficha_tirar_admin')}
                 </button>
               )}
               <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('creditos-reais'); }}>
                 {ficha.conta.creditos_reais
-                  ? 'Voltar a não gastar crédito'
-                  : 'Fazer gastar crédito de verdade'}
+                  ? t('ficha_credito_normal')
+                  : t('ficha_credito_real')}
               </button>
               {/* Fica acima da divisória: cancelar tira o plano, mas dá para
                   devolvê-lo. Abaixo da linha só entra o que não tem volta. */}
               {a?.plano !== 'free' && (
                 <button role="menuitem" onClick={() => { setMenu(false); abrirAcao('cancelar'); }}>
-                  Cancelar plano
+                  {t('ficha_cancelar_plano')}
                 </button>
               )}
               {/* O número aparece DE NOVO aqui, e não é redundância: este é o
@@ -788,15 +789,15 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
                 Stripe ↗
                 {consumo && consumo.desde.pct != null && (
                   <span style={{ display: 'block', fontSize: 11, color: corDoConsumo(consumo.desde.pct), marginTop: 2 }}>
-                    {consumo.desde.pct}% consumido
+                    {consumo.desde.pct}% {t('ficha_consumido_minusculo')}
                     {consumo.desde.equivalente != null && consumo.desde.pago > 0 &&
-                      ` · ${dinheiro(consumo.desde.equivalente, consumo.moeda)} de ${dinheiro(consumo.desde.pago, consumo.moeda)}`}
+                      ` · ${dinheiro(consumo.desde.equivalente, consumo.moeda)} ${t('ficha_de')} ${dinheiro(consumo.desde.pago, consumo.moeda)}`}
                   </span>
                 )}
               </a>
               <hr />
               <button role="menuitem" className="perigo" onClick={() => { setMenu(false); abrirAcao('deletar'); }}>
-                Deletar conta
+                {t('ficha_deletar_conta')}
               </button>
             </div>
           )}
@@ -810,10 +811,10 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
         <div className={'ficha-confirma' + (DESTRUTIVAS[acao] ? ' perigo' : '')}>
           {acao === 'plano' && (
             <>
-              <p className="ficha-confirma-t">Trocar o plano de <b>{ficha.conta.email}</b></p>
+              <p className="ficha-confirma-t">{t('ficha_trocar_plano_de')} <b>{ficha.conta.email}</b></p>
               <p className="ficha-confirma-p">
-                Vale imediatamente no nosso sistema. <b>Não mexe na cobrança do Stripe</b> —
-                se houver assinatura ativa, ela continua cobrando normalmente.
+                {t('ficha_trocar_plano_desc_1')} <b>{t('ficha_trocar_plano_desc_2')}</b>{' '}
+                {t('ficha_trocar_plano_desc_3')}
               </p>
               <select className="admin-select" value={planoNovo} onChange={(e) => setPlanoNovo(e.target.value)}>
                 {PLANOS.map((p) => <option key={p} value={p}>{NOME_PLANO[p]}</option>)}
@@ -823,40 +824,35 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
 
           {acao === 'creditar' && (
             <>
-              <p className="ficha-confirma-t">Devolver créditos para <b>{ficha.conta.email}</b></p>
+              <p className="ficha-confirma-t">{t('ficha_devolver_para')} <b>{ficha.conta.email}</b></p>
               <p className="ficha-confirma-p">
-                Reduz o consumo do período ({num(a?.creditos_usados)} usados de {num(a?.creditos_total)}).
-                Não cria saldo além do total do plano, e fica registrado na aba Logs com o seu nome.
+                {t('ficha_devolver_desc').replace('{usados}', num(a?.creditos_usados)).replace('{total}', num(a?.creditos_total))}
               </p>
               <input
                 className="login-input" type="number" min="1" value={quantidade}
                 onChange={(e) => setQuantidade(e.target.value)}
-                placeholder="quantos créditos" style={{ maxWidth: 200, marginBottom: 0 }}
+                placeholder={t('ficha_quantos_creditos')} style={{ maxWidth: 200, marginBottom: 0 }}
               />
             </>
           )}
 
           {acao === 'cancelar' && (
             <>
-              <p className="ficha-confirma-t">Cancelar o plano de <b>{ficha.conta.email}</b></p>
+              <p className="ficha-confirma-t">{t('ficha_cancelar_de')} <b>{ficha.conta.email}</b></p>
               <p className="ficha-confirma-p">
-                A conta volta para Free e perde os créditos do plano. <b>Não cancela a
-                assinatura no Stripe</b>. Se houver cobrança ativa, cancele lá também,
-                senão o cliente continua pagando sem acesso.
+                {t('ficha_cancelar_desc_1')} <b>{t('ficha_cancelar_desc_2')}</b>{' '}
+                {t('ficha_cancelar_desc_3')}
               </p>
             </>
           )}
 
           {acao === 'tirar-admin' && (
             <>
-              <p className="ficha-confirma-t">Tirar o admin de <b>{ficha.conta.email}</b></p>
+              <p className="ficha-confirma-t">{t('ficha_tirar_admin_de')} <b>{ficha.conta.email}</b></p>
               <p className="ficha-confirma-p">
-                A aba Admin some do menu dela, e as rotas de admin passam a
-                recusar. O resto da conta continua igual.
+                {t('ficha_tirar_admin_desc_1')}
                 <br />
-                <b>Não existe o botão que devolve.</b> Dar admin pela tela seria
-                o botão mais perigoso do produto, então conceder continua sendo
-                uma decisão no banco.
+                <b>{t('ficha_tirar_admin_desc_2')}</b> {t('ficha_tirar_admin_desc_3')}
               </p>
             </>
           )}
@@ -865,19 +861,15 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
             <>
               <p className="ficha-confirma-t">
                 {ficha.conta.creditos_reais
-                  ? 'Voltar a não gastar crédito' : 'Fazer gastar crédito de verdade'}
-                {' '}em <b>{ficha.conta.email}</b>
+                  ? t('ficha_credito_normal') : t('ficha_credito_real')}
+                {' '}{t('ficha_em')} <b>{ficha.conta.email}</b>
               </p>
               <p className="ficha-confirma-p">
                 {ficha.conta.creditos_reais ? (
-                  <>Hoje esta conta gasta crédito mesmo sendo admin ou gerente.
-                    Desligando, ela volta a não gastar, que é o que o papel dela
-                    promete.</>
+                  <>{t('ficha_credito_normal_desc')}</>
                 ) : (
-                  <>Ela passa a gastar crédito de verdade, mesmo sendo admin ou
-                    gerente. Serve para testar a cobrança por dentro, e
-                    <b> cancela o "sem limite" do papel</b> enquanto estiver
-                    ligada.</>
+                  <>{t('ficha_credito_real_desc_1')}
+                    <b> {t('ficha_credito_real_desc_2')}</b> {t('ficha_credito_real_desc_3')}</>
                 )}
               </p>
             </>
@@ -886,19 +878,16 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
           {acao === 'gerente' && (
             <>
               <p className="ficha-confirma-t">
-                {ficha.conta.gerente ? 'Tirar de gerente ' : 'Tornar gerente '}
+                {t(ficha.conta.gerente ? 'ficha_tirar_gerente' : 'ficha_tornar_gerente')}{' '}
                 <b>{ficha.conta.email}</b>
               </p>
               <p className="ficha-confirma-p">
                 {ficha.conta.gerente ? (
-                  <>Perde a aba <b>Gerente</b> e volta a consumir crédito do plano
-                    dela, como qualquer conta. Nada do que ela criou some.</>
+                  <>{t('ficha_tirar_gerente_desc_1')} <b>{t('ficha_gerente')}</b>{' '}
+                    {t('ficha_tirar_gerente_desc_2')}</>
                 ) : (
-                  <>Ganha a aba <b>Gerente</b>: achar qualquer conta, ver a ficha
-                    inteira, os aceites e a auditoria, e entrar como o cliente em
-                    modo leitura. E gera sem consumir crédito. Não mexe em
-                    dinheiro, em plano, nem no papel de ninguém. Dá para desfazer
-                    por este mesmo caminho.</>
+                  <>{t('ficha_tornar_gerente_desc_1')} <b>{t('ficha_gerente')}</b>:{' '}
+                    {t('ficha_tornar_gerente_desc_2')}</>
                 )}
               </p>
               {/* O AVISO QUE FALTAVA. `creditos_reais` cancela o "sem limite"
@@ -908,10 +897,8 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
                   vai acontecer. */}
               {!ficha.conta.gerente && ficha.conta.creditos_reais && (
                 <p className="ficha-confirma-p" style={{ color: '#C8342A' }}>
-                  <b>Esta conta está marcada para gastar crédito de verdade.</b>{' '}
-                  Enquanto isso valer, ser gerente não muda nada para ela, e o
-                  e-mail vai avisar de um benefício que ela não recebeu.
-                  Desligue a marca antes, no mesmo menu.
+                  <b>{t('ficha_credito_real_aviso_titulo')}</b>{' '}
+                  {t('ficha_credito_real_aviso_desc')}
                 </p>
               )}
             </>
@@ -919,25 +906,23 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
 
           {acao === 'deletar' && (
             <>
-              <p className="ficha-confirma-t">Deletar a conta <b>{ficha.conta.email}</b></p>
+              <p className="ficha-confirma-t">{t('ficha_deletar_a_conta')} <b>{ficha.conta.email}</b></p>
               <p className="ficha-confirma-p">
-                Apaga conta, plano, créditos e dispositivos. <b>É permanente.</b> Fica
-                registrado quem apagou e quando, mas o conteúdo não volta.
+                {t('ficha_deletar_desc_1')} <b>{t('ficha_deletar_desc_2')}</b>{' '}
+                {t('ficha_deletar_desc_3')}
               </p>
             </>
           )}
 
           {acao === 'personificar' && (
             <>
-              <p className="ficha-confirma-t">Ver o site como <b>{ficha.conta.email}</b></p>
+              <p className="ficha-confirma-t">{t('ficha_ver_site_como')} <b>{ficha.conta.email}</b></p>
               <p className="ficha-confirma-p">
-                Você vai navegar como esta pessoa por <b>30 minutos</b>, em modo de
-                leitura: nada pode ser alterado, comprado ou gerado enquanto durar.
+                {t('ficha_personificar_desc_1')} <b>30 {t('ficha_minutos')}</b>{t('ficha_personificar_desc_2')}
                 <br />
-                <b>Fica registrado na aba Logs desta conta</b> que você entrou, e quando.
-                O cliente não recebe aviso por e-mail.
+                <b>{t('ficha_personificar_desc_3')}</b> {t('ficha_personificar_desc_4')}
                 <br />
-                Ao encerrar você sai da sessão e precisa entrar de novo como você.
+                {t('ficha_personificar_desc_5')}
               </p>
             </>
           )}
@@ -945,12 +930,12 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
           {DESTRUTIVAS[acao] && (
             <div style={{ marginTop: 14 }}>
               <label className="ficha-confirma-p" style={{ display: 'block', marginBottom: 6 }}>
-                Digite <b>{ficha.conta.email}</b> para confirmar:
+                {t('ficha_digite')} <b>{ficha.conta.email}</b> {t('ficha_para_confirmar')}
               </label>
               <input
                 className="login-input" value={confirmaEmail} autoComplete="off"
                 onChange={(e) => setConfirmaEmail(e.target.value)}
-                placeholder="e-mail da conta" style={{ maxWidth: 340, marginBottom: 0 }}
+                placeholder={t('ficha_email_conta')} style={{ maxWidth: 340, marginBottom: 0 }}
               />
             </div>
           )}
@@ -961,10 +946,10 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
               disabled={executando}
               onClick={executar}
             >
-              {executando ? 'Aplicando…' : 'Confirmar'}
+              {t(executando ? 'ficha_aplicando' : 'ficha_confirmar')}
             </button>
             <button className="admin-aba" disabled={executando} onClick={() => { fecharAcao(); setErro(''); }}>
-              Cancelar
+              {t('adm_cancelar')}
             </button>
           </div>
         </div>
@@ -980,15 +965,15 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
           mesmo tamanho competiam, e a de dentro parecia mandar na de fora. Um
           degrau abaixo na escala, de 14,5 para 13,5. */}
       <div className="adm-abas adm-abas--ficha" role="tablist">
-        {[['resumo', 'Resumo', null],
-          ['creditos', 'Créditos', ficha.baldes.length],
-          ['faturas', 'Faturas', faturasConta.length],
-          ['aceites', 'Aceites', aceitesConta.length],
-          ['equipe', 'Equipe', null],
-          ['uso', 'Uso', null],
-          ['extrato', 'Extrato', null],
-          ['logs', 'Eventos', ficha.eventos.length],
-          ['imagens', 'Imagens', null]].map(([k, r, n]) => (
+        {[['resumo', t('ficha_aba_resumo'), null],
+          ['creditos', t('ficha_aba_creditos'), ficha.baldes.length],
+          ['faturas', t('ficha_aba_faturas'), faturasConta.length],
+          ['aceites', t('ficha_aba_aceites'), aceitesConta.length],
+          ['equipe', t('ficha_aba_equipe'), null],
+          ['uso', t('ficha_aba_uso'), null],
+          ['extrato', t('ficha_aba_extrato'), null],
+          ['logs', t('ficha_aba_eventos'), ficha.eventos.length],
+          ['imagens', t('ficha_aba_imagens'), null]].map(([k, r, n]) => (
           <button key={k} onClick={() => setAba(k)}
                   className={'adm-aba' + (aba === k ? ' ativa' : '')}>
             {r}{n ? <b>{n}</b> : null}
@@ -1005,7 +990,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
               se perder o papel, então ele não some: encosta na linha do Papel,
               que é a razão de ele estar parado. */}
           {!papelSemPlano && (
-            <Linha rotulo="Plano">{NOME_PLANO[a?.plano] || a?.plano} · {a?.status}</Linha>
+            <Linha rotulo={t('ficha_plano')}>{NOME_PLANO[a?.plano] || a?.plano} · {a?.status}</Linha>
           )}
           {/* ── O PAPEL E A CHAVE QUE O CANCELA ──
               Estas duas linhas nasceram de um defeito real: uma conta foi
@@ -1014,47 +999,47 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
               que cancela o "sem limite" dos dois papéis e não aparecia em tela
               nenhuma. Chave que muda o comportamento do produto e não se vê é
               chave que engana quem responde pelo produto. */}
-          <Linha rotulo="Papel">
+          <Linha rotulo={t('ficha_papel')}>
             {ficha.conta.is_admin ? 'admin'
               : ficha.conta.gerente ? 'gerente'
-              : 'conta comum'}
+              : t('ficha_conta_comum')}
             {papelSemPlano && (
-              <> · não usa plano, e é {NOME_PLANO[a?.plano] || a?.plano} por baixo</>
+              <> · {t('ficha_papel_sem_plano')} {NOME_PLANO[a?.plano] || a?.plano} {t('ficha_por_baixo')}</>
             )}
           </Linha>
           {ficha.conta.creditos_reais && (
-            <Linha rotulo="Gasta crédito de verdade">
-              <b style={{ color: '#C8342A' }}>sim</b>
+            <Linha rotulo={t('ficha_gasta_credito')}>
+              <b style={{ color: '#C8342A' }}>{t('ficha_sim')}</b>
               {(ficha.conta.is_admin || ficha.conta.gerente)
-                && ' · isto cancela o sem limite do papel acima'}
+                && ' · ' + t('ficha_cancela_ilimitado')}
             </Linha>
           )}
           {/* `-1` e o codigo de ilimitado no servidor, e ele nao pode aparecer
               como se fosse um saldo negativo. */}
-          <Linha rotulo="Créditos do plano">
+          <Linha rotulo={t('ficha_creditos_plano')}>
             {a?.ilimitado || a?.creditos_total === -1
-              ? <>sem limite · {num(a?.creditos_usados)} usados</>
-              : <>{num(a?.creditos_total)} total · {num(a?.creditos_usados)} usados</>}
+              ? <>{t('ficha_sem_limite')} · {num(a?.creditos_usados)} {t('ficha_usados')}</>
+              : <>{num(a?.creditos_total)} {t('ficha_total')} · {num(a?.creditos_usados)} {t('ficha_usados')}</>}
           </Linha>
-          <Linha rotulo="Teste de 7 dias">
+          <Linha rotulo={t('ficha_teste_7')}>
             {a?.eh_trial
-              ? (a.trial_expirado ? 'terminou' : `${a.trial_dias_restantes} dia(s) restantes`)
-              : 'não se aplica'}
-            {ficha.ja_usou_teste && ' · este e-mail já usou o teste antes'}
+              ? (a.trial_expirado ? t('ficha_terminou') : `${a.trial_dias_restantes} ${t('ficha_dias_restantes')}`)
+              : t('ficha_nao_se_aplica')}
+            {ficha.ja_usou_teste && ' · ' + t('ficha_teste_usado')}
           </Linha>
-          <Linha rotulo="Assinatura">
+          <Linha rotulo={t('ficha_assinatura')}>
             {ficha.assinatura
               ? <>{ficha.assinatura.plano}/{ficha.assinatura.tipo_compra} · {dinheiro(ficha.assinatura.valor_centavos, ficha.assinatura.moeda)} · {ficha.assinatura.status}
-                  {' · '}{ficha.assinatura.renovacoes} renovação(ões)
-                  {ficha.assinatura.renova_em && ` · renova ${data(ficha.assinatura.renova_em)}`}</>
-              : 'nunca assinou'}
+                  {' · '}{ficha.assinatura.renovacoes} {t('ficha_renovacoes')}
+                  {ficha.assinatura.renova_em && ` · ${t('ficha_renova')} ${data(ficha.assinatura.renova_em)}`}</>
+              : t('ficha_nunca_assinou')}
           </Linha>
-          <Linha rotulo="Documento fiscal">{ficha.conta.cpf || ficha.conta.doc_intl || '—'}</Linha>
-          <Linha rotulo="Onde está">{[ficha.conta.cidade, ficha.conta.estado, ficha.conta.pais].filter(Boolean).join(', ') || '—'}</Linha>
-          <Linha rotulo="Perfil">{[ficha.conta.profissao, ficha.conta.origem, ficha.conta.usa_render].filter(Boolean).join(' · ') || '—'}</Linha>
-          <Linha rotulo="Dispositivos">
-            {ficha.dispositivos.length === 0 ? 'nenhum' : ficha.dispositivos.map((d) => (
-              <div key={d.id}>{d.nome_pc || 'sem nome'} ({d.tipo}) · último acesso {data(d.ultimo_acesso, true)}</div>
+          <Linha rotulo={t('ficha_documento_fiscal')}>{ficha.conta.cpf || ficha.conta.doc_intl || '—'}</Linha>
+          <Linha rotulo={t('ficha_onde')}>{[ficha.conta.cidade, ficha.conta.estado, ficha.conta.pais].filter(Boolean).join(', ') || '—'}</Linha>
+          <Linha rotulo={t('ficha_perfil')}>{[ficha.conta.profissao, ficha.conta.origem, ficha.conta.usa_render].filter(Boolean).join(' · ') || '—'}</Linha>
+          <Linha rotulo={t('ficha_dispositivos')}>
+            {ficha.dispositivos.length === 0 ? t('ficha_nenhum') : ficha.dispositivos.map((d) => (
+              <div key={d.id}>{d.nome_pc || t('ficha_sem_nome')} ({d.tipo}) · {t('ficha_ultimo_acesso')} {data(d.ultimo_acesso, true)}</div>
             ))}
           </Linha>
         </div>
@@ -1064,11 +1049,11 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
         <div className="conta-card adm-card">
           {/* Cada balde com a validade. "Por que meu saldo sumiu?" quase sempre
               se responde aqui: o balde venceu. */}
-          {ficha.baldes.length === 0 ? <p style={{ color: 'var(--ink3)' }}>Nenhuma compra de crédito.</p> : (
+          {ficha.baldes.length === 0 ? <p style={{ color: 'var(--ink3)' }}>{t('ficha_sem_compra_credito')}</p> : (
             <div className="fat-rolo">
               <table className="fat">
               <thead><tr>
-                <th>Tipo</th><th>Descrição</th><th>Créditos</th><th>Usados</th><th>Valor</th><th>Comprado</th><th>Vence</th>
+                <th>{t('ficha_tipo')}</th><th>{t('ficha_descricao')}</th><th>{t('ficha_creditos')}</th><th>{t('ficha_usados')}</th><th>{t('ficha_valor')}</th><th>{t('ficha_comprado')}</th><th>{t('ficha_vence')}</th>
               </tr></thead>
               <tbody>
                 {ficha.baldes.map((b) => (
@@ -1079,7 +1064,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
                     <td>{num(b.usados)}</td>
                     <td>{dinheiro(b.valor_centavos, b.moeda)}</td>
                     <td>{data(b.criado_em)}</td>
-                    <td>{data(b.expira_em)}{b.vencido && ' (vencido)'}</td>
+                    <td>{data(b.expira_em)}{b.vencido && ` (${t('ficha_vencido')})`}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1097,14 +1082,14 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
       {aba === 'faturas' && (
         <div className="conta-card adm-card">
           {faturasConta.length === 0 ? (
-            <p style={{ color: 'var(--ink3)' }}>Nenhuma cobrança nesta conta.</p>
+            <p style={{ color: 'var(--ink3)' }}>{t('ficha_sem_cobranca')}</p>
           ) : (
             <>
               <div className="fat-rolo">
                 <table className="fat">
                   <thead><tr>
-                    <th>Quando</th><th>O que</th><th>Número</th>
-                    <th className="adm-num">Valor</th><th>Situação</th><th className="fat__acao" />
+                    <th>{t('ficha_quando')}</th><th>{t('ficha_o_que')}</th><th>{t('ficha_numero')}</th>
+                    <th className="adm-num">{t('ficha_valor')}</th><th>{t('ficha_situacao')}</th><th className="fat__acao" />
                   </tr></thead>
                   <tbody>
                     {faturasConta.map((f) => (
@@ -1116,7 +1101,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
                         <td>
                           <span className={'fat-selo fat-selo--'
                             + (f.status === 'paga' ? 'paga' : 'aberta')}>
-                            {f.status === 'paga' ? 'Paga' : 'Em aberto'}
+                            {t(f.status === 'paga' ? 'ficha_paga' : 'ficha_em_aberto')}
                           </span>
                         </td>
                         <td className="fat__acao">
@@ -1131,11 +1116,11 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
                 </table>
               </div>
               <p className="adm-total">
-                {faturasConta.length} {faturasConta.length === 1 ? 'cobrança' : 'cobranças'},
+                {faturasConta.length} {t(faturasConta.length === 1 ? 'ficha_cobranca' : 'ficha_cobrancas')},
                 {' '}<b>{dinheiro(
                   faturasConta.filter((f) => f.status === 'paga')
                     .reduce((soma, f) => soma + (f.total_centavos || 0), 0),
-                  faturasConta[0].moeda)}</b> pagos.
+                  faturasConta[0].moeda)}</b> {t('ficha_pagos')}.
               </p>
             </>
           )}
@@ -1155,26 +1140,25 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
         <div className="conta-card adm-card">
           {aceitesConta.length === 0 ? (
             <p style={{ color: 'var(--ink3)' }}>
-              Nenhum aceite gravado. Contas criadas antes de 6 de setembro de 2026 não têm
-              esse registro: o aceite acontecia, mas não era guardado.
+              {t('ficha_sem_aceite')}
             </p>
           ) : (
             <div className="fat-rolo">
               <table className="fat">
                 <thead><tr>
-                  <th>Documento</th><th>Versão</th><th>Quando</th><th>De onde</th><th>Onde</th>
+                  <th>{t('ficha_documento')}</th><th>{t('ficha_versao')}</th><th>{t('ficha_quando')}</th><th>{t('ficha_de_onde')}</th><th>{t('ficha_onde')}</th>
                 </tr></thead>
                 <tbody>
                   {aceitesConta.map((ac) => (
                     <tr key={ac.id}>
                       <td>
-                        {ac.documento === 'termos' ? 'Termos de Uso' : 'Política de Privacidade'}
+                        {t(ac.documento === 'termos' ? 'cmp_termos' : 'cmp_privacidade')}
                       </td>
                       <td className="adm-mono">
                         {ac.versao}
                         {versaoNoAr && ac.versao !== versaoNoAr && (
                           <span className="fat-selo fat-selo--aberta"
-                                style={{ marginLeft: 8 }}>desatualizada</span>
+                                style={{ marginLeft: 8 }}>{t('ficha_desatualizada')}</span>
                         )}
                       </td>
                       <td className="adm-mono">{data(ac.criado_em, true)}</td>
@@ -1194,31 +1178,31 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
             </div>
           )}
           {versaoNoAr && (
-            <p className="adm-total">Versão no ar hoje: <b>{versaoNoAr}</b>.</p>
+            <p className="adm-total">{t('ficha_versao_atual')} <b>{versaoNoAr}</b>.</p>
           )}
         </div>
       )}
 
       {aba === 'equipe' && (
         <div className="conta-card adm-card">
-          {!ficha.equipe_dono && !ficha.equipe_membro && <p style={{ color: 'var(--ink3)' }}>Não participa de equipe.</p>}
+          {!ficha.equipe_dono && !ficha.equipe_membro && <p style={{ color: 'var(--ink3)' }}>{t('ficha_sem_equipe')}</p>}
           {ficha.equipe_dono && (
             <>
-              <Linha rotulo="É dono da equipe">#{ficha.equipe_dono.id} {ficha.equipe_dono.nome || ''}</Linha>
-              <Linha rotulo="Plano e assentos">
-                {ficha.equipe_dono.plano} · {ficha.equipe_dono.ocupados} de {ficha.equipe_dono.assentos} ocupado(s)
-                {ficha.equipe_dono.ocupados > ficha.equipe_dono.assentos && ', ACIMA DO CONTRATADO'}
+              <Linha rotulo={t('ficha_dono_equipe')}>#{ficha.equipe_dono.id} {ficha.equipe_dono.nome || ''}</Linha>
+              <Linha rotulo={t('ficha_plano_assentos')}>
+                {ficha.equipe_dono.plano} · {ficha.equipe_dono.ocupados} {t('ficha_de')} {ficha.equipe_dono.assentos} {t('ficha_ocupados')}
+                {ficha.equipe_dono.ocupados > ficha.equipe_dono.assentos && ', ' + t('ficha_acima_contratado')}
               </Linha>
-              <Linha rotulo="Status">{ficha.equipe_dono.status}</Linha>
+              <Linha rotulo={t('adm_status')}>{ficha.equipe_dono.status}</Linha>
             </>
           )}
           {ficha.equipe_membro && (
             <>
-              <Linha rotulo="É membro da equipe">
-                #{ficha.equipe_membro.equipe_id} {ficha.equipe_membro.equipe_nome || ''} (de {ficha.equipe_membro.dono_email})
+              <Linha rotulo={t('ficha_membro_equipe')}>
+                #{ficha.equipe_membro.equipe_id} {ficha.equipe_membro.equipe_nome || ''} ({t('ficha_de')} {ficha.equipe_membro.dono_email})
               </Linha>
-              <Linha rotulo="Assento">#{ficha.equipe_membro.assento_id} · {ficha.equipe_membro.assento_status}</Linha>
-              <Linha rotulo="Plano da equipe">{ficha.equipe_membro.equipe_plano} · equipe {ficha.equipe_membro.equipe_status}</Linha>
+              <Linha rotulo={t('ficha_assento')}>#{ficha.equipe_membro.assento_id} · {ficha.equipe_membro.assento_status}</Linha>
+              <Linha rotulo={t('ficha_plano_equipe')}>{ficha.equipe_membro.equipe_plano} · {t('ficha_equipe')} {ficha.equipe_membro.equipe_status}</Linha>
             </>
           )}
         </div>
@@ -1228,10 +1212,10 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
         <div className="conta-card adm-card">
           {/* Vem de `transacoes`, não de eventos: gerações são milhares e
               afogariam a linha do tempo. */}
-          {ficha.uso.length === 0 ? <p style={{ color: 'var(--ink3)' }}>Nenhuma geração ainda.</p> : (
+          {ficha.uso.length === 0 ? <p style={{ color: 'var(--ink3)' }}>{t('ficha_sem_geracao')}</p> : (
             <div className="fat-rolo">
               <table className="fat">
-              <thead><tr><th>Ferramenta</th><th>Gerações</th><th>Créditos gastos</th><th>Última</th></tr></thead>
+              <thead><tr><th>{t('ficha_ferramenta')}</th><th>{t('ficha_geracoes')}</th><th>{t('ficha_creditos_gastos')}</th><th>{t('ficha_ultima')}</th></tr></thead>
               <tbody>
                 {ficha.uso.map((u) => (
                   <tr key={u.rota}>
@@ -1256,81 +1240,79 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
           <div style={{ marginBottom: 14, width: 140 }}>
             <DropdownCora
               valor={extratoDias}
-              opcoes={[30, 90, 180, 365].map((d) => ({ v: d, n: `${d} dias` }))}
+              opcoes={[30, 90, 180, 365].map((d) => ({ v: d, n: `${d} ${t('ficha_dias')}` }))}
               onEscolher={(v) => setExtratoDias(v)}
             />
           </div>
 
           {extratoErro && <div className="login-erro" style={{ marginBottom: 14 }}>{extratoErro}</div>}
-          {extratoCarregando && <p style={{ color: 'var(--ink3)' }}>Carregando extrato…</p>}
+          {extratoCarregando && <p style={{ color: 'var(--ink3)' }}>{t('ficha_carregando_extrato')}</p>}
 
           {extrato && !extratoCarregando && (
             <>
               <div style={{ fontSize: 13, color: 'var(--ink2)', marginBottom: 6 }}>
-                {num(extrato.resumo.debitado)} debitados · {num(extrato.resumo.estornado)} devolvidos
-                {' · '}líquido {num(extrato.resumo.liquido)} · {extrato.resumo.lancamentos} lançamento(s)
+                {num(extrato.resumo.debitado)} {t('ficha_debitados')} · {num(extrato.resumo.estornado)} {t('ficha_devolvidos')}
+                {' · '}{t('ficha_liquido')} {num(extrato.resumo.liquido)} · {extrato.resumo.lancamentos} {t('ficha_lancamentos')}
                 {extrato.resumo.suspeitos > 0 && (
                   <span style={{ color: '#C8342A', fontWeight: 700 }}>
-                    {', '}{extrato.resumo.suspeitos} sem retorno, conferir
+                    {', '}{extrato.resumo.suspeitos} {t('ficha_sem_retorno')}
                   </span>
                 )}
               </div>
               {saldoConfere && (
                 <p style={{ fontSize: 12.5, color: saldoConfere.divergencia === 0 ? 'var(--ink3)' : '#B7791F', marginBottom: 10 }}>
                   {saldoConfere.divergencia === 0
-                    ? 'O usado do plano bate com a soma dos lançamentos.'
+                    ? t('ficha_saldo_confere')
                     : <>
-                        O plano marca <b>{num(saldoConfere.plano_creditos_usados)}</b> usados
-                        {' e os lançamentos somam '}<b>{num(saldoConfere.transacoes_liquido)}</b>.
-                        {' '}Gasto de recarga não entra no usado do plano, e crédito dado pelo
-                        admin também não, então a diferença pode estar certa.
+                        {t('ficha_plano_marca')} <b>{num(saldoConfere.plano_creditos_usados)}</b> {t('ficha_usados')}
+                        {' '}{t('ficha_lancamentos_somam')} <b>{num(saldoConfere.transacoes_liquido)}</b>.
+                        {' '}{t('ficha_saldo_nota')}
                       </>}
                 </p>
               )}
 
               {!extrato.pedidos_ok && (
                 <p style={{ fontSize: 12, color: '#B7791F', marginBottom: 10 }}>
-                  Sem os pedidos do servidor de geração neste ambiente, a Situação
-                  mostra só o pareamento débito↔estorno.
+                  {t('ficha_sem_pedidos')}
                 </p>
               )}
               {extrato.transacoes.length === 500 && (
                 <p style={{ fontSize: 12, color: 'var(--ink3)', marginBottom: 10 }}>
-                  Mostrando os 500 lançamentos mais recentes do período.
+                  {t('ficha_500_lancamentos')}
                 </p>
               )}
 
               {extrato.transacoes.length === 0 ? (
-                <p style={{ color: 'var(--ink3)' }}>Nenhum lançamento no período.</p>
+                <p style={{ color: 'var(--ink3)' }}>{t('ficha_sem_lancamento')}</p>
               ) : (
                 <div className="fat-rolo">
                   <table className="fat">
                   <thead><tr>
-                    <th>Quando</th><th>Ferramenta</th><th>Créditos</th><th>Situação</th><th>Saldo depois</th><th>Ref</th>
+                    <th>{t('ficha_quando')}</th><th>{t('ficha_ferramenta')}</th><th>{t('ficha_creditos')}</th><th>{t('ficha_situacao')}</th><th>{t('ficha_saldo_depois')}</th><th>Ref</th>
                   </tr></thead>
                   <tbody>
-                    {extrato.transacoes.map((t) => {
-                      const s = SITUACAO_EXTRATO[t.situacao] || { texto: t.situacao, cor: 'var(--ink3)' };
-                      const emVooVelho = t.situacao === 'em_voo' &&
-                        Date.now() - new Date(t.criado_em).getTime() > 3600 * 1000;
+                    {extrato.transacoes.map((transacao) => {
+                      const s = SITUACAO_EXTRATO[transacao.situacao] || { texto: transacao.situacao, cor: 'var(--ink3)' };
+                      const emVooVelho = transacao.situacao === 'em_voo' &&
+                        Date.now() - new Date(transacao.criado_em).getTime() > 3600 * 1000;
                       return (
-                        <tr key={t.id}>
-                          <td>{data(t.criado_em, true)}</td>
-                          <td>{t.rota || '—'}</td>
-                          <td style={{ color: t.tipo === 'estorno' ? '#1F7A44' : undefined }}>
-                            {t.tipo === 'estorno' ? '+' : '−'}{num(t.quantidade)}
+                        <tr key={transacao.id}>
+                          <td>{data(transacao.criado_em, true)}</td>
+                          <td>{transacao.rota || '—'}</td>
+                          <td style={{ color: transacao.tipo === 'estorno' ? '#1F7A44' : undefined }}>
+                            {transacao.tipo === 'estorno' ? '+' : '−'}{num(transacao.quantidade)}
                           </td>
-                          <td style={{ color: emVooVelho ? '#C8342A' : s.cor, fontWeight: t.situacao === 'conferir' || emVooVelho ? 700 : 400 }}
-                              title={t.situacao === 'devolvido' && t.estorno_em ? `estorno em ${data(t.estorno_em, true)}`
-                                   : t.situacao === 'sem_registro' ? 'Sem registro de pedido: cobrança do plugin, ou anterior à tabela de pedidos.'
+                          <td style={{ color: emVooVelho ? '#C8342A' : s.cor, fontWeight: transacao.situacao === 'conferir' || emVooVelho ? 700 : 400 }}
+                              title={transacao.situacao === 'devolvido' && transacao.estorno_em ? `${t('ficha_estorno_em')} ${data(transacao.estorno_em, true)}`
+                                   : transacao.situacao === 'sem_registro' ? t('ficha_sem_registro_pedido')
                                    : undefined}>
                             {s.texto}
-                            {t.situacao === 'devolvido_parcial' && ` (${num(t.estorno_qtd)} de ${num(t.quantidade)})`}
-                            {t.situacao === 'em_voo' && ` ${idade(t.criado_em)}`}
+                            {transacao.situacao === 'devolvido_parcial' && ` (${num(transacao.estorno_qtd)} ${t('ficha_de')} ${num(transacao.quantidade)})`}
+                            {transacao.situacao === 'em_voo' && ` ${idade(transacao.criado_em, t)}`}
                           </td>
-                          <td>{num(t.saldo_depois)}</td>
-                          <td style={{ fontFamily: 'monospace', fontSize: 11 }} title={t.ref}>
-                            {t.ref && t.ref.length > 22 ? t.ref.slice(0, 22) + '…' : (t.ref || '—')}
+                          <td>{num(transacao.saldo_depois)}</td>
+                          <td style={{ fontFamily: 'monospace', fontSize: 11 }} title={transacao.ref}>
+                            {transacao.ref && transacao.ref.length > 22 ? transacao.ref.slice(0, 22) + '…' : (transacao.ref || '—')}
                           </td>
                         </tr>
                       );
@@ -1341,10 +1323,9 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
               )}
 
               <p style={{ fontSize: 12, color: 'var(--ink3)', marginTop: 10 }}>
-                Débito com situação <b>entregue</b> é o caso normal (gerou e não há o que
-                devolver). <b>Em voo</b> além de 1h e <b>CONFERIR</b> são candidatos a
-                devolução. “—” é cobrança sem registro de pedido (plugin). Cruze com a
-                aba Uso antes de decidir.
+                {t('ficha_extrato_nota_1')} <b>{t('ficha_sit_entregue')}</b> {t('ficha_extrato_nota_2')}{' '}
+                <b>{t('ficha_sit_em_voo')}</b> {t('ficha_extrato_nota_3')} <b>{t('ficha_sit_conferir')}</b>{' '}
+                {t('ficha_extrato_nota_4')}
               </p>
             </>
           )}
@@ -1355,13 +1336,12 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
         <div className="conta-card adm-card">
           {ficha.eventos.length === 0 ? (
             <p style={{ color: 'var(--ink3)' }}>
-              Nenhum evento registrado. A gravação começou agora, e contas antigas
-              não têm histórico anterior a ela.
+              {t('ficha_sem_evento')}
             </p>
           ) : ficha.eventos.map((ev) => (
             <div key={ev.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--line)' }}>
               <div style={{ fontSize: 12, color: 'var(--ink3)' }}>
-                {data(ev.criado_em, true)} · {ev.tipo} · por {ev.ator}
+                {data(ev.criado_em, true)} · {ev.tipo} · {t('ficha_por')} {ev.ator}
               </div>
               <div style={{ fontSize: 14, marginTop: 2 }}>
                 {ev.descricao}
@@ -1379,15 +1359,14 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
               trabalho dos clientes DELE. Dizer que o acesso ficou registrado
               depois que a pessoa já olhou não avisa nada: avisa depois. */}
           <p className="adm-fotos__aviso">
-            Estas são as imagens de <b>{ficha.conta.email}</b>. Abrir esta aba
-            ficou registrado nos eventos da conta, com o seu nome e a hora.
+            {t('ficha_imagens_de')} <b>{ficha.conta.email}</b>. {t('ficha_imagens_aviso')}
           </p>
 
-          {imagensCarregando && <p className="conta-p">Carregando as imagens…</p>}
+          {imagensCarregando && <p className="conta-p">{t('ficha_carregando_imagens')}</p>}
           {imagensErro && <p className="adm-fotos__erro">{imagensErro}</p>}
 
           {!imagensCarregando && !imagensErro && imagens && imagens.length === 0 && (
-            <p className="adm-vazio">Esta conta ainda não gerou nenhuma imagem.</p>
+            <p className="adm-vazio">{t('ficha_sem_imagem')}</p>
           )}
 
           {!imagensCarregando && !imagensErro && imagens && imagens.length > 0 && (
@@ -1405,9 +1384,7 @@ export default function FichaConta({ abrirConta, papel = 'admin' }) {
                 ))}
               </div>
               <p className="adm-total adm-total--nota">
-                As {imagens.length} mais recentes. As imagens abrem por link
-                assinado, que vale algumas horas: copiar o endereço não serve
-                para guardar.
+                {t('ficha_imagens_rodape').replace('{n}', imagens.length)}
               </p>
             </>
           )}

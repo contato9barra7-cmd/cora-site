@@ -176,7 +176,7 @@ RESTO = u"""
 .tc .cad-passo-tag{
   display:inline-block; margin:0 0 var(--e-3); padding:5px 12px;
   background:var(--turquesa); color:var(--ink); border-radius:var(--r-pill);
-  font-size:10.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+  font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
 }
 .tc .cad-passo-tag + .login-titulo{ margin-top:0; }
 .tc .cartao h1, .tc .login-titulo{ text-wrap:balance; }
@@ -343,7 +343,7 @@ RESTO = u"""
   .tc--denso .lado-form{ padding-top:var(--e-3); padding-bottom:var(--e-3); }
   .tc--denso .login-logo{ margin-bottom:10px; }
   .tc--denso .login-logo img{ height:21px; }
-  .tc--denso .cad-passo-tag{ font-size:10px; padding:4px 10px; margin-bottom:6px; }
+  .tc--denso .cad-passo-tag{ font-size:11px; padding:4px 10px; margin-bottom:6px; }
   .tc--denso .login-titulo, .tc .cartao h1{ font-size:21px; }
   .tc--denso .login-sub, .tc .cartao__apoio{ font-size:12.5px; }
   .tc--denso .login-label, .tc .campo label{ margin-top:9px; margin-bottom:3px; font-size:11.5px; }

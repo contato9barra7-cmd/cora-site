@@ -88,14 +88,13 @@ export default function Gerente() {
     return (
       <AppShell>
         <div className="admin-wrap">
-          <h1 className="conta-cabeca__nome">Esta tela é a do gerente</h1>
+          <h1 className="conta-cabeca__nome">{t('ger_admin_titulo')}</h1>
           <p className="conta-p" style={{ marginTop: 8 }}>
-            Você é admin, então a sua é a de Admin, que tem tudo o que esta tem
-            e mais.
+            {t('ger_admin_desc')}
           </p>
           <button className="as-btn-cta" style={{ marginTop: 18 }}
                   onClick={() => router.push('/admin')}>
-            Ir para o Admin
+            {t('ger_ir_admin')}
           </button>
         </div>
       </AppShell>
@@ -106,13 +105,13 @@ export default function Gerente() {
     return (
       <AppShell>
         <div className="admin-wrap">
-          <h1 className="conta-cabeca__nome">Esta tela não é sua</h1>
+          <h1 className="conta-cabeca__nome">{t('ger_sem_acesso_titulo')}</h1>
           <p className="conta-p" style={{ marginTop: 8 }}>
-            Ela é de quem atende os clientes do Cora.
+            {t('ger_sem_acesso_desc')}
           </p>
           <button className="as-btn-cta" style={{ marginTop: 18 }}
                   onClick={() => router.push('/conta')}>
-            Voltar para o Início
+            {t('ger_voltar_inicio')}
           </button>
         </div>
       </AppShell>
@@ -126,14 +125,14 @@ export default function Gerente() {
         <div className="adm-cabeca">
           <div className="conta-cabeca">
             <div className="conta-cabeca__txt">
-              <p className="eyebrow">Gerente</p>
-              <h1 className="conta-cabeca__nome">Quem está no Cora</h1>
+              <p className="eyebrow">{t('ger_eyebrow')}</p>
+              <h1 className="conta-cabeca__nome">{t('ger_titulo')}</h1>
               <p className="conta-cabeca__email">
                 {aba === 'contas'
-                  ? 'Ache a pessoa e veja a conta dela por inteiro.'
+                  ? t('ger_sub_contas')
                   : aba === 'aceites'
-                    ? 'A prova de quem aceitou o que, e quando.'
-                    : 'O que o crédito fez, na base inteira.'}
+                    ? t('ger_sub_aceites')
+                    : t('ger_sub_auditoria')}
               </p>
             </div>
           </div>
@@ -144,7 +143,7 @@ export default function Gerente() {
                 <rect x="3" y="5" width="18" height="14" rx="2" />
                 <path d="m3 7 9 6 9-6" />
               </svg>
-              Enviar e-mail
+              {t('ger_enviar_email')}
             </button>
           </div>
         </div>
@@ -154,14 +153,14 @@ export default function Gerente() {
             delas ausente pareceria uma tela quebrada. */}
         <div className="adm-abas" role="tablist">
           <button className={'adm-aba' + (aba === 'contas' ? ' ativa' : '')}
-                  onClick={() => setAba('contas')}>Contas</button>
+                  onClick={() => setAba('contas')}>{t('ger_aba_contas')}</button>
           <button className={'adm-aba' + (aba === 'aceites' ? ' ativa' : '')}
-                  onClick={() => setAba('aceites')}>Aceites</button>
+                  onClick={() => setAba('aceites')}>{t('ger_aba_aceites')}</button>
           {/* Leitura, e só. As duas varreduras não mexem em crédito nem em
               dinheiro, e por isso cabem aqui: elas mostram o que conferir, e
               quem conserta continua sendo o admin. */}
           <button className={'adm-aba' + (aba === 'auditoria' ? ' ativa' : '')}
-                  onClick={() => setAba('auditoria')}>Auditoria</button>
+                  onClick={() => setAba('auditoria')}>{t('ger_aba_auditoria')}</button>
         </div>
 
         {/* A ficha traz a própria busca e a própria lista: ela é a tela de

@@ -34,23 +34,32 @@
 import { useEffect, useMemo, useState } from 'react';
 import { adminDinheiro, baixarDinheiroPlanilha } from '../lib/auth';
 import Calendario, { faixaPorExtenso, hojeISO } from './Calendario';
+import { useIdioma } from '../lib/i18n';
 
-const MES_NOME = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
-                  'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-const MES_LONGO = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-                   'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+const LOCALE = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
+const MES_NOME = {
+  pt: ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'],
+  en: ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'],
+  es: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+};
 
 const TODAS = '__todas__';   // a moeda que não é uma moeda
 
-function mesPorExtenso(chave) {
+function mesPorExtenso(chave, idioma) {
   const p = String(chave || '').split('-');
-  return (MES_LONGO[(+p[1] || 1) - 1] || '') + ' de ' + p[0];
+  if (!p[0]) return '';
+  const dt = new Date(Date.UTC(+p[0], (+p[1] || 1) - 1, 1));
+  return new Intl.DateTimeFormat(LOCALE[idioma] || LOCALE.pt, {
+    month: 'long', year: 'numeric', timeZone: 'UTC',
+  }).format(dt);
 }
 
 const VAZIO = { assinatura: 0, recarga: 0, outro: 0, taxa: 0, reembolso: 0,
                 cobrancas: 0, meses: 0, bruto: 0, liquido: 0 };
 
 export default function AdminDinheiro() {
+  const { idioma, t } = useIdioma();
+  const locale = LOCALE[idioma] || LOCALE.pt;
   const [dados, setDados] = useState(null);
   const [erro, setErro] = useState('');
   const [moeda, setMoeda] = useState(null);   // null até saber quais existem
@@ -97,7 +106,7 @@ export default function AdminDinheiro() {
 
   const dinheiro = (centavos, cod) =>
     info(cod || moeda).simbolo + ' '
-    + (centavos / 100).toLocaleString('pt-BR',
+    + (centavos / 100).toLocaleString(locale,
         { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   /* O primeiro dia dos ultimos 12 meses, contado a partir de HOJE. */
@@ -153,9 +162,9 @@ export default function AdminDinheiro() {
   /* A data da primeira cobrança. Com uma moeda é a dela; com todas, a mais
      antiga entre elas, que é quando o negócio começou a receber. */
   const desdeQuando = () => {
-    if (moeda !== TODAS) return mesPorExtenso(info(moeda).primeira);
+    if (moeda !== TODAS) return mesPorExtenso(info(moeda).primeira, idioma);
     const menor = moedas.reduce((a, m) => (!a || m.primeira < a ? m.primeira : a), null);
-    return menor ? mesPorExtenso(menor) : 'o começo';
+    return menor ? mesPorExtenso(menor, idioma) : t('adm_din_comeco');
   };
 
   /* O dia da primeira cobranca, entre todas as moedas. E o piso do calendario:
@@ -187,7 +196,7 @@ export default function AdminDinheiro() {
      significado nenhum. */
   const regua = useMemo(() => {
     const codigos = todas ? moedas.map((m) => m.codigo) : [moeda];
-    const linha = MES_NOME.map((_, i) => {
+    const linha = MES_NOME[idioma].map((_, i) => {
       const chave = anoAberto + '-' + String(i + 1).padStart(2, '0');
       let v = 0, existe = false;
       codigos.forEach((cod) => {
@@ -200,17 +209,20 @@ export default function AdminDinheiro() {
     });
     const maior = linha.reduce((a, v) => (v && v > a ? v : a), 0);
     return { linha, maior };
-  }, [meses, moedas, moeda, anoAberto, todas]);
+  }, [meses, moedas, moeda, anoAberto, todas, idioma]);
 
   const nomeDoPeriodo = () => {
-    if (mesAberto !== null) return MES_LONGO[mesAberto] + ' de ' + anoAberto;
+    if (mesAberto !== null) {
+      return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' })
+        .format(new Date(anoAberto, mesAberto, 1));
+    }
     if (atalho === 'ano') return String(anoAberto);
-    return 'nos últimos 12 meses';
+    return t('adm_din_ult12_minusculo');
   };
 
-  const rotulo = faixa ? 'Entrou de ' + faixaPorExtenso(faixa.de, faixa.ate)
-    : mesAberto !== null || atalho === 'ano' ? 'Entrou em ' + nomeDoPeriodo()
-    : atalho === 'tudo' ? 'Entrou desde ' + desdeQuando() : 'Entrou nos últimos 12 meses';
+  const rotulo = faixa ? t('adm_din_entrou_de') + ' ' + faixaPorExtenso(faixa.de, faixa.ate)
+    : mesAberto !== null || atalho === 'ano' ? t('adm_din_entrou_em') + ' ' + nomeDoPeriodo()
+    : atalho === 'tudo' ? t('adm_din_entrou_desde') + ' ' + desdeQuando() : t('adm_din_entrou_ult12');
 
   /* Quantos dias a faixa cobre, contando as duas pontas: de 12 a 19 são oito
      dias, e não sete. É o divisor da média. */
@@ -228,19 +240,21 @@ export default function AdminDinheiro() {
   if (!faixa && mesAberto !== null && anterior) {
     const antes = anterior.assinatura + anterior.recarga + anterior.outro
       - (verLiquido ? anterior.taxa : 0);
-    comparacao = { difer: total - antes, texto: 'em relação a ' + MES_LONGO[mesAberto - 1] };
+    const mesAnterior = new Intl.DateTimeFormat(locale, { month: 'long' })
+      .format(new Date(anoAberto, mesAberto - 1, 1));
+    comparacao = { difer: total - antes, texto: t('adm_din_em_relacao') + ' ' + mesAnterior };
   } else if (faixa) {
     /* Numa faixa de dias a média MENSAL não diz nada: oito dias não são um
        mês, e dividir por "1 mês tocado" daria o total de novo com outro nome.
        A média por dia é a que responde alguma coisa. */
     comparacao = {
       difer: diasNaFaixa ? Math.round(total / diasNaFaixa) : 0,
-      texto: 'por dia, na média', semSinal: true,
+      texto: t('adm_din_media_dia'), semSinal: true,
     };
   } else if (mesAberto === null) {
     comparacao = {
       difer: s.meses ? Math.round(total / s.meses) : 0,
-      texto: 'por mês, na média', semSinal: true,
+      texto: t('adm_din_media_mes'), semSinal: true,
     };
   }
 
@@ -259,19 +273,19 @@ export default function AdminDinheiro() {
   if (erro) {
     return (
       <div className="conta-card adm-card">
-        <h2 className="conta-h2">Não consegui ler o faturamento</h2>
+        <h2 className="conta-h2">{t('adm_din_erro_titulo')}</h2>
         <p className="conta-p">{erro}</p>
       </div>
     );
   }
   if (!dados) {
-    return <div className="conta-card adm-card"><p className="conta-p">Lendo o Stripe...</p></div>;
+    return <div className="conta-card adm-card"><p className="conta-p">{t('adm_din_lendo')}</p></div>;
   }
   if (!moedas.length) {
     return (
       <div className="conta-card adm-card">
-        <h2 className="conta-h2">Nenhuma cobrança ainda</h2>
-        <p className="conta-p">Quando a primeira for paga, ela aparece aqui.</p>
+        <h2 className="conta-h2">{t('adm_din_vazio_titulo')}</h2>
+        <p className="conta-p">{t('adm_din_vazio_desc')}</p>
       </div>
     );
   }
@@ -287,7 +301,7 @@ export default function AdminDinheiro() {
       <div className="conta-card adm-card per" style={{ marginTop: 0 }}>
         <div className="per__cab">
           <div className="per__ano">
-            <button className="per__seta" aria-label="Ano anterior"
+            <button className="per__seta" aria-label={t('adm_din_ano_anterior')}
                     disabled={anoAberto <= primeiroAno}
                     onClick={() => { setAnoAberto((a) => a - 1); setMesAberto(null); setFaixa(null);
                                      if (atalho === 'tudo') setAtalho('ano'); }}>
@@ -305,7 +319,7 @@ export default function AdminDinheiro() {
               <button className={'per__nome' + (faixa ? ' per__nome--faixa' : '')}
                       onClick={() => setCalAberto((v) => !v)}
                       aria-haspopup="dialog" aria-expanded={calAberto}
-                      title="Escolher dias exatos">
+                      title={t('adm_din_escolher_dias')}>
                 {faixa ? faixaPorExtenso(faixa.de, faixa.ate) : anoAberto}
               </button>
               {calAberto && (
@@ -327,7 +341,7 @@ export default function AdminDinheiro() {
                 />
               )}
             </div>
-            <button className="per__seta" aria-label="Próximo ano"
+            <button className="per__seta" aria-label={t('adm_din_ano_proximo')}
                     disabled={anoAberto >= new Date().getFullYear()}
                     onClick={() => { setAnoAberto((a) => a + 1); setMesAberto(null); setFaixa(null);
                                      if (atalho === 'tudo') setAtalho('ano'); }}>
@@ -342,8 +356,8 @@ export default function AdminDinheiro() {
               botão de "todas" ao lado de uma única moeda seria o mesmo botão
               duas vezes. */}
           {moedas.length > 1 && (
-            <div className="per__moedas" role="group" aria-label="Moeda">
-              {moedas.concat([{ codigo: TODAS, simbolo: 'Todas', nome: 'Todas as moedas' }])
+            <div className="per__moedas" role="group" aria-label={t('adm_din_moeda')}>
+              {moedas.concat([{ codigo: TODAS, simbolo: t('adm_din_todas'), nome: t('adm_din_todas_moedas') }])
                 .map((m) => (
                   <button key={m.codigo} type="button" title={m.nome}
                           aria-pressed={moeda === m.codigo}
@@ -364,16 +378,16 @@ export default function AdminDinheiro() {
 
           <div className="per__atalhos">
             <button className={mesAberto === null && atalho === '12m' ? 'ativo' : undefined}
-                    onClick={() => trocarAtalho('12m')}>Últimos 12 meses</button>
+                    onClick={() => trocarAtalho('12m')}>{t('adm_din_ult12')}</button>
             <button className={mesAberto === null && atalho === 'ano' ? 'ativo' : undefined}
-                    onClick={() => trocarAtalho('ano')}>O ano todo</button>
+                    onClick={() => trocarAtalho('ano')}>{t('adm_din_ano_todo')}</button>
             <button className={mesAberto === null && atalho === 'tudo' ? 'ativo' : undefined}
-                    onClick={() => trocarAtalho('tudo')}>Desde {desdeQuando()}</button>
+                    onClick={() => trocarAtalho('tudo')}>{t('adm_din_desde')} {desdeQuando()}</button>
           </div>
         </div>
 
         <div className="per__meses">
-          {MES_NOME.map((nome, i) => {
+          {MES_NOME[idioma].map((nome, i) => {
             const v = regua.linha[i];
             const alt = v && regua.maior ? Math.round((v / regua.maior) * 100) : 0;
             return (
@@ -383,8 +397,9 @@ export default function AdminDinheiro() {
                          só troca a tela toda por zeros, e isso não é uma
                          resposta que alguém pediu. */
                       disabled={v === null}
-                      title={v === null ? undefined : MES_LONGO[i] + ': ' + (todas
-                        ? v + (v === 1 ? ' cobrança' : ' cobranças') : dinheiro(v))}
+                      title={v === null ? undefined : new Intl.DateTimeFormat(locale, { month: 'long' })
+                        .format(new Date(anoAberto, i, 1)) + ': ' + (todas
+                          ? v + ' ' + t(v === 1 ? 'adm_din_cobranca' : 'adm_din_cobrancas') : dinheiro(v))}
                       onClick={() => {
                         /* Clicar de novo no mês aberto volta para o ano: é o
                            mesmo gesto de ida e volta, sem procurar um "limpar". */
@@ -401,12 +416,12 @@ export default function AdminDinheiro() {
 
         {todas && (
           <p className="per__regua">
-            as barras contam cobranças, porque moedas diferentes não têm escala em comum
+            {t('adm_din_regua_moedas')}
           </p>
         )}
         {!regua.maior && (
           <p className="per__vazio">
-            Nenhuma cobrança em {anoAberto}. A primeira foi em {desdeQuando()}.
+            {t('adm_din_sem_cobranca_ano').replace('{ano}', anoAberto).replace('{desde}', desdeQuando())}
           </p>
         )}
       </div>
@@ -426,19 +441,19 @@ export default function AdminDinheiro() {
                visível da tela. Assim dá para ver tudo de uma vez e cada número
                continua sendo verdade. */
             <div>
-              <h2 className="conta-h2">O que entrou, moeda por moeda</h2>
+              <h2 className="conta-h2">{t('adm_din_por_moeda_titulo')}</h2>
               <p className="conta-p">
-                {mesAberto !== null || atalho === 'ano' ? 'Em ' + nomeDoPeriodo() + '.'
-                  : atalho === 'tudo' ? 'Desde ' + desdeQuando() + '.'
-                  : 'Nos últimos 12 meses.'}
+                {mesAberto !== null || atalho === 'ano' ? t('adm_din_em') + ' ' + nomeDoPeriodo() + '.'
+                  : atalho === 'tudo' ? t('adm_din_desde') + ' ' + desdeQuando() + '.'
+                  : t('adm_din_ult12_frase')}
               </p>
               <div className="fat-rolo">
                 <table className="fat din-tabela-moedas">
                   <thead>
                     <tr>
-                      <th>Moeda</th><th className="adm-num">Bruto</th>
-                      <th className="adm-num">Taxa</th><th className="adm-num">Líquido</th>
-                      <th className="adm-num">Cobranças</th><th className="fat__acao" />
+                      <th>{t('adm_din_moeda')}</th><th className="adm-num">{t('adm_din_bruto')}</th>
+                      <th className="adm-num">{t('adm_din_taxa')}</th><th className="adm-num">{t('adm_din_liquido')}</th>
+                      <th className="adm-num">{t('adm_din_cobrancas')}</th><th className="fat__acao" />
                     </tr>
                   </thead>
                   <tbody>
@@ -459,7 +474,7 @@ export default function AdminDinheiro() {
                           <td className="fat__acao">
                             <button className="fat-ver"
                                     onClick={() => { setMoeda(m.codigo); setMesAberto(null); }}>
-                              Ver só {m.nome.toLowerCase()}
+                              {t('adm_din_ver_so')} {m.nome.toLowerCase()}
                             </button>
                           </td>
                         </tr>
@@ -469,9 +484,7 @@ export default function AdminDinheiro() {
                 </table>
               </div>
               <p className="din-nota">
-                Cada linha é uma moeda inteira, com a taxa que o Stripe reteve nela. Não há
-                total geral de propósito: para somar todas seria preciso câmbio com a data
-                de cada cobrança, e o número passaria a mudar sozinho conforme o dólar.
+                {t('adm_din_nota_moedas')}
               </p>
             </div>
           ) : (
@@ -483,10 +496,10 @@ export default function AdminDinheiro() {
               <div className="din-abas" role="tablist">
                 <button role="tab" aria-selected={!verLiquido}
                         className={!verLiquido ? 'ativa' : undefined}
-                        onClick={() => setVerLiquido(false)}>Bruto</button>
+                        onClick={() => setVerLiquido(false)}>{t('adm_din_bruto')}</button>
                 <button role="tab" aria-selected={verLiquido}
                         className={verLiquido ? 'ativa' : undefined}
-                        onClick={() => setVerLiquido(true)}>Líquido</button>
+                        onClick={() => setVerLiquido(true)}>{t('adm_din_liquido')}</button>
               </div>
 
               <p className="eyebrow">{rotulo}</p>
@@ -513,24 +526,24 @@ export default function AdminDinheiro() {
               {verLiquido && (
                 <div className="din-taxa">
                   <div className="din-taxa__linha">
-                    <span>Cobrado</span><b>{dinheiro(s.bruto)}</b>
+                    <span>{t('adm_din_cobrado')}</span><b>{dinheiro(s.bruto)}</b>
                   </div>
                   <div className="din-taxa__linha din-taxa__linha--tira">
-                    <span>Taxa do Stripe{' '}
+                    <span>{t('adm_din_taxa_stripe')}{' '}
                       <em>{s.bruto ? (s.taxa / s.bruto * 100).toFixed(2).replace('.', ',') + '%' : ''}</em>
                     </span>
                     <b>− {dinheiro(s.taxa)}</b>
                   </div>
                   <div className="din-taxa__linha din-taxa__linha--fim">
-                    <span>Ficou com você</span><b>{dinheiro(s.liquido)}</b>
+                    <span>{t('adm_din_ficou')}</span><b>{dinheiro(s.liquido)}</b>
                   </div>
                 </div>
               )}
 
               <p className="din-nota">
                 {verLiquido
-                  ? 'O que o Stripe reteve em cada cobrança, somado. A taxa muda por cobrança: cartão de fora do Brasil e parcelamento custam mais que o cartão nacional à vista. Imposto não entra nesta conta.'
-                  : 'Tudo que foi pago no período, assinatura mais recarga. É dinheiro que entrou de verdade, e não cobrança em aberto.'}
+                  ? t('adm_din_nota_liquido')
+                  : t('adm_din_nota_bruto')}
               </p>
             </div>
           )}
@@ -539,10 +552,10 @@ export default function AdminDinheiro() {
         {/* Some com todas as moedas: este cartão só sabe falar de uma por vez. */}
         {!todas && (
           <div className="conta-card adm-card">
-            <h2 className="conta-h2">De onde vem</h2>
+            <h2 className="conta-h2">{t('adm_din_origem')}</h2>
             <p className="conta-p">
-              {mesAberto !== null || atalho === 'ano' ? 'Em ' + nomeDoPeriodo() : 'Nos últimos 12 meses'}
-              , em {info(moeda).nome.toLowerCase()}.
+              {mesAberto !== null || atalho === 'ano' ? t('adm_din_em') + ' ' + nomeDoPeriodo() : t('adm_din_ult12')}
+              {t('adm_din_em_moeda')} {info(moeda).nome.toLowerCase()}.
             </p>
             <div className="din-fonte">
               <div className="din-barra" aria-hidden="true">
@@ -551,11 +564,11 @@ export default function AdminDinheiro() {
               </div>
               <div className="din-legenda">
                 <div>
-                  <span><em className="a" />Assinatura</span>
+                  <span><em className="a" />{t('adm_din_assinatura')}</span>
                   <b>{dinheiro(s.assinatura)}</b>
                 </div>
                 <div>
-                  <span><em className="b" />Recarga avulsa</span>
+                  <span><em className="b" />{t('adm_din_recarga')}</span>
                   <b>{dinheiro(s.recarga)}</b>
                 </div>
                 {/* Cobrança que entrou e não bate com assinatura nem com recarga
@@ -564,7 +577,7 @@ export default function AdminDinheiro() {
                     aparece, é para ser olhada. */}
                 {!!s.outro && (
                   <div>
-                    <span><em className="c" />Sem origem conhecida</span>
+                    <span><em className="c" />{t('adm_din_sem_origem')}</span>
                     <b>{dinheiro(s.outro)}</b>
                   </div>
                 )}
@@ -572,8 +585,8 @@ export default function AdminDinheiro() {
             </div>
 
             <p className="din-nota">
-              {s.cobrancas} {s.cobrancas === 1 ? 'cobrança paga' : 'cobranças pagas'} no período.
-              {s.reembolso > 0 && ' ' + dinheiro(s.reembolso) + ' devolvidos, já fora do total acima.'}
+              {s.cobrancas} {t(s.cobrancas === 1 ? 'adm_din_cobranca_paga' : 'adm_din_cobrancas_pagas')} {t('adm_din_no_periodo')}
+              {s.reembolso > 0 && ' ' + t('adm_din_reembolso').replace('{valor}', dinheiro(s.reembolso))}
             </p>
           </div>
         )}
@@ -590,46 +603,45 @@ export default function AdminDinheiro() {
       {resumo && (
         <div className="din-fila">
           <div className="conta-card adm-card din-cel">
-            <p className="eyebrow">Recorrente por mês</p>
+            <p className="eyebrow">{t('adm_din_recorrente')}</p>
             <strong>{dinheiro(resumo.recorrente_centavos, moedas[0]?.codigo)}</strong>
             <p>
-              A soma das mensalidades ativas hoje, com o anual dividido por doze.
-              Recarga não entra: ela é avulsa e não se repete sozinha.
+              {t('adm_din_recorrente_desc')}
             </p>
           </div>
           <div className="conta-card adm-card din-cel">
-            <p className="eyebrow">Ticket médio</p>
+            <p className="eyebrow">{t('adm_din_ticket')}</p>
             <strong>
               {contas.length
                 ? dinheiro(Math.round(contas.reduce((a, c) => a + c.total, 0) / contas.length),
                            moedas[0]?.codigo)
                 : '—'}
             </strong>
-            <p>Quanto cada conta pagante já pagou, na média, contando recarga.</p>
+            <p>{t('adm_din_ticket_desc')}</p>
           </div>
           <div className="conta-card adm-card din-cel">
-            <p className="eyebrow">Quanto dura uma conta</p>
+            <p className="eyebrow">{t('adm_din_duracao')}</p>
             <strong>
               {resumo.meses_de_vida >= 0.1
-                ? resumo.meses_de_vida.toFixed(1).replace('.', ',') + ' meses'
+                ? resumo.meses_de_vida.toLocaleString(locale, { maximumFractionDigits: 1 }) + ' ' + t('adm_din_meses')
                 : '—'}
             </strong>
             {/* Só quem já cancelou entra nesta média: quem ainda assina não tem
                 duração final, e incluir essas contas puxaria o número para
                 baixo toda vez que alguém novo entrasse. */}
             <p>
-              Média de quem já cancelou, entre {resumo.assinaturas_encerradas}{' '}
-              {resumo.assinaturas_encerradas === 1 ? 'conta' : 'contas'}.
+              {t('adm_din_media_cancelou')} {resumo.assinaturas_encerradas}{' '}
+              {t(resumo.assinaturas_encerradas === 1 ? 'adm_din_conta' : 'adm_din_contas')}.
             </p>
           </div>
           <div className="conta-card adm-card din-cel">
-            <p className="eyebrow">Assinaturas ativas</p>
+            <p className="eyebrow">{t('adm_din_ativas')}</p>
             <strong>{resumo.assinaturas_ativas}</strong>
             <p>
               {resumo.assinaturas_encerradas > 0
                 ? resumo.assinaturas_encerradas + (resumo.assinaturas_encerradas === 1
-                    ? ' já foi encerrada.' : ' já foram encerradas.')
-                : 'Nenhuma encerrada até agora.'}
+                    ? t('adm_din_uma_encerrada') : t('adm_din_varias_encerradas'))
+                : t('adm_din_nenhuma_encerrada')}
             </p>
           </div>
         </div>
@@ -644,20 +656,19 @@ export default function AdminDinheiro() {
           que não casasse. */}
       {contas.length > 0 && (
         <div className="conta-card adm-card">
-          <h2 className="conta-h2">Quanto cada conta já pagou</h2>
+          <h2 className="conta-h2">{t('adm_din_contas_titulo')}</h2>
           <p className="conta-p">
-            A mensalidade de cada ciclo mais as recargas, desde a primeira cobrança.
-            Ordenado por quem mais pagou.
+            {t('adm_din_contas_desc')}
           </p>
           <div className="fat-rolo">
             <table className="fat">
               <thead>
                 <tr>
-                  <th>Conta</th><th>Plano</th><th>Desde</th>
-                  <th className="adm-num">Ciclos</th>
-                  <th className="adm-num">Assinatura</th>
-                  <th className="adm-num">Recarga</th>
-                  <th className="adm-num">Total pago</th>
+                  <th>{t('adm_din_conta')}</th><th>{t('adm_din_plano')}</th><th>{t('adm_din_desde')}</th>
+                  <th className="adm-num">{t('adm_din_ciclos')}</th>
+                  <th className="adm-num">{t('adm_din_assinatura')}</th>
+                  <th className="adm-num">{t('adm_din_recarga_curta')}</th>
+                  <th className="adm-num">{t('adm_din_total_pago')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -667,12 +678,12 @@ export default function AdminDinheiro() {
                       <div className="adm-nome">{c.nome || '—'}</div>
                       <div className="adm-sub">
                         <span className="adm-sub-txt">{c.email}</span>
-                        {c.cancelou && <span className="fat-selo fat-selo--aberta">Cancelou</span>}
+                        {c.cancelou && <span className="fat-selo fat-selo--aberta">{t('adm_din_cancelou')}</span>}
                       </div>
                     </td>
                     <td>{c.plano || '—'}</td>
                     <td className="adm-mono">
-                      {c.desde ? new Date(c.desde).toLocaleDateString('pt-BR',
+                      {c.desde ? new Date(c.desde).toLocaleDateString(locale,
                         { month: '2-digit', year: 'numeric' }) : '—'}
                     </td>
                     <td className="adm-num">{c.ciclos}</td>
@@ -687,33 +698,30 @@ export default function AdminDinheiro() {
             </table>
           </div>
           <p className="adm-total">
-            {contas.length} {contas.length === 1 ? 'conta já pagou' : 'contas já pagaram'}{' '}
-            alguma coisa.
+            {contas.length} {t(contas.length === 1 ? 'adm_din_conta_pagou' : 'adm_din_contas_pagaram')}
           </p>
         </div>
       )}
 
       <div className="conta-card adm-card">
         <div className="adm-ficha-cab">
-          <h2 className="conta-h2">Levar para a contabilidade</h2>
+          <h2 className="conta-h2">{t('adm_din_contabilidade')}</h2>
           {/* Excel primeiro, CSV ao lado. O Excel e o que se usa: coluna na
               largura certa e valor como numero, entao a coluna soma. O CSV
               fica porque ele e o que outros sistemas importam. */}
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="fat-ver" disabled={!!baixando}
                     onClick={() => baixar('xlsx')}>
-              {baixando === 'xlsx' ? 'Gerando...' : 'Baixar em Excel'}
+              {baixando === 'xlsx' ? t('adm_din_gerando') : t('adm_din_excel')}
             </button>
             <button className="fat-ver" disabled={!!baixando}
                     onClick={() => baixar('csv')}>
-              {baixando === 'csv' ? 'Gerando...' : 'CSV'}
+              {baixando === 'csv' ? t('adm_din_gerando') : 'CSV'}
             </button>
           </div>
         </div>
         <p className="conta-p">
-          Uma linha por mês e moeda, com bruto, taxa, líquido, reembolso e quantas
-          cobranças. No Excel os valores vão como número, e não como texto: a coluna
-          soma sem ninguém reformatar nada.
+          {t('adm_din_contabilidade_desc')}
         </p>
       </div>
     </>

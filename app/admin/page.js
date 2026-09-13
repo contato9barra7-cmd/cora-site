@@ -1022,7 +1022,7 @@ export default function Admin() {
                     setRecorte('fiscal');
                     if (!dadosFiscais) mostrarFiscais();
                   }}>
-            {carregandoFiscais ? t('adm_carregando') : t('adm_col_fiscal')}
+            {carregandoFiscais ? t('comum_carregando') : t('adm_col_fiscal')}
           </button>
         </div>
       )}

@@ -11,6 +11,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useIdioma } from '../lib/i18n';
+import { posicionarPopover } from './DropdownCora';
 
 function parseISO(s) {
   if (!s) return null;
@@ -35,6 +36,7 @@ export default function DatePickerCora({ valor, onEscolher, placeholder }) {
   // daqui: o painel de filtros rola, e rolagem recorta o que transborda.
   const [pos, setPos] = useState(null);
   const ref = useRef(null);
+  const popRef = useRef(null);
   const sel = parseISO(valor);
   const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
   const [vista, setVista] = useState(sel || hoje); // mês visível
@@ -42,9 +44,24 @@ export default function DatePickerCora({ valor, onEscolher, placeholder }) {
   useEffect(() => {
     if (!aberto) return;
     setVista(parseISO(valor) || new Date());
-    function fora(e) { if (ref.current && !ref.current.contains(e.target)) setAberto(false); }
+    function fora(e) {
+      if (ref.current && ref.current.contains(e.target)) return;
+      if (popRef.current && popRef.current.contains(e.target)) return;
+      setAberto(false);
+    }
+    function fecharAoRolar(e) {
+      if (popRef.current && popRef.current.contains(e.target)) return;
+      setAberto(false);
+    }
+    function aoRedimensionar() { setAberto(false); }
     document.addEventListener('mousedown', fora);
-    return () => document.removeEventListener('mousedown', fora);
+    window.addEventListener('scroll', fecharAoRolar, true);
+    window.addEventListener('resize', aoRedimensionar);
+    return () => {
+      document.removeEventListener('mousedown', fora);
+      window.removeEventListener('scroll', fecharAoRolar, true);
+      window.removeEventListener('resize', aoRedimensionar);
+    };
   }, [aberto, valor]);
 
   const ano = vista.getFullYear(), mes = vista.getMonth();
@@ -74,7 +91,9 @@ export default function DatePickerCora({ valor, onEscolher, placeholder }) {
         className="coradp-btn"
         onClick={() => {
           const r = ref.current && ref.current.getBoundingClientRect();
-          if (r) setPos({ left: r.left, top: r.bottom + 6, largura: r.width });
+          if (r) setPos(posicionarPopover(r, {
+            largura: Math.max(268, r.width), alturaMax: 360, espaco: 6,
+          }));
           setAberto((v) => !v);
         }}
       >
@@ -86,8 +105,9 @@ export default function DatePickerCora({ valor, onEscolher, placeholder }) {
 
       {aberto && pos && typeof document !== 'undefined' && createPortal(
         <div
+          ref={popRef}
           className="coradp-pop coradp-pop--fora"
-          style={{ position: 'fixed', left: pos.left, top: pos.top, minWidth: pos.largura }}
+          style={{ position: 'fixed', ...pos, right: 'auto', overflowY: 'auto' }}
         >
           <div className="coradp-cab">
             <button type="button" className="coradp-nav" onClick={mesAnterior} aria-label={t('datepickercora_mes_anterior')}>

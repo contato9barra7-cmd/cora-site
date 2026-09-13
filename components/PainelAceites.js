@@ -96,7 +96,7 @@ export default function PainelAceites() {
   }
 
   if (erro) return <p className="admin-vazio">{erro}</p>;
-  if (!dados) return <p className="admin-vazio">{t('adm_carregando')}</p>;
+  if (!dados) return <p className="admin-vazio">{t('comum_carregando')}</p>;
 
   const termo = busca.trim().toLowerCase();
   const lista = dados.aceites.filter(
@@ -272,7 +272,7 @@ export default function PainelAceites() {
         <div className="admin-ac-janela" onClick={() => setAberto(null)}>
           <div className="admin-ac-papel" onClick={(e) => e.stopPropagation()}>
             {aberto.carregando ? (
-              <p className="admin-vazio">{t('adm_carregando')}</p>
+              <p className="admin-vazio">{t('comum_carregando')}</p>
             ) : aberto.erro ? (
               <p className="admin-vazio">{aberto.erro}</p>
             ) : (

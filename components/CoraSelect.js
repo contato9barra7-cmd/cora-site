@@ -9,6 +9,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useRef, useEffect } from 'react';
+import { posicionarPopover } from './DropdownCora';
 
 export default function CoraSelect({ value, options, onChange, icon, className, disabled }) {
   const [aberto, setAberto] = useState(false);
@@ -45,7 +46,7 @@ export default function CoraSelect({ value, options, onChange, icon, className, 
     if (disabled) return;
     if (!aberto && trigRef.current) {
       const r = trigRef.current.getBoundingClientRect();
-      setPos({ left: r.left, top: r.bottom + 5, width: r.width });
+      setPos(posicionarPopover(r, { alturaMax: 300 }));
     }
     setAberto((a) => !a);
   }
@@ -69,7 +70,7 @@ export default function CoraSelect({ value, options, onChange, icon, className, 
         <div
           ref={popRef}
           className="cora-sel-pop"
-          style={pos ? { position: 'fixed', left: pos.left, top: pos.top, width: pos.width, right: 'auto' } : undefined}
+          style={pos ? { position: 'fixed', ...pos, right: 'auto' } : undefined}
         >
           {options.map((o) => (
             <div

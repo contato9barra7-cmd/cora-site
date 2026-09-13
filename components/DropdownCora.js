@@ -22,6 +22,24 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { tOpt } from '../lib/i18n';
 
+// Mantem qualquer popover dentro da area visivel. Os controles aparecem em
+// paineis rolaveis e perto das bordas em telas menores, entao abrir sempre
+// para baixo deixa parte da lista fora da janela.
+export function posicionarPopover(r, { largura = r.width, alturaMax = 288, espaco = 5, margem = 8 } = {}) {
+  const vw = document.documentElement.clientWidth || window.innerWidth;
+  const vh = document.documentElement.clientHeight || window.innerHeight;
+  const width = Math.min(largura, Math.max(0, vw - margem * 2));
+  const left = Math.min(Math.max(margem, r.left), Math.max(margem, vw - margem - width));
+  const abaixo = Math.max(0, vh - r.bottom - espaco - margem);
+  const acima = Math.max(0, r.top - espaco - margem);
+  const abreAcima = abaixo < Math.min(160, alturaMax) && acima > abaixo;
+  const maxHeight = Math.min(alturaMax, abreAcima ? acima : abaixo);
+
+  return abreAcima
+    ? { left, width, top: 'auto', bottom: vh - r.top + espaco, maxHeight }
+    : { left, width, top: r.bottom + espaco, bottom: 'auto', maxHeight };
+}
+
 // `caixinha` liga o desenho da JANELA (Prancheta): caixa de check à esquerda,
 // igual ao dropdown de várias. Fora dela o dropdown é o do site, com o tique
 // à direita, e é assim que ele fica em toda tela de conta, cadastro e admin.
@@ -36,7 +54,7 @@ export default function DropdownCora({ valor, opcoes, onEscolher, rotulo, caixin
   function medir() {
     if (!ref.current) return;
     const r = ref.current.getBoundingClientRect();
-    setPos({ left: r.left, top: r.bottom + 5, width: r.width });
+    setPos(posicionarPopover(r));
   }
 
   function alternar() {
@@ -90,7 +108,7 @@ export default function DropdownCora({ valor, opcoes, onEscolher, rotulo, caixin
         <div
           ref={listaRef}
           className="cora-dd-lista cora-dd-lista--portal"
-          style={{ position: 'fixed', left: pos.left, top: pos.top, width: pos.width, right: 'auto' }}
+          style={{ position: 'fixed', ...pos, right: 'auto' }}
           role="listbox"
         >
           {opcoes.map((o) => (
