@@ -43,13 +43,15 @@ export function posicionarPopover(r, { largura = r.width, alturaMax = 288, espac
 // `caixinha` liga o desenho da JANELA (Prancheta): caixa de check à esquerda,
 // igual ao dropdown de várias. Fora dela o dropdown é o do site, com o tique
 // à direita, e é assim que ele fica em toda tela de conta, cadastro e admin.
-export default function DropdownCora({ valor, opcoes, onEscolher, rotulo, caixinha }) {
+export default function DropdownCora({ valor, opcoes, onEscolher, rotulo, caixinha, placeholder, invalido, className = '' }) {
   const [aberto, setAberto] = useState(false);
   const [pos, setPos] = useState(null);
   const ref = useRef(null);
   const listaRef = useRef(null);
 
-  const atual = opcoes.find((o) => o.v === valor) || opcoes[0];
+  const atual = opcoes.find((o) => o.v === valor);
+  const temValor = Boolean(atual && atual.v !== '');
+  const textoExibido = atual ? tOpt(atual.n) : (placeholder || (opcoes[0] ? tOpt(opcoes[0].n) : ''));
 
   function medir() {
     if (!ref.current) return;
@@ -87,17 +89,23 @@ export default function DropdownCora({ valor, opcoes, onEscolher, rotulo, caixin
   }, [aberto]);
 
   return (
-    <div className={'cora-dd' + (aberto ? ' cora-dd--aberto' : '') + (rotulo ? ' cora-dd--rotulo' : '')} ref={ref}>
+    <div
+      className={'cora-dd' + (aberto ? ' cora-dd--aberto' : '') + (rotulo ? ' cora-dd--rotulo' : '')
+        + (invalido ? ' cora-dd--erro' : '') + (className ? ' ' + className : '')}
+      ref={ref}
+    >
       <button
         type="button"
-        className="cora-dd-btn"
+        className={'cora-dd-btn' + (invalido ? ' cora-dd-btn--erro' : '')}
         onClick={alternar}
         aria-haspopup="listbox"
         aria-expanded={aberto}
       >
         <span className="cora-dd-mio">
           {rotulo && <span className="cora-dd-rot">{rotulo}</span>}
-          <span className="cora-dd-val">{atual ? tOpt(atual.n) : ''}</span>
+          <span className={'cora-dd-val' + (!temValor && placeholder ? ' cora-dd-ph' : '')}>
+            {textoExibido}
+          </span>
         </span>
         <svg className="cora-dd-seta" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.7">
           <path d="M4 6l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />

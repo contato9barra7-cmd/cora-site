@@ -12194,8 +12194,16 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
 }
 .cora-dd-btn:hover { border-color: var(--ink3); }
-.cora-dd-btn:focus-visible { outline: 0; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(17,17,17,.08); }
 .cora-dd--aberto .cora-dd-btn { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(17,17,17,.08); }
+.cora-dd--erro .cora-dd-btn,
+.cora-dd-btn--erro {
+  border-color: #C8342A !important;
+}
+.cora-dd--erro .cora-dd-btn:focus-visible,
+.cora-dd-btn--erro:focus-visible {
+  border-color: #C8342A !important;
+  box-shadow: 0 0 0 3px rgba(200,52,42,.12) !important;
+}
 
 /* COM RÓTULO DENTRO
    O nome do campo mora dentro do próprio controle, em cima do valor. Numa

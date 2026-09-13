@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation';
 import { lerConta, enviarSuporte, aplicarTema } from '../../lib/auth';
 import { useIdioma, tOpt } from '../../lib/i18n';
 import Cabecalho from '../../components/Cabecalho';
+import DropdownCora from '../../components/DropdownCora';
 import { GRUPOS, TUDO, PERGUNTAS, contar, noIdioma } from '../../lib/faq-suporte';
 
 // O valor que viaja para o servidor é sempre esta string em português: é ela
@@ -43,65 +44,6 @@ const MAIS = (
     <path d="M12 5v14" /><path d="M5 12h14" />
   </svg>
 );
-
-const SETA = (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M6 9l6 6 6-6" />
-  </svg>
-);
-
-// ── o dropdown da marca ─────────────────────────────────────────────────────
-// O <select> do sistema pinta a lista com o azul do Windows, que não é nossa
-// cor e não respeita nem a fonte nem o raio dos outros campos. Este é o mesmo
-// desenho do CoraSelect do painel, com as classes do artefato, para a página
-// e o artefato continuarem idênticos.
-function Assunto({ valor, aoTrocar, rotuloVazio, invalido }) {
-  const [aberto, setAberto] = useState(false);
-  const caixa = useRef(null);
-
-  useEffect(() => {
-    if (!aberto) return;
-    const fora = (e) => { if (caixa.current && !caixa.current.contains(e.target)) setAberto(false); };
-    const tecla = (e) => { if (e.key === 'Escape') setAberto(false); };
-    document.addEventListener('mousedown', fora);
-    document.addEventListener('keydown', tecla);
-    return () => {
-      document.removeEventListener('mousedown', fora);
-      document.removeEventListener('keydown', tecla);
-    };
-  }, [aberto]);
-
-  return (
-    <div className="sel" ref={caixa}>
-      <button
-        type="button"
-        className={'gat' + (valor ? '' : ' vazio') + (aberto ? ' aberto' : '') + (invalido ? ' erro' : '')}
-        aria-haspopup="listbox"
-        aria-expanded={aberto}
-        onClick={() => setAberto(!aberto)}
-      >
-        <span className="gat__rot">{valor ? tOpt(valor) : rotuloVazio}</span>
-        <span className="gat__seta">{SETA}</span>
-      </button>
-      <div className="pop" role="listbox" hidden={!aberto}>
-        {CATEGORIAS.map((c) => (
-          <button
-            key={c}
-            type="button"
-            role="option"
-            aria-selected={valor === c}
-            className="op"
-            onClick={() => { aoTrocar(c); setAberto(false); }}
-          >
-            <span className="op__mira" aria-hidden="true" />
-            <span>{tOpt(c)}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function Suporte() {
   const { t, idioma } = useIdioma();
@@ -327,10 +269,14 @@ export default function Suporte() {
 
                   <div className="campo">
                     <label id="sup-rot-assunto">{t('sup_assunto')}</label>
-                    <Assunto
+                    <DropdownCora
                       valor={assunto}
-                      aoTrocar={setAssunto}
-                      rotuloVazio={t('sup_selecione_cat')}
+                      onEscolher={(v) => {
+                        setAssunto(v);
+                        if (faltando.assunto) setFaltando((f) => ({ ...f, assunto: false }));
+                      }}
+                      opcoes={CATEGORIAS.map((c) => ({ v: c, n: tOpt(c) }))}
+                      placeholder={t('sup_selecione_cat')}
                       invalido={!!faltando.assunto}
                     />
                   </div>
