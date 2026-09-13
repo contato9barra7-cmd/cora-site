@@ -6871,7 +6871,26 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .narr-nota b { font-weight: 600; color: var(--turq-txt, #196C5B); font-size: 12.5px; }
 .narr-nota-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.narr-nota .vz-prompt-copiar { padding: 5px 11px; font-size: 12px; }
+/* O copiar dentro da nota é VAZADO, e não branco.
+   Branco sobre o turquesa claro é a receita de botão elevado, e ele saltava
+   na frente do texto que é o assunto do cartão. Vazado, com o fio e a letra
+   no mesmo verde, ele fica na família: some do caminho enquanto se lê, e
+   continua sendo obviamente um botão para quem foi atrás dele.
+
+   Ele não some de todo porque é a ação mais usada do roteiro: a narração em
+   off existe para ser colada no editor de vídeo. Escondê-la até o hover
+   custaria mais do que o ruído custava. */
+.narr-nota .vz-prompt-copiar {
+  padding: 5px 11px; font-size: 12px;
+  background: transparent;
+  border-color: color-mix(in srgb, var(--turq-txt, #196C5B) 28%, transparent);
+  color: var(--turq-txt, #196C5B);
+}
+.narr-nota .vz-prompt-copiar:hover {
+  background: var(--paper, #fff);
+  border-color: var(--turq-txt, #196C5B);
+  color: var(--turq-txt, #196C5B);
+}
 
 .seq-modo-int {
   display: grid;
