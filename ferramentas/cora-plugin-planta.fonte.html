@@ -201,7 +201,6 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
   var MOEDA = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 4l8 8-8 8-8-8z"/></svg>';
   var CSETA = '<svg class="cr-seta" viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var DDSETA = '<svg class="cora-dd-seta" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6.5l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  var DDTIQUE = '<svg class="cora-dd-tique" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5,8.5 6,12 13.5,4"/></svg>';
   var VOLTA = '<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4l-5 6 5 6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var ICO_FOTO = '<svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7" cy="8" r="1.5"/><path d="M3 14l4-4 3.5 3.5L14 9l3.5 3.5"/></svg>';
 
@@ -286,8 +285,13 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
     if (aberta) {
       h += '<div class="cora-dd-lista">' + opcoes.map(function (o) {
         var on = marcados.indexOf(o) >= 0;
+        // Duas peças e mais nada: a caixinha e o texto. Eu tinha posto um
+        // tique no fim, e com `justify-content:space-between` a opção passou
+        // a ter TRÊS filhos: caixinha à esquerda, tique à direita, e o texto
+        // sobrando no meio. Medido, o texto ia parar em 107px de 286 em vez
+        // dos 201px de todas as outras listas do produto.
         return '<div class="cora-dd-opt cora-dd-opt--multi' + (on ? ' cora-dd-opt--sel' : '') + '" role="option" aria-selected="' + on + '" data-a="escm" data-c="' + campo + '" data-o="' + o.replace(/"/g, '&quot;') + '">' +
-          '<span class="cora-dd-check" aria-hidden="true">' + (on ? TIQUE : '') + '</span>' + o + DDTIQUE + '</div>';
+          '<span class="cora-dd-check" aria-hidden="true">' + (on ? TIQUE : '') + '</span>' + o + '</div>';
       }).join('') + '</div>';
     }
     return h + '</div>';
