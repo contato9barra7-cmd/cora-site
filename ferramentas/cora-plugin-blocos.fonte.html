@@ -82,7 +82,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 .jn .pk-lado, .jn .pk-main{ border-radius:0; }
 /* Mais larga que os 132px do escolhedor: aqui ela carrega nomes de pasta,
    que são da pessoa e costumam ser compridos, e não quatro palavras curtas. */
-.jn .pk-lado{ width:160px; overflow-y:auto; padding:14px 10px; gap:5px; }
+.jn .pk-lado{ width:200px; overflow-y:auto; padding:14px 10px; gap:5px; }
 /* A pasta marcada é o item marcado do menu lateral da web (`.app-nav-item`
    do painel): pastilha branca, fio de lima de 3px e o texto em 600. O traço
    de 2px do escolhedor era outro gesto. O hover não mexe na marcada. */
@@ -104,6 +104,8 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 /* A lista é a linha de camada da Pós. O respiro já vem do corpo, e a
    miniatura do bloco é desenhada sobre branco, como na grade. */
 .pk-corpo .ps-camadas{ padding:0; }
+/* A frase de lista vazia é aviso, e não corpo de texto: no tamanho de apoio. */
+.pk-corpo > .cr-msg{ font-size:var(--t-apoio2); }
 .ps-cam .ps-thumb{ background-color:#FFFFFF; background-size:contain; }
 .jn .pk-cab{ flex:none; height:58px; padding:0 14px 0 16px; }
 .jn .pk-busca input{ flex:1; width:auto; min-width:0; }
@@ -144,7 +146,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
     <div>
       <p class="mud-t">O que muda em relação ao desenho de antes</p>
       <dl class="mud">
-        <div><dt>A lateral</dt><dd>Ocupava um terço da janela. Agora tem 160px, e a grade fica com o resto. As pastas são só o nome, sem ícone.</dd></div>
+        <div><dt>A lateral</dt><dd>Ocupava um terço da janela. Agora tem 200px, e a grade fica com o resto. As pastas são só o nome, sem ícone.</dd></div>
         <div><dt>Recentes e No modelo</dt><dd>Eram ícones soltos no topo, com um Voltar que aparecia e sumia. Viraram os dois atalhos do alto da lateral. Todos desceu para o começo das pastas, e voltar é clicar nele.</dd></div>
         <div><dt>Todos e a busca</dt><dd>Em Todos os blocos vêm agrupados por pasta, do jeito que o histórico agrupa por mês, e a busca procura nas pastas todas. Com uma pasta marcada, a busca fica dentro dela.</dd></div>
         <div><dt>Lista e grade</dt><dd>A régua de colunas virou o P M G do feed da web, e em P fica só a imagem. Veio também a lista que o Materiais já tinha, feita com a linha de camada da Pós. Nela o tamanho não aparece.</dd></div>
@@ -570,9 +572,9 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
       d: 'O que já está no modelo, com o número de instâncias no lugar do peso. Depois de um Purge, o que saiu some daqui.' },
     { t: 'Colocando no modelo', op: { vista: 'pasta', pasta: 'Cadeiras', marcado: 'Poltrona Concha Café' },
       d: 'O clique entrega o bloco para o SketchUp, que o prende no cursor. A miniatura fica marcada e o pé confirma qual foi, com o próximo gesto.' },
-    { t: 'Botão direito num bloco', op: { vista: 'pasta', pasta: 'Sofás', menu: { tipo: 'bloco', x: 400, y: 262 } },
+    { t: 'Botão direito num bloco', op: { vista: 'pasta', pasta: 'Sofás', menu: { tipo: 'bloco', x: 440, y: 262 } },
       d: 'Os itens de antes, na ordem do menu das camadas da Pós. Excluir fica sozinho no fim, depois do fio, porque é o único que apaga arquivo.' },
-    { t: 'Botão direito numa pasta', op: { vista: 'todos', menu: { tipo: 'pasta', x: 140, y: 412 } },
+    { t: 'Botão direito numa pasta', op: { vista: 'todos', menu: { tipo: 'pasta', x: 180, y: 412 } },
       d: 'Uma ação só, para ler de novo a pasta depois de pôr arquivos novos nela.' },
     { t: 'Renomeando', op: { vista: 'pasta', pasta: 'Vegetação', renomeando: 'Galho Seco' },
       d: 'O nome vira campo ali mesmo. Enter grava e Esc desiste. Abrir uma janela para trocar uma palavra seria desproporcional, e a Pós já segue essa regra.' },

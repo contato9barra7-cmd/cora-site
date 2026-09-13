@@ -17,9 +17,11 @@
 .modal-dd .cora-dd-opt{padding: 11px 14px; border-radius: 10px; font-size: 12.2px;}
 :root{--tarja-h: 42px;}
 :root{--side-w: 240px; --side-w-min: 68px; --header-h: 60px;}
+.perfil-linha .cora-dd{flex: 1;}
 .perfil-linha .cora-dd-btn{padding: 11px 18px; font-size: 13.1px;}
 .app-user-pref-dd .cora-dd-btn{padding: 6px 14px; font-size: 12.2px;}
 .ws-mover-quem .cora-dd-btn{height: 42px; padding: 0 18px; border-radius: 100px; border-color: var(--line2); font-size: 13.1px;}
+.ws-mover-quem .cora-dd{width: 100%;}
 .cr-wrap{display: flex; gap: 0; width: 100%; height: calc(100vh - var(--header-h)); background: var(--paper); overflow: hidden;}
 .cr-painel{width: 400px; flex-shrink: 0; border-right: 1px solid var(--line); background: var(--wash); display: flex; flex-direction: column; overflow-y: auto;}
 .cr-feed{flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; position: relative;}
@@ -446,7 +448,8 @@
 .cr-card-fav{top: auto; bottom: 8px; right: 8px;}
 .cr-card-info{padding-right: 32px;}
 .cr-card--aprovada{border-color: var(--lima-txt); box-shadow: 0 0 0 1px var(--accent);}
-.cr-card-selo{position: absolute; top: 8px; left: 8px; width: 21px; height: 21px; border-radius: 50%; border: 0; outline: 0; background: var(--accent); color: var(--accent-txt); display: flex; align-items: center; justify-content: center; box-shadow: none; pointer-events: none;}
+.cr-card-selo{position: absolute; top: 8px; left: 8px; width: 21px; height: 21px; border-radius: 50%; border: 0; outline: 0; background: var(--accent); color: var(--accent-txt); display: flex; align-items: center; justify-content: center; box-shadow: none; padding: 0; cursor: pointer; transition: transform .12s, box-shadow .12s;}
+.cr-card-selo:hover{transform: scale(1.08); box-shadow: 0 2px 8px rgba(17,17,17,.22);}
 .cr-card-selo svg{width: 12px; height: 12px;}
 .cr-ca--on{color: var(--lima-txt);}
 .cr-resetar{width: 100%; height: 34px; margin-top: 18px; border-radius: 100px; border: 1px solid var(--line2); background: transparent; color: var(--ink3); font-size: 11.2px; font-family: inherit; cursor: pointer; transition: all .15s;}
@@ -748,6 +751,8 @@
 .ps-toast-link{border: none; background: none; color: var(--turq-txt); font-size: 11.2px; font-weight: 500; cursor: pointer; padding: 0;}
 .ps-toast-link:hover{text-decoration: underline;}
 .up-refs .cr-ref{max-width: 72px;}
+.up-preset > .cora-dd{flex: 1; min-width: 0;}
+.cora-dd{position: relative; width: 100%;}
 .cora-dd-btn{width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font-size: 12.2px; font-family: inherit; cursor: pointer; text-align: left; line-height: 1.35; transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;}
 .cora-dd-btn:hover{border-color: var(--ink3);}
 .cora-dd--aberto .cora-dd-btn{border-color: var(--ink); box-shadow: 0 0 0 3px rgba(17,17,17,.08);}
@@ -1446,6 +1451,7 @@
      escolhido aparecia um tique ao lado de "Noite", que nao quer dizer nada. */
   
   position:relative;
+  display:flex; flex-direction:column; justify-content:flex-start;
   padding:0; border:1px solid var(--line); border-radius:10px;
   background:var(--paper); overflow:hidden; text-align:center;
   transition:border-color var(--t), box-shadow var(--t);
@@ -1465,7 +1471,8 @@
 }.co .am__b[aria-checked="true"] .am__ok{ opacity:1; }.co .am__n{
   display:block; padding:6px 6px 7px; font-size:var(--t-etiqueta);
   color:var(--ink2); font-weight:500; line-height:1.25; text-wrap:pretty;
-}.co .am__b[aria-checked="true"] .am__n{ color:var(--ink); font-weight:600; }/* A planta da direção da luz: a sala vista de cima e por onde a luz entra.
+}.co .am__b[aria-checked="true"] .am__n{ color:var(--ink); font-weight:600; }
+.co .am--3 .am__n{ font-size:9.5px; padding:5px 2px 6px; letter-spacing:-.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }/* A planta da direção da luz: a sala vista de cima e por onde a luz entra.
    Voltou depois de eu ter trocado por gradiente: seis amostras bege quase
    iguais não separavam "frontal" de "lateral esquerda", e a seta separa sem
    precisar comparar uma com a outra. *//* O desenho é referência, e não ilustração: ele só precisa dizer de que
@@ -1662,18 +1669,6 @@
    encolhe todo texto em 12% e faz a pagina nunca fechar com o artefato. Como
    size-adjust e descritor de @font-face, a unica saida e uma familia irma,
    mesmo arquivo, sem o ajuste, usada so aqui dentro. */
-@font-face{
-  font-family:'DM Sans TC';
-  src:url('/fontes/DMSans-latin.woff2') format('woff2');
-  font-weight:100 1000; font-style:normal; font-display:swap;
-  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face{
-  font-family:'DM Sans TC';
-  src:url('/fontes/DMSans-latin-ext.woff2') format('woff2');
-  font-weight:100 1000; font-style:normal; font-display:swap;
-  unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
 .co, .co *{
   font-family:'DM Sans TC','DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
@@ -1990,7 +1985,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 .jn .pk-lado, .jn .pk-main{ border-radius:0; }
 /* Mais larga que os 132px do escolhedor: aqui ela carrega nomes de pasta,
    que são da pessoa e costumam ser compridos, e não quatro palavras curtas. */
-.jn .pk-lado{ width:160px; overflow-y:auto; padding:14px 10px; gap:5px; }
+.jn .pk-lado{ width:200px; overflow-y:auto; padding:14px 10px; gap:5px; }
 /* A pasta marcada é o item marcado do menu lateral da web (`.app-nav-item`
    do painel): pastilha branca, fio de lima de 3px e o texto em 600. O traço
    de 2px do escolhedor era outro gesto. O hover não mexe na marcada. */
@@ -2011,6 +2006,8 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 }
 /* A lista é a linha de camada da Pós. O respiro já vem do corpo. */
 .pk-corpo .ps-camadas{ padding:0; }
+/* A frase de lista vazia é aviso, e não corpo de texto: no tamanho de apoio. */
+.pk-corpo > .cr-msg{ font-size:var(--t-apoio2); }
 .jn .pk-cab{ flex:none; height:58px; padding:0 14px 0 16px; }
 .jn .pk-busca input{ flex:1; width:auto; min-width:0; }
 .jn .mc, .jn .cr-dica{ position:absolute; }
@@ -2069,7 +2066,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
     <div>
       <p class="mud-t">O que muda em relação ao desenho de antes</p>
       <dl class="mud">
-        <div><dt>A lateral</dt><dd>As pastas abriam em árvore, com a lista de nomes dentro, num terço da janela. Agora são só o nome, numa lateral de 160px, com Todos no começo delas. Com Todos marcado a busca procura em todas as pastas, e com uma pasta marcada, só nela.</dd></div>
+        <div><dt>A lateral</dt><dd>As pastas abriam em árvore, com a lista de nomes dentro, num terço da janela. Agora são só o nome, numa lateral de 200px, com Todos no começo delas. Com Todos marcado a busca procura em todas as pastas, e com uma pasta marcada, só nela.</dd></div>
         <div><dt>Materiais na cena</dt><dd>Era um botão no topo que trocava a tela e fazia surgir outros três. Virou Na cena, no alto da lateral, e abre com o título de sempre. Baixar e eliminar aparecem na cabeça quando ele está aberto.</dd></div>
         <div><dt>Material Resizer</dt><dd>Abria numa janela separada, com caixinhas de marcar. Agora fica embaixo de Na cena e abre aqui dentro. Clicar marca a textura, e o pé mostra quantas vão diminuir, o lado maior e o botão Reduzir.</dd></div>
         <div><dt>Lista e grade</dt><dd>As duas continuam. A grade ganhou o P M G do Blocos, e a lista é a linha de camada da Pós, com "Fora de uso" na pastilha. Na lista o tamanho não aparece.</dd></div>
@@ -2748,9 +2745,9 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
       d: 'A marcada fica turquesa, como a camada escolhida na Pós. Antes de apertar Reduzir, o pé diz quantas vão diminuir e quantas já cabem no lado maior do campo.' },
     { t: 'Reduzindo', op: { vista: 'resizer', rz: { sel: MARCADAS, alvo: 1536, feito: 2 } },
       d: 'Uma textura por vez, com o número de onde está. No fim o aviso diz quantas foram reduzidas e quantas já eram menores, e a lista mostra as medidas novas.' },
-    { t: 'Botão direito na biblioteca', op: { vista: 'pasta', pasta: 'Metais', menu: { tipo: 'bib', x: 400, y: 262 } },
+    { t: 'Botão direito na biblioteca', op: { vista: 'pasta', pasta: 'Metais', menu: { tipo: 'bib', x: 440, y: 262 } },
       d: 'Duas ações: guardar o material para trocar por outro da cena, ou salvar a textura dele num arquivo.' },
-    { t: 'Com um substituto', op: { vista: 'modelo', subst: 'Carvalho Natural', menu: { tipo: 'modelo', x: 520, y: 300 } },
+    { t: 'Com um substituto', op: { vista: 'modelo', subst: 'Carvalho Natural', menu: { tipo: 'modelo', x: 560, y: 300 } },
       d: 'A faixa lembra qual é o substituto até ele ser usado ou cancelado. No menu do material que sai, Trocar vem primeiro. Excluir fica sozinho no fim, depois do fio.' },
     { t: 'Renomeando', op: { vista: 'modelo', renomeando: 'Pinus' },
       d: 'O nome vira campo ali mesmo. Enter grava e Esc desiste, igual ao Blocos e às camadas da Pós.' },

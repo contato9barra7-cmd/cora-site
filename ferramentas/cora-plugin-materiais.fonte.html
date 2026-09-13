@@ -83,7 +83,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 .jn .pk-lado, .jn .pk-main{ border-radius:0; }
 /* Mais larga que os 132px do escolhedor: aqui ela carrega nomes de pasta,
    que são da pessoa e costumam ser compridos, e não quatro palavras curtas. */
-.jn .pk-lado{ width:160px; overflow-y:auto; padding:14px 10px; gap:5px; }
+.jn .pk-lado{ width:200px; overflow-y:auto; padding:14px 10px; gap:5px; }
 /* A pasta marcada é o item marcado do menu lateral da web (`.app-nav-item`
    do painel): pastilha branca, fio de lima de 3px e o texto em 600. O traço
    de 2px do escolhedor era outro gesto. O hover não mexe na marcada. */
@@ -104,6 +104,8 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 }
 /* A lista é a linha de camada da Pós. O respiro já vem do corpo. */
 .pk-corpo .ps-camadas{ padding:0; }
+/* A frase de lista vazia é aviso, e não corpo de texto: no tamanho de apoio. */
+.pk-corpo > .cr-msg{ font-size:var(--t-apoio2); }
 .jn .pk-cab{ flex:none; height:58px; padding:0 14px 0 16px; }
 .jn .pk-busca input{ flex:1; width:auto; min-width:0; }
 .jn .mc, .jn .cr-dica{ position:absolute; }
@@ -162,7 +164,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
     <div>
       <p class="mud-t">O que muda em relação ao desenho de antes</p>
       <dl class="mud">
-        <div><dt>A lateral</dt><dd>As pastas abriam em árvore, com a lista de nomes dentro, num terço da janela. Agora são só o nome, numa lateral de 160px, com Todos no começo delas. Com Todos marcado a busca procura em todas as pastas, e com uma pasta marcada, só nela.</dd></div>
+        <div><dt>A lateral</dt><dd>As pastas abriam em árvore, com a lista de nomes dentro, num terço da janela. Agora são só o nome, numa lateral de 200px, com Todos no começo delas. Com Todos marcado a busca procura em todas as pastas, e com uma pasta marcada, só nela.</dd></div>
         <div><dt>Materiais na cena</dt><dd>Era um botão no topo que trocava a tela e fazia surgir outros três. Virou Na cena, no alto da lateral, e abre com o título de sempre. Baixar e eliminar aparecem na cabeça quando ele está aberto.</dd></div>
         <div><dt>Material Resizer</dt><dd>Abria numa janela separada, com caixinhas de marcar. Agora fica embaixo de Na cena e abre aqui dentro. Clicar marca a textura, e o pé mostra quantas vão diminuir, o lado maior e o botão Reduzir.</dd></div>
         <div><dt>Lista e grade</dt><dd>As duas continuam. A grade ganhou o P M G do Blocos, e a lista é a linha de camada da Pós, com "Fora de uso" na pastilha. Na lista o tamanho não aparece.</dd></div>
@@ -840,9 +842,9 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
       d: 'A marcada fica turquesa, como a camada escolhida na Pós. Antes de apertar Reduzir, o pé diz quantas vão diminuir e quantas já cabem no lado maior do campo.' },
     { t: 'Reduzindo', op: { vista: 'resizer', rz: { sel: MARCADAS, alvo: 1536, feito: 2 } },
       d: 'Uma textura por vez, com o número de onde está. No fim o aviso diz quantas foram reduzidas e quantas já eram menores, e a lista mostra as medidas novas.' },
-    { t: 'Botão direito na biblioteca', op: { vista: 'pasta', pasta: 'Metais', menu: { tipo: 'bib', x: 400, y: 262 } },
+    { t: 'Botão direito na biblioteca', op: { vista: 'pasta', pasta: 'Metais', menu: { tipo: 'bib', x: 440, y: 262 } },
       d: 'Duas ações: guardar o material para trocar por outro da cena, ou salvar a textura dele num arquivo.' },
-    { t: 'Com um substituto', op: { vista: 'modelo', subst: 'Carvalho Natural', menu: { tipo: 'modelo', x: 520, y: 300 } },
+    { t: 'Com um substituto', op: { vista: 'modelo', subst: 'Carvalho Natural', menu: { tipo: 'modelo', x: 560, y: 300 } },
       d: 'A faixa lembra qual é o substituto até ele ser usado ou cancelado. No menu do material que sai, Trocar vem primeiro. Excluir fica sozinho no fim, depois do fio.' },
     { t: 'Renomeando', op: { vista: 'modelo', renomeando: 'Pinus' },
       d: 'O nome vira campo ali mesmo. Enter grava e Esc desiste, igual ao Blocos e às camadas da Pós.' },
