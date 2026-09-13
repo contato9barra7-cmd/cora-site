@@ -3970,8 +3970,17 @@ select.perfil-input {
   right: 6px;
   color: var(--lima-txt);
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .4));
-  pointer-events: none;
+  /* Ela é o botão de desfavoritar, e não um adesivo. Era
+     `pointer-events:none` de quando quem desfavoritava era o coração da
+     fita preta. */
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: transform .12s;
 }
+
+.cr-card-fav:hover { transform: scale(1.08); }
 
 /* ═══════════════════════════════════════════════════════════
    Tooltip — a caixinha tem que caber o texto
@@ -5309,6 +5318,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 
 .cr-card-selo:hover { transform: scale(1.08); box-shadow: 0 2px 8px rgba(17,17,17,.22); }
+
+/* A FITA MORA NA MESMA LINHA DAS DUAS BOLINHAS.
+   Com o tique e o coração fora dela quando estão ligados, ela encolhe
+   justamente no cartão em que as bolinhas ocupam os cantos, e cabe entre
+   elas. Empurrada para uma segunda linha ela virava um terceiro objeto
+   flutuando no meio da imagem. 72px é o que as duas tomam: 6 de recuo mais
+   26 de bolinha mais 4 de folga, dos dois lados. */
+.cr-card:has(.cr-card-selo) .cr-card-acoes,
+.cr-card:has(.cr-card-fav) .cr-card-acoes {
+  top: 6px;
+  max-width: calc(100% - 72px);
+}
 
 .cr-card-selo svg { width: 12px; height: 12px; }
 

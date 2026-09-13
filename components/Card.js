@@ -159,9 +159,19 @@ export default function Card({
         </button>
       )}
 
-      {/* Favoritada: o coração também fica à mostra */}
+      {/* Favoritada: o coração fica à mostra, e é ELE que desfavorita.
+          Mesma regra do tique: ligado, o botão sai da fita e a bolinha
+          assume. Duas peças acesas dizendo a mesma coisa era ruído, e a
+          fita ainda perdia largura para elas. */}
       {it.favorito && !modoAB && (
-        <span className="cr-card-fav"><Coracao cheio /></span>
+        <button
+          className="cr-card-fav"
+          onClick={so(() => onFavoritar(it))}
+          data-tip={t('card_desfavoritar')}
+          aria-label={t('card_desfavoritar')}
+        >
+          <Coracao cheio />
+        </button>
       )}
 
       {/* As mesmas ações da janela grande. Ficam escondidas no A/B: lá o
@@ -179,14 +189,16 @@ export default function Card({
             </button>
           )}
 
-          <button
-            className={'cr-ca cr-ca--favoritar' + (it.favorito ? ' cr-ca--fav' : '')}
-            onClick={so(() => onFavoritar(it))}
-            data-tip={it.favorito ? t('card_desfavoritar') : t('card_favoritar')}
-            aria-label={it.favorito ? t('card_desfavoritar') : t('card_favoritar')}
-          >
-            <Coracao cheio={it.favorito} />
-          </button>
+          {!it.favorito && (
+            <button
+              className="cr-ca cr-ca--favoritar"
+              onClick={so(() => onFavoritar(it))}
+              data-tip={t('card_favoritar')}
+              aria-label={t('card_favoritar')}
+            >
+              <Coracao cheio={false} />
+            </button>
+          )}
 
           <button
             className="cr-ca"
