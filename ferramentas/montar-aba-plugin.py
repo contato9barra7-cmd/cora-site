@@ -42,10 +42,13 @@ FOTOS = ['painel-escritorio.webp', 'painel-cozinha.webp',
 # na próxima portagem de QUALQUER aba, antes de esta ser aprovada. Quando a
 # aba for portada, a família sobe para o ALVO e sai daqui.
 FAMILIAS = {
-    # A Animação empresta a casca do Upscale (`up-painel`, `up-bloco`) e traz
-    # três famílias próprias: os cards de imagem inicial e final, as telas de
-    # sequência e as do Diretor de Narrativa.
-    'animacao': r'up-|anim-|seq-|narr-',
+    # A Animação morou aqui enquanto o artefato dela era só um artefato; agora
+    # que a aba está portada, `anim-`, `seq-` e `narr-` subiram para o ALVO,
+    # que é onde vale para os dois lados.
+    #
+    # As Análises: a busca, o cartão de cada leitura, as etiquetas, o texto e
+    # os botões do cartão aberto.
+    'analises': r'an-',
 }
 
 

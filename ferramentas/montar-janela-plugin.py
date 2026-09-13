@@ -56,6 +56,9 @@ ALVO = re.compile(
     r'|ed-|pn-|pk'
     # a janela de baixar imagem
     r'|dl\b|dl-'
+    # a aba Animacao: os cards de inicio e fim, as telas de sequencia e as do
+    # Diretor de Narrativa
+    r'|anim-|seq-|narr-'
     # a caixa de marcar: ela so tinha regra no globals, nunca entrava, e saia
     # como caixinha crua do sistema no meio de controles desenhados
     r'|cora-check'
