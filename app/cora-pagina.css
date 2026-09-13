@@ -418,7 +418,10 @@
   box-shadow:inset 0 0 0 1px var(--turquesa-esc);
 }
 .co .cr-pop--res{ min-width:0; left:auto; right:0; transform:none; display:flex; flex-direction:column; gap:4px; }.co .cr-pop-res{
-  height:34px; border:0; border-radius:var(--pill);
+  /* Canto macio, e nao pilula. Sem respiro nenhum dos lados a pilula fechava
+     colada no texto, e o anel da escolhida virava um contorno apertando
+     "5s". Agora tem folga e forma de quadrado de canto macio. */
+  height:34px; min-width:58px; padding:0 14px; border:0; border-radius:10px;
   background:transparent; color:var(--ink2); font-size:var(--t-apoio); cursor:pointer;
   transition:background var(--t), color var(--t);
 }.co .cr-pop-res:hover{ background:var(--wash2); color:var(--ink); }.co .cr-pop-res--on{

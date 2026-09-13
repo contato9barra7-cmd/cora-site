@@ -56,6 +56,9 @@ ALVO = re.compile(
     r'|ed-|pn-|pk'
     # a janela de baixar imagem
     r'|dl\b|dl-'
+    # a caixa de marcar: ela so tinha regra no globals, nunca entrava, e saia
+    # como caixinha crua do sistema no meio de controles desenhados
+    r'|cora-check'
     # o menu do botao direito, a linha de camada (a lista do Blocos e do
     # Materiais), o renomear na linha, o botao de icone e o aviso passageiro,
     # todos da Pos da web

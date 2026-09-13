@@ -3083,8 +3083,13 @@ select.perfil-input {
 }
 
 .cr-pop-res {
-  height: 32px;
-  border-radius: 100px;   /* semicírculo, como os demais botões */
+  height: 34px;
+  /* Canto macio, e não pílula: sem respiro nenhum dos lados, a pílula
+     fechava colada no texto e o anel da escolhida virava um contorno
+     apertando "5s". Um quadrado de canto macio com folga respira. */
+  min-width: 58px;
+  padding: 0 14px;
+  border-radius: 10px;
   border: 1px solid var(--line2);
   background: var(--paper);
   color: var(--ink2);
@@ -6329,15 +6334,35 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .anim-seta svg { width: 18px; height: 18px; }
 
 .anim-check { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink); cursor: pointer; font-weight: 500; }
+/* O RÓTULO DO CAMPO.
+   Ele nunca teve regra nenhuma: saía com o texto do corpo, 14,5px em preto,
+   do tamanho de um parágrafo, logo abaixo de um título de seção de 11px. O
+   maior era o menos importante. Agora ele é o que é, uma etiqueta de campo:
+   menor que o texto, acima da caixa, e discreto. */
+.up-lbl {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink2);
+}
+
+/* A CAIXA DE MARCAR.
+   Era um círculo com um ponto dentro, que é a forma de ESCOLHER UMA entre
+   várias. Aqui é um interruptor solto, ligado ou desligado, e a forma disso
+   é um quadrado de canto macio com um tique. O tique também diz sim para
+   quem não separa bem as duas cores. */
 .cora-check-bola {
-  -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 6px;
   border: 1.5px solid var(--line2); background: transparent; cursor: pointer; position: relative;
   flex-shrink: 0; transition: background .12s, border-color .12s;
 }
-.cora-check-bola:checked { background: var(--accent); border-color: var(--lima-txt); }
+.cora-check-bola:hover { border-color: var(--turquesa-esc); }
+.cora-check-bola:checked { background: var(--turquesa); border-color: var(--turquesa-esc); }
 .cora-check-bola:checked::after {
-  content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px;
-  border-radius: 50%; background: var(--accent-txt, #111); transform: translate(-50%, -50%);
+  content: ''; position: absolute; left: 50%; top: 47%;
+  width: 5px; height: 9px; border: solid #111111; border-width: 0 2px 2px 0;
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 .anim-contador { text-align: right; font-size: 11px; color: var(--ink3); margin: 4px 0 0; }
 
