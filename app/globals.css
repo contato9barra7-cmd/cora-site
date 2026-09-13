@@ -6882,13 +6882,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
    custaria mais do que o ruído custava. */
 .narr-nota .vz-prompt-copiar {
   padding: 5px 11px; font-size: 12px;
-  background: transparent;
-  border-color: color-mix(in srgb, var(--turq-txt, #196C5B) 28%, transparent);
+  /* Cheio do turquesa da marca, com a letra verde: a mesma dupla da placa
+     do take. Branco era botao elevado e saltava na frente do texto; vazado
+     sumia dentro do cartao e virava uma linha a mais. Cheio, no tom acima do
+     fundo, ele e um objeto separado sem ser o assunto. */
+  background: var(--turquesa, #ADECDF);
+  border-color: transparent;
   color: var(--turq-txt, #196C5B);
+  font-weight: 500;
 }
 .narr-nota .vz-prompt-copiar:hover {
-  background: var(--paper, #fff);
-  border-color: var(--turq-txt, #196C5B);
+  background: var(--turquesa-esc, #8FDDCC);
+  border-color: transparent;
   color: var(--turq-txt, #196C5B);
 }
 
