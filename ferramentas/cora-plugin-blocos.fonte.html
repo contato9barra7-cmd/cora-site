@@ -1,0 +1,595 @@
+<title>O Blocos do plugin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<style>/*@GLOBAIS@*/</style>
+<style>/*@CORA@*/</style>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   O BLOCOS DO PLUGIN · a biblioteca de .skp, na janela inteira
+
+   ARQUIVO GERADO por `montar-aba-plugin.py blocos`. Editar este
+   .fonte.html e rodar o script de novo.
+
+   A web não tem Blocos. A peça dela que mais se parece com uma biblioteca
+   é o escolhedor de imagem (`PickerImagem.js`): lateral de origens, cabeça
+   com título e busca, grade agrupada. É ele que veste esta aba. O botão
+   direito é o `MenuCamada.js` da Pós, e a confirmação de excluir é a do
+   feed em `app/app/page.js`.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root{ color-scheme:light; --pag-fundo:#F1F1EE; --pag-tinta:#111111; --pag-apoio:#5B5B57; --pag-fraco:#8E8E88; --pag-fio:#E4E4DF; --pag-fio2:#D2D2CB; --line2:#D2D2CB; --ink3:#8E8E88; }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ color-scheme:dark; --pag-fundo:#0F0F11; --pag-tinta:#F2F2EF; --pag-apoio:#B6B5AE; --pag-fraco:#8B8A83; --pag-fio:#2B2B30; --pag-fio2:#3A3A41; --line2:#3A3A41; --ink3:#8B8A83; }
+}
+:root[data-theme="dark"]{ color-scheme:dark; --pag-fundo:#0F0F11; --pag-tinta:#F2F2EF; --pag-apoio:#B6B5AE; --pag-fraco:#8B8A83; --pag-fio:#2B2B30; --pag-fio2:#3A3A41; --line2:#3A3A41; --ink3:#8B8A83; }
+
+*{ box-sizing:border-box; }
+body{
+  margin:0; padding:0 0 96px; background:var(--pag-fundo); color:var(--pag-tinta);
+  font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-size:14.5px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+button{ cursor:pointer; font-family:inherit; }
+:focus-visible{ outline:2px solid #8FDDCC; outline-offset:2px; }
+::selection{ background:#C4FBA7; color:#111111; }
+
+.pag{ max-width:1320px; margin:0 auto; padding:34px 24px 0; }
+.eb{ margin:0; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--pag-fraco); }
+h1{ margin:10px 0 0; font-size:34px; font-weight:500; letter-spacing:-.033em; line-height:1.1; text-wrap:balance; }
+.lead{ margin:14px 0 0; max-width:64ch; color:var(--pag-apoio); text-wrap:pretty; }
+.lead b{ color:var(--pag-tinta); font-weight:600; }
+.ctrl{ margin-top:20px; }
+.ctrl button{
+  height:34px; padding:0 16px; border-radius:100px; border:1px solid var(--pag-fio2);
+  background:transparent; color:var(--pag-apoio); font-size:13px; font-weight:500;
+}
+.ctrl button:hover{ border-color:var(--pag-fraco); color:var(--pag-tinta); }
+
+h2.secao{ margin:64px 0 4px; font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--pag-fraco); }
+h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size:14px; text-wrap:pretty; }
+
+.dupla{ display:grid; gap:34px; align-items:start; grid-template-columns:1fr; }
+@media (min-width:1330px){ .dupla{ grid-template-columns:880px minmax(0,1fr); } }
+
+.mud{ margin:0; display:grid; gap:16px; }
+.mud-t{ margin:0 0 2px; font-size:13px; font-weight:600; color:var(--pag-tinta); }
+.mud dt{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--pag-fraco); }
+.mud dd{ margin:3px 0 0; font-size:14px; color:var(--pag-apoio); max-width:48ch; text-wrap:pretty; }
+
+.estados{ display:grid; gap:60px; }
+.estado{ margin:0; display:grid; gap:16px; grid-template-columns:1fr; align-items:start; }
+@media (min-width:1330px){ .estado{ grid-template-columns:880px minmax(0,1fr); gap:34px; } }
+.estado figcaption{ padding-top:4px; max-width:46ch; }
+.estado figcaption b{ display:block; margin-bottom:6px; font-size:17px; font-weight:600; letter-spacing:-.01em; }
+.estado figcaption p{ margin:0; font-size:14px; color:var(--pag-apoio); text-wrap:pretty; }
+
+.rod{ margin-top:72px; padding-top:20px; border-top:1px solid var(--pag-fio); max-width:72ch; font-size:13px; color:var(--pag-fraco); }
+.rod p{ margin:0 0 6px; text-wrap:pretty; }
+.rod code{ padding:1px 6px; border-radius:6px; background:var(--pag-fio); color:var(--pag-tinta); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+
+/* Os quadros dos estados: a largura é a real, a altura é encurtada. */
+.jn.jn--curta{ height:640px; }
+
+/* ── o Blocos dentro da janela ──
+   Na web o escolhedor flutua sobre o app numa caixa de 880. Aqui ele é a
+   janela: sem caixa, sem sombra e sem canto, ocupando o que sobra abaixo do
+   trilho. O menu do botão direito mede contra a janela, e não contra a tela,
+   pelo mesmo motivo do `.cr-overlay` da moldura. */
+.jn .pk{ flex:1; min-height:0; width:auto; max-width:none; height:auto; border:0; border-radius:0; box-shadow:none; overflow:hidden; background:var(--paper); }
+.jn .pk-lado, .jn .pk-main{ border-radius:0; }
+/* Mais larga que os 132px do escolhedor: aqui ela carrega nomes de pasta,
+   que são da pessoa e costumam ser compridos, e não quatro palavras curtas. */
+.jn .pk-lado{ width:160px; overflow-y:auto; padding:14px 10px; gap:5px; }
+/* A pasta marcada é o item marcado do menu lateral da web (`.app-nav-item`
+   do painel): pastilha branca, fio de lima de 3px e o texto em 600. O traço
+   de 2px do escolhedor era outro gesto. O hover não mexe na marcada. */
+.jn .pk-origem{
+  position:relative; flex:none; height:40px; gap:12px; padding:0 12px; border-radius:var(--r-peq);
+  color:var(--ink2); font-size:var(--t-apoio); font-weight:500; letter-spacing:-.004em;
+  transition:background-color var(--t), color var(--t);
+}
+.jn .pk-origem svg{ flex:none; width:16px; height:16px; color:var(--ink3); transition:color var(--t); }
+.jn .pk-origem:not(.pk-origem--on):hover{ background:rgba(255,255,255,.55); color:var(--ink); }
+[data-theme="dark"] .jn .pk-origem:not(.pk-origem--on):hover{ background:rgba(255,255,255,.08); }
+.jn .pk-origem:hover svg{ color:var(--ink); }
+.jn .pk-origem.pk-origem--on{ background:var(--paper); color:var(--ink); font-weight:600; box-shadow:0 1px 2px rgba(17,17,17,.05); }
+.jn .pk-origem.pk-origem--on svg{ color:var(--ink); }
+.jn .pk-origem.pk-origem--on::before{
+  content:""; position:absolute; left:0; top:50%; transform:translateY(-50%);
+  width:3px; height:18px; background:var(--lima);
+}
+/* A lista é a linha de camada da Pós. O respiro já vem do corpo, e a
+   miniatura do bloco é desenhada sobre branco, como na grade. */
+.pk-corpo .ps-camadas{ padding:0; }
+.ps-cam .ps-thumb{ background-color:#FFFFFF; background-size:contain; }
+.jn .pk-cab{ flex:none; height:58px; padding:0 14px 0 16px; }
+.jn .pk-busca input{ flex:1; width:auto; min-width:0; }
+.jn .mc{ position:absolute; }
+
+/* ── as peças que só o Blocos tem ──
+   O nome e o peso embaixo da miniatura: o escolhedor mostra foto, e foto se
+   reconhece sem legenda. Bloco não, e é pelo nome que a busca acha. O fundo
+   é branco porque o SketchUp desenha a miniatura sobre branco, e por isso
+   ela continua branca no tema escuro. */
+.blc-rot{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.blc-n{ flex:none; font-size:var(--t-etiqueta); font-weight:400; color:var(--ink3); font-variant-numeric:tabular-nums; }
+.pk-lado .cr-sec{ margin:16px 12px 6px; }
+.blc-cel{ min-width:0; display:flex; flex-direction:column; }
+.blc-cel .pk-item{ width:100%; background:#FFFFFF; }
+.blc-cel .pk-item img{ object-fit:contain; }
+.blc-nome{ margin-top:7px; font-size:var(--t-apoio2); line-height:1.3; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.blc-peso{ margin-top:1px; font-size:var(--t-etiqueta); color:var(--ink3); font-variant-numeric:tabular-nums; }
+.blc-cel .ps-nome-edit{ flex:none; width:100%; margin-top:4px; }
+.cr-vazio .blc-escolher{ flex:none; margin-top:18px; display:inline-flex; align-items:center; gap:8px; padding:0 20px; }
+</style>
+
+<div class="pag">
+  <header>
+    <p class="eb">Cora Render · plugin do SketchUp · 13 de setembro de 2026</p>
+    <h1>O Blocos do plugin</h1>
+    <p class="lead">A aba Blocos toma a <b>janela inteira</b>. Não tem feed do lado, porque aqui nada vira imagem: a pessoa escolhe um bloco e coloca no modelo.</p>
+    <p class="lead">A web não tem Blocos, então o desenho vem da peça dela que mais se parece com uma biblioteca, o <b>escolhedor de imagem</b>. Dele saem a lateral de origens, a cabeça com título e busca e a grade agrupada. O botão direito é o menu das camadas da Pós-produção, e a confirmação de excluir é a mesma do feed.</p>
+    <p class="lead">As miniaturas são do cache real do plugin. Os nomes e as pastas foram inventados a partir do que aparece em cada uma.</p>
+    <div class="ctrl"><button id="tema" type="button">Ver no escuro</button></div>
+  </header>
+
+  <h2 class="secao">A janela inteira</h2>
+  <p>880 por 980, a medida que o panel.rb abre. Esta responde a tudo: pastas, busca, lista e grade, P M G, botão direito num bloco ou numa pasta, renomear, excluir, fechar a pasta e escolher de novo.</p>
+
+  <div class="dupla">
+    <div class="jn-fora"><div class="jn co" id="jn-vivo"></div></div>
+    <div>
+      <p class="mud-t">O que muda em relação ao desenho de antes</p>
+      <dl class="mud">
+        <div><dt>A lateral</dt><dd>Ocupava um terço da janela. Agora tem 160px, e a grade fica com o resto. As pastas são só o nome, sem ícone.</dd></div>
+        <div><dt>Recentes e No modelo</dt><dd>Eram ícones soltos no topo, com um Voltar que aparecia e sumia. Viraram os dois atalhos do alto da lateral. Todos desceu para o começo das pastas, e voltar é clicar nele.</dd></div>
+        <div><dt>Todos e a busca</dt><dd>Em Todos os blocos vêm agrupados por pasta, do jeito que o histórico agrupa por mês, e a busca procura nas pastas todas. Com uma pasta marcada, a busca fica dentro dela.</dd></div>
+        <div><dt>Lista e grade</dt><dd>A régua de colunas virou o P M G do feed da web, e em P fica só a imagem. Veio também a lista que o Materiais já tinha, feita com a linha de camada da Pós. Nela o tamanho não aparece.</dd></div>
+        <div><dt>Colocar</dt><dd>O clique continua levando o bloco direto para o modelo. Ele fica marcado, e o pé diz o que fazer lá, no lugar onde o escolhedor confirma a imagem.</dd></div>
+        <div><dt>Renomear e excluir</dt><dd>Renomear acontece no próprio nome, embaixo da miniatura. Excluir pede confirmação na janela do feed, com o vermelho no botão que apaga.</dd></div>
+        <div><dt>O que a web não tem</dt><dd>O nome e o peso embaixo de cada miniatura, e o fundo branco dela. O SketchUp desenha a miniatura sobre branco, então ela segue branca no tema escuro.</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <h2 class="secao">Cada estado</h2>
+  <p>A largura é a real. A altura foi encurtada para 640, para os quadros caberem na página, e a grade rola por dentro como rolaria na janela.</p>
+  <div class="estados" id="estados"></div>
+
+  <footer class="rod">
+    <p>Gerado por <code>montar-aba-plugin.py blocos</code>, com as folhas de produção do site.</p>
+    <p>Para as duas bibliotecas a peneira ganhou peças da Pós: <code>mc</code>, o menu do botão direito, e <code>ps-cam</code>, <code>ps-thumb</code>, <code>ps-nome</code> e <code>ps-conta</code>, a linha da lista com o renomear. Nada disso subiu para o plugin.</p>
+  </footer>
+</div>
+
+<script>/*@DADOS@*/</script>
+
+<script>
+(function () {
+  'use strict';
+
+  // ══ a moldura, a mesma do artefato da janela ══
+  var ICONES = {
+    render:    'M3.5 5.5h17v13h-17z M3.5 14l5-4.5 4 3.5 3-2.5 5 4',
+    batch:     'M7 3.5h13.5V17 M3.5 7h13.5v13.5H3.5z',
+    planta:    'M3.5 3.5h17v17h-17z M3.5 10h8 M11.5 10v10.5 M11.5 6h9',
+    editar:    'M4 20h4L19 9l-4-4L4 16v4z M14.5 5.5l4 4',
+    upscale:   'M5 10.5V5h5.5 M19 13.5V19h-5.5 M5 5l5.5 5.5 M19 19l-5.5-5.5',
+    pos:       'M4 6h16 M4 12h11 M4 18h7',
+    animacao:  'M3.5 5.5h17v13h-17z M8 5.5v13 M16 5.5v13 M3.5 12h17',
+    analises:  'M4 20V10 M10 20V4 M16 20v-7 M22 20H2',
+    r360:      'M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17z M3.5 12h17 M12 3.5c2.3 2.3 3.5 5 3.5 8.5S14.3 18.2 12 20.5c-2.3-2.3-3.5-5-3.5-8.5S9.7 5.8 12 3.5z',
+    materiais: 'M3.5 3.5h9v9h-9z M20.5 16a5 5 0 1 1-10 0 5 5 0 0 1 10 0z',
+    blocos:    'M12 2.8l8.5 4.8v9.4L12 21.2 3.5 16.4V7.6z M12 12l8.5-4.4 M12 12v9.2 M12 12L3.5 7.6'
+  };
+  var ABAS = [
+    ['render', 'Render'], ['batch', 'Batch'], ['editar', 'Editar'], ['planta', 'Planta baixa'],
+    ['pos', 'Pós-produção'], ['animacao', 'Animação'], ['upscale', 'Upscale'], ['analises', 'Análises'],
+    ['r360', '360°'], ['materiais', 'Materiais'], ['blocos', 'Blocos']
+  ];
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+
+  function cabeca() {
+    var fer = function (tip, d) {
+      return '<button class="jn-fer" data-tip="' + tip + '" aria-label="' + tip + '"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg></button>';
+    };
+    return '<div class="jn-cab"><span class="jn-marca" role="img" aria-label="Cora Render"></span><div class="jn-cab-dir">' +
+      fer('Espelho', '<ellipse cx="12" cy="12" rx="6.4" ry="9"/><path d="M9.4 14.4L13 9.2M11.6 15l3.6-5.2"/>') +
+      fer('Vidros refletivos', '<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8 8l5.5 5.5M8 12.5l3 3"/>') +
+      fer('Otimizar modelo', '<path d="M5 19l9.5-9.5"/><path d="M17 3.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" fill="currentColor"/><path d="M6 5v2.5M4.75 6.25h2.5"/>') +
+      fer('Purge', '<path d="M4 6.5h16"/><path d="M9.5 6.5v-2h5v2"/><path d="M6 6.5L7 20h10l1-13.5"/><path d="M10 10l.4 6.5M14 10l-.4 6.5"/>') +
+      '<span class="jn-risco"></span>' +
+      '<span class="jn-saldo"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>1.284</span>' +
+      '<button class="jn-av" data-tip="Minha conta" aria-label="Minha conta"><svg class="app-anel" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">' +
+      '<rect class="app-anel-bg" x="2.5" y="2.5" width="41" height="41" rx="13" pathLength="100"/>' +
+      '<rect class="app-anel-fill" x="2.5" y="2.5" width="41" height="41" rx="13" pathLength="100" stroke-dasharray="100" stroke-dashoffset="26"/></svg>' +
+      '<span class="app-avatar">M</span></button></div></div>';
+  }
+  function trilho() {
+    return '<div class="cr-pills"><div class="cr-sulco" role="tablist"><div class="cr-trilho">' + ABAS.map(function (a) {
+      var on = a[0] === 'blocos';
+      return '<button role="tab" aria-selected="' + on + '" aria-label="' + a[1] + '" class="cr-pill' + (on ? ' cr-pill--on' : '') + '"' + (on ? '' : ' data-tip="' + a[1] + '"') + '>' +
+        '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + ICONES[a[0]] + '"/></svg>' +
+        '<span class="cr-pill__nome">' + a[1] + '</span></button>';
+    }).join('') + '</div></div></div>';
+  }
+
+  // ══ os desenhos do Blocos, no traço do escolhedor ══
+  var ICO = {
+    todos:     'M2.5 2.5h6v6h-6z M11.5 2.5h6v6h-6z M2.5 11.5h6v6h-6z M11.5 11.5h6v6h-6z',
+    recentes:  'M3 10a7 7 0 107-7 7 7 0 00-5 2.1 M3 3v2.5h2.5 M10 6v4l2.5 1.5',
+    modelo:    'M3 9l7-5.5L17 9 M5 8v8.5h10V8 M8.2 16.5V12h3.6v4.5',
+    pasta:     'M2.5 5.5A1.5 1.5 0 014 4h3.2l1.6 1.8H16a1.5 1.5 0 011.5 1.5v7.2A1.5 1.5 0 0116 16H4a1.5 1.5 0 01-1.5-1.5z',
+    trocar:    'M2.5 6A1.5 1.5 0 014 4.5h3l1.5 1.5H16a1.5 1.5 0 011.5 1.5v1 M2.5 6v8.5L5 9h13l-2.5 6.5H3',
+    atualizar: 'M16.5 10a6.5 6.5 0 11-1.9-4.6 M16.5 3.5V7H13',
+    fechar:    'M5.5 5.5l9 9 M14.5 5.5l-9 9',
+    lupa:      'M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11z M13 13l4 4'
+  };
+  function svg(d, w) {
+    w = w || 15;
+    return '<svg viewBox="0 0 20 20" width="' + w + '" height="' + w + '" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
+  }
+  var VISTO = '<span class="pk-visto"><svg viewBox="0 0 20 20" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4.5 10.5l3.5 3.5 7.5-8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+  var COLUNAS = { p: 7, m: 5, g: 4 };
+
+  // ══ os dados ══
+  // A biblioteca vem do .dados.js. O que está no modelo e o que foi usado na
+  // sessão são recortes dela, pelo nome.
+  function copiar(lib) {
+    return lib.map(function (p) {
+      return { nome: p.nome, blocos: p.blocos.map(function (b) { return { nome: b.nome, mb: b.mb, img: b.img, pasta: p.nome }; }) };
+    });
+  }
+  function base() {
+    return {
+      lib: copiar(window.BIBLIOTECA),
+      rec: ['Poltrona Concha Café', 'Costela-de-adão', 'Livros Brancos', 'Mesa de Centro Metal'],
+      mod: [['Sofá Linho Off White', 1], ['Poltrona Concha Café', 2], ['Mesa de Centro Metal', 1], ['Costela-de-adão', 3], ['Livros Brancos', 4], ['Vaso Canelado', 6]]
+    };
+  }
+  function achar(ctx, nome) {
+    for (var i = 0; i < ctx.lib.length; i++)
+      for (var j = 0; j < ctx.lib[i].blocos.length; j++)
+        if (ctx.lib[i].blocos[j].nome === nome) return ctx.lib[i].blocos[j];
+    return null;
+  }
+  function total(ctx) { return ctx.lib.reduce(function (n, p) { return n + p.blocos.length; }, 0); }
+  function peso(mb) { return mb.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' MB'; }
+
+  function normal(op) {
+    var o = {};
+    for (var k in op) o[k] = op[k];
+    if (!o.estado) o.estado = 'lista';
+    if (!o.tam) o.tam = 'm';
+    if (!o.lay) o.lay = 'grade';
+    if (o.vista === undefined) o.vista = o.estado === 'lista' ? 'todos' : null;
+    return o;
+  }
+  // Recentes e No modelo não dependem da biblioteca: funcionam com a pasta
+  // fechada, e por isso ficam na lateral mesmo no vazio.
+  function mostraLista(op) { return op.estado === 'lista' || op.vista === 'recentes' || op.vista === 'modelo'; }
+
+  function titulo(op) {
+    if (!mostraLista(op)) return 'Blocos';
+    if (op.vista === 'recentes') return 'Recentes';
+    if (op.vista === 'modelo') return 'No modelo';
+    if (op.vista === 'pasta') return op.pasta;
+    return 'Todos os blocos';
+  }
+
+  // ══ a lateral ══
+  function origem(rot, ico, n, on, dados) {
+    return '<button class="pk-origem' + (on ? ' pk-origem--on' : '') + '" ' + dados + '>' + (ico ? svg(ico) : '') +
+      '<span class="blc-rot">' + esc(rot) + '</span>' + (n === null ? '' : '<span class="blc-n">' + n + '</span>') + '</button>';
+  }
+  function lado(op, ctx) {
+    var lista = op.estado === 'lista';
+    // No alto, os dois atalhos, que não dependem de pasta. Embaixo, a
+    // biblioteca: Todos e as pastas, só com o nome.
+    var h = '<nav class="pk-lado">';
+    h += origem('Recentes', ICO.recentes, ctx.rec.length, op.vista === 'recentes', 'data-vista="recentes"');
+    h += origem('No modelo', ICO.modelo, ctx.mod.length, op.vista === 'modelo', 'data-vista="modelo"');
+    if (lista) {
+      h += '<div class="cr-sec">Pastas</div>';
+      h += origem('Todos', null, total(ctx), op.vista === 'todos', 'data-vista="todos"');
+      h += ctx.lib.map(function (p) {
+        return origem(p.nome, null, p.blocos.length, op.vista === 'pasta' && op.pasta === p.nome,
+          'data-vista="pasta" data-pasta="' + esc(p.nome) + '"');
+      }).join('');
+    }
+    return h + '</nav>';
+  }
+
+  // ══ a cabeça ══
+  function cab(op) {
+    var h = '<header class="pk-cab"><span class="pk-titulo">' + esc(titulo(op)) + '</span>';
+    if (mostraLista(op)) {
+      h += '<label class="pk-busca">' + svg(ICO.lupa, 13) +
+        '<input type="text" placeholder="Buscar pelo nome" value="' + esc(op.busca || '') + '" spellcheck="false" aria-label="Buscar pelo nome"></label>';
+      h += '<div class="cr-seg-lay" role="group" aria-label="Lista ou grade">' +
+        '<button class="cr-fbtn' + (op.lay === 'lista' ? ' cr-fbtn--on' : '') + '" data-lay="lista" data-tip="Lista" aria-label="Lista">' +
+        '<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"/></svg></button>' +
+        '<button class="cr-fbtn' + (op.lay === 'lista' ? '' : ' cr-fbtn--on') + '" data-lay="grade" data-tip="Grade" aria-label="Grade">' +
+        '<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/><rect x="2.5" y="11.5" width="6" height="6" rx="1"/><rect x="11.5" y="11.5" width="6" height="6" rx="1"/></svg></button></div>';
+      // Na lista o tamanho não muda nada, e um controle que não faz nada promete.
+      if (op.lay !== 'lista') {
+        h += '<div class="cr-tams" role="group" aria-label="Tamanho">' + ['p', 'm', 'g'].map(function (t) {
+          return '<button class="cr-tam' + (op.tam === t ? ' cr-tam--on' : '') + '" data-tam="' + t + '">' + t.toUpperCase() + '</button>';
+        }).join('') + '</div>';
+      }
+    }
+    if (op.estado === 'lista') {
+      h += '<span class="jn-risco"></span>' +
+        '<button class="cr-fbtn" data-acao="atualizar" data-tip="Atualizar a biblioteca" aria-label="Atualizar a biblioteca">' + svg(ICO.atualizar) + '</button>' +
+        '<button class="cr-fbtn" data-acao="escolher" data-tip="Trocar a pasta" aria-label="Trocar a pasta">' + svg(ICO.trocar) + '</button>' +
+        '<button class="cr-fbtn" data-acao="fechar" data-tip="Fechar a pasta" aria-label="Fechar a pasta">' + svg(ICO.fechar) + '</button>';
+    }
+    return h + '</header>';
+  }
+
+  // ══ a grade ══
+  function grupos(op, ctx) {
+    var q = (op.busca || '').trim().toLowerCase();
+    var passa = function (b) { return !q || b.nome.toLowerCase().indexOf(q) >= 0; };
+    if (op.vista === 'recentes') {
+      return [{ t: null, itens: ctx.rec.map(function (n) { return achar(ctx, n); }).filter(Boolean).filter(passa) }];
+    }
+    if (op.vista === 'modelo') {
+      return [{ t: null, itens: ctx.mod.map(function (m) {
+        var b = achar(ctx, m[0]);
+        return b ? { nome: b.nome, img: b.img, pasta: b.pasta, inst: m[1] } : null;
+      }).filter(Boolean).filter(passa) }];
+    }
+    if (op.vista === 'pasta') {
+      var p = ctx.lib.filter(function (x) { return x.nome === op.pasta; })[0];
+      return [{ t: null, itens: (p ? p.blocos : []).filter(passa) }];
+    }
+    return ctx.lib.map(function (p) { return { t: p.nome, itens: p.blocos.filter(passa) }; })
+      .filter(function (g) { return g.itens.length; });
+  }
+  function celula(b, op) {
+    var on = op.marcado === b.nome;
+    var h = '<div class="blc-cel" data-bloco="' + esc(b.nome) + '">' +
+      '<button class="pk-item' + (on ? ' pk-item--on' : '') + '" data-acao="colocar" aria-label="Colocar ' + esc(b.nome) + ' no modelo">' +
+      (on ? VISTO : '') + '<img src="' + b.img + '" alt=""></button>';
+    if (op.renomeando === b.nome) {
+      h += '<input class="ps-nome-edit" value="' + esc(b.nome) + '" spellcheck="false" aria-label="Novo nome do bloco">';
+    } else if (op.tam !== 'p') {
+      h += '<span class="blc-nome">' + esc(b.nome) + '</span><span class="blc-peso">' +
+        (b.inst ? b.inst + (b.inst === 1 ? ' instância' : ' instâncias') : peso(b.mb)) + '</span>';
+    }
+    return h + '</div>';
+  }
+  // A lista é a linha de camada da Pós: miniatura, nome e a pastilha.
+  function linha(b, op) {
+    var on = op.marcado === b.nome;
+    var h = '<div class="ps-cam' + (on ? ' ps-cam--on' : '') + '" role="button" tabindex="0" data-acao="colocar" data-bloco="' + esc(b.nome) + '" aria-label="Colocar ' + esc(b.nome) + ' no modelo">' +
+      '<span class="ps-thumb" style="background-image:url(\'' + b.img + '\')"></span>';
+    h += op.renomeando === b.nome
+      ? '<input class="ps-nome-edit" value="' + esc(b.nome) + '" spellcheck="false" aria-label="Novo nome do bloco">'
+      : '<span class="ps-nome">' + esc(b.nome) + '</span>';
+    return h + '<span class="ps-conta">' + (b.inst ? b.inst + (b.inst === 1 ? ' instância' : ' instâncias') : peso(b.mb)) + '</span></div>';
+  }
+  function corpo(op, ctx) {
+    if (!mostraLista(op)) {
+      if (op.estado === 'lendo') {
+        return '<div class="cr-vazio"><h2>Lendo a pasta</h2><p>312 de 486 arquivos</p><p class="cr-prog">64%</p></div>';
+      }
+      return '<div class="cr-vazio"><span class="cr-vazio-faixa"></span><h2>Nenhuma pasta aberta</h2>' +
+        '<p>Escolha a pasta da sua biblioteca. Cada subpasta vira uma pasta aqui, e cada arquivo .skp dentro dela vira um bloco.</p>' +
+        '<button class="cf-ok blc-escolher" data-acao="escolher">' + svg(ICO.pasta) + 'Escolher pasta</button></div>';
+    }
+    var gs = grupos(op, ctx);
+    var vazio = !gs.length || !gs[0].itens.length;
+    if (vazio) {
+      if (op.busca) return '<p class="cr-msg">Nenhum bloco com “' + esc(op.busca.trim()) + '” aqui.</p>';
+      if (op.vista === 'recentes') return '<p class="cr-msg">Os blocos que você colocar nesta sessão aparecem aqui.</p>';
+      return '<p class="cr-msg">Nenhum bloco nesta pasta.</p>';
+    }
+    return gs.map(function (g) {
+      return '<section class="pk-mes">' + (g.t ? '<h3>' + esc(g.t) + '</h3>' : '') +
+        (op.lay === 'lista'
+          ? '<div class="ps-camadas">' + g.itens.map(function (b) { return linha(b, op); }).join('') + '</div>'
+          : '<div class="pk-grade" style="grid-template-columns:repeat(' + COLUNAS[op.tam] + ',minmax(0,1fr))">' +
+            g.itens.map(function (b) { return celula(b, op); }).join('') + '</div>') + '</section>';
+    }).join('');
+  }
+
+  // ══ o pé, o menu e a confirmação ══
+  function pe(op, ctx) {
+    if (!op.marcado) return '';
+    var b = achar(ctx, op.marcado);
+    if (!b) return '';
+    return '<footer class="pk-ok"><img class="pk-ok-mini" src="' + b.img + '" alt="">' +
+      '<div class="pk-ok-txt"><strong>' + esc(b.nome) + '</strong><span>Posicione no modelo e clique para soltar</span></div></footer>';
+  }
+  function menu(op) {
+    if (!op.menu) return '';
+    var m = op.menu;
+    var it = function (acao, rot, perigo) { return '<button class="mc-it' + (perigo ? ' mc-it--perigo' : '') + '" data-acao="' + acao + '">' + rot + '</button>'; };
+    var h = '<div class="mc" role="menu" style="left:' + m.x + 'px;top:' + m.y + 'px">';
+    if (m.tipo === 'pasta') {
+      h += it('menu', 'Atualizar esta pasta');
+    } else {
+      h += it('menu', 'Abrir como novo arquivo') + it('menu', 'Abrir o local do arquivo') + it('renomear', 'Renomear') +
+        '<span class="mc-sep"></span>' + it('excluir', 'Excluir bloco', true);
+    }
+    return h + '</div>';
+  }
+  function confirma(op) {
+    if (!op.excluir) return '';
+    return '<div class="cr-overlay cr-overlay--alto" data-acao="cf-nao"><div class="cf" role="dialog" aria-modal="true">' +
+      '<h3>Excluir “' + esc(op.excluir) + '”?</h3><p>O arquivo .skp sai da pasta da biblioteca.</p>' +
+      '<div class="cf-acoes"><button class="cf-nao" data-acao="cf-nao">Cancelar</button><button class="cf-sim" data-acao="cf-sim">Excluir</button></div>' +
+      '</div></div>';
+  }
+
+  function janela(op, ctx) {
+    return cabeca() + trilho() +
+      '<div class="pk">' + lado(op, ctx) + '<div class="pk-main">' + cab(op) +
+      '<div class="pk-corpo">' + corpo(op, ctx) + '</div>' + pe(op, ctx) + '</div></div>' +
+      menu(op) + confirma(op);
+  }
+
+  // ══ a janela viva ══
+  var el = document.getElementById('jn-vivo');
+  var vivo = normal({ vista: 'todos', tam: 'm' });
+  var ctxVivo = base();
+  var relogio = null;
+
+  function pintar() {
+    el.innerHTML = janela(vivo, ctxVivo);
+    var m = el.querySelector('.mc');
+    if (m) {
+      var x = vivo.menu.x, y = vivo.menu.y;
+      if (x + m.offsetWidth > el.clientWidth - 8) m.style.left = Math.max(8, x - m.offsetWidth) + 'px';
+      if (y + m.offsetHeight > el.clientHeight - 8) m.style.top = (el.clientHeight - m.offsetHeight - 8) + 'px';
+    }
+    var campo = el.querySelector('.ps-nome-edit');
+    if (campo) { campo.focus(); campo.select(); }
+  }
+
+  function renomear(nome) {
+    var alvo = vivo.renomeando;
+    vivo.renomeando = null;
+    nome = (nome || '').trim();
+    var b = alvo && achar(ctxVivo, alvo);
+    if (b && nome && nome !== alvo) {
+      b.nome = nome;
+      ctxVivo.rec = ctxVivo.rec.map(function (n) { return n === alvo ? nome : n; });
+      ctxVivo.mod.forEach(function (m) { if (m[0] === alvo) m[0] = nome; });
+    }
+    pintar();
+  }
+  function excluir(nome) {
+    ctxVivo.lib.forEach(function (p) { p.blocos = p.blocos.filter(function (b) { return b.nome !== nome; }); });
+    ctxVivo.rec = ctxVivo.rec.filter(function (n) { return n !== nome; });
+    ctxVivo.mod = ctxVivo.mod.filter(function (m) { return m[0] !== nome; });
+  }
+  function ler() {
+    vivo.estado = 'lendo'; vivo.vista = null; vivo.marcado = null;
+    pintar();
+    setTimeout(function () { vivo.estado = 'lista'; vivo.vista = 'todos'; ctxVivo = base(); pintar(); }, 1400);
+  }
+
+  el.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t.closest('.ps-nome-edit')) return;
+    if (vivo.menu && !t.closest('.mc')) vivo.menu = null;
+
+    var v = t.closest('[data-vista]');
+    if (v) {
+      vivo.vista = v.getAttribute('data-vista');
+      vivo.pasta = v.getAttribute('data-pasta');
+      vivo.marcado = null;
+      return pintar();
+    }
+    var tam = t.closest('[data-tam]');
+    if (tam) { vivo.tam = tam.getAttribute('data-tam'); return pintar(); }
+    var lay = t.closest('[data-lay]');
+    if (lay) { vivo.lay = lay.getAttribute('data-lay'); return pintar(); }
+
+    var a = t.closest('[data-acao]');
+    if (a) {
+      var acao = a.getAttribute('data-acao');
+      if (acao === 'cf-nao' && t.closest('.cf') && !t.closest('.cf-nao')) return;
+      if (acao === 'colocar') {
+        var nome = a.closest('[data-bloco]').getAttribute('data-bloco');
+        vivo.marcado = nome;
+        clearTimeout(relogio);
+        relogio = setTimeout(function () { if (vivo.marcado === nome) { vivo.marcado = null; pintar(); } }, 3000);
+      }
+      if (acao === 'renomear') { vivo.renomeando = vivo._alvo; }
+      if (acao === 'excluir') { vivo.excluir = vivo._alvo; }
+      if (acao === 'cf-nao') { vivo.excluir = null; }
+      if (acao === 'cf-sim') { excluir(vivo.excluir); vivo.excluir = null; }
+      if (acao === 'fechar') { vivo.estado = 'vazio'; vivo.vista = null; vivo.marcado = null; }
+      if (acao === 'escolher' || acao === 'atualizar') return ler();
+      if (acao === 'menu' || acao === 'renomear' || acao === 'excluir') vivo.menu = null;
+    }
+    pintar();
+  });
+
+  el.addEventListener('contextmenu', function (e) {
+    var cel = e.target.closest('[data-bloco]');
+    var pasta = e.target.closest('[data-vista="pasta"]');
+    if (!cel && !pasta) return;
+    e.preventDefault();
+    var r = el.getBoundingClientRect();
+    vivo._alvo = cel ? cel.getAttribute('data-bloco') : pasta.getAttribute('data-pasta');
+    vivo.menu = { tipo: cel ? 'bloco' : 'pasta', x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) };
+    pintar();
+  });
+
+  el.addEventListener('input', function (e) {
+    if (!e.target.matches('.pk-busca input')) return;
+    vivo.busca = e.target.value;
+    el.querySelector('.pk-corpo').innerHTML = corpo(vivo, ctxVivo);
+  });
+
+  el.addEventListener('keydown', function (e) {
+    if (e.target.matches('.ps-cam') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.target.click(); return; }
+    if (!e.target.matches('.ps-nome-edit')) return;
+    if (e.key === 'Enter') renomear(e.target.value);
+    if (e.key === 'Escape') { vivo.renomeando = null; pintar(); }
+  });
+  el.addEventListener('focusout', function (e) {
+    if (e.target.matches('.ps-nome-edit') && vivo.renomeando) renomear(e.target.value);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || (!vivo.menu && !vivo.excluir)) return;
+    vivo.menu = null; vivo.excluir = null; pintar();
+  });
+
+  pintar();
+
+  // ══ os estados, parados ══
+  var ctx = base();
+  var ESTADOS = [
+    { t: 'Nenhuma pasta aberta', op: { estado: 'vazio' },
+      d: 'Recentes e No modelo ficam na lateral, porque os dois funcionam sem biblioteca. O resto é o vazio da marca, com a faixa, e o único botão é o que resolve.' },
+    { t: 'Lendo a pasta', op: { estado: 'lendo' },
+      d: 'A leitura anda por partes e a janela não trava. O número diz quanto falta, e da segunda vez em diante as miniaturas já estão prontas no cache.' },
+    { t: 'Uma pasta, em G', op: { vista: 'pasta', pasta: 'Vegetação', tam: 'g' },
+      d: 'A pasta escolhida ganha o traço na lateral, e o título diz onde se está. Em G cabem quatro por linha, com o nome inteiro.' },
+    { t: 'Em P', op: { vista: 'todos', tam: 'p' },
+      d: 'Sete por linha, e o nome sai. É o tamanho de quem já conhece a biblioteca e reconhece o bloco pela imagem.' },
+    { t: 'Em lista', op: { vista: 'todos', lay: 'lista' },
+      d: 'A linha é a da camada da Pós: miniatura, nome e o peso na pastilha. Nomes compridos cabem inteiros, e o P M G sai da cabeça porque não teria o que mudar.' },
+    { t: 'Buscando em Todos', op: { vista: 'todos', busca: 'couro' },
+      d: 'Com Todos marcado, a busca procura em todas as pastas e mantém o agrupamento, então se vê de onde veio cada resultado.' },
+    { t: 'Buscando numa pasta', op: { vista: 'pasta', pasta: 'Sofás', busca: 'couro' },
+      d: 'A mesma palavra com Sofás marcado. A busca fica dentro da pasta, e a Cadeira Couro Laranja não aparece.' },
+    { t: 'Recentes', op: { vista: 'recentes' },
+      d: 'Os blocos colocados nesta sessão. A lista zera quando se abre outro arquivo.' },
+    { t: 'No modelo', op: { vista: 'modelo' },
+      d: 'O que já está no modelo, com o número de instâncias no lugar do peso. Depois de um Purge, o que saiu some daqui.' },
+    { t: 'Colocando no modelo', op: { vista: 'pasta', pasta: 'Cadeiras', marcado: 'Poltrona Concha Café' },
+      d: 'O clique entrega o bloco para o SketchUp, que o prende no cursor. A miniatura fica marcada e o pé confirma qual foi, com o próximo gesto.' },
+    { t: 'Botão direito num bloco', op: { vista: 'pasta', pasta: 'Sofás', menu: { tipo: 'bloco', x: 400, y: 262 } },
+      d: 'Os itens de antes, na ordem do menu das camadas da Pós. Excluir fica sozinho no fim, depois do fio, porque é o único que apaga arquivo.' },
+    { t: 'Botão direito numa pasta', op: { vista: 'todos', menu: { tipo: 'pasta', x: 140, y: 412 } },
+      d: 'Uma ação só, para ler de novo a pasta depois de pôr arquivos novos nela.' },
+    { t: 'Renomeando', op: { vista: 'pasta', pasta: 'Vegetação', renomeando: 'Galho Seco' },
+      d: 'O nome vira campo ali mesmo. Enter grava e Esc desiste. Abrir uma janela para trocar uma palavra seria desproporcional, e a Pós já segue essa regra.' },
+    { t: 'Excluir', op: { vista: 'pasta', pasta: 'Vegetação', excluir: 'Galho Seco' },
+      d: 'A confirmação é a do feed da web, com o vermelho no botão que apaga. O nome vai no título, para não haver dúvida de qual bloco sai.' }
+  ];
+
+  document.getElementById('estados').innerHTML = ESTADOS.map(function (s) {
+    return '<figure class="estado"><div class="jn-fora"><div class="jn co jn--curta">' + janela(normal(s.op), ctx) + '</div></div>' +
+      '<figcaption><b>' + s.t + '</b><p>' + s.d + '</p></figcaption></figure>';
+  }).join('');
+
+  // ══ o tema ══
+  var raiz = document.documentElement, btn = document.getElementById('tema');
+  function escuro() { var t = raiz.getAttribute('data-theme'); return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function rotular() { btn.textContent = escuro() ? 'Ver no claro' : 'Ver no escuro'; }
+  rotular();
+  btn.addEventListener('click', function () { raiz.setAttribute('data-theme', escuro() ? 'light' : 'dark'); rotular(); });
+})();
+</script>

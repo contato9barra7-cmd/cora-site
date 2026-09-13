@@ -1,0 +1,879 @@
+<title>O Materiais do plugin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<style>/*@GLOBAIS@*/</style>
+<style>/*@CORA@*/</style>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   O MATERIAIS DO PLUGIN · a biblioteca de .vrmat, na janela inteira
+
+   ARQUIVO GERADO por `montar-aba-plugin.py materiais`. Editar este
+   .fonte.html e rodar o script de novo.
+
+   É a mesma biblioteca do Blocos com outro conteúdo, então veste as mesmas
+   peças: o escolhedor de imagem (`PickerImagem.js`) na lateral e na grade,
+   o P M G e o lista/grade do feed, a linha de camada da Pós na lista, o
+   `MenuCamada.js` no botão direito e a confirmação do feed. O que só ele
+   tem é o balde de tintas, as ferramentas de textura, os materiais na cena
+   e o Material Resizer.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root{ color-scheme:light; --pag-fundo:#F1F1EE; --pag-tinta:#111111; --pag-apoio:#5B5B57; --pag-fraco:#8E8E88; --pag-fio:#E4E4DF; --pag-fio2:#D2D2CB; --line2:#D2D2CB; --ink3:#8E8E88; }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ color-scheme:dark; --pag-fundo:#0F0F11; --pag-tinta:#F2F2EF; --pag-apoio:#B6B5AE; --pag-fraco:#8B8A83; --pag-fio:#2B2B30; --pag-fio2:#3A3A41; --line2:#3A3A41; --ink3:#8B8A83; }
+}
+:root[data-theme="dark"]{ color-scheme:dark; --pag-fundo:#0F0F11; --pag-tinta:#F2F2EF; --pag-apoio:#B6B5AE; --pag-fraco:#8B8A83; --pag-fio:#2B2B30; --pag-fio2:#3A3A41; --line2:#3A3A41; --ink3:#8B8A83; }
+
+*{ box-sizing:border-box; }
+body{
+  margin:0; padding:0 0 96px; background:var(--pag-fundo); color:var(--pag-tinta);
+  font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-size:14.5px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+button{ cursor:pointer; font-family:inherit; }
+:focus-visible{ outline:2px solid #8FDDCC; outline-offset:2px; }
+::selection{ background:#C4FBA7; color:#111111; }
+
+.pag{ max-width:1320px; margin:0 auto; padding:34px 24px 0; }
+.eb{ margin:0; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--pag-fraco); }
+h1{ margin:10px 0 0; font-size:34px; font-weight:500; letter-spacing:-.033em; line-height:1.1; text-wrap:balance; }
+.lead{ margin:14px 0 0; max-width:64ch; color:var(--pag-apoio); text-wrap:pretty; }
+.lead b{ color:var(--pag-tinta); font-weight:600; }
+.ctrl{ margin-top:20px; }
+.ctrl button{
+  height:34px; padding:0 16px; border-radius:100px; border:1px solid var(--pag-fio2);
+  background:transparent; color:var(--pag-apoio); font-size:13px; font-weight:500;
+}
+.ctrl button:hover{ border-color:var(--pag-fraco); color:var(--pag-tinta); }
+
+h2.secao{ margin:64px 0 4px; font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--pag-fraco); }
+h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size:14px; text-wrap:pretty; }
+
+.dupla{ display:grid; gap:34px; align-items:start; grid-template-columns:1fr; }
+@media (min-width:1330px){ .dupla{ grid-template-columns:880px minmax(0,1fr); } }
+
+.mud{ margin:0; display:grid; gap:16px; }
+.mud-t{ margin:0 0 2px; font-size:13px; font-weight:600; color:var(--pag-tinta); }
+.mud dt{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--pag-fraco); }
+.mud dd{ margin:3px 0 0; font-size:14px; color:var(--pag-apoio); max-width:48ch; text-wrap:pretty; }
+
+.estados{ display:grid; gap:60px; }
+.estado{ margin:0; display:grid; gap:16px; grid-template-columns:1fr; align-items:start; }
+@media (min-width:1330px){ .estado{ grid-template-columns:880px minmax(0,1fr); gap:34px; } }
+.estado figcaption{ padding-top:4px; max-width:46ch; }
+.estado figcaption b{ display:block; margin-bottom:6px; font-size:17px; font-weight:600; letter-spacing:-.01em; }
+.estado figcaption p{ margin:0; font-size:14px; color:var(--pag-apoio); text-wrap:pretty; }
+
+.rod{ margin-top:72px; padding-top:20px; border-top:1px solid var(--pag-fio); max-width:72ch; font-size:13px; color:var(--pag-fraco); }
+.rod p{ margin:0 0 6px; text-wrap:pretty; }
+.rod code{ padding:1px 6px; border-radius:6px; background:var(--pag-fio); color:var(--pag-tinta); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+
+/* Os quadros dos estados: a largura é a real, a altura é encurtada. */
+.jn.jn--curta{ height:640px; }
+
+/* ── a biblioteca dentro da janela ──
+   A mesma casca do Blocos. Na web o escolhedor flutua numa caixa de 880.
+   Aqui ele é a janela, sem caixa, sem sombra e sem canto. O menu, a dica e o
+   aviso medem contra a janela, e não contra a tela, pelo mesmo motivo do
+   `.cr-overlay` da moldura. */
+.jn .pk{ flex:1; min-height:0; width:auto; max-width:none; height:auto; border:0; border-radius:0; box-shadow:none; overflow:hidden; background:var(--paper); }
+.jn .pk-lado, .jn .pk-main{ border-radius:0; }
+/* Mais larga que os 132px do escolhedor: aqui ela carrega nomes de pasta,
+   que são da pessoa e costumam ser compridos, e não quatro palavras curtas. */
+.jn .pk-lado{ width:160px; overflow-y:auto; padding:14px 10px; gap:5px; }
+/* A pasta marcada é o item marcado do menu lateral da web (`.app-nav-item`
+   do painel): pastilha branca, fio de lima de 3px e o texto em 600. O traço
+   de 2px do escolhedor era outro gesto. O hover não mexe na marcada. */
+.jn .pk-origem{
+  position:relative; flex:none; height:40px; gap:12px; padding:0 12px; border-radius:var(--r-peq);
+  color:var(--ink2); font-size:var(--t-apoio); font-weight:500; letter-spacing:-.004em;
+  transition:background-color var(--t), color var(--t);
+}
+.jn .pk-origem svg{ flex:none; width:16px; height:16px; color:var(--ink3); transition:color var(--t); }
+.jn .pk-origem:not(.pk-origem--on):hover{ background:rgba(255,255,255,.55); color:var(--ink); }
+[data-theme="dark"] .jn .pk-origem:not(.pk-origem--on):hover{ background:rgba(255,255,255,.08); }
+.jn .pk-origem:hover svg{ color:var(--ink); }
+.jn .pk-origem.pk-origem--on{ background:var(--paper); color:var(--ink); font-weight:600; box-shadow:0 1px 2px rgba(17,17,17,.05); }
+.jn .pk-origem.pk-origem--on svg{ color:var(--ink); }
+.jn .pk-origem.pk-origem--on::before{
+  content:""; position:absolute; left:0; top:50%; transform:translateY(-50%);
+  width:3px; height:18px; background:var(--lima);
+}
+/* A lista é a linha de camada da Pós. O respiro já vem do corpo. */
+.pk-corpo .ps-camadas{ padding:0; }
+.jn .pk-cab{ flex:none; height:58px; padding:0 14px 0 16px; }
+.jn .pk-busca input{ flex:1; width:auto; min-width:0; }
+.jn .mc, .jn .cr-dica{ position:absolute; }
+.jn .ps-toast{ position:absolute; bottom:70px; }
+
+/* ── as peças que as duas bibliotecas dividem ── */
+.blc-rot{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.blc-n{ flex:none; font-size:var(--t-etiqueta); font-weight:400; color:var(--ink3); font-variant-numeric:tabular-nums; }
+.pk-lado .cr-sec{ margin:16px 12px 6px; }
+.blc-cel{ min-width:0; display:flex; flex-direction:column; }
+.blc-cel .pk-item{ width:100%; }
+.blc-nome{ margin-top:7px; font-size:var(--t-apoio2); line-height:1.3; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.blc-peso{ margin-top:1px; font-size:var(--t-etiqueta); color:var(--ink3); }
+.blc-cel .ps-nome-edit{ flex:none; width:100%; margin-top:4px; }
+.cr-vazio .blc-escolher{ flex:none; margin-top:18px; display:inline-flex; align-items:center; gap:8px; padding:0 20px; }
+
+/* ── as peças que só o Materiais tem ──
+   A cor chapada é o material do .vrmat que tem cor de verdade e não textura.
+   A barra do pé segura as ferramentas de textura: elas mexem na seleção do
+   modelo, e não na biblioteca, então não moram na cabeça dela. */
+.blc-cor{ display:block; width:100%; height:100%; }
+.cr-ab-aviso .ps-toast-link{ margin-left:8px; }
+.cf .jn-campo{ margin:0 0 18px; }
+.blc-ferr{
+  flex:none; height:52px; display:flex; align-items:center; gap:2px; padding:0 16px;
+  border-top:1px solid var(--line); background:var(--paper);
+}
+.blc-ferr-rot{ margin-right:10px; font-size:var(--t-apoio2); color:var(--ink3); white-space:nowrap; }
+.blc-ferr .jn-risco{ margin:0 6px; }
+
+/* ── o Material Resizer ──
+   Era uma janela própria do SketchUp. Aqui ele é a lista da Pós, e o pé é o
+   do escolhedor: quantas vão, o lado maior e o botão que reduz. O campo é o
+   mesmo do Salvar cena, na altura do pé. */
+.pk-corpo > .cr-hint{ margin:0 0 12px; }
+.pk-ok .rz-campo{ margin:0; flex:none; align-items:center; gap:7px; font-size:var(--t-apoio2); color:var(--ink2); white-space:nowrap; }
+.pk-ok .rz-campo input{ flex:none; width:72px; height:32px; padding:0 10px; text-align:center; font-variant-numeric:tabular-nums; }
+.pk-ok-btn:disabled{ background:var(--wash2); color:var(--ink3); cursor:default; }
+</style>
+
+<div class="pag">
+  <header>
+    <p class="eb">Cora Render · plugin do SketchUp · 13 de setembro de 2026</p>
+    <h1>O Materiais do plugin</h1>
+    <p class="lead">O Materiais toma a <b>janela inteira</b>, como o Blocos. As duas abas são a mesma biblioteca com conteúdo diferente, e por isso vestem as mesmas peças: a lateral e a grade do escolhedor de imagem da web, o lista e grade e o P M G do feed, e o menu do botão direito da Pós-produção.</p>
+    <p class="lead">O que só o Materiais tem mora em dois lugares. No pé, o <b>balde de tintas</b> e as <b>nove ferramentas de textura</b>, que agem sobre o que estiver selecionado no modelo. No alto da lateral, os <b>materiais na cena</b> e o <b>Material Resizer</b>, que agora abre aqui dentro.</p>
+    <p class="lead">As imagens são do cache real do plugin: prévias V-Ray na biblioteca e texturas de um modelo na cena. Os nomes, as pastas e as medidas em pixels foram inventados a partir do que aparece em cada uma.</p>
+    <div class="ctrl"><button id="tema" type="button">Ver no escuro</button></div>
+  </header>
+
+  <h2 class="secao">A janela inteira</h2>
+  <p>880 por 980. Responde a tudo: pastas, busca, lista e grade, P M G, pôr no balde, a primeira carga dos materiais na cena, botão direito na biblioteca e na cena, substituto, renomear, duplicar, excluir, eliminar os fora de uso, as ferramentas de textura, girar num ângulo e o Resizer inteiro.</p>
+
+  <div class="dupla">
+    <div class="jn-fora"><div class="jn co" id="jn-vivo"></div></div>
+    <div>
+      <p class="mud-t">O que muda em relação ao desenho de antes</p>
+      <dl class="mud">
+        <div><dt>A lateral</dt><dd>As pastas abriam em árvore, com a lista de nomes dentro, num terço da janela. Agora são só o nome, numa lateral de 160px, com Todos no começo delas. Com Todos marcado a busca procura em todas as pastas, e com uma pasta marcada, só nela.</dd></div>
+        <div><dt>Materiais na cena</dt><dd>Era um botão no topo que trocava a tela e fazia surgir outros três. Virou Na cena, no alto da lateral, e abre com o título de sempre. Baixar e eliminar aparecem na cabeça quando ele está aberto.</dd></div>
+        <div><dt>Material Resizer</dt><dd>Abria numa janela separada, com caixinhas de marcar. Agora fica embaixo de Na cena e abre aqui dentro. Clicar marca a textura, e o pé mostra quantas vão diminuir, o lado maior e o botão Reduzir.</dd></div>
+        <div><dt>Lista e grade</dt><dd>As duas continuam. A grade ganhou o P M G do Blocos, e a lista é a linha de camada da Pós, com "Fora de uso" na pastilha. Na lista o tamanho não aparece.</dd></div>
+        <div><dt>O balde</dt><dd>A barra de baixo dizia "No balde de tintas" com um visto. Agora é o pé turquesa do escolhedor, e ele diz o próximo gesto: clicar numa face.</dd></div>
+        <div><dt>Fora de uso</dt><dd>Era a miniatura apagada. Desligado é cor, não transparência, então virou a legenda "Fora de uso" embaixo do nome.</dd></div>
+        <div><dt>O substituto</dt><dd>A faixa que lembra da troca é a do A/B do feed, com Cancelar ali mesmo. No menu, Trocar só aparece quando há substituto, em vez de ficar apagado.</dd></div>
+        <div><dt>Ferramentas de textura</dt><dd>As nove saíram da cabeça e ganharam uma barra no pé, com o nome do que fazem. São o botão pequeno da Pós, com a dica curta da web.</dd></div>
+        <div><dt>Excluir e eliminar</dt><dd>Excluir não pedia confirmação, e eliminar os fora de uso usava a caixa do SketchUp. Os dois passam a usar a confirmação do feed.</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <h2 class="secao">Cada estado</h2>
+  <p>A largura é a real. A altura foi encurtada para 640, para os quadros caberem na página, e a grade rola por dentro como rolaria na janela.</p>
+  <div class="estados" id="estados"></div>
+
+  <footer class="rod">
+    <p>Gerado por <code>montar-aba-plugin.py materiais</code>, com as folhas de produção do site.</p>
+    <p>A peneira ganhou peças da Pós: <code>ps-mini</code> e <code>ps-toast</code>, o botão pequeno e o aviso passageiro, a linha de camada que faz a lista e o menu do botão direito. Nada disso subiu para o plugin.</p>
+    <p>Eliminar os fora de uso confirma hoje numa caixa do SketchUp, dentro do Ruby, que varre o modelo de novo antes de apagar. Portar este desenho leva a confirmação para a janela e mantém a varredura.</p>
+    <p>O Resizer hoje é o <code>resizer.html</code>, uma janela própria com três callbacks no Ruby. Portar este desenho traz a tela para dentro do painel e mantém a mesma redução, uma textura por vez, com as cópias em <code>cora_resized</code>.</p>
+  </footer>
+</div>
+
+<script>/*@DADOS@*/</script>
+
+<script>
+(function () {
+  'use strict';
+
+  // ══ a moldura, a mesma do artefato da janela ══
+  var ICONES = {
+    render:    'M3.5 5.5h17v13h-17z M3.5 14l5-4.5 4 3.5 3-2.5 5 4',
+    batch:     'M7 3.5h13.5V17 M3.5 7h13.5v13.5H3.5z',
+    planta:    'M3.5 3.5h17v17h-17z M3.5 10h8 M11.5 10v10.5 M11.5 6h9',
+    editar:    'M4 20h4L19 9l-4-4L4 16v4z M14.5 5.5l4 4',
+    upscale:   'M5 10.5V5h5.5 M19 13.5V19h-5.5 M5 5l5.5 5.5 M19 19l-5.5-5.5',
+    pos:       'M4 6h16 M4 12h11 M4 18h7',
+    animacao:  'M3.5 5.5h17v13h-17z M8 5.5v13 M16 5.5v13 M3.5 12h17',
+    analises:  'M4 20V10 M10 20V4 M16 20v-7 M22 20H2',
+    r360:      'M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17z M3.5 12h17 M12 3.5c2.3 2.3 3.5 5 3.5 8.5S14.3 18.2 12 20.5c-2.3-2.3-3.5-5-3.5-8.5S9.7 5.8 12 3.5z',
+    materiais: 'M3.5 3.5h9v9h-9z M20.5 16a5 5 0 1 1-10 0 5 5 0 0 1 10 0z',
+    blocos:    'M12 2.8l8.5 4.8v9.4L12 21.2 3.5 16.4V7.6z M12 12l8.5-4.4 M12 12v9.2 M12 12L3.5 7.6'
+  };
+  var ABAS = [
+    ['render', 'Render'], ['batch', 'Batch'], ['editar', 'Editar'], ['planta', 'Planta baixa'],
+    ['pos', 'Pós-produção'], ['animacao', 'Animação'], ['upscale', 'Upscale'], ['analises', 'Análises'],
+    ['r360', '360°'], ['materiais', 'Materiais'], ['blocos', 'Blocos']
+  ];
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+
+  function cabeca() {
+    var fer = function (tip, d) {
+      return '<button class="jn-fer" data-tip="' + tip + '" aria-label="' + tip + '"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg></button>';
+    };
+    return '<div class="jn-cab"><span class="jn-marca" role="img" aria-label="Cora Render"></span><div class="jn-cab-dir">' +
+      fer('Espelho', '<ellipse cx="12" cy="12" rx="6.4" ry="9"/><path d="M9.4 14.4L13 9.2M11.6 15l3.6-5.2"/>') +
+      fer('Vidros refletivos', '<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8 8l5.5 5.5M8 12.5l3 3"/>') +
+      fer('Otimizar modelo', '<path d="M5 19l9.5-9.5"/><path d="M17 3.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" fill="currentColor"/><path d="M6 5v2.5M4.75 6.25h2.5"/>') +
+      fer('Purge', '<path d="M4 6.5h16"/><path d="M9.5 6.5v-2h5v2"/><path d="M6 6.5L7 20h10l1-13.5"/><path d="M10 10l.4 6.5M14 10l-.4 6.5"/>') +
+      '<span class="jn-risco"></span>' +
+      '<span class="jn-saldo"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M12 2l10 10-10 10L2 12z"/></svg>1.284</span>' +
+      '<button class="jn-av" data-tip="Minha conta" aria-label="Minha conta"><svg class="app-anel" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">' +
+      '<rect class="app-anel-bg" x="2.5" y="2.5" width="41" height="41" rx="13" pathLength="100"/>' +
+      '<rect class="app-anel-fill" x="2.5" y="2.5" width="41" height="41" rx="13" pathLength="100" stroke-dasharray="100" stroke-dashoffset="26"/></svg>' +
+      '<span class="app-avatar">M</span></button></div></div>';
+  }
+  function trilho() {
+    return '<div class="cr-pills"><div class="cr-sulco" role="tablist"><div class="cr-trilho">' + ABAS.map(function (a) {
+      var on = a[0] === 'materiais';
+      return '<button role="tab" aria-selected="' + on + '" aria-label="' + a[1] + '" class="cr-pill' + (on ? ' cr-pill--on' : '') + '"' + (on ? '' : ' data-tip="' + a[1] + '"') + '>' +
+        '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + ICONES[a[0]] + '"/></svg>' +
+        '<span class="cr-pill__nome">' + a[1] + '</span></button>';
+    }).join('') + '</div></div></div>';
+  }
+
+  // ══ os desenhos, no traço do escolhedor ══
+  var ICO = {
+    cena:      'M3 9l7-5.5L17 9 M5 8v8.5h10V8 M8.2 16.5V12h3.6v4.5',
+    pasta:     'M2.5 5.5A1.5 1.5 0 014 4h3.2l1.6 1.8H16a1.5 1.5 0 011.5 1.5v7.2A1.5 1.5 0 0116 16H4a1.5 1.5 0 01-1.5-1.5z',
+    trocar:    'M2.5 6A1.5 1.5 0 014 4.5h3l1.5 1.5H16a1.5 1.5 0 011.5 1.5v1 M2.5 6v8.5L5 9h13l-2.5 6.5H3',
+    atualizar: 'M16.5 10a6.5 6.5 0 11-1.9-4.6 M16.5 3.5V7H13',
+    fechar:    'M5.5 5.5l9 9 M14.5 5.5l-9 9',
+    lupa:      'M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11z M13 13l4 4',
+    baixar:    'M10 3v9 M6.5 8.5L10 12l3.5-3.5 M3.5 13.5V16a1 1 0 001 1h11a1 1 0 001-1v-2.5',
+    resizer:   'M3 3h8v8H3z M11 7h6v10H7v-6 M5.5 5.5l3 3 M13.5 13.5l1.5 1.5',
+    eliminar:  'M4 6h12 M8 6V4.5h4V6 M5.5 6l.7 10a1 1 0 001 .9h5.6a1 1 0 001-.9l.7-10 M8.5 9v5 M11.5 9v5'
+  };
+  function svg(d, w) {
+    w = w || 15;
+    return '<svg viewBox="0 0 20 20" width="' + w + '" height="' + w + '" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
+  }
+  var VISTO = '<span class="pk-visto"><svg viewBox="0 0 20 20" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4.5 10.5l3.5 3.5 7.5-8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+  var COLUNAS = { p: 7, m: 5, g: 4 };
+
+  // As nove ferramentas de textura, os mesmos desenhos de antes. A dica é
+  // uma linha só, porque a da web não quebra.
+  var FERR = [
+    { d: '<path d="M12 3 L21 8 L21 18 L12 23 L3 18 L3 8 Z"/><path d="M12 3 L12 23 M3 8 L12 13 L21 8"/>', dica: 'Projeção triplanar, no tamanho real da textura' },
+    { d: '<path d="M12 5 L19 9 L19 16.5 L12 20.5 L5 16.5 L5 9 Z"/><path d="M5 9 L12 13 L19 9 M12 13 L12 20.5"/><path d="M2.5 5 L2.5 2.5 L5 2.5 M21.5 5 L21.5 2.5 L19 2.5 M2.5 19 L2.5 21.5 L5 21.5 M21.5 19 L21.5 21.5 L19 21.5"/>', dica: 'Projeção triplanar, ajustada ao objeto' },
+    { d: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12 L21 12 M4.2 7.5 L19.8 7.5 M4.2 16.5 L19.8 16.5"/>', dica: 'Projeção esférica, no tamanho real da textura' },
+    { d: '<circle cx="12" cy="12" r="7.3"/><ellipse cx="12" cy="12" rx="3.3" ry="7.3"/><path d="M4.7 12 L19.3 12"/><path d="M2.5 5 L2.5 2.5 L5 2.5 M21.5 5 L21.5 2.5 L19 2.5 M2.5 19 L2.5 21.5 L5 21.5 M21.5 19 L21.5 21.5 L19 21.5"/>', dica: 'Projeção esférica, ajustada ao objeto' },
+    { d: '<rect x="3" y="3.5" width="7.5" height="6.5" rx="1.3"/><rect x="13.5" y="5.5" width="7.5" height="6.5" rx="1.3"/><rect x="3.5" y="13.5" width="7.5" height="6.5" rx="1.3"/><rect x="14" y="14" width="6.5" height="6.5" rx="1.3"/>', dica: 'Despadronizar, cada clique sorteia outra posição' },
+    { d: '<path d="M18 8 A8 8 0 1 0 19 15.5"/><path d="M18 3.2 L18 8 L13.2 8"/>', dica: 'Girar 90° para a esquerda' },
+    { d: '<path d="M6 8 A8 8 0 1 1 5 15.5"/><path d="M6 3.2 L6 8 L10.8 8"/>', dica: 'Girar 90° para a direita' },
+    { d: '<path d="M3 18 A9 9 0 0 1 21 18"/><path d="M3 18 L21 18"/><path d="M12 18 L18.5 9.5"/><circle cx="12" cy="18" r="1.3" fill="currentColor" stroke="none"/>', dica: 'Girar num ângulo' },
+    { d: '<path d="M4 3.5 L4 20.5"/><rect x="9" y="8" width="10.5" height="8" rx="1.2"/><path d="M9 12 L5.7 12 M7.2 10.3 L5.4 12 L7.2 13.7"/>', dica: 'Alinhar à borda selecionada' }
+  ];
+  var SEM_FACE = 'Selecione ao menos uma face.';
+
+  // ══ os dados ══
+  // As medidas em pixels das texturas da cena são de mentira, escolhidas para
+  // o Resizer ter o que reduzir e o que já cabe.
+  var PX = {
+    'Assoalho Tauari': [4096, 4096], 'Carvalho Médio': [2048, 2048], 'Couro Caramelo': [3000, 3000], 'Granilite Verde': [1024, 1024],
+    'Granito Branco': [2048, 2048], 'Inox Escovado': [1024, 1024], 'Jequitibá': [4096, 2048], 'Laca Canelada': [2048, 2048],
+    'Linho Cinza': [1536, 1536], 'Linho Cru': [2048, 2048], 'Mármore Branco': [4096, 4096], 'Mármore Carrara': [8192, 8192],
+    'Nogueira': [2048, 4096], 'Off White': [512, 512], 'Pastilha Azul': [1024, 1024], 'Pedra Canjiquinha': [3000, 2000],
+    'Pedra Mineira': [4096, 4096], 'Pinus': [1024, 2048], 'Porcelanato 60x60': [2048, 2048], 'Porcelanato Areia': [4096, 4096],
+    'Preto Fosco': [256, 256], 'Tapete Kilim': [2400, 3600], 'Terrazzo Branco': [4096, 4096], 'Travertino': [3000, 3000]
+  };
+  function base() {
+    var D = window.MATERIAIS;
+    return {
+      lib: D.pastas.map(function (p) {
+        return { nome: p.nome, materiais: p.materiais.map(function (m) { return { nome: m.nome, img: m.img, pasta: p.nome }; }) };
+      }),
+      cena: D.cena.map(function (m) {
+        return { nome: m.nome, img: m.img, cor: m.cor, uso: m.uso, px: m.img ? (PX[m.nome] || [2048, 2048]).slice() : null };
+      })
+    };
+  }
+  function achar(ctx, origem, nome) {
+    if (origem === 'modelo') return ctx.cena.filter(function (m) { return m.nome === nome; })[0] || null;
+    for (var i = 0; i < ctx.lib.length; i++)
+      for (var j = 0; j < ctx.lib[i].materiais.length; j++)
+        if (ctx.lib[i].materiais[j].nome === nome) return ctx.lib[i].materiais[j];
+    return null;
+  }
+  function total(ctx) { return ctx.lib.reduce(function (n, p) { return n + p.materiais.length; }, 0); }
+  function ordenar(lista) { lista.sort(function (a, b) { return a.nome.toLowerCase() < b.nome.toLowerCase() ? -1 : 1; }); }
+  function texturas(ctx) { return ctx.cena.filter(function (m) { return m.img; }); }
+
+  function normal(op) {
+    var o = {};
+    for (var k in op) o[k] = op[k];
+    if (!o.estado) o.estado = 'lista';
+    if (!o.tam) o.tam = 'm';
+    if (!o.lay) o.lay = 'grade';
+    if (o.vista === undefined) o.vista = o.estado === 'lista' ? 'todos' : null;
+    if (!o.rz) o.rz = { sel: [], alvo: 1536, feito: null };
+    return o;
+  }
+  // Na cena e o Resizer não dependem da biblioteca: funcionam com a pasta
+  // fechada.
+  function mostraLista(op) { return op.estado === 'lista' || op.vista === 'modelo' || op.vista === 'resizer'; }
+
+  function titulo(op) {
+    if (op.vista === 'resizer') return 'Material Resizer';
+    if (!mostraLista(op)) return 'Materiais';
+    if (op.vista === 'modelo') return 'Materiais na cena';
+    if (op.vista === 'pasta') return op.pasta;
+    return 'Todos os materiais';
+  }
+
+  // ══ a lateral ══
+  function origem(rot, ico, n, on, dados) {
+    return '<button class="pk-origem' + (on ? ' pk-origem--on' : '') + '" ' + dados + '>' + (ico ? svg(ico) : '') +
+      '<span class="blc-rot">' + esc(rot) + '</span>' + (n === null ? '' : '<span class="blc-n">' + n + '</span>') + '</button>';
+  }
+  function lado(op, ctx) {
+    var lista = op.estado === 'lista';
+    // No alto, os dois atalhos que não dependem de pasta. Embaixo, a
+    // biblioteca: Todos e as pastas, só com o nome.
+    var h = '<nav class="pk-lado">';
+    h += origem('Na cena', ICO.cena, ctx.cena.length, op.vista === 'modelo', 'data-vista="modelo"');
+    h += origem('Resizer', ICO.resizer, null, op.vista === 'resizer', 'data-vista="resizer"');
+    if (lista) {
+      h += '<div class="cr-sec">Pastas</div>';
+      h += origem('Todos', null, total(ctx), op.vista === 'todos', 'data-vista="todos"');
+      h += ctx.lib.map(function (p) {
+        return origem(p.nome, null, p.materiais.length, op.vista === 'pasta' && op.pasta === p.nome,
+          'data-vista="pasta" data-pasta="' + esc(p.nome) + '"');
+      }).join('');
+    }
+    return h + '</nav>';
+  }
+
+  // ══ a cabeça ══
+  function fbtn(acao, rot, ico) {
+    return '<button class="cr-fbtn" data-acao="' + acao + '" data-tip="' + rot + '" aria-label="' + rot + '">' + svg(ico) + '</button>';
+  }
+  function busca(op) {
+    return '<label class="pk-busca">' + svg(ICO.lupa, 13) +
+      '<input type="text" placeholder="Buscar pelo nome" value="' + esc(op.busca || '') + '" spellcheck="false" aria-label="Buscar pelo nome"></label>';
+  }
+  function cab(op, ctx) {
+    var h = '<header class="pk-cab"><span class="pk-titulo">' + esc(titulo(op)) + '</span>';
+    if (op.vista === 'resizer') {
+      var todas = texturas(ctx).length && op.rz.sel.length === texturas(ctx).length;
+      h += busca(op) + '<button class="pk-ok-outra" data-acao="rz-todas"' + (op.rz.feito !== null ? ' disabled' : '') + '>' +
+        (todas ? 'Desmarcar todas' : 'Marcar todas') + '</button>';
+      return h + '</header>';
+    }
+    if (mostraLista(op) && !op.cache) {
+      h += busca(op);
+      h += '<div class="cr-seg-lay" role="group" aria-label="Lista ou grade">' +
+        '<button class="cr-fbtn' + (op.lay === 'lista' ? ' cr-fbtn--on' : '') + '" data-lay="lista" data-tip="Lista" aria-label="Lista">' +
+        '<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"/></svg></button>' +
+        '<button class="cr-fbtn' + (op.lay === 'lista' ? '' : ' cr-fbtn--on') + '" data-lay="grade" data-tip="Grade" aria-label="Grade">' +
+        '<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/><rect x="2.5" y="11.5" width="6" height="6" rx="1"/><rect x="11.5" y="11.5" width="6" height="6" rx="1"/></svg></button></div>';
+      // Na lista o tamanho não muda nada, e um controle que não faz nada promete.
+      if (op.lay !== 'lista') {
+        h += '<div class="cr-tams" role="group" aria-label="Tamanho">' + ['p', 'm', 'g'].map(function (t) {
+          return '<button class="cr-tam' + (op.tam === t ? ' cr-tam--on' : '') + '" data-tam="' + t + '">' + t.toUpperCase() + '</button>';
+        }).join('') + '</div>';
+      }
+    }
+    if (op.vista === 'modelo' && !op.cache) {
+      h += '<span class="jn-risco"></span>' + fbtn('baixar', 'Baixar as texturas', ICO.baixar) +
+        fbtn('eliminar', 'Eliminar os fora de uso', ICO.eliminar);
+    } else if (op.estado === 'lista' && op.vista !== 'modelo') {
+      h += '<span class="jn-risco"></span>' + fbtn('atualizar', 'Atualizar a biblioteca', ICO.atualizar) +
+        fbtn('escolher', 'Trocar a pasta', ICO.trocar) + fbtn('fechar', 'Fechar a pasta', ICO.fechar);
+    }
+    return h + '</header>';
+  }
+  function aviso(op) {
+    if (!op.subst || op.vista === 'resizer') return '';
+    return '<p class="cr-ab-aviso">Substituto: <b>' + esc(op.subst) + '</b>. Nos materiais na cena, clique com o botão direito no material que vai sair.' +
+      '<button class="ps-toast-link" data-acao="subst-cancelar">Cancelar</button></p>';
+  }
+
+  // ══ a grade e a lista ══
+  function grupos(op, ctx) {
+    var q = (op.busca || '').trim().toLowerCase();
+    var passa = function (m) { return !q || m.nome.toLowerCase().indexOf(q) >= 0; };
+    if (op.vista === 'modelo') return [{ t: null, o: 'modelo', itens: ctx.cena.filter(passa) }];
+    if (op.vista === 'pasta') {
+      var p = ctx.lib.filter(function (x) { return x.nome === op.pasta; })[0];
+      return [{ t: null, o: 'bib', itens: (p ? p.materiais : []).filter(passa) }];
+    }
+    return ctx.lib.map(function (p) { return { t: p.nome, o: 'bib', itens: p.materiais.filter(passa) }; })
+      .filter(function (g) { return g.itens.length; });
+  }
+  function miniatura(m, classe) {
+    return m.img
+      ? '<img' + (classe ? ' class="' + classe + '"' : '') + ' src="' + m.img + '" alt="">'
+      : '<span class="' + (classe || 'blc-cor') + '" style="background:' + m.cor + '"></span>';
+  }
+  function celula(m, op, o) {
+    var on = op.balde && op.balde.nome === m.nome && op.balde.origem === o;
+    var h = '<div class="blc-cel" data-mat="' + esc(m.nome) + '" data-origem="' + o + '">' +
+      '<button class="pk-item' + (on ? ' pk-item--on' : '') + '" data-acao="balde" aria-label="Pôr ' + esc(m.nome) + ' no balde de tintas">' +
+      (on ? VISTO : '') + miniatura(m) + '</button>';
+    if (o === 'modelo' && op.renomeando === m.nome) {
+      h += '<input class="ps-nome-edit" value="' + esc(m.nome) + '" spellcheck="false" aria-label="Novo nome do material">';
+    } else if (op.tam !== 'p') {
+      h += '<span class="blc-nome">' + esc(m.nome) + '</span>';
+      if (o === 'modelo' && !m.uso) h += '<span class="blc-peso">Fora de uso</span>';
+    }
+    return h + '</div>';
+  }
+  // A lista é a linha de camada da Pós: miniatura, nome e a pastilha.
+  function linha(m, op, o) {
+    var on = op.balde && op.balde.nome === m.nome && op.balde.origem === o;
+    var fundo = m.img ? 'background-image:url(\'' + m.img + '\')' : 'background:' + m.cor;
+    var h = '<div class="ps-cam' + (on ? ' ps-cam--on' : '') + '" role="button" tabindex="0" data-acao="balde" data-mat="' + esc(m.nome) + '" data-origem="' + o + '" aria-label="Pôr ' + esc(m.nome) + ' no balde de tintas">' +
+      '<span class="ps-thumb" style="' + fundo + '"></span>';
+    h += (o === 'modelo' && op.renomeando === m.nome)
+      ? '<input class="ps-nome-edit" value="' + esc(m.nome) + '" spellcheck="false" aria-label="Novo nome do material">'
+      : '<span class="ps-nome">' + esc(m.nome) + '</span>';
+    if (o === 'modelo' && !m.uso) h += '<span class="ps-conta">Fora de uso</span>';
+    return h + '</div>';
+  }
+  // A linha do Resizer: a mesma, com a medida em pixels na pastilha. Clicar
+  // marca, e a marcada é turquesa, como a camada escolhida na Pós.
+  function linhaRz(m, op) {
+    var sel = op.rz.sel.indexOf(m.nome) >= 0;
+    var cabe = Math.max(m.px[0], m.px[1]) <= op.rz.alvo;
+    return '<div class="ps-cam' + (sel ? ' ps-cam--on' : '') + '" role="button" tabindex="0" aria-pressed="' + sel + '" data-acao="rz-marcar" data-mat="' + esc(m.nome) + '" data-origem="rz">' +
+      '<span class="ps-thumb" style="background-image:url(\'' + m.img + '\')"></span>' +
+      '<span class="ps-nome">' + esc(m.nome) + '</span>' +
+      '<span class="ps-conta">' + m.px[0] + ' × ' + m.px[1] + (cabe ? ' · já cabe' : '') + '</span></div>';
+  }
+  function corpoRz(op, ctx) {
+    var q = (op.busca || '').trim().toLowerCase();
+    var itens = texturas(ctx).filter(function (m) { return !q || m.nome.toLowerCase().indexOf(q) >= 0; });
+    if (!texturas(ctx).length) return '<p class="cr-msg">Nenhuma textura aplicada no modelo.</p>';
+    if (!itens.length) return '<p class="cr-msg">Nenhuma textura com “' + esc(op.busca.trim()) + '” aqui.</p>';
+    return '<p class="cr-hint">Marque as texturas que quer reduzir. As cópias vão para a pasta cora_resized, ao lado do arquivo, e as originais ficam como estão.</p>' +
+      '<div class="ps-camadas">' + itens.map(function (m) { return linhaRz(m, op); }).join('') + '</div>';
+  }
+  function corpo(op, ctx) {
+    if (op.vista === 'resizer') return corpoRz(op, ctx);
+    if (op.cache) {
+      return '<div class="cr-vazio"><h2>Preparando as miniaturas</h2><p>O SketchUp exporta as texturas do modelo na primeira vez que esta lista abre. Das outras, ela abre na hora.</p><p class="cr-prog">42%</p></div>';
+    }
+    if (!mostraLista(op)) {
+      if (op.estado === 'lendo') {
+        return '<div class="cr-vazio"><h2>Lendo a pasta</h2><p>118 de 340 materiais</p><p class="cr-prog">35%</p></div>';
+      }
+      return '<div class="cr-vazio"><span class="cr-vazio-faixa"></span><h2>Nenhuma pasta aberta</h2>' +
+        '<p>Escolha a pasta da sua biblioteca. Cada subpasta vira uma pasta aqui, com os materiais .vrmat que estiverem dentro dela.</p>' +
+        '<button class="cf-ok blc-escolher" data-acao="escolher">' + svg(ICO.pasta) + 'Escolher pasta</button></div>';
+    }
+    var gs = grupos(op, ctx);
+    if (!gs.length || !gs[0].itens.length) {
+      if (op.busca) return '<p class="cr-msg">Nenhum material com “' + esc(op.busca.trim()) + '” aqui.</p>';
+      if (op.vista === 'modelo') return '<p class="cr-msg">Nenhum material aplicado no modelo ainda.</p>';
+      return '<p class="cr-msg">Nenhum material nesta pasta.</p>';
+    }
+    return gs.map(function (g) {
+      return '<section class="pk-mes">' + (g.t ? '<h3>' + esc(g.t) + '</h3>' : '') +
+        (op.lay === 'lista'
+          ? '<div class="ps-camadas">' + g.itens.map(function (m) { return linha(m, op, g.o); }).join('') + '</div>'
+          : '<div class="pk-grade" style="grid-template-columns:repeat(' + COLUNAS[op.tam] + ',minmax(0,1fr))">' +
+            g.itens.map(function (m) { return celula(m, op, g.o); }).join('') + '</div>') + '</section>';
+    }).join('');
+  }
+
+  // ══ o pé ══
+  function resumoRz(op, ctx) {
+    var n = op.rz.sel.length, vao = 0;
+    op.rz.sel.forEach(function (nome) {
+      var m = achar(ctx, 'modelo', nome);
+      if (m && m.px && Math.max(m.px[0], m.px[1]) > op.rz.alvo) vao++;
+    });
+    var cabem = n - vao;
+    if (!vao) return n === 1 ? 'Ela já cabe nesse lado maior.' : 'Todas já cabem nesse lado maior.';
+    if (!cabem) return n === 1 ? 'Ela vai diminuir.' : 'Todas vão diminuir.';
+    return (vao === 1 ? '1 vai diminuir' : vao + ' vão diminuir') + ' e ' + (cabem === 1 ? '1 já cabe.' : cabem + ' já cabem.');
+  }
+  function peRz(op, ctx) {
+    var n = op.rz.sel.length;
+    if (!n) return '';
+    if (op.rz.feito !== null) {
+      return '<footer class="pk-ok"><div class="pk-ok-txt"><strong>Reduzindo ' + op.rz.feito + ' de ' + n + '</strong>' +
+        '<span>Uma textura por vez. A janela continua respondendo.</span></div>' +
+        '<button class="pk-ok-btn" disabled>Reduzindo…</button></footer>';
+    }
+    return '<footer class="pk-ok"><div class="pk-ok-txt"><strong>' + (n === 1 ? '1 textura marcada' : n + ' texturas marcadas') + '</strong>' +
+      '<span class="rz-resumo">' + resumoRz(op, ctx) + '</span></div>' +
+      '<button class="pk-ok-outra" data-acao="rz-limpar">Limpar</button>' +
+      '<label class="jn-campo rz-campo">Lado maior<input class="rz-lado" type="text" inputmode="numeric" value="' + op.rz.alvo + '" aria-label="Lado maior em pixels">px</label>' +
+      '<button class="pk-ok-btn" data-acao="rz-reduzir">Reduzir</button></footer>';
+  }
+  function pe(op, ctx) {
+    if (op.vista === 'resizer') return peRz(op, ctx);
+    var h = '';
+    var m = op.balde && achar(ctx, op.balde.origem, op.balde.nome);
+    if (m) {
+      h += '<footer class="pk-ok">' + miniatura(m, 'pk-ok-mini') +
+        '<div class="pk-ok-txt"><strong>' + esc(m.nome) + '</strong><span>No balde de tintas. Clique numa face para pintar.</span></div></footer>';
+    }
+    h += '<div class="blc-ferr" role="toolbar" aria-label="Textura na seleção"><span class="blc-ferr-rot">Textura na seleção</span>';
+    FERR.forEach(function (f, i) {
+      if (i === 4) h += '<span class="jn-risco"></span>';
+      h += '<button class="ps-mini" data-acao="ferr" data-i="' + i + '" aria-label="' + esc(f.dica) + '">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + f.d + '</svg></button>';
+    });
+    return h + '</div>';
+  }
+
+  // ══ o menu, as confirmações, a dica e o aviso ══
+  function menu(op) {
+    if (!op.menu) return '';
+    var m = op.menu;
+    var it = function (acao, rot, perigo) { return '<button class="mc-it' + (perigo ? ' mc-it--perigo' : '') + '" data-acao="' + acao + '">' + rot + '</button>'; };
+    var sep = '<span class="mc-sep"></span>';
+    var h = '<div class="mc" role="menu" style="left:' + m.x + 'px;top:' + m.y + 'px">';
+    if (m.tipo === 'pasta') {
+      h += it('menu', 'Atualizar esta pasta');
+    } else if (m.tipo === 'bib') {
+      h += it('subst', 'Usar como substituto') + it('menu', 'Salvar a textura');
+    } else {
+      if (op.subst) h += it('trocar', 'Trocar por “' + esc(op.subst) + '”');
+      h += it('subst', 'Usar como substituto') + sep +
+        it('selecionar', 'Selecionar no modelo') + it('menu', 'Salvar a textura') + sep +
+        it('renomear', 'Renomear') + it('duplicar', 'Duplicar') + sep +
+        it('excluir', 'Excluir material', true);
+    }
+    return h + '</div>';
+  }
+  function dialogo(conteudo) {
+    return '<div class="cr-overlay cr-overlay--alto" data-acao="cf-nao"><div class="cf" role="dialog" aria-modal="true">' + conteudo + '</div></div>';
+  }
+  function confirma(op, ctx) {
+    if (op.excluir) {
+      return dialogo('<h3>Excluir “' + esc(op.excluir) + '”?</h3><p>O material sai do modelo, e as faces pintadas com ele voltam ao material padrão.</p>' +
+        '<div class="cf-acoes"><button class="cf-nao" data-acao="cf-nao">Cancelar</button><button class="cf-sim" data-acao="cf-sim">Excluir</button></div>');
+    }
+    if (op.eliminar) {
+      var n = ctx.cena.filter(function (m) { return !m.uso; }).length;
+      return dialogo('<h3>Eliminar ' + n + (n === 1 ? ' material fora de uso?' : ' materiais fora de uso?') + '</h3><p>Eles não estão aplicados em nada. Ctrl+Z desfaz.</p>' +
+        '<div class="cf-acoes"><button class="cf-nao" data-acao="cf-nao">Cancelar</button><button class="cf-sim" data-acao="cf-sim">Eliminar</button></div>');
+    }
+    if (op.girar) {
+      return dialogo('<h3>Girar a textura</h3><p>Em graus, nas faces selecionadas.</p>' +
+        '<div class="jn-campo"><input type="text" inputmode="decimal" value="45" aria-label="Ângulo em graus"></div>' +
+        '<div class="cf-acoes"><button class="cf-nao" data-acao="cf-nao">Cancelar</button><button class="cf-ok" data-acao="cf-girar">Girar</button></div>');
+    }
+    return '';
+  }
+  function extras(op) {
+    return (op.dica !== undefined && op.dica !== null ? '<div class="cr-dica" role="tooltip" data-para="' + op.dica + '">' + esc(FERR[op.dica].dica) + '</div>' : '') +
+      (op.toast ? '<div class="ps-toast" role="status">' + esc(op.toast) + '</div>' : '');
+  }
+
+  function janela(op, ctx) {
+    return cabeca() + trilho() +
+      '<div class="pk">' + lado(op, ctx) + '<div class="pk-main">' + cab(op, ctx) + aviso(op) +
+      '<div class="pk-corpo">' + corpo(op, ctx) + '</div>' + pe(op, ctx) + '</div></div>' +
+      menu(op) + confirma(op, ctx) + extras(op);
+  }
+
+  // O menu vira para dentro da janela, e a dica senta em cima do botão dela.
+  function ajustar(jn, op) {
+    var m = jn.querySelector('.mc');
+    if (m && op.menu) {
+      if (op.menu.x + m.offsetWidth > jn.clientWidth - 8) m.style.left = Math.max(8, op.menu.x - m.offsetWidth) + 'px';
+      if (op.menu.y + m.offsetHeight > jn.clientHeight - 8) m.style.top = (jn.clientHeight - m.offsetHeight - 8) + 'px';
+    }
+    var d = jn.querySelector('.cr-dica');
+    if (d) posicionarDica(jn, d, jn.querySelector('.ps-mini[data-i="' + d.getAttribute('data-para') + '"]'));
+  }
+  function posicionarDica(jn, d, b) {
+    if (!b) return;
+    var rj = jn.getBoundingClientRect(), rb = b.getBoundingClientRect();
+    d.style.left = (rb.left - rj.left + rb.width / 2) + 'px';
+    d.style.top = (rb.top - rj.top - 8) + 'px';
+    d.style.transform = 'translate(-50%, -100%)';
+  }
+
+  // ══ a janela viva ══
+  var el = document.getElementById('jn-vivo');
+  var vivo = normal({ vista: 'todos', tam: 'm' });
+  var ctxVivo = base();
+  var cacheVisto = false;
+  var relogioAviso = null;
+
+  function pintar() {
+    el.innerHTML = janela(vivo, ctxVivo);
+    ajustar(el, vivo);
+    var campo = el.querySelector('.ps-nome-edit, .cf input');
+    if (campo) { campo.focus(); campo.select(); }
+  }
+  function avisar(msg) {
+    vivo.toast = msg;
+    clearTimeout(relogioAviso);
+    relogioAviso = setTimeout(function () { vivo.toast = null; pintar(); }, 2800);
+  }
+  function renomear(nome) {
+    var alvo = vivo.renomeando;
+    vivo.renomeando = null;
+    nome = (nome || '').trim();
+    var m = alvo && achar(ctxVivo, 'modelo', alvo);
+    if (m && nome && nome !== alvo) {
+      m.nome = nome;
+      if (vivo.balde && vivo.balde.origem === 'modelo' && vivo.balde.nome === alvo) vivo.balde.nome = nome;
+      vivo.rz.sel = vivo.rz.sel.map(function (n) { return n === alvo ? nome : n; });
+      ordenar(ctxVivo.cena);
+    }
+    pintar();
+  }
+  function ler() {
+    vivo.estado = 'lendo'; vivo.vista = null; vivo.balde = null;
+    pintar();
+    setTimeout(function () { vivo.estado = 'lista'; vivo.vista = 'todos'; pintar(); }, 1400);
+  }
+  // A mesma conta do Ruby: só reduz o que passa do lado maior, uma por vez.
+  function reduzir() {
+    var campo = el.querySelector('.rz-lado');
+    var lado = parseInt(campo && campo.value, 10);
+    if (!lado || lado < 8) { avisar('Informe um lado maior a partir de 8px.'); return pintar(); }
+    var rz = vivo.rz, nomes = rz.sel.slice(), feitos = 0, ignoradas = 0;
+    rz.alvo = lado; rz.feito = 0;
+    pintar();
+    (function passo(i) {
+      if (i >= nomes.length) {
+        rz.feito = null; rz.sel = [];
+        avisar((feitos === 1 ? '1 textura reduzida' : feitos + ' texturas reduzidas') + ' para ' + lado + 'px.' +
+          (ignoradas ? ' ' + (ignoradas === 1 ? '1 já era menor.' : ignoradas + ' já eram menores.') : ''));
+        return pintar();
+      }
+      var m = achar(ctxVivo, 'modelo', nomes[i]);
+      if (m && m.px) {
+        var maior = Math.max(m.px[0], m.px[1]);
+        if (maior > lado) {
+          var k = lado / maior;
+          m.px = [Math.max(1, Math.round(m.px[0] * k)), Math.max(1, Math.round(m.px[1] * k))];
+          feitos++;
+        } else ignoradas++;
+      }
+      rz.feito = i + 1;
+      pintar();
+      setTimeout(function () { passo(i + 1); }, 420);
+    })(0);
+  }
+
+  el.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t.closest('.ps-nome-edit, .cf input, .rz-campo')) return;
+    var dica = el.querySelector('.cr-dica'); if (dica && !vivo.dica) dica.remove();
+    if (vivo.menu && !t.closest('.mc')) vivo.menu = null;
+
+    var v = t.closest('[data-vista]');
+    if (v) {
+      vivo.vista = v.getAttribute('data-vista');
+      vivo.pasta = v.getAttribute('data-pasta');
+      if (vivo.vista === 'modelo' && !cacheVisto) {
+        cacheVisto = true; vivo.cache = true;
+        setTimeout(function () { vivo.cache = false; pintar(); }, 1300);
+      }
+      return pintar();
+    }
+    var tam = t.closest('[data-tam]');
+    if (tam) { vivo.tam = tam.getAttribute('data-tam'); return pintar(); }
+    var lay = t.closest('[data-lay]');
+    if (lay) { vivo.lay = lay.getAttribute('data-lay'); return pintar(); }
+
+    var a = t.closest('[data-acao]');
+    if (a) {
+      var acao = a.getAttribute('data-acao');
+      var alvo = vivo._alvo;
+      if (acao === 'cf-nao' && t.closest('.cf') && !t.closest('.cf-nao')) return;
+      if (acao === 'balde') {
+        var cel = a.closest('[data-mat]');
+        vivo.balde = { nome: cel.getAttribute('data-mat'), origem: cel.getAttribute('data-origem') };
+      }
+      if (acao === 'rz-marcar' && vivo.rz.feito === null) {
+        var nomeRz = a.getAttribute('data-mat'), pos = vivo.rz.sel.indexOf(nomeRz);
+        if (pos >= 0) vivo.rz.sel.splice(pos, 1); else vivo.rz.sel.push(nomeRz);
+      }
+      if (acao === 'rz-todas') {
+        var todas = texturas(ctxVivo).map(function (m) { return m.nome; });
+        vivo.rz.sel = vivo.rz.sel.length === todas.length ? [] : todas;
+      }
+      if (acao === 'rz-limpar') vivo.rz.sel = [];
+      if (acao === 'rz-reduzir') return reduzir();
+      if (acao === 'subst') vivo.subst = alvo.nome;
+      if (acao === 'subst-cancelar') vivo.subst = null;
+      if (acao === 'trocar') {
+        var novo = achar(ctxVivo, 'bib', vivo.subst) || achar(ctxVivo, 'modelo', vivo.subst);
+        ctxVivo.cena = ctxVivo.cena.filter(function (m) { return m.nome !== alvo.nome; });
+        if (novo && !achar(ctxVivo, 'modelo', novo.nome)) ctxVivo.cena.push({ nome: novo.nome, img: novo.img, cor: novo.cor, uso: true, px: novo.img ? [2048, 2048] : null });
+        ordenar(ctxVivo.cena);
+        avisar('“' + vivo.subst + '” entrou no lugar de “' + alvo.nome + '”.');
+        vivo.subst = null;
+      }
+      if (acao === 'selecionar') avisar('12 objetos selecionados.');
+      if (acao === 'renomear') vivo.renomeando = alvo.nome;
+      if (acao === 'duplicar') {
+        var orig = achar(ctxVivo, 'modelo', alvo.nome), nomeCopia = alvo.nome + '_copia', k = 2;
+        while (achar(ctxVivo, 'modelo', nomeCopia)) nomeCopia = alvo.nome + '_copia_' + (k++);
+        ctxVivo.cena.push({ nome: nomeCopia, img: orig.img, cor: orig.cor, uso: true, px: orig.px ? orig.px.slice() : null });
+        ordenar(ctxVivo.cena);
+      }
+      if (acao === 'excluir') vivo.excluir = alvo.nome;
+      if (acao === 'eliminar') vivo.eliminar = true;
+      if (acao === 'cf-nao') { vivo.excluir = null; vivo.eliminar = false; vivo.girar = false; }
+      if (acao === 'cf-sim') {
+        if (vivo.excluir) {
+          var sai = vivo.excluir;
+          ctxVivo.cena = ctxVivo.cena.filter(function (m) { return m.nome !== sai; });
+          if (vivo.balde && vivo.balde.origem === 'modelo' && vivo.balde.nome === sai) vivo.balde = null;
+        }
+        if (vivo.eliminar) {
+          var antes = ctxVivo.cena.length;
+          ctxVivo.cena = ctxVivo.cena.filter(function (m) { return m.uso; });
+          var foram = antes - ctxVivo.cena.length;
+          avisar(foram === 1 ? '1 material eliminado.' : foram + ' materiais eliminados.');
+        }
+        vivo.excluir = null; vivo.eliminar = false;
+      }
+      if (acao === 'cf-girar') { vivo.girar = false; avisar(SEM_FACE); }
+      if (acao === 'ferr') {
+        if (a.getAttribute('data-i') === '7') vivo.girar = true;
+        else avisar(SEM_FACE);
+      }
+      if (acao === 'baixar') avisar(texturas(ctxVivo).length + ' texturas salvas.');
+      if (acao === 'fechar') { vivo.estado = 'vazio'; vivo.vista = null; vivo.balde = null; }
+      if (acao === 'escolher' || acao === 'atualizar') return ler();
+      if (['menu', 'subst', 'trocar', 'selecionar', 'renomear', 'duplicar', 'excluir'].indexOf(acao) >= 0) vivo.menu = null;
+    }
+    pintar();
+  });
+
+  el.addEventListener('contextmenu', function (e) {
+    var cel = e.target.closest('[data-mat]');
+    var pasta = e.target.closest('[data-vista="pasta"]');
+    if (cel && cel.getAttribute('data-origem') === 'rz') return;
+    if (!cel && !pasta) return;
+    e.preventDefault();
+    var r = el.getBoundingClientRect();
+    vivo._alvo = { nome: cel ? cel.getAttribute('data-mat') : pasta.getAttribute('data-pasta') };
+    vivo.menu = {
+      tipo: pasta ? 'pasta' : (cel.getAttribute('data-origem') === 'modelo' ? 'modelo' : 'bib'),
+      x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top)
+    };
+    pintar();
+  });
+
+  el.addEventListener('mouseover', function (e) {
+    var b = e.target.closest('.ps-mini');
+    if (!b || b.contains(e.relatedTarget)) return;
+    var d = document.createElement('div');
+    d.className = 'cr-dica'; d.setAttribute('role', 'tooltip');
+    d.textContent = FERR[+b.getAttribute('data-i')].dica;
+    el.appendChild(d);
+    posicionarDica(el, d, b);
+  });
+  el.addEventListener('mouseout', function (e) {
+    var b = e.target.closest('.ps-mini');
+    if (!b || b.contains(e.relatedTarget)) return;
+    el.querySelectorAll('.cr-dica').forEach(function (d) { d.remove(); });
+  });
+
+  el.addEventListener('input', function (e) {
+    if (e.target.matches('.rz-lado')) {
+      var n = parseInt(e.target.value, 10);
+      if (n >= 8) {
+        vivo.rz.alvo = n;
+        el.querySelector('.pk-corpo').innerHTML = corpo(vivo, ctxVivo);
+        var resumo = el.querySelector('.rz-resumo');
+        if (resumo) resumo.textContent = resumoRz(vivo, ctxVivo);
+      }
+      return;
+    }
+    if (!e.target.matches('.pk-busca input')) return;
+    vivo.busca = e.target.value;
+    el.querySelector('.pk-corpo').innerHTML = corpo(vivo, ctxVivo);
+  });
+
+  el.addEventListener('keydown', function (e) {
+    if (e.target.matches('.ps-cam') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.target.click(); return; }
+    if (e.target.matches('.rz-lado') && e.key === 'Enter') { reduzir(); return; }
+    if (e.target.matches('.cf input') && e.key === 'Enter') { vivo.girar = false; avisar(SEM_FACE); return pintar(); }
+    if (!e.target.matches('.ps-nome-edit')) return;
+    if (e.key === 'Enter') renomear(e.target.value);
+    if (e.key === 'Escape') { vivo.renomeando = null; pintar(); }
+  });
+  el.addEventListener('focusout', function (e) {
+    if (e.target.matches('.ps-nome-edit') && vivo.renomeando) renomear(e.target.value);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || (!vivo.menu && !vivo.excluir && !vivo.eliminar && !vivo.girar)) return;
+    vivo.menu = null; vivo.excluir = null; vivo.eliminar = false; vivo.girar = false; pintar();
+  });
+
+  pintar();
+
+  // ══ os estados, parados ══
+  var ctx = base();
+  var MARCADAS = ['Mármore Carrara', 'Mármore Branco', 'Pedra Mineira', 'Off White'];
+  var ESTADOS = [
+    { t: 'Nenhuma pasta aberta', op: { estado: 'vazio' },
+      d: 'Na cena e o Resizer ficam no alto da lateral, porque funcionam sem biblioteca. O resto é o vazio da marca, com a faixa, e as ferramentas de textura seguem no pé.' },
+    { t: 'Lendo a pasta', op: { estado: 'lendo' },
+      d: 'O número diz quanto falta. As prévias saem de dentro de cada .vrmat, e ficam guardadas para a próxima vez.' },
+    { t: 'No balde', op: { vista: 'pasta', pasta: 'Madeiras', balde: { nome: 'Carvalho Natural', origem: 'bib' } },
+      d: 'Um clique põe o material no balde de tintas e liga a ferramenta. Nada é pintado sozinho: quem pinta é o clique numa face. O pé fica até outro material entrar no balde.' },
+    { t: 'Preparando as miniaturas', op: { vista: 'modelo', estado: 'vazio', cache: true },
+      d: 'Só na primeira vez que o arquivo abre esta lista. O SketchUp exporta as texturas, e a janela não trava enquanto isso.' },
+    { t: 'Materiais na cena', op: { vista: 'modelo' },
+      d: 'O que está no arquivo, em ordem de nome. O que não está aplicado em nada diz "Fora de uso" e continua na lista, porque pode voltar a ser usado. A cabeça troca as ações da biblioteca por baixar e eliminar.' },
+    { t: 'Na cena, em lista', op: { vista: 'modelo', lay: 'lista', balde: { nome: 'Travertino', origem: 'modelo' } },
+      d: 'A linha da camada da Pós, com "Fora de uso" na pastilha. A linha turquesa é a do material que está no balde. Em lista o P M G sai da cabeça, porque não teria o que mudar.' },
+    { t: 'Conta-gotas', op: { vista: 'modelo', balde: { nome: 'Travertino', origem: 'modelo' } },
+      d: 'Com a aba aberta, o conta-gotas do SketchUp leva direto ao material amostrado, marcado e já no balde.' },
+    { t: 'Material Resizer', op: { vista: 'resizer', estado: 'vazio' },
+      d: 'Fica logo abaixo de Na cena e abre aqui dentro, sem janela separada. A lista mostra as texturas do modelo com a medida em pixels, e as que não passam do lado maior dizem que já cabem.' },
+    { t: 'Marcando as texturas', op: { vista: 'resizer', rz: { sel: MARCADAS, alvo: 1536, feito: null } },
+      d: 'A marcada fica turquesa, como a camada escolhida na Pós. Antes de apertar Reduzir, o pé diz quantas vão diminuir e quantas já cabem no lado maior do campo.' },
+    { t: 'Reduzindo', op: { vista: 'resizer', rz: { sel: MARCADAS, alvo: 1536, feito: 2 } },
+      d: 'Uma textura por vez, com o número de onde está. No fim o aviso diz quantas foram reduzidas e quantas já eram menores, e a lista mostra as medidas novas.' },
+    { t: 'Botão direito na biblioteca', op: { vista: 'pasta', pasta: 'Metais', menu: { tipo: 'bib', x: 400, y: 262 } },
+      d: 'Duas ações: guardar o material para trocar por outro da cena, ou salvar a textura dele num arquivo.' },
+    { t: 'Com um substituto', op: { vista: 'modelo', subst: 'Carvalho Natural', menu: { tipo: 'modelo', x: 520, y: 300 } },
+      d: 'A faixa lembra qual é o substituto até ele ser usado ou cancelado. No menu do material que sai, Trocar vem primeiro. Excluir fica sozinho no fim, depois do fio.' },
+    { t: 'Renomeando', op: { vista: 'modelo', renomeando: 'Pinus' },
+      d: 'O nome vira campo ali mesmo. Enter grava e Esc desiste, igual ao Blocos e às camadas da Pós.' },
+    { t: 'Excluir', op: { vista: 'modelo', excluir: 'Laca Canelada' },
+      d: 'Antes excluía sem perguntar. Agora pede a confirmação do feed e diz o que acontece com as faces.' },
+    { t: 'Eliminar os fora de uso', op: { vista: 'modelo', eliminar: true },
+      d: 'O número vem da própria lista. A varredura antes de apagar continua no Ruby, e o Ctrl+Z desfaz.' },
+    { t: 'A dica das ferramentas', op: { vista: 'todos', dica: 0 },
+      d: 'Os nove botões são o botão pequeno da Pós. A explicação longa de antes virou uma linha, que é o que a dica da web aguenta sem quebrar.' },
+    { t: 'Girar num ângulo', op: { vista: 'todos', girar: true },
+      d: 'A única ferramenta que pergunta alguma coisa. A janela é a da confirmação, com o campo que o Salvar cena já usa.' },
+    { t: 'O aviso passageiro', op: { vista: 'todos', toast: SEM_FACE },
+      d: 'Toda ferramenta responde no aviso da Pós, que some sozinho. Sem seleção, a resposta é esta, que é a mensagem que o Ruby já manda.' }
+  ];
+
+  var caixa = document.getElementById('estados');
+  caixa.innerHTML = ESTADOS.map(function (s, i) {
+    return '<figure class="estado"><div class="jn-fora"><div class="jn co jn--curta" data-estado="' + i + '">' + janela(normal(s.op), ctx) + '</div></div>' +
+      '<figcaption><b>' + s.t + '</b><p>' + s.d + '</p></figcaption></figure>';
+  }).join('');
+  function ajustarEstados() {
+    caixa.querySelectorAll('[data-estado]').forEach(function (jn) { ajustar(jn, normal(ESTADOS[+jn.getAttribute('data-estado')].op)); });
+  }
+  ajustarEstados();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustarEstados);
+
+  // ══ o tema ══
+  var raiz = document.documentElement, btn = document.getElementById('tema');
+  function escuro() { var t = raiz.getAttribute('data-theme'); return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function rotular() { btn.textContent = escuro() ? 'Ver no claro' : 'Ver no escuro'; }
+  rotular();
+  btn.addEventListener('click', function () { raiz.setAttribute('data-theme', escuro() ? 'light' : 'dark'); rotular(); });
+})();
+</script>
