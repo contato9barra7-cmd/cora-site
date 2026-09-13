@@ -59,6 +59,10 @@ ALVO = re.compile(
     # a caixa de marcar: ela so tinha regra no globals, nunca entrava, e saia
     # como caixinha crua do sistema no meio de controles desenhados
     r'|cora-check'
+    # o Upscale da web: a casca `up-painel`, a conta do tamanho, o preset, os
+    # sliders, a dica do ? e a janela do preset. So a aba Upscale de antes
+    # usava `up-`, e ela fica escondida como fonte de estado.
+    r'|up-'
     # o menu do botao direito, a linha de camada (a lista do Blocos e do
     # Materiais), o renomear na linha, o botao de icone e o aviso passageiro,
     # todos da Pos da web
