@@ -26,8 +26,8 @@ function combina(pathname, lista) {
 export default function RodapeGlobal() {
   const pathname = usePathname() || '';
   if (combina(pathname, PREFIXOS_APP)) return null;
-  // O rodapé de quatro colunas é exclusivo da Home.
-  if (pathname === '/') return <RodapeCora />;
-  // Nas demais páginas públicas (preços, suporte, termos, login, etc.), o rodapé fino padrão.
+  // O rodapé escuro de quatro colunas com a marca d'água CORA é usado na Home e em Preços.
+  if (pathname === '/' || pathname === '/precos' || pathname === '/precos/') return <RodapeCora />;
+  // Nas demais páginas públicas (suporte, termos, login, etc.), o rodapé fino padrão.
   return <RodapeLegal />;
 }
