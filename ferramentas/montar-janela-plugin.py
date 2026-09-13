@@ -54,6 +54,8 @@ ALVO = re.compile(
     r'|cor\b|cor__|cref\b|cref-|ft\b|ft-|ft__|cf\b|cf-|nm-|ps-b|dt\b|dt-'
     # a aba Editar e as duas telas de pincel
     r'|ed-|pn-|pk'
+    # a janela de baixar imagem
+    r'|dl\b|dl-'
     # o menu do botao direito, a linha de camada (a lista do Blocos e do
     # Materiais), o renomear na linha, o botao de icone e o aviso passageiro,
     # todos da Pos da web
