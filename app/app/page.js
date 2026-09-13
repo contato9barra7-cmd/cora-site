@@ -602,13 +602,14 @@ export default function AppPage() {
   const [layout, setLayout]   = useState('linha');   // grade | linha — lista por padrão
   const [tamanho, setTamanho] = useState('g');       // p | m | g | gg — G por padrão
 
-  // P precisa de largura para manter ações e legendas legíveis. Em tablets e
-  // celulares ele vira M e sai do seletor; notebooks continuam com as quatro
-  // opções porque ainda há largura para o card completo.
+  // P precisa de largura para manter ações e legendas legíveis; GG fica do mesmo
+  // tamanho que G no iPad/celular. Ambos saem do seletor no mobile/tablet.
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 1024px), (pointer: coarse)');
     const ajustar = () => {
-      if (mq.matches) setTamanho((atual) => atual === 'p' ? 'm' : atual);
+      if (mq.matches) {
+        setTamanho((atual) => (atual === 'gg' ? 'g' : atual === 'p' ? 'm' : atual));
+      }
     };
     ajustar();
     mq.addEventListener?.('change', ajustar);
@@ -1408,6 +1409,7 @@ export default function AppPage() {
                 {['p', 'm', 'g', 'gg'].map((tt) => (
                   <button
                     key={tt}
+                    data-tam={tt}
                     className={'cr-tam' + (tamanho === tt ? ' cr-tam--on' : '')}
                     onClick={() => setTamanho(tt)}
                   >{tt.toUpperCase()}</button>

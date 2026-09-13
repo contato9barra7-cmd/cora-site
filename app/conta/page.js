@@ -406,6 +406,20 @@ function ContaConteudo() {
           </div>
         )}
 
+        {/* Metades invisíveis: clicar na esquerda volta, na direita avança (que nem na página de login) */}
+        <div className="heroi__toque" aria-hidden="true">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setQuadro((q) => (q - 1 + 3) % 3); }}
+            aria-label="Anterior"
+          />
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setQuadro((q) => (q + 1) % 3); }}
+            aria-label="Próxima"
+          />
+        </div>
+
         <div className="heroi__pontos">
           {[0, 1, 2].map((i) => (
             <button
@@ -414,7 +428,7 @@ function ContaConteudo() {
               data-status={quadro === i ? 'ativa' : (i < quadro ? 'completa' : 'pendente')}
               aria-current={quadro === i}
               aria-label={`${t('pn_quadro')} ${i + 1}`}
-              onClick={() => setQuadro(i)}
+              onClick={(e) => { e.stopPropagation(); setQuadro(i); }}
             >
               {/* `key` no filho: sem ele o React reaproveita o mesmo nó ao
                   voltar para um quadro já visto, e a animação não recomeça. */}

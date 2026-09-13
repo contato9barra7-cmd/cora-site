@@ -1234,6 +1234,8 @@ img, video, iframe {
   .co .cr-fbtn svg { width:13px; height:13px; }
   .co .cr-tams, .co .cr-seg-lay { gap:0; padding:2px; }
   .co .cr-tam { min-width:22px; height:24px; padding:0 4px; font-size:11px; }
+  .co .cr-tams .cr-tam:last-child,
+  .co .cr-tams .cr-tam[data-tam="gg"] { display:none !important; }
   .co .cr-seg-lay .cr-fbtn { width:24px; height:24px; }
   .co .cr-barra-dir > .cr-seg-lay, .co .cr-barra-dir > .cr-ft-wrap { margin-left:2px; }
   .co .cr-cards--linha.cr-cards--p .cr-card,
@@ -1600,8 +1602,10 @@ img, video, iframe {
   .co .cr-painel-vazio,
   .co .cr-sulco { max-width: none; }
 
-  /* P não tem espaço para texto e sete ações no tablet. */
-  .co .cr-tams .cr-tam:first-child { display: none; }
+  /* P não tem espaço para texto e sete ações no tablet; GG tem o mesmo tamanho de G no iPad/celular. */
+  .co .cr-tams .cr-tam:first-child,
+  .co .cr-tams .cr-tam:last-child,
+  .co .cr-tams .cr-tam[data-tam="gg"] { display: none !important; }
 
   /* A barra do feed e os controles do editor ficam acima do conteúdo, sem
      entrar por baixo do cabeçalho da aplicação. */
@@ -1620,16 +1624,20 @@ img, video, iframe {
   .co .ps:has(.ps-opts) .ps-col-abrir { top: 66px; }
 }
 
-/* Em notebook P continua disponível; o corte anterior em 1700px escondia a
+/* Em notebook P e GG continuam disponíveis; o corte anterior em 1700px escondia a
    opção em monitores onde ela cabe com folga. */
-@media (min-width: 1025px) {
-  .co .cr-tams .cr-tam:first-child { display: grid; }
+@media (min-width: 1025px) and (pointer: fine) {
+  .co .cr-tams .cr-tam:first-child { display: flex; }
+  .co .cr-tams .cr-tam:last-child,
+  .co .cr-tams .cr-tam[data-tam="gg"] { display: flex !important; }
 }
 
 /* O check externo e a barra preta dividem a mesma linha. A cor de seleção e
    favorito é a turquesa do produto, inclusive no Safari do iPad. */
 @media (pointer: coarse) {
-  .co .cr-tams .cr-tam:first-child { display: none; }
+  .co .cr-tams .cr-tam:first-child,
+  .co .cr-tams .cr-tam:last-child,
+  .co .cr-tams .cr-tam[data-tam="gg"] { display: none !important; }
   .co .cr-card .cr-card-acoes {
     left: 50%;
     right: auto;

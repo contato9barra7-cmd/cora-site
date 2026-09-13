@@ -475,7 +475,7 @@
   letter-spacing:-.032em; line-height:1.1; text-wrap:balance;
 }.pn .heroi__sub{ margin:14px 0 0; color:var(--ink2); font-size:14.5px; max-width:52ch; text-wrap:pretty; }/* 52ch é a medida de quem tem duas linhas para ler. O quadro das aulas tem
    uma frase só, e ela cabe inteira numa linha: o limite ali só serviria para
-   quebrá-la no meio. */.pn .heroi__sub--largo{ max-width:none; }.pn .heroi__sub b{ color:var(--ink); font-weight:600; }.pn .heroi__acoes{ margin-top:28px; display:flex; gap:10px; flex-wrap:wrap; }/* ── O HERÓI PASSOU A SER TRÊS ──
+   quebrá-la no meio. */.pn .heroi__sub--largo{ max-width:none; }.pn .heroi__sub b{ color:var(--ink); font-weight:600; }.pn .heroi__acoes{ margin-top:28px; display:flex; gap:10px; flex-wrap:wrap; position:relative; z-index:10; }/* ── O HERÓI PASSOU A SER TRÊS ──
    O mesmo quadro conta três assuntos: quem chegou, o IA Studio e as aulas.
    Um de cada vez, e só o quadro do momento existe no HTML — empilhar os três
    em absoluto obrigaria a caixa a ter a altura do mais alto, e os dois mais
@@ -483,7 +483,11 @@
 @keyframes pn-quadro{
   from{ opacity:0; transform:translateY(7px); }
   to  { opacity:1; transform:none; }
-}/* ── AS BARRINHAS DO HERÓI ──
+}/* Metades invisíveis: clicar na esquerda volta, na direita avança (que nem na tela de login) */
+.pn .heroi__toque{ position:absolute; inset:0; z-index:5; display:flex; pointer-events:none; }
+.pn .heroi__toque button{ height:100%; background:none; border:0; cursor:pointer; pointer-events:auto; padding:0; margin:0; -webkit-tap-highlight-color:transparent; }
+.pn .heroi__toque button:first-child{ width:35%; }
+.pn .heroi__toque button:last-child{ width:65%; }/* ── AS BARRINHAS DO HERÓI ──
    Elas são o relógio, e não um enfeite ao lado dele: a barra enche em seis
    segundos e o fim da animação é o que vira o quadro. Um `setInterval` em
    paralelo daria dois relógios, e bastaria uma pausa para eles se
@@ -491,7 +495,7 @@
 
    Segurar o dedo em cima pausa, como num story. Passar o mouse NÃO para:
    quem só atravessou o cartão com o cursor não pediu nada. */.pn .heroi__pontos{
-  position:absolute; right:22px; bottom:18px; z-index:2; display:flex; gap:7px;
+  position:absolute; right:22px; bottom:18px; z-index:10; display:flex; gap:7px;
 }.pn .heroi__ponto{
   width:30px; height:3px; padding:0; border:0; border-radius:var(--pill);
   background:var(--line2); cursor:pointer; overflow:hidden;
