@@ -6859,8 +6859,12 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* Uma nota por linha, como no estudo: o roteiro falado é um parágrafo
    inteiro e não cabe numa coluna estreita ao lado das outras duas. */
 .narr-notas { display: grid; gap: 6px; margin-top: 10px; }
+/* As notas do rodape sao IRMAS dos takes, e nao um bloco de outra especie:
+   o mesmo cartao branco de fio fino, o mesmo canto, o mesmo respiro. O bege
+   chapado que estava aqui empurrava elas para fora do roteiro. */
 .narr-nota {
-  background: var(--surface-1, #f1efe8); border-radius: 10px; padding: 9px 12px;
+  border: 0.5px solid var(--border, #d3d1c7); border-radius: 12px;
+  padding: 11px 13px; background: var(--surface-2, #fff);
   font-size: 12.5px; color: var(--text-2, #666); display: flex; flex-direction: column; gap: 3px;
 }
 .narr-nota b { font-weight: 500; color: var(--text, #2c2c2a); font-size: 12.5px; }

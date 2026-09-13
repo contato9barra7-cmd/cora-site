@@ -651,7 +651,7 @@
 .narr-take-anim{margin-top: 8px; height: 30px; padding: 0 15px; border-radius: 100px; border: 0.5px solid var(--border-strong, #b4b2a9); background: transparent; font-size: 11.2px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;}
 .narr-take-anim:hover{border-color: var(--turq-txt); color: var(--turq-txt);}
 .narr-notas{display: grid; gap: 6px; margin-top: 10px;}
-.narr-nota{background: var(--surface-1, #f1efe8); border-radius: 10px; padding: 9px 12px; font-size: 11.2px; color: var(--text-2, #666); display: flex; flex-direction: column; gap: 3px;}
+.narr-nota{border: 0.5px solid var(--border, #d3d1c7); border-radius: 12px; padding: 11px 13px; background: var(--surface-2, #fff); font-size: 11.2px; color: var(--text-2, #666); display: flex; flex-direction: column; gap: 3px;}
 .narr-nota b{font-weight: 500; color: var(--text, #2c2c2a); font-size: 11.2px;}
 .narr-nota-cab{display: flex; align-items: center; justify-content: space-between; gap: 10px;}
 .narr-nota .vz-prompt-copiar{padding: 5px 11px; font-size: 10.8px;}
@@ -2659,7 +2659,7 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
       html: coluna(formAnimacao({ modelo:'Seedance 1.0 Pro', inicio:1, fim:2, seta:true, audio:false, descricao:'a câmera entra pela porta e avança até a sala' }), barraAnimacao({ custo:60 })) },
     { n:'Etapa 5', t:'A duração aberta',
       d:'Duração e resolução moram na barra, ao lado da quantidade, como no Render. Elas não são do formulário: são de quanto vai custar.',
-      html: coluna(formAnimacao({ modelo:'Seedance 1.0 Pro', inicio:1, fim:2, seta:true, audio:true }), barraAnimacao({ pop:'dur', dur:'8', custo:96 })) },
+      html: coluna(formAnimacao({ modelo:'Seedance 1.0 Pro', inicio:1, fim:2, seta:true, audio:true }), barraAnimacao({ pop:'dur', dur:'10', custo:120 })) },
     { n:'Etapa 6', t:'Modo timelapse ligado',
       d:'Ligado, ele esconde a descrição: o movimento passa a ser o da obra, e não o que se pediria por escrito. O aviso embaixo do interruptor diz isso antes de alguém ligar por engano.',
       html: coluna(formAnimacao({ modelo:'Kling 3.0', inicio:1, timelapse:true, audio:false }), barraAnimacao({ custo:60 })) }
