@@ -17,7 +17,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { lerConta, enviarSuporte } from '../../lib/auth';
+import { lerConta, enviarSuporte, aplicarTema } from '../../lib/auth';
 import { useIdioma, tOpt } from '../../lib/i18n';
 import Cabecalho from '../../components/Cabecalho';
 import { GRUPOS, TUDO, PERGUNTAS, contar, noIdioma } from '../../lib/faq-suporte';
@@ -133,6 +133,23 @@ export default function Suporte() {
     if (c) {
       if (c.nome) setNome(c.nome);
       if (c.email) setEmail(c.email);
+    }
+    const tema = (c && c.tema) || localStorage.getItem('cora_tema') || 'sistema';
+    aplicarTema(tema);
+
+    if (tema === 'sistema' && window.matchMedia) {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      const aoMudar = (e) => {
+        if ((localStorage.getItem('cora_tema') || 'sistema') === 'sistema') {
+          document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+        }
+      };
+      if (mq.addEventListener) mq.addEventListener('change', aoMudar);
+      else if (mq.addListener) mq.addListener(aoMudar);
+      return () => {
+        if (mq.removeEventListener) mq.removeEventListener('change', aoMudar);
+        else if (mq.removeListener) mq.removeListener(aoMudar);
+      };
     }
   }, []);
 

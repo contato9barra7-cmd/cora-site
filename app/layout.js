@@ -85,6 +85,16 @@ export default function RootLayout({ children }) {
                 if (localStorage.getItem('cora_menu_recolhido') === '1') {
                   document.documentElement.classList.add('menu-recolhido');
                 }
+                var _t = localStorage.getItem('cora_tema');
+                if (!_t) {
+                  try {
+                    var _c = JSON.parse(localStorage.getItem('cora_conta') || '{}');
+                    if (_c && _c.tema) _t = _c.tema;
+                  } catch (e) {}
+                }
+                var _dark = _t === 'escuro' || ((!_t || _t === 'sistema') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                if (_t === 'claro') _dark = false;
+                document.documentElement.setAttribute('data-theme', _dark ? 'dark' : 'light');
               } catch (e) {}
             `
           }}
