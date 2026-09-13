@@ -12209,10 +12209,6 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .up-dropzone:hover { border-color: var(--lima-txt); }
 .up-preview { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line2); }
 .up-preview img { display: block; width: 100%; height: auto; }
-.up-dim {
-  position: absolute; left: 10px; bottom: 10px; padding: 3px 9px;
-  border-radius: 100px; background: rgba(0,0,0,.6); color: #fff; font-size: 11px;
-}
 .up-trocar {
   position: absolute; right: 10px; bottom: 10px; padding: 6px 14px;
   border-radius: 100px; border: none; background: rgba(0,0,0,.6); color: #fff;

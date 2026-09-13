@@ -88,15 +88,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 /* ── o upscale dentro da janela ──
    Na web a janela do preset é `fixed` e cobre o navegador. Aqui ela mede
    contra a janela, pelo mesmo motivo do `.cr-overlay` da moldura. */
-.jn .up-modal-fundo{ position:absolute; }
-/* A conta do tamanho. O globals tem DUAS regras `.up-dim`: a primeira, de um
-   desenho antigo em que a medida flutuava sobre a foto, é uma pastilha escura
-   com `position:absolute`, e a de hoje não desfaz a posição. Medido, a conta
-   ia parar no pé da janela, a 500px da imagem. Aqui ela volta para baixo da
-   imagem, que é o que o comentário do `PainelUpscale.js` promete. A correção
-   de verdade é apagar a regra velha do globals, e aí esta linha sai. */
-.up-dim{ position:static; padding:0; border-radius:0; background:none; }
-/* Só do artefato: segura a dica do ? aberta num quadro parado, que não tem
+.jn .up-modal-fundo{ position:absolute; }/* Só do artefato: segura a dica do ? aberta num quadro parado, que não tem
    mouse em cima. */
 .up-ajuda--vista .up-ajuda-bolha{ opacity:1; visibility:visible; }
 </style>

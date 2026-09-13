@@ -174,7 +174,7 @@
 .cr-pop-b:hover{border-color: var(--ink3); color: var(--ink2);}
 .cr-pop-b--on{border-color: var(--lima-txt); color: var(--lima-txt); background: var(--accent-bg);}
 .cr-pop--res{min-width: 0; left: auto; right: 0; transform: none; display: flex; flex-direction: column; gap: 4px;}
-.cr-pop-res{height: 32px; border-radius: 100px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); font-size: 12.2px; font-family: inherit; cursor: pointer;}
+.cr-pop-res{height: 34px; min-width: 58px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line2); background: var(--paper); color: var(--ink2); font-size: 12.2px; font-family: inherit; cursor: pointer;}
 .cr-pop-res:hover{border-color: var(--ink3);}
 .cr-pop-res--on{border-color: var(--lima-txt); color: var(--lima-txt); background: var(--accent-bg);}
 .cr-btn-gerar{width: 100%; height: 40px; border-radius: 100px; border: none; background: var(--accent); color: var(--accent-txt); font-size: 13.1px; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity .15s;}
@@ -523,6 +523,7 @@
 .dt-up-linha:last-child{border-bottom: none;}
 .dt-up-linha span:first-child{color: var(--ink3);}
 .dt-up-linha span:last-child{color: var(--ink); font-weight: 500; text-align: right;}
+.up-lbl{display: block; margin: 0 0 6px; font-size: 11.2px; font-weight: 500; color: var(--ink2);}
 .cr-ger-capa{position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(0,0,0,.28);}
 .cr-ger-spin{width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,.4); border-top-color: #fff; animation: cr-ger-girar .8s linear infinite;}
 .cr-ger-txt{color: #fff; font-size: 11.2px; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,.5);}
@@ -795,7 +796,6 @@
 .up-dropzone:hover{border-color: var(--lima-txt);}
 .up-preview{position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line2);}
 .up-preview img{display: block; width: 100%; height: auto;}
-.up-dim{position: absolute; left: 10px; bottom: 10px; padding: 3px 9px; border-radius: 100px; background: rgba(0,0,0,.6); color: #fff; font-size: 9.9px;}
 .up-trocar{position: absolute; right: 10px; bottom: 10px; padding: 6px 14px; border-radius: 100px; border: none; background: rgba(0,0,0,.6); color: #fff; font-size: 11.2px; cursor: pointer; font-family: inherit;}
 .up-trocar:hover{background: rgba(0,0,0,.78);}
 .up-remover{position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%; border: none; background: rgba(0,0,0,.6); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;}
@@ -2082,15 +2082,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 /* ── o upscale dentro da janela ──
    Na web a janela do preset é `fixed` e cobre o navegador. Aqui ela mede
    contra a janela, pelo mesmo motivo do `.cr-overlay` da moldura. */
-.jn .up-modal-fundo{ position:absolute; }
-/* A conta do tamanho. O globals tem DUAS regras `.up-dim`: a primeira, de um
-   desenho antigo em que a medida flutuava sobre a foto, é uma pastilha escura
-   com `position:absolute`, e a de hoje não desfaz a posição. Medido, a conta
-   ia parar no pé da janela, a 500px da imagem. Aqui ela volta para baixo da
-   imagem, que é o que o comentário do `PainelUpscale.js` promete. A correção
-   de verdade é apagar a regra velha do globals, e aí esta linha sai. */
-.up-dim{ position:static; padding:0; border-radius:0; background:none; }
-/* Só do artefato: segura a dica do ? aberta num quadro parado, que não tem
+.jn .up-modal-fundo{ position:absolute; }/* Só do artefato: segura a dica do ? aberta num quadro parado, que não tem
    mouse em cima. */
 .up-ajuda--vista .up-ajuda-bolha{ opacity:1; visibility:visible; }
 </style>
