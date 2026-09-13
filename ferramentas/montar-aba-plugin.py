@@ -72,6 +72,11 @@ def montar(aba):
     globais = [mod.encolher(r) for r in
                mod.peneirar_globals(ler(os.path.join(SITE, 'app', 'globals.css')))]
     cora = mod.encolher(ler(os.path.join(SITE, 'app', 'cora-pagina.css')))
+    # As duas fontes locais do site apontam para `/fontes/`, que só existe no
+    # servidor do Next. Num artefato elas dão 404 e o navegador cai na DM Sans
+    # do Google, que o cabeçalho já carrega. O desenho sai igual, e o console
+    # para de acusar dois arquivos que nunca existiram aqui.
+    cora = re.sub(r"@font-face\s*\{[^}]*?/fontes/[^}]*\}\s*", u'', cora, flags=re.S)
 
     painel = ler(os.path.join(SITE, 'app', 'painel-pagina.css'))
     m = re.search(r"--marca:url\('(data:image/png;base64,[^']+)'\)", painel)
@@ -86,6 +91,13 @@ def montar(aba):
     extra = ':root{\n' + '\n'.join(tokens) + '\n}\n'
 
     saida = ler(fonte_p)
+    # Os dados de prova grandes (as miniaturas do Blocos, em base64) moram num
+    # arquivo ao lado, para o fonte continuar legível.
+    if '/*@DADOS@*/' in saida:
+        dados_p = os.path.join(AQUI, 'cora-plugin-%s.dados.js' % aba)
+        if not os.path.exists(dados_p):
+            raise SystemExit(u'o fonte pede /*@DADOS@*/ e não achei %s' % os.path.basename(dados_p))
+        saida = saida.replace('/*@DADOS@*/', ler(dados_p))
     saida = saida.replace('/*@GLOBAIS@*/', '\n'.join(globais))
     saida = saida.replace('/*@CORA@*/', cora + '\n' + moldura(ler(JANELA)) + '\n' + extra)
     saida = ('<!-- ARQUIVO GERADO por montar-aba-plugin.py %s.\n'
