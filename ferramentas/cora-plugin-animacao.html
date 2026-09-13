@@ -651,8 +651,8 @@
 .narr-take-anim{margin-top: 8px; height: 30px; padding: 0 15px; border-radius: 100px; border: 0.5px solid var(--border-strong, #b4b2a9); background: transparent; font-size: 11.2px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;}
 .narr-take-anim:hover{border-color: var(--turq-txt); color: var(--turq-txt);}
 .narr-notas{display: grid; gap: 6px; margin-top: 10px;}
-.narr-nota{border: 0.5px solid var(--border, #d3d1c7); border-radius: 12px; padding: 11px 13px; background: var(--surface-2, #fff); font-size: 11.2px; color: var(--text-2, #666); display: flex; flex-direction: column; gap: 3px;}
-.narr-nota b{font-weight: 500; color: var(--text, #2c2c2a); font-size: 11.2px;}
+.narr-nota{border: 0.5px solid var(--turquesa, #ADECDF); border-radius: 12px; padding: 11px 13px; background: var(--turq-bg, #E6F7F3); font-size: 11.2px; color: var(--turq-txt, #196C5B); display: flex; flex-direction: column; gap: 3px;}
+.narr-nota b{font-weight: 600; color: var(--turq-txt, #196C5B); font-size: 11.2px;}
 .narr-nota-cab{display: flex; align-items: center; justify-content: space-between; gap: 10px;}
 .narr-nota .vz-prompt-copiar{padding: 5px 11px; font-size: 10.8px;}
 .seq-modo-int{display: grid; grid-template-columns: 1fr 1fr; gap: 8px;}
@@ -2348,6 +2348,9 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
     return '<div class="cr-sec"' + (estilo ? ' style="' + estilo + '"' : '') + '>' + txt + '</div>';
   }
   function dd(valor, opcoes, aberta, ph) {
+    // Sem escolha, quem fica marcada e a primeira, que e o proprio
+    // 'Escolher modelo': a lista nunca abre sem nada em turquesa.
+    if (!valor && opcoes.length) valor = opcoes[0];
     var h = '<div class="cora-dd' + (aberta ? ' cora-dd--aberto' : '') + '">' +
       '<button type="button" class="cora-dd-btn"><span class="cora-dd-mio">' +
       '<span class="cora-dd-val' + (valor ? '' : ' cora-dd-ph') + '">' + (valor || ph || 'Selecione…') + '</span>' +

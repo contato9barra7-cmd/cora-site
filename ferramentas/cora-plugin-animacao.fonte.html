@@ -225,6 +225,9 @@ h2.secao + p{ max-width:62ch; margin:0 auto 26px; color:var(--pag-apoio); font-s
     return '<div class="cr-sec"' + (estilo ? ' style="' + estilo + '"' : '') + '>' + txt + '</div>';
   }
   function dd(valor, opcoes, aberta, ph) {
+    // Sem escolha, quem fica marcada e a primeira, que e o proprio
+    // 'Escolher modelo': a lista nunca abre sem nada em turquesa.
+    if (!valor && opcoes.length) valor = opcoes[0];
     var h = '<div class="cora-dd' + (aberta ? ' cora-dd--aberto' : '') + '">' +
       '<button type="button" class="cora-dd-btn"><span class="cora-dd-mio">' +
       '<span class="cora-dd-val' + (valor ? '' : ' cora-dd-ph') + '">' + (valor || ph || 'Selecione…') + '</span>' +
