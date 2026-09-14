@@ -5,20 +5,24 @@
 
 <style>
 /* ══════════════════════════════════════════════════════════════════════
-   A SETA DA LUZ · quatro desenhos para a seta que a ferramenta de luz
-   linear mostra no SketchUp, já na turquesa da marca.
+   A SETA DA LUZ · a marcação que a ferramenta de luz linear desenha no
+   SketchUp: a faixa escolhida, as pontas dela e a seta da direção.
 
-   Os quadros imitam a vista do SketchUp. Ela não muda com o tema da
-   página: é o modelo, e o modelo tem a cor dele. Cada opção só usa o que
-   o `view.draw` e o `view.draw2d` do SketchUp sabem desenhar: linhas,
-   triângulos, quadriláteros e pontos. Por isso as pontas das linhas são
-   retas, e não arredondadas.
+   Segunda rodada: a D ganhou, e as quatro daqui refinam a D. Todas são
+   desenhadas sobre a tela (`view.draw2d`), então ficam por cima do modelo e
+   têm o mesmo tamanho perto ou longe.
+
+   Os quadros imitam a vista do SketchUp e não mudam com o tema da página.
+   Cada desenho só usa o que o SketchUp sabe desenhar: linhas e polígonos.
+   Onde uma ponta é redonda, ela é um círculo de poucos lados desenhado no
+   lugar, porque o SketchUp não arredonda a ponta de uma linha.
    ══════════════════════════════════════════════════════════════════════ */
 
 :root{
   color-scheme:light;
   --fundo:#F1F1EE; --tinta:#111111; --apoio:#5B5B57; --fraco:#8E8E88;
   --fio:#E4E4DF; --fio2:#D2D2CB; --cartao:#FFFFFF;
+  --letra-bg:#E6F7F3; --letra:#196C5B;
   --sombra:0 14px 36px rgba(17,17,17,.10);
 }
 @media (prefers-color-scheme: dark){
@@ -26,6 +30,7 @@
     color-scheme:dark;
     --fundo:#0F0F11; --tinta:#F2F2EF; --apoio:#B6B5AE; --fraco:#8B8A83;
     --fio:#2B2B30; --fio2:#3A3A41; --cartao:#17171A;
+    --letra-bg:rgba(143,221,204,.16); --letra:#8FDDCC;
     --sombra:0 14px 36px rgba(0,0,0,.45);
   }
 }
@@ -33,6 +38,7 @@
   color-scheme:dark;
   --fundo:#0F0F11; --tinta:#F2F2EF; --apoio:#B6B5AE; --fraco:#8B8A83;
   --fio:#2B2B30; --fio2:#3A3A41; --cartao:#17171A;
+  --letra-bg:rgba(143,221,204,.16); --letra:#8FDDCC;
   --sombra:0 14px 36px rgba(0,0,0,.45);
 }
 
@@ -44,7 +50,6 @@ body{
 }
 button{ cursor:pointer; font-family:inherit; }
 :focus-visible{ outline:2px solid #8FDDCC; outline-offset:2px; }
-@media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
 
 .pag{ max-width:1180px; margin:0 auto; padding:34px 24px 0; }
 .eb{ margin:0; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--fraco); }
@@ -71,27 +76,25 @@ h2 + p{ margin:0 0 20px; max-width:64ch; color:var(--apoio); font-size:14px; tex
 .op figcaption{ padding:16px 20px 20px; border-top:1px solid var(--fio); }
 .op .nome{ display:flex; align-items:baseline; gap:10px; margin:0 0 6px; font-size:17px; font-weight:600; letter-spacing:-.01em; }
 .op .letra{
-  flex:none; display:inline-grid; place-items:center; width:26px; height:26px; border-radius:8px;
-  background:#E6F7F3; color:#196C5B; font-size:13px; font-weight:700; transform:translateY(-2px);
+  flex:none; display:inline-grid; place-items:center; min-width:30px; height:26px; padding:0 6px; border-radius:8px;
+  background:var(--letra-bg); color:var(--letra); font-size:13px; font-weight:700; transform:translateY(-2px);
 }
-[data-theme="dark"] .op .letra{ background:rgba(143,221,204,.16); color:#8FDDCC; }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .op .letra{ background:rgba(143,221,204,.16); color:#8FDDCC; } }
 .op p{ margin:0; color:var(--apoio); font-size:14px; text-wrap:pretty; }
 .op .como{ margin-top:10px; font-size:12.5px; color:var(--fraco); }
 .op code{ padding:1px 5px; border-radius:5px; background:var(--fio); color:var(--tinta); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; }
 
-.hoje{ display:grid; gap:24px; align-items:center; grid-template-columns:1fr; }
-@media (min-width:900px){ .hoje{ grid-template-columns:520px minmax(0,1fr); } }
-.hoje .op p + p{ margin-top:8px; }
+.antes{ display:grid; gap:24px; align-items:center; grid-template-columns:1fr; }
+@media (min-width:900px){ .antes{ grid-template-columns:520px minmax(0,1fr); } }
 
 .rod{ margin-top:64px; padding-top:18px; border-top:1px solid var(--fio); max-width:72ch; font-size:13px; color:var(--fraco); }
 .rod p{ margin:0 0 6px; text-wrap:pretty; }
+.rod code{ padding:1px 5px; border-radius:5px; background:var(--fio); color:var(--tinta); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; }
 </style>
 
 <div class="pag">
-  <p class="eb">Cora Render · plugin do SketchUp · ferramenta de luz linear</p>
+  <p class="eb">Cora Render · plugin do SketchUp · ferramenta de luz linear · segunda rodada</p>
   <h1>A seta da luz</h1>
-  <p class="lead">Quando você clica numa face ou numa aresta para pôr a luz linear, a faixa fica marcada e uma seta mostra para que lado a luz sai. As duas já passaram do roxo para a turquesa. Aqui estão quatro desenhos novos para a seta.</p>
+  <p class="lead">A D ficou como base. Ela ainda estava grosseira: as pontas da faixa eram quadrados cheios, e a faixa e a seta, traços grossos. Aqui estão quatro versões mais finas da D, todas com a faixa e as pontas redesenhadas junto.</p>
 
   <div class="ctrl">
     <div class="grupo"><span>Direção</span><div class="sul" data-campo="dir">
@@ -103,27 +106,24 @@ h2 + p{ margin:0 0 20px; max-width:64ch; color:var(--apoio); font-size:14px; tex
     <button type="button" class="tema" id="tema">Ver no escuro</button>
   </div>
 
-  <h2>A de hoje</h2>
-  <p>Para comparar: a seta que já existe, só com a cor trocada.</p>
-  <div class="hoje">
-    <figure class="op" data-op="hoje"></figure>
-    <div>
-      <p class="lead" style="margin:0">Três traços de 5 px, a haste e as duas abas da ponta. As abas ficam num plano só, então de alguns ângulos a ponta vira um risco e não dá para ler a direção.</p>
-    </div>
+  <h2>A D da primeira rodada</h2>
+  <p>Para comparar.</p>
+  <div class="antes">
+    <figure class="op" data-op="d"></figure>
+    <p class="lead" style="margin:0">Pontas quadradas e cheias de 9 px, faixa de 8 px e seta de 5 px com a ponta larga. Lê bem, mas pesa sobre o modelo.</p>
   </div>
 
-  <h2>As quatro opções</h2>
-  <p>Troque Direção e Distância lá em cima. Em Longe dá para ver quais medem no modelo, e encolhem com ele, e qual mede na tela.</p>
+  <h2>As quatro versões</h2>
+  <p>Troque Direção e Distância lá em cima. A seta e as pontas não mudam de tamanho com a distância, só a faixa, porque ela tem o comprimento da aresta.</p>
   <div class="opcoes">
-    <figure class="op" data-op="a"></figure>
-    <figure class="op" data-op="b"></figure>
-    <figure class="op" data-op="c"></figure>
-    <figure class="op" data-op="d"></figure>
+    <figure class="op" data-op="d1"></figure>
+    <figure class="op" data-op="d2"></figure>
+    <figure class="op" data-op="d3"></figure>
+    <figure class="op" data-op="d4"></figure>
   </div>
 
   <footer class="rod">
-    <p>A faixa marcada e as pontas dela continuam como estão, só que turquesa. A escolha muda só a seta, no <code>LuzPreviewTool</code> do <code>panel.rb</code>.</p>
-    <p>A caixa é de prova: um móvel de 240 por 60 cm, com a luz na aresta de cima da frente.</p>
+    <p>A escolhida entra no <code>LuzPreviewTool</code> do <code>panel.rb</code>, no lugar da faixa, dos pontos e da seta de hoje. A caixa é de prova: um móvel de 240 por 60 cm, com a luz na aresta de cima da frente.</p>
   </footer>
 </div>
 
@@ -131,115 +131,116 @@ h2 + p{ margin:0 0 20px; max-width:64ch; color:var(--apoio); font-size:14px; tex
 (function () {
   'use strict';
 
-  var TURQ = '#8FDDCC', TURQ_ESC = '#196C5B';
+  var TURQ = '#8FDDCC', ESC = '#196C5B', BRANCO = '#FFFFFF';
   var S = { dir: 'cima', zoom: 'perto' };
 
   var TEXTOS = {
-    hoje: { letra: '', nome: 'A seta de hoje, turquesa', p: [], como: '' },
-    a: { letra: 'A', nome: 'Seta cheia',
-      p: 'Haste fina e ponta preenchida, em duas lâminas cruzadas: aparece inteira de qualquer ângulo. Mede 50 cm no modelo, como a de hoje, e de longe encolhe junto com ele.',
-      como: 'Haste com <code>GL_LINES</code>, ponta com <code>GL_TRIANGLES</code>.' },
-    b: { letra: 'B', nome: 'Três raios',
-      p: 'Três setas curtas ao longo da faixa, perto do começo, no meio e perto do fim. Diz que a luz sai da faixa inteira, e não de um ponto só.',
-      como: 'A seta cheia, menor, repetida três vezes.' },
-    c: { letra: 'C', nome: 'Lâmina de luz',
-      p: 'Uma lâmina translúcida de 30 cm sai da faixa para o lado da luz, com uma ponta no meio da borda de fora. Mostra o comprimento e a direção de uma vez.',
-      como: '<code>GL_QUADS</code> com a turquesa a 35%, ponta com <code>GL_TRIANGLES</code>.' },
-    d: { letra: 'D', nome: 'Seta de tela',
-      p: 'Desenhada sobre a tela, e não dentro do modelo: sempre 70 px, perto ou longe, e por cima de tudo. O contorno branco separa a seta de qualquer fundo.',
-      como: '<code>view.draw2d</code>, a partir do <code>view.screen_coords</code> do meio da faixa.' }
+    d: { letra: 'D', nome: 'Seta de tela', p: '', como: '' },
+    d1: { letra: 'D1', nome: 'Traço fino',
+      p: 'A faixa desce para 3 px, com um contorno branco que separa do modelo. As pontas viram anéis, brancos por dentro. A seta tem a mesma espessura da faixa e a ponta mais estreita.',
+      como: 'Tudo com <code>view.draw2d</code>. Os anéis são polígonos de 16 lados.' },
+    d2: { letra: 'D2', nome: 'Contorno escuro',
+      p: 'No lugar do branco, um fio de turquesa escura em volta de tudo. Aparece mais sobre parede branca e sobre o céu claro do SketchUp.',
+      como: '<code>view.draw2d</code>, o traço escuro por baixo e o claro por cima.' },
+    d3: { letra: 'D3', nome: 'Cápsula',
+      p: 'Faixa e haste com as pontas arredondadas, e a ponta da seta aberta, em dois traços. É a mais macia das quatro, e a mais parecida com os ícones do plugin.',
+      como: '<code>view.draw2d</code>. Cada ponta redonda é um círculo de 12 lados no fim do traço.' },
+    d4: { letra: 'D4', nome: 'Mínima',
+      p: 'Um traço de 2 px em turquesa escura sobre um brilho turquesa claro. Pontas pequenas e cheias, e uma seta curta. Marca a faixa sem cobrir o modelo.',
+      como: '<code>view.draw2d</code>. O brilho é a turquesa a 55%, mais larga, por baixo.' }
   };
 
-  // ══ a projeção ══
-  // Uma isométrica simples, em centímetros. A caixa fica no meio do quadro.
+  // ══ a projeção e a cena ══
   var C = Math.cos(Math.PI / 6), SN = Math.sin(Math.PI / 6);
   function escala() { return S.zoom === 'perto' ? 1.3 : 0.62; }
   function proj(p) {
     var s = escala();
-    var cx = 260 - (120 - 30) * C * s, cy = 175 - ((120 + 30) * SN - 20) * s + 20;
+    var cx = 260 - (120 - 30) * C * s, cy = 195 - ((120 + 30) * SN - 20) * s;
     return [cx + (p[0] - p[1]) * C * s, cy + (p[0] + p[1]) * SN * s - p[2] * s];
   }
-  function soma(a, b, k) { return [a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k]; }
-  function pts(lista) { return lista.map(function (p) { var q = proj(p); return q[0].toFixed(1) + ',' + q[1].toFixed(1); }).join(' '); }
-  function linha(a, b, cor, larg, extra) {
-    var p = proj(a), q = proj(b);
-    return '<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) +
-      '" stroke="' + cor + '" stroke-width="' + larg + '" stroke-linecap="butt"' + (extra || '') + '/>';
-  }
-  function poli(lista, fill, extra) { return '<polygon points="' + pts(lista) + '" fill="' + fill + '"' + (extra || '') + '/>'; }
-
-  // ══ a cena ══
-  var A0 = [0, 60, 40], A1 = [240, 60, 40], MEIO = [120, 60, 40];
+  function f(n) { return n.toFixed(1); }
+  function pts(lista) { return lista.map(function (p) { var q = proj(p); return f(q[0]) + ',' + f(q[1]); }).join(' '); }
   function cena() {
-    var topo = [[0, 0, 40], [240, 0, 40], [240, 60, 40], [0, 60, 40]];
-    var frente = [[0, 60, 40], [240, 60, 40], [240, 60, 0], [0, 60, 0]];
-    var lado = [[240, 0, 40], [240, 60, 40], [240, 60, 0], [240, 0, 0]];
     var aresta = ' stroke="#3A3A3A" stroke-width="1" stroke-linejoin="round"';
     var chao = proj([120, 30, 0]);
     return '<defs><linearGradient id="ceu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCE6EE"/><stop offset=".62" stop-color="#F3F5F7"/><stop offset=".62" stop-color="#E4E4DE"/><stop offset="1" stop-color="#D8D8D1"/></linearGradient></defs>' +
       '<rect width="520" height="340" fill="url(#ceu)"/>' +
-      '<ellipse cx="' + chao[0].toFixed(1) + '" cy="' + (chao[1] + 6).toFixed(1) + '" rx="' + (170 * escala()).toFixed(1) + '" ry="' + (26 * escala()).toFixed(1) + '" fill="rgba(0,0,0,.06)"/>' +
-      poli(topo, '#F6F6F3', aresta) + poli(frente, '#E2E2DC', aresta) + poli(lado, '#CFCFC8', aresta);
+      '<ellipse cx="' + f(chao[0]) + '" cy="' + f(chao[1] + 6) + '" rx="' + f(170 * escala()) + '" ry="' + f(26 * escala()) + '" fill="rgba(0,0,0,.06)"/>' +
+      '<polygon points="' + pts([[0, 0, 40], [240, 0, 40], [240, 60, 40], [0, 60, 40]]) + '" fill="#F6F6F3"' + aresta + '/>' +
+      '<polygon points="' + pts([[0, 60, 40], [240, 60, 40], [240, 60, 0], [0, 60, 0]]) + '" fill="#E2E2DC"' + aresta + '/>' +
+      '<polygon points="' + pts([[240, 0, 40], [240, 60, 40], [240, 60, 0], [240, 0, 0]]) + '" fill="#CFCFC8"' + aresta + '/>';
   }
-  // A faixa marcada: igual em todas, só turquesa.
-  function faixa() {
-    var p = proj(A0), q = proj(A1), r = 4.5;
-    return linha(A0, A1, TURQ, 8) +
-      '<rect x="' + (p[0] - r).toFixed(1) + '" y="' + (p[1] - r).toFixed(1) + '" width="9" height="9" fill="' + TURQ + '"/>' +
-      '<rect x="' + (q[0] - r).toFixed(1) + '" y="' + (q[1] - r).toFixed(1) + '" width="9" height="9" fill="' + TURQ + '"/>';
-  }
-  function dirv() { return S.dir === 'cima' ? [0, 0, 1] : [0, 0, -1]; }
 
-  // Uma seta cheia no modelo: haste e ponta em duas lâminas cruzadas.
-  function setaCheia(base, comp, ponta, larg, haste) {
-    var d = dirv(), tip = soma(base, d, comp), recuo = soma(base, d, comp - ponta);
-    var X = [1, 0, 0], Y = [0, 1, 0], borda = ' stroke="' + TURQ_ESC + '" stroke-width="1" stroke-linejoin="round"';
-    return linha(base, recuo, TURQ_ESC, haste + 1.5) + linha(base, recuo, TURQ, haste) +
-      poli([tip, soma(recuo, Y, larg), soma(recuo, Y, -larg)], TURQ, borda) +
-      poli([tip, soma(recuo, X, larg), soma(recuo, X, -larg)], TURQ, borda);
+  // ══ o desenho sobre a tela ══
+  function L(a, b, cor, w, cap) {
+    return '<line x1="' + f(a[0]) + '" y1="' + f(a[1]) + '" x2="' + f(b[0]) + '" y2="' + f(b[1]) + '" stroke="' + cor + '" stroke-width="' + w + '" stroke-linecap="' + (cap || 'butt') + '"/>';
+  }
+  function O(c, r, fill, stroke, sw) {
+    return '<circle cx="' + f(c[0]) + '" cy="' + f(c[1]) + '" r="' + r + '" fill="' + fill + '"' + (stroke ? ' stroke="' + stroke + '" stroke-width="' + sw + '"' : '') + '/>';
+  }
+  function P(lista, fill, stroke, sw) {
+    return '<polygon points="' + lista.map(function (p) { return f(p[0]) + ',' + f(p[1]); }).join(' ') + '" fill="' + fill + '"' +
+      (stroke ? ' stroke="' + stroke + '" stroke-width="' + sw + '" stroke-linejoin="round"' : '') + '/>';
+  }
+  function mais(a, v, k) { return [a[0] + v[0] * k, a[1] + v[1] * k]; }
+
+  // As pontas da faixa, o meio e o sentido da luz na tela.
+  function geo() {
+    var a = proj([0, 60, 40]), b = proj([240, 60, 40]), m = proj([120, 60, 40]);
+    var t = proj([120, 60, S.dir === 'cima' ? 50 : 30]);
+    var vx = t[0] - m[0], vy = t[1] - m[1], n = Math.sqrt(vx * vx + vy * vy) || 1;
+    var v = [vx / n, vy / n];
+    return { a: a, b: b, m: m, v: v, p: [-v[1], v[0]] };
+  }
+  // A cabeça cheia de uma seta que termina em `tip`.
+  function cabeca(tip, v, p, comp, meia) {
+    var r = mais(tip, v, -comp);
+    return [tip, mais(r, p, meia), mais(r, p, -meia)];
   }
 
   var DESENHO = {
-    hoje: function () {
-      var d = dirv(), tip = soma(MEIO, d, 50), recuo = soma(tip, d, -9);
-      return linha(MEIO, tip, TURQ, 5) + linha(tip, soma(recuo, [1, 0, 0], 9), TURQ, 5) + linha(tip, soma(recuo, [1, 0, 0], -9), TURQ, 5);
-    },
-    a: function () {
-      var p = proj(MEIO);
-      return setaCheia(MEIO, 50, 15, 7, 3) +
-        '<rect x="' + (p[0] - 4).toFixed(1) + '" y="' + (p[1] - 4).toFixed(1) + '" width="8" height="8" fill="' + TURQ_ESC + '"/>';
-    },
-    b: function () {
-      return [0.12, 0.5, 0.88].map(function (t) { return setaCheia([240 * t, 60, 40], 32, 11, 5, 2.5); }).join('');
-    },
-    c: function () {
-      var d = dirv(), longe0 = soma(A0, d, 30), longe1 = soma(A1, d, 30), m = soma(MEIO, d, 30), recuo = soma(MEIO, d, 20);
-      return poli([A0, A1, longe1, longe0], 'rgba(143,221,204,.35)') +
-        linha(longe0, longe1, TURQ, 2) +
-        poli([soma(m, d, 10), soma(recuo, [1, 0, 0], 9), soma(recuo, [1, 0, 0], -9)], TURQ, ' stroke="' + TURQ_ESC + '" stroke-width="1" stroke-linejoin="round"') +
-        poli([soma(m, d, 10), soma(recuo, [0, 1, 0], 9), soma(recuo, [0, 1, 0], -9)], TURQ, ' stroke="' + TURQ_ESC + '" stroke-width="1" stroke-linejoin="round"');
-    },
     d: function () {
-      // na tela: o sentido vem da projeção, o tamanho não
-      var b = proj(MEIO), t = proj(soma(MEIO, dirv(), 10));
-      var vx = t[0] - b[0], vy = t[1] - b[1], n = Math.sqrt(vx * vx + vy * vy) || 1;
-      vx /= n; vy /= n;
-      var L = 70, P = 18, W = 11, px = -vy, py = vx;
-      var tip = [b[0] + vx * L, b[1] + vy * L], rb = [b[0] + vx * (L - P), b[1] + vy * (L - P)];
-      var f = function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); };
-      var cab = f(tip) + ' ' + f([rb[0] + px * W, rb[1] + py * W]) + ' ' + f([rb[0] - px * W, rb[1] - py * W]);
-      var l = function (cor, w) { return '<line x1="' + b[0].toFixed(1) + '" y1="' + b[1].toFixed(1) + '" x2="' + rb[0].toFixed(1) + '" y2="' + rb[1].toFixed(1) + '" stroke="' + cor + '" stroke-width="' + w + '"/>'; };
-      return l('#FFFFFF', 10) + '<polygon points="' + cab + '" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round"/>' +
-        l(TURQ, 5) + '<polygon points="' + cab + '" fill="' + TURQ + '"/>' +
-        '<circle cx="' + b[0].toFixed(1) + '" cy="' + b[1].toFixed(1) + '" r="6.5" fill="' + TURQ_ESC + '" stroke="#FFFFFF" stroke-width="2.5"/>';
+      var g = geo(), tip = mais(g.m, g.v, 70), rb = mais(g.m, g.v, 52), cab = cabeca(tip, g.v, g.p, 18, 11);
+      return L(g.a, g.b, TURQ, 8) +
+        '<rect x="' + f(g.a[0] - 4.5) + '" y="' + f(g.a[1] - 4.5) + '" width="9" height="9" fill="' + TURQ + '"/>' +
+        '<rect x="' + f(g.b[0] - 4.5) + '" y="' + f(g.b[1] - 4.5) + '" width="9" height="9" fill="' + TURQ + '"/>' +
+        L(g.m, rb, BRANCO, 10) + P(cab, BRANCO, BRANCO, 5) + L(g.m, rb, TURQ, 5) + P(cab, TURQ) +
+        O(g.m, 6.5, ESC, BRANCO, 2.5);
+    },
+    d1: function () {
+      var g = geo(), tip = mais(g.m, g.v, 64), cab = cabeca(tip, g.v, g.p, 14, 6.5), rb = mais(g.m, g.v, 51);
+      return L(g.a, g.b, BRANCO, 7) + L(g.a, g.b, TURQ, 3) +
+        L(mais(g.m, g.v, 5), rb, BRANCO, 6) + P(cab, BRANCO, BRANCO, 4) +
+        L(mais(g.m, g.v, 5), rb, TURQ, 2.5) + P(cab, TURQ) +
+        O(g.a, 4.5, BRANCO, ESC, 2) + O(g.b, 4.5, BRANCO, ESC, 2) + O(g.m, 3.5, ESC, BRANCO, 2);
+    },
+    d2: function () {
+      var g = geo(), tip = mais(g.m, g.v, 64), cab = cabeca(tip, g.v, g.p, 15, 7), rb = mais(g.m, g.v, 50);
+      return L(g.a, g.b, ESC, 5) + L(g.a, g.b, TURQ, 3) +
+        L(g.m, rb, ESC, 4.5) + P(cab, TURQ, ESC, 1.5) + L(g.m, mais(rb, g.v, 1), TURQ, 2.5) +
+        O(g.a, 4, TURQ, ESC, 1.5) + O(g.b, 4, TURQ, ESC, 1.5);
+    },
+    d3: function () {
+      var g = geo(), tip = mais(g.m, g.v, 62), aba = 13;
+      var a1 = mais(mais(tip, g.v, -aba), g.p, aba * 0.8), a2 = mais(mais(tip, g.v, -aba), g.p, -aba * 0.8);
+      var halo = L(g.a, g.b, BRANCO, 9, 'round') + L(g.m, tip, BRANCO, 8, 'round') + L(tip, a1, BRANCO, 8, 'round') + L(tip, a2, BRANCO, 8, 'round');
+      return halo + L(g.a, g.b, TURQ, 5, 'round') + L(g.m, tip, TURQ, 4, 'round') + L(tip, a1, TURQ, 4, 'round') + L(tip, a2, TURQ, 4, 'round') +
+        O(g.a, 1.6, ESC) + O(g.b, 1.6, ESC);
+    },
+    d4: function () {
+      var g = geo(), tip = mais(g.m, g.v, 48), cab = cabeca(tip, g.v, g.p, 11, 5), rb = mais(g.m, g.v, 38);
+      var brilho = 'rgba(143,221,204,.55)';
+      return L(g.a, g.b, brilho, 8) + L(g.m, rb, brilho, 7) + P(cab, brilho, brilho, 5) +
+        L(g.a, g.b, ESC, 2) + L(g.m, mais(rb, g.v, 1), ESC, 2) + P(cab, ESC) +
+        O(g.a, 3, ESC, BRANCO, 1.5) + O(g.b, 3, ESC, BRANCO, 1.5);
     }
   };
 
   function pintar() {
     [].forEach.call(document.querySelectorAll('[data-op]'), function (fig) {
       var k = fig.getAttribute('data-op'), tx = TEXTOS[k];
-      var svg = '<svg viewBox="0 0 520 340" role="img" aria-label="' + tx.nome + ', luz para ' + S.dir + '">' + cena() + faixa() + DESENHO[k]() + '</svg>';
-      var legenda = k === 'hoje' ? '' :
+      var svg = '<svg viewBox="0 0 520 340" role="img" aria-label="' + tx.letra + ', ' + tx.nome + ', luz para ' + S.dir + '">' + cena() + DESENHO[k]() + '</svg>';
+      var legenda = k === 'd' ? '' :
         '<figcaption><p class="nome"><span class="letra">' + tx.letra + '</span>' + tx.nome + '</p><p>' + tx.p + '</p><p class="como">' + tx.como + '</p></figcaption>';
       fig.innerHTML = svg + legenda;
     });
