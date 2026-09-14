@@ -64,6 +64,9 @@ FAMILIAS = {
 # bloqueio do painel, o do teste encerrado.
 PAINEL = {
     'avisos': ('trial-bloqueio', 'blq-'),
+    # Os outros avisos: o mesmo cartão de bloqueio, e a janela de recortar a
+    # foto do perfil.
+    'alertas': ('trial-bloqueio', 'blq-', 'foto-'),
 }
 # Os tokens do painel que essas regras leem e que a folha escopada em `.co`
 # não tem: a faixa da marca e o canto do cartão.
