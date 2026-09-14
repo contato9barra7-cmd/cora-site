@@ -35,8 +35,9 @@ const MARCAS = [
 const INSTAGRAM = 'https://www.instagram.com/9barra7';
 
 export default function RodapeCora({ idioma: propIdioma } = {}) {
-  const { t, idioma: ctxIdioma } = useIdioma();
+  const { t: ctxT, idioma: ctxIdioma } = useIdioma();
   const idioma = propIdioma || ctxIdioma || 'pt';
+  const t = (chave) => ctxT(chave, idioma);
   const prefixo = idioma === 'pt' ? '' : '/' + idioma;
 
   // "A, B e C" nos três idiomas. O último nome entra com a conjunção do

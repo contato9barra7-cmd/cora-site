@@ -55,8 +55,10 @@ export function Check({ on }) {
   `aoClicar` o que fazer no botão
   `ocupado`  desliga o botão enquanto o checkout abre
 */
-export default function CartaoPlano({ p, anual, atual, rotulo, aoClicar, ocupado }) {
-  const { t, idioma } = useIdioma();
+export default function CartaoPlano({ p, anual, atual, rotulo, aoClicar, ocupado, idioma: propIdioma }) {
+  const { t: ctxT, idioma: ctxIdioma } = useIdioma();
+  const idioma = propIdioma || ctxIdioma || 'pt';
+  const t = (chave) => ctxT(chave, idioma);
 
   let preco;
   let cobranca = '';

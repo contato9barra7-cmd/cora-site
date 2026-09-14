@@ -72,8 +72,9 @@ function TabelaTeams({ titulo, dados, t }) {
 }
 
 export default function PaginaPrecos({ idioma: propIdioma = 'pt' }) {
-  const { t, idioma: ctxIdioma } = useIdioma();
+  const { t: ctxT, idioma: ctxIdioma } = useIdioma();
   const idioma = propIdioma || ctxIdioma || 'pt';
+  const t = (chave) => ctxT(chave, idioma);
   const tr = (s) => traduzir(t, s);
   const [anual, setAnual] = useState(false);
   const [abaCusto, setAbaCusto] = useState('imagens');
@@ -188,7 +189,7 @@ export default function PaginaPrecos({ idioma: propIdioma = 'pt' }) {
 
         <div className="planos">
           {planos.map((p) => (
-            <CartaoPlano key={p.id} p={p} anual={anual} aoClicar={assinarPlano} />
+            <CartaoPlano key={p.id} p={p} anual={anual} aoClicar={assinarPlano} idioma={idioma} />
           ))}
           </div>
         </div>

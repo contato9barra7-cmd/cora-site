@@ -25,8 +25,9 @@ const NAV = [
 ];
 
 export default function Cabecalho({ aqui = 'precos', idioma: propIdioma }) {
-  const { t, idioma: ctxIdioma, trocarIdioma } = useIdioma();
+  const { t: ctxT, idioma: ctxIdioma, trocarIdioma } = useIdioma();
   const idioma = propIdioma || ctxIdioma || 'pt';
+  const t = (chave) => ctxT(chave, idioma);
 
   const [aberto, setAberto] = useState(false);
   const [menuIdiomaAberto, setMenuIdiomaAberto] = useState(false);
@@ -75,6 +76,7 @@ export default function Cabecalho({ aqui = 'precos', idioma: propIdioma }) {
     setMenuIdiomaAberto(false);
 
     try {
+      localStorage.setItem('cora_idioma', novo);
       document.cookie = `cora_idioma=${novo}; max-age=31536000; path=/; SameSite=Lax`;
     } catch (e) {}
 
