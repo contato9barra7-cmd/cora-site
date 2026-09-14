@@ -3225,8 +3225,14 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
 
                 <Dica texto={t('painelpos_dica_apagar_cortados')}>
                   <label className="ps-caixa">
+                    {/* A caixa de marcar da marca: quadrado de canto
+                        arredondado, turquesa cheio quando ligada e o tique
+                        preto por cima. A do sistema saía num verde escuro que
+                        não é de lugar nenhum, e cada navegador desenhava a
+                        sua. É a mesma do timelapse e do resto do app. */}
                     <input
                       type="checkbox"
+                      className="cora-check-bola"
                       checked={apagarCortado}
                       onChange={(e) => setApagarCortado(e.target.checked)}
                     />

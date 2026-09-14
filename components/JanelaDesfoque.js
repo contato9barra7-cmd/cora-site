@@ -167,8 +167,10 @@ export default function JanelaDesfoque({ tipo, inicial, aoAplicar, aoFechar }) {
         </div>
 
         <label className="df-cx">
+          {/* A mesma caixa de marcar do corte e do resto do app. */}
           <input
             type="checkbox"
+            className="cora-check-bola"
             checked={previa}
             onChange={(e) => setPrevia(e.target.checked)}
           />

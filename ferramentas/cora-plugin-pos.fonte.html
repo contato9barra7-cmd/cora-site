@@ -113,22 +113,22 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
    recorta nos dois eixos, e a dica, que nasce embaixo do botão, sairia
    decapitada.
 
-   A web já resolve isso na largura desta janela. Entre 821 e 1240px o
-   `responsivo.css` faz exatamente isto: bola de 30px para todo botão,
-   respiro de 2 e os rótulos longos viram só o ícone, com o nome na dica.
+   A web já resolve isso na largura desta janela. De 900px para cima o
+   `responsivo.css` encolhe os botões de ícone para a bola de 30 e aperta o
+   respiro, e os rótulos ficam. Medido no iPad deitado, que tem 1.024: a
+   barra inteira pede 855px, e aqui, sem o Voltar, ela pede menos ainda.
    Os números abaixo são os de lá, e não uma invenção daqui. A folha do
    responsivo não passa pela peneira, por isso eles são repetidos.
 
    O mesmo vale para a barra de opções: o que sobrava de fora eram justo o
    Cancelar e o Aplicar corte, que é onde o trabalho termina.
    ══════════════════════════════════════════════════════════════════════ */
-.jn .ps-top{ gap:2px; padding:7px 10px; }
-.jn .ps-top .ps-b,
+.jn .ps-top{ gap:3px; padding:7px 10px; }
 .jn .ps-top .ps-ic{
   flex:0 0 30px; width:30px; min-width:30px; height:30px; aspect-ratio:1;
   border-radius:50%; padding:0; justify-content:center;
 }
-.jn .ps-top .ps-b-lbl{ display:none; }
+.jn .ps-top .ps-b{ height:30px; padding:0 11px; font-size:11.5px; gap:5px; }
 .jn .ps-top .ps-b svg,
 .jn .ps-top .ps-ic svg{ width:14px; height:14px; }
 .jn .ps-top .ps-sep{ margin-inline:1px; }
@@ -154,8 +154,10 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
    continua fechando em espanhol, onde os nomes são mais compridos. */
 .jn .ps-opts .ps-faixa{ gap:5px; flex:0 1 auto; min-width:0; }
 .jn .ps-opts .ps-faixa input[type="range"]{ width:auto; flex:1 1 46px; min-width:34px; }
-.jn .ps-opts .ps-opt-l, .jn .ps-opts .ps-opt-v{ font-size:10px; }
-.jn .ps-opts .ps-opt-v{ min-width:18px; }
+.jn .ps-opts .ps-opt-l, .jn .ps-opts .ps-opt-v{ font-size:10.5px; }
+/* Três dígitos cabem inteiros: com a medida de antes o segundo zero do 100
+   ficava pela metade. Quem cede espaço é a régua, que encolhe sozinha. */
+.jn .ps-opts .ps-opt-v{ min-width:23px; }
 
 /* A folha é um canvas na web. Aqui é uma foto, para o quadro ter o que
    mostrar: o xadrez, a sombra e a medida vêm todos da folha de produção. */
@@ -350,7 +352,10 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
     var h = '<header class="ps-top">';
 
     // O que traz trabalho para dentro: uma imagem nova, uma camada, um .crd.
-    h += bTxt(sv(IC.imagem), 'Abrir imagem', { on: true });
+    // O Abrir imagem fica só no ícone. Com os três rótulos escritos a barra
+    // pede 905px e a janela tem 878, e destes três é o que menos precisa do
+    // nome: na tela vazia há um "Abrir imagem" escrito, grande, no meio.
+    h += bIc(sv(IC.imagem), 'Abrir imagem', { on: true });
     h += bIc(sv(IC.mais), 'Adicionar camada', { desl: !tem });
     h += bIc(sv(IC.pasta), 'Abrir projeto', { tip: 'Abrir um projeto (.crd)', desl: false });
     h += bIc(sv(IC.crop), 'Cortar', { tip: 'Cortar (C)', on: E.crop, desl: !tem, dados: ' data-ps="crop"' });
@@ -417,7 +422,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
         '<button class="ps-troca" data-tip="Inverter largura e altura" aria-label="Inverter">&#8644;</button>' +
         '<input class="ps-num" type="number" value="819" aria-label="Altura">' +
         '<button class="ps-b">Limpar</button>' +
-        '<label class="ps-caixa" data-tip="Desmarque para poder arrastar a camada e revelar o que ficou de fora"><input type="checkbox" checked><span>Apagar pixels cortados</span></label>' +
+        '<label class="ps-caixa" data-tip="Desmarque para poder arrastar a camada e revelar o que ficou de fora"><input type="checkbox" class="cora-check-bola" checked><span>Apagar pixels cortados</span></label>' +
         '<span class="ps-esticar"></span>' +
         '<button class="ps-b" data-ps="crop-sai">Cancelar</button>' +
         '<button class="ps-b ps-b--on" data-ps="crop-sai">Aplicar corte</button>';
@@ -645,7 +650,14 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
       '<button class="ps-b ps-b--on" data-ps="fechar-janela">OK</button></header>' +
       '<div class="aj-corpo">' +
         '<div class="aj-previa"><span class="pz-foto" style="width:100%;height:100%;background-image:var(--foto1)"></span>' +
-        '<button type="button" class="aj-antes-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/></svg><span>Antes/Depois</span></button></div>' +
+        // A pastilha é de vidro escuro e a cor não muda entre os dois
+        // estados: ela mora em cima da foto, e uma cor chapada por cima
+        // disputaria com a imagem justo na hora de comparar. Quem diz onde a
+        // pessoa está é a palavra em negrito.
+        '<button type="button" class="aj-antes-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/></svg>' +
+        '<span class="aj-ab-rot"><span class="aj-ab-p" data-t="Antes">Antes</span>' +
+        '<span class="aj-ab-sep">/</span>' +
+        '<span class="aj-ab-p aj-ab-p--on" data-t="Depois">Depois</span></span></button></div>' +
         '<aside class="aj-lado"><div class="aj-painel">' +
           '<div class="aj-msk">' +
             '<button class="aj-msk-criar aj-auto-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l2.4 6.6L22 12l-6.6 2.4L13 21l-2.4-6.6L4 12l6.6-2.4z"/></svg>Ajustes automáticos</button>' +
@@ -681,7 +693,7 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
         '<div class="df-linha"><label class="df-l">Distância</label>' +
           '<input type="range" min="1" max="200" value="24" aria-label="Distância">' +
           '<input type="number" class="df-num" value="24" aria-label="Distância em pixels"><span class="df-un">px</span></div>' +
-        '<label class="df-cx"><input type="checkbox" checked><span>Visualizar</span></label>' +
+        '<label class="df-cx"><input type="checkbox" class="cora-check-bola" checked><span>Visualizar</span></label>' +
       '</div>' +
       '<div class="df-pe"><button class="ps-b" data-ps="fechar-janela">Cancelar</button>' +
       '<button class="ps-b ps-b--on" data-ps="fechar-janela">OK</button></div></div>';
