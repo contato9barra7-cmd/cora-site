@@ -236,3 +236,67 @@
 @media (max-width: 640px) {
   .ao-topo { right: 16px; width: 42px; height: 42px; }
 }
+
+/* ============================================================================
+   O MODO ESCURO DO SUPORTE, DOS TERMOS E DA PRIVACIDADE
+
+   As três páginas vestem a folha do suporte (`.sp`), e o escuro delas mora
+   aqui, e não na `suporte-pagina.css`. Aquela folha é gerada do artefato, e
+   o artefato já não bate com ela: regenerar mudaria bem mais do que isto.
+   Aqui a regra sobrevive à próxima regeneração.
+
+   Quem decide quando o escuro liga é o `TemaGuard`: só para quem veio de
+   dentro do app (pedido do dono, 14/09/2026). Vindo da home, o <html> fica
+   com data-theme="light" e nada daqui casa.
+
+   Os valores são os do painel (`[data-theme="dark"] .pn`), para quem sai do
+   painel não ver o fundo mudar de tom. Eles moraram na folha do suporte até
+   `61ab67a`, que tirou o escuro das páginas públicas. Sem o bloco de
+   `prefers-color-scheme` que existia lá: o layout sempre carimba o
+   data-theme no <html>, então só o atributo decide.
+   ========================================================================= */
+[data-theme="dark"] .sp {
+  --ink: #F2F2EF; --ink2: #B6B5AE; --ink3: #8B8A83;
+  --paper: #17171A; --wash: #0F0F11; --wash2: #1E1E22;
+  --line: #2B2B30; --line2: #3A3A41;
+  --lima-txt: #C4FBA7;
+  --turq-txt: #8FDDCC; --turq-bg: rgba(143, 221, 204, .14);
+  --sombra: 0 18px 44px rgba(0, 0, 0, .44), 0 2px 6px rgba(0, 0, 0, .30);
+}
+
+/* O botão escuro vira claro: preto sobre o fundo preto sumiria. */
+[data-theme="dark"] .sp .btn--escuro { background: #F2F2EF; color: #111111; }
+@media (hover: hover) and (pointer: fine) {
+  [data-theme="dark"] .sp .btn--escuro:hover { background: #FFFFFF; color: #111111; }
+}
+
+/* O logo é um PNG preto. */
+[data-theme="dark"] .sp .cabecalho__marca img { filter: invert(1); }
+
+/* O anel de foco dos campos e a sombra do menu aberto, que no claro são
+   escuros e no escuro não apareceriam. */
+[data-theme="dark"] .sp .campo input:focus,
+[data-theme="dark"] .sp .campo select:focus,
+[data-theme="dark"] .sp .campo textarea:focus,
+[data-theme="dark"] .sp .gat.aberto,
+[data-theme="dark"] .sp .cora-dd--aberto .cora-dd-btn,
+[data-theme="dark"] .sp .cora-dd-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, .08);
+}
+[data-theme="dark"] .sp .pop { box-shadow: 0 18px 44px rgba(0, 0, 0, .45); }
+
+/* O erro do formulário: o rosa claro do tema claro vira um véu vermelho. */
+[data-theme="dark"] .sp .sup-erro {
+  background: rgba(200, 52, 42, .18);
+  border: 1px solid rgba(200, 52, 42, .35);
+  color: #F0A9A3;
+}
+
+/* O elo do documento. O turquesa escuro do claro dá pouco contraste sobre o
+   preto, então entra o turquesa claro, o mesmo `--turq-txt` do painel. */
+[data-theme="dark"] .sp.lg .legal-p a,
+[data-theme="dark"] .sp.lg .legal-lista a { color: var(--turq-txt); }
+@media (hover: hover) and (pointer: fine) {
+  [data-theme="dark"] .sp.lg .legal-p a:hover,
+  [data-theme="dark"] .sp.lg .legal-lista a:hover { color: var(--ink); }
+}

@@ -85,9 +85,21 @@ export default function RootLayout({ children }) {
                   document.documentElement.classList.add('menu-recolhido');
                 }
                 var _p = window.location.pathname || '';
+                var _combina = function(lista) { return lista.some(function(r) { return _p === r || _p.indexOf(r + '/') === 0; }); };
                 var _rotasDentro = ['/conta', '/app', '/admin', '/gerente', '/teams', '/workspace', '/assinatura', '/aprender', '/promptadores'];
-                var _ehDentro = _rotasDentro.some(function(r) { return _p === r || _p.indexOf(r + '/') === 0; });
+                var _ehDentro = _combina(_rotasDentro);
+                // Suporte, termos e privacidade: escuros so para quem veio de dentro do app.
+                // A explicacao inteira esta no components/TemaGuard.js.
+                var _ehPonte = _combina(['/suporte', '/termos', '/privacidade']);
                 if (_ehDentro) {
+                  sessionStorage.setItem('cora_veio_de_dentro', '1');
+                } else if (_ehPonte) {
+                  var _carimbo = Number(localStorage.getItem('cora_ponte_em') || 0);
+                  if (_carimbo && Date.now() - _carimbo < 15000) sessionStorage.setItem('cora_veio_de_dentro', '1');
+                } else {
+                  sessionStorage.removeItem('cora_veio_de_dentro');
+                }
+                if (_ehDentro || (_ehPonte && sessionStorage.getItem('cora_veio_de_dentro') === '1')) {
                   var _t = localStorage.getItem('cora_tema');
                   if (!_t) {
                     try {
