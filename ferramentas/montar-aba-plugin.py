@@ -57,8 +57,49 @@ FAMILIAS = {
 }
 
 
+# As famílias que moram no `painel-pagina.css`, escopadas em `.pn`, e que uma
+# aba precisa. Entram reescopadas para `.jn`, pelo `/*@PAINEL@*/` do fonte, e
+# passam pelo mesmo botão de tamanho. É o que o `menu_da_conta` do
+# `portar-janela.py` já faz com o menu da conta. Os avisos usam o cartão de
+# bloqueio do painel, o do teste encerrado.
+PAINEL = {
+    'avisos': ('trial-bloqueio', 'blq-'),
+}
+# Os tokens do painel que essas regras leem e que a folha escopada em `.co`
+# não tem: a faixa da marca e o canto do cartão.
+PAINEL_TOKENS = ('--faixa', '--r-heroi')
+
+
 def ler(caminho):
     return io.open(caminho, encoding='utf-8').read()
+
+
+def do_painel(painel, familias):
+    """As regras `.pn` das famílias pedidas, reescopadas para `.jn`, com os
+    tokens do painel que elas leem."""
+    css = re.sub(r'/\*.*?\*/', u'', painel, flags=re.S)
+    fora = []
+    for m in re.finditer(r'([^{}@]+)\{([^{}]*)\}', css):
+        sel = u' '.join(m.group(1).split())
+        corpo = u' '.join(m.group(2).split())
+        if not corpo:
+            continue
+        partes = [p.strip() for p in sel.split(u',')
+                  if u'.pn ' in p and any((u'.' + f) in p for f in familias)]
+        if partes:
+            fora.append(u', '.join(p.replace(u'.pn ', u'.jn ', 1) for p in partes) + u'{' + corpo + u'}')
+    tokens = []
+    for alvo, escopo in ((u'.pn{', u'.jn{'), (u'[data-theme="dark"] .pn{', u'[data-theme="dark"] .jn{')):
+        i = css.find(alvo)
+        if i < 0:
+            raise SystemExit(u'não achei o bloco %s no painel-pagina.css' % alvo)
+        corpo = css[i + len(alvo):css.index(u'}', i)]
+        linhas = [d.strip() for d in corpo.split(u';') if d.strip().startswith(PAINEL_TOKENS)]
+        if linhas:
+            tokens.append(escopo + u';'.join(linhas) + u';}')
+    if not fora:
+        raise SystemExit(u'nenhuma regra de %s no painel-pagina.css' % u', '.join(familias))
+    return u'\n'.join(tokens + fora)
 
 
 def gerador():
@@ -120,6 +161,10 @@ def montar(aba):
         if not os.path.exists(dados_p):
             raise SystemExit(u'o fonte pede /*@DADOS@*/ e não achei %s' % os.path.basename(dados_p))
         saida = saida.replace('/*@DADOS@*/', ler(dados_p))
+    if '/*@PAINEL@*/' in saida:
+        if aba not in PAINEL:
+            raise SystemExit(u'o fonte pede /*@PAINEL@*/ e o PAINEL não tem a aba %s' % aba)
+        saida = saida.replace('/*@PAINEL@*/', mod.encolher(do_painel(painel, PAINEL[aba])))
     saida = saida.replace('/*@GLOBAIS@*/', '\n'.join(globais))
     saida = saida.replace('/*@CORA@*/', cora + '\n' + moldura(ler(JANELA)) + '\n' + extra)
     saida = ('<!-- ARQUIVO GERADO por montar-aba-plugin.py %s.\n'
