@@ -101,8 +101,8 @@ h2.secao + p{ margin:0 0 20px; max-width:64ch; color:var(--pag-apoio); font-size
 .jn .lg-logo img{ display:block; width:auto; height:26px; }
 .jn .lg-miolo{ padding:22px 34px 30px; }
 .jn .tc .lg-miolo .login-card{ max-width:none; }
-/* O pé do cartão, onde o e-mail tem o rodapé: a pergunta numa linha e a
-   ação na linha de baixo. O texto é o `.rodape-cartao` da web, no mesmo
+/* O pé do cartão, onde o e-mail tem o rodapé: a pergunta e a ação na mesma
+   linha, como na web. O texto é o `.rodape-cartao` da web, no mesmo
    tamanho do resto do formulário. Daqui sai só o espaço dele, porque o fio
    e o respiro já são do pé. */
 .jn .lg-pe{ padding:14px 34px 16px; border-top:1px solid var(--line); }
@@ -133,7 +133,7 @@ h2.secao + p{ margin:0 0 20px; max-width:64ch; color:var(--pag-apoio); font-size
       <p class="mud-t">O que muda em relação ao login de antes</p>
       <dl class="mud">
         <div><dt>A tela</dt><dd>Era um cartão cinza de 340 px com um quadrado verde e roxo no lugar do logo. Agora é um cartão branco com a cabeça dos e-mails do Cora, e dentro dele o formulário da tela de conta da web: os campos, o olho da senha e o botão lima.</dd></div>
-        <div><dt>Criar conta</dt><dd>Abria 9barra7.com. Agora mora no pé do cartão: "Ainda não tem conta?" numa linha e "Criar conta grátis" na de baixo, que abre o cadastro do Cora no navegador.</dd></div>
+        <div><dt>Criar conta</dt><dd>Abria 9barra7.com. Agora mora no pé do cartão, "Ainda não tem conta? Criar conta grátis" numa linha só, como na web, e abre o cadastro do Cora no navegador.</dd></div>
         <div><dt>Recuperar a senha</dt><dd>Mandava um código de 6 dígitos que o plugin não tinha onde digitar. Agora manda o link do site, que vale por 1 hora, como a web.</dd></div>
         <div><dt>Confirmar o e-mail</dt><dd>Quem ainda não confirmou via só a mensagem do servidor. Agora o plugin pede o código, como a web, e entra direto.</dd></div>
         <div><dt>Os erros</dt><dd>Saíam em português sem acento, em qualquer idioma. Agora aparecem na caixa de erro da web e dizem o que fazer.</dd></div>
@@ -173,7 +173,7 @@ h2.secao + p{ margin:0 0 20px; max-width:64ch; color:var(--pag-apoio); font-size
       '<button type="button" class="senha-olho" data-a="olho" aria-label="' + (ver ? 'Esconder senha' : 'Mostrar senha') + '">' + (ver ? OLHO_FECHADO : OLHO) + '</button></div>';
   }
   function erro(txt) { return '<p class="login-erro">' + txt + '</p>'; }
-  var CRIAR = 'Ainda não tem conta?<br><a data-a="cadastro" title="Abre corarender.com/cadastro no navegador">Criar conta grátis</a>';
+  var CRIAR = 'Ainda não tem conta? <a data-a="cadastro" title="Abre corarender.com/cadastro no navegador">Criar conta grátis</a>';
 
   // Cada tela devolve o miolo do cartão e o pé.
   var TELAS = {
@@ -193,7 +193,7 @@ h2.secao + p{ margin:0 0 20px; max-width:64ch; color:var(--pag-apoio); font-size
           '<label class="login-label">Código</label><input class="login-input" type="text" inputmode="numeric" placeholder="000000" value="' + (e.codigo || '') + '">' +
           (e.erro ? erro(e.erro) : '') +
           '<button class="btn btn--verde" data-a="confirmar">Confirmar e entrar</button>',
-        pe: 'Não recebeu?<br><a data-a="reenviar">Reenviar código</a>'
+        pe: 'Não recebeu? <a data-a="reenviar">Reenviar código</a>'
       };
     },
     esqueci: function (e) {
@@ -202,7 +202,7 @@ h2.secao + p{ margin:0 0 20px; max-width:64ch; color:var(--pag-apoio); font-size
           '<p class="login-sub">Digite seu email e enviaremos um link para criar uma nova senha.</p>' +
           email(e.email) +
           '<button class="btn btn--roxo" data-a="enviar">Enviar link</button>',
-        pe: 'Lembrou a senha?<br><a data-a="voltar">Entrar</a>'
+        pe: 'Lembrou a senha? <a data-a="voltar">Entrar</a>'
       };
     },
     enviado: function () {
@@ -292,7 +292,7 @@ h2.secao + p{ margin:0 0 20px; max-width:64ch; color:var(--pag-apoio); font-size
   // ══ cada estado, parado ══
   var ESTADOS = [
     { p: 'entrar', t: 'Entrar',
-      d: ['O que aparece quando não há conta salva no computador, ou depois de sair. A cabeça é a dos e-mails do Cora, e o formulário é o da tela de entrar da web.', 'O criar conta fica no pé: a pergunta numa linha, o link na de baixo. No plugin ele abre corarender.com/cadastro no navegador.'] },
+      d: ['O que aparece quando não há conta salva no computador, ou depois de sair. A cabeça é a dos e-mails do Cora, e o formulário é o da tela de entrar da web.', 'O criar conta fica no pé, numa linha só, como na web. No plugin ele abre corarender.com/cadastro no navegador.'] },
     { p: 'entrando', t: 'Entrando',
       d: ['O botão avisa enquanto o servidor responde, e não aceita um segundo clique.'] },
     { p: 'senha', t: 'E-mail ou senha incorretos',
