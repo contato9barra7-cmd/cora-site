@@ -63,6 +63,9 @@ PAINEL = {
     'alertas': ('trial-bloqueio', 'blq-', 'foto-'),
     # O login: so a faixa da marca, que faz a cabeca igual a dos e-mails.
     'login': ('trial-bloqueio-faixa',),
+    # As caixas do Windows: o plano vencido e o acesso suspenso, que saem da
+    # caixa e vao para o cartao de bloqueio da janela do Cora.
+    'caixas': ('trial-bloqueio', 'blq-'),
 }
 # Os tokens do painel que essas regras leem e que a folha escopada em `.co`
 # não tem: a faixa da marca e o canto do cartão.
