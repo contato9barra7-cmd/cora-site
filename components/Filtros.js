@@ -27,6 +27,7 @@ import DatePickerCora from './DatePickerCora';
 
 const FERRAMENTAS = [
   { val: 'render',   rotulo: 'Render' },
+  { val: 'planta',   rotulo: 'Planta baixa' },
   { val: 'editar',   chave: 'filtros_ferr_editar' },
   { val: 'batch',    rotulo: 'Batch' },
   { val: 'upscale',  rotulo: 'Upscale' },
