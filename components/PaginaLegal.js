@@ -6,10 +6,13 @@
 //  As duas páginas têm a mesma forma e mudam só no conteúdo, então a moldura
 //  mora aqui e cada página entrega as seções como filhas.
 //
-//  ── Por que tem logo ──
-//  O link destas páginas circula solto: vai no rodapé, no cadastro e nos
-//  e-mails. Elas podem ser a PRIMEIRA página que alguém abre do Cora, e sem o
-//  logo quem chega assim não sabe de quem é o documento que está lendo.
+//  ── Por que ela veste a página de suporte ──
+//  Desde 13/09/2026 as duas usam a mesma moldura do /suporte: o cabeçalho do
+//  site, o voltar embaixo dele, e a coluna da esquerda com título e sumário,
+//  grudada ao rolar. O desenho vem da própria folha do suporte (classe `sp`),
+//  e o que é só do documento mora no `paginas-legais.css`, debaixo de
+//  `.sp.lg`. Antes elas tinham um cabeçalho próprio, com os dois logos e uma
+//  linha, e tamanhos de fonte que não eram os do resto do site.
 //
 //  ── Por que tem índice ──
 //  São catorze seções e mais de três metros de rolagem. A pergunta que se faz
@@ -23,16 +26,16 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useIdioma } from '../lib/i18n';
+import Cabecalho from './Cabecalho';
 import AoTopo from './AoTopo';
 
 // Vira "1-aceitacao" a partir de "1. Aceitação": o id precisa sobreviver a
 // acento e pontuação porque ele vai virar âncora na barra de endereço.
 function apelido(texto, ordem) {
   const limpo = String(texto || '')
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   return (limpo || 'secao') + '-' + ordem;
 }
@@ -41,6 +44,7 @@ export default function PaginaLegal({ titulo, data, children }) {
   const router = useRouter();
   const { t } = useIdioma();
   const docRef = useRef(null);
+  const indiceRef = useRef(null);
   const [secoes, setSecoes] = useState([]);
   const [aqui, setAqui] = useState('');
 
@@ -81,6 +85,21 @@ export default function PaginaLegal({ titulo, data, children }) {
     return () => olho.disconnect();
   }, [children]);
 
+  // Com catorze seções o sumário passa da altura da tela e rola por dentro.
+  // Quando a seção marcada sai da parte visível dele, ele anda até ela, senão
+  // a marca ficaria escondida justo enquanto a pessoa desce o texto.
+  useEffect(() => {
+    const lista = indiceRef.current;
+    if (!lista || !aqui) return;
+    const item = lista.querySelector('[data-aqui="sim"]');
+    if (!item) return;
+    const topo = item.offsetTop;
+    const fim = topo + item.offsetHeight;
+    if (topo < lista.scrollTop || fim > lista.scrollTop + lista.clientHeight) {
+      lista.scrollTop = Math.max(0, topo - lista.clientHeight / 2);
+    }
+  }, [aqui]);
+
   const irPara = (e, id) => {
     e.preventDefault();
     const alvo = document.getElementById(id);
@@ -92,51 +111,44 @@ export default function PaginaLegal({ titulo, data, children }) {
   };
 
   return (
-    <div className="legal-wrap">
-      {/* Numa linha so, um em cada ponta: o voltar na esquerda, porque e a
-          saida e saida se procura onde a leitura comeca, e os logos na
-          direita, fechando a linha.
+    /* `sp` é a classe da página de suporte: cabeçalho, voltar, grade, título
+       e sumário vêm da folha dela. `lg` é o que só o documento tem. */
+    <div className="sp lg">
+      <Cabecalho aqui="legal" />
 
-          Os logos nao sao enfeite num documento legal, sao a identificacao de
-          quem assina: o Cora e o produto, a Academy e quem responde por ele.
-          So o do Cora leva a algum lugar. */}
-      <header className="legal-topo">
-        <a href="/" className="legal-voltar" onClick={voltar}>{t('legal_voltar')}</a>
-        <div className="legal-marcas">
-          <Link href="/" className="legal-marca" aria-label="Cora Render">
-            <img src="/img/logo-cora.png" alt="Cora Render" width="266" height="64" />
-          </Link>
-          <span className="legal-marcas__fio" aria-hidden="true" />
-          <span className="legal-marca legal-marca--academy">
-            <img src="/img/logo-9barra7.png" alt="9barra7 Academy" width="300" height="36" />
-          </span>
+      <main id="conteudo">
+        <div className="env sp-topo">
+          <a href="/" className="sp-voltar" onClick={voltar}>{t('legal_voltar')}</a>
         </div>
-      </header>
 
-      <div className="legal-grade">
-        <nav className="legal-indice" aria-label={titulo}>
-          <p className="legal-indice__rotulo">{t('legal_indice')}</p>
-          <ol>
-            {secoes.map((s) => (
-              <li key={s.id}>
-                <a
-                  href={'#' + s.id}
-                  data-aqui={aqui === s.id ? 'sim' : undefined}
-                  onClick={(e) => irPara(e, s.id)}
-                >
-                  {s.texto}
-                </a>
-              </li>
-            ))}
-          </ol>
-        </nav>
+        <section className="env" style={{ paddingBottom: 'clamp(48px,6vw,88px)' }}>
+          <div className="faq-grade">
+            <div className="faq-lado">
+              <span className="olho">{t('legal_olho')}</span>
+              <h1>{titulo}</h1>
+              <p>{data}</p>
 
-        <div className="legal-doc" ref={docRef}>
-          <h1 className="legal-titulo">{titulo}</h1>
-          <p className="legal-data">{data}</p>
-          {children}
-        </div>
-      </div>
+              <nav className="indice" ref={indiceRef} aria-label={t('legal_indice')}>
+                {secoes.map((s) => (
+                  <a
+                    key={s.id}
+                    href={'#' + s.id}
+                    data-aqui={aqui === s.id ? 'sim' : undefined}
+                    aria-current={aqui === s.id ? 'location' : undefined}
+                    onClick={(e) => irPara(e, s.id)}
+                  >
+                    {s.texto}
+                  </a>
+                ))}
+              </nav>
+            </div>
+
+            <div className="lg-doc" ref={docRef}>
+              {children}
+            </div>
+          </div>
+        </section>
+      </main>
 
       <AoTopo rotulo={t('legal_ao_topo')} />
     </div>

@@ -1,222 +1,142 @@
 /* ============================================================================
    TERMOS DE USO E POLÍTICA DE PRIVACIDADE
 
-   As duas páginas ficaram no molde antigo enquanto o resto do site mudou de
-   identidade: título em peso 700, elo em roxo, e uma coluna de 3.200px de
-   altura sem nenhuma referência de onde a pessoa está.
+   Desde 13/09/2026 as duas páginas vestem a moldura do /suporte, a pedido do
+   dono: o cabeçalho do site, o voltar embaixo dele, e a coluna da esquerda
+   com olho, título, data e sumário, grudada ao rolar. Saíram o cabeçalho
+   próprio com os dois logos e a linha, e os tamanhos de fonte que eram só
+   daqui.
 
-   Aqui elas passam a ler como documento, não como parede de texto:
+   O `PaginaLegal` monta a página com a classe `sp`, então tudo o que é
+   moldura vem da `suporte-pagina.css`. Aqui fica o que o suporte não tem: o
+   sumário feito de elos (o dele é de botões), a coluna que não cabe na tela
+   e o documento em si.
 
-   1. Cabeçalho com o logo, que também é o caminho de volta pra home. A página
-      pode ser a PRIMEIRA que alguém abre, porque o link dela circula solto
-      (vai no rodapé, no cadastro e nos e-mails). Sem o logo, quem chega assim
-      não sabe de quem é o documento.
+   ── Por que tudo começa com `.sp.lg` ──
+   A folha do suporte entra DEPOIS desta no layout e zera margem, padding e
+   cor de elo com `.sp *` e `.sp a`. Um seletor de uma classe só perde para
+   eles, e o documento ficaria sem espaço entre parágrafos, sem ninguém ver o
+   motivo.
 
-   2. Índice das seções, grudado na lateral em tela larga. Ele não é enfeite:
-      são catorze seções e mais de três metros de rolagem, e a pergunta que
-      alguém faz num documento desses é sempre "onde está a parte de X". Ele é
-      montado do próprio DOM, então acompanha a tradução sem lista paralela
-      pra manter.
-
-   3. Medida de leitura em 74 caracteres, medida contando os caracteres de
-      cada linha renderizada e não confiando na unidade `ch`: `ch` resolve
-      contra o corpo do CONTENTOR (16px), e os parágrafos são 15,5px, então
-      `68ch` ali entregava 93 caracteres por linha. Acima de uns 75 o olho
-      começa a perder o caminho de volta pro começo da próxima.
-
-   O CSS mora aqui e não no globals porque o globals já tem doze mil linhas e
-   atende telas que ainda usam o molde antigo. Tudo abaixo depende de
-   `.legal-wrap`, então nada disso vaza pro resto do site.
+   As regras de `.legal-sec`, `.legal-p` e `.legal-lista` sem o `.sp.lg`,
+   mais abaixo, continuam existindo porque a janela de reaceite, dentro do
+   app, usa o mesmo texto.
    ========================================================================= */
 
-/* ── a folha ── */
-.legal-wrap {
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 0 26px 100px;
-  color: var(--ink);
-}
-
-/* ── o cabeçalho ── */
-/* Uma linha so, com os dois nas pontas: o voltar na esquerda, porque e a
-   saida e saida se procura onde a leitura comeca, e a assinatura na direita,
-   onde ela fecha a linha sem disputar espaco com o controle.
-   Em tela estreita a linha quebra em vez de espremer. */
-.legal-topo {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 14px 22px;
-  padding: 22px 0 26px;
-  margin-bottom: 34px;
-  border-bottom: 1px solid var(--line);
-}
-/* Quando a linha quebra, os logos vao pra esquerda junto com o voltar em vez
-   de ficarem pendurados sozinhos na direita. */
-@media (max-width: 560px) {
-  .legal-topo { justify-content: flex-start; }
-}
-/* Os dois lado a lado, separados por um fio. O do Cora manda, o da Academy
-   entra menor e mais quieto: um e o produto, o outro e a assinatura. */
-.legal-marcas {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.legal-marcas__fio {
-  width: 1px;
-  height: 19px;
-  background: var(--line);
-}
-.legal-marca {
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-}
-.legal-marca img {
+/* ── o sumário ──
+   O do suporte é feito de botões, o daqui é de elos. As medidas são as
+   mesmas: 13,5px, fio de 2px à esquerda, e lima de 3px no marcado. */
+.sp.lg .indice { position: relative; }
+.sp.lg .indice a {
   display: block;
-  width: 92px;
-  height: auto;
-}
-/* Nao e elo, e assinatura: sem estado de hover. Preto cheio, igual ao do
-   Cora, so um pouco menor pra o produto seguir na frente. */
-.legal-marca--academy { cursor: default; }
-.legal-marca--academy img { width: 99px; }
-.legal-marca:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
-
-@media (max-width: 520px) {
-  .legal-marcas { gap: 11px; }
-  .legal-marca img { width: 80px; }
-  .legal-marca--academy img { width: 86px; }
-}
-
-/* O elo de voltar é o único controle da página, então ele tem forma de
-   controle: pílula com contorno, não texto solto que se confunde com o corpo. */
-.legal-voltar {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin: 0;
-  padding: 8px 16px 8px 13px;
-  border: 1px solid var(--line);
-  border-radius: 100px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--ink2);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: border-color .15s ease, color .15s ease;
-}
-.legal-voltar:hover {
-  border-color: var(--ink);
-  color: var(--ink);
-}
-.legal-voltar:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
-}
-
-/* ── a grade: índice à esquerda, documento à direita ── */
-.legal-grade {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 48px;
-  align-items: start;
-}
-@media (min-width: 768px) {
-  .legal-grade {
-    grid-template-columns: 196px minmax(0, 520px);
-    gap: 28px;
-    justify-content: space-between;
-  }
-}
-@media (min-width: 1024px) {
-  .legal-grade {
-    grid-template-columns: 216px minmax(0, 520px);
-    gap: 56px;
-    justify-content: center;
-  }
-}
-
-.legal-indice { display: none; }
-@media (min-width: 768px) {
-  .legal-indice {
-    display: block;
-    position: sticky;
-    top: 28px;
-    max-height: calc(100dvh - 56px);
-    overflow-y: auto;
-    padding-right: 10px;
-  }
-}
-.legal-indice__rotulo {
-  margin: 0 0 12px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--ink3);
-}
-.legal-indice ol {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.legal-indice a {
-  display: block;
-  padding: 6px 12px;
+  padding: 8px 14px;
   border-left: 2px solid var(--line);
-  font-size: 12.5px;
-  line-height: 1.45;
   color: var(--ink2);
+  font-size: 13.5px;
+  line-height: 1.45;
   text-decoration: none;
   transition: color .15s ease, border-color .15s ease;
 }
-.legal-indice a:hover { color: var(--ink); border-left-color: var(--ink3); }
-.legal-indice a:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
-/* A seção em que a pessoa está fica marcada com o lima da marca. */
-.legal-indice a[data-aqui="sim"] {
+.sp.lg .indice a[data-aqui="sim"] {
   color: var(--ink);
   font-weight: 500;
-  border-left-color: var(--lima, #C4FBA7);
+  border-left-color: var(--lima);
   border-left-width: 3px;
 }
-
-/* ── o documento ── */
-/* 520px em 15,5px dá 74 caracteres por linha. Valor em pixel de propósito:
-   ver a nota 3 no topo sobre por que `ch` engana aqui. */
-.legal-doc { max-width: 520px; margin-inline: auto; }
-@media (min-width: 768px) and (max-width: 1023px) {
-  .legal-doc { margin-inline: 0; }
+.sp.lg .indice a:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+@media (hover: hover) and (pointer: fine) {
+  .sp.lg .indice a:hover { color: var(--ink); border-left-color: var(--ink3); }
+  .sp.lg .indice a[data-aqui="sim"]:hover { border-left-color: var(--lima); }
 }
 
-.legal-titulo {
-  margin: 0 0 10px;
-  font-size: 38px;
-  font-weight: 600;
-  letter-spacing: -.028em;
-  line-height: 1.1;
+/* No celular o sumário sai. São catorze seções, e com uma coluna só ele
+   empurraria o texto para baixo de uma tela inteira de links. */
+@media (max-width: 767px) {
+  .sp.lg .indice { display: none; }
+}
+
+/* ── as duas colunas ──
+   O suporte só abre em duas colunas a partir de 900px. Aqui abre em 768,
+   porque o dono pediu o sumário à esquerda também no iPad em pé (6148353). */
+@media (min-width: 768px) {
+  .sp.lg .faq-grade { grid-template-columns: 34fr 66fr; gap: 40px; }
+  /* A coluna gruda como a do suporte, mas com catorze seções ela passa da
+     altura da tela. Então ela ganha um teto, e quem rola é só o sumário:
+     olho, título e data ficam parados em cima. */
+  .sp.lg .faq-lado {
+    position: sticky;
+    top: calc(var(--altura-cabecalho) + var(--e-6));
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - var(--altura-cabecalho) - var(--e-6) - 24px);
+  }
+  .sp.lg .indice {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+}
+@media (min-width: 900px) {
+  .sp.lg .faq-grade { gap: var(--e-8); }
+}
+
+/* ── o documento, na tipografia das respostas do suporte ──
+   Cada seção é um bloco com fio embaixo, como as perguntas de lá: título de
+   15,5 a 17px em peso 500, e texto de 14,5px com entrelinha 1,62. */
+.sp.lg .lg-doc { min-width: 0; }
+.sp.lg .lg-doc > .legal-p { margin: 0; padding: 19px 0 0; }
+.sp.lg .lg-doc > .legal-p + .legal-p { padding-top: 12px; }
+.sp.lg .lg-doc > .legal-p:has(+ .legal-sec) { padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+.sp.lg .legal-sec {
+  padding: 19px 0 22px;
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: calc(var(--altura-cabecalho) + 24px);
+}
+@media (min-width: 768px) {
+  .sp.lg .legal-sec { padding: 22px 0; }
+  .sp.lg .lg-doc > .legal-p:first-child { padding-top: 22px; }
+}
+.sp.lg .legal-h2 {
+  margin: 0 0 12px;
+  font-size: clamp(15.5px, 1.2vw, 17px);
+  font-weight: 500;
+  letter-spacing: -.015em;
+  line-height: 1.35;
   color: var(--ink);
-  text-wrap: balance;
 }
-@media (max-width: 640px) { .legal-titulo { font-size: 30px; } }
-
-/* A data vira etiqueta: num documento legal ela é dado, não legenda. */
-.legal-data {
-  display: inline-block;
-  margin: 0 0 40px;
-  padding: 5px 12px;
-  border-radius: 100px;
-  background: var(--wash, #F4F4F1);
-  font-size: 12.5px;
+.sp.lg .legal-p,
+.sp.lg .legal-lista li {
+  font-size: 14.5px;
+  line-height: 1.62;
   color: var(--ink2);
+  max-width: 60ch;
+}
+.sp.lg .legal-sec .legal-p { margin: 0 0 12px; }
+.sp.lg .legal-sec .legal-p:last-child { margin-bottom: 0; }
+.sp.lg .legal-lista { margin: 0 0 12px; list-style: none; }
+.sp.lg .legal-lista:last-child { margin-bottom: 0; }
+.sp.lg .legal-lista li { position: relative; margin-bottom: 8px; padding-left: 22px; }
+.sp.lg .legal-lista li:last-child { margin-bottom: 0; }
+/* O marcador sobe junto com a entrelinha, que desceu de 1,75 para 1,62. */
+.sp.lg .legal-lista li::before { top: .6em; }
+.sp.lg .legal-p strong,
+.sp.lg .legal-lista li strong { color: var(--ink); font-weight: 600; }
+.sp.lg .legal-p a,
+.sp.lg .legal-lista a {
+  color: var(--turq-texto, #196C5B);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .sp.lg .legal-p a:hover,
+  .sp.lg .legal-lista a:hover { color: var(--ink); }
 }
 
+/* ── o texto, fora da página ──
+   Estas continuam sem o `.sp.lg`: são a base da janela de reaceite, que
+   mostra o mesmo documento dentro do app. */
 .legal-sec { margin-top: 42px; scroll-margin-top: 24px; }
 .legal-sec:first-of-type { margin-top: 0; }
 
