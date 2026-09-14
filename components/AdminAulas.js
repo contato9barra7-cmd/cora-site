@@ -27,6 +27,7 @@ import {
 } from '../lib/aulas';
 import { useIdioma, tOpt } from '../lib/i18n';
 import AdminAula from './AdminAula';
+import Confirma from './Confirma';
 
 /* A capa fica guardada com a largura do arquivo. São duas medidas porque são
    duas composições: o cartaz em pé vai na fila dos sete módulos, e a deitada
@@ -172,6 +173,7 @@ export default function AdminAulas({ aba }) {
   const [posto, setPosto] = useState(null);        // { pai, ids }
   const [abrindo, setAbrindo] = useState({});      // módulos com as removidas à vista
   const [modsFora, setModsFora] = useState(false);   // os módulos removidos à vista
+  const [tirandoMod, setTirandoMod] = useState(null); // o módulo esperando a confirmação
   /* Quais módulos estão FECHADOS. Guardar o fechado e não o aberto faz a tela
      nascer com tudo aberto, que é como ela sempre foi. Fechar serve para
      reorganizar a fila dos sete: com as 33 aulas à mostra, arrastar um módulo
@@ -481,7 +483,7 @@ export default function AdminAulas({ aba }) {
             {/* Remover o módulo é esconder, como na aula: ele sai da tela de quem
                 estuda, e as aulas e o que elas juntaram continuam no banco. */}
             <button className="apr-bt apr-bt--so adm-cat__tira" data-dica={t('adm_cat_remover_mod')} data-dica-fim=""
-                    onClick={() => gravar(m.id, 'removido', '1')}>{Ico.x}</button>
+                    onClick={() => setTirandoMod(m)}>{Ico.x}</button>
           </div>
 
           {!fechados[m.id] && naOrdem(m.id, m.aulas.filter((a) => !a.removido)).map((a, i) => {
@@ -581,6 +583,27 @@ export default function AdminAulas({ aba }) {
           </div>
         </div>
       ))}
+
+      {/* Remover o módulo tira da tela de quem estuda um bloco inteiro de uma
+          vez, então ele pergunta antes. A frase diz qual módulo e quantas aulas
+          saem junto: "tem certeza?" sozinho não mostra a quem clicou no X errado
+          que foi o X errado. */}
+      {tirandoMod && (() => {
+        const nome = tOpt(tirandoMod.titulo) || '';
+        const rotulo = (tirandoMod.numero || tirandoMod.id) + (nome ? `, “${nome}”` : '');
+        const n = tirandoMod.aulas.filter((a) => !a.removido).length;
+        const efeito = n === 0 ? t('adm_cat_tirar_mod_sem_aulas')
+          : n === 1 ? t('adm_cat_tirar_mod_uma_aula')
+          : t('adm_cat_tirar_mod_aulas').replace('{n}', n);
+        return (
+          <Confirma
+            texto={`${t('adm_cat_tirar_mod_pergunta').replace('{modulo}', rotulo)} ${efeito} ${t('adm_cat_tirar_mod_volta')}`}
+            ok={t('adm_cat_remover_mod')}
+            aoOk={() => { gravar(tirandoMod.id, 'removido', '1'); setTirandoMod(null); }}
+            aoCancelar={() => setTirandoMod(null)}
+          />
+        );
+      })()}
     </>
   );
 }
