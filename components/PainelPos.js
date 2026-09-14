@@ -75,7 +75,8 @@ const IC = {
   teclado:  'M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9 14h6',
   mais:     'M12 6v12M6 12h12',
   volta:    'M12 4l-5 6 5 6',
-  desfazer: 'M9 5L4 10l5 5|M4 10h9a6 6 0 0 1 0 12h-3'
+  desfazer: 'M9 5L4 10l5 5|M4 10h9a6 6 0 0 1 0 12h-3',
+  refazer:  'M15 5l5 5-5 5|M20 10h-9a6 6 0 0 0 0 12h3'
 };
 
 const Svg = ({ d }) => (
@@ -373,7 +374,11 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
   const [ratio, setRatio] = useState('livre');
 
   // ── O histórico ──
+  // Duas pilhas: o que já foi feito e o que foi desfeito. Desfazer tira de uma
+  // e põe na outra, refazer faz o caminho de volta. Qualquer ação nova apaga a
+  // de refazer, senão o refazer levaria a um estado que não existe mais.
   const [pilha, setPilha] = useState([]);
+  const [refeita, setRefeita] = useState([]);
 
   // ── O encaixe ──
   //
@@ -749,7 +754,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
         setPan({ x: 0, y: 0 });
         selRef.current = novaSelecao(c.width, c.height);
         setTemSel(false);
-        setPilha([]);
+        setPilha([]); setRefeita([]);
       } else {
         // A camada nova entra CENTRALIZADA, e encolhida se não couber. Entrar em
         // (0,0) esconderia metade dela atrás da borda quando fosse maior que a
@@ -798,22 +803,38 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
   // ═══ O histórico ═══
   const guardar = useCallback(() => {
     setPilha((p) => empilhar(p, tirar(camadas, selRef.current, med)));
+    // A partir daqui o futuro que existia virou outro. Guardar o refazer seria
+    // guardar o caminho para um estado que esta ação acabou de tornar impossível.
+    setRefeita([]);
   }, [camadas, med]);
+
+  // Aplica um retrato guardado. É o mesmo trabalho no desfazer e no refazer.
+  const aplicarSnap = useCallback((s) => {
+    setCamadas(s.camadas);
+    setMed(s.med);
+    selRef.current = s.sel;
+    contornoRef.current = null;
+    setTemSel(s.sel ? !selecaoVazia(s.sel) : false);
+  }, []);
 
   const desfazer = useCallback(() => {
     setPilha((p) => {
       if (!p.length) return p;
-
-      const s = p[p.length - 1];
-      setCamadas(s.camadas);
-      setMed(s.med);
-      selRef.current = s.sel;
-      contornoRef.current = null;
-      setTemSel(s.sel ? !selecaoVazia(s.sel) : false);
-
+      // O estado de agora vai para a pilha do refazer antes de ser trocado.
+      setRefeita((r) => empilhar(r, tirar(camadas, selRef.current, med)));
+      aplicarSnap(p[p.length - 1]);
       return p.slice(0, -1);
     });
-  }, []);
+  }, [camadas, med, aplicarSnap]);
+
+  const refazer = useCallback(() => {
+    setRefeita((r) => {
+      if (!r.length) return r;
+      setPilha((p) => empilhar(p, tirar(camadas, selRef.current, med)));
+      aplicarSnap(r[r.length - 1]);
+      return r.slice(0, -1);
+    });
+  }, [camadas, med, aplicarSnap]);
 
   // ═══ Mexer numa camada ═══
   const mudar = useCallback((id, campos) => {
@@ -2562,7 +2583,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       setTemSel(tr.selecao ? !selecaoVazia(tr.selecao) : false);
 
       setSel(tr.camadas.length ? [tr.camadas[0].id] : []);
-      setPilha([]);
+      setPilha([]); setRefeita([]);
       setFerr('mover');
       setZoom(1);
       setPan({ x: 0, y: 0 });
@@ -2630,7 +2651,7 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
       setTemSel(tr.selecao ? !selecaoVazia(tr.selecao) : false);
 
       setSel(tr.camadas.length ? [tr.camadas[0].id] : []);
-      setPilha([]);
+      setPilha([]); setRefeita([]);
       setFerr('mover');
       setZoom(1);
       setPan({ x: 0, y: 0 });
@@ -2831,6 +2852,10 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
         if (e.shiftKey && k === 'x') { e.preventDefault(); inverterSel(); return; }
         if (e.altKey   && k === 'e') { e.preventDefault(); mesclar(); return; }
 
+        // Ctrl+Shift+Z refaz, e o Ctrl+Y faz o mesmo: um é o gesto do
+        // Photoshop, o outro é o do Windows, e a mão de cada pessoa já sabe um.
+        if (e.shiftKey && k === 'z') { e.preventDefault(); refazer(); return; }
+        if (k === 'y') { e.preventDefault(); refazer(); return; }
         if (k === 'z') { e.preventDefault(); desfazer(); return; }
         if (k === 'a') { e.preventDefault(); selecionarTudo(); return; }
         if (k === 'd') { e.preventDefault(); desmarcar(); return; }
@@ -3091,6 +3116,13 @@ export default function PainelPos({ aoSair, aoUpscale, aoSalvarHistorico, imagem
           <button className="ps-ic" onClick={desfazer}
                   disabled={!pilha.length} aria-label={t('painelpos_desfazer')}>
             <Svg d={IC.desfazer} />
+          </button>
+        </Dica>
+
+        <Dica texto={t('painelpos_refazer_atalho')}>
+          <button className="ps-ic" onClick={refazer}
+                  disabled={!refeita.length} aria-label={t('painelpos_refazer')}>
+            <Svg d={IC.refazer} />
           </button>
         </Dica>
 

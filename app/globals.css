@@ -9872,16 +9872,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 
 .ps-ic svg { width: 16px; height: 16px; }
 
-/* O triângulo dos grupos de ferramenta — o .pos-tool-tri do plugin */
+/* O triângulo dos grupos de ferramenta — o .pos-tool-tri do plugin.
+   A medida e a cor moram na regra de baixo, junto com a do botão que o
+   carrega. Aqui fica só onde ele se apoia. */
 .ps-tri {
   position: absolute;
-  right: 4px;
-  bottom: 4px;
-  width: 0;
-  height: 0;
-  border-left: 3.5px solid transparent;
-  border-bottom: 3.5px solid currentColor;
-  opacity: .5;
+  right: 3px;
+  bottom: 3px;
 }
 
 /* ── O corpo ── */
@@ -10933,8 +10930,8 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
   position: absolute;
   right: -1px;
   bottom: -1px;
-  width: 13px;
-  height: 13px;
+  width: 16px;
+  height: 16px;
   padding: 0;
   border: none;
   background: transparent;
@@ -10945,14 +10942,18 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 }
 .ps-tri-btn:disabled { opacity: .4; cursor: default; }
 
+/* Este triângulo é o único aviso de que o grupo tem mais ferramentas dentro.
+   A 4px e com 65% de opacidade ninguém o via: a pessoa clicava no ícone, a
+   ferramenta trocava, e as irmãs dela continuavam escondidas sem que nada
+   dissesse que existiam. Maior, opaco, e com um alvo de 16px em vez de 13. */
 .ps-tri {
   width: 0;
   height: 0;
-  border-left: 4px solid transparent;
-  border-bottom: 4px solid var(--ink3);
-  opacity: .65;
+  border-left: 5.5px solid transparent;
+  border-bottom: 5.5px solid var(--ink2);
 }
-.ps-tri-btn:hover .ps-tri { border-bottom-color: var(--turq-txt); opacity: 1; }
+.ps-grupo:hover .ps-tri { border-bottom-color: var(--turq-txt); }
+.ps-tri-btn:hover .ps-tri { border-bottom-color: var(--turq-txt); }
 
 /* O véu fecha o flyout ao clicar fora. Sem ele, o menu ficaria preso aberto —
    e um menu que não fecha é pior que um menu que não abre. */
