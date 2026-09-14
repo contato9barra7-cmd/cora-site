@@ -658,7 +658,14 @@
      escolhido aparecia um tique ao lado de "Noite", que nao quer dizer nada. */
   
   position:relative;
-  display:flex; flex-direction:column; justify-content:flex-start;
+  /* `align-items:stretch` parece redundante, e nao e: o Chromium mais velho
+     que roda dentro da janela do SketchUp traz `align-items:flex-start` na
+     folha PADRAO dele para <button>. Sem esta linha, os filhos param de
+     esticar na largura, e a `.am__q` (que na amostra de ceu e um span VAZIO,
+     com o gradiente no style) fica com 0px de largura: o cartao sai branco.
+     Medido na janela do SketchUp: faixa 0x46 num cartao de 171. No navegador
+     de hoje nao acontece, porque essa linha saiu da folha padrao. */
+  display:flex; flex-direction:column; justify-content:flex-start; align-items:stretch;
   padding:0; border:1px solid var(--line); border-radius:10px;
   background:var(--paper); overflow:hidden; text-align:center;
   transition:border-color var(--t), box-shadow var(--t);
