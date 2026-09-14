@@ -2007,8 +2007,16 @@
    recorte fazia falta. */
 .adm-cat{ margin-bottom:18px; border:1px solid var(--line); border-radius:var(--r);
   background:var(--paper); }
-.adm-cat > :first-child{ border-radius:var(--r) var(--r) 0 0; }
-.adm-cat > :last-child{ border-radius:0 0 var(--r) var(--r); }
+/* O raio de dentro é o de fora menos o fio de 1px, senão a curva do filho não
+   encosta na da borda. E o módulo DOBRADO tem um filho só, que é o primeiro e
+   o último ao mesmo tempo: a regra de baixo passava por cima da de cima, os
+   cantos de cima ficavam retos, e o fundo cinza da linha cobria a curva da
+   borda. A borda de cima aparecia como uma linha solta, sem os cantos. Daí o
+   `:only-child`, e a linha sem fio embaixo quando é ela que fecha o cartão. */
+.adm-cat > :first-child{ border-radius:calc(var(--r) - 1px) calc(var(--r) - 1px) 0 0; }
+.adm-cat > :last-child{ border-radius:0 0 calc(var(--r) - 1px) calc(var(--r) - 1px); }
+.adm-cat > :only-child{ border-radius:calc(var(--r) - 1px); }
+.adm-cat__mod:last-child{ border-bottom:0; }
 /* A alça. Ela não some no hover porque a linha tem quatro campos e dois
    botões: um alvo que só aparece quando o mouse chega perto vira caça ao
    tesouro numa lista de trinta e três. */
@@ -2347,7 +2355,13 @@
 /* A pastilha do módulo alinha com as das aulas: a das aulas fica a 44px da
    borda direita (o botão de remover mais a seta), e esta precisa do mesmo
    recuo para as duas caírem na mesma vertical. */
-.adm-cat__mod > .adm-est-wrap{ margin-right:92px; align-self:center; }
+/* O estado e o remover do módulo ficam na mesma vertical dos das aulas. A
+   linha da aula termina em estado, remover (32px) e abrir (32px), com 14px
+   entre eles. A do módulo não tem o abrir, então o remover guarda o lugar
+   dele à direita, e os 2px negativos compensam o vão de 16px daqui contra os
+   14px de lá. */
+.adm-cat__mod > .adm-est-wrap{ margin-right:0; align-self:center; }
+.adm-cat__mod > .adm-cat__tira{ align-self:center; margin-left:-2px; margin-right:46px; }
 .adm-cat__olho{
   display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 6px;
   font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.08em;

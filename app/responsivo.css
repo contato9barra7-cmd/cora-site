@@ -1523,9 +1523,10 @@ img, video, iframe {
 /* A coluna de estado termina sempre no mesmo lugar, no fim da linha. */
 .pn .adm-cat__mod > .adm-est-wrap {
   margin-left: auto;
-  margin-right: 92px;
+  margin-right: 0;
   align-self: center;
 }
+.pn .adm-cat__mod > .adm-cat__tira { align-self: center; margin-left: -2px; margin-right: 46px; }
 .pn .adm-cat__aula > .adm-est-wrap {
   margin-left: auto;
   align-self: center;
@@ -1562,6 +1563,7 @@ img, video, iframe {
 
 @media (max-width: 1100px) {
   .pn .adm-cat__mod > .adm-est-wrap { margin-right: 0; }
+  .pn .adm-cat__mod > .adm-cat__tira { margin: 0; }
   .pn .adm-ficha-cab,
   .pn .admin-ac__topo { flex-wrap: wrap; gap: 10px; }
   .pn .adm-ficha-cab .adm-busca,

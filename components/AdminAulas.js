@@ -171,6 +171,7 @@ export default function AdminAulas({ aba }) {
   const [alvo, setAlvo] = useState(null);          // { id, depois }
   const [posto, setPosto] = useState(null);        // { pai, ids }
   const [abrindo, setAbrindo] = useState({});      // módulos com as removidas à vista
+  const [modsFora, setModsFora] = useState(false);   // os módulos removidos à vista
   /* Quais módulos estão FECHADOS. Guardar o fechado e não o aberto faz a tela
      nascer com tudo aberto, que é como ela sempre foi. Fechar serve para
      reorganizar a fila dos sete: com as 33 aulas à mostra, arrastar um módulo
@@ -417,7 +418,7 @@ export default function AdminAulas({ aba }) {
         </button>
       </div>
 
-      {naOrdem('', lista).map((m) => (
+      {naOrdem('', lista.filter((m) => !m.removido)).map((m) => (
         <Bloco
           key={m.id}
           className={'adm-cat' + (arraste?.movendo === m.id ? ' adm-cat--movendo' : '') + marca(m.id)}
@@ -427,7 +428,7 @@ export default function AdminAulas({ aba }) {
           <div className="adm-cat__mod">
             <span
               className="adm-cat__pega" data-dica={t('adm_cat_mover')} draggable
-              onDragStart={(e) => pegar(e, '', lista, m.id, linha.current)}
+              onDragStart={(e) => pegar(e, '', lista.filter((x) => !x.removido), m.id, linha.current)}
               onDragEnd={largar}
             >{Ico.pega}</span>
             <button className={'adm-cat__dobra' + (fechados[m.id] ? ' adm-cat__dobra--off' : '')}
@@ -477,6 +478,10 @@ export default function AdminAulas({ aba }) {
                 das aulas: uma coluna de pastilhas se lê de cima a baixo, uma
                 pastilha no meio de cada linha não se lê. */}
             <Estado valor={m.estado} t={t} onTrocar={(e) => gravar(m.id, 'estado', e)} />
+            {/* Remover o módulo é esconder, como na aula: ele sai da tela de quem
+                estuda, e as aulas e o que elas juntaram continuam no banco. */}
+            <button className="apr-bt apr-bt--so adm-cat__tira" data-dica={t('adm_cat_remover_mod')} data-dica-fim=""
+                    onClick={() => gravar(m.id, 'removido', '1')}>{Ico.x}</button>
           </div>
 
           {!fechados[m.id] && naOrdem(m.id, m.aulas.filter((a) => !a.removido)).map((a, i) => {
@@ -551,6 +556,30 @@ export default function AdminAulas({ aba }) {
             </div>
           ))}
           </>)} />
+      ))}
+
+      {/* Os módulos removidos, no fim da fila, com o caminho de volta. Igual às
+          aulas: remover esconde, e trazer de volta devolve o módulo com tudo
+          o que ele tinha. */}
+      {lista.some((m) => m.removido) && (
+        <div className="adm-cat__barra">
+          <button className="apr-bt apr-bt--txt" onClick={() => setModsFora((v) => !v)}>
+            {lista.filter((m) => m.removido).length}{' '}
+            {lista.filter((m) => m.removido).length === 1 ? t('adm_cat_mod_removido') : t('adm_cat_mods_removidos')}
+            {' · '}{modsFora ? t('adm_cat_esconder') : t('adm_cat_mostrar')}
+          </button>
+        </div>
+      )}
+      {modsFora && lista.filter((m) => m.removido).map((m) => (
+        <div className="adm-cat" key={m.id}>
+          <div className="adm-cat__aula adm-cat__aula--fora">
+            <span className="adm-cat__n">{m.numero || m.id}</span>
+            <span className="adm-cat__nome"><s>{tOpt(m.titulo) || t('adm_cat_nome_mod')}</s></span>
+            <button className="apr-bt apr-bt--txt" onClick={() => gravar(m.id, 'removido', '')}>
+              {Ico.volta}{t('adm_cat_voltar_aula')}
+            </button>
+          </div>
+        </div>
       ))}
     </>
   );
