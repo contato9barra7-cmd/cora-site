@@ -919,7 +919,22 @@
 .ps-linha label{font-size: 11.2px; color: var(--ink3); flex: 0 0 62px;}
 .ps-sel{flex: 1; min-width: 0; height: 34px; padding: 0 38px 0 13px; border: 1px solid var(--line2); border-radius: 100px; background-color: var(--paper); background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237a7a82' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat: no-repeat; background-position: right 15px center; appearance: none; -webkit-appearance: none; color: var(--ink2); font-size: 11.2px; font-family: inherit; cursor: pointer;}
 .ps-sel:hover{border-color: var(--turq-txt);}
+.cora-sel-wrap{position: relative; box-sizing: border-box;}
+.cora-sel-trigger{display: flex; align-items: center; gap: 10px; width: 100%; box-sizing: border-box; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; color: var(--ink); font-size: 12.2px; font-family: inherit; padding: 11px 16px; min-height: 44px; line-height: 1.35; cursor: pointer; transition: border-color .16s ease, box-shadow .16s ease;}
+.cora-sel-trigger:hover{border-color: var(--ink3);}
+.cora-sel-trigger.aberto{border-color: var(--ink); box-shadow: 0 0 0 3px rgba(17,17,17,.08);}
+.cora-sel-ico{flex: 0 0 auto; display: flex; align-items: center; color: var(--ink3);}
+.cora-sel-lbl{flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left;}
+.cora-sel-arrow{flex: 0 0 auto; display: flex; align-items: center; opacity: .5; transition: transform .15s;}
+.cora-sel-trigger.aberto .cora-sel-arrow{transform: rotate(180deg);}
+.cora-sel-pop{position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 100; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 6px; box-shadow: 0 18px 44px rgba(17,17,17,.14), 0 2px 6px rgba(17,17,17,.06); max-height: 300px; overflow-y: auto; overscroll-behavior: contain;}
+.cora-sel-op{display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 10px; color: var(--ink2); font-size: 12.2px; cursor: pointer; white-space: nowrap; transition: background-color .12s ease, color .12s ease;}
+.cora-sel-op:hover{background: var(--wash); color: var(--ink);}
+.cora-sel-op.sel, .cora-sel-op.sel:hover{background: var(--turquesa); color: #111111; font-weight: 600;}
 .cora-sel-op.sel .cora-dd-check{background: #111111; border-color: #111111; color: #FFFFFF;}
+.cora-sel-trigger:disabled{opacity: .5; cursor: default;}
+.cora-sel-wrap.ps-sel--min{flex: 0 0 auto; height: auto; min-width: 124px;}
+.cora-sel-wrap.cora-sel-flex{flex: 1; min-width: 0;}
 .ps-linha input[type="range"]{-webkit-appearance: none; appearance: none; flex: 1; min-width: 0; height: 4px; border-radius: 2px; background: var(--line2); cursor: pointer;}
 .ps-linha input[type="range"]::-webkit-slider-runnable-track{height: 4px; border-radius: 2px; background: var(--line2);}
 .ps-linha input[type="range"]::-moz-range-track{height: 4px; border-radius: 2px; background: var(--line2);}
@@ -1310,7 +1325,10 @@
 .cr-selbar-cancelar{padding: 8px 14px; border-radius: 100px; border: 0.5px solid var(--line2); background: transparent; color: var(--ink2); font-size: 11.2px; font-family: inherit; cursor: pointer;}
 .cr-selbar-cancelar:hover{border-color: var(--ink3);}
 .cr-selbar-baixar{display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 100px; border: none; background: var(--roxo); color: #fff; font-size: 11.2px; font-weight: 600; font-family: inherit; cursor: pointer;}
-.cr-selbar-baixar:disabled{opacity: .5; cursor: default;}</style>
+.cr-selbar-baixar:disabled{opacity: .5; cursor: default;}
+.sup-select .cora-sel-trigger{height: auto; padding: 12px 20px; font-size: 13.1px; color: var(--ink); border-color: var(--line2);}
+.sup-select .cora-sel-arrow{opacity: .6; color: var(--turq-txt);}
+.sup-select--erro .cora-sel-trigger{border-color: #c0392b;}</style>
 <style>/* ============================================================================
    PAGINA DO ARTEFATO, ESCOPADA
 
@@ -1481,7 +1499,16 @@
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
   font-size:var(--t-apoio); cursor:pointer;
   transition:border-color var(--t), color var(--t), background var(--t);
-}.co .cr-drop:hover:not(:disabled){ border-color:var(--ink3); color:var(--ink2); background:var(--wash2); }.co .cr-drop:disabled{ color:var(--ink3); opacity:.6; cursor:default; }.co .cr-base{ position:relative; border-radius:var(--r-peq); border:1px solid var(--line); overflow:hidden; }.co .cr-base img{ display:block; width:100%; }.co .cr-base-x{
+}.co .cr-drop:hover:not(:disabled){ border-color:var(--ink3); color:var(--ink2); background:var(--wash2); }.co .cr-drop:disabled{ color:var(--ink3); opacity:.6; cursor:default; }/* O vazio do Diretor de Narrativa é o mesmo seletor de imagem de toda aba:
+   a mesma altura, o mesmo canto e o mesmo tracejado do `.cr-drop`. Com os
+   88px do globals ele saía mais baixo que o do Timelapse, do Render e do
+   Editar. */.co .narr-add--full{
+  height:108px; gap:8px; padding:0;
+  border:1px dashed var(--line2); border-radius:var(--r-peq);
+  background:var(--wash); color:var(--ink3); font-family:inherit;
+  transition:border-color var(--t), color var(--t), background var(--t);
+}.co .narr-add--full:hover{ border-color:var(--ink3); color:var(--ink2); background:var(--wash2); }.co .narr-add--full .narr-add-txt{ font-size:var(--t-apoio); }/* A imagem base do Editar, depois de escolhida: um quadro de 16 por 9 com a
+   imagem cobrindo. Morava no `responsivo.css`, que o plugin não lê. */.co .cr-ed-base .cr-base{ width:100%; height:auto; aspect-ratio:16/9; }.co .cr-ed-base .cr-base img{ width:100%; height:100%; object-fit:cover; }.co .cr-base{ position:relative; border-radius:var(--r-peq); border:1px solid var(--line); overflow:hidden; }.co .cr-base img{ display:block; width:100%; }.co .cr-base-x{
   position:absolute; top:8px; right:8px; width:26px; height:26px; padding:0;
   border:0; border-radius:50%; background:var(--vidro); color:#111111;
   backdrop-filter:blur(14px) saturate(150%);
@@ -2523,15 +2550,57 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
    menu do botao direito. */
 .jn .aj-fundo, .jn .df, .jn .mc, .jn .ps-toast{ position:absolute; }
 
-/* A barra de opcoes ROLA na web, onde a tela e larga. Em 584px o corte
-   deixa Cancelar e Aplicar corte fora da vista, atras de uma rolagem sem
-   barra a mostra, e e justamente ali que o trabalho termina. Aqui ela
-   quebra, pela mesma razao da barra de cima. */
-.jn .ps-opts{ overflow:visible; flex-wrap:wrap; row-gap:8px; }
-/* Quebrando, o que estava depois do vao cai no comeco da linha de baixo, e
-   Cancelar e Aplicar corte apareciam encostados na esquerda. A margem
-   automatica devolve os dois para a direita, que e onde eles estavam. */
-.jn .ps-opts .ps-esticar + .ps-b{ margin-left:auto; }
+/* ══════════════════════════════════════════════════════════════════════
+   UMA LINHA SÓ
+
+   A barra com os rótulos escritos pede 1.080px e a janela tem 880. Quebrar
+   em duas linhas custa altura o tempo todo, e rolar não serve: `overflow-x`
+   recorta nos dois eixos, e a dica, que nasce embaixo do botão, sairia
+   decapitada.
+
+   A web já resolve isso na largura desta janela. Entre 821 e 1240px o
+   `responsivo.css` faz exatamente isto: bola de 30px para todo botão,
+   respiro de 2 e os rótulos longos viram só o ícone, com o nome na dica.
+   Os números abaixo são os de lá, e não uma invenção daqui. A folha do
+   responsivo não passa pela peneira, por isso eles são repetidos.
+
+   O mesmo vale para a barra de opções: o que sobrava de fora eram justo o
+   Cancelar e o Aplicar corte, que é onde o trabalho termina.
+   ══════════════════════════════════════════════════════════════════════ */
+.jn .ps-top{ gap:2px; padding:7px 10px; }
+.jn .ps-top .ps-b,
+.jn .ps-top .ps-ic{
+  flex:0 0 30px; width:30px; min-width:30px; height:30px; aspect-ratio:1;
+  border-radius:50%; padding:0; justify-content:center;
+}
+.jn .ps-top .ps-b-lbl{ display:none; }
+.jn .ps-top .ps-b svg,
+.jn .ps-top .ps-ic svg{ width:14px; height:14px; }
+.jn .ps-top .ps-sep{ margin-inline:1px; }
+.jn .ps-tri-btn{ width:9px; }
+
+.jn .ps-opts{ overflow:visible; gap:4px; padding:0 10px; left:6px; right:6px; height:40px; }
+.jn .ps-opts .ps-b{ height:28px; padding:0 6px; font-size:10px; }
+/* O campo da proporção do corte acompanha a altura dos botões ao lado: com
+   os 44px da web ele era o dobro dos vizinhos. */
+.jn .ps-opts .cora-sel-trigger{ min-height:28px; padding:0 9px; border-radius:9px; gap:5px; font-size:11px; }
+.jn .ps-opts .cora-sel-wrap.ps-sel--min{ min-width:78px; }
+.jn .ps-opts .ps-num{ height:28px; width:42px; min-width:42px; font-size:10px; }
+.jn .ps-opts .ps-troca{ height:28px; width:24px; min-width:24px; }
+/* A frase da caixa de marcar é a peça mais larga da barra do corte, e é ela
+   que decide se tudo cabe. Em português sobra espaço. Em espanhol, que é o
+   idioma mais comprido dos três, ela cede as últimas letras em vez de
+   empurrar o Aplicar corte para fora da vista. */
+.jn .ps-opts .ps-caixa{ gap:4px; font-size:10px; min-width:0; }
+.jn .ps-opts .ps-caixa span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* As quatro faixas do pincel numa tela de 584. Em vez de um número fixo de
+   largura para a régua, elas ENCOLHEM: o nome e o valor ficam inteiros e
+   quem cede é a régua, até o mínimo em que ainda se arrasta. Assim a conta
+   continua fechando em espanhol, onde os nomes são mais compridos. */
+.jn .ps-opts .ps-faixa{ gap:5px; flex:0 1 auto; min-width:0; }
+.jn .ps-opts .ps-faixa input[type="range"]{ width:auto; flex:1 1 46px; min-width:34px; }
+.jn .ps-opts .ps-opt-l, .jn .ps-opts .ps-opt-v{ font-size:10px; }
+.jn .ps-opts .ps-opt-v{ min-width:18px; }
 
 /* A folha é um canvas na web. Aqui é uma foto, para o quadro ter o que
    mostrar: o xadrez, a sombra e a medida vêm todos da folha de produção. */
@@ -2573,14 +2642,14 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
   </header>
 
   <h2 class="secao">A janela inteira</h2>
-  <p>880 por 980, a medida que o <code>panel.rb</code> abre. A barra de cima quebra em duas linhas, como a da web quebra numa janela estreita, e sobram 584px para a imagem ao lado da coluna de 296.</p>
+  <p>880 por 980, a medida que o <code>panel.rb</code> abre. Tudo cabe numa linha, e sobram 584px para a imagem ao lado da coluna de 296.</p>
 
   <div class="dupla">
     <div class="jn-fora"><div class="jn co" id="jn-vivo"></div></div>
     <div>
       <p class="mud-t">O que muda em relação ao desenho de antes</p>
       <dl class="mud">
-        <div><dt>A barra</dt><dd>Era um botão preto de "Abrir imagem" e uma fileira de ícones sem separação. Agora é a pílula de 34px do resto do painel, com o fio entre o que traz trabalho para dentro e as ferramentas, e o que sai daqui (histórico, upscale, baixar) na ponta direita.</dd></div><div><dt>Duas linhas, de propósito</dt><dd>A barra inteira pede 1.080px e a janela tem 880, então ela quebra. Rolar não é opção: <code>overflow-x</code> recorta nos dois eixos, e a dica, que nasce embaixo do botão, sairia decapitada. Duas linhas custam altura uma vez; uma dica cortada atrapalha a cada uso.</dd></div>
+        <div><dt>A barra</dt><dd>Era um botão preto de "Abrir imagem" e uma fileira de ícones sem separação. Agora são bolas de 30px, com o fio entre o que traz trabalho para dentro e as ferramentas, e o que sai daqui (histórico, upscale, baixar) na ponta direita.</dd></div><div><dt>Uma linha só</dt><dd>Com os rótulos escritos a barra pede 1.080px, e a janela tem 880. A web já resolve isso nesta largura: entre 821 e 1240px ela troca os rótulos longos pelo ícone, com o nome na dica, e encolhe tudo para 30px. Os números aqui são os de lá. Rolar estava fora de cogitação: <code>overflow-x</code> recorta nos dois eixos e decapitaria a dica.</dd></div>
         <div><dt>O Voltar sai</dt><dd>Na web ele é a única saída da Pós, porque ela toma a página. Aqui o trilho de abas está sempre à vista, e um segundo botão de voltar competiria com ele.</dd></div>
         <div><dt>A tela</dt><dd>O fundo era um cinza de editor, #3a3a3a. Passa a ser o <code>--wash</code> do app, que isola a imagem sem virar um corpo estranho no meio de uma janela clara. O xadrez da transparência continua, e não cresce com o zoom.</dd></div>
         <div><dt>A coluna</dt><dd>296px, sempre aberta. O chamador de gaveta da web não entra: ele só existe abaixo de 1024px, e a janela tem 880 fixos, que ali seria celular e aqui é tudo o que há.</dd></div>

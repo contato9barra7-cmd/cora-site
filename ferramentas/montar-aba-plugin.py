@@ -48,9 +48,12 @@ FAMILIAS = {
     # `an-`, quando foram portadas.
 
     # A Pós: `ps-` é a tela inteira (o ALVO só leva as poucas peças que as
-    # bibliotecas emprestam dela), `aj-` é a janela de Ajustes e `df-` é a de
-    # Desfoque. Quando a aba for portada, as três sobem para o ALVO.
-    'pos': r'ps\b|ps-|aj-|df\b|df-',
+    # bibliotecas emprestam dela), `aj-` é a janela de Ajustes, `df-` é a de
+    # Desfoque e `cora-sel` é o dropdown que ela usa na mesclagem e na
+    # proporção do corte. Sem este último os dois saem como botão cru do
+    # sistema, que é o defeito de sempre: família que ficou de fora da
+    # peneira. Quando a aba for portada, as quatro sobem para o ALVO.
+    'pos': r'ps\b|ps-|aj-|df\b|df-|cora-sel',
 }
 
 

@@ -105,15 +105,57 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
    menu do botao direito. */
 .jn .aj-fundo, .jn .df, .jn .mc, .jn .ps-toast{ position:absolute; }
 
-/* A barra de opcoes ROLA na web, onde a tela e larga. Em 584px o corte
-   deixa Cancelar e Aplicar corte fora da vista, atras de uma rolagem sem
-   barra a mostra, e e justamente ali que o trabalho termina. Aqui ela
-   quebra, pela mesma razao da barra de cima. */
-.jn .ps-opts{ overflow:visible; flex-wrap:wrap; row-gap:8px; }
-/* Quebrando, o que estava depois do vao cai no comeco da linha de baixo, e
-   Cancelar e Aplicar corte apareciam encostados na esquerda. A margem
-   automatica devolve os dois para a direita, que e onde eles estavam. */
-.jn .ps-opts .ps-esticar + .ps-b{ margin-left:auto; }
+/* ══════════════════════════════════════════════════════════════════════
+   UMA LINHA SÓ
+
+   A barra com os rótulos escritos pede 1.080px e a janela tem 880. Quebrar
+   em duas linhas custa altura o tempo todo, e rolar não serve: `overflow-x`
+   recorta nos dois eixos, e a dica, que nasce embaixo do botão, sairia
+   decapitada.
+
+   A web já resolve isso na largura desta janela. Entre 821 e 1240px o
+   `responsivo.css` faz exatamente isto: bola de 30px para todo botão,
+   respiro de 2 e os rótulos longos viram só o ícone, com o nome na dica.
+   Os números abaixo são os de lá, e não uma invenção daqui. A folha do
+   responsivo não passa pela peneira, por isso eles são repetidos.
+
+   O mesmo vale para a barra de opções: o que sobrava de fora eram justo o
+   Cancelar e o Aplicar corte, que é onde o trabalho termina.
+   ══════════════════════════════════════════════════════════════════════ */
+.jn .ps-top{ gap:2px; padding:7px 10px; }
+.jn .ps-top .ps-b,
+.jn .ps-top .ps-ic{
+  flex:0 0 30px; width:30px; min-width:30px; height:30px; aspect-ratio:1;
+  border-radius:50%; padding:0; justify-content:center;
+}
+.jn .ps-top .ps-b-lbl{ display:none; }
+.jn .ps-top .ps-b svg,
+.jn .ps-top .ps-ic svg{ width:14px; height:14px; }
+.jn .ps-top .ps-sep{ margin-inline:1px; }
+.jn .ps-tri-btn{ width:9px; }
+
+.jn .ps-opts{ overflow:visible; gap:4px; padding:0 10px; left:6px; right:6px; height:40px; }
+.jn .ps-opts .ps-b{ height:28px; padding:0 6px; font-size:10px; }
+/* O campo da proporção do corte acompanha a altura dos botões ao lado: com
+   os 44px da web ele era o dobro dos vizinhos. */
+.jn .ps-opts .cora-sel-trigger{ min-height:28px; padding:0 9px; border-radius:9px; gap:5px; font-size:11px; }
+.jn .ps-opts .cora-sel-wrap.ps-sel--min{ min-width:78px; }
+.jn .ps-opts .ps-num{ height:28px; width:42px; min-width:42px; font-size:10px; }
+.jn .ps-opts .ps-troca{ height:28px; width:24px; min-width:24px; }
+/* A frase da caixa de marcar é a peça mais larga da barra do corte, e é ela
+   que decide se tudo cabe. Em português sobra espaço. Em espanhol, que é o
+   idioma mais comprido dos três, ela cede as últimas letras em vez de
+   empurrar o Aplicar corte para fora da vista. */
+.jn .ps-opts .ps-caixa{ gap:4px; font-size:10px; min-width:0; }
+.jn .ps-opts .ps-caixa span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* As quatro faixas do pincel numa tela de 584. Em vez de um número fixo de
+   largura para a régua, elas ENCOLHEM: o nome e o valor ficam inteiros e
+   quem cede é a régua, até o mínimo em que ainda se arrasta. Assim a conta
+   continua fechando em espanhol, onde os nomes são mais compridos. */
+.jn .ps-opts .ps-faixa{ gap:5px; flex:0 1 auto; min-width:0; }
+.jn .ps-opts .ps-faixa input[type="range"]{ width:auto; flex:1 1 46px; min-width:34px; }
+.jn .ps-opts .ps-opt-l, .jn .ps-opts .ps-opt-v{ font-size:10px; }
+.jn .ps-opts .ps-opt-v{ min-width:18px; }
 
 /* A folha é um canvas na web. Aqui é uma foto, para o quadro ter o que
    mostrar: o xadrez, a sombra e a medida vêm todos da folha de produção. */
@@ -155,14 +197,14 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
   </header>
 
   <h2 class="secao">A janela inteira</h2>
-  <p>880 por 980, a medida que o <code>panel.rb</code> abre. A barra de cima quebra em duas linhas, como a da web quebra numa janela estreita, e sobram 584px para a imagem ao lado da coluna de 296.</p>
+  <p>880 por 980, a medida que o <code>panel.rb</code> abre. Tudo cabe numa linha, e sobram 584px para a imagem ao lado da coluna de 296.</p>
 
   <div class="dupla">
     <div class="jn-fora"><div class="jn co" id="jn-vivo"></div></div>
     <div>
       <p class="mud-t">O que muda em relação ao desenho de antes</p>
       <dl class="mud">
-        <div><dt>A barra</dt><dd>Era um botão preto de "Abrir imagem" e uma fileira de ícones sem separação. Agora é a pílula de 34px do resto do painel, com o fio entre o que traz trabalho para dentro e as ferramentas, e o que sai daqui (histórico, upscale, baixar) na ponta direita.</dd></div><div><dt>Duas linhas, de propósito</dt><dd>A barra inteira pede 1.080px e a janela tem 880, então ela quebra. Rolar não é opção: <code>overflow-x</code> recorta nos dois eixos, e a dica, que nasce embaixo do botão, sairia decapitada. Duas linhas custam altura uma vez; uma dica cortada atrapalha a cada uso.</dd></div>
+        <div><dt>A barra</dt><dd>Era um botão preto de "Abrir imagem" e uma fileira de ícones sem separação. Agora são bolas de 30px, com o fio entre o que traz trabalho para dentro e as ferramentas, e o que sai daqui (histórico, upscale, baixar) na ponta direita.</dd></div><div><dt>Uma linha só</dt><dd>Com os rótulos escritos a barra pede 1.080px, e a janela tem 880. A web já resolve isso nesta largura: entre 821 e 1240px ela troca os rótulos longos pelo ícone, com o nome na dica, e encolhe tudo para 30px. Os números aqui são os de lá. Rolar estava fora de cogitação: <code>overflow-x</code> recorta nos dois eixos e decapitaria a dica.</dd></div>
         <div><dt>O Voltar sai</dt><dd>Na web ele é a única saída da Pós, porque ela toma a página. Aqui o trilho de abas está sempre à vista, e um segundo botão de voltar competiria com ele.</dd></div>
         <div><dt>A tela</dt><dd>O fundo era um cinza de editor, #3a3a3a. Passa a ser o <code>--wash</code> do app, que isola a imagem sem virar um corpo estranho no meio de uma janela clara. O xadrez da transparência continua, e não cresce com o zoom.</dd></div>
         <div><dt>A coluna</dt><dd>296px, sempre aberta. O chamador de gaveta da web não entra: ele só existe abaixo de 1024px, e a janela tem 880 fixos, que ali seria celular e aqui é tudo o que há.</dd></div>
