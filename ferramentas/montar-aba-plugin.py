@@ -61,6 +61,8 @@ PAINEL = {
     # Os outros avisos: o mesmo cartão de bloqueio, e a janela de recortar a
     # foto do perfil.
     'alertas': ('trial-bloqueio', 'blq-', 'foto-'),
+    # O login: so a faixa da marca, que faz a cabeca igual a dos e-mails.
+    'login': ('trial-bloqueio-faixa',),
 }
 # Os tokens do painel que essas regras leem e que a folha escopada em `.co`
 # não tem: a faixa da marca e o canto do cartão.
