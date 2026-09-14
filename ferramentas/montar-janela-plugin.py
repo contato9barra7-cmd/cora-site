@@ -70,10 +70,11 @@ ALVO = re.compile(
     # texto e os botoes do cartao aberto. A folha da aba de antes usava as
     # mesmas classes e sai no `portar-janela.py`.
     r'|an-'
-    # o menu do botao direito, a linha de camada (a lista do Blocos e do
-    # Materiais), o renomear na linha, o botao de icone e o aviso passageiro,
-    # todos da Pos da web
-    r'|mc\b|mc-|ps-cam|ps-thumb|ps-nome|ps-conta|ps-mini|ps-toast'
+    # a Pos da web, inteira: a tela (`ps-`), a janela de Ajustes (`aj-`), a de
+    # Desfoque (`df-`), o menu do botao direito (`mc`) e o dropdown que a
+    # mesclagem e a proporcao do corte usam (`cora-sel`). Antes daqui entravam
+    # so as poucas pecas que o Blocos e os Materiais emprestam dela.
+    r'|ps\b|ps-|aj-|df\b|df-|mc\b|mc-|cora-sel'
     # e o visualizador, que e o `Visualizador.js` inteiro
     r'|vz\b|vz-)'
 )

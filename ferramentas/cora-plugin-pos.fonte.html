@@ -83,8 +83,45 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 .rod p{ margin:0 0 6px; text-wrap:pretty; }
 .rod code{ padding:1px 6px; border-radius:6px; background:var(--pag-fio); color:var(--pag-tinta); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
 
+/* ── SÓ NO ARTEFATO ──
+   Daqui até o bloco seguinte nada vai para o plugin: o `pecas_da_aba` do
+   `portar-janela.py` recorta do comentário "A PÓS DENTRO DA JANELA" até o
+   fim da folha. São os quadros encurtados, as peças de mentira que fazem
+   as vezes do canvas, e as janelas medindo a moldura em vez da tela. */
 /* Os quadros dos estados: a largura é a real, a altura é encurtada. */
 .jn.jn--curta{ height:660px; }
+
+/* As duas janelas de cima, o menu do botao direito e o aviso passageiro
+   medem a TELA. No plugin a tela E a janela, e `fixed` esta certo la.
+   Aqui a janela e um quadro no meio de uma pagina, entao eles passam a
+   medir a moldura. E o mesmo ajuste que o artefato do Blocos faz com o
+   menu do botao direito. */
+.jn .aj-fundo, .jn .df, .jn .mc, .jn .ps-toast{ position:absolute; }
+
+/* A folha é um canvas na web. Aqui é uma foto, para o quadro ter o que
+   mostrar: o xadrez, a sombra e a medida vêm todos da folha de produção. */
+.pz-foto{ display:block; background-size:cover; background-position:center; }
+
+/* As alças da transformação, que na web o segundo canvas desenha. */
+.pz-alcas{ position:absolute; inset:0; pointer-events:none; }
+.pz-alca{
+  position:absolute; width:7px; height:7px; margin:-4px 0 0 -4px;
+  background:var(--paper); border:1px solid var(--ink2);
+}
+/* O letreiro da seleção: as formiguinhas do canvas de cima. */
+.pz-marca{
+  position:absolute; border:1px dashed var(--ink); outline:1px dashed var(--paper);
+  outline-offset:-1px; pointer-events:none;
+}
+/* A moldura do corte, com o que fica de fora escurecido. É a sombra de
+   9999px, o mesmo truque da expansão generativa. */
+.pz-corte{
+  position:absolute; border:1px solid var(--paper);
+  box-shadow:0 0 0 9999px rgba(0,0,0,.42); pointer-events:none;
+}
+.pz-corte i{ position:absolute; background:rgba(255,255,255,.5); }
+.pz-corte i.v{ top:0; bottom:0; width:1px; }
+.pz-corte i.h{ left:0; right:0; height:1px; }
 
 /* ══════════════════════════════════════════════════════════════════════
    A PÓS DENTRO DA JANELA
@@ -97,13 +134,6 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
    celular e aqui é a tela inteira.
    ══════════════════════════════════════════════════════════════════════ */
 .jn .ps{ flex:1; min-height:0; }
-
-/* As duas janelas de cima, o menu do botao direito e o aviso passageiro
-   medem a TELA. No plugin a tela E a janela, e `fixed` esta certo la.
-   Aqui a janela e um quadro no meio de uma pagina, entao eles passam a
-   medir a moldura. E o mesmo ajuste que o artefato do Blocos faz com o
-   menu do botao direito. */
-.jn .aj-fundo, .jn .df, .jn .mc, .jn .ps-toast{ position:absolute; }
 
 /* ══════════════════════════════════════════════════════════════════════
    UMA LINHA SÓ
@@ -134,13 +164,15 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 .jn .ps-top .ps-sep{ margin-inline:1px; }
 .jn .ps-tri-btn{ width:9px; }
 
-.jn .ps-opts{ overflow:visible; gap:4px; padding:0 10px; left:6px; right:6px; height:40px; }
-.jn .ps-opts .ps-b{ height:28px; padding:0 6px; font-size:10px; }
+.jn .ps-opts{ overflow:visible; gap:8px; padding:0 10px; left:6px; right:6px; height:40px; }
+.jn .ps-opts .ps-b{ height:28px; padding:0 5px; font-size:10px; }
 /* O campo da proporção do corte acompanha a altura dos botões ao lado: com
    os 44px da web ele era o dobro dos vizinhos. */
 .jn .ps-opts .cora-sel-trigger{ min-height:28px; padding:0 9px; border-radius:9px; gap:5px; font-size:11px; }
-.jn .ps-opts .cora-sel-wrap.ps-sel--min{ min-width:78px; }
-.jn .ps-opts .ps-num{ height:28px; width:42px; min-width:42px; font-size:10px; }
+.jn .ps-opts .cora-sel-wrap.ps-sel--min{ min-width:70px; }
+/* Quatro digitos cabem: a caixa de antes tinha 8px de recuo de cada lado,
+   e sobravam 26 para o numero. */
+.jn .ps-opts .ps-num{ height:28px; width:48px; min-width:48px; padding:0 5px; font-size:10px; }
 .jn .ps-opts .ps-troca{ height:28px; width:24px; min-width:24px; }
 /* A frase da caixa de marcar é a peça mais larga da barra do corte, e é ela
    que decide se tudo cabe. Em português sobra espaço. Em espanhol, que é o
@@ -151,38 +183,24 @@ h2.secao + p{ margin:0 0 26px; max-width:64ch; color:var(--pag-apoio); font-size
 /* As quatro faixas do pincel numa tela de 584. Em vez de um número fixo de
    largura para a régua, elas ENCOLHEM: o nome e o valor ficam inteiros e
    quem cede é a régua, até o mínimo em que ainda se arrasta. Assim a conta
-   continua fechando em espanhol, onde os nomes são mais compridos. */
+   continua fechando em espanhol, onde os nomes são mais compridos.
+
+   O respiro entre uma faixa e a seguinte é o que separa o número de uma do
+   nome da outra. Com quatro delas lado a lado ele tem que ser maior que o
+   respiro de dentro, senão o 100 do Fluxo encosta no nome do vizinho. */
+/* Quem cede largura e a REGUA, e mais ninguem. O nome e o numero tem
+   tamanho fixo: soltos, o flex encolhia os tres juntos e o resultado era
+   nome pela metade com reticencias, ou o 100 por cima do nome da faixa
+   seguinte. A regua para no minimo em que ainda se arrasta. */
 .jn .ps-opts .ps-faixa{ gap:5px; flex:0 1 auto; min-width:0; }
-.jn .ps-opts .ps-faixa input[type="range"]{ width:auto; flex:1 1 46px; min-width:34px; }
+.jn .ps-opts .ps-faixa input[type="range"]{ width:auto; flex:1 1 40px; min-width:26px; }
+.jn .ps-opts .ps-opt-l{ flex:none; }
+.jn .ps-opts .ps-opt-v{ flex:none; }
 .jn .ps-opts .ps-opt-l, .jn .ps-opts .ps-opt-v{ font-size:10.5px; }
 /* Três dígitos cabem inteiros: com a medida de antes o segundo zero do 100
    ficava pela metade. Quem cede espaço é a régua, que encolhe sozinha. */
 .jn .ps-opts .ps-opt-v{ min-width:23px; }
 
-/* A folha é um canvas na web. Aqui é uma foto, para o quadro ter o que
-   mostrar: o xadrez, a sombra e a medida vêm todos da folha de produção. */
-.pz-foto{ display:block; background-size:cover; background-position:center; }
-
-/* As alças da transformação, que na web o segundo canvas desenha. */
-.pz-alcas{ position:absolute; inset:0; pointer-events:none; }
-.pz-alca{
-  position:absolute; width:7px; height:7px; margin:-4px 0 0 -4px;
-  background:var(--paper); border:1px solid var(--ink2);
-}
-/* O letreiro da seleção: as formiguinhas do canvas de cima. */
-.pz-marca{
-  position:absolute; border:1px dashed var(--ink); outline:1px dashed var(--paper);
-  outline-offset:-1px; pointer-events:none;
-}
-/* A moldura do corte, com o que fica de fora escurecido. É a sombra de
-   9999px, o mesmo truque da expansão generativa. */
-.pz-corte{
-  position:absolute; border:1px solid var(--paper);
-  box-shadow:0 0 0 9999px rgba(0,0,0,.42); pointer-events:none;
-}
-.pz-corte i{ position:absolute; background:rgba(255,255,255,.5); }
-.pz-corte i.v{ top:0; bottom:0; width:1px; }
-.pz-corte i.h{ left:0; right:0; height:1px; }
 </style>
 
 <div class="pag">
