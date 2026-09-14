@@ -519,7 +519,40 @@
   margin:0; padding:22px 20px 10px; display:flex; align-items:baseline; gap:10px;
   font-size:var(--t-etiqueta); font-weight:700; letter-spacing:.14em;
   text-transform:uppercase; color:var(--ink3);
-}.co .cr-mes-expira{ font-size:var(--t-apoio2); font-weight:500; letter-spacing:0; text-transform:none; color:var(--alerta); }.co .cr-lote{ padding:18px 20px; border-bottom:1px solid var(--line); }.co .cr-lote:last-child{ border-bottom:0; }.co .cr-lote-cab{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }.co .cr-lote-obs{ flex:1; min-width:0; }.co .cr-lote-data{ flex:none; font-size:var(--t-apoio2); color:var(--ink3); }.co .cr-tag{
+}/* O aviso de que as imagens estão perto de sair do histórico.
+
+   Era `--alerta` puro, ligado desde o dia 15: quinze dias seguidos de
+   vermelho, e alarme que dura quinze dias deixa de ser alarme. Agora a
+   pílula fica calma o tempo todo e só vira vermelha nos últimos três
+   dias, que é quando a informação passa a ser urgente de verdade.
+
+   O `globals.css` já tinha um desenho de pílula para esta classe, e esta
+   regra aqui o apagava por ser mais específica. Quem escreveu lá não
+   tinha como saber. */
+.co .cr-mes-expira{
+  display:inline-flex; align-items:center; gap:8px;
+  margin:0 0 12px; padding:6px 8px 6px 12px;
+  background:var(--wash); border:1px solid var(--line); border-radius:100px;
+  font-size:var(--t-apoio2); font-weight:400; letter-spacing:0; text-transform:none;
+  color:var(--ink2);
+}
+.co .cr-mes-expira b{ font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
+.co .cr-mes-expira-ic{ flex:none; width:14px; height:14px; color:var(--ink3); }
+.co .cr-mes-expira-x{
+  flex:none; width:22px; height:22px; padding:0; border:0; background:transparent;
+  display:inline-flex; align-items:center; justify-content:center;
+  color:inherit; opacity:.5; cursor:pointer; border-radius:6px;
+  transition:opacity .16s ease, background-color .16s ease;
+}
+.co .cr-mes-expira-x:hover{ opacity:1; background:rgba(127,127,127,.14); }
+.co .cr-mes-expira-x svg{ width:11px; height:11px; }
+/* Os últimos dias: aí sim. */
+.co .cr-mes-expira[data-urgente="sim"]{
+  background:color-mix(in srgb, var(--alerta) 10%, transparent); border-color:transparent;
+}
+.co .cr-mes-expira[data-urgente="sim"] .cr-mes-expira-ic,
+.co .cr-mes-expira[data-urgente="sim"] b,
+.co .cr-mes-expira[data-urgente="sim"]{ color:var(--alerta); }.co .cr-lote{ padding:18px 20px; border-bottom:1px solid var(--line); }.co .cr-lote:last-child{ border-bottom:0; }.co .cr-lote-cab{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }.co .cr-lote-obs{ flex:1; min-width:0; }.co .cr-lote-data{ flex:none; font-size:var(--t-apoio2); color:var(--ink3); }.co .cr-tag{
   flex:none; white-space:nowrap; padding:3px 10px; border:0;
   border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
   font-size:var(--t-etiqueta); font-weight:600;

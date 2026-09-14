@@ -601,6 +601,14 @@ export default function AppPage() {
   // Como o feed se apresenta
   const [layout, setLayout] = useState('linha');   // grade | linha — lista por padrão
 
+  // Em que contagem de dias o aviso de expiração foi fechado. Lido do
+  // localStorage só depois de montar, senão o servidor e o cliente pintam
+  // coisas diferentes na primeira volta. Ver `expiraVisivel` mais abaixo.
+  const [expiraFechadoEm, setExpiraFechadoEm] = useState(null);
+  useEffect(() => {
+    try { setExpiraFechadoEm(localStorage.getItem('cora_expira_fechado')); } catch (e) {}
+  }, []);
+
   // O TAMANHO SAIU DE ESCOLHA E VIROU CONSEQUÊNCIA DO LAYOUT.
   //
   // Eram quatro tamanhos num seletor, e dois deles sumiam no iPad por um
@@ -1080,6 +1088,22 @@ export default function AppPage() {
   const diasDaGrade = itensDaGrade.length
     ? diasAteExpirar(itensDaGrade[itensDaGrade.length - 1].criadoEm)
     : null;
+
+  // O aviso fecha, e o fechar tem que LEMBRAR e tem que ESQUECER.
+  //
+  // Guardar "fechou" para sempre faria a pessoa nunca mais ver o aviso, e
+  // perder as imagens. Não guardar nada faria ele voltar a cada visita, e
+  // virar barulho que ninguém lê. O meio é guardar o NÚMERO DE DIAS em que
+  // foi fechado: some enquanto o número for o mesmo, volta quando ele muda.
+  // Assim aparece no máximo uma vez por dia, e reaparece justamente quando
+  // a informação mudou.
+  const expiraVisivel = diasDaGrade !== null && diasDaGrade <= 15
+    && String(diasDaGrade) !== expiraFechadoEm;
+  function fecharExpira() {
+    const marca = String(diasDaGrade);
+    setExpiraFechadoEm(marca);
+    try { localStorage.setItem('cora_expira_fechado', marca); } catch (e) {}
+  }
   const vazio  = !carregando && itensDaGrade.length === 0 && !gerandoAlgo && upsAtivos.length === 0;
 
   // A Pós não cabe num painel de 380px: um editor de camadas espremido numa
@@ -1675,11 +1699,27 @@ export default function AppPage() {
                 data muda. As proporções diferentes formam um mosaico contínuo. */}
             {!carregando && layout === 'grade' && itensDaGrade.length > 0 && (
               <section className="cr-mes cr-mes--continuo">
-                {diasDaGrade !== null && diasDaGrade <= 15 && (
-                  <p className="cr-mes-expira cr-mes-expira--grade">
-                    {diasDaGrade === 0
-                      ? t('app_algumas_apagadas_hoje')
-                      : `${t('app_algumas_apagadas_em')} ${diasDaGrade} ${diasDaGrade === 1 ? t('app_dia') : t('app_dias')}`}
+                {expiraVisivel && (
+                  <p className="cr-mes-expira cr-mes-expira--grade"
+                     data-urgente={diasDaGrade <= 3 ? 'sim' : 'nao'}>
+                    <svg className="cr-mes-expira-ic" viewBox="0 0 16 16" fill="none"
+                         stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                      <circle cx="8" cy="8" r="6.2" />
+                      <path d="M8 4.6V8l2.4 1.5" strokeLinecap="round" />
+                    </svg>
+                    <span>
+                      {diasDaGrade === 0
+                        ? t('app_algumas_apagadas_hoje')
+                        : (<>{t('app_algumas_apagadas_em')}{' '}
+                            <b>{diasDaGrade} {diasDaGrade === 1 ? t('app_dia') : t('app_dias')}</b></>)}
+                    </span>
+                    <button type="button" className="cr-mes-expira-x"
+                            aria-label={t('fechar')} onClick={fecharExpira}>
+                      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor"
+                           strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
+                        <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
+                      </svg>
+                    </button>
                   </p>
                 )}
                 <Masonry itens={itensDaGrade} tamanho={tamanho}>
