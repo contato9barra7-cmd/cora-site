@@ -1841,7 +1841,7 @@ img, video, iframe {
   .co .ps-top .ps-ic svg { width: 13px; height: 13px; }
   .co .ps-top .ps-sep { margin-inline: 0; }
   .co .ps-grupo { flex: 0 0 auto; }
-  .co .ps-tri-btn { width: 8px; }
+  .co .ps-tri-btn { width: 14px; height: 14px; }
 
   .co .ps-opts {
     left: 8px;
@@ -1879,7 +1879,7 @@ img, video, iframe {
   .co .ps-top .ps-b svg,
   .co .ps-top .ps-ic svg { width: 14px; height: 14px; }
   .co .ps-top .ps-sep { margin-inline: 1px; }
-  .co .ps-tri-btn { width: 9px; }
+  .co .ps-tri-btn { width: 14px; height: 14px; }
 }
 
 /* De 900 para cima os rótulos ficam. Medido no iPad deitado, que tem 1.024:
@@ -1902,7 +1902,7 @@ img, video, iframe {
   .co .ps-top .ps-b svg,
   .co .ps-top .ps-ic svg { width: 14px; height: 14px; }
   .co .ps-top .ps-sep { margin-inline: 1px; }
-  .co .ps-tri-btn { width: 9px; }
+  .co .ps-tri-btn { width: 14px; height: 14px; }
 }
 
 /* A aula volta a ser uma linha de leitura: título, números, publicação e
