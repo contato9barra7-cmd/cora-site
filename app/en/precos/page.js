@@ -1,18 +1,18 @@
 // ═══════════════════════════════════════════════════════════════════════════
-//  PÁGINA DE PREÇOS (PT)
+//  PÁGINA DE PREÇOS (EN)
 //
 //  Server Component que entrega a casca, os metadados com canônica e
-//  apontamentos de idioma (hreflang) e renderiza a página de preços em PT.
+//  apontamentos de idioma (hreflang) e renderiza a página de preços em EN.
 // ═══════════════════════════════════════════════════════════════════════════
 
-import PaginaPrecos from '../../components/PaginaPrecos';
+import PaginaPrecos from '../../../components/PaginaPrecos';
 
 export const metadata = {
-  title: 'Planos e Preços · Cora Render',
+  title: 'Plans and Pricing · Cora Render',
   description:
-    'Conheça os planos do Cora Render. Assinaturas mensais e anuais para escritórios e profissionais autônomos.',
+    'Explore Cora Render plans. Monthly and annual subscriptions for studios and independent professionals.',
   alternates: {
-    canonical: 'https://corarender.com/precos',
+    canonical: 'https://corarender.com/en/precos',
     languages: {
       'pt-BR': 'https://corarender.com/precos',
       'es': 'https://corarender.com/es/precos',
@@ -22,6 +22,6 @@ export const metadata = {
   },
 };
 
-export default function PrecosPage() {
-  return <PaginaPrecos idioma="pt" />;
+export default function PrecosPageEn() {
+  return <PaginaPrecos idioma="en" />;
 }

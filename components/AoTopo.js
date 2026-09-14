@@ -26,10 +26,11 @@ import { useEffect, useState } from 'react';
 
 const RESPIRO = 14;          // entre a seta e o aviso de cookies
 
-export default function AoTopo({ apartir = 520, rotulo = 'Voltar ao topo' }) {
+export default function AoTopo({ apartir = 520, rotulo, idioma = 'pt' }) {
   const [ver, setVer] = useState(false);
   const [acima, setAcima] = useState(0);
   const [base, setBase] = useState(24);
+  const txt = rotulo || (idioma === 'en' ? 'Back to top' : idioma === 'es' ? 'Volver arriba' : 'Voltar ao topo');
 
   // Aparecer depois de descer. A conferência roda no mount também: a página
   // pode abrir já rolada, quando o link traz uma âncora de seção.
@@ -69,8 +70,8 @@ export default function AoTopo({ apartir = 520, rotulo = 'Voltar ao topo' }) {
       className="ao-topo"
       data-ver={ver ? 'true' : 'false'}
       style={{ bottom: base + acima + 'px' }}
-      aria-label={rotulo}
-      title={rotulo}
+      aria-label={txt}
+      title={txt}
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"

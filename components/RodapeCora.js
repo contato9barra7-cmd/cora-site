@@ -34,8 +34,10 @@ const MARCAS = [
 
 const INSTAGRAM = 'https://www.instagram.com/9barra7';
 
-export default function RodapeCora() {
-  const { t, idioma } = useIdioma();
+export default function RodapeCora({ idioma: propIdioma } = {}) {
+  const { t, idioma: ctxIdioma } = useIdioma();
+  const idioma = propIdioma || ctxIdioma || 'pt';
+  const prefixo = idioma === 'pt' ? '' : '/' + idioma;
 
   // "A, B e C" nos três idiomas. O último nome entra com a conjunção do
   // idioma, e não com vírgula, senão a frase fica de lista de sistema.
@@ -81,10 +83,10 @@ export default function RodapeCora() {
             <Coluna
               titulo="Cora Render"
               itens={[
-                { rotulo: t('nav_como_funciona'), href: '/#passos' },
-                { rotulo: t('nav_ferramentas'), href: '/#ferramentas' },
-                { rotulo: t('rod_planos'), href: '/precos' },
-                { rotulo: t('nav_faq'), href: '/precos#faq' },
+                { rotulo: t('nav_como_funciona'), href: prefixo ? `${prefixo}#passos` : '/#passos' },
+                { rotulo: t('nav_ferramentas'), href: prefixo ? `${prefixo}#ferramentas` : '/#ferramentas' },
+                { rotulo: t('rod_planos'), href: prefixo ? `${prefixo}/precos` : '/precos' },
+                { rotulo: t('nav_faq'), href: prefixo ? `${prefixo}/precos#faq` : '/precos#faq' },
               ]}
             />
 

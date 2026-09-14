@@ -26,8 +26,17 @@ function combina(pathname, lista) {
 export default function RodapeGlobal() {
   const pathname = usePathname() || '';
   if (combina(pathname, PREFIXOS_APP)) return null;
-  // O rodapé escuro de quatro colunas com a marca d'água CORA é usado na Home e em Preços.
-  if (pathname === '/' || pathname === '/precos' || pathname === '/precos/') return <RodapeCora />;
+  // O rodapé escuro de quatro colunas com a marca d'água CORA é usado na Home e em Preços nos três idiomas.
+  const ehHomeOuPrecos = [
+    '/', '/es', '/en',
+    '/precos', '/precos/',
+    '/es/precos', '/es/precos/',
+    '/en/precos', '/en/precos/',
+  ].includes(pathname);
+  if (ehHomeOuPrecos) {
+    const idiomaDaRota = pathname.startsWith('/es') ? 'es' : pathname.startsWith('/en') ? 'en' : 'pt';
+    return <RodapeCora idioma={idiomaDaRota} />;
+  }
   // Nas demais páginas públicas (suporte, termos, login, etc.), o rodapé fino padrão.
   return <RodapeLegal />;
 }

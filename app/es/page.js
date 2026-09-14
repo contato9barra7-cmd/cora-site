@@ -1,18 +1,18 @@
 // ═══════════════════════════════════════════════════════════════════════════
-//  A HOME (PT)
+//  A HOME (ES)
 //
-//  Server Component que entrega a marcação com os textos em português e os
+//  Server Component que entrega a marcação com os textos em espanhol e os
 //  metadados da página, com canônica e apontamentos de idioma (hreflang).
 // ═══════════════════════════════════════════════════════════════════════════
 
-import HomeCora from '../components/HomeCora';
+import HomeCora from '../../components/HomeCora';
 
 export const metadata = {
-  title: 'Cora Render · Do modelo 3D ao render final',
+  title: 'Cora Render · Del modelo 3D al render final',
   description:
-    'Renderize com inteligência artificial direto do SketchUp ou no navegador. Imagens fiéis aos materiais e à luz da sua cena.',
+    'Renderiza con inteligencia artificial directo desde SketchUp o en el navegador. Imágenes fieles a los materiales y a la luz de tu escena.',
   alternates: {
-    canonical: 'https://corarender.com',
+    canonical: 'https://corarender.com/es',
     languages: {
       'pt-BR': 'https://corarender.com',
       'es': 'https://corarender.com/es',
@@ -22,6 +22,6 @@ export const metadata = {
   },
 };
 
-export default function Home() {
-  return <HomeCora idioma="pt" />;
+export default function HomeEs() {
+  return <HomeCora idioma="es" />;
 }

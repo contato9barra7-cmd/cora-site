@@ -19,10 +19,12 @@ import './responsivo.css';
 import RodapeGlobal from '../components/RodapeGlobal';
 import CookieConsent from '../components/CookieConsent';
 import { IdiomaProvider } from '../lib/i18n';
+import { headers } from 'next/headers';
 
 const GTM_ID = 'GTM-T7JBWLZ5';
 
 export const metadata = {
+  metadataBase: new URL('https://corarender.com'),
   title: 'Cora Render',
   description:
     'Gere imagens, vídeos e apresentações a partir do seu modelo 3D no SketchUp, com IA. Planos a partir de R$97/mês.',
@@ -48,9 +50,13 @@ export const viewport = {
 
 import TemaGuard from '../components/TemaGuard';
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const headersList = await headers();
+  const idiomaHeader = headersList.get('x-cora-idioma') || 'pt';
+  const langHtml = idiomaHeader === 'en' ? 'en' : idiomaHeader === 'es' ? 'es' : 'pt-BR';
+
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang={langHtml} suppressHydrationWarning>
       <head>
         {/* Google Tag Manager + Consent Mode (LGPD).
             O consentimento nasce NEGADO — os rastreadores (GA/Pixel/Ads que o
@@ -126,7 +132,7 @@ export default function RootLayout({ children }) {
             height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}
           />
         </noscript>
-        <IdiomaProvider>
+        <IdiomaProvider idiomaInicial={idiomaHeader}>
           <TemaGuard />
           <div className="site-conteudo">{children}</div>
           <RodapeGlobal />

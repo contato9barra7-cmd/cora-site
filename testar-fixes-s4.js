@@ -48,7 +48,7 @@ const read = (rel) => fs.readFileSync(path.join(__dirname, rel), 'utf8');
 
 console.log('— sintaxe —');
 const ARQUIVOS = [
-  'app/precos/page.js', 'app/verificar/page.js', 'app/workspace/page.js',
+  'app/precos/page.js', 'components/PaginaPrecos.js', 'app/verificar/page.js', 'app/workspace/page.js',
   'components/AppShell.js', 'components/Confirma.js', 'components/CookieConsent.js',
   'components/Dica.js', 'components/FichaConta.js', 'components/HistoricoLeituras.js',
   'components/JanelaAjustes.js', 'components/JanelaAtalhos.js', 'components/MenuDownload.js',
@@ -63,7 +63,9 @@ for (const f of ARQUIVOS) {
 }
 
 const CSS    = read('app/globals.css');
-const PRECOS = read('app/precos/page.js');
+const PRECOS = fs.existsSync(path.join(__dirname, 'components/PaginaPrecos.js'))
+  ? read('components/PaginaPrecos.js')
+  : read('app/precos/page.js');
 const VERIF  = read('app/verificar/page.js');
 const WS     = read('app/workspace/page.js');
 const SHELL  = read('components/AppShell.js');

@@ -28,3 +28,5 @@ jobs:
         run: node testar-fixes-s3.js
       - name: Lote S4 (baixos restantes)
         run: node testar-fixes-s4.js
+      - name: Idiomas da Home (i18n)
+        run: node testar-idiomas-home.js
