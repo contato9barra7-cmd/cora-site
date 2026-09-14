@@ -1,0 +1,594 @@
+<title>As janelas da barra de ferramentas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<style>/*@GLOBAIS@*/</style>
+<style>/*@CORA@*/</style>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   AS JANELAS DA BARRA DE FERRAMENTAS
+
+   ARQUIVO GERADO por `montar-aba-plugin.py ferramentas`. Editar este
+   .fonte.html e rodar o script de novo.
+
+   Cinco botões das barras do SketchUp abrem uma janela HTML própria, fora
+   da janela do Cora: Otimizar Modelo, Vidro, Randomizar elementos,
+   Distribuir Componente e os três de Luzes. Cada uma tinha o próprio CSS,
+   com o verde e o roxo de antes.
+
+   Nenhuma ganhou desenho novo. A casca é a janela de ferramenta da Pós
+   (`.df-*`), as escolhas são os botões da coluna do Render (`.cr-b`), os
+   números são os campos do Desfoque (`.df-num`), as opções com explicação
+   são as da janela de baixar (`.dl-op`), o relatório é a ficha do Render
+   (`.fic`) e a cor da luz é o seletor de cor da web (`.cor`). Só a amostra
+   do vidro e o aviso de espera do Distribuir são escritos aqui.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root{
+  color-scheme:light;
+  --pag-fundo:#F1F1EE; --pag-tinta:#111111; --pag-apoio:#5B5B57; --pag-fraco:#8E8E88;
+  --pag-fio:#E4E4DF; --pag-fio2:#D2D2CB; --line2:#D2D2CB; --ink3:#8E8E88;
+  --pag-barra:#EDEDE9; --pag-barra-tinta:#5B5B57;
+  --pag-sombra:0 18px 48px rgba(17,17,17,.13);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --pag-fundo:#0F0F11; --pag-tinta:#F2F2EF; --pag-apoio:#B6B5AE; --pag-fraco:#8B8A83;
+    --pag-fio:#2B2B30; --pag-fio2:#3A3A41; --line2:#3A3A41; --ink3:#8B8A83;
+    --pag-barra:#26262C; --pag-barra-tinta:#B8B8B2;
+    --pag-sombra:0 18px 48px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --pag-fundo:#0F0F11; --pag-tinta:#F2F2EF; --pag-apoio:#B6B5AE; --pag-fraco:#8B8A83;
+  --pag-fio:#2B2B30; --pag-fio2:#3A3A41; --line2:#3A3A41; --ink3:#8B8A83;
+  --pag-barra:#26262C; --pag-barra-tinta:#B8B8B2;
+  --pag-sombra:0 18px 48px rgba(0,0,0,.5);
+}
+
+*{ box-sizing:border-box; }
+body{
+  margin:0; padding:0 0 96px; background:var(--pag-fundo); color:var(--pag-tinta);
+  font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-size:14.5px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+button{ cursor:pointer; font-family:inherit; }
+:focus-visible{ outline:2px solid #8FDDCC; outline-offset:2px; }
+::selection{ background:#C4FBA7; color:#111111; }
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+
+.pag{ max-width:1320px; margin:0 auto; padding:34px 24px 0; }
+.eb{ margin:0; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--pag-fraco); }
+h1.pag-t{ margin:10px 0 0; font-size:34px; font-weight:500; letter-spacing:-.033em; line-height:1.1; text-wrap:balance; }
+.lead{ margin:14px 0 0; max-width:64ch; color:var(--pag-apoio); text-wrap:pretty; }
+.lead b{ color:var(--pag-tinta); font-weight:600; }
+.ctrl{ margin-top:20px; display:flex; flex-wrap:wrap; gap:6px; }
+.ctrl button, .ctrl a{
+  display:inline-flex; align-items:center; height:34px; padding:0 16px; border-radius:100px;
+  border:1px solid var(--pag-fio2); background:transparent; color:var(--pag-apoio);
+  font-size:13px; font-weight:500; text-decoration:none;
+}
+.ctrl button:hover, .ctrl a:hover{ border-color:var(--pag-fraco); color:var(--pag-tinta); }
+
+h2.secao{ margin:72px 0 4px; font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--pag-fraco); scroll-margin-top:24px; }
+h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size:14px; text-wrap:pretty; }
+
+/* ── a tabela dos botões ── */
+.tb-rolo{ overflow-x:auto; max-width:1040px; }
+.tb{ width:100%; border-collapse:collapse; font-size:14px; }
+.tb th{
+  padding:0 20px 10px 0; text-align:left; font-size:11px; font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--pag-fraco); border-bottom:1px solid var(--pag-fio2);
+}
+.tb td{ padding:11px 20px 11px 0; border-bottom:1px solid var(--pag-fio); vertical-align:top; color:var(--pag-apoio); text-wrap:pretty; }
+.tb td:first-child{ color:var(--pag-fraco); white-space:nowrap; }
+.tb td:nth-child(2){ color:var(--pag-tinta); font-weight:500; white-space:nowrap; }
+.tb a{ color:var(--pag-tinta); font-weight:500; text-decoration:underline; text-decoration-color:var(--pag-fio2); text-underline-offset:3px; }
+.tb a:hover{ text-decoration-color:var(--pag-tinta); }
+
+.mud{ margin:28px 0 0; display:grid; gap:16px 40px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); max-width:1040px; }
+.mud dt{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--pag-fraco); }
+.mud dd{ margin:3px 0 0; font-size:14px; color:var(--pag-apoio); text-wrap:pretty; }
+
+/* ── as etapas ── */
+.etapas{ display:flex; flex-wrap:wrap; align-items:flex-start; gap:44px 40px; }
+.etapa{ margin:0; max-width:100%; }
+.etapa figcaption{ margin-top:14px; }
+.etapa figcaption b{ display:block; margin-bottom:5px; font-size:15.5px; font-weight:600; letter-spacing:-.01em; }
+.etapa figcaption p{ margin:0; font-size:13.5px; color:var(--pag-apoio); text-wrap:pretty; }
+.etapa figcaption p + p{ margin-top:6px; }
+.etapa figcaption .prop{ color:var(--pag-tinta); }
+
+.rod{ margin-top:80px; padding-top:20px; border-top:1px solid var(--pag-fio); max-width:76ch; font-size:13px; color:var(--pag-fraco); }
+.rod p{ margin:0 0 8px; text-wrap:pretty; }
+.rod code{ padding:1px 6px; border-radius:6px; background:var(--pag-fio); color:var(--pag-tinta); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+
+/* ── a janela do SketchUp ── */
+.moldura{
+  display:flex; flex-direction:column; overflow:hidden; max-width:100%;
+  border:1px solid var(--pag-fio); border-radius:12px; background:var(--paper);
+  box-shadow:var(--pag-sombra);
+}
+.moldura-barra{
+  flex:none; height:30px; display:flex; align-items:center; gap:7px; padding:0 12px 0 10px;
+  background:var(--pag-barra); border-bottom:1px solid var(--pag-fio);
+  color:var(--pag-barra-tinta); font-size:11px; white-space:nowrap;
+}
+.moldura-barra .ico{ flex:none; width:12px; height:12px; border-radius:3px; background:linear-gradient(135deg,#8FDDCC,#A5F37D); }
+.moldura-barra .vazio{ flex:1; }
+.moldura-barra i.x{
+  flex:none; width:10px; height:10px; opacity:.55; transform:rotate(45deg);
+  background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);
+  background-size:100% 1.4px,1.4px 100%; background-position:center; background-repeat:no-repeat;
+}
+
+/* ══ dentro da janela ══
+   A casca é a da janela de ferramenta da Pós, sem o `position:fixed` e sem
+   o ×: no SketchUp quem fecha é a barra do Windows. A barra do título não
+   arrasta, porque aqui a janela inteira já é do sistema. */
+.fr{ background:var(--paper); color:var(--ink); }
+.fr .df-topo{ cursor:default; }
+.fr .df-topo:active{ cursor:default; }
+.fr .df-pe .ps-b{ min-width:92px; }
+/* Um grupo por assunto: o rótulo, os botões e a frase. O `gap` do corpo
+   separa os grupos, e o rótulo não soma a margem de 26px da coluna. */
+.fr .fr-grupo > .cr-sec{ margin:0 0 8px; }
+.fr .df-corpo > .cr-hint:first-child{ margin:0; }
+.fr .fr-nums{ display:flex; flex-direction:column; gap:10px; }
+.fr .df-num{ min-width:0; }
+/* O comprimento do bloco vem medido do SketchUp e não se edita. Desligado é
+   cor, e não transparência. */
+.fr .df-num[readonly]{ background:var(--wash2); border-color:transparent; color:var(--ink2); cursor:default; }
+.fr .dl-ops{ margin:0; }
+.fr .dl-cab{ margin:0; }
+.fr .dl-cab span{ line-height:1.45; }
+.fr .dl-erro{ margin:0; }
+.fr .fic--solta{ margin:0; }
+.fr .fic__cab{ padding:9px 2px; }
+.fr .fr-total .fic__nome{ color:var(--ink); }
+.fr .fr-total .fic__val{ font-weight:700; }
+.fr .df-cx .cora-check-bola{ margin:0; }
+.fr .cor{ margin-top:12px; }
+/* As opções do Otimizar têm explicação de duas linhas: a caixa de marcar
+   sobe junto do título, e não fica no meio do cartão. */
+.fr .fr-ot .dl-op{ align-items:flex-start; }
+.fr .fr-ot .cora-check-bola{ margin:1px 0 0; }
+.fr .fr-ot .dl-txt em{ line-height:1.45; }
+
+/* ── as duas peças escritas aqui ──
+   A amostra do vidro: a cor de base de cada um, sobre listras, para a
+   transparência aparecer. Um quadrado chapado não separava Prata de Leitoso. */
+.fr .fr-vidro{
+  flex:none; width:34px; height:26px; border-radius:7px;
+  background:linear-gradient(var(--vidro),var(--vidro)),repeating-linear-gradient(135deg,var(--line2) 0 3px,var(--paper) 3px 7px);
+  box-shadow:inset 0 0 0 1px rgba(17,17,17,.12);
+}
+/* O aviso de espera do Distribuir: a janela abre antes de existir um bloco. */
+.fr .fr-espera{
+  display:flex; align-items:flex-start; gap:12px; padding:14px;
+  border-radius:var(--r-peq); background:var(--wash); color:var(--ink2); cursor:pointer;
+}
+.fr .fr-espera svg{ flex:none; margin-top:1px; color:var(--turquesa-esc); }
+.fr .fr-espera strong{ display:block; margin-bottom:3px; font-size:var(--t-corpo); font-weight:600; color:var(--ink); }
+.fr .fr-espera span{ display:block; font-size:var(--t-apoio2); line-height:1.5; }
+</style>
+
+<div class="pag">
+  <header>
+    <p class="eb">Cora Render · plugin do SketchUp · 13 de setembro de 2026</p>
+    <h1 class="pag-t">As janelas da barra de ferramentas</h1>
+    <p class="lead">Cinco botões das barras do SketchUp abrem uma janela própria, fora da janela do Cora: Otimizar Modelo, Vidro, Randomizar elementos, Distribuir Componente e os três de Luzes. Cada uma ainda tinha o desenho de antes, com CSS próprio e o verde e o roxo antigos.</p>
+    <p class="lead">Nenhuma ganhou desenho novo. <b>Cada controle virou a peça da web que faz a mesma coisa</b>: a janela de ferramenta da Pós, os botões de escolha da coluna do Render, os campos de número do Desfoque, as opções da janela de baixar e o seletor de cor da web.</p>
+    <div class="ctrl">
+      <button id="tema" type="button">Ver no escuro</button>
+      <a href="#otimizar">Otimizar modelo</a><a href="#vidro">Tipo de vidro</a><a href="#randomizar">Randomizar</a><a href="#distribuir">Distribuir</a><a href="#luzes">Luzes</a>
+    </div>
+  </header>
+
+  <h2 class="secao">Os botões que abrem janela</h2>
+  <p>As quatro barras do plugin, e o que cada botão abre. Só os cinco da lista abrem uma janela HTML própria. O resto abre a janela do Cora, age direto no modelo ou responde numa caixa do Windows.</p>
+  <div class="tb-rolo">
+    <table class="tb">
+      <thead><tr><th>Barra</th><th>Botão</th><th>O que abre</th></tr></thead>
+      <tbody>
+        <tr><td>Assets</td><td>Otimizar Modelo</td><td><a href="#otimizar">A janela Otimizar modelo</a>, direto, sem pedir seleção.</td></tr>
+        <tr><td>Assets</td><td>Vidro</td><td><a href="#vidro">A janela Tipo de vidro</a>, com uma face selecionada.</td></tr>
+        <tr><td>Assets</td><td>Randomizar elementos</td><td><a href="#randomizar">A janela Randomizar elementos</a>, com algo selecionado.</td></tr>
+        <tr><td>Assets</td><td>Distribuir Componente</td><td><a href="#distribuir">A janela Distribuir componente</a>, com uma aresta selecionada.</td></tr>
+        <tr><td>Luzes</td><td>Luz Linear, Luz Spot, Luz Plafon</td><td><a href="#luzes">A janela Luzes</a>, a mesma para os três.</td></tr>
+        <tr><td>Assets</td><td>Materiais, Blocos, Histórico</td><td>A janela do Cora, na aba de cada um.</td></tr>
+        <tr><td>Assets</td><td>Purge, Espelho</td><td>Agem direto e respondem numa caixa do Windows.</td></tr>
+        <tr><td>Assets</td><td>Randomizar Materiais</td><td>Age direto, sem janela.</td></tr>
+        <tr><td>Texturas</td><td>As nove projeções e giros</td><td>Agem direto. Girar em ângulo personalizado pede o ângulo numa caixa do Windows.</td></tr>
+        <tr><td>Cora Render</td><td>Cora Render</td><td>A janela do Cora.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <dl class="mud">
+    <div><dt>A casca</dt><dd>Era um título pequeno em caixa alta e o conteúdo solto na janela. Agora é a janela de ferramenta da Pós: o título numa faixa em cima, o corpo, e Cancelar e a ação no pé, à direita.</dd></div>
+    <div><dt>As escolhas</dt><dd>Eram pílulas de contorno que ficavam verdes. Agora são os botões de escolha da coluna do Render, os mesmos de Estilo e de Luz.</dd></div>
+    <div><dt>Os números</dt><dd>Eram pílulas largas com o rótulo em cima. Agora são os campos de número do Desfoque, numa linha com o rótulo e a unidade.</dd></div>
+    <div><dt>As opções com explicação</dt><dd>O Otimizar e o Vidro usam as opções da janela de baixar: um cartão por escolha, com a caixa de marcar ou a bolinha da web.</dd></div>
+    <div><dt>A cor da luz</dt><dd>Era um quadro de cor com Kelvin, hex e RGB. Agora é o seletor de cor da web, com as abas Branco e Colorida.</dd></div>
+    <div><dt>A altura</dt><dd>Três janelas tinham altura fixa e duas acompanhavam o conteúdo. Agora as cinco acompanham, como a de Luzes já fazia.</dd></div>
+  </dl>
+
+  <h2 class="secao" id="otimizar">Otimizar modelo</h2>
+  <p>Botão Otimizar Modelo, na barra Assets. Abre direto, sem pedir seleção, e o relatório sai na própria janela. Os botões funcionam: o Otimizar leva ao relatório, e o Fechar volta ao começo.</p>
+  <div class="etapas" data-sec="otimizar"></div>
+
+  <h2 class="secao" id="vidro">Tipo de vidro</h2>
+  <p>Botão Vidro, na barra Assets. Antes de abrir, o plugin confere a seleção: sem face, ou com mais de uma, a caixa do Windows avisa e a janela nem abre.</p>
+  <div class="etapas" data-sec="vidro"></div>
+
+  <h2 class="secao" id="randomizar">Randomizar elementos</h2>
+  <p>Botão Randomizar elementos, na barra Assets. Sem nada selecionado, a caixa do Windows pede a seleção antes.</p>
+  <div class="etapas" data-sec="randomizar"></div>
+
+  <h2 class="secao" id="distribuir">Distribuir componente</h2>
+  <p>Botão Distribuir Componente, na barra Assets. Começa com a aresta selecionada, pede o bloco com a janela já aberta e mostra a prévia na cena a cada mudança.</p>
+  <div class="etapas" data-sec="distribuir"></div>
+
+  <h2 class="secao" id="luzes">Luzes</h2>
+  <p>Os três botões da barra Luzes abrem a mesma janela, e o conteúdo muda por dentro. Na linear e no plafon a seleção vem antes. No spot, a pessoa clica na superfície com a ferramenta e a janela abre na primeira luz.</p>
+  <div class="etapas" data-sec="luzes"></div>
+
+  <footer class="rod">
+    <p>Gerado por <code>montar-aba-plugin.py ferramentas</code>, com as folhas de produção do site. As janelas mostram o português. A portagem mantém o inglês e o espanhol que cada uma já tem.</p>
+    <p>Quem abre cada janela continua sendo quem abria: <code>abrir_dialog_otimizar</code>, <code>abrir_dialog_vidro</code>, <code>abrir_dialog_randomizar</code>, <code>abrir_dialog_ripado</code> e <code>abrir_dialog_luz</code>, com os mesmos callbacks. A portagem troca a roupa. A única mudança de comportamento proposta é a pergunta da luz ficar na janela.</p>
+    <p>Ficam de fora três janelas que nenhum botão abre mais: <code>resizer.html</code>, a de <code>historico_panel.rb</code> e <code>atalhos.html</code>. E as caixas do Windows não aceitam desenho: os avisos de seleção antes de cada janela, o resultado do Purge e do Espelho, o ângulo do giro de textura e o aviso de plano vencido.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ══ as cores ══
+  function lim(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function hex2(n) { return ('0' + Math.round(lim(n, 0, 255)).toString(16)).slice(-2); }
+  function paraHex(c) { return ('#' + hex2(c.r) + hex2(c.g) + hex2(c.b)).toUpperCase(); }
+  function hsvRgb(h, s, v) {
+    var c = v * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = v - c, r = 0, g = 0, b = 0;
+    if (h < 60) { r = c; g = x; } else if (h < 120) { r = x; g = c; } else if (h < 180) { g = c; b = x; }
+    else if (h < 240) { g = x; b = c; } else if (h < 300) { r = x; b = c; } else { r = c; b = x; }
+    return { r: (r + m) * 255, g: (g + m) * 255, b: (b + m) * 255 };
+  }
+  function kelvinRgb(k) {
+    k = lim(k, 1000, 12000) / 100;
+    var r = k <= 66 ? 255 : 329.698727446 * Math.pow(k - 60, -0.1332047592);
+    var g = k <= 66 ? 99.4708025861 * Math.log(k) - 161.1195681661 : 288.1221695283 * Math.pow(k - 60, -0.0755148492);
+    var b = k >= 66 ? 255 : (k <= 19 ? 0 : 138.5177312231 * Math.log(k - 10) - 305.0447927307);
+    return { r: r, g: g, b: b };
+  }
+  function notaK(k) {
+    if (k < 2400) return 'muito quente';
+    if (k < 3200) return 'quente';
+    if (k < 4600) return 'branco neutro';
+    if (k < 5600) return 'branco frio';
+    return 'luz do dia';
+  }
+
+  // ══ as peças ══
+  function moldura(largura, titulo, miolo) {
+    return '<div class="moldura co" style="width:' + largura + 'px"><div class="moldura-barra"><span class="ico"></span>Cora Render · ' + titulo +
+      '<span class="vazio"></span><i class="x"></i></div><div class="fr">' + miolo + '</div></div>';
+  }
+  function janela(titulo, corpo, pe) {
+    return '<div class="df-topo"><span class="df-tit">' + titulo + '</span></div>' +
+      '<div class="df-corpo">' + corpo + '</div>' + (pe ? '<div class="df-pe">' + pe + '</div>' : '');
+  }
+  function botao(txt, acao, on) {
+    return '<button type="button" class="ps-b' + (on ? ' ps-b--on' : '') + '" data-acao="' + acao + '">' + txt + '</button>';
+  }
+  function escolha(campo, valor, rot, atual) {
+    return '<button type="button" class="cr-b' + (atual === valor ? ' cr-b--on' : '') + '" data-set="' + campo + ':' + valor + '">' + rot + '</button>';
+  }
+  function grupo(rotulo, miolo, frase) {
+    return '<div class="fr-grupo">' + (rotulo ? '<div class="cr-sec">' + rotulo + '</div>' : '') + miolo +
+      (frase ? '<p class="cr-hint">' + frase + '</p>' : '') + '</div>';
+  }
+  function g2(itens) { return '<div class="cr-g2">' + itens.join('') + '</div>'; }
+  function campo(valor, fixo) {
+    return '<input class="df-num" type="text" inputmode="decimal" value="' + valor + '"' + (fixo ? ' readonly tabindex="-1"' : '') + '>';
+  }
+  function linha(rotulo, miolo) { return '<div class="df-linha"><label class="df-l">' + rotulo + '</label>' + miolo + '</div>'; }
+  function marcar(campoNome, on, txt) {
+    return '<div class="df-cx" data-set="' + campoNome + ':!"><input type="checkbox" class="cora-check-bola" tabindex="-1"' + (on ? ' checked' : '') + '><span>' + txt + '</span></div>';
+  }
+
+  // ══ Otimizar modelo ══
+  function otimizar(e) {
+    var tit = 'Otimizar modelo';
+    if (e.tela === 'res') {
+      var linhas = [
+        ['Faces mescladas', e.cop ? 12 : 0], ['Faces duplicadas', 38], ['Faces internas', e.int ? 3 : 0],
+        ['Arestas soltas', 71], ['Componentes sem uso', 9], ['Materiais sem uso', 11], ['Tags sem uso', 2]
+      ];
+      var total = linhas.reduce(function (s, l) { return s + l[1]; }, 0);
+      var ficha = function (nome, val, extra) {
+        return '<div class="fic__l' + (extra || '') + '"><div class="fic__cab"><span class="fic__nome">' + nome + '</span>' +
+          '<span class="fic__val"' + (val ? '' : ' data-vazio="sim"') + '>' + val + '</span></div></div>';
+      };
+      return janela(tit,
+        '<div class="dl-cab"><div><strong>Otimização concluída</strong><span>' + total + ' alterações no modelo. O Ctrl+Z desfaz tudo de uma vez.</span></div></div>' +
+        '<div class="fic fic--solta">' + linhas.map(function (l) { return ficha(l[0], l[1]); }).join('') + ficha('Total', total, ' fr-total') + '</div>',
+        botao('Fechar', 'reiniciar', true));
+    }
+    if (e.tela === 'limpo') {
+      return janela(tit,
+        '<div class="dl-cab"><div><strong>Nada para limpar</strong><span>O modelo já estava limpo, e nada foi alterado.</span></div></div>',
+        botao('Fechar', 'reiniciar', true));
+    }
+    if (e.tela === 'erro') {
+      return janela(tit,
+        '<div class="dl-cab"><div><strong>Não deu para otimizar</strong><span>Nada foi alterado. O motivo veio do SketchUp:</span></div></div>' +
+        '<div class="dl-erro">Entity erased while iterating the collection</div>',
+        botao('Fechar', 'reiniciar', true));
+    }
+    var op = function (id, nome, desc, peso) {
+      var on = !!e[id];
+      return '<div class="dl-op" role="checkbox" aria-checked="' + on + '" data-set="' + id + ':!">' +
+        '<input type="checkbox" class="cora-check-bola" tabindex="-1"' + (on ? ' checked' : '') + '>' +
+        '<span class="dl-txt"><strong>' + nome + '</strong><em>' + desc + '</em></span>' +
+        (peso ? '<span class="dl-peso">' + peso + '</span>' : '') + '</div>';
+    };
+    return janela(tit,
+      '<p class="cr-hint">As correções seguras entram sempre: faces duplicadas, arestas soltas e o que não está em uso. As duas de baixo mexem na geometria, e só entram se você marcar.</p>' +
+      '<div class="dl-ops fr-ot">' +
+      op('cop', 'Mesclar faces coplanares', 'Junta faces do mesmo plano e material. Pode desfazer uma divisão feita de propósito.') +
+      op('int', 'Remover faces internas', 'Apaga faces escondidas dentro de sólidos. Em geometria complexa, pode levar uma face que devia ficar.', e.n ? e.n + ' achadas' : 'nenhuma') +
+      '</div>',
+      botao('Cancelar', 'reiniciar') + botao('Otimizar', 'otimizar', true));
+  }
+
+  // ══ Tipo de vidro ══
+  var VIDROS = [
+    ['fume', 'Fumê', 'rgba(62,60,62,.78)'], ['bronze', 'Reflecta Bronze', 'rgba(122,94,66,.74)'],
+    ['prata', 'Prata', 'rgba(168,172,176,.7)'], ['champagne', 'Champagne', 'rgba(198,176,140,.72)'],
+    ['leitoso', 'Leitoso', 'rgba(240,238,232,.86)']
+  ];
+  function vidro(e) {
+    return janela('Tipo de vidro',
+      '<p class="cr-hint">Cada vidro tem uma cor de base. Escolha antes de gerar o reflexo na face.</p>' +
+      '<div class="dl-ops">' + VIDROS.map(function (v) {
+        var on = e.tipo === v[0];
+        return '<button type="button" class="dl-op' + (on ? ' dl-op--on' : '') + '" role="radio" aria-checked="' + on + '" data-set="tipo:' + v[0] + '">' +
+          '<span class="dl-radio"></span><span class="dl-txt"><strong>' + v[1] + '</strong></span>' +
+          '<i class="fr-vidro" style="--vidro:' + v[2] + '"></i></button>';
+      }).join('') + '</div>',
+      botao('Cancelar', 'reiniciar') + botao('Gerar vidro', 'reiniciar', true));
+  }
+
+  // ══ Randomizar elementos ══
+  var REFS = {
+    base: 'O meio da base de cada objeto, onde ele toca o chão.',
+    centro: 'O centro da caixa de cada objeto.',
+    eixo: 'Os eixos de cada componente. Um objeto solto, sem eixo próprio, usa o centro.',
+    global: 'A origem do modelo. Os objetos giram em volta dela e saem do lugar.'
+  };
+  function randomizar(e) {
+    return janela('Randomizar elementos',
+      '<p class="cr-hint">Cada objeto da seleção ganha uma escala e um giro sorteados dentro destas faixas. Escala 1 é o tamanho de agora.</p>' +
+      '<div class="fr-nums">' +
+      linha('Escala', campo('0,8') + '<span class="df-un">a</span>' + campo('1,2') + '<span class="df-un">×</span>') +
+      linha('Giro', campo('15') + '<span class="df-un">a</span>' + campo('315') + '<span class="df-un">°</span>') +
+      '</div>' +
+      grupo('A partir de', g2([escolha('ref', 'base', 'Base', e.ref), escolha('ref', 'centro', 'Centro', e.ref),
+        escolha('ref', 'eixo', 'Eixo', e.ref), escolha('ref', 'global', 'Global', e.ref)]), REFS[e.ref]),
+      botao('Cancelar', 'reiniciar') + botao('Aplicar', 'reiniciar', true));
+  }
+
+  // ══ Distribuir componente ══
+  var ICO_CLIQUE = '<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3.5v2 M3.5 8h2 M4.8 4.8l1.4 1.4 M11.2 4.8l-1.4 1.4 M8.5 8.5l7.5 3-3.2 1.3-1.3 3.2z"/></svg>';
+  function distribuir(e) {
+    var tit = 'Distribuir componente';
+    if (e.tela === 'espera') {
+      return janela(tit,
+        '<div class="fr-espera" data-acao="escolheu">' + ICO_CLIQUE + '<div><strong>Clique no componente na cena</strong>' +
+        '<span>É o bloco que vai se repetir ao longo da aresta. A janela espera aberta enquanto você escolhe.</span></div></div>',
+        botao('Cancelar', 'reiniciar'));
+    }
+    return janela(tit,
+      grupo('Eixo que segue a linha', g2([escolha('eixo', 'x', 'Eixo X', e.eixo), escolha('eixo', 'y', 'Eixo Y', e.eixo)]),
+        'A medida do bloco nesse eixo é a que conta para o espaçamento.') +
+      grupo('Medidas', '<div class="fr-nums">' +
+        linha('Bloco', campo('3,00', true) + '<span class="df-un">cm</span>') +
+        linha('Espaço', campo(e.modo === 'ajustar' ? '0,42' : '0,50') + '<span class="df-un">cm</span>') + '</div>',
+        'O comprimento vem medido do bloco. O espaço entre um e outro é você quem diz.') +
+      grupo('Lado da linha', g2([escolha('lado', 'a', 'Lado A', e.lado), escolha('lado', 'b', 'Lado B', e.lado)]),
+        'Para qual lado da linha o bloco se projeta.') +
+      grupo('A sobra no fim', g2([escolha('modo', 'ajustar', 'Ajustar', e.modo), escolha('modo', 'manter', 'Manter', e.modo)]),
+        e.modo === 'ajustar' ? 'Recalcula o espaço para caber exato, sem sobra no fim.' : 'Usa o espaço que você digitou, e o que sobrar fica no fim.'),
+      botao('Cancelar', 'reiniciar') + botao('Aplicar', 'reiniciar', true));
+  }
+
+  // ══ Luzes ══
+  function cor(e) {
+    var branco = e.aba === 'branco';
+    var hex = paraHex(branco ? kelvinRgb(e.k) : hsvRgb(e.h, e.s, e.v));
+    return '<div class="cor">' +
+      '<div class="cor__topo"><span class="cor__bola" style="background:' + hex + '"></span>' +
+      '<span class="cor__k">' + (branco ? e.k + 'K' : hex) + ' <small>· ' + (branco ? notaK(e.k) : 'cor livre') + '</small></span></div>' +
+      '<div class="cor__abas" role="tablist">' +
+      '<button type="button" class="cor__aba" role="tab" aria-checked="' + branco + '" data-set="aba:branco">Branco</button>' +
+      '<button type="button" class="cor__aba" role="tab" aria-checked="' + !branco + '" data-set="aba:colorida">Colorida</button></div>' +
+      (branco
+        ? '<div class="cor__painel"><input class="cor__regua cor__regua--k" type="range" min="1800" max="6500" step="50" value="' + e.k + '" data-regua="k" aria-label="Temperatura de cor da luz">' +
+          '<div class="cor__pes"><span>1800K quente</span><span>6500K frio</span></div></div>'
+        : '<div class="cor__painel"><div class="cor__quadro" data-quadro style="background:' + paraHex(hsvRgb(e.h, 1, 1)) + '">' +
+          '<span class="cor__alvo" style="left:' + (e.s * 100) + '%;top:' + ((1 - e.v) * 100) + '%"></span></div>' +
+          '<input class="cor__regua cor__regua--h" type="range" min="0" max="360" step="1" value="' + e.h + '" data-regua="h" aria-label="Matiz"></div>') +
+      '<div class="cor__hex"><span class="cor__rot">ou</span><input class="cor__campo" value="' + hex + '" spellcheck="false" aria-label="Cor em hexadecimal"></div>' +
+      '</div>';
+  }
+  var TITULO_LUZ = { face: 'Luz linear', aresta: 'Luz linear', spot: 'Luz spot', plafon: 'Luz plafon' };
+  function luzes(e) {
+    var tit = TITULO_LUZ[e.modo];
+    if (e.tela === 'conf') {
+      return janela(tit,
+        '<div class="dl-cab"><div><strong>A luz ficou no lugar certo?</strong><span>Se não ficou, ela sai do modelo e a prévia volta para você ajustar.</span></div></div>',
+        botao('Não, ajustar', 'voltar') + botao('Sim, manter', 'voltar', true));
+    }
+    var fraseDir = e.modo === 'aresta' ? 'Na aresta, a faixa segue a própria linha, e só a direção muda.'
+      : e.modo === 'spot' ? 'A direção e a cor valem para este spot e para os próximos, até você sair da ferramenta.' : null;
+    return janela(tit,
+      (e.modo === 'face' ? grupo('Borda da face', g2([
+        escolha('borda', 'topo', 'Superior', e.borda), escolha('borda', 'base', 'Inferior', e.borda),
+        escolha('borda', 'esq', 'Esquerda', e.borda), escolha('borda', 'dir', 'Direita', e.borda)])) : '') +
+      grupo('Direção da luz', g2([escolha('dir', 'cima', 'Cima', e.dir), escolha('dir', 'baixo', 'Baixo', e.dir)]), fraseDir) +
+      grupo(null, marcar('cor', e.cor, 'Dar cor à luz') + (e.cor ? cor(e) : '')),
+      botao('Cancelar', 'reiniciar') + botao('Aplicar', 'aplicar', true));
+  }
+
+  // ══ as etapas de cada janela ══
+  var LUZ = { tela: 'form', modo: 'face', borda: 'topo', dir: 'cima', cor: false, aba: 'branco', k: 3000, h: 28, s: 0.78, v: 1 };
+  function luz(mais) { var o = {}, k; for (k in LUZ) o[k] = LUZ[k]; for (k in mais) o[k] = mais[k]; return o; }
+
+  var SECOES = {
+    otimizar: { w: 360, tit: 'Otimizar modelo', f: otimizar, etapas: [
+      { e: { tela: 'form', cop: false, int: false, n: 3 }, t: 'A janela aberta',
+        d: ['As correções seguras não pedem licença e só aparecem na frase. As duas que mexem na geometria são as opções da janela de baixar, com a caixa de marcar da web.', 'A contagem de faces internas chega do SketchUp quando a janela abre.'] },
+      { e: { tela: 'form', cop: true, int: true, n: 3 }, t: 'Com as duas marcadas',
+        d: ['Quem diz o que entra é a caixa de marcar. O cartão não muda de cor, para a escolha não ganhar duas marcas de cores diferentes.'] },
+      { e: { tela: 'res', cop: true, int: true, n: 3 }, t: 'O relatório',
+        d: ['Era uma caixa de texto com as sete linhas soltas. Agora é a ficha do Render: o nome de cada correção à esquerda, o número à direita, e o zero em cinza.'] },
+      { e: { tela: 'limpo' }, t: 'Nada para limpar',
+        d: ['Quando o total dá zero, a janela diz isso e mais nada.'] },
+      { e: { tela: 'erro' }, t: 'Quando dá erro',
+        d: ['A mensagem vem do SketchUp, em inglês, e sai como ele mandou, na caixa de erro da janela de baixar.'] }
+    ] },
+    vidro: { w: 340, tit: 'Tipo de vidro', f: vidro, etapas: [
+      { e: { tipo: 'fume' }, t: 'Escolher o vidro',
+        d: ['Os cinco vidros são as opções da janela de baixar, com a bolinha da web. A amostra fica sobre listras para a transparência de cada um aparecer.'] },
+      { e: { tipo: 'prata' }, t: 'Com Prata escolhido',
+        d: ['O escolhido ganha o fundo e o nome na cor da marca, como o formato escolhido na janela de baixar.'] }
+    ] },
+    randomizar: { w: 320, tit: 'Randomizar elementos', f: randomizar, etapas: [
+      { e: { ref: 'base' }, t: 'As faixas',
+        d: ['Eram quatro pílulas largas com Mínimo e Máximo em cima. Agora são duas linhas com os campos de número do Desfoque: de quanto a quanto, e a unidade no fim.'] },
+      { e: { ref: 'global' }, t: 'A partir da origem',
+        d: ['Os quatro pontos de giro são os botões de escolha do Render. Cada um ganhou a frase do que faz, porque Eixo e Global não se explicam pelo nome.'] }
+    ] },
+    distribuir: { w: 330, tit: 'Distribuir componente', f: distribuir, etapas: [
+      { e: { tela: 'espera', eixo: 'x', lado: 'a', modo: 'manter' }, t: 'Esperando o bloco',
+        d: ['A janela abre antes de existir um bloco, e por isso só pede o clique. A ferramenta continua ativa na cena.', 'Na prova, clicar no aviso faz de conta que o bloco foi escolhido.'] },
+      { e: { tela: 'form', eixo: 'x', lado: 'a', modo: 'manter' }, t: 'As medidas',
+        d: ['Cada mudança vai para o SketchUp na hora, e a prévia na cena acompanha. O comprimento do bloco vem medido e não se edita, e por isso o campo dele é cinza e sem borda.'] },
+      { e: { tela: 'form', eixo: 'x', lado: 'a', modo: 'ajustar' }, t: 'Ajustar a sobra',
+        d: ['A frase de baixo troca junto com a escolha, e o campo passa a mostrar o espaço recalculado.'] }
+    ] },
+    luzes: { w: 320, tit: 'Luzes', f: luzes, etapas: [
+      { e: luz({}), t: 'Linear, numa face',
+        d: ['A borda escolhe em qual lado da face a faixa entra. A prévia na cena muda a cada clique, como já mudava.'] },
+      { e: luz({ modo: 'aresta' }), t: 'Linear, numa aresta',
+        d: ['Antes as quatro bordas apareciam apagadas. Agora saem da janela, porque na aresta não há borda para escolher.'] },
+      { e: luz({ cor: true }), t: 'Dar cor à luz, em branco',
+        d: ['É o seletor de cor da web. Branco usa a régua de Kelvin, de 1800K a 6500K, a mesma faixa da web. A de antes ia de 1000K a 12000K.'] },
+      { e: luz({ cor: true, aba: 'colorida' }), t: 'Dar cor à luz, colorida',
+        d: ['Colorida é o quadro com a régua de matiz, e o hex vale para as duas abas. Os campos R, G e B saem, porque o hex diz a mesma coisa.'] },
+      { e: luz({ tela: 'conf' }), t: 'Depois de aplicar',
+        d: ['Hoje a janela fecha e a caixa do Windows pergunta se a posição da luz está correta.', '<span class="prop">A proposta é a pergunta ficar aqui, na mesma janela.</span> Isso pede uma mudança no Ruby, porque hoje a janela fecha antes da caixa abrir. O Não tira a luz e devolve a prévia, como o Não de hoje.'] },
+      { e: luz({ modo: 'spot', cor: true, k: 4200 }), t: 'Spot',
+        d: ['Sem borda e sem pergunta no fim. O Aplicar guarda a direção e a cor, e os próximos cliques na cena usam as mesmas escolhas.'] },
+      { e: luz({ modo: 'plafon' }), t: 'Plafon',
+        d: ['O volume já nasce na face selecionada. A janela escolhe a direção e a cor, e depois do Aplicar vem a mesma pergunta da linear.'] }
+    ] }
+  };
+
+  // ══ pintar ══
+  var estado = {};
+  function copia(o) { return JSON.parse(JSON.stringify(o)); }
+  function pintarUma(sec, i) {
+    var S = SECOES[sec], fig = document.querySelector('[data-sec="' + sec + '"] [data-i="' + i + '"]');
+    fig.querySelector('.fr-lugar').innerHTML = moldura(S.w, S.tit, S.f(estado[sec][i]));
+  }
+  Object.keys(SECOES).forEach(function (sec) {
+    var S = SECOES[sec], alvo = document.querySelector('[data-sec="' + sec + '"]');
+    estado[sec] = S.etapas.map(function (et) { return copia(et.e); });
+    alvo.innerHTML = S.etapas.map(function (et, i) {
+      return '<figure class="etapa" data-i="' + i + '" style="width:' + S.w + 'px"><div class="fr-lugar"></div>' +
+        '<figcaption><b>' + et.t + '</b>' + et.d.map(function (p) { return '<p>' + p + '</p>'; }).join('') + '</figcaption></figure>';
+    }).join('');
+    S.etapas.forEach(function (_, i) { pintarUma(sec, i); });
+  });
+
+  function onde(el) {
+    var fig = el.closest('.etapa'), sec = el.closest('[data-sec]');
+    if (!fig || !sec) return null;
+    var s = sec.getAttribute('data-sec'), i = +fig.getAttribute('data-i');
+    return { sec: s, i: i, e: estado[s][i], fig: fig };
+  }
+
+  document.addEventListener('click', function (ev) {
+    var set = ev.target.closest('[data-set]'), acao = ev.target.closest('[data-acao]');
+    var el = set || acao;
+    if (!el) return;
+    var o = onde(el);
+    if (!o) return;
+    if (set) {
+      var par = set.getAttribute('data-set').split(':');
+      o.e[par[0]] = par[1] === '!' ? !o.e[par[0]] : par[1];
+    } else {
+      var a = acao.getAttribute('data-acao');
+      if (a === 'reiniciar') estado[o.sec][o.i] = copia(SECOES[o.sec].etapas[o.i].e);
+      if (a === 'otimizar') o.e.tela = 'res';
+      if (a === 'escolheu') o.e.tela = 'form';
+      if (a === 'voltar') o.e.tela = 'form';
+      if (a === 'aplicar' && o.e.modo !== 'spot') o.e.tela = 'conf';
+    }
+    pintarUma(o.sec, o.i);
+  });
+
+  // A régua e o quadro mexem só no que muda: pintar de novo no meio do
+  // arrasto soltaria a régua da mão.
+  function remendar(o) {
+    var e = o.e, branco = e.aba === 'branco';
+    var hex = paraHex(branco ? kelvinRgb(e.k) : hsvRgb(e.h, e.s, e.v));
+    o.fig.querySelector('.cor__bola').style.background = hex;
+    o.fig.querySelector('.cor__k').innerHTML = (branco ? e.k + 'K' : hex) + ' <small>· ' + (branco ? notaK(e.k) : 'cor livre') + '</small>';
+    o.fig.querySelector('.cor__campo').value = hex;
+    var q = o.fig.querySelector('.cor__quadro');
+    if (q) {
+      q.style.background = paraHex(hsvRgb(e.h, 1, 1));
+      var alvo = q.querySelector('.cor__alvo');
+      alvo.style.left = (e.s * 100) + '%'; alvo.style.top = ((1 - e.v) * 100) + '%';
+    }
+  }
+  document.addEventListener('input', function (ev) {
+    var r = ev.target.closest('[data-regua]');
+    if (!r) return;
+    var o = onde(r);
+    if (!o) return;
+    if (r.getAttribute('data-regua') === 'k') o.e.k = +r.value; else o.e.h = +r.value;
+    remendar(o);
+  });
+  var quadro = null;
+  function noQuadro(ev) {
+    var o = onde(quadro), b = quadro.getBoundingClientRect();
+    o.e.s = lim((ev.clientX - b.left) / b.width, 0, 1);
+    o.e.v = 1 - lim((ev.clientY - b.top) / b.height, 0, 1);
+    remendar(o);
+  }
+  document.addEventListener('pointerdown', function (ev) {
+    quadro = ev.target.closest('[data-quadro]');
+    if (!quadro) return;
+    try { quadro.setPointerCapture(ev.pointerId); } catch (_) {}
+    noQuadro(ev);
+  });
+  document.addEventListener('pointermove', function (ev) { if (quadro && ev.buttons) noQuadro(ev); });
+  document.addEventListener('pointerup', function () { quadro = null; });
+
+  // ══ o tema ══
+  var raiz = document.documentElement, btn = document.getElementById('tema');
+  function escuro() { var t = raiz.getAttribute('data-theme'); return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function rotular() { btn.textContent = escuro() ? 'Ver no claro' : 'Ver no escuro'; }
+  rotular();
+  btn.addEventListener('click', function () { raiz.setAttribute('data-theme', escuro() ? 'light' : 'dark'); rotular(); });
+})();
+</script>
