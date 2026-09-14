@@ -46,6 +46,11 @@ FAMILIAS = {
     # que a aba está portada, `anim-`, `seq-` e `narr-` subiram para o ALVO,
     # que é onde vale para os dois lados. As Análises fizeram o mesmo com
     # `an-`, quando foram portadas.
+
+    # A Pós: `ps-` é a tela inteira (o ALVO só leva as poucas peças que as
+    # bibliotecas emprestam dela), `aj-` é a janela de Ajustes e `df-` é a de
+    # Desfoque. Quando a aba for portada, as três sobem para o ALVO.
+    'pos': r'ps\b|ps-|aj-|df\b|df-',
 }
 
 
