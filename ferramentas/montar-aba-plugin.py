@@ -162,6 +162,19 @@ def montar(aba):
         if aba not in PAINEL:
             raise SystemExit(u'o fonte pede /*@PAINEL@*/ e o PAINEL não tem a aba %s' % aba)
         saida = saida.replace('/*@PAINEL@*/', mod.encolher(do_painel(painel, PAINEL[aba])))
+    # As telas de conta (entrar, esqueci a senha, confirmar e-mail) moram numa
+    # folha propria do site, escopada em `.tc`. Ela entra inteira, pelo mesmo
+    # botao de tamanho, e sem as fontes locais pelo mesmo motivo da cora-pagina.
+    if '/*@TELAS@*/' in saida:
+        telas = ler(os.path.join(SITE, 'app', 'telas-de-conta.css'))
+        telas = re.sub(r"@font-face\s*\{[^}]*?/fontes/[^}]*\}\s*", u'', telas, flags=re.S)
+        # O site divide a tela em painel e formulario a partir de 900px. A
+        # janela do plugin abre com 880, e o desenho aprovado e o dividido: o
+        # degrau desce para 760, e so ele. Mais estreita que isso (a janela
+        # encolhe ate 460), fica so o formulario, como no celular da web. Os
+        # degraus de altura baixa (`and (max-height...)`) ficam como estao.
+        telas = re.sub(r"@media\s*\(min-width:\s*900px\)\s*\{", u'@media (min-width:760px){', telas)
+        saida = saida.replace('/*@TELAS@*/', mod.encolher(telas))
     saida = saida.replace('/*@GLOBAIS@*/', '\n'.join(globais))
     saida = saida.replace('/*@CORA@*/', cora + '\n' + moldura(ler(JANELA)) + '\n' + extra)
     saida = ('<!-- ARQUIVO GERADO por montar-aba-plugin.py %s.\n'

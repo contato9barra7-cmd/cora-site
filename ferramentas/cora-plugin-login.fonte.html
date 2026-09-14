@@ -1,0 +1,406 @@
+<title>O login do plugin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
+<style>/*@GLOBAIS@*/</style>
+<style>/*@CORA@*/</style>
+<style>/*@TELAS@*/</style>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   O LOGIN DO PLUGIN
+
+   ARQUIVO GERADO por `montar-aba-plugin.py login`. Editar este .fonte.html
+   e rodar o script de novo.
+
+   A tela de antes era um cartão cinza no meio da janela. Aqui ela é a tela
+   de conta da web, a do `LoginSplit`: o painel da marca à esquerda e o
+   formulário à direita, com a folha `telas-de-conta.css` do site inteira.
+   A web divide a tela a partir de 900px, e a janela do plugin abre com 880:
+   o montador desce esse degrau para 760, e só ele.
+
+   A grade da marca e os logos vêm do `cora-plugin-login.dados.js`, copiados
+   do `GradeCora.js` e do `public/img`. As fotos são as da janela.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root{ color-scheme:light; --pag-fundo:#F1F1EE; --pag-tinta:#111111; --pag-apoio:#5B5B57; --pag-fraco:#8E8E88; --pag-fio:#E4E4DF; --pag-fio2:#D2D2CB; }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ color-scheme:dark; --pag-fundo:#0F0F11; --pag-tinta:#F2F2EF; --pag-apoio:#B6B5AE; --pag-fraco:#8B8A83; --pag-fio:#2B2B30; --pag-fio2:#3A3A41; }
+}
+:root[data-theme="dark"]{ color-scheme:dark; --pag-fundo:#0F0F11; --pag-tinta:#F2F2EF; --pag-apoio:#B6B5AE; --pag-fraco:#8B8A83; --pag-fio:#2B2B30; --pag-fio2:#3A3A41; }
+
+*{ box-sizing:border-box; }
+body{
+  margin:0; padding:0 0 96px; background:var(--pag-fundo); color:var(--pag-tinta);
+  font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-size:14.5px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+button{ cursor:pointer; font-family:inherit; }
+:focus-visible{ outline:2px solid #8FDDCC; outline-offset:2px; }
+::selection{ background:#C4FBA7; color:#111111; }
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+
+.pag{ max-width:1320px; margin:0 auto; padding:34px 24px 0; }
+.eb{ margin:0; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--pag-fraco); }
+h1.pag-t{ margin:10px 0 0; font-size:34px; font-weight:500; letter-spacing:-.033em; line-height:1.1; text-wrap:balance; }
+.lead{ margin:14px 0 0; max-width:64ch; color:var(--pag-apoio); text-wrap:pretty; }
+.lead b{ color:var(--pag-tinta); font-weight:600; }
+.ctrl{ margin-top:20px; display:flex; flex-wrap:wrap; gap:6px; }
+.ctrl button{
+  height:34px; padding:0 16px; border-radius:100px; border:1px solid var(--pag-fio2);
+  background:transparent; color:var(--pag-apoio); font-size:13px; font-weight:500;
+}
+.ctrl button:hover{ border-color:var(--pag-fraco); color:var(--pag-tinta); }
+.ctrl button[aria-pressed="true"]{ background:var(--pag-tinta); border-color:var(--pag-tinta); color:var(--pag-fundo); }
+
+h2.secao{ margin:64px 0 4px; font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--pag-fraco); }
+h2.secao + p{ margin:0 0 20px; max-width:64ch; color:var(--pag-apoio); font-size:14px; text-wrap:pretty; }
+
+.dupla{ display:grid; gap:34px; align-items:start; grid-template-columns:1fr; }
+@media (min-width:1330px){ .dupla{ grid-template-columns:880px minmax(0,1fr); } }
+.mud{ margin:0; display:grid; gap:16px; }
+.mud-t{ margin:0 0 2px; font-size:13px; font-weight:600; color:var(--pag-tinta); }
+.mud dt{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--pag-fraco); }
+.mud dd{ margin:3px 0 0; font-size:14px; color:var(--pag-apoio); max-width:48ch; text-wrap:pretty; }
+
+.estados{ display:grid; gap:60px; }
+.estado{ margin:0; display:grid; gap:16px; grid-template-columns:1fr; align-items:start; }
+@media (min-width:1330px){ .estado{ grid-template-columns:880px minmax(0,1fr); gap:34px; } }
+.estado figcaption{ padding-top:4px; max-width:46ch; }
+.estado figcaption b{ display:block; margin-bottom:6px; font-size:17px; font-weight:600; letter-spacing:-.01em; }
+.estado figcaption p{ margin:0; font-size:14px; color:var(--pag-apoio); text-wrap:pretty; }
+.estado figcaption p + p{ margin-top:8px; }
+
+.rod{ margin-top:72px; padding-top:20px; border-top:1px solid var(--pag-fio); max-width:72ch; font-size:13px; color:var(--pag-fraco); }
+.rod p{ margin:0 0 6px; text-wrap:pretty; }
+.rod code{ padding:1px 6px; border-radius:6px; background:var(--pag-fio); color:var(--pag-tinta); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+
+.jn.jn--login{ height:760px; background:var(--paper); }
+/* A janela viva tem a altura real da janela do Cora. */
+#jn-vivo{ height:980px; }
+.jn .foto.f1{ background-image:var(--foto1); }
+.jn .foto.f2{ background-image:var(--foto2); }
+.jn .foto.f3{ background-image:var(--foto3); }
+.jn .foto.f4{ background-image:var(--foto4); }
+
+/* ── o login dentro da janela ──
+   Na web a tela de conta ocupa a janela do navegador, com a altura contada
+   em `dvh`. No plugin a janela é a do SketchUp, e aqui ela é o `.jn`. */
+.jn .tc.login-split{ flex:1; height:100%; min-height:0; }
+/* A foto do painel é um fundo, e não um <img>: é o que a janela já tem. */
+.jn .tc .slide--img .foto{ position:absolute; inset:0; }
+/* O logo do cartão é preto, e no escuro a web inverte. */
+:root[data-theme="dark"] .jn .tc .login-logo img{ filter:invert(1); }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .jn .tc .login-logo img{ filter:invert(1); } }
+
+/* Nos quadros parados, a grade e as barrinhas ficam paradas também: doze
+   painéis rodando juntos pesam, e o que se compara ali é o formulário. */
+.estado .tc .tira, .estado .tc .cel--s{ animation-play-state:paused; }
+.estado .tc .barra[data-status="ativa"] i{ animation:none; transform:scaleX(.42); }
+</style>
+
+<div class="pag">
+  <header>
+    <p class="eb">Cora Render · plugin do SketchUp · 13 de setembro de 2026</p>
+    <h1 class="pag-t">O login do plugin</h1>
+    <p class="lead">A tela de entrar do plugin ainda era o cartão cinza de antes, com um quadrado verde e roxo no lugar do logo. Aqui ela é <b>a tela de conta da web</b>: o painel da marca à esquerda, com a grade animada e as fotos, e o formulário à direita.</p>
+    <p class="lead">Junto vêm quatro consertos: criar conta abre o cadastro do Cora, a recuperação de senha manda o link do site, quem não confirmou o e-mail confirma ali mesmo, e os erros ganham texto de verdade nos três idiomas. A espera de antes do login, com a marca se enchendo, já foi aprovada e não muda.</p>
+    <div class="ctrl"><button id="tema" type="button">Ver no escuro</button></div>
+  </header>
+
+  <h2 class="secao">A janela viva</h2>
+  <p>Escolha um estado, ou use a própria tela: os links trocam de tela, o olho mostra a senha, e clicar no painel avança ou volta as fotos.</p>
+  <div class="ctrl" id="provas"></div>
+
+  <div class="dupla" style="margin-top:18px">
+    <div class="jn-fora"><div class="jn co jn--login" id="jn-vivo"></div></div>
+    <div>
+      <p class="mud-t">O que muda em relação ao login de antes</p>
+      <dl class="mud">
+        <div><dt>A tela</dt><dd>Era um cartão de 340 px no meio da janela. Agora é a tela de conta da web, dividida em painel e formulário, com o logo do Cora, os campos da web e o botão lima.</dd></div>
+        <div><dt>O painel</dt><dd>A grade animada da marca, e depois fotos de render com a frase de cada uma. As barrinhas no pé contam o tempo de cada tela.</dd></div>
+        <div><dt>Criar conta</dt><dd>Abria 9barra7.com. Agora abre o cadastro do Cora.</dd></div>
+        <div><dt>Recuperar a senha</dt><dd>Mandava um código de 6 dígitos que o plugin não tinha onde digitar. Agora manda o link do site, que vale por 1 hora, como a web.</dd></div>
+        <div><dt>Confirmar o e-mail</dt><dd>Quem ainda não confirmou via só a mensagem do servidor. Agora o plugin pede o código, como a web, e entra direto.</dd></div>
+        <div><dt>Os erros</dt><dd>Saíam em português sem acento, em qualquer idioma, e às vezes soltos no meio da tela. Agora aparecem na caixa de erro da web e dizem o que fazer.</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <h2 class="secao">Cada estado</h2>
+  <p>A largura é a real. A altura foi encurtada de 980 para 760, para os quadros caberem na página. O e-mail é de prova.</p>
+  <div class="estados" id="estados"></div>
+
+  <footer class="rod">
+    <p>Gerado por <code>montar-aba-plugin.py login</code>, com a folha <code>telas-de-conta.css</code> do site. A grade e os logos vêm do <code>cora-plugin-login.dados.js</code>.</p>
+    <p>A janela do Cora abre com 880 por 980 e pode encolher até 460 de largura. Abaixo de 760 o painel sai e fica só o formulário, como no celular da web.</p>
+    <p>O site tem cinco fotos no painel. O artefato mostra as quatro que a janela já tem, e a do edifício fica de fora só aqui. No plugin as cinco entram embutidas no <code>panel.html</code>, e somam perto de 1,2 MB.</p>
+    <p>Quem abre cada tela continua sendo quem abria: <code>authMostrarLogin</code>, <code>authErroLogin</code>, <code>authAbrirEsqueci</code>, <code>authEsqueciOk</code> e <code>authErroConexao</code>. O confirmar e-mail é novo e pede dois callbacks no Ruby, para as rotas <code>/auth/verificar</code> e <code>/auth/reenviar</code> que a web já usa. A recuperação troca <code>/auth/recuperar</code> por <code>/auth/esqueci-senha</code>.</p>
+  </footer>
+</div>
+
+<script>
+/*@DADOS@*/
+</script>
+<script>
+(function () {
+  'use strict';
+
+  var EMAIL = 'contato@estudiolinha.com.br';
+  // As quatro fotos da janela, na ordem do painel da web, com as frases dele.
+  var SLIDES = [
+    { f: 'f4', alt: 'Fachada residencial renderizada no Cora', frase: 'Materiais, luz e atmosfera do jeito que você imaginou.', apoio: 'A IA lê os materiais do seu modelo e respeita o seu projeto.' },
+    { f: 'f2', alt: 'Cozinha gourmet renderizada no Cora', frase: 'Pessoas na cena sem recorte no Photoshop.', apoio: 'Escala, sombra e luz entram calculadas conforme a sua imagem.' },
+    { f: 'f3', alt: 'Varanda coberta com jardim, renderizada no Cora', frase: 'Paisagismo e luz natural, sem biblioteca de blocos.', apoio: 'Plantas, sombra e fim de tarde entram no render sem modelar folha por folha.' },
+    { f: 'f1', alt: 'Escritório com estante e plantas, renderizado no Cora', frase: 'Sem esperar o computador destravar.', apoio: 'O render roda na nuvem, não na sua placa de vídeo.' }
+  ];
+  var TEXTOS = [{ frase: 'Do modelo ao render final, sem sair do SketchUp.', apoio: 'Plugin para SketchUp e versão web. Do primeiro teste à imagem final.' }]
+    .concat(SLIDES.map(function (s) { return { frase: s.frase, apoio: s.apoio }; }));
+  var DUR_GRADE = 7000, DUR_FOTO = 5200;
+
+  var OLHO = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var OLHO_FECHADO = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+  // ══ o painel, como o LoginSplit e o GradeCora da web ══
+  function painel(atual) {
+    var colunas = GRADE.map(function (col, ci) {
+      return '<div class="coluna-pad" style="--c:' + ci + '"><div class="tira">' + col.concat(col).map(function (cel) {
+        return '<div class="' + cel.c + '" style="--i:' + cel.i + (cel.g ? ';--tgiro:' + cel.g + ';animation-delay:' + cel.a : '') + '"></div>';
+      }).join('') + '</div></div>';
+    }).join('');
+    var barras = TEXTOS.map(function (_, i) {
+      var st = i < atual ? 'completa' : (i > atual ? 'pendente' : 'ativa');
+      return '<button class="barra" type="button" role="tab" data-status="' + st + '" style="--dur:' + ((i === 0 ? DUR_GRADE : DUR_FOTO) / 1000) + 's" aria-label="' + (i === 0 ? 'Animação' : 'Imagem ' + i) + '"><i></i></button>';
+    }).join('');
+    var tx = TEXTOS[atual];
+    return '<div class="painel" data-sobre="' + (atual === 0 ? 'grade' : 'foto') + '" data-pausado="false">' +
+      '<div class="slide slide--grade" data-ativo="' + (atual === 0) + '"><div class="campo-pad" aria-hidden="true">' + colunas + '</div></div>' +
+      SLIDES.map(function (s, i) {
+        return '<div class="slide slide--img" data-ativo="' + (atual === i + 1) + '"><i class="foto ' + s.f + '" role="img" aria-label="' + s.alt + '"></i></div>';
+      }).join('') +
+      '<div class="marca"><a><img src="' + LOGO_9B + '" alt="9barra7 Academy" width="300" height="36"></a></div>' +
+      '<div class="rodape-painel"><div class="texto"><p class="frase">' + tx.frase + '</p><p class="apoio">' + tx.apoio + '</p>' +
+      '<div class="barras" role="tablist" aria-label="Telas do painel">' + barras + '</div></div></div>' +
+      '<div class="toque" aria-hidden="true"><button type="button" data-ir="-1" aria-label="Anterior"></button><button type="button" data-ir="1" aria-label="Próxima"></button></div>' +
+      '</div>';
+  }
+
+  // ══ o formulário, com as classes das telas de conta da web ══
+  var LOGO = function () { return '<a class="login-logo"><img src="' + LOGO_CORA + '" alt="Cora Render" width="266" height="64"></a>'; };
+  function email(v, travado) {
+    return '<label class="login-label">E-mail</label>' +
+      '<input class="login-input" type="email" placeholder="voce@email.com" value="' + (v || '') + '"' + (travado ? ' readonly' : '') + '>';
+  }
+  function senha(v, ver) {
+    return '<label class="login-label">Senha</label><div class="senha-campo">' +
+      '<input class="login-input" type="' + (ver ? 'text' : 'password') + '" placeholder="••••••••" value="' + (v || '') + '">' +
+      '<button type="button" class="senha-olho" data-a="olho" aria-label="' + (ver ? 'Esconder senha' : 'Mostrar senha') + '">' + (ver ? OLHO_FECHADO : OLHO) + '</button></div>';
+  }
+  function erro(txt) { return '<p class="login-erro">' + txt + '</p>'; }
+
+  var TELAS = {
+    entrar: function (e) {
+      return LOGO() + '<h1 class="login-titulo">Entrar</h1><p class="login-sub">Acesse sua conta para usar o Cora Render.</p>' +
+        email(e.email) + senha(e.senha, e.ver) + (e.erro ? erro(e.erro) : '') +
+        '<button class="btn btn--roxo" data-a="entrar"' + (e.entrando ? ' disabled' : '') + '>' + (e.entrando ? 'Entrando...' : 'Entrar') + '</button>' +
+        '<a class="elo" data-a="esqueci">Esqueci minha senha</a>' +
+        '<p class="rodape-cartao">Ainda não tem conta? <a data-a="cadastro">Criar conta grátis</a></p>';
+    },
+    confirmar: function (e) {
+      return LOGO() + '<h1 class="login-titulo">Confirme seu email</h1>' +
+        '<p class="login-sub">Enviamos um código de 6 dígitos para<br><strong>' + EMAIL + '</strong>.</p>' +
+        '<label class="login-label">Código</label><input class="login-input" type="text" inputmode="numeric" placeholder="000000" value="' + (e.codigo || '') + '">' +
+        (e.erro ? erro(e.erro) : '') +
+        '<button class="btn btn--verde" data-a="confirmar">Confirmar e entrar</button>' +
+        '<p class="login-rodape">Não recebeu? <button class="link-botao" data-a="reenviar">Reenviar código</button></p>';
+    },
+    esqueci: function (e) {
+      return LOGO() + '<h1 class="login-titulo">Esqueci minha senha</h1>' +
+        '<p class="login-sub">Digite seu email e enviaremos um link para criar uma nova senha.</p>' +
+        email(e.email) +
+        '<button class="btn btn--roxo" data-a="enviar">Enviar link</button>' +
+        '<p class="login-rodape">Lembrou a senha? <a data-a="voltar">Entrar</a></p>';
+    },
+    enviado: function () {
+      return LOGO() + '<h1 class="login-titulo">Verifique seu email</h1>' +
+        '<p class="login-sub">Se existir uma conta com <strong>' + EMAIL + '</strong>, enviamos um link para você criar uma nova senha. O link vale por 1 hora.</p>' +
+        '<p class="login-sub">Não recebeu? Confira a caixa de spam ou <button class="link-inline" data-a="esqueci">tente outro email</button>.</p>' +
+        '<p class="login-rodape"><a data-a="voltar">Voltar para o login</a></p>';
+    },
+    conexao: function () {
+      return LOGO() + '<h1 class="login-titulo">Sem conexão</h1>' +
+        '<p class="login-sub">Não foi possível falar com o servidor do Cora. Confira a internet e tente de novo.</p>' +
+        '<button class="btn btn--roxo" data-a="tentar">Tentar de novo</button>';
+    }
+  };
+
+  function janela(tela, e, slide) {
+    return '<main class="login-split tc">' + painel(slide || 0) +
+      '<div class="lado-form"><div class="cartao-area"><div class="login-card">' + TELAS[tela](e || {}) + '</div></div></div></main>';
+  }
+
+  var ERRO_SENHA = 'E-mail ou senha incorretos.';
+  var ERRO_PCS = 'Esta conta já está aberta em 2 computadores, o limite dela. Tire um deles em Minha conta, no site, e entre de novo. <button class="link-inline" data-a="conta">Abrir Minha conta</button>';
+  var ERRO_REDE = 'Não foi possível falar com o servidor do Cora. Confira a internet. Se ela estiver funcionando, o firewall ou o antivírus pode estar bloqueando o SketchUp.';
+
+  // ══ a janela viva ══
+  var PROVAS = [
+    ['entrar', 'Entrar', {}], ['entrando', 'Entrando', { email: EMAIL, senha: 'senhaboa', entrando: true }],
+    ['senha', 'Senha errada', { email: EMAIL, senha: 'senhaboa', erro: ERRO_SENHA }],
+    ['pcs', 'Limite de computadores', { email: EMAIL, senha: 'senhaboa', erro: ERRO_PCS }],
+    ['rede', 'Sem internet ao entrar', { email: EMAIL, senha: 'senhaboa', erro: ERRO_REDE }],
+    ['confirmar', 'Confirmar e-mail', {}], ['esqueci', 'Esqueci a senha', { email: EMAIL }],
+    ['enviado', 'Link enviado', {}], ['conexao', 'Sem conexão ao abrir', {}]
+  ];
+  function telaDa(p) { return /^(entrando|senha|pcs|rede)$/.test(p) ? 'entrar' : p; }
+
+  var vivo = document.getElementById('jn-vivo'), provas = document.getElementById('provas');
+  var atual = 'entrar', est = {}, motor = null;
+  provas.innerHTML = PROVAS.map(function (p) { return '<button type="button" data-prova="' + p[0] + '">' + p[1] + '</button>'; }).join('');
+
+  function pintarForm() {
+    var area = vivo.querySelector('.login-card');
+    if (area) area.innerHTML = TELAS[telaDa(atual)](est);
+    [].forEach.call(provas.querySelectorAll('button'), function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-prova') === atual));
+    });
+  }
+  function ir(prova, estado) {
+    atual = prova;
+    est = estado || (PROVAS.filter(function (p) { return p[0] === prova; })[0] || [0, 0, {}])[2];
+    est = JSON.parse(JSON.stringify(est));
+    pintarForm();
+  }
+
+  vivo.innerHTML = janela('entrar', {}, 0);
+  ligarMotor(vivo.querySelector('.painel'));
+  ir('entrar');
+
+  provas.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-prova]');
+    if (b) ir(b.getAttribute('data-prova'));
+  });
+  vivo.addEventListener('input', function (ev) {
+    if (ev.target.type === 'email') est.email = ev.target.value;
+    if (ev.target.classList.contains('login-input') && ev.target.closest('.senha-campo')) est.senha = ev.target.value;
+    if (ev.target.inputMode === 'numeric') est.codigo = ev.target.value.replace(/\D/g, '').slice(0, 6);
+  });
+  vivo.addEventListener('click', function (ev) {
+    var a = ev.target.closest('[data-a]');
+    if (!a) return;
+    var acao = a.getAttribute('data-a');
+    if (acao === 'olho') { est.ver = !est.ver; pintarForm(); return; }
+    if (acao === 'entrar') {
+      if (!est.email || !est.senha) { est.erro = 'Preencha email e senha.'; pintarForm(); return; }
+      var dados = { email: est.email, senha: est.senha, ver: est.ver, entrando: true };
+      ir('entrando', dados);
+      setTimeout(function () { if (atual === 'entrando') { dados.entrando = false; dados.erro = ERRO_SENHA; ir('senha', dados); } }, 1400);
+      return;
+    }
+    if (acao === 'esqueci') { ir('esqueci', { email: est.email || '' }); return; }
+    if (acao === 'enviar') { ir('enviado'); return; }
+    if (acao === 'voltar') { ir('entrar'); return; }
+    if (acao === 'confirmar') { if ((est.codigo || '').length < 6) { est.erro = 'Digite o código de 6 dígitos.'; pintarForm(); } return; }
+    if (acao === 'tentar') { ir('entrar'); return; }
+  });
+
+  // O motor do painel, o mesmo do LoginSplit: a barrinha é o relógio, e
+  // quando ela enche o painel passa para a próxima tela.
+  function ligarMotor(pn) {
+    var slides = [].slice.call(pn.querySelectorAll('.slide'));
+    var barras = [].slice.call(pn.querySelectorAll('.barra'));
+    var caixa = pn.querySelector('.texto'), elFrase = pn.querySelector('.frase'), elApoio = pn.querySelector('.apoio');
+    var cur = 0, passo = 0, ultimo = 0;
+    function pintarBarras() {
+      barras.forEach(function (b, i) {
+        b.dataset.status = i < cur ? 'completa' : (i > cur ? 'pendente' : 'ativa');
+        if (i === cur) { var f = b.querySelector('i'); f.style.animation = 'none'; void f.offsetWidth; f.style.animation = ''; }
+      });
+    }
+    function mover(n) {
+      var antes = cur;
+      cur = (n + slides.length) % slides.length;
+      if (antes === cur) { pintarBarras(); return; }
+      var meu = ++passo, grade = slides[0];
+      grade.removeAttribute('data-saindo'); grade.removeAttribute('data-entrando'); void grade.offsetWidth;
+      if (antes === 0 || cur === 0) {
+        if (antes === 0) {
+          slides.forEach(function (s, i) { s.dataset.ativo = String(i === cur || i === 0); });
+          var foto = slides[cur];
+          foto.dataset.imediato = 'true'; void foto.offsetWidth;
+          requestAnimationFrame(function () { foto.removeAttribute('data-imediato'); });
+          grade.dataset.saindo = 'true';
+          setTimeout(function () { if (meu === passo) grade.dataset.ativo = 'false'; }, 1980);
+        } else {
+          grade.dataset.entrando = 'true';
+          slides.forEach(function (s, i) { s.dataset.ativo = String(i === 0); });
+          setTimeout(function () { if (meu === passo) grade.removeAttribute('data-entrando'); }, 1980);
+        }
+      } else {
+        slides.forEach(function (s, i) { s.dataset.ativo = String(i === cur); });
+      }
+      caixa.dataset.trocando = 'true';
+      setTimeout(function () {
+        if (meu !== passo) return;
+        elFrase.textContent = TEXTOS[cur].frase; elApoio.textContent = TEXTOS[cur].apoio;
+        caixa.dataset.trocando = 'false';
+      }, 240);
+      pn.dataset.sobre = cur === 0 ? 'grade' : 'foto';
+      pintarBarras();
+    }
+    pn.addEventListener('animationend', function (e) {
+      if (e.animationName !== 'tc-preencher') return;
+      var b = e.target.parentElement;
+      if (b.dataset.status !== 'ativa') return;
+      var agora = Date.now();
+      if (agora - ultimo < 400) return;
+      ultimo = agora;
+      mover(cur + 1);
+    });
+    pn.addEventListener('click', function (e) {
+      var s = e.target.closest('[data-ir]');
+      if (s) mover(cur + parseInt(s.getAttribute('data-ir'), 10));
+      var b = e.target.closest('.barra');
+      if (b) mover(barras.indexOf(b));
+    });
+    pn.addEventListener('pointerdown', function () { pn.dataset.pausado = 'true'; });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (n) { pn.addEventListener(n, function () { pn.dataset.pausado = 'false'; }); });
+    pintarBarras();
+  }
+
+  // ══ cada estado, parado ══
+  var ESTADOS = [
+    { p: 'entrar', t: 'Entrar',
+      d: ['O que aparece quando não há conta salva no computador, ou depois de sair. É a tela de entrar da web: título, os dois campos, o botão lima, o esqueci a senha e o convite para criar conta.', 'Criar conta grátis abre o cadastro do Cora, e não mais 9barra7.com.'] },
+    { p: 'entrando', t: 'Entrando',
+      d: ['O botão avisa enquanto o servidor responde, e não aceita um segundo clique.'] },
+    { p: 'senha', slide: 2, t: 'E-mail ou senha incorretos',
+      d: ['A caixa de erro da web, logo acima do botão. O painel segue rodando as fotos: este quadro mostra a de cozinha.'] },
+    { p: 'pcs', t: 'Limite de computadores',
+      d: ['Quando a conta já está em 2 computadores. Antes a frase mandava remover um "no menu de conta", que só existe depois de entrar. Agora ela manda para Minha conta, no site, com o link junto.'] },
+    { p: 'rede', t: 'Sem internet na hora de entrar',
+      d: ['O caso em que o SketchUp não chega ao servidor. A frase lembra do firewall e do antivírus, que é a causa mais comum quando a internet funciona.'] },
+    { p: 'confirmar', t: 'Confirmar o e-mail',
+      d: ['Novo. Quem criou a conta e ainda não confirmou recebia só a mensagem do servidor, e ficava sem saída dentro do plugin. Agora é a tela de confirmar da web: o código de 6 dígitos e o reenviar.', 'Confirmado, o plugin entra direto, sem pedir a senha de novo.'] },
+    { p: 'esqueci', t: 'Esqueci minha senha',
+      d: ['O e-mail já vem preenchido com o que estava no campo de entrar. O botão manda o link do site, como a web.'] },
+    { p: 'enviado', t: 'Link enviado',
+      d: ['A segunda tela da web. A frase não diz se a conta existe, como no site, e diz quanto tempo o link vale. A nova senha é criada no site, e depois é só entrar aqui.'] },
+    { p: 'conexao', t: 'Sem conexão ao abrir',
+      d: ['Quando o plugin abre e não alcança o servidor para conferir a conta salva. Era a caixa cinza com o ⚠. Agora é a mesma tela, com o tentar de novo no lugar do formulário.'] }
+  ];
+  document.getElementById('estados').innerHTML = ESTADOS.map(function (s) {
+    var prova = PROVAS.filter(function (p) { return p[0] === s.p; })[0];
+    return '<figure class="estado"><div class="jn-fora"><div class="jn co jn--login">' + janela(telaDa(s.p), prova[2], s.slide || 0) + '</div></div>' +
+      '<figcaption><b>' + s.t + '</b>' + s.d.map(function (p) { return '<p>' + p + '</p>'; }).join('') + '</figcaption></figure>';
+  }).join('');
+
+  // ══ o tema ══
+  var raiz = document.documentElement, btn = document.getElementById('tema');
+  function escuro() { var t = raiz.getAttribute('data-theme'); return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function rotular() { btn.textContent = escuro() ? 'Ver no claro' : 'Ver no escuro'; }
+  rotular();
+  btn.addEventListener('click', function () { raiz.setAttribute('data-theme', escuro() ? 'light' : 'dark'); rotular(); });
+})();
+</script>
