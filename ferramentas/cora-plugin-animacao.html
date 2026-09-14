@@ -214,7 +214,8 @@
 .pk-lado{width: 132px; flex-shrink: 0; padding: 13px 8px; border-right: 1px solid var(--line); background: var(--wash); display: flex; flex-direction: column; gap: 1px;}
 .pk-origem{display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 9px; border: none; border-radius: 7px; background: transparent; color: var(--ink3); font-size: 11.2px; font-family: inherit; cursor: pointer; text-align: left; transition: all .15s;}
 .pk-origem:hover{color: var(--ink2); background: var(--paper);}
-.pk-origem--on{background: var(--paper); color: var(--ink); font-weight: 600; box-shadow: inset 2px 0 0 var(--accent);}
+.pk-origem--on{position: relative; background: var(--paper); color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px rgba(17, 17, 17, .05);}
+.pk-origem--on::before{content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 18px; background: var(--lima);}
 .pk-main{flex: 1; min-width: 0; display: flex; flex-direction: column;}
 .pk-cab{display: flex; align-items: center; gap: 11px; padding: 13px 16px; border-bottom: 1px solid var(--line);}
 .pk-titulo{font-size: 12.2px; font-weight: 600; flex-shrink: 0;}
@@ -1225,7 +1226,16 @@
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
   font-size:var(--t-apoio); cursor:pointer;
   transition:border-color var(--t), color var(--t), background var(--t);
-}.co .cr-drop:hover:not(:disabled){ border-color:var(--ink3); color:var(--ink2); background:var(--wash2); }.co .cr-drop:disabled{ color:var(--ink3); opacity:.6; cursor:default; }.co .cr-base{ position:relative; border-radius:var(--r-peq); border:1px solid var(--line); overflow:hidden; }.co .cr-base img{ display:block; width:100%; }.co .cr-base-x{
+}.co .cr-drop:hover:not(:disabled){ border-color:var(--ink3); color:var(--ink2); background:var(--wash2); }.co .cr-drop:disabled{ color:var(--ink3); opacity:.6; cursor:default; }/* O vazio do Diretor de Narrativa é o mesmo seletor de imagem de toda aba:
+   a mesma altura, o mesmo canto e o mesmo tracejado do `.cr-drop`. Com os
+   88px do globals ele saía mais baixo que o do Timelapse, do Render e do
+   Editar. */.co .narr-add--full{
+  height:108px; gap:8px; padding:0;
+  border:1px dashed var(--line2); border-radius:var(--r-peq);
+  background:var(--wash); color:var(--ink3); font-family:inherit;
+  transition:border-color var(--t), color var(--t), background var(--t);
+}.co .narr-add--full:hover{ border-color:var(--ink3); color:var(--ink2); background:var(--wash2); }.co .narr-add--full .narr-add-txt{ font-size:var(--t-apoio); }/* A imagem base do Editar, depois de escolhida: um quadro de 16 por 9 com a
+   imagem cobrindo. Morava no `responsivo.css`, que o plugin não lê. */.co .cr-ed-base .cr-base{ width:100%; height:auto; aspect-ratio:16/9; }.co .cr-ed-base .cr-base img{ width:100%; height:100%; object-fit:cover; }.co .cr-base{ position:relative; border-radius:var(--r-peq); border:1px solid var(--line); overflow:hidden; }.co .cr-base img{ display:block; width:100%; }.co .cr-base-x{
   position:absolute; top:8px; right:8px; width:26px; height:26px; padding:0;
   border:0; border-radius:50%; background:var(--vidro); color:#111111;
   backdrop-filter:blur(14px) saturate(150%);
