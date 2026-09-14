@@ -12438,8 +12438,13 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 /* Placeholder do gatilho (multi sem nada marcado) */
 .cora-dd-ph { color: var(--ink3); }
 
-/* Opção de MÚLTIPLA escolha: caixinha de check à esquerda (igual ao plugin) */
-.cora-dd-opt--multi { display: flex; align-items: center; gap: 9px; }
+/* Opção de MÚLTIPLA escolha: caixinha de check à esquerda (igual ao plugin)
+   O `justify-content` tem que voltar para o começo. A base `.cora-dd-opt` usa
+   `space-between`, que ali serve para jogar o tique para a direita da linha.
+   Aqui o rótulo é um NÓ DE TEXTO solto, e nó de texto dentro de um flex vira
+   um item anônimo: com `space-between` a caixinha ia para a ponta esquerda e
+   o rótulo para a direita, com o `gap: 9px` sem efeito nenhum no meio. */
+.cora-dd-opt--multi { display: flex; align-items: center; justify-content: flex-start; gap: 9px; }
 .cora-dd-check {
   flex-shrink: 0; width: 16px; height: 16px; border-radius: 5px;
   border: 1.5px solid var(--line2); display: flex; align-items: center; justify-content: center;
