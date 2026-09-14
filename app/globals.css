@@ -10615,32 +10615,43 @@ html.menu-recolhido .app-nav-item  { justify-content: center; padding: 10px; }
 .aj-previa--wb canvas { cursor: crosshair; }
 .aj-previa--pincel canvas { cursor: none; }
 
-/* Botão Antes/Depois (canto inferior esquerdo da prévia) */
+/* Botão Antes/Depois (canto inferior esquerdo da prévia)
+   A pastilha de vidro escuro, a mesma do coração sobre a imagem: ela mora em
+   cima da foto, e sobre foto clara ou escura continua legível sem pôr uma
+   cor chapada por cima. O estado não muda a cor. Quem diz onde a pessoa está
+   é a palavra em negrito: "Antes" mostrando o original, "Depois" mostrando o
+   ajuste. */
 .aj-antes-btn {
   position: absolute;
   left: 14px;
   bottom: 14px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
+  gap: 7px;
+  padding: 7px 13px;
   border-radius: 100px;
-  border: 1px solid var(--line2);
-  background: color-mix(in srgb, var(--paper) 82%, transparent);
-  color: var(--ink2);
+  border: 0;
+  background: rgba(17, 17, 17, .45);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14);
+  backdrop-filter: blur(8px) saturate(150%);
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+  color: #FFFFFF;
   font-size: 12.5px;
-  font-weight: 500;
+  font-weight: 400;
+  font-family: inherit;
   cursor: pointer;
-  backdrop-filter: blur(6px);
-  transition: background .15s ease, color .15s ease, border-color .15s ease;
+  transition: background .15s ease;
   z-index: 3;
 }
-.aj-antes-btn:hover { color: var(--ink); border-color: var(--ink3); }
-.aj-antes-btn--on {
-  background: var(--lima);
-  color: #111111;
-  border-color: transparent;
-}
+.aj-antes-btn:hover { background: rgba(17, 17, 17, .6); }
+.aj-antes-btn svg { flex: none; }
+.aj-ab-rot { display: inline-flex; align-items: baseline; gap: 3px; }
+.aj-ab-sep { opacity: .55; }
+/* Cada palavra reserva a largura dela em negrito: sem isso a pastilha
+   cresceria e encolheria a cada troca, e o botão andaria sob o mouse. */
+.aj-ab-p { display: inline-grid; opacity: .72; transition: opacity .15s ease; }
+.aj-ab-p::after { content: attr(data-t); font-weight: 600; visibility: hidden; height: 0; pointer-events: none; user-select: none; }
+.aj-ab-p--on { font-weight: 600; opacity: 1; }
 
 /* O círculo que mostra o tamanho do pincel, seguindo o mouse. */
 .aj-cursor-pincel {

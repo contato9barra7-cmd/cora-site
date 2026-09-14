@@ -907,12 +907,18 @@ export default function JanelaAjustes({ camada, inicial, aoAplicar, aoFechar }) 
               className={'aj-antes-btn' + (mostrarAntes ? ' aj-antes-btn--on' : '')}
               onClick={(e) => { e.stopPropagation(); toggleAntes(); }}
               title={t('janelaajustes_antes_depois') + '  ( \\ )'}
+              aria-pressed={mostrarAntes}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="5" width="18" height="14" rx="2" />
                 <path d="M12 5v14" />
               </svg>
-              <span>{t('janelaajustes_antes_depois')}</span>
+              {/* A palavra em negrito é onde a pessoa está agora. */}
+              <span className="aj-ab-rot">
+                <span className={'aj-ab-p' + (mostrarAntes ? ' aj-ab-p--on' : '')} data-t={t('janelaajustes_antes')}>{t('janelaajustes_antes')}</span>
+                <span className="aj-ab-sep">/</span>
+                <span className={'aj-ab-p' + (!mostrarAntes ? ' aj-ab-p--on' : '')} data-t={t('janelaajustes_depois')}>{t('janelaajustes_depois')}</span>
+              </span>
             </button>
           </div>
 
