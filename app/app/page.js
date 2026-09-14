@@ -1517,6 +1517,39 @@ export default function AppPage() {
 
             {erro && <div className="cr-erro">{erro}</div>}
 
+            {/* ── O AVISO DE EXPIRAÇÃO ──
+                Um por feed, no alto, e o mesmo nos dois layouts. Antes eram
+                dois avisos diferentes: uma linha vermelha DENTRO de cada lote
+                na lista, e um texto só no topo da grade. Quem trocava de
+                layout via o recado mudar de cara e de lugar.
+
+                Ele é o primeiro filho da lista, então é ele quem abre o
+                espaço no topo. Sem ele, o primeiro lote encosta na barra
+                (ver `.cr-lote:first-child` na folha). */}
+            {!carregando && expiraVisivel && (
+              <p className="cr-mes-expira"
+                 data-urgente={diasDaGrade <= 3 ? 'sim' : 'nao'}>
+                <svg className="cr-mes-expira-ic" viewBox="0 0 16 16" fill="none"
+                     stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                  <circle cx="8" cy="8" r="6.2" />
+                  <path d="M8 4.6V8l2.4 1.5" strokeLinecap="round" />
+                </svg>
+                <span>
+                  {diasDaGrade === 0
+                    ? t('app_algumas_apagadas_hoje')
+                    : (<>{t('app_algumas_apagadas_em')}{' '}
+                        <b>{diasDaGrade} {diasDaGrade === 1 ? t('app_dia') : t('app_dias')}</b></>)}
+                </span>
+                <button type="button" className="cr-mes-expira-x"
+                        aria-label={t('fechar')} onClick={fecharExpira}>
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor"
+                       strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
+                    <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
+                  </svg>
+                </button>
+              </p>
+            )}
+
             {upsAtivos.filter((u) => !u.loteId).map((u) => (
               <div className="cr-gerando" key={u.id}>
                 <div className={`cr-cards cr-cards--${layout} cr-cards--${tamanho}`}>
@@ -1699,29 +1732,6 @@ export default function AppPage() {
                 data muda. As proporções diferentes formam um mosaico contínuo. */}
             {!carregando && layout === 'grade' && itensDaGrade.length > 0 && (
               <section className="cr-mes cr-mes--continuo">
-                {expiraVisivel && (
-                  <p className="cr-mes-expira cr-mes-expira--grade"
-                     data-urgente={diasDaGrade <= 3 ? 'sim' : 'nao'}>
-                    <svg className="cr-mes-expira-ic" viewBox="0 0 16 16" fill="none"
-                         stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-                      <circle cx="8" cy="8" r="6.2" />
-                      <path d="M8 4.6V8l2.4 1.5" strokeLinecap="round" />
-                    </svg>
-                    <span>
-                      {diasDaGrade === 0
-                        ? t('app_algumas_apagadas_hoje')
-                        : (<>{t('app_algumas_apagadas_em')}{' '}
-                            <b>{diasDaGrade} {diasDaGrade === 1 ? t('app_dia') : t('app_dias')}</b></>)}
-                    </span>
-                    <button type="button" className="cr-mes-expira-x"
-                            aria-label={t('fechar')} onClick={fecharExpira}>
-                      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor"
-                           strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
-                        <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
-                      </svg>
-                    </button>
-                  </p>
-                )}
                 <Masonry itens={itensDaGrade} tamanho={tamanho}>
                   {(it, i, medir, razao) => (
                     <Card
@@ -1756,7 +1766,6 @@ export default function AppPage() {
                 Aqui o lote importa: as N variações de uma mesma configuração
                 ficam lado a lado, para comparar o que aquele ajuste produziu. */}
             {!carregando && layout === 'linha' && lotesVisiveis.map((lote) => {
-              const dias = diasAteExpirar(lote.criadoEm);
               return (
                 <article key={lote.loteId} className="cr-lote">
                   <header className="cr-lote-cab">
@@ -1774,14 +1783,6 @@ export default function AppPage() {
                     )}
                     <span className="cr-lote-data">{tempoRelativo(lote.criadoEm)}</span>
                   </header>
-
-                  {dias !== null && dias <= 15 && (
-                    <p className="cr-expira">
-                      {dias === 0
-                        ? t('app_geracao_apagada_hoje')
-                        : `${t('app_geracao_apagada_em')} ${dias} ${dias === 1 ? t('app_dia') : t('app_dias')}.`}
-                    </p>
-                  )}
 
                   <div className={`cr-cards cr-cards--linha cr-cards--${tamanho}`}>
                     {/* Etapas ainda gerando: no timelapse ficam À ESQUERDA,

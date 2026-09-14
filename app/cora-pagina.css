@@ -530,12 +530,15 @@
    regra aqui o apagava por ser mais específica. Quem escreveu lá não
    tinha como saber. */
 .co .cr-mes-expira{
-  display:inline-flex; align-items:center; gap:8px;
+  display:inline-flex; align-items:center; gap:8px; max-width:100%;
   margin:0 0 12px; padding:6px 8px 6px 12px;
   background:var(--wash); border:1px solid var(--line); border-radius:100px;
   font-size:var(--t-apoio2); font-weight:400; letter-spacing:0; text-transform:none;
   color:var(--ink2);
 }
+/* No celular a frase é mais larga que a tela em espanhol. Sem isto o
+   texto empurra o X para fora da pílula em vez de quebrar. */
+.co .cr-mes-expira > span{ min-width:0; }
 .co .cr-mes-expira b{ font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
 .co .cr-mes-expira-ic{ flex:none; width:14px; height:14px; color:var(--ink3); }
 .co .cr-mes-expira-x{
@@ -552,13 +555,26 @@
 }
 .co .cr-mes-expira[data-urgente="sim"] .cr-mes-expira-ic,
 .co .cr-mes-expira[data-urgente="sim"] b,
-.co .cr-mes-expira[data-urgente="sim"]{ color:var(--alerta); }.co .cr-lote{ padding:18px 20px; border-bottom:1px solid var(--line); }.co .cr-lote:last-child{ border-bottom:0; }.co .cr-lote-cab{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }.co .cr-lote-obs{ flex:1; min-width:0; }.co .cr-lote-data{ flex:none; font-size:var(--t-apoio2); color:var(--ink3); }.co .cr-tag{
+.co .cr-mes-expira[data-urgente="sim"]{ color:var(--alerta); }.co .cr-lote{ padding:18px 20px; border-bottom:1px solid var(--line); }.co .cr-lote:last-child{ border-bottom:0; }
+/* O TOPO DA LISTA ENCOSTA NA BARRA.
+
+   Com o padding cheio, o vão entre a barra e o primeiro lote (20 da lista
+   mais 18 daqui) ficava igual ao vão ENTRE dois lotes (18 mais 18). O olho
+   lê isso como uma linha vazia esperando alguma coisa, e era exatamente o
+   que parecia: espaço reservado para um aviso que não estava lá. A grade
+   nunca teve esse degrau, porque o `.cr-mes` não tem padding em cima.
+
+   Zerado aqui, sobram os 20 da lista, e quem abre espaço no topo passa a
+   ser o aviso de expiração, quando ele existe. Fecha o aviso, a lista
+   volta a encostar. */
+.co .cr-lista > .cr-lote:first-child{ padding-top:0; }
+.co .cr-lote-cab{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }.co .cr-lote-obs{ flex:1; min-width:0; }.co .cr-lote-data{ flex:none; font-size:var(--t-apoio2); color:var(--ink3); }.co .cr-tag{
   flex:none; white-space:nowrap; padding:3px 10px; border:0;
   border-radius:var(--pill); background:var(--wash2); color:var(--ink2);
   font-size:var(--t-etiqueta); font-weight:600;
 }/* A ferramenta que gerou é o que se procura no feed, então ela é a única
    pastilha com cor. (Chamava-se `--roxa`. O roxo saiu da marca, e o nome
-   foi junto.) */.co .cr-tag--marca{ background:var(--turq-bg); color:var(--turq-txt); }.co .cr-expira{ margin:0 0 10px; font-size:var(--t-apoio2); color:var(--alerta); }/* O CARD DO FEED: SÓ A PINTURA.
+   foi junto.) */.co .cr-tag--marca{ background:var(--turq-bg); color:var(--turq-txt); }/* O CARD DO FEED: SÓ A PINTURA.
    O `.cr-cards` NÃO leva layout daqui. Quem manda no arranjo é o modificador
    (`--grade`, `--linha`, o masonry), e eu tinha escrito `display:flex` nele.
    Escopado em `.co` isso ganha de `.cr-cards--grade` por especificidade, a
