@@ -696,7 +696,7 @@ export default function PainelAnimacao({
     let txt = t('painelanimacao_txt_roteiro_titulo') + '\n\n';
     if (narrIdeia) txt += t('painelanimacao_ideia_roteiro') + ': ' + narrIdeia + '\n\n';
     narrTakes.forEach((tk) => {
-      txt += `Take ${tk.n_take} — ${tk.momento || ''}\n`;
+      txt += `Take ${tk.n_take}: ${tk.momento || ''}\n`;
       txt += t('painelanimacao_camera') + ' ' + (tk.camera || '') + '\n';
       if (tk.close) txt += `Close: ${tk.close}\n`;
       if (tk.transicao) txt += t('painelanimacao_transicao') + ' ' + tk.transicao + '\n';

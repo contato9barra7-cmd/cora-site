@@ -341,7 +341,7 @@ export default function PainelPlanta({ onPronto, onProgresso, ocupado, setOcupad
     linhas.push(`Nível de realismo: ${realismo}.`);
     if (mood.length)   linhas.push(`Mood: ${mood.join(', ')}.`);
     if (paleta.length) linhas.push(`Paleta: ${paleta.join(', ')}.`);
-    linhas.push(`Iluminação — sombras: ${sombras}; origem: ${origem}.`);
+    linhas.push(`Iluminação (sombras): ${sombras}, origem: ${origem}.`);
     linhas.push(
       `Espessura das paredes: cor ${parCor}` +
       (parTrat.length ? `, tratamento ${parTrat.join(', ')}` : '') + '.'
