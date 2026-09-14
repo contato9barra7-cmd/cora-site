@@ -155,7 +155,10 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
 /* As opções do Otimizar têm explicação de duas linhas: a caixa de marcar
    sobe junto do título, e não fica no meio do cartão. */
 .fr .fr-ot .dl-op{ align-items:flex-start; }
-.fr .fr-ot .cora-check-bola{ margin:1px 0 0; }
+/* A janela de baixar esconde o `input` de dentro da opção, porque lá quem
+   marca é a bolinha. Aqui a marca É a caixa de marcar, e sem esta regra o
+   cartão não mostrava se estava ligado. */
+.fr .fr-ot .dl-op .cora-check-bola{ display:block; margin:1px 0 0; }
 .fr .fr-ot .dl-txt em{ line-height:1.45; }
 
 /* ── as duas peças escritas aqui ──
@@ -169,7 +172,7 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
 /* O aviso de espera do Distribuir: a janela abre antes de existir um bloco. */
 .fr .fr-espera{
   display:flex; align-items:flex-start; gap:12px; padding:14px;
-  border-radius:var(--r-peq); background:var(--wash); color:var(--ink2); cursor:pointer;
+  border-radius:var(--r-peq); background:var(--wash); color:var(--ink2);
 }
 .fr .fr-espera svg{ flex:none; margin-top:1px; color:var(--turquesa-esc); }
 .fr .fr-espera strong{ display:block; margin-bottom:3px; font-size:var(--t-corpo); font-weight:600; color:var(--ink); }
