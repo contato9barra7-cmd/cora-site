@@ -3247,13 +3247,12 @@ h2.secao + p{ margin:0 0 20px; max-width:64ch; color:var(--pag-apoio); font-size
 .jn .lg-miolo{ padding:22px 34px 30px; }
 .jn .tc .lg-miolo .login-card{ max-width:none; }
 /* O pé do cartão, onde o e-mail tem o rodapé: a pergunta numa linha e a
-   ação na linha de baixo. */
-.jn .lg-pe{
-  padding:16px 34px 18px; border-top:1px solid var(--line);
-  text-align:center; font-size:13.5px; line-height:1.6; color:var(--ink2);
-}
-.jn .lg-pe a{ display:inline-block; margin-top:2px; color:var(--ink); font-weight:600; text-decoration:none; cursor:pointer; }
-.jn .lg-pe a:hover{ text-decoration:underline; text-underline-offset:2px; }
+   ação na linha de baixo. O texto é o `.rodape-cartao` da web, no mesmo
+   tamanho do resto do formulário. Daqui sai só o espaço dele, porque o fio
+   e o respiro já são do pé. */
+.jn .lg-pe{ padding:14px 34px 16px; border-top:1px solid var(--line); }
+.jn .tc .lg-pe .rodape-cartao{ margin:0; padding:0; border:0; line-height:1.6; }
+.jn .tc .lg-pe .rodape-cartao a{ cursor:pointer; }
 /* O logo é preto, e no escuro a web inverte. */
 :root[data-theme="dark"] .jn .lg-logo img{ filter:invert(1); }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .jn .lg-logo img{ filter:invert(1); } }
@@ -3378,12 +3377,12 @@ var LOGO_CORA = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQoAAABACAYAAADif
       '<div class="trial-bloqueio-faixa" aria-hidden="true"></div>' +
       '<div class="lg-logo"><img src="' + LOGO_CORA + '" alt="Cora Render" width="266" height="64"></div>' +
       '<div class="lg-miolo"><div class="login-card">' + t.miolo + '</div></div>' +
-      (t.pe ? '<div class="lg-pe">' + t.pe + '</div>' : '') +
+      (t.pe ? '<div class="lg-pe"><p class="rodape-cartao">' + t.pe + '</p></div>' : '') +
       '</div></div></div></main>';
   }
 
   var ERRO_SENHA = 'E-mail ou senha incorretos.';
-  var ERRO_PCS = 'Esta conta já está aberta em 2 computadores, o limite dela. Tire um deles em Minha conta, no site, e entre de novo. <button class="link-inline" data-a="conta">Abrir Minha conta</button>';
+  var ERRO_PCS = 'Esta conta já está aberta em 2 computadores, o limite dela.<br>Tire um deles em Minha conta, no site, e entre de novo. <button class="link-inline" data-a="conta">Abrir Minha conta</button>';
   var ERRO_REDE = 'Não foi possível falar com o servidor do Cora. Confira a internet. Se ela estiver funcionando, o firewall ou o antivírus pode estar bloqueando o SketchUp.';
 
   // ══ a janela viva ══
