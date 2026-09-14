@@ -832,10 +832,14 @@ select:-webkit-autofill:focus {
    bastante pra cor de tras atravessar, saturacao alta, e um fio de luz na
    borda de cima, que e o que da a leitura de vidro em vez de faixa escura.
    Opacidade .62 e o piso: abaixo disso o texto branco cai de 5:1 pra menos de
-   4,5 quando a faixa passa por cima de uma secao clara. */
+   4,5 quando a faixa passa por cima de uma secao clara.
+   O vidro e escuro nos dois temas, entao o branco e o preto daqui sao escritos
+   com o valor, e nao com `--paper` e `--ink`. No modo escuro esses tokens
+   trocam de lado, e o elo da politica, o "Recusar" e o texto do "Aceitar"
+   sumiam contra a faixa (14/09/2026). */
 .cookie-bar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 3000;
-  background: rgba(12, 12, 12, .62); color: var(--paper);
+  background: rgba(12, 12, 12, .62); color: #FFFFFF;
   -webkit-backdrop-filter: blur(30px) saturate(180%);
   backdrop-filter: blur(30px) saturate(180%);
   border-top: 1px solid rgba(255, 255, 255, .12);
@@ -863,7 +867,7 @@ select:-webkit-autofill:focus {
 .cookie-frase { white-space: nowrap; }
 /* Branco cheio e sublinhado: sobre o vidro, um link colorido perderia para o
    fundo escuro em qualquer tom da nossa paleta. */
-.cookie-txt a { color: var(--paper); text-decoration: underline; text-underline-offset: 2px; }
+.cookie-txt a { color: #FFFFFF; text-decoration: underline; text-underline-offset: 2px; }
 .cookie-acoes { display: flex; gap: 8px; flex-shrink: 0; }
 .cookie-btn {
   border: 1px solid transparent; border-radius: 100px;
@@ -874,15 +878,15 @@ select:-webkit-autofill:focus {
 }
 /* A acao vai no lima da marca, como no desenho aprovado. Sobre o vidro escuro
    ele ganha destaque em vez de perder. */
-.cookie-btn--verde { background: #C4FBA7; color: var(--ink); }
+.cookie-btn--verde { background: #C4FBA7; color: #111111; }
 .cookie-btn--verde:hover { background: #A5F37D; }
 .cookie-btn--ghost {
-  background: transparent; color: var(--paper);
+  background: transparent; color: #FFFFFF;
   border-color: rgba(255, 255, 255, .45);
 }
-.cookie-btn--ghost:hover { border-color: var(--paper); }
+.cookie-btn--ghost:hover { border-color: #FFFFFF; }
 .cookie-btn:active { transform: scale(.97); }
-.cookie-btn:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
+.cookie-btn:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
 /* 760 e nao 620: a frase mede 412px e nao quebra, e com os dois botoes mais o
    respiro das bordas a faixa em linha precisa de uns 710px. Entre 620 e 760 a
    linha unica ja nao cabia. */
