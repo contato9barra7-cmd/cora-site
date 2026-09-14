@@ -326,8 +326,7 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
         botao('Fechar', 'reiniciar', true));
     }
     if (e.tela === 'erro') {
-      return janela('Não deu para otimizar', 'Nada foi alterado. O motivo veio do SketchUp:',
-        '<div class="dl-erro">Entity erased while iterating the collection</div>',
+      return janela('Não deu para otimizar', 'Nada foi alterado. Tente de novo, e se o erro voltar, fale com o suporte.', '',
         botao('Fechar', 'reiniciar', true));
     }
     var op = function (id, nome, desc, peso) {
@@ -460,7 +459,7 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
       { e: { tela: 'limpo' }, t: 'Nada para limpar',
         d: ['Quando o total dá zero, a janela diz isso e mais nada.'] },
       { e: { tela: 'erro' }, t: 'Quando dá erro',
-        d: ['A mensagem vem do SketchUp, em inglês, e sai como ele mandou, na caixa de erro da janela de baixar.'] }
+        d: ['O erro técnico vem do SketchUp e sai sempre em inglês. Ele fica no log do plugin, para o suporte, e a janela diz só o que a pessoa pode fazer.'] }
     ] },
     vidro: { w: 340, tit: 'Tipo de vidro', f: vidro, etapas: [
       { e: { tipo: 'fume' }, t: 'Escolher o vidro',
