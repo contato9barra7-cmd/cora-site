@@ -2468,8 +2468,10 @@
    Distribuir Componente e os três de Luzes. Cada uma tinha o próprio CSS,
    com o verde e o roxo de antes.
 
-   Nenhuma ganhou desenho novo. A casca é a janela de ferramenta da Pós
-   (`.df-*`), as escolhas são os botões da coluna do Render (`.cr-b`), os
+   Nenhuma ganhou desenho novo. A cabeça é a da janela de baixar
+   (`.dl-cab`), o corpo e o pé são os da janela de ferramenta da Pós
+   (`.df-*`), a caixa de marcar é a do Modo timelapse de obra
+   (`.anim-check`), as escolhas são os botões da coluna do Render (`.cr-b`), os
    números são os campos do Desfoque (`.df-num`), as opções com explicação
    são as da janela de baixar (`.dl-op`), o relatório é a ficha do Render
    (`.fic`) e a cor da luz é o seletor de cor da web (`.cor`). Só a amostra
@@ -2577,17 +2579,15 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
 }
 
 /* ══ dentro da janela ══
-   A casca é a da janela de ferramenta da Pós, sem o `position:fixed` e sem
-   o ×: no SketchUp quem fecha é a barra do Windows. A barra do título não
-   arrasta, porque aqui a janela inteira já é do sistema. */
+   A cabeça é a da janela de baixar, sem o ×: no SketchUp quem fecha é a
+   barra do Windows, e ela já diz o nome da janela. Por isso o título de
+   dentro diz o que a janela faz agora, e muda com a etapa. O corpo e o pé
+   são os da janela de ferramenta da Pós. */
 .fr{ background:var(--paper); color:var(--ink); }
-.fr .df-topo{ cursor:default; }
-.fr .df-topo:active{ cursor:default; }
 .fr .df-pe .ps-b{ min-width:92px; }
 /* Um grupo por assunto: o rótulo, os botões e a frase. O `gap` do corpo
    separa os grupos, e o rótulo não soma a margem de 26px da coluna. */
 .fr .fr-grupo > .cr-sec{ margin:0 0 8px; }
-.fr .df-corpo > .cr-hint:first-child{ margin:0; }
 .fr .fr-nums{ display:flex; flex-direction:column; gap:10px; }
 .fr .df-num{ min-width:0; }
 /* O comprimento do bloco vem medido do SketchUp e não se edita. Desligado é
@@ -2601,7 +2601,6 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
 .fr .fic__cab{ padding:9px 2px; }
 .fr .fr-total .fic__nome{ color:var(--ink); }
 .fr .fr-total .fic__val{ font-weight:700; }
-.fr .df-cx .cora-check-bola{ margin:0; }
 .fr .cor{ margin-top:12px; }
 /* As opções do Otimizar têm explicação de duas linhas: a caixa de marcar
    sobe junto do título, e não fica no meio do cartão. */
@@ -2660,7 +2659,7 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
   </div>
 
   <dl class="mud">
-    <div><dt>A casca</dt><dd>Era um título pequeno em caixa alta e o conteúdo solto na janela. Agora é a janela de ferramenta da Pós: o título numa faixa em cima, o corpo, e Cancelar e a ação no pé, à direita.</dd></div>
+    <div><dt>A casca</dt><dd>Era um título pequeno em caixa alta e o conteúdo solto na janela. Agora a cabeça é a da janela de baixar: o título em letra normal e, embaixo, o que a janela faz. O título muda com a etapa, e Cancelar e a ação ficam no pé, à direita.</dd></div>
     <div><dt>As escolhas</dt><dd>Eram pílulas de contorno que ficavam verdes. Agora são os botões de escolha da coluna do Render, os mesmos de Estilo e de Luz.</dd></div>
     <div><dt>Os números</dt><dd>Eram pílulas largas com o rótulo em cima. Agora são os campos de número do Desfoque, numa linha com o rótulo e a unidade.</dd></div>
     <div><dt>As opções com explicação</dt><dd>O Otimizar e o Vidro usam as opções da janela de baixar: um cartão por escolha, com a caixa de marcar ou a bolinha da web.</dd></div>
@@ -2729,9 +2728,10 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
     return '<div class="moldura co" style="width:' + largura + 'px"><div class="moldura-barra"><span class="ico"></span>Cora Render · ' + titulo +
       '<span class="vazio"></span><i class="x"></i></div><div class="fr">' + miolo + '</div></div>';
   }
-  function janela(titulo, corpo, pe) {
-    return '<div class="df-topo"><span class="df-tit">' + titulo + '</span></div>' +
-      '<div class="df-corpo">' + corpo + '</div>' + (pe ? '<div class="df-pe">' + pe + '</div>' : '');
+  function janela(titulo, sub, corpo, pe) {
+    return '<div class="df-corpo"><div class="dl-cab"><div><strong>' + titulo + '</strong>' +
+      (sub ? '<span>' + sub + '</span>' : '') + '</div></div>' + corpo + '</div>' +
+      (pe ? '<div class="df-pe">' + pe + '</div>' : '');
   }
   function botao(txt, acao, on) {
     return '<button type="button" class="ps-b' + (on ? ' ps-b--on' : '') + '" data-acao="' + acao + '">' + txt + '</button>';
@@ -2749,12 +2749,11 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
   }
   function linha(rotulo, miolo) { return '<div class="df-linha"><label class="df-l">' + rotulo + '</label>' + miolo + '</div>'; }
   function marcar(campoNome, on, txt) {
-    return '<div class="df-cx" data-set="' + campoNome + ':!"><input type="checkbox" class="cora-check-bola" tabindex="-1"' + (on ? ' checked' : '') + '><span>' + txt + '</span></div>';
+    return '<div class="anim-check" data-set="' + campoNome + ':!"><input type="checkbox" class="cora-check-bola" tabindex="-1"' + (on ? ' checked' : '') + '><span>' + txt + '</span></div>';
   }
 
   // ══ Otimizar modelo ══
   function otimizar(e) {
-    var tit = 'Otimizar modelo';
     if (e.tela === 'res') {
       var linhas = [
         ['Faces mescladas', e.cop ? 12 : 0], ['Faces duplicadas', 38], ['Faces internas', e.int ? 3 : 0],
@@ -2765,19 +2764,16 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
         return '<div class="fic__l' + (extra || '') + '"><div class="fic__cab"><span class="fic__nome">' + nome + '</span>' +
           '<span class="fic__val"' + (val ? '' : ' data-vazio="sim"') + '>' + val + '</span></div></div>';
       };
-      return janela(tit,
-        '<div class="dl-cab"><div><strong>Otimização concluída</strong><span>' + total + ' alterações no modelo. O Ctrl+Z desfaz tudo de uma vez.</span></div></div>' +
+      return janela('Otimização concluída', total + ' alterações no modelo. O Ctrl+Z desfaz tudo de uma vez.',
         '<div class="fic fic--solta">' + linhas.map(function (l) { return ficha(l[0], l[1]); }).join('') + ficha('Total', total, ' fr-total') + '</div>',
         botao('Fechar', 'reiniciar', true));
     }
     if (e.tela === 'limpo') {
-      return janela(tit,
-        '<div class="dl-cab"><div><strong>Nada para limpar</strong><span>O modelo já estava limpo, e nada foi alterado.</span></div></div>',
+      return janela('Nada para limpar', 'O modelo já estava limpo, e nada foi alterado.', '',
         botao('Fechar', 'reiniciar', true));
     }
     if (e.tela === 'erro') {
-      return janela(tit,
-        '<div class="dl-cab"><div><strong>Não deu para otimizar</strong><span>Nada foi alterado. O motivo veio do SketchUp:</span></div></div>' +
+      return janela('Não deu para otimizar', 'Nada foi alterado. O motivo veio do SketchUp:',
         '<div class="dl-erro">Entity erased while iterating the collection</div>',
         botao('Fechar', 'reiniciar', true));
     }
@@ -2788,12 +2784,11 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
         '<span class="dl-txt"><strong>' + nome + '</strong><em>' + desc + '</em></span>' +
         (peso ? '<span class="dl-peso">' + peso + '</span>' : '') + '</div>';
     };
-    return janela(tit,
-      '<p class="cr-hint">As correções seguras entram sempre: faces duplicadas, arestas soltas e o que não está em uso. As duas de baixo mexem na geometria, e só entram se você marcar.</p>' +
-      '<div class="dl-ops fr-ot">' +
+    return janela('Otimizar modelo', 'As correções seguras entram sempre: faces duplicadas, arestas soltas e o que não está em uso.',
+      grupo('Mexem na geometria', '<div class="dl-ops fr-ot">' +
       op('cop', 'Mesclar faces coplanares', 'Junta faces do mesmo plano e material. Pode desfazer uma divisão feita de propósito.') +
       op('int', 'Remover faces internas', 'Apaga faces escondidas dentro de sólidos. Em geometria complexa, pode levar uma face que devia ficar.', e.n ? e.n + ' achadas' : 'nenhuma') +
-      '</div>',
+      '</div>'),
       botao('Cancelar', 'reiniciar') + botao('Otimizar', 'otimizar', true));
   }
 
@@ -2804,8 +2799,7 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
     ['leitoso', 'Leitoso', 'rgba(240,238,232,.86)']
   ];
   function vidro(e) {
-    return janela('Tipo de vidro',
-      '<p class="cr-hint">Cada vidro tem uma cor de base. Escolha antes de gerar o reflexo na face.</p>' +
+    return janela('Tipo de vidro', 'Cada vidro tem uma cor de base. Escolha antes de gerar o reflexo na face.',
       '<div class="dl-ops">' + VIDROS.map(function (v) {
         var on = e.tipo === v[0];
         return '<button type="button" class="dl-op' + (on ? ' dl-op--on' : '') + '" role="radio" aria-checked="' + on + '" data-set="tipo:' + v[0] + '">' +
@@ -2823,12 +2817,11 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
     global: 'A origem do modelo. Os objetos giram em volta dela e saem do lugar.'
   };
   function randomizar(e) {
-    return janela('Randomizar elementos',
-      '<p class="cr-hint">Cada objeto da seleção ganha uma escala e um giro sorteados dentro destas faixas. Escala 1 é o tamanho de agora.</p>' +
-      '<div class="fr-nums">' +
+    return janela('Randomizar elementos', 'Cada objeto da seleção ganha uma escala e um giro sorteados dentro destas faixas.',
+      grupo(null, '<div class="fr-nums">' +
       linha('Escala', campo('0,8') + '<span class="df-un">a</span>' + campo('1,2') + '<span class="df-un">×</span>') +
       linha('Giro', campo('15') + '<span class="df-un">a</span>' + campo('315') + '<span class="df-un">°</span>') +
-      '</div>' +
+      '</div>', 'Escala 1 é o tamanho de agora.') +
       grupo('A partir de', g2([escolha('ref', 'base', 'Base', e.ref), escolha('ref', 'centro', 'Centro', e.ref),
         escolha('ref', 'eixo', 'Eixo', e.ref), escolha('ref', 'global', 'Global', e.ref)]), REFS[e.ref]),
       botao('Cancelar', 'reiniciar') + botao('Aplicar', 'reiniciar', true));
@@ -2837,14 +2830,14 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
   // ══ Distribuir componente ══
   var ICO_CLIQUE = '<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3.5v2 M3.5 8h2 M4.8 4.8l1.4 1.4 M11.2 4.8l-1.4 1.4 M8.5 8.5l7.5 3-3.2 1.3-1.3 3.2z"/></svg>';
   function distribuir(e) {
-    var tit = 'Distribuir componente';
+    var tit = 'Distribuir componente', sub = 'Repete um bloco ao longo da aresta selecionada.';
     if (e.tela === 'espera') {
-      return janela(tit,
+      return janela(tit, sub,
         '<div class="fr-espera" data-acao="escolheu">' + ICO_CLIQUE + '<div><strong>Clique no componente na cena</strong>' +
         '<span>É o bloco que vai se repetir ao longo da aresta. A janela espera aberta enquanto você escolhe.</span></div></div>',
         botao('Cancelar', 'reiniciar'));
     }
-    return janela(tit,
+    return janela(tit, sub,
       grupo('Eixo que segue a linha', g2([escolha('eixo', 'x', 'Eixo X', e.eixo), escolha('eixo', 'y', 'Eixo Y', e.eixo)]),
         'A medida do bloco nesse eixo é a que conta para o espaçamento.') +
       grupo('Medidas', '<div class="fr-nums">' +
@@ -2878,16 +2871,19 @@ h2.secao + p{ margin:0 0 24px; max-width:66ch; color:var(--pag-apoio); font-size
       '</div>';
   }
   var TITULO_LUZ = { face: 'Luz linear', aresta: 'Luz linear', spot: 'Luz spot', plafon: 'Luz plafon' };
+  var SUB_LUZ = {
+    face: 'Na face selecionada. A prévia na cena acompanha cada escolha.',
+    aresta: 'Na aresta selecionada. A faixa segue a própria linha, e só a direção muda.',
+    spot: 'Clique numa superfície da cena para pôr cada spot.',
+    plafon: 'O volume já nasceu na face selecionada.'
+  };
   function luzes(e) {
-    var tit = TITULO_LUZ[e.modo];
     if (e.tela === 'conf') {
-      return janela(tit,
-        '<div class="dl-cab"><div><strong>A luz ficou no lugar certo?</strong><span>Se não ficou, ela sai do modelo e a prévia volta para você ajustar.</span></div></div>',
+      return janela('A luz ficou no lugar certo?', 'Se não ficou, ela sai do modelo e a prévia volta para você ajustar.', '',
         botao('Não, ajustar', 'voltar') + botao('Sim, manter', 'voltar', true));
     }
-    var fraseDir = e.modo === 'aresta' ? 'Na aresta, a faixa segue a própria linha, e só a direção muda.'
-      : e.modo === 'spot' ? 'A direção e a cor valem para este spot e para os próximos, até você sair da ferramenta.' : null;
-    return janela(tit,
+    var fraseDir = e.modo === 'spot' ? 'A direção e a cor valem para este spot e para os próximos, até você sair da ferramenta.' : null;
+    return janela(TITULO_LUZ[e.modo], SUB_LUZ[e.modo],
       (e.modo === 'face' ? grupo('Borda da face', g2([
         escolha('borda', 'topo', 'Superior', e.borda), escolha('borda', 'base', 'Inferior', e.borda),
         escolha('borda', 'esq', 'Esquerda', e.borda), escolha('borda', 'dir', 'Direita', e.borda)])) : '') +
