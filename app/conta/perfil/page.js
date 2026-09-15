@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import AppShell from '../../../components/AppShell';
 import DropdownCora from '../../../components/DropdownCora';
 import Confirma from '../../../components/Confirma';
-import { lerConta, salvarPerfil, deletarMinhaConta, aplicarTema, sair, salvarFoto, listarDispositivos, removerDispositivo, registrarDispositivoWeb } from '../../../lib/auth';
+import { lerConta, salvarPerfil, deletarMinhaConta, aplicarTema, sair, salvarFoto, listarDispositivos, removerDispositivo, registrarDispositivoWeb, retomarOuIrParaLogin } from '../../../lib/auth';
 import { useIdioma, localeDeIdioma } from '../../../lib/i18n';
 
 const IDIOMAS = [
@@ -176,7 +176,7 @@ export default function Perfil() {
 
   useEffect(() => {
     const c = lerConta();
-    if (!c) { router.push('/login'); return; }
+    if (!c) { retomarOuIrParaLogin(router); return; }
     setConta(c);
     setNome(c.nome || '');
     setUsername(c.username || '');

@@ -6,7 +6,7 @@ import AppShell from '../../components/AppShell';
 import DropdownCora from '../../components/DropdownCora';
 import Confirma from '../../components/Confirma';
 import { useIdioma, localeDeIdioma } from '../../lib/i18n';
-import { lerConta, lerEquipe, convidarMembro, removerMembro, atribuirAMim, dispositivosDoMembro, nomearEquipe, reenviarConvite, salvarFotoEquipe, reativarAssento, abrirPortal, moverCredito } from '../../lib/auth';
+import { lerConta, lerEquipe, convidarMembro, removerMembro, atribuirAMim, dispositivosDoMembro, nomearEquipe, reenviarConvite, salvarFotoEquipe, reativarAssento, abrirPortal, moverCredito, retomarOuIrParaLogin } from '../../lib/auth';
 
 const NOME_PLANO = { pro: 'Pro', studio: 'Studio' };
 
@@ -137,7 +137,7 @@ function WorkspaceConteudo() {
   async function carregar() {
     try {
       const c = await lerConta();
-      if (!c) { router.push('/login'); return; }
+      if (!c) { retomarOuIrParaLogin(router); return; }
       setMeuEmail((c.email || '').toLowerCase());
       const dados = await lerEquipe();
       setEquipe(dados.equipe);

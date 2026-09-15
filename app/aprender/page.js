@@ -22,7 +22,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
-import { lerConta, atualizarConta } from '../../lib/auth';
+import { lerConta, atualizarConta, retomarOuIrParaLogin } from '../../lib/auth';
 import {
   contarAulas, urlDoVideo, urlDoMaterial, temEtiqueta, podeAbrir, comCatalogo, lerCatalogo,
   lerEstadoAulas, marcarVisto, votar, lerComentarios, comentar,
@@ -111,7 +111,7 @@ export default function Aprender() {
   const caixa = useRef(null);
 
   useEffect(() => {
-    if (!lerConta()) { router.push('/login'); return; }
+    if (!lerConta()) { retomarOuIrParaLogin(router); return; }
     setPronto(true);
     lerEstadoAulas().then(setEstado);
     lerCatalogo().then(setCat);

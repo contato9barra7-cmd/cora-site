@@ -31,7 +31,7 @@ import FichaConta from '../../components/FichaConta';
 import PainelAceites from '../../components/PainelAceites';
 import EmailAssinantes from '../../components/EmailAssinantes';
 import AdminAuditoria from '../../components/AdminAuditoria';
-import { lerConta, atualizarConta } from '../../lib/auth';
+import { lerConta, atualizarConta, retomarOuIrParaLogin } from '../../lib/auth';
 import { contaVista, lerModo, EVENTO_VER_COMO } from '../../lib/verComo';
 import { useIdioma } from '../../lib/i18n';
 
@@ -68,7 +68,7 @@ export default function Gerente() {
 
   useEffect(() => {
     const c = lerConta();
-    if (!c) { router.push('/login'); return; }
+    if (!c) { retomarOuIrParaLogin(router); return; }
     setConta(c);
     setCarregando(false);
     /* Busca a conta fresca porque o papel pode ter mudado desde o último

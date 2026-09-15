@@ -8,7 +8,7 @@ import EmailAssinantes from '../../components/EmailAssinantes';
 import DropdownCora from '../../components/DropdownCora';
 import FichaConta from '../../components/FichaConta';
 import { useIdioma } from '../../lib/i18n';
-import { lerConta, adminListarAssinantes, adminDadosFiscais, adminCompras, adminFaturas, adminSincronizarStripe } from '../../lib/auth';
+import { lerConta, adminListarAssinantes, adminDadosFiscais, adminCompras, adminFaturas, adminSincronizarStripe, retomarOuIrParaLogin } from '../../lib/auth';
 import PainelAceites from '../../components/PainelAceites';
 import AdminDinheiro from '../../components/AdminDinheiro';
 import PainelNovidades from '../../components/PainelNovidades';
@@ -444,7 +444,7 @@ export default function Admin() {
 
   useEffect(() => {
     const c = lerConta();
-    if (!c) { router.push('/login'); return; }
+    if (!c) { retomarOuIrParaLogin(router); return; }
     setMeuId(c.id);
     carregar();
   }, [router]);

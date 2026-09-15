@@ -18,7 +18,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import AppShell, { URL_IA_STUDIO } from '../../components/AppShell';
 import Confirma from '../../components/Confirma';
-import { lerConta, atualizarConta, baixarPlugin, minhaEquipe, sairDaEquipe, lerEquipe, EVENTO_CREDITOS} from '../../lib/auth';
+import { lerConta, atualizarConta, baixarPlugin, minhaEquipe, sairDaEquipe, lerEquipe, EVENTO_CREDITOS, retomarOuIrParaLogin } from '../../lib/auth';
 import { listarGeracoes } from '../../lib/geracoes';
 import { useIdioma, localeDeIdioma } from '../../lib/i18n';
 
@@ -124,7 +124,7 @@ function ContaConteudo() {
 
   useEffect(() => {
     const c = lerConta();
-    if (!c) { router.push('/login'); return; }
+    if (!c) { retomarOuIrParaLogin(router); return; }
     setConta(c);
     setCarregando(false);
     atualizarConta().then((fresca) => { if (fresca) setConta(fresca); }).catch(() => {});

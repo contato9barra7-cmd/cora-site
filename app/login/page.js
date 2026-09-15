@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { entrar, lerConta, retomarCheckoutPendente } from '../../lib/auth';
+import { entrar, lerConta, retomarCheckoutPendente, atualizarConta } from '../../lib/auth';
 import { useIdioma } from '../../lib/i18n';
 import LoginSplit from '../../components/LoginSplit';
 
@@ -21,6 +21,9 @@ export default function Login() {
   // Se já está logada, vai direto pra conta (não mostra login de novo).
   useEffect(() => {
     if (lerConta()) { router.push('/conta'); return; }
+    // Sem o cache, a sessão ainda pode estar viva no cookie de 30 dias. Se
+    // estiver, a pessoa segue para a conta sem digitar a senha de novo.
+    atualizarConta().then((c) => { if (c) router.push('/conta'); }).catch(() => {});
     if (typeof window !== 'undefined') {
       const em = sessionStorage.getItem('cora_convite_email');
       if (em) { setEmail(em); setEmailTravado(true); }

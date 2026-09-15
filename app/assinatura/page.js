@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import AppShell from '../../components/AppShell';
 import ModalFiscal from '../../components/ModalFiscal';
 import DropdownCora from '../../components/DropdownCora';
-import { lerConta, abrirPortal, lerEquipe, iniciarCheckout, lerCobranca } from '../../lib/auth';
+import { lerConta, abrirPortal, lerEquipe, iniciarCheckout, lerCobranca, retomarOuIrParaLogin } from '../../lib/auth';
 import CartaoPlano from '../../components/CartaoPlano';
 import { planos, recargas, imagensPor } from '../../lib/planos';
 import { itemDoPlano, itemDaRecarga } from '../../lib/stripe-prices';
@@ -41,7 +41,7 @@ export default function Assinatura() {
 
   useEffect(() => {
     const c = lerConta();
-    if (!c) { router.push('/login'); return; }
+    if (!c) { retomarOuIrParaLogin(router); return; }
     setConta(c);
     setCarregando(false);
     if (c.eh_dono_equipe) {

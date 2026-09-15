@@ -33,7 +33,7 @@ import Card, { proporcaoCss } from '../../components/Card';
 import Masonry from '../../components/Masonry';
 import ModalDownload from '../../components/ModalDownload';
 import ModalDetalhes from '../../components/ModalDetalhes';
-import { lerConta, creditosMudaram } from '../../lib/auth';
+import { lerConta, creditosMudaram, retomarOuIrParaLogin } from '../../lib/auth';
 import { gerarGenerativa } from '../../lib/render';
 import { salvarRascunho, lerRascunho } from '../../lib/rascunho';
 import { useIdioma, tOpt } from '../../lib/i18n';
@@ -715,7 +715,7 @@ export default function AppPage() {
 
   useEffect(() => {
     const c = lerConta();
-    if (!c) { router.push('/login'); return; }
+    if (!c) { retomarOuIrParaLogin(router); return; }
     setConta(c);
   }, [router]);
 
