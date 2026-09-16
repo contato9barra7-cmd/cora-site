@@ -1,7 +1,7 @@
 <title>Lista do Cora Render</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,400&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,400&display=swap">
 <style>
 /* ============================================================================
    PÁGINA DE INTERESSE DO CORA (pré-lançamento)
@@ -31,7 +31,6 @@
 
   --easing:cubic-bezier(0.16,1,0.3,1);
   --fonte:'DM Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
-  --fonte-mono:'Space Mono', 'Courier New', monospace;
 
   --largura-max:1180px; --gutter:20px;
   --altura-cabecalho:60px;
@@ -67,9 +66,9 @@ h2{ font-size:clamp(30px,4vw,52px); letter-spacing:-.032em; line-height:1.08; }
 h3{ font-size:clamp(20px,2vw,24px); letter-spacing:-.022em; line-height:1.22; }
 p{ text-wrap:pretty; }
 .corpo-g{ font-size:clamp(17px,1.4vw,19px); line-height:1.5; }
-.rotulo-mono{
-  font-family:var(--fonte-mono); font-size:11px; font-weight:700;
-  letter-spacing:.08em; text-transform:uppercase;
+.rotulo{
+  font-size:11px; font-weight:600; line-height:1.3;
+  letter-spacing:.1em; text-transform:uppercase;
 }
 .env{ width:100%; max-width:var(--largura-max); margin-inline:auto; padding-inline:var(--gutter); }
 .nao-quebra{ white-space:nowrap; }
@@ -89,9 +88,13 @@ p{ text-wrap:pretty; }
 .btn--claro{ background:var(--paper); color:var(--ink); border-color:var(--line); }
 .btn--escuro{ background:var(--ink); color:var(--paper); }
 .btn--largo{ width:100%; }
+/* Desligado é cor, não transparência (padroes-visuais.md). Continua
+   clicável: o clique mostra o que falta. */
+.btn[aria-disabled="true"]{ background:var(--wash2); color:var(--ink3); cursor:not-allowed; }
+.btn[aria-disabled="true"]:active{ transform:none; }
 .btn svg{ width:18px; height:18px; flex:none; }
 @media (hover:hover) and (pointer:fine){
-  .btn--lima:hover{ background:var(--lima-esc); }
+  .btn--lima:not([aria-disabled="true"]):hover{ background:var(--lima-esc); }
   .btn--claro:hover{ background:var(--wash2); }
   .btn--escuro:hover{ background:#242424; }
 }
@@ -171,15 +174,15 @@ p{ text-wrap:pretty; }
 .hero__apoio{ max-width:44ch; color:rgba(255,255,255,.86); }
 .hero .btn-grupo{ justify-content:center; margin-top:var(--e-3); }
 .hero .btn--claro{ background:rgba(255,255,255,.92); border-color:transparent; }
-.hero__nota{
-  display:flex; align-items:center; gap:var(--e-3);
-  margin-top:var(--e-2); color:rgba(255,255,255,.7);
-}
-.hero__nota::before, .hero__nota::after{ content:''; width:28px; height:1px; background:rgba(255,255,255,.3); }
 
 /* ---------- Como funciona ---------- */
 .passos{ display:grid; gap:var(--e-4); counter-reset:passo; }
-@media (min-width:860px){ .passos{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--e-5); } }
+/* Subgrade: título e texto dos três cartões na mesma altura, mesmo que um
+   título quebre em duas linhas. */
+@media (min-width:860px){
+  .passos{ grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(3,auto); column-gap:var(--e-5); row-gap:0; }
+  .passo{ grid-row:span 3; grid-template-rows:subgrid; }
+}
 .passo{
   display:grid; align-content:start; gap:var(--e-3);
   padding:var(--e-5); border-radius:var(--r-lg);
@@ -217,6 +220,7 @@ p{ text-wrap:pretty; }
 .prova figcaption{ display:grid; gap:var(--e-1); max-width:52ch; }
 .prova h3{ font-size:17px; font-weight:600; letter-spacing:-.01em; line-height:1.35; color:var(--paper); }
 .prova figcaption p{ font-size:14.5px; line-height:1.45; text-wrap:balance; }
+.prova--larga figcaption{ max-width:none; }
 .credito{
   position:absolute; z-index:5; right:var(--e-3); bottom:var(--e-3);
   padding:var(--e-1) var(--e-3); border-radius:var(--r-pill);
@@ -264,15 +268,22 @@ p{ text-wrap:pretty; }
   content:''; position:absolute; inset:0 0 auto 0; height:72px; z-index:1; pointer-events:none;
   background:linear-gradient(180deg, rgba(0,0,0,.42), transparent);
 }
-.vistas__barras{ position:absolute; z-index:3; top:var(--e-2); left:var(--e-3); right:var(--e-3); display:flex; gap:6px; }
-.vistas__barra{ flex:1; height:24px; display:flex; align-items:center; }
-.vistas__barra i{ position:relative; display:block; width:100%; height:3px; border-radius:3px; overflow:hidden; background:rgba(255,255,255,.35); }
-.vistas__barra b{ position:absolute; inset:0; background:var(--paper); transform:scaleX(0); transform-origin:left center; }
-.vistas__barra[data-status="completa"] b{ transform:scaleX(1); }
-.vistas__barra[data-status="ativa"] b{ animation:preencher 5s linear forwards; }
-.vistas[data-pausado="true"] .vistas__barra b{ animation-play-state:paused; }
-@keyframes preencher{ to{ transform:scaleX(1); } }
-.vistas__cam{ position:absolute; z-index:3; left:var(--e-3); top:40px; color:rgba(255,255,255,.9); pointer-events:none; font-variant-numeric:tabular-nums; }
+.vistas__barras{
+  position:absolute; z-index:4; top:var(--e-2); left:var(--e-4); right:var(--e-4);
+  display:grid; grid-template-columns:repeat(5,1fr); gap:var(--e-1);
+}
+/* O botão tem 20px de alvo, e a linha de 3px mora no meio dele. */
+.vistas__barra{ position:relative; height:20px; }
+.vistas__barra::before, .vistas__barra i{
+  position:absolute; left:0; top:50%; height:3px; margin-top:-1.5px; border-radius:var(--r-pill);
+}
+.vistas__barra::before{ content:''; right:0; background:rgba(255,255,255,.28); }
+.vistas__barra i{ display:block; width:0; background:var(--lima); }
+.vistas__barra[data-status="completa"] i{ width:100%; }
+.vistas__barra[data-status="ativa"] i{ animation:preencher 5s linear forwards; }
+.vistas[data-pausado="true"] .vistas__barra i{ animation-play-state:paused; }
+@keyframes preencher{ from{ width:0; } to{ width:100%; } }
+.vistas__prox{ position:absolute; inset:0; z-index:2; width:100%; cursor:pointer; }
 
 /* 360 */
 .visor{ position:absolute; inset:0; cursor:grab; touch-action:pan-y; }
@@ -301,18 +312,55 @@ p{ text-wrap:pretty; }
 .prova__espelho h3{ font-size:17px; font-weight:600; letter-spacing:-.01em; }
 .prova__espelho p{ font-size:14.5px; max-width:52ch; }
 
-/* ---------- Onde funciona ---------- */
-.onde{ display:grid; gap:var(--e-4); }
-@media (min-width:860px){ .onde{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--e-5); } }
-.onde__card{
-  display:grid; align-content:start; gap:var(--e-3);
-  padding:var(--e-5); border-radius:var(--r-lg);
-  background:var(--paper);
+/* ---------- Onde funciona: o desenho da home (switch e painel) ---------- */
+.cab--centro{ grid-template-columns:none; justify-items:center; text-align:center; }
+.cab--centro h2{ max-width:none; }
+.cab--centro > p{ justify-self:center; padding-bottom:0; max-width:46ch; }
+.switch{
+  display:inline-flex; gap:var(--e-1); padding:var(--e-1);
+  border:1px solid var(--line); border-radius:var(--r-pill);
+  background:var(--paper); box-shadow:0 1px 3px rgba(0,0,0,.03);
 }
-@media (min-width:1024px){ .onde__card{ padding:var(--e-6) var(--e-6) var(--e-7); } }
-.onde__tipo{ color:var(--ink2); }
-.onde__card h3{ max-width:20ch; }
-.onde__card p{ color:var(--ink2); font-size:14.5px; max-width:48ch; }
+.switch__op{
+  min-height:44px; padding:var(--e-2) var(--e-5); border-radius:var(--r-pill);
+  font-size:13.5px; font-weight:600; letter-spacing:-.005em; color:var(--ink2);
+  transition:background-color 180ms var(--easing), color 180ms var(--easing), transform 140ms var(--easing);
+}
+.switch__op:active{ transform:scale(.97); }
+.switch__op[aria-selected="true"]{ background:var(--ink); color:var(--paper); box-shadow:0 2px 8px rgba(0,0,0,.12); }
+@media (hover:hover) and (pointer:fine){ .switch__op:not([aria-selected="true"]):hover{ color:var(--ink); } }
+.painel-onde{
+  display:grid; grid-template-areas:"painel";
+  padding:var(--e-5); border-radius:var(--r-lg);
+  background:var(--wash2); border:1px solid rgba(0,0,0,.04); overflow:hidden;
+}
+@media (min-width:900px){ .painel-onde{ padding:var(--e-8); } }
+.painel{
+  grid-area:painel; display:grid; gap:var(--e-5); align-items:center;
+  opacity:0; visibility:hidden; transform:translateY(6px);
+  transition:opacity 280ms var(--easing), transform 280ms var(--easing), visibility 280ms var(--easing);
+}
+.painel[aria-hidden="false"]{ opacity:1; visibility:visible; transform:none; }
+@media (min-width:900px){ .painel{ grid-template-columns:36fr 64fr; gap:var(--e-8); } }
+.painel__texto{ display:grid; gap:var(--e-3); }
+.painel__texto p{ color:var(--ink2); font-size:14.5px; line-height:1.55; }
+.painel__img{
+  overflow:hidden; border-radius:var(--r-md); background:var(--paper);
+  box-shadow:0 6px 20px rgba(0,0,0,.06);
+}
+.painel__img img{ width:100%; height:auto; aspect-ratio:16/9; object-fit:cover; }
+.navegador{
+  display:flex; align-items:center; gap:var(--e-3);
+  height:30px; padding-inline:var(--e-3);
+  border-bottom:1px solid var(--line); background:var(--paper);
+}
+.navegador__pontos{ display:flex; gap:5px; flex:none; }
+.navegador__pontos i{ width:8px; height:8px; border-radius:50%; background:var(--line2); }
+.navegador__url{
+  flex:1; max-width:240px; margin-inline:auto; padding:2px var(--e-3);
+  border-radius:var(--r-pill); background:var(--wash2);
+  font-size:11px; color:var(--ink2); text-align:center;
+}
 .fichas{ display:flex; flex-wrap:wrap; gap:var(--e-2); margin-top:var(--e-3); }
 .ficha{
   display:inline-flex; align-items:center; min-height:30px;
@@ -432,7 +480,7 @@ p{ text-wrap:pretty; }
 
 .aceite{
   display:grid; grid-template-columns:22px minmax(0,1fr); gap:var(--e-3); align-items:start;
-  padding:var(--e-4); border-radius:var(--r-md); background:var(--wash);
+  padding:var(--e-3) var(--e-4); border-radius:var(--r-md); background:var(--wash);
   cursor:pointer;
 }
 .aceite input{
@@ -448,7 +496,7 @@ p{ text-wrap:pretty; }
 }
 .aceite input:checked{ background:var(--lima); border-color:var(--lima-txt); }
 .aceite input:checked::after{ transform:rotate(-45deg) scale(1); }
-.aceite__texto{ font-size:13.5px; line-height:1.5; color:var(--ink); }
+.aceite__texto{ font-size:12.5px; line-height:1.5; color:var(--ink); }
 .aceite__texto a{ border-bottom:2px solid var(--lima); font-weight:600; }
 .aceite__texto a:hover{ border-bottom-color:var(--ink); }
 .aceite[data-erro="true"]{ background:var(--erro-bg); box-shadow:inset 0 0 0 1px var(--erro); }
@@ -527,7 +575,8 @@ p{ text-wrap:pretty; }
 }
 .esteira__trilho{ display:flex; gap:var(--e-3); width:max-content; animation:correr 80s linear infinite; }
 .esteira:hover .esteira__trilho{ animation-play-state:paused; }
-.esteira__trilho img{ width:clamp(150px,16vw,200px); height:auto; aspect-ratio:4/5; object-fit:cover; border-radius:var(--r-md); background:var(--wash2); }
+/* Altura fixa e largura da própria foto: nenhuma é cortada. */
+.esteira__trilho img{ height:clamp(220px,20vw,280px); width:auto; border-radius:var(--r-md); background:var(--wash2); }
 @keyframes correr{ to{ transform:translateX(calc(-50% - var(--e-3) / 2)); } }
 .mostra .fichas{ justify-content:center; margin-top:var(--e-6); }
 .mostra .ficha{ background:var(--paper); }
@@ -555,7 +604,7 @@ p{ text-wrap:pretty; }
   box-shadow:0 10px 30px rgba(0,0,0,.28);
   max-width:calc(100vw - 32px);
 }
-.demo__rot{ padding:0 10px 0 12px; font-family:'Space Mono', monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.6); white-space:nowrap; }
+.demo__rot{ padding:0 10px 0 12px; font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.6); white-space:nowrap; }
 .demo button{ min-height:36px; padding:0 14px; border-radius:100px; font-size:13px; font-weight:600; color:rgba(255,255,255,.75); white-space:nowrap; }
 .demo button[aria-pressed="true"]{ background:#fff; color:#111111; }
 @media (max-width:459px){ .demo__rot{ display:none; } }
@@ -571,7 +620,7 @@ body{ padding-bottom:72px; }
     <div class="env cabecalho__interno">
       <a class="marca" href="#topo" aria-label="Cora Render, início">
         <img src="img/logo-cora.png" alt="Cora" width="266" height="64">
-        <span class="marca__selo rotulo-mono">Pré-lançamento</span>
+        <span class="marca__selo rotulo">Pré-lançamento</span>
       </a>
       <a class="btn btn--lima" href="#lista">Entrar na lista</a>
     </div>
@@ -584,14 +633,13 @@ body{ padding-bottom:72px; }
       </div>
       <div class="hero__veu" aria-hidden="true"></div>
       <div class="env hero__interno">
-        <span class="vidro rotulo-mono"><span class="vidro__ponto" aria-hidden="true"></span>Lista de pré-lançamento</span>
+        <span class="vidro rotulo"><span class="vidro__ponto" aria-hidden="true"></span>Lista de pré-lançamento</span>
         <h1>O&nbsp;Cora Render abre em breve. Quem está na lista entra primeiro.</h1>
         <p class="corpo-g hero__apoio">Do modelo 3D à apresentação final sem trocar de programa, no SketchUp ou no navegador. A&nbsp;plataforma está pronta, e a venda abre primeiro para quem se inscrever aqui.</p>
         <div class="btn-grupo">
           <a class="btn btn--lima" href="#lista">Entrar na lista</a>
           <a class="btn btn--claro" href="#prova">Ver o Cora em ação</a>
         </div>
-        <p class="hero__nota rotulo-mono">Sem custo e sem cartão</p>
       </div>
     </section>
 
@@ -604,7 +652,7 @@ body{ padding-bottom:72px; }
         <ol class="passos">
           <li class="passo">
             <span class="passo__n" aria-hidden="true">1</span>
-            <h3>Modele e enquadre como sempre.</h3>
+            <h3>Modele como sempre.</h3>
             <p>Continue no SketchUp do jeito que você já trabalha. O&nbsp;Cora marca na viewport o recorte exato que vai virar imagem.</p>
           </li>
           <li class="passo">
@@ -637,8 +685,8 @@ body{ padding-bottom:72px; }
                 <div class="comparador__frente">
                   <img class="comparador__img" src="home/c09de11c06.jpg" alt="A mesma cena crua na viewport do SketchUp, com o mesmo enquadramento, sem luz configurada e com materiais planos">
                 </div>
-                <span class="etiqueta-img etiqueta-img--antes rotulo-mono">SketchUp</span>
-                <span class="etiqueta-img etiqueta-img--depois rotulo-mono">Cora</span>
+                <span class="etiqueta-img etiqueta-img--antes rotulo">SketchUp</span>
+                <span class="etiqueta-img etiqueta-img--depois rotulo">Cora</span>
                 <span class="comparador__linha" aria-hidden="true"></span>
                 <span class="comparador__botao" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7 4 12l5 5M15 7l5 5-5 5M4 12h16"/></svg>
@@ -649,7 +697,7 @@ body{ padding-bottom:72px; }
             </div>
             <figcaption>
               <h3>O&nbsp;ponto de partida</h3>
-              <p>A&nbsp;cena crua do SketchUp, sem material tratado e sem luz. Arraste para ver o render que saiu dela.</p>
+              <p>A&nbsp;cena crua do SketchUp, sem material e sem luz. Arraste para ver o resultado do Cora.</p>
             </figcaption>
           </figure>
 
@@ -657,18 +705,18 @@ body{ padding-bottom:72px; }
             <div class="prova__quadro">
               <div class="vistas" id="vistas" data-pausado="false">
                 <div class="vistas__barras" role="tablist" aria-label="Câmeras do mesmo ambiente">
-                  <button class="vistas__barra" type="button" role="tab" id="cam-1" aria-selected="true" aria-label="Câmera 1"><i><b></b></i></button>
-                  <button class="vistas__barra" type="button" role="tab" id="cam-2" aria-selected="false" aria-label="Câmera 2"><i><b></b></i></button>
-                  <button class="vistas__barra" type="button" role="tab" id="cam-3" aria-selected="false" aria-label="Câmera 3"><i><b></b></i></button>
-                  <button class="vistas__barra" type="button" role="tab" id="cam-4" aria-selected="false" aria-label="Câmera 4"><i><b></b></i></button>
-                  <button class="vistas__barra" type="button" role="tab" id="cam-5" aria-selected="false" aria-label="Câmera 5"><i><b></b></i></button>
+                  <button class="vistas__barra" type="button" role="tab" id="cam-1" aria-selected="true" aria-label="Câmera 1"><i></i></button>
+                  <button class="vistas__barra" type="button" role="tab" id="cam-2" aria-selected="false" aria-label="Câmera 2"><i></i></button>
+                  <button class="vistas__barra" type="button" role="tab" id="cam-3" aria-selected="false" aria-label="Câmera 3"><i></i></button>
+                  <button class="vistas__barra" type="button" role="tab" id="cam-4" aria-selected="false" aria-label="Câmera 4"><i></i></button>
+                  <button class="vistas__barra" type="button" role="tab" id="cam-5" aria-selected="false" aria-label="Câmera 5"><i></i></button>
                 </div>
-                <span class="vistas__cam rotulo-mono" aria-live="polite">Câmera 1 de 5</span>
                 <div class="vistas__item" data-ativo="true"><img src="home/59a9f52390.jpg" alt="Jantar e cozinha sob o mesmo teto ripado, com banquetas na bancada"></div>
                 <div class="vistas__item" data-ativo="false"><img src="home/ec3fa6607f.jpg" alt="Estar com parede de concreto aparente, poltrona amarela e o jardim atrás do vidro" loading="lazy"></div>
                 <div class="vistas__item" data-ativo="false"><img src="home/b11e84b4e4.jpg" alt="Mesa de jantar com cadeiras verdes e luminária de discos, escada e cozinha ao fundo" loading="lazy"></div>
                 <div class="vistas__item" data-ativo="false"><img src="home/7046f5e09d.jpg" alt="Estar voltado para o jardim, com televisor embutido na parede de concreto" loading="lazy"></div>
                 <div class="vistas__item" data-ativo="false"><img src="home/28c51d1913.jpg" alt="Estar com painel de madeira, televisor, duas poltronas amarelas e a escada ao fundo" loading="lazy"></div>
+                <button class="vistas__prox" type="button" aria-label="Próxima câmera"></button>
               </div>
               <span class="credito">@9barra7</span>
             </div>
@@ -685,8 +733,8 @@ body{ padding-bottom:72px; }
                 <div class="comparador__frente">
                   <img class="comparador__img" src="home/e7a8dcf5b2.jpg" alt="A planta técnica em linhas, exportada do CAD, no mesmo recorte e na mesma escala" loading="lazy">
                 </div>
-                <span class="etiqueta-img etiqueta-img--antes rotulo-mono">Técnica</span>
-                <span class="etiqueta-img etiqueta-img--depois rotulo-mono">Humanizada</span>
+                <span class="etiqueta-img etiqueta-img--antes rotulo">Técnica</span>
+                <span class="etiqueta-img etiqueta-img--depois rotulo">Humanizada</span>
                 <span class="comparador__linha" aria-hidden="true"></span>
                 <span class="comparador__botao" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7 4 12l5 5M15 7l5 5-5 5M4 12h16"/></svg>
@@ -724,36 +772,41 @@ body{ padding-bottom:72px; }
       </div>
     </section>
 
-    <section class="secao wash" id="onde">
+    <section class="secao papel" id="onde">
       <div class="env">
-        <div class="cab">
+        <div class="cab cab--centro">
           <h2>No SketchUp ou no navegador.</h2>
-          <p class="corpo-g">Mesma conta e mesmo histórico nos dois. O&nbsp;que muda é por onde você começa.</p>
+          <p class="corpo-g"><span class="nao-quebra">Mesma conta e mesmo histórico.</span><br>O&nbsp;que muda é por onde você começa.</p>
+          <div class="switch" role="tablist" aria-label="Onde usar o Cora">
+            <button class="switch__op" type="button" role="tab" id="onde-plugin" aria-controls="painel-plugin" aria-selected="true" tabindex="0">Plugin para SketchUp</button>
+            <button class="switch__op" type="button" role="tab" id="onde-web" aria-controls="painel-web" aria-selected="false" tabindex="-1">Versão web</button>
+          </div>
         </div>
-        <div class="onde">
-          <article class="onde__card">
-            <p class="onde__tipo rotulo-mono">Plugin para SketchUp</p>
-            <h3>Direto da sua cena, sem exportar nada.</h3>
-            <p>O&nbsp;plugin reconhece a geometria e os materiais aplicados, captura o enquadramento da viewport e calcula o reflexo real dos espelhos. As ferramentas de materiais, blocos e otimização rodam na sua máquina.</p>
-            <ul class="fichas" aria-label="Destaques do plugin">
-              <li class="ficha">Leitura da cena</li>
-              <li class="ficha">Reflexo do espelho</li>
-              <li class="ficha">Render 360°</li>
-              <li class="ficha">Material ID</li>
-            </ul>
-          </article>
-          <article class="onde__card">
-            <p class="onde__tipo rotulo-mono">Versão web</p>
-            <h3>Qualquer imagem vira ponto de partida.</h3>
-            <p>Para quem modela em Revit, Archicad ou Promob, ou parte de uma foto de obra ou de um croqui. É&nbsp;só subir a imagem e seguir com o render e as edições pelo navegador, no computador, no tablet ou no celular.</p>
-            <ul class="fichas" aria-label="De onde dá para partir">
-              <li class="ficha">Revit</li>
-              <li class="ficha">Archicad</li>
-              <li class="ficha">Promob</li>
-              <li class="ficha">Foto de obra</li>
-              <li class="ficha">Croqui</li>
-            </ul>
-          </article>
+        <div class="painel-onde">
+          <div class="painel" role="tabpanel" id="painel-plugin" aria-labelledby="onde-plugin" aria-hidden="false">
+            <div class="painel__texto">
+              <h3>Plugin para SketchUp</h3>
+              <p>Renderize direto da sua cena, sem exportar arquivos. O&nbsp;plugin reconhece a geometria e os materiais aplicados, captura o enquadramento exato da viewport e calcula o reflexo real dos espelhos do projeto.</p>
+              <p>Vem junto um conjunto de ferramentas que rodam na sua máquina para organizar materiais e blocos, projetar texturas e deixar o arquivo mais leve.</p>
+            </div>
+            <div class="painel__img">
+              <img src="onde/plugin.jpg" alt="A janela do Cora aberta sobre uma cena do SketchUp, com os campos do render à esquerda e o feed de imagens à direita" width="1920" height="1080" loading="lazy">
+            </div>
+          </div>
+          <div class="painel" role="tabpanel" id="painel-web" aria-labelledby="onde-web" aria-hidden="true" inert>
+            <div class="painel__texto">
+              <h3>Versão web</h3>
+              <p>Para quem modela em Revit, Archicad ou Promob, ou parte de fotos de obra e croquis. Você sobe uma imagem e segue com o render e as edições pelo navegador.</p>
+              <p>O&nbsp;histórico abre em qualquer computador, tablet ou celular. O&nbsp;render 360° é a única ferramenta que fica só no plugin, porque depende da câmera do modelo 3D.</p>
+            </div>
+            <div class="painel__img">
+              <div class="navegador" aria-hidden="true">
+                <span class="navegador__pontos"><i></i><i></i><i></i></span>
+                <span class="navegador__url">corarender.com/app</span>
+              </div>
+              <img src="onde/web.jpg" alt="O Cora no navegador, com a barra lateral, os campos do render e o feed de imagens geradas" width="1920" height="1080" loading="lazy">
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -788,36 +841,36 @@ body{ padding-bottom:72px; }
       <div class="env lista">
         <div class="lista__texto">
           <h2>Entre na lista do Cora.</h2>
-          <p class="corpo-g">O&nbsp;Cora está pronto. O&nbsp;que ainda não abriu é a venda, e ela abre primeiro para quem estiver aqui.</p>
+          <p class="corpo-g">O&nbsp;Cora já está pronto. Deixe seu contato e receba a oferta antes de a venda abrir para todo mundo.</p>
 
           <div class="depois">
-            <p class="depois__t rotulo-mono">O&nbsp;que acontece depois</p>
+            <p class="depois__t rotulo">O&nbsp;que acontece depois</p>
             <ol>
               <li data-agora="true">
                 <span class="depois__n" aria-hidden="true">1</span>
                 <span class="depois__corpo">
-                  <strong>Você entra na lista <span class="agora rotulo-mono">Agora</span></strong>
-                  <span>Nome, e-mail e WhatsApp, sem cartão.</span>
+                  <strong>Preencha seus dados <span class="agora rotulo">Agora</span></strong>
+                  <span>Nome, e-mail e WhatsApp.</span>
                 </span>
               </li>
               <li>
                 <span class="depois__n" aria-hidden="true">2</span>
                 <span class="depois__corpo">
-                  <strong>Recebe o convite para o grupo no WhatsApp</strong>
-                  <span>O&nbsp;link aparece na tela seguinte e chega também no seu e-mail.</span>
+                  <strong>Entre no grupo do WhatsApp</strong>
+                  <span>O&nbsp;link aparece na tela seguinte e também chega no seu e-mail.</span>
                 </span>
               </li>
               <li>
                 <span class="depois__n" aria-hidden="true">3</span>
                 <span class="depois__corpo">
-                  <strong>Conhece o Cora por dentro</strong>
-                  <span>A&nbsp;cada poucos dias, a equipe do 9barra7 mostra uma ferramenta em uso e responde às dúvidas que mais aparecem.</span>
+                  <strong>Conheça o Cora por dentro</strong>
+                  <span>Toda semana, a equipe do 9barra7 mostra as ferramentas em projetos reais e responde às dúvidas mais comuns.</span>
                 </span>
               </li>
               <li>
                 <span class="depois__n" aria-hidden="true">4</span>
                 <span class="depois__corpo">
-                  <strong>Recebe a oferta antes de todo mundo</strong>
+                  <strong>Receba a oferta antes de todo mundo</strong>
                   <span>A&nbsp;venda abre primeiro para o grupo, com acompanhamento mais próximo da equipe nas primeiras semanas.</span>
                 </span>
               </li>
@@ -850,12 +903,12 @@ body{ padding-bottom:72px; }
 
           <label class="aceite" id="campo-aceite" for="aceite">
             <input id="aceite" name="aceite" type="checkbox" required>
-            <span class="aceite__texto">Aceito receber mensagens do Cora Render e do 9barra7 por e-mail e por WhatsApp. Posso pedir para sair quando quiser. Veja a <a href="#privacidade">Política de Privacidade</a>.</span>
+            <span class="aceite__texto">Aceito receber mensagens do Cora Render e do 9barra7 por e-mail e WhatsApp, e posso sair quando quiser. Veja&nbsp;a <a href="#privacidade">Política de Privacidade</a>.</span>
           </label>
           <p class="campo__erro" id="erro-aceite" aria-live="polite"></p>
 
           <div class="form__rodape">
-            <button class="btn btn--lima btn--largo" type="submit">Entrar na lista</button>
+            <button class="btn btn--lima btn--largo" id="enviar" type="submit" aria-disabled="true">Entrar na lista</button>
             <p class="form__nota">Na tela seguinte você recebe o link do grupo.</p>
           </div>
         </form>
@@ -872,7 +925,7 @@ body{ padding-bottom:72px; }
           </div>
           <div class="faq__item">
             <button class="faq__gat" type="button" aria-expanded="false" aria-controls="resp-2" id="perg-2">Entrar na lista tem algum custo?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
-            <div class="faq__resp" id="resp-2" role="region" aria-labelledby="perg-2"><div><p>Não. Você não paga nada e não informa cartão. A&nbsp;lista garante que a oferta chegue para você antes de abrir para todo mundo.</p></div></div>
+            <div class="faq__resp" id="resp-2" role="region" aria-labelledby="perg-2"><div><p>Não. Entrar na lista é gratuito, e garante que a oferta chegue para você antes de abrir para todo mundo.</p></div></div>
           </div>
           <div class="faq__item">
             <button class="faq__gat" type="button" aria-expanded="false" aria-controls="resp-3" id="perg-3">Preciso usar SketchUp?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
@@ -883,7 +936,7 @@ body{ padding-bottom:72px; }
             <div class="faq__resp" id="resp-4" role="region" aria-labelledby="perg-4"><div><p>Não. Só a equipe do 9barra7 escreve no grupo, e as mensagens chegam a cada três a cinco dias. Você pode sair quando quiser.</p></div></div>
           </div>
           <div class="faq__item">
-            <button class="faq__gat" type="button" aria-expanded="false" aria-controls="resp-5" id="perg-5">O&nbsp;Cora substitui o V-Ray ou o Enscape?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
+            <button class="faq__gat" type="button" aria-expanded="false" aria-controls="resp-5" id="perg-5">O&nbsp;Cora substitui o V&#8209;Ray ou o Enscape?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
             <div class="faq__resp" id="resp-5" role="region" aria-labelledby="perg-5"><div><p>Essa é a proposta. Em vez de passar horas configurando luz física e mapas de material, você gera imagens com qualidade de apresentação em poucos minutos, direto do seu arquivo. E&nbsp;o processamento é na nuvem, então o computador não trava.</p></div></div>
           </div>
         </div>
@@ -919,7 +972,7 @@ body{ padding-bottom:72px; }
     <div class="env cabecalho__interno">
       <span class="marca">
         <img src="img/logo-cora.png" alt="Cora" width="266" height="64">
-        <span class="marca__selo rotulo-mono">Pré-lançamento</span>
+        <span class="marca__selo rotulo">Pré-lançamento</span>
       </span>
     </div>
   </header>
@@ -940,7 +993,6 @@ body{ padding-bottom:72px; }
             Entrar no grupo do WhatsApp
           </a>
           <div class="convite__letra">
-            <p><strong>Grupo só de avisos.</strong> Quem escreve lá é a equipe do 9barra7.</p>
             <p>O&nbsp;link também foi para <span id="obrigado-email">o seu e-mail</span>.</p>
           </div>
         </div>
@@ -948,8 +1000,8 @@ body{ padding-bottom:72px; }
 
       <section class="mostra" aria-labelledby="mostra-titulo">
         <div class="mostra__cab">
-          <h2 id="mostra-titulo">Enquanto isso, um pouco do que sai do Cora.</h2>
-          <p>Imagens geradas na plataforma, de projetos de interiores, fachadas e plantas.</p>
+          <h2 id="mostra-titulo">Enquanto isso, um pouco do nosso trabalho.</h2>
+          <p>Imagens que a equipe do 9barra7 fez com IA, de interiores, fachadas e pessoas em cena.</p>
         </div>
         <div class="esteira">
           <div class="esteira__trilho" id="esteira"></div>
@@ -1008,7 +1060,6 @@ body{ padding-bottom:72px; }
   if (vistas){
     var itens = [].slice.call(vistas.querySelectorAll('.vistas__item'));
     var barras = [].slice.call(vistas.querySelectorAll('.vistas__barra'));
-    var legenda = vistas.querySelector('.vistas__cam');
     var atual = 0;
     function ir(i){
       atual = (i + itens.length) % itens.length;
@@ -1017,13 +1068,12 @@ body{ padding-bottom:72px; }
         b.setAttribute('aria-selected', String(k === atual));
         b.tabIndex = k === atual ? 0 : -1;
         b.dataset.status = k < atual ? 'completa' : (k > atual ? 'pendente' : 'ativa');
-        var f = b.querySelector('b');
+        var f = b.querySelector('i');
         f.style.animation = 'none'; void f.offsetWidth; f.style.animation = '';
       });
-      legenda.textContent = 'Câmera ' + (atual + 1) + ' de ' + itens.length;
     }
     barras.forEach(function(b, k){
-      b.querySelector('b').addEventListener('animationend', function(){
+      b.querySelector('i').addEventListener('animationend', function(){
         if (b.dataset.status === 'ativa') ir(atual + 1);
       });
       b.addEventListener('click', function(){ ir(k); });
@@ -1032,6 +1082,7 @@ body{ padding-bottom:72px; }
         if (e.key === 'ArrowLeft'){ e.preventDefault(); ir(atual - 1); barras[atual].focus(); }
       });
     });
+    vistas.querySelector('.vistas__prox').addEventListener('click', function(){ ir(atual + 1); });
     function pausar(v){ vistas.dataset.pausado = String(v); }
     vistas.addEventListener('pointerdown', function(){ pausar(true); });
     ['pointerup','pointercancel','pointerleave'].forEach(function(ev){ vistas.addEventListener(ev, function(){ pausar(false); }); });
@@ -1115,6 +1166,28 @@ body{ padding-bottom:72px; }
     redimensionar360();
   }
 
+  /* ---------- Plugin ou web ---------- */
+  var ops = [].slice.call(document.querySelectorAll('.switch__op'));
+  function abrirOnde(op){
+    ops.forEach(function(o){
+      var sel = o === op;
+      var p = document.getElementById(o.getAttribute('aria-controls'));
+      o.setAttribute('aria-selected', String(sel));
+      o.tabIndex = sel ? 0 : -1;
+      p.setAttribute('aria-hidden', String(!sel));
+      if (sel) p.removeAttribute('inert'); else p.setAttribute('inert', '');
+    });
+  }
+  ops.forEach(function(o, k){
+    o.addEventListener('click', function(){ abrirOnde(o); });
+    o.addEventListener('keydown', function(e){
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      var alvo = ops[(k + (e.key === 'ArrowRight' ? 1 : -1) + ops.length) % ops.length];
+      abrirOnde(alvo); alvo.focus();
+    });
+  });
+
   /* ---------- Perguntas ---------- */
   document.querySelectorAll('.faq__gat').forEach(function(g){
     g.addEventListener('click', function(){
@@ -1128,6 +1201,14 @@ body{ padding-bottom:72px; }
   var email = document.getElementById('email');
   var whats = document.getElementById('whats');
   var aceite = document.getElementById('aceite');
+  var enviar = document.getElementById('enviar');
+  var reEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  function digitos(){ return whats.value.replace(/\D/g, '').length; }
+  function completo(){
+    return nome.value.trim().length >= 2 && reEmail.test(email.value.trim())
+      && (digitos() === 10 || digitos() === 11) && aceite.checked;
+  }
+  function atualizarBotao(){ enviar.setAttribute('aria-disabled', String(!completo())); }
 
   function mascara(v){
     var d = v.replace(/\D/g, '').slice(0, 11);
@@ -1137,6 +1218,9 @@ body{ padding-bottom:72px; }
     return '(' + d.slice(0, 2) + ') ' + d.slice(2, 7) + '-' + d.slice(7);
   }
   whats.addEventListener('input', function(){ whats.value = mascara(whats.value); });
+  [nome, email, whats].forEach(function(i){ i.addEventListener('input', atualizarBotao); });
+  aceite.addEventListener('change', atualizarBotao);
+  atualizarBotao();
 
   function marcar(campoId, erroId, input, msg){
     var campo = document.getElementById(campoId);
@@ -1148,29 +1232,33 @@ body{ padding-bottom:72px; }
     }
     return !msg;
   }
-  function validar(){
+  function validar(focar){
     var ok = true, primeiro = null;
     var n = nome.value.trim();
     var em = email.value.trim();
-    var dig = whats.value.replace(/\D/g, '');
+    var dig = digitos();
     if (!marcar('campo-nome', 'erro-nome', nome, n.length < 2 ? 'Escreva seu nome.' : '')){ ok = false; primeiro = primeiro || nome; }
-    if (!marcar('campo-email', 'erro-email', email, /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em) ? '' : 'Confira o e-mail. Ele precisa ter @ e o domínio, como voce@escritorio.com.br.')){ ok = false; primeiro = primeiro || email; }
-    if (!marcar('campo-whats', 'erro-whats', whats, (dig.length === 10 || dig.length === 11) ? '' : 'Informe o número com DDD, como (11) 98765-4321.')){ ok = false; primeiro = primeiro || whats; }
+    if (!marcar('campo-email', 'erro-email', email, reEmail.test(em) ? '' : 'Confira o e-mail. Ele precisa ter @ e o domínio, como voce@escritorio.com.br.')){ ok = false; primeiro = primeiro || email; }
+    if (!marcar('campo-whats', 'erro-whats', whats, (dig === 10 || dig === 11) ? '' : 'Informe o número com DDD, como (11) 98765-4321.')){ ok = false; primeiro = primeiro || whats; }
     if (!marcar('campo-aceite', 'erro-aceite', null, aceite.checked ? '' : 'Para entrar na lista, marque a autorização de contato.')){ ok = false; primeiro = primeiro || aceite; }
-    if (primeiro) primeiro.focus();
+    if (primeiro && focar !== false) primeiro.focus();
     return ok;
   }
+  function validarSemFoco(){
+    // Só limpa o aviso do campo que ficou certo, sem pular o foco.
+    return validar(false);
+  }
   [nome, email, whats].forEach(function(i){
-    i.addEventListener('blur', function(){
+    ['input', 'blur'].forEach(function(ev){ i.addEventListener(ev, function(){
       var c = i.closest('.campo');
-      if (c.dataset.erro === 'true') validar();
-    });
+      if (c.dataset.erro === 'true') validarSemFoco();
+    }); });
   });
   aceite.addEventListener('change', function(){ if (aceite.checked) marcar('campo-aceite', 'erro-aceite', null, ''); });
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
-    if (!validar()) return;
+    if (!validar() || !completo()) return;
     var primeiroNome = nome.value.trim().split(/\s+/)[0];
     document.getElementById('obrigado-titulo').textContent = primeiroNome + ', falta um passo: entrar no grupo.';
     document.getElementById('obrigado-email').textContent = email.value.trim();
@@ -1179,11 +1267,11 @@ body{ padding-bottom:72px; }
 
   /* ---------- Esteira da tela de obrigado ---------- */
   var trilho = document.getElementById('esteira');
-  var ordem = ['01','09','03','14','06','17','10','02','19','08','12','04','16','07','20','11','05','15','13','18'];
+  var fotos = [['01',580],['02',543],['03',580],['04',580],['05',538],['06',580],['07',580],['08',543],['09',964],['10',580]];
   var html = '';
   for (var volta = 0; volta < 2; volta++){
-    ordem.forEach(function(n){
-      html += '<img src="esteira/' + n + '.jpg" alt=""' + (volta ? ' aria-hidden="true"' : '') + ' loading="lazy" width="600" height="750">';
+    fotos.forEach(function(f){
+      html += '<img src="obrigado/' + f[0] + '.jpg" alt=""' + (volta ? ' aria-hidden="true"' : '') + ' width="' + f[1] + '" height="720">';
     });
   }
   trilho.innerHTML = html;
