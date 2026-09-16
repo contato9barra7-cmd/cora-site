@@ -170,7 +170,9 @@ p{ text-wrap:pretty; }
   color:var(--paper);
 }
 .vidro__ponto{ width:8px; height:8px; border-radius:50%; background:var(--lima); box-shadow:0 0 0 4px rgba(196,251,167,.22); }
-.hero h1{ max-width:17ch; }
+/* Uma frase por bloco: cada uma quebra sozinha e equilibrada. */
+.hero h1{ max-width:22ch; }
+.hero h1 .frase{ display:block; text-wrap:balance; }
 .hero__apoio{ max-width:44ch; color:rgba(255,255,255,.86); }
 .hero .btn-grupo{ justify-content:center; margin-top:var(--e-3); }
 .hero .btn--claro{ background:rgba(255,255,255,.92); border-color:transparent; }
@@ -634,7 +636,7 @@ body{ padding-bottom:72px; }
       <div class="hero__veu" aria-hidden="true"></div>
       <div class="env hero__interno">
         <span class="vidro rotulo"><span class="vidro__ponto" aria-hidden="true"></span>Lista de pré-lançamento</span>
-        <h1>O&nbsp;Cora Render abre em breve. Quem está na lista entra primeiro.</h1>
+        <h1><span class="frase">O&nbsp;Cora Render chega em&nbsp;breve.</span> <span class="frase">Garanta seu acesso antes de todo&nbsp;mundo.</span></h1>
         <p class="corpo-g hero__apoio">Do modelo 3D à apresentação final sem trocar de programa, no SketchUp ou no navegador. A&nbsp;plataforma está pronta, e a venda abre primeiro para quem se inscrever aqui.</p>
         <div class="btn-grupo">
           <a class="btn btn--lima" href="#lista">Entrar na lista</a>
