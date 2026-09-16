@@ -560,80 +560,64 @@ p{ text-wrap:pretty; }
 .esteira{ overflow:hidden; }
 .esteira__trilho{ display:flex; gap:var(--e-3); width:max-content; animation:correr 80s linear infinite; }
 .esteira:hover .esteira__trilho, .esteira:focus-within .esteira__trilho{ animation-play-state:paused; }
+/* Item e lupa copiados do site do IA Studio (.galeria-faixa .esteira__item). */
 .foto-botao{
-  position:relative; flex:none; display:block;
-  border-radius:var(--r-md); overflow:hidden; cursor:zoom-in;
-  background:var(--wash2);
+  position:relative; flex:none; display:block; padding:0;
+  border:1px solid var(--line); border-radius:var(--r-lg);
+  overflow:hidden; background:var(--wash2); cursor:pointer;
+  transition:transform 140ms var(--easing), opacity 140ms;
 }
-/* Altura fixa e largura da própria foto: nenhuma é cortada. */
-.foto-botao img{ height:clamp(220px,20vw,280px); width:auto; transition:transform 400ms var(--easing); }
-/* Branco sólido, sem backdrop-filter: vidro sobre faixa animada pisca no
-   iPhone (memória medir-a-imagem-nao-a-caixa). */
-.lupa{
-  position:absolute; top:var(--e-2); right:var(--e-2);
-  width:36px; height:36px; border-radius:50%;
-  display:grid; place-items:center;
-  background:rgba(255,255,255,.92); color:#111111;
-  box-shadow:0 2px 10px rgba(0,0,0,.14);
-  transition:background-color 180ms var(--easing), transform 180ms var(--easing);
+.foto-botao:active{ transform:scale(.97); }
+.foto-botao img{ display:block; height:clamp(260px,25vw,340px); width:auto; -webkit-user-drag:none; user-select:none; }
+.foto-botao::after{
+  content:""; position:absolute; top:var(--e-3); right:var(--e-3);
+  width:28px; height:28px; border-radius:14px; pointer-events:none;
+  background:rgba(30,30,30,.62) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 20 20'/%3E%3C/svg%3E") center / 14px no-repeat;
+  -webkit-backdrop-filter:blur(12px) saturate(1.3); backdrop-filter:blur(12px) saturate(1.3);
+  transition:opacity 140ms var(--easing), background-color 140ms var(--easing);
 }
-.lupa svg{ width:18px; height:18px; }
 @media (hover:hover) and (pointer:fine){
-  .foto-botao:hover img{ transform:scale(1.03); }
-  .foto-botao:hover .lupa{ background:var(--lima); transform:scale(1.06); }
+  .foto-botao::after{ opacity:.6; }
+  .foto-botao:hover::after{ opacity:1; background-color:rgba(30,30,30,.82); }
+  .foto-botao:hover{ opacity:.88; }
 }
 .foto-botao:focus-visible{ outline:2px solid var(--turq-txt); outline-offset:2px; }
 
-/* ---------- Visualizador ---------- */
+/* ---------- Visualizador: o do site do IA Studio (.lupa) ---------- */
 html:has(.galeria[open]){ overflow:hidden; }
 .galeria{
   position:fixed; inset:0; width:100%; height:100%;
   max-width:none; max-height:none; margin:0; padding:0; border:0;
   background:transparent; color:var(--paper); overflow:hidden;
 }
-.galeria::backdrop{ background:rgba(8,8,10,.95); }
+.galeria::backdrop{ background:rgba(0,0,0,.92); }
 .galeria__palco{
-  position:absolute; inset:0; display:grid; place-items:center;
-  padding:72px 96px; touch-action:pan-y;
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  padding:var(--e-4); touch-action:pan-y;
 }
-/* Limite pela janela, e não em %: a grade não dá altura de referência. */
+/* O foco de abertura mora no palco, para o X não acender no clique do mouse. */
+.galeria__palco:focus{ outline:none; }
 .galeria__img{
-  max-width:calc(100vw - 192px);
-  max-height:calc(100vh - 144px); max-height:calc(100dvh - 144px);
-  width:auto; height:auto;
-  border-radius:var(--r-md); box-shadow:0 20px 60px rgba(0,0,0,.45);
+  display:block; width:auto; height:auto; max-width:92vw; max-height:88vh;
+  border-radius:var(--r-md);
   transition:opacity 200ms var(--easing);
 }
 .galeria__img.trocando{ opacity:.3; }
-/* O foco de abertura mora no palco, para o X não acender no clique do mouse. */
-.galeria__palco:focus{ outline:none; }
 .galeria__btn{
-  position:absolute; z-index:2;
-  width:48px; height:48px; border-radius:50%;
+  position:absolute; z-index:1; top:var(--e-5); right:var(--e-5);
+  width:44px; height:44px; border-radius:50%;
   display:grid; place-items:center;
-  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
-  color:var(--paper);
+  background:rgba(255,255,255,.16); border:0; color:var(--paper);
   transition:background-color 180ms var(--easing);
 }
+.galeria__btn:hover{ background:rgba(255,255,255,.28); }
 .galeria__btn svg{ width:20px; height:20px; }
-@media (hover:hover) and (pointer:fine){ .galeria__btn:hover{ background:rgba(255,255,255,.24); } }
+.galeria__fechar svg{ width:24px; height:24px; }
+.galeria__seta{ top:50%; margin-top:-22px; }
+.galeria__seta--volta{ right:auto; left:var(--e-5); }
+.galeria__seta--volta svg{ transform:scaleX(-1); }
 .galeria :focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
-.galeria__ant{ left:24px; top:50%; margin-top:-24px; }
-.galeria__prox{ right:24px; top:50%; margin-top:-24px; }
-.galeria__fechar{ right:24px; top:calc(16px + env(safe-area-inset-top, 0px)); width:40px; height:40px; }
-.galeria__conta{
-  position:absolute; z-index:2; left:24px; top:calc(26px + env(safe-area-inset-top, 0px));
-  font-size:13.5px; font-variant-numeric:tabular-nums; color:rgba(255,255,255,.72);
-}
-@media (max-width:600px){
-  .galeria__palco{ padding:64px 16px 104px; }
-  .galeria__img{ max-width:calc(100vw - 32px); max-height:calc(100vh - 168px); max-height:calc(100dvh - 168px); }
-  .galeria__ant, .galeria__prox{ top:auto; margin-top:0; bottom:calc(28px + env(safe-area-inset-bottom, 0px)); }
-  .galeria__ant{ left:calc(50% - 60px); }
-  .galeria__prox{ right:calc(50% - 60px); }
-  .galeria__conta{ left:16px; }
-  .galeria__fechar{ right:16px; }
-}
+
 @keyframes correr{ to{ transform:translateX(calc(-50% - var(--e-3) / 2)); } }
 .mostra .fichas{ justify-content:center; margin-top:var(--e-6); }
 .mostra .ficha{ background:var(--paper); }
@@ -1081,19 +1065,18 @@ body{ padding-bottom:72px; }
     </section>
   </main>
 
-  <dialog class="galeria" id="galeria" aria-label="Imagens em tamanho grande">
+  <dialog class="galeria" id="galeria" aria-label="Imagem ampliada">
     <div class="galeria__palco" tabindex="-1" autofocus>
       <img class="galeria__img" alt="">
     </div>
-    <p class="galeria__conta" aria-live="polite"></p>
-    <button class="galeria__btn galeria__fechar" type="button" aria-label="Fechar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    <button class="galeria__btn galeria__fechar" type="button" aria-label="Fechar ampliação da imagem">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
-    <button class="galeria__btn galeria__ant" type="button" aria-label="Imagem anterior">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    <button class="galeria__btn galeria__seta galeria__seta--volta" type="button" aria-label="Imagem anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
     </button>
-    <button class="galeria__btn galeria__prox" type="button" aria-label="Próxima imagem">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+    <button class="galeria__btn galeria__seta" type="button" aria-label="Próxima imagem">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
     </button>
   </dialog>
 
@@ -1356,14 +1339,12 @@ body{ padding-bottom:72px; }
     ['09', 964, 'Casas geminadas brancas e uma pessoa passando de bicicleta'],
     ['10', 580, 'Sala de jantar com cadeiras laranja e painel de madeira']
   ];
-  var LUPA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 4.5 4.5M10.5 8v5M8 10.5h5"/></svg>';
   var html = '';
   for (var volta = 0; volta < 2; volta++){
     fotos.forEach(function(f, n){
       html += '<button class="foto-botao" type="button" data-i="' + n + '"'
-        + (volta ? ' tabindex="-1" aria-hidden="true"' : ' aria-label="Ver grande: ' + f[2] + '"') + '>'
-        + '<img src="obrigado/' + f[0] + '.jpg" alt="" width="' + f[1] + '" height="720">'
-        + '<span class="lupa" aria-hidden="true">' + LUPA + '</span></button>';
+        + (volta ? ' tabindex="-1" aria-hidden="true"' : ' aria-label="Ampliar imagem: ' + f[2] + '"') + '>'
+        + '<img src="obrigado/' + f[0] + '.jpg" alt="" width="' + f[1] + '" height="720" draggable="false"></button>';
     });
   }
   trilho.innerHTML = html;
@@ -1372,13 +1353,11 @@ body{ padding-bottom:72px; }
   var galeria = document.getElementById('galeria');
   var gPalco = galeria.querySelector('.galeria__palco');
   var gImg = galeria.querySelector('.galeria__img');
-  var gConta = galeria.querySelector('.galeria__conta');
   var gAtual = 0, gOrigem = null;
   function grande(n){ return 'obrigado/g/' + fotos[n][0] + '.jpg'; }
   function mostrarFoto(n){
     gAtual = (n + fotos.length) % fotos.length;
     var alvo = gAtual, src = grande(alvo);
-    gConta.textContent = (alvo + 1) + ' de ' + fotos.length;
     if (!gImg.getAttribute('src')){ gImg.src = src; gImg.alt = fotos[alvo][2]; }
     else {
       gImg.classList.add('trocando');
@@ -1402,8 +1381,8 @@ body{ padding-bottom:72px; }
     var b = e.target.closest('.foto-botao');
     if (b) abrirFoto(Number(b.dataset.i), b);
   });
-  galeria.querySelector('.galeria__ant').addEventListener('click', function(){ mostrarFoto(gAtual - 1); });
-  galeria.querySelector('.galeria__prox').addEventListener('click', function(){ mostrarFoto(gAtual + 1); });
+  galeria.querySelector('.galeria__seta--volta').addEventListener('click', function(){ mostrarFoto(gAtual - 1); });
+  galeria.querySelector('.galeria__seta:not(.galeria__seta--volta)').addEventListener('click', function(){ mostrarFoto(gAtual + 1); });
   galeria.querySelector('.galeria__fechar').addEventListener('click', function(){ galeria.close(); });
   galeria.addEventListener('keydown', function(e){
     if (e.key === 'ArrowLeft'){ e.preventDefault(); mostrarFoto(gAtual - 1); }
