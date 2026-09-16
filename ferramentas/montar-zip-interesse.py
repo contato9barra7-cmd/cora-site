@@ -75,7 +75,7 @@ Para abrir direto na página de obrigado, use o obrigado.html.
 É UM PROTÓTIPO
 Nada do formulário é enviado.
 O botão do grupo do WhatsApp ainda não tem o link do grupo.
-Os links de Termos e de Política de Privacidade ainda não levam a lugar nenhum.
+O link da Política de Privacidade abre corarender.com, que ainda está em construção.
 
 Setembro de 2026 · 9barra7
 """

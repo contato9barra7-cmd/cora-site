@@ -44,12 +44,11 @@
   --fonte:'DM Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
 
   --largura-max:1180px; --gutter:20px;
-  --altura-cabecalho:60px;
   --secao-y:var(--e-8);
   color-scheme:light;
 }
 @media (min-width:768px){ :root{ --gutter:24px; --secao-y:var(--e-9); } }
-@media (min-width:1024px){ :root{ --gutter:32px; --altura-cabecalho:72px; --secao-y:var(--e-10); } }
+@media (min-width:1024px){ :root{ --gutter:32px; --secao-y:var(--e-10); } }
 
 *, *::before, *::after{ box-sizing:border-box; }
 body{
@@ -120,7 +119,7 @@ p{ text-wrap:pretty; }
 .wash{ background:var(--wash); }
 .escura{ background:var(--preto); color:var(--paper); }
 .escura p{ color:var(--sobre-escuro); }
-[id]{ scroll-margin-top:calc(var(--altura-cabecalho) + var(--e-4)); }
+[id]{ scroll-margin-top:var(--e-4); }
 
 .cab{ display:grid; gap:var(--e-4); margin-bottom:var(--e-7); }
 .cab p{ color:var(--ink2); max-width:46ch; }
@@ -133,27 +132,6 @@ p{ text-wrap:pretty; }
   }
   .cab > p{ justify-self:end; padding-bottom:.4em; }
 }
-
-/* ---------- Cabeçalho ---------- */
-.cabecalho{
-  position:sticky; top:env(safe-area-inset-top, 0px); z-index:50;
-  background:color-mix(in srgb, var(--wash) 94%, transparent);
-  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--line);
-}
-.cabecalho__interno{ display:flex; align-items:center; gap:var(--e-4); min-height:var(--altura-cabecalho); }
-.marca{ display:flex; align-items:center; gap:var(--e-3); margin-right:auto; }
-.marca img{ width:auto; height:20px; }
-.marca__selo{
-  padding:3px var(--e-2); border-radius:var(--r-pill);
-  background:var(--turq-bg); color:var(--turq-txt);
-}
-.cabecalho .btn{ min-width:0; min-height:40px; padding-inline:var(--e-4); }
-@media (min-width:1024px){
-  .marca img{ height:24px; }
-  .cabecalho .btn{ min-height:44px; padding-inline:var(--e-5); }
-}
-@media (max-width:419px){ .marca__selo{ display:none; } }
 
 /* ---------- Herói: o mesmo vídeo e o mesmo véu da home ---------- */
 .hero{
@@ -172,16 +150,11 @@ p{ text-wrap:pretty; }
     linear-gradient(180deg, rgba(0,0,0,.48) 0%, rgba(0,0,0,.34) 45%, rgba(0,0,0,.62) 100%);
 }
 .hero__interno{ display:grid; justify-items:center; text-align:center; gap:var(--e-5); }
-.vidro{
-  display:inline-flex; align-items:center; gap:var(--e-2);
-  padding:6px var(--e-3) 6px 8px; border-radius:var(--r-pill);
-  background:rgba(255,255,255,.14);
-  border:1px solid rgba(255,255,255,.22);
-  -webkit-backdrop-filter:blur(14px) saturate(150%); backdrop-filter:blur(14px) saturate(150%);
-  color:var(--paper);
-}
-.vidro__ponto{ width:8px; height:8px; border-radius:50%; background:var(--lima); box-shadow:0 0 0 4px rgba(196,251,167,.22); }
-/* Uma frase por bloco: cada uma quebra sozinha e equilibrada. */
+/* O logo no alto, como o .topo__marca do site do IA Studio: 20px no celular,
+   26px no desktop. Branco sobre o vídeo. */
+.hero__marca{ display:flex; justify-content:center; margin-bottom:var(--e-1); }
+.hero__marca img{ width:auto; height:20px; filter:brightness(0) invert(1); }
+@media (min-width:1024px){ .hero__marca img{ height:26px; } }
 .hero h1{ max-width:22ch; }
 .hero h1 .frase{ display:block; text-wrap:balance; }
 .hero__apoio{ max-width:44ch; color:rgba(255,255,255,.86); }
@@ -224,7 +197,7 @@ p{ text-wrap:pretty; }
 /* A altura dos quadros da home: 4:3 no celular e 16:9 do tablet para cima. */
 .prova__quadro{
   position:relative; overflow:hidden; border-radius:var(--r-lg);
-  aspect-ratio:4/3; min-height:280px; background:#0e1013;
+  width:100%; aspect-ratio:4/3; min-height:280px; background:#0e1013;
 }
 @media (min-width:768px){ .prova__quadro{ aspect-ratio:16/9; min-height:0; } }
 .prova__quadro img{ width:100%; height:100%; object-fit:cover; }
@@ -522,7 +495,7 @@ p{ text-wrap:pretty; }
 /* ---------- Perguntas: o mesmo acordeão da home ---------- */
 .faq{ display:grid; gap:var(--e-6); align-items:start; }
 @media (min-width:1024px){ .faq{ grid-template-columns:34fr 66fr; gap:var(--e-8); } }
-.faq h2{ max-width:12ch; }
+.faq h2{ max-width:none; }
 .faq__lista{ display:grid; }
 .faq__item{ border-bottom:1px solid var(--line); }
 .faq__item:first-child{ border-top:1px solid var(--line); }
@@ -545,6 +518,9 @@ p{ text-wrap:pretty; }
 /* ---------- Tela de obrigado ---------- */
 .obrigado{ padding-block:var(--e-8) var(--e-9); }
 @media (min-width:768px){ .obrigado{ padding-block:var(--e-9); } }
+.obrigado__marca{ display:flex; justify-content:center; margin-bottom:var(--e-6); }
+.obrigado__marca img{ width:auto; height:20px; }
+@media (min-width:1024px){ .obrigado__marca img{ height:26px; } }
 .convite{
   max-width:640px; margin-inline:auto; overflow:hidden;
   border-radius:var(--r-lg); background:var(--paper);
@@ -653,10 +629,7 @@ html:has(.galeria[open]){ overflow:hidden; }
 .rodape-legal a:hover{ color:var(--ink2); }
 /* Na página de interesse ele continua o branco das perguntas. */
 .rodape-legal--papel{ background:var(--paper); padding-bottom:22px; }
-@media (max-width:560px){
-  .rodape-legal{ gap:4px 16px; padding:20px 16px; }
-  .rodape-legal > span{ flex-basis:100%; text-align:center; }
-}
+@media (max-width:560px){ .rodape-legal{ padding:20px 16px; } }
 
 /* A esteira e as câmeras continuam andando com "reduzir movimento": o dono
    quer ver a esteira em movimento no iPhone (15/09/2026). Só as transições
@@ -701,16 +674,6 @@ body{ padding-bottom:72px; }
      ==================================================================== -->
 <div class="tela" id="tela-interesse" data-tela="interesse">
 
-  <header class="cabecalho">
-    <div class="env cabecalho__interno">
-      <a class="marca" href="#topo" aria-label="Cora Render, início">
-        <img src="img/logo-cora.png" alt="Cora" width="266" height="64">
-        <span class="marca__selo rotulo">Pré-lançamento</span>
-      </a>
-      <a class="btn btn--lima" href="#lista">Entrar na lista</a>
-    </div>
-  </header>
-
   <main id="topo">
     <section class="hero">
       <div class="hero__video">
@@ -718,12 +681,12 @@ body{ padding-bottom:72px; }
       </div>
       <div class="hero__veu" aria-hidden="true"></div>
       <div class="env hero__interno">
-        <span class="vidro rotulo"><span class="vidro__ponto" aria-hidden="true"></span>Lista de pré-lançamento</span>
+        <p class="hero__marca"><img src="img/logo-cora.png" alt="Cora Render" width="266" height="64"></p>
         <h1><span class="frase">O&nbsp;Cora Render chega em&nbsp;breve.</span> <span class="frase">Garanta seu acesso antes de todo&nbsp;mundo.</span></h1>
         <p class="corpo-g hero__apoio">Do modelo 3D à apresentação final sem trocar de programa, no SketchUp ou no navegador. A&nbsp;plataforma está pronta, e a venda abre primeiro para quem se inscrever aqui.</p>
         <div class="btn-grupo">
           <a class="btn btn--lima" href="#lista">Entrar na lista</a>
-          <a class="btn btn--claro" href="#prova">Ver o Cora em ação</a>
+          <a class="btn btn--claro" href="#prova">Ver resultados</a>
         </div>
       </div>
     </section>
@@ -1031,8 +994,6 @@ body{ padding-bottom:72px; }
 
   <footer class="rodape-legal rodape-legal--papel" id="privacidade">
     <span>© 2026 Cora Render · 9BARRA7 Academy</span>
-    <a href="https://corarender.com/termos" target="_blank" rel="noopener">Termos de Uso</a>
-    <a href="https://corarender.com/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>
   </footer>
 </div>
 
@@ -1042,17 +1003,9 @@ body{ padding-bottom:72px; }
      destaque, e o resto cabe em uma dobra.
      ==================================================================== -->
 <div class="tela" id="tela-obrigado" data-tela="obrigado" hidden>
-  <header class="cabecalho">
-    <div class="env cabecalho__interno">
-      <span class="marca">
-        <img src="img/logo-cora.png" alt="Cora" width="266" height="64">
-        <span class="marca__selo rotulo">Pré-lançamento</span>
-      </span>
-    </div>
-  </header>
-
   <main class="obrigado wash">
     <div class="env">
+      <p class="obrigado__marca"><img src="img/logo-cora.png" alt="Cora Render" width="266" height="64"></p>
       <div class="convite">
         <div class="faixa faixa--fina" aria-hidden="true"></div>
         <div class="convite__corpo">
@@ -1113,8 +1066,6 @@ body{ padding-bottom:72px; }
 
   <footer class="rodape-legal">
     <span>© 2026 Cora Render · 9BARRA7 Academy</span>
-    <a href="https://corarender.com/termos" target="_blank" rel="noopener">Termos de Uso</a>
-    <a href="https://corarender.com/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>
   </footer>
 </div>
 
