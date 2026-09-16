@@ -1038,6 +1038,16 @@
    verdade, senao ele fica ali no primeiro quadro sem ter pra onde voltar.
    Circulo claro com borda fina: precisa ler tanto sobre as secoes brancas
    quanto sobre a preta do "Criado por quem". */
+/* O `.hm button` (background:none) apagava o fundo do `.ao-topo` de
+   paginas-legais.css, e a seta preta sumia sobre as secoes pretas (dono,
+   16/09/2026). Este par tem especificidade maior que o reset. */
+.hm .ao-topo{
+  background:var(--paper); color:var(--ink);
+  border:1px solid var(--line);
+  box-shadow:0 6px 20px rgba(17,17,17,.14);
+}
+@media (hover:hover) and (pointer:fine){.hm .ao-topo:hover{ background:var(--lima); border-color:var(--lima); color:#111111; }}
+
 
 /* ── a fonte, em tamanho nominal ──
    Ver a nota no gerador: o site serve a DM Sans com size-adjust de 88%, o que
