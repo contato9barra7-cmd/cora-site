@@ -884,6 +884,10 @@
     width:100%; display:flex; justify-content:space-between; align-items:center; gap:var(--e-4);
     padding:var(--e-4) 0; text-align:left;
     font-weight:500; font-size:17px; letter-spacing:-.018em; line-height:1.3;
+    /* Pergunta que quebra fica com as linhas do mesmo tamanho. Sem isto, no
+       celular, dez perguntas deixavam uma palavra sozinha na última linha
+       (medido de 320 a 1440 px nos três idiomas, 16/09/2026). */
+    text-wrap:balance;
     transition:color var(--tr-padrao) var(--easing);
   }
   @media (min-width:768px){.hm .faq__gat{ padding:var(--e-5) 0; }}.hm .faq__ic{ flex:none; color:var(--ink3); transition:transform var(--tr-padrao) var(--easing), color var(--tr-padrao) var(--easing); }.hm .faq__gat[aria-expanded="true"] .faq__ic{ transform:rotate(45deg); color:var(--ink); }
