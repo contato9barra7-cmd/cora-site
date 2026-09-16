@@ -221,14 +221,12 @@ p{ text-wrap:pretty; }
   .prova--larga{ grid-column:1 / -1; }
 }
 .prova{ display:grid; gap:var(--e-4); }
+/* A altura dos quadros da home: 4:3 no celular e 16:9 do tablet para cima. */
 .prova__quadro{
   position:relative; overflow:hidden; border-radius:var(--r-lg);
-  aspect-ratio:16/10; background:#0e1013;
+  aspect-ratio:4/3; min-height:280px; background:#0e1013;
 }
-@media (min-width:900px){
-  .prova__quadro{ aspect-ratio:16/9; }
-  .prova--panorama .prova__quadro{ aspect-ratio:21/9; }
-}
+@media (min-width:768px){ .prova__quadro{ aspect-ratio:16/9; min-height:0; } }
 .prova__quadro img{ width:100%; height:100%; object-fit:cover; }
 .prova figcaption{ display:grid; gap:var(--e-1); max-width:52ch; }
 .prova h3{ font-size:17px; font-weight:600; letter-spacing:-.01em; line-height:1.35; color:var(--paper); }
@@ -395,9 +393,13 @@ p{ text-wrap:pretty; }
   background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
 }
 .autoria__valor{
+  display:grid;
   font-size:clamp(28px,3.2vw,44px); font-weight:600; letter-spacing:-.04em;
   line-height:.95; font-variant-numeric:tabular-nums; color:var(--paper);
 }
+/* O fantasma guarda a largura final, e o número conta por cima sem empurrar nada. */
+.autoria__valor > *{ grid-area:1 / 1; }
+.autoria__fantasma{ visibility:hidden; }
 .autoria .autoria__rotulo{ font-size:15px; }
 .autoria__foto{
   position:relative; overflow:hidden; border-radius:var(--r-lg);
@@ -569,9 +571,11 @@ p{ text-wrap:pretty; }
 .mostra__cab h2{ font-size:clamp(24px,2.6vw,32px); letter-spacing:-.028em; }
 .mostra__cab p{ color:var(--ink2); max-width:46ch; text-wrap:balance; }
 /* De ponta a ponta da tela e sem esfumado: a foto encosta na borda. */
-.esteira{ overflow:hidden; }
-.esteira__trilho{ display:flex; gap:var(--e-3); width:max-content; animation:correr 80s linear infinite; }
-.esteira:hover .esteira__trilho, .esteira:focus-within .esteira__trilho{ animation-play-state:paused; }
+.esteira{ overflow:hidden; touch-action:pan-y; cursor:grab; -webkit-user-select:none; user-select:none; }
+.esteira[data-arrastando="true"]{ cursor:grabbing; }
+.esteira[data-arrastando="true"] *{ pointer-events:none; }
+/* Quem anda é o script (o laço do site do IA Studio), para dar para arrastar. */
+.esteira__trilho{ display:flex; gap:var(--e-3); width:max-content; will-change:transform; }
 /* Item e lupa copiados do site do IA Studio (.galeria-faixa .esteira__item). */
 .foto-botao{
   position:relative; flex:none; display:block; padding:0;
@@ -632,7 +636,6 @@ html:has(.galeria[open]){ overflow:hidden; }
 .galeria__seta--volta svg{ transform:scaleX(-1); }
 .galeria :focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
 
-@keyframes correr{ to{ transform:translateX(calc(-50% - var(--e-3) / 2)); } }
 .mostra .fichas{ justify-content:center; margin-top:var(--e-6); }
 .mostra .ficha{ background:var(--paper); }
 /* O rodapé do app (.rodape-legal do globals.css): centrado, um tom só e um
@@ -900,7 +903,7 @@ body{ padding-bottom:72px; }
           <p class="corpo-g">Marilia Fischer é arquiteta e trabalha com imagem de arquitetura há 10 anos. Fundou o 9barra7, estúdio de renderização que atende construtoras e escritórios.</p>
           <p class="corpo-g">O&nbsp;Cora nasceu do fluxo de trabalho dela. São as ferramentas que ela usa no estúdio e ensina no 9barra7 Academy.</p>
           <div class="autoria__numero">
-            <p class="autoria__valor">2.000+</p>
+            <p class="autoria__valor"><span class="autoria__fantasma" aria-hidden="true">2.000+</span><span id="numero-alunos" data-ate="2000">2.000+</span></p>
             <p class="autoria__rotulo">alunos em 12 países</p>
           </div>
         </div>
@@ -985,7 +988,7 @@ body{ padding-bottom:72px; }
 
           <label class="aceite" id="campo-aceite" for="aceite">
             <input id="aceite" name="aceite" type="checkbox" required>
-            <span class="aceite__texto">Aceito receber mensagens do Cora Render e do 9barra7 por <span class="nao-quebra">e-mail</span> e WhatsApp, e posso sair quando quiser. Veja&nbsp;a <a href="#privacidade">Política de Privacidade</a>.</span>
+            <span class="aceite__texto">Aceito receber mensagens do Cora Render e do 9barra7 por <span class="nao-quebra">e-mail</span> e WhatsApp, e posso sair quando quiser. Veja&nbsp;a <a href="https://corarender.com/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>.</span>
           </label>
           <p class="campo__erro" id="erro-aceite" aria-live="polite"></p>
 
@@ -1028,8 +1031,8 @@ body{ padding-bottom:72px; }
 
   <footer class="rodape-legal rodape-legal--papel" id="privacidade">
     <span>© 2026 Cora Render · 9BARRA7 Academy</span>
-    <a href="#termos">Termos de Uso</a>
-    <a href="#privacidade">Política de Privacidade</a>
+    <a href="https://corarender.com/termos" target="_blank" rel="noopener">Termos de Uso</a>
+    <a href="https://corarender.com/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>
   </footer>
 </div>
 
@@ -1110,8 +1113,8 @@ body{ padding-bottom:72px; }
 
   <footer class="rodape-legal">
     <span>© 2026 Cora Render · 9BARRA7 Academy</span>
-    <a href="#termos">Termos de Uso</a>
-    <a href="#privacidade">Política de Privacidade</a>
+    <a href="https://corarender.com/termos" target="_blank" rel="noopener">Termos de Uso</a>
+    <a href="https://corarender.com/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>
   </footer>
 </div>
 
@@ -1265,6 +1268,36 @@ body{ padding-bottom:72px; }
     redimensionar360();
   }
 
+  /* ---------- O número que conta (o mesmo da home) ----------
+     Mola com amortecimento crítico, resposta de 0,9s: arranca rápido e
+     assenta sem passar do alvo. O HTML já traz o valor final. */
+  (function(){
+    var alvo = document.getElementById('numero-alunos');
+    if (!alvo || !('IntersectionObserver' in window)) return;
+    var ate = parseInt(alvo.getAttribute('data-ate'), 10), fim = alvo.textContent;
+    var w = (2 * Math.PI) / 0.9, k = w * w, c = 2 * w;
+    function contar(){
+      var x = 0, v = 0, anterior = null;
+      function passo(t){
+        if (anterior === null) anterior = t;
+        var dt = Math.min((t - anterior) / 1000, 1 / 30);
+        anterior = t;
+        v += (-k * (x - ate) - c * v) * dt;
+        x += v * dt;
+        if (Math.abs(ate - x) < ate * 0.0025){ alvo.textContent = fim; return; }
+        alvo.textContent = Math.round(x).toLocaleString('pt-BR');
+        requestAnimationFrame(passo);
+      }
+      requestAnimationFrame(passo);
+    }
+    new IntersectionObserver(function(entradas, obs){
+      if (!entradas[0].isIntersecting) return;
+      obs.disconnect();
+      alvo.textContent = '0';
+      contar();
+    }, { threshold: 0.6 }).observe(alvo);
+  })();
+
   /* ---------- Plugin ou web ---------- */
   var ops = [].slice.call(document.querySelectorAll('.switch__op'));
   function abrirOnde(op){
@@ -1388,6 +1421,61 @@ body{ padding-bottom:72px; }
   }
   trilho.innerHTML = html;
 
+  /* O laço da esteira, o mesmo do site do IA Studio: anda sozinha a 24px/s,
+     para com o mouse em cima, e segurando dá para arrastar. Ao soltar, segue
+     com o embalo. Continua andando com "reduzir movimento" (dono, 15/09). */
+  var esteira = trilho.parentElement, arrastou = false;
+  (function(){
+    var x = 0, w = 0, pausa = false, arr = false, toque = null, x0 = 0, p0 = 0, v = 0, t0 = null, h = [], visivel = false;
+    function pinta(){ trilho.style.transform = 'translate3d(' + x + 'px,0,0)'; }
+    function passo(t){
+      var dt = t0 === null ? 0 : Math.min((t - t0) / 1000, 0.05); t0 = t;
+      if (!w) w = trilho.scrollWidth / 2;
+      if (!pausa && !arr && visivel){
+        x -= 24 * dt;
+        if (v){ x += v * dt; v *= Math.pow(0.94, dt * 60); if (Math.abs(v) < 4) v = 0; }
+      }
+      if (w > 0){ if (x <= -w) x += w; if (x > 0) x -= w; }
+      pinta();
+      requestAnimationFrame(passo);
+    }
+    if ('IntersectionObserver' in window){
+      new IntersectionObserver(function(e){ visivel = e[0].isIntersecting; if (visivel) w = trilho.scrollWidth / 2; }).observe(esteira);
+    } else { visivel = true; }
+    esteira.addEventListener('mouseenter', function(){ pausa = true; });
+    esteira.addEventListener('mouseleave', function(){ pausa = false; });
+    esteira.addEventListener('focusin', function(){ pausa = true; });
+    esteira.addEventListener('focusout', function(){ pausa = false; });
+    esteira.addEventListener('pointerdown', function(e){
+      toque = e; x0 = e.clientX; p0 = x; v = 0; h = [{ x: e.clientX, t: performance.now() }]; arrastou = false;
+    });
+    esteira.addEventListener('pointermove', function(e){
+      if (!toque) return;
+      if (!arr && Math.abs(e.clientX - x0) > 5){
+        arr = true; arrastou = true;
+        esteira.setAttribute('data-arrastando', 'true');
+        try { esteira.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+      if (!arr) return;
+      x = p0 + (e.clientX - x0);
+      var t = performance.now();
+      for (h.push({ x: e.clientX, t: t }); h.length > 2 && t - h[0].t > 80;) h.shift();
+      pinta();
+    });
+    function solta(){
+      if (arr && h.length > 1){
+        var a = h[0], b = h[h.length - 1], d = (b.t - a.t) / 1000;
+        if (d > 0) v = Math.max(-2400, Math.min(2400, (b.x - a.x) / d));
+      }
+      arr = false; toque = null; h = [];
+      esteira.setAttribute('data-arrastando', 'false');
+    }
+    esteira.addEventListener('pointerup', solta);
+    esteira.addEventListener('pointercancel', solta);
+    window.addEventListener('resize', function(){ w = trilho.scrollWidth / 2; });
+    requestAnimationFrame(passo);
+  })();
+
   /* ---------- Visualizador ---------- */
   var galeria = document.getElementById('galeria');
   var gPalco = galeria.querySelector('.galeria__palco');
@@ -1417,6 +1505,7 @@ body{ padding-bottom:72px; }
   }
   galeria.addEventListener('close', function(){ if (gOrigem) gOrigem.focus(); });
   trilho.addEventListener('click', function(e){
+    if (arrastou) return;
     var b = e.target.closest('.foto-botao');
     if (b) abrirFoto(Number(b.dataset.i), b);
   });
