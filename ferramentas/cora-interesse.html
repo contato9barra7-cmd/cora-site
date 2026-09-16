@@ -57,7 +57,7 @@ a{ color:inherit; text-decoration:none; }
 ol, ul{ list-style:none; padding:0; }
 ::selection{ background:var(--lima); color:#111111; }
 :focus-visible{ outline:2px solid var(--turq-txt); outline-offset:2px; }
-.escura :focus-visible, .rodape :focus-visible{ outline-color:var(--turquesa-esc); }
+.escura :focus-visible{ outline-color:var(--turquesa-esc); }
 
 /* ---------- Tipografia (a mesma escala da home) ---------- */
 h1, h2, h3{ font-weight:500; text-wrap:balance; }
@@ -528,20 +528,6 @@ p{ text-wrap:pretty; }
 .faq__gat[aria-expanded="true"] + .faq__resp{ grid-template-rows:1fr; }
 .faq__resp p{ padding-bottom:var(--e-5); max-width:62ch; color:var(--ink2); font-size:15px; }
 
-/* ---------- Rodapé mínimo ---------- */
-.rodape{ background:var(--preto); color:var(--sobre-escuro); padding-block:var(--e-7) var(--e-6); }
-.rodape__grade{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--e-5); }
-.rodape__marca{ display:grid; gap:var(--e-3); }
-.rodape__marca img{ height:22px; width:auto; filter:invert(1); }
-.rodape__marca p{ font-size:13.5px; }
-.rodape__links{ display:flex; flex-wrap:wrap; gap:var(--e-2) var(--e-5); font-size:13.5px; }
-.rodape__links a{ display:inline-flex; align-items:center; min-height:32px; }
-.rodape__links a:hover{ color:var(--paper); }
-.rodape__base{
-  margin-top:var(--e-6); padding-top:var(--e-5); border-top:1px solid var(--linha-escura);
-  font-size:12.5px; color:rgba(255,255,255,.5);
-}
-
 /* ---------- Tela de obrigado ---------- */
 .obrigado{ padding-block:var(--e-8) var(--e-9); }
 @media (min-width:768px){ .obrigado{ padding-block:var(--e-9); } }
@@ -570,24 +556,106 @@ p{ text-wrap:pretty; }
 .mostra__cab{ display:grid; gap:var(--e-2); justify-items:center; text-align:center; margin-bottom:var(--e-6); }
 .mostra__cab h2{ font-size:clamp(24px,2.6vw,32px); letter-spacing:-.028em; }
 .mostra__cab p{ color:var(--ink2); max-width:46ch; text-wrap:balance; }
-.esteira{
-  overflow:hidden;
-  -webkit-mask-image:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-  mask-image:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-}
+/* De ponta a ponta da tela e sem esfumado: a foto encosta na borda. */
+.esteira{ overflow:hidden; }
 .esteira__trilho{ display:flex; gap:var(--e-3); width:max-content; animation:correr 80s linear infinite; }
-.esteira:hover .esteira__trilho{ animation-play-state:paused; }
+.esteira:hover .esteira__trilho, .esteira:focus-within .esteira__trilho{ animation-play-state:paused; }
+.foto-botao{
+  position:relative; flex:none; display:block;
+  border-radius:var(--r-md); overflow:hidden; cursor:zoom-in;
+  background:var(--wash2);
+}
 /* Altura fixa e largura da própria foto: nenhuma é cortada. */
-.esteira__trilho img{ height:clamp(220px,20vw,280px); width:auto; border-radius:var(--r-md); background:var(--wash2); }
+.foto-botao img{ height:clamp(220px,20vw,280px); width:auto; transition:transform 400ms var(--easing); }
+/* Branco sólido, sem backdrop-filter: vidro sobre faixa animada pisca no
+   iPhone (memória medir-a-imagem-nao-a-caixa). */
+.lupa{
+  position:absolute; top:var(--e-2); right:var(--e-2);
+  width:36px; height:36px; border-radius:50%;
+  display:grid; place-items:center;
+  background:rgba(255,255,255,.92); color:#111111;
+  box-shadow:0 2px 10px rgba(0,0,0,.14);
+  transition:background-color 180ms var(--easing), transform 180ms var(--easing);
+}
+.lupa svg{ width:18px; height:18px; }
+@media (hover:hover) and (pointer:fine){
+  .foto-botao:hover img{ transform:scale(1.03); }
+  .foto-botao:hover .lupa{ background:var(--lima); transform:scale(1.06); }
+}
+.foto-botao:focus-visible{ outline:2px solid var(--turq-txt); outline-offset:2px; }
+
+/* ---------- Visualizador ---------- */
+html:has(.galeria[open]){ overflow:hidden; }
+.galeria{
+  position:fixed; inset:0; width:100%; height:100%;
+  max-width:none; max-height:none; margin:0; padding:0; border:0;
+  background:transparent; color:var(--paper); overflow:hidden;
+}
+.galeria::backdrop{ background:rgba(8,8,10,.95); }
+.galeria__palco{
+  position:absolute; inset:0; display:grid; place-items:center;
+  padding:72px 96px; touch-action:pan-y;
+}
+/* Limite pela janela, e não em %: a grade não dá altura de referência. */
+.galeria__img{
+  max-width:calc(100vw - 192px);
+  max-height:calc(100vh - 144px); max-height:calc(100dvh - 144px);
+  width:auto; height:auto;
+  border-radius:var(--r-md); box-shadow:0 20px 60px rgba(0,0,0,.45);
+  transition:opacity 200ms var(--easing);
+}
+.galeria__img.trocando{ opacity:.3; }
+/* O foco de abertura mora no palco, para o X não acender no clique do mouse. */
+.galeria__palco:focus{ outline:none; }
+.galeria__btn{
+  position:absolute; z-index:2;
+  width:48px; height:48px; border-radius:50%;
+  display:grid; place-items:center;
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
+  color:var(--paper);
+  transition:background-color 180ms var(--easing);
+}
+.galeria__btn svg{ width:20px; height:20px; }
+@media (hover:hover) and (pointer:fine){ .galeria__btn:hover{ background:rgba(255,255,255,.24); } }
+.galeria :focus-visible{ outline:2px solid var(--turquesa-esc); outline-offset:2px; }
+.galeria__ant{ left:24px; top:50%; margin-top:-24px; }
+.galeria__prox{ right:24px; top:50%; margin-top:-24px; }
+.galeria__fechar{ right:24px; top:calc(16px + env(safe-area-inset-top, 0px)); width:40px; height:40px; }
+.galeria__conta{
+  position:absolute; z-index:2; left:24px; top:calc(26px + env(safe-area-inset-top, 0px));
+  font-size:13.5px; font-variant-numeric:tabular-nums; color:rgba(255,255,255,.72);
+}
+@media (max-width:600px){
+  .galeria__palco{ padding:64px 16px 104px; }
+  .galeria__img{ max-width:calc(100vw - 32px); max-height:calc(100vh - 168px); max-height:calc(100dvh - 168px); }
+  .galeria__ant, .galeria__prox{ top:auto; margin-top:0; bottom:calc(28px + env(safe-area-inset-bottom, 0px)); }
+  .galeria__ant{ left:calc(50% - 60px); }
+  .galeria__prox{ right:calc(50% - 60px); }
+  .galeria__conta{ left:16px; }
+  .galeria__fechar{ right:16px; }
+}
 @keyframes correr{ to{ transform:translateX(calc(-50% - var(--e-3) / 2)); } }
 .mostra .fichas{ justify-content:center; margin-top:var(--e-6); }
 .mostra .ficha{ background:var(--paper); }
-.rodape-mini{
-  padding-block:var(--e-5); border-top:1px solid var(--line);
-  font-size:12.5px; color:var(--ink2);
+/* O rodapé do app (.rodape-legal do globals.css): centrado, um tom só e um
+   fio curto em cima, recuado, que separa sem fechar a tela como caixa. */
+.rodape-legal{
+  position:relative;
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:22px;
+  padding:14px 24px;
+  font-size:12.5px; color:var(--ink3);
 }
-.rodape-mini .env{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:var(--e-2) var(--e-5); }
-.rodape-mini a{ border-bottom:2px solid var(--lima); }
+.rodape-legal::before{
+  content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:min(calc(100% - 48px), 760px); height:1px; background:var(--line);
+}
+.rodape-legal a:hover{ color:var(--ink2); }
+/* Na página de interesse ele continua o branco das perguntas. */
+.rodape-legal--papel{ background:var(--paper); padding-bottom:22px; }
+@media (max-width:560px){
+  .rodape-legal{ gap:4px 16px; padding:20px 16px; }
+  .rodape-legal > span{ flex-basis:100%; text-align:center; }
+}
 
 /* A esteira e as câmeras continuam andando com "reduzir movimento": o dono
    quer ver a esteira em movimento no iPhone (15/09/2026). Só as transições
@@ -923,7 +991,7 @@ body{ padding-bottom:72px; }
         <div class="faq__lista">
           <div class="faq__item">
             <button class="faq__gat" type="button" aria-expanded="true" aria-controls="resp-1" id="perg-1">Por que não dá para assinar hoje?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
-            <div class="faq__resp" id="resp-1" role="region" aria-labelledby="perg-1"><div><p>Porque a venda abre por turmas, e a primeira turma sai da lista. Assim a equipe consegue acompanhar de perto quem entra primeiro. O&nbsp;Cora está pronto e já roda no dia a dia do estúdio do 9barra7.</p></div></div>
+            <div class="faq__resp" id="resp-1" role="region" aria-labelledby="perg-1"><div><p>Porque, antes de abrir para todo mundo, a gente vai dar preferência a um grupo seleto de alunos do IA Studio. O&nbsp;Cora já está pronto, e entrar na lista é o jeito de receber a oferta assim que ela abrir.</p></div></div>
           </div>
           <div class="faq__item">
             <button class="faq__gat" type="button" aria-expanded="false" aria-controls="resp-2" id="perg-2">Entrar na lista tem algum custo?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
@@ -938,29 +1006,18 @@ body{ padding-bottom:72px; }
             <div class="faq__resp" id="resp-4" role="region" aria-labelledby="perg-4"><div><p>Não. Só a equipe do 9barra7 escreve no grupo, e as mensagens chegam a cada três a cinco dias. Você pode sair quando quiser.</p></div></div>
           </div>
           <div class="faq__item">
-            <button class="faq__gat" type="button" aria-expanded="false" aria-controls="resp-5" id="perg-5">O&nbsp;Cora substitui o V&#8209;Ray ou o Enscape?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
-            <div class="faq__resp" id="resp-5" role="region" aria-labelledby="perg-5"><div><p>Essa é a proposta. Em vez de passar horas configurando luz física e mapas de material, você gera imagens com qualidade de apresentação em poucos minutos, direto do seu arquivo. E&nbsp;o processamento é na nuvem, então o computador não trava.</p></div></div>
+            <button class="faq__gat" type="button" aria-expanded="false" aria-controls="resp-5" id="perg-5">O&nbsp;Cora substitui os renderizadores tradicionais e o Magnific?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
+            <div class="faq__resp" id="resp-5" role="region" aria-labelledby="perg-5"><div><p>Essa é a proposta. Em vez de passar horas configurando luz física e mapas de material, você gera imagens com qualidade de apresentação em poucos minutos, direto do seu arquivo. A&nbsp;edição, o upscale e a animação também ficam no Cora, então a imagem não precisa passar pelo Magnific. E&nbsp;tudo roda na nuvem, sem pesar no seu computador.</p></div></div>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="rodape" id="privacidade">
-    <div class="env">
-      <div class="rodape__grade">
-        <div class="rodape__marca">
-          <img src="img/logo-cora.png" alt="Cora" width="266" height="64">
-          <p>Um produto do 9barra7.</p>
-        </div>
-        <nav class="rodape__links" aria-label="Links legais">
-          <a href="#privacidade">Política de Privacidade</a>
-          <a href="#privacidade">Termos de Uso</a>
-          <a href="#privacidade">Suporte</a>
-        </nav>
-      </div>
-      <p class="rodape__base">© 2026 9barra7. Todos os direitos reservados.</p>
-    </div>
+  <footer class="rodape-legal rodape-legal--papel" id="privacidade">
+    <span>© 2026 Cora Render · 9BARRA7 Academy</span>
+    <a href="#termos">Termos de Uso</a>
+    <a href="#privacidade">Política de Privacidade</a>
   </footer>
 </div>
 
@@ -1000,14 +1057,17 @@ body{ padding-bottom:72px; }
         </div>
       </div>
 
-      <section class="mostra" aria-labelledby="mostra-titulo">
-        <div class="mostra__cab">
-          <h2 id="mostra-titulo">Enquanto isso, um pouco do nosso trabalho.</h2>
-          <p>Imagens que a equipe do 9barra7 fez com IA, de interiores, fachadas e pessoas em cena.</p>
-        </div>
-        <div class="esteira">
-          <div class="esteira__trilho" id="esteira"></div>
-        </div>
+    </div>
+
+    <section class="mostra" aria-labelledby="mostra-titulo">
+      <div class="env mostra__cab">
+        <h2 id="mostra-titulo">Enquanto isso, um pouco do nosso trabalho.</h2>
+        <p>Imagens que a equipe do 9barra7 fez com IA, de interiores, fachadas e pessoas em cena.</p>
+      </div>
+      <div class="esteira">
+        <div class="esteira__trilho" id="esteira"></div>
+      </div>
+      <div class="env">
         <ul class="fichas" aria-label="Ferramentas do Cora">
           <li class="ficha">Leitura de materiais</li>
           <li class="ficha">Mesma luz em todas as vistas</li>
@@ -1017,15 +1077,30 @@ body{ padding-bottom:72px; }
           <li class="ficha">Upscale</li>
           <li class="ficha">Animação</li>
         </ul>
-      </section>
-    </div>
+      </div>
+    </section>
   </main>
 
-  <footer class="rodape-mini">
-    <div class="env">
-      <span>© 2026 9barra7</span>
-      <a href="#privacidade">Política de Privacidade</a>
+  <dialog class="galeria" id="galeria" aria-label="Imagens em tamanho grande">
+    <div class="galeria__palco" tabindex="-1" autofocus>
+      <img class="galeria__img" alt="">
     </div>
+    <p class="galeria__conta" aria-live="polite"></p>
+    <button class="galeria__btn galeria__fechar" type="button" aria-label="Fechar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <button class="galeria__btn galeria__ant" type="button" aria-label="Imagem anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button class="galeria__btn galeria__prox" type="button" aria-label="Próxima imagem">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </dialog>
+
+  <footer class="rodape-legal">
+    <span>© 2026 Cora Render · 9BARRA7 Academy</span>
+    <a href="#termos">Termos de Uso</a>
+    <a href="#privacidade">Política de Privacidade</a>
   </footer>
 </div>
 
@@ -1269,13 +1344,79 @@ body{ padding-bottom:72px; }
 
   /* ---------- Esteira da tela de obrigado ---------- */
   var trilho = document.getElementById('esteira');
-  var fotos = [['01',580],['02',543],['03',580],['04',580],['05',538],['06',580],['07',580],['08',543],['09',964],['10',580]];
+  var fotos = [
+    ['01', 580, 'Estar com poltrona amarela, parede de concreto e quadro colorido'],
+    ['02', 543, 'Pessoa de boné verde rindo numa varanda com jardim'],
+    ['03', 580, 'Casa térrea com araucária e palmeiras, vista da rua'],
+    ['04', 580, 'Pessoa caminhando numa sala com painel de madeira e sofá branco'],
+    ['05', 538, 'Fachada branca com telhado de duas águas e janelas pretas'],
+    ['06', 580, 'Pessoa sentada numa área externa com pergolado e sofá cinza'],
+    ['07', 580, 'Pessoa atravessando uma sala integrada com forro de madeira'],
+    ['08', 543, 'Criança correndo numa sala com parede ilustrada'],
+    ['09', 964, 'Casas geminadas brancas e uma pessoa passando de bicicleta'],
+    ['10', 580, 'Sala de jantar com cadeiras laranja e painel de madeira']
+  ];
+  var LUPA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 4.5 4.5M10.5 8v5M8 10.5h5"/></svg>';
   var html = '';
   for (var volta = 0; volta < 2; volta++){
-    fotos.forEach(function(f){
-      html += '<img src="obrigado/' + f[0] + '.jpg" alt=""' + (volta ? ' aria-hidden="true"' : '') + ' width="' + f[1] + '" height="720">';
+    fotos.forEach(function(f, n){
+      html += '<button class="foto-botao" type="button" data-i="' + n + '"'
+        + (volta ? ' tabindex="-1" aria-hidden="true"' : ' aria-label="Ver grande: ' + f[2] + '"') + '>'
+        + '<img src="obrigado/' + f[0] + '.jpg" alt="" width="' + f[1] + '" height="720">'
+        + '<span class="lupa" aria-hidden="true">' + LUPA + '</span></button>';
     });
   }
   trilho.innerHTML = html;
+
+  /* ---------- Visualizador ---------- */
+  var galeria = document.getElementById('galeria');
+  var gPalco = galeria.querySelector('.galeria__palco');
+  var gImg = galeria.querySelector('.galeria__img');
+  var gConta = galeria.querySelector('.galeria__conta');
+  var gAtual = 0, gOrigem = null;
+  function grande(n){ return 'obrigado/g/' + fotos[n][0] + '.jpg'; }
+  function mostrarFoto(n){
+    gAtual = (n + fotos.length) % fotos.length;
+    var alvo = gAtual, src = grande(alvo);
+    gConta.textContent = (alvo + 1) + ' de ' + fotos.length;
+    if (!gImg.getAttribute('src')){ gImg.src = src; gImg.alt = fotos[alvo][2]; }
+    else {
+      gImg.classList.add('trocando');
+      var pre = new Image();
+      pre.onload = pre.onerror = function(){
+        if (alvo !== gAtual) return;
+        gImg.src = src; gImg.alt = fotos[alvo][2];
+        gImg.classList.remove('trocando');
+      };
+      pre.src = src;
+    }
+    [alvo - 1, alvo + 1].forEach(function(v){ new Image().src = grande((v + fotos.length) % fotos.length); });
+  }
+  function abrirFoto(n, origem){
+    gOrigem = origem || null;
+    mostrarFoto(n);
+    if (galeria.showModal) galeria.showModal(); else galeria.setAttribute('open', '');
+  }
+  galeria.addEventListener('close', function(){ if (gOrigem) gOrigem.focus(); });
+  trilho.addEventListener('click', function(e){
+    var b = e.target.closest('.foto-botao');
+    if (b) abrirFoto(Number(b.dataset.i), b);
+  });
+  galeria.querySelector('.galeria__ant').addEventListener('click', function(){ mostrarFoto(gAtual - 1); });
+  galeria.querySelector('.galeria__prox').addEventListener('click', function(){ mostrarFoto(gAtual + 1); });
+  galeria.querySelector('.galeria__fechar').addEventListener('click', function(){ galeria.close(); });
+  galeria.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft'){ e.preventDefault(); mostrarFoto(gAtual - 1); }
+    if (e.key === 'ArrowRight'){ e.preventDefault(); mostrarFoto(gAtual + 1); }
+  });
+  // Clique fora da foto fecha. Arrastar para o lado troca, no dedo.
+  var toqueX = null;
+  gPalco.addEventListener('pointerdown', function(e){ toqueX = e.clientX; });
+  gPalco.addEventListener('pointerup', function(e){
+    if (toqueX === null) return;
+    var dx = e.clientX - toqueX; toqueX = null;
+    if (Math.abs(dx) > 40){ mostrarFoto(gAtual + (dx < 0 ? 1 : -1)); return; }
+    if (e.target === gPalco) galeria.close();
+  });
 })();
 </script>
