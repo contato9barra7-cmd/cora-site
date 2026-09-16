@@ -1,0 +1,1191 @@
+<title>Lista do Cora Render</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,400&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* ============================================================================
+   PÁGINA DE INTERESSE DO CORA (pré-lançamento)
+
+   Direcional da Sobe, setembro de 2026. Duas telas: a página de interesse e a
+   de obrigado. A primeira resume a home e captura nome, e-mail e WhatsApp. A
+   segunda tem um trabalho só, levar a pessoa ao grupo.
+
+   Identidade: a mesma da home (home-pagina.css). Tokens, botões, faixa,
+   seções pretas e o vidro são os mesmos valores, para a portagem ser troca
+   de escopo e não desenho novo. Tema único, claro com seções pretas, como o
+   site público.
+   ========================================================================= */
+:root{
+  --ink:#111111; --ink2:#5b5b57; --ink3:#8e8e88;
+  --paper:#ffffff; --wash:#f6f6f4; --wash2:#efefeb; --preto:#000000;
+  --line:#e4e4df; --line2:#d2d2cb;
+  --lima:#C4FBA7; --lima-esc:#a9ef86; --lima-txt:#256B2A;
+  --turquesa:#ADECDF; --turquesa-esc:#8FDDCC; --turq-txt:#196C5B; --turq-bg:#E6F7F3;
+  --erro:#B42318; --erro-bg:#FEF3F2;
+  --sobre-escuro:rgba(255,255,255,.72);
+  --linha-escura:rgba(255,255,255,.14);
+
+  --e-1:4px; --e-2:8px; --e-3:12px; --e-4:16px; --e-5:24px;
+  --e-6:32px; --e-7:48px; --e-8:64px; --e-9:96px; --e-10:128px;
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-pill:100px;
+
+  --easing:cubic-bezier(0.16,1,0.3,1);
+  --fonte:'DM Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  --fonte-mono:'Space Mono', 'Courier New', monospace;
+
+  --largura-max:1180px; --gutter:20px;
+  --altura-cabecalho:60px;
+  --secao-y:var(--e-8);
+  color-scheme:light;
+}
+@media (min-width:768px){ :root{ --gutter:24px; --secao-y:var(--e-9); } }
+@media (min-width:1024px){ :root{ --gutter:32px; --altura-cabecalho:72px; --secao-y:var(--e-10); } }
+
+*, *::before, *::after{ box-sizing:border-box; }
+body{
+  margin:0;
+  font-family:var(--fonte); font-optical-sizing:auto;
+  font-size:16px; line-height:1.55;
+  color:var(--ink); background:var(--wash);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+@media (min-width:1024px){ body{ font-size:17px; } }
+h1, h2, h3, p, figure, blockquote, ol, ul{ margin:0; }
+img, svg, video, canvas{ display:block; max-width:100%; }
+button, input{ font:inherit; color:inherit; }
+button{ background:none; border:none; cursor:pointer; padding:0; }
+a{ color:inherit; text-decoration:none; }
+ol, ul{ list-style:none; padding:0; }
+::selection{ background:var(--lima); color:#111111; }
+:focus-visible{ outline:2px solid var(--turq-txt); outline-offset:2px; }
+.escura :focus-visible, .rodape :focus-visible{ outline-color:var(--turquesa-esc); }
+
+/* ---------- Tipografia (a mesma escala da home) ---------- */
+h1, h2, h3{ font-weight:500; text-wrap:balance; }
+h1{ font-size:clamp(40px,5.6vw,72px); font-weight:400; letter-spacing:-.038em; line-height:1.03; }
+h2{ font-size:clamp(30px,4vw,52px); letter-spacing:-.032em; line-height:1.08; }
+h3{ font-size:clamp(20px,2vw,24px); letter-spacing:-.022em; line-height:1.22; }
+p{ text-wrap:pretty; }
+.corpo-g{ font-size:clamp(17px,1.4vw,19px); line-height:1.5; }
+.rotulo-mono{
+  font-family:var(--fonte-mono); font-size:11px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase;
+}
+.env{ width:100%; max-width:var(--largura-max); margin-inline:auto; padding-inline:var(--gutter); }
+.nao-quebra{ white-space:nowrap; }
+
+/* ---------- Botões (pílula v3.5 da home) ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:var(--e-2);
+  min-width:160px; min-height:48px; padding:var(--e-3) var(--e-5);
+  border-radius:var(--r-pill); border:1px solid transparent;
+  font-weight:600; font-size:14.5px; letter-spacing:-.005em; line-height:1.2;
+  white-space:nowrap; text-align:center;
+  transition:transform 140ms var(--easing), background-color 180ms var(--easing), border-color 180ms var(--easing);
+}
+.btn:active{ transform:scale(.97); }
+.btn:focus-visible{ border-radius:var(--r-pill); }
+.btn--lima{ background:var(--lima); color:#111111; }
+.btn--claro{ background:var(--paper); color:var(--ink); border-color:var(--line); }
+.btn--escuro{ background:var(--ink); color:var(--paper); }
+.btn--largo{ width:100%; }
+.btn svg{ width:18px; height:18px; flex:none; }
+@media (hover:hover) and (pointer:fine){
+  .btn--lima:hover{ background:var(--lima-esc); }
+  .btn--claro:hover{ background:var(--wash2); }
+  .btn--escuro:hover{ background:#242424; }
+}
+.btn-grupo{ display:flex; flex-wrap:wrap; gap:var(--e-3); }
+@media (max-width:519px){
+  .btn-grupo{ flex-direction:column; align-items:stretch; width:100%; }
+}
+
+/* ---------- Seções ---------- */
+.secao{ padding-block:var(--secao-y); }
+.papel{ background:var(--paper); }
+.wash{ background:var(--wash); }
+.escura{ background:var(--preto); color:var(--paper); }
+.escura p{ color:var(--sobre-escuro); }
+[id]{ scroll-margin-top:calc(var(--altura-cabecalho) + var(--e-4)); }
+
+.cab{ display:grid; gap:var(--e-4); margin-bottom:var(--e-7); }
+.cab p{ color:var(--ink2); max-width:46ch; }
+.escura .cab p{ color:var(--sobre-escuro); }
+.cab h2{ max-width:16ch; }
+@media (min-width:900px){
+  .cab{
+    grid-template-columns:minmax(0,1fr) minmax(300px,36ch);
+    column-gap:var(--e-8); align-items:end; margin-bottom:var(--e-8);
+  }
+  .cab > p{ justify-self:end; padding-bottom:.4em; }
+}
+
+/* ---------- Cabeçalho ---------- */
+.cabecalho{
+  position:sticky; top:env(safe-area-inset-top, 0px); z-index:50;
+  background:color-mix(in srgb, var(--wash) 94%, transparent);
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.cabecalho__interno{ display:flex; align-items:center; gap:var(--e-4); min-height:var(--altura-cabecalho); }
+.marca{ display:flex; align-items:center; gap:var(--e-3); margin-right:auto; }
+.marca img{ width:auto; height:20px; }
+.marca__selo{
+  padding:3px var(--e-2); border-radius:var(--r-pill);
+  background:var(--turq-bg); color:var(--turq-txt);
+}
+.cabecalho .btn{ min-width:0; min-height:40px; padding-inline:var(--e-4); }
+@media (min-width:1024px){
+  .marca img{ height:24px; }
+  .cabecalho .btn{ min-height:44px; padding-inline:var(--e-5); }
+}
+@media (max-width:419px){ .marca__selo{ display:none; } }
+
+/* ---------- Herói: o mesmo vídeo e o mesmo véu da home ---------- */
+.hero{
+  position:relative; isolation:isolate; overflow:hidden;
+  display:grid; align-content:center;
+  min-height:clamp(540px,76vh,720px);
+  padding-block:var(--e-9);
+  background:#1a1b1d; color:var(--paper);
+}
+.hero__video{ position:absolute; inset:0; z-index:-2; }
+.hero__video video{ width:100%; height:100%; object-fit:cover; }
+.hero__veu{
+  position:absolute; inset:0; z-index:-1;
+  background:
+    radial-gradient(ellipse 78% 56% at 50% 45%, rgba(0,0,0,.52) 0%, rgba(0,0,0,0) 74%),
+    linear-gradient(180deg, rgba(0,0,0,.48) 0%, rgba(0,0,0,.34) 45%, rgba(0,0,0,.62) 100%);
+}
+.hero__interno{ display:grid; justify-items:center; text-align:center; gap:var(--e-5); }
+.vidro{
+  display:inline-flex; align-items:center; gap:var(--e-2);
+  padding:6px var(--e-3) 6px 8px; border-radius:var(--r-pill);
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.22);
+  -webkit-backdrop-filter:blur(14px) saturate(150%); backdrop-filter:blur(14px) saturate(150%);
+  color:var(--paper);
+}
+.vidro__ponto{ width:8px; height:8px; border-radius:50%; background:var(--lima); box-shadow:0 0 0 4px rgba(196,251,167,.22); }
+.hero h1{ max-width:17ch; }
+.hero__apoio{ max-width:44ch; color:rgba(255,255,255,.86); }
+.hero .btn-grupo{ justify-content:center; margin-top:var(--e-3); }
+.hero .btn--claro{ background:rgba(255,255,255,.92); border-color:transparent; }
+.hero__nota{
+  display:flex; align-items:center; gap:var(--e-3);
+  margin-top:var(--e-2); color:rgba(255,255,255,.7);
+}
+.hero__nota::before, .hero__nota::after{ content:''; width:28px; height:1px; background:rgba(255,255,255,.3); }
+
+/* ---------- Como funciona ---------- */
+.passos{ display:grid; gap:var(--e-4); counter-reset:passo; }
+@media (min-width:860px){ .passos{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--e-5); } }
+.passo{
+  display:grid; align-content:start; gap:var(--e-3);
+  padding:var(--e-5); border-radius:var(--r-lg);
+  background:var(--wash);
+}
+@media (min-width:1024px){ .passo{ padding:var(--e-6); } }
+.passo__n{
+  display:grid; place-items:center;
+  width:36px; height:36px; border-radius:50%;
+  background:var(--ink); color:var(--paper);
+  font-size:14.5px; font-weight:600; font-variant-numeric:tabular-nums;
+  margin-bottom:var(--e-3);
+}
+.passo h3{ font-size:20px; }
+.passo p{ color:var(--ink2); font-size:14.5px; }
+.passos__nota{ margin-top:var(--e-6); text-align:center; font-size:13.5px; color:var(--ink2); }
+.passos__nota strong{ color:var(--ink); font-weight:600; }
+
+/* ---------- A prova ---------- */
+.provas{ display:grid; gap:var(--e-6); }
+@media (min-width:900px){
+  .provas{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--e-7) var(--e-5); }
+  .prova--larga{ grid-column:1 / -1; }
+}
+.prova{ display:grid; gap:var(--e-4); }
+.prova__quadro{
+  position:relative; overflow:hidden; border-radius:var(--r-lg);
+  aspect-ratio:16/10; background:#0e1013;
+}
+@media (min-width:900px){
+  .prova__quadro{ aspect-ratio:16/9; }
+  .prova--panorama .prova__quadro{ aspect-ratio:21/9; }
+}
+.prova__quadro img{ width:100%; height:100%; object-fit:cover; }
+.prova figcaption{ display:grid; gap:var(--e-1); max-width:52ch; }
+.prova h3{ font-size:17px; font-weight:600; letter-spacing:-.01em; line-height:1.35; color:var(--paper); }
+.prova figcaption p{ font-size:14.5px; line-height:1.45; text-wrap:balance; }
+.credito{
+  position:absolute; z-index:5; right:var(--e-3); bottom:var(--e-3);
+  padding:var(--e-1) var(--e-3); border-radius:var(--r-pill);
+  background:rgba(0,0,0,.45);
+  -webkit-backdrop-filter:blur(8px) saturate(1.4); backdrop-filter:blur(8px) saturate(1.4);
+  font-size:12.5px; color:var(--paper); pointer-events:none;
+}
+.etiqueta-img{
+  position:absolute; z-index:5; top:var(--e-3); padding:3px var(--e-2);
+  border-radius:var(--r-pill); background:rgba(0,0,0,.55); color:rgba(255,255,255,.9);
+  pointer-events:none;
+}
+.etiqueta-img--antes{ left:var(--e-3); }
+.etiqueta-img--depois{ right:var(--e-3); }
+
+/* Comparador antes/depois: o mesmo da home */
+.comparador{ position:absolute; inset:0; --pos:50%; user-select:none; -webkit-user-select:none; touch-action:pan-y; }
+.comparador__img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.comparador__frente{ position:absolute; inset:0; clip-path:inset(0 calc(100% - var(--pos)) 0 0); }
+.comparador__linha{
+  position:absolute; top:0; bottom:0; left:var(--pos); z-index:2;
+  width:2px; background:var(--paper); transform:translateX(-50%);
+  box-shadow:0 0 12px rgba(0,0,0,.4); pointer-events:none;
+}
+.comparador__botao{
+  position:absolute; top:50%; left:var(--pos); z-index:3;
+  width:48px; height:48px; border-radius:50%;
+  transform:translate(-50%,-50%);
+  display:grid; place-items:center;
+  background:var(--paper); color:var(--ink);
+  box-shadow:0 4px 20px rgba(0,0,0,.35); pointer-events:none;
+}
+.comparador__botao svg{ width:20px; height:20px; }
+.comparador__alca{
+  position:absolute; inset:0; z-index:4; width:100%; height:100%; margin:0;
+  opacity:0; cursor:ew-resize; -webkit-appearance:none; appearance:none;
+}
+.comparador:has(.comparador__alca:focus-visible) .comparador__botao{ outline:2px solid var(--turquesa-esc); outline-offset:3px; }
+
+/* As cinco câmeras, com as barrinhas de story */
+.vistas{ position:absolute; inset:0; }
+.vistas__item{ position:absolute; inset:0; opacity:0; transition:opacity 500ms var(--easing); }
+.vistas__item[data-ativo="true"]{ opacity:1; }
+.vistas::before{
+  content:''; position:absolute; inset:0 0 auto 0; height:72px; z-index:1; pointer-events:none;
+  background:linear-gradient(180deg, rgba(0,0,0,.42), transparent);
+}
+.vistas__barras{ position:absolute; z-index:3; top:var(--e-2); left:var(--e-3); right:var(--e-3); display:flex; gap:6px; }
+.vistas__barra{ flex:1; height:24px; display:flex; align-items:center; }
+.vistas__barra i{ position:relative; display:block; width:100%; height:3px; border-radius:3px; overflow:hidden; background:rgba(255,255,255,.35); }
+.vistas__barra b{ position:absolute; inset:0; background:var(--paper); transform:scaleX(0); transform-origin:left center; }
+.vistas__barra[data-status="completa"] b{ transform:scaleX(1); }
+.vistas__barra[data-status="ativa"] b{ animation:preencher 5s linear forwards; }
+.vistas[data-pausado="true"] .vistas__barra b{ animation-play-state:paused; }
+@keyframes preencher{ to{ transform:scaleX(1); } }
+.vistas__cam{ position:absolute; z-index:3; left:var(--e-3); top:40px; color:rgba(255,255,255,.9); pointer-events:none; font-variant-numeric:tabular-nums; }
+
+/* 360 */
+.visor{ position:absolute; inset:0; cursor:grab; touch-action:pan-y; }
+.visor:active{ cursor:grabbing; }
+.visor canvas{ width:100%; height:100%; }
+.visor__dica{
+  position:absolute; z-index:3; left:50%; top:50%; transform:translate(-50%,-50%);
+  display:inline-flex; align-items:center; gap:var(--e-2);
+  padding:var(--e-2) var(--e-4); border-radius:var(--r-pill);
+  background:rgba(0,0,0,.45);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  color:var(--paper); font-size:13.5px; font-weight:500; pointer-events:none;
+  transition:opacity 300ms var(--easing);
+}
+.visor__dica svg{ width:18px; height:18px; }
+.visor[data-mexeu="true"] .visor__dica{ opacity:0; }
+
+.prova__espelho{
+  margin-top:var(--e-7); padding-top:var(--e-5);
+  border-top:1px solid var(--linha-escura);
+  display:grid; gap:var(--e-2);
+}
+@media (min-width:900px){
+  .prova__espelho{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:var(--e-5); align-items:baseline; }
+}
+.prova__espelho h3{ font-size:17px; font-weight:600; letter-spacing:-.01em; }
+.prova__espelho p{ font-size:14.5px; max-width:52ch; }
+
+/* ---------- Onde funciona ---------- */
+.onde{ display:grid; gap:var(--e-4); }
+@media (min-width:860px){ .onde{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--e-5); } }
+.onde__card{
+  display:grid; align-content:start; gap:var(--e-3);
+  padding:var(--e-5); border-radius:var(--r-lg);
+  background:var(--paper);
+}
+@media (min-width:1024px){ .onde__card{ padding:var(--e-6) var(--e-6) var(--e-7); } }
+.onde__tipo{ color:var(--ink2); }
+.onde__card h3{ max-width:20ch; }
+.onde__card p{ color:var(--ink2); font-size:14.5px; max-width:48ch; }
+.fichas{ display:flex; flex-wrap:wrap; gap:var(--e-2); margin-top:var(--e-3); }
+.ficha{
+  display:inline-flex; align-items:center; min-height:30px;
+  padding:var(--e-1) 10px; border-radius:var(--r-pill);
+  background:var(--wash2); color:var(--ink);
+  font-size:13.5px; font-weight:500;
+}
+
+/* ---------- Quem fez ---------- */
+.autoria{ display:grid; gap:var(--e-7); align-items:center; }
+@media (min-width:900px){ .autoria{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--e-8); } }
+.autoria__texto{ display:grid; justify-items:start; gap:var(--e-5); }
+.autoria__texto h2{ max-width:15ch; }
+.autoria__texto p{ max-width:46ch; }
+.autoria__numero{
+  display:grid; gap:var(--e-2); margin-top:var(--e-2);
+  padding:var(--e-5) var(--e-6); border-radius:var(--r-lg);
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
+}
+.autoria__valor{
+  font-size:clamp(28px,3.2vw,44px); font-weight:600; letter-spacing:-.04em;
+  line-height:.95; font-variant-numeric:tabular-nums; color:var(--paper);
+}
+.autoria .autoria__rotulo{ font-size:15px; }
+.autoria__foto{
+  position:relative; overflow:hidden; border-radius:var(--r-lg);
+  aspect-ratio:4/5; background:#121316;
+  border:1px solid rgba(255,255,255,.14);
+}
+.autoria__foto img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 18%; }
+.autoria__foto::after{
+  content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(180deg, transparent 30%, rgba(10,10,14,.3) 46%, rgba(10,10,14,.82) 68%, rgba(10,10,14,.97) 100%);
+}
+.autoria__fala{
+  position:absolute; z-index:2; left:var(--e-5); right:var(--e-5); bottom:var(--e-5);
+  display:grid; gap:var(--e-3);
+}
+@media (min-width:1024px){ .autoria__fala{ left:var(--e-6); right:var(--e-6); bottom:var(--e-6); } }
+.autoria__fala blockquote{
+  font-size:clamp(15px,1.45vw,17px); line-height:1.48; letter-spacing:-.01em;
+  color:var(--paper); text-indent:-.36em; text-wrap:pretty;
+}
+.autoria__nome{ display:block; font-weight:600; font-size:14.5px; color:var(--paper); }
+.autoria__papel{ display:block; text-wrap:balance; font-size:12.5px; color:var(--sobre-escuro); }
+
+/* ---------- A faixa ---------- */
+.faixa{
+  height:clamp(120px,20vh,200px);
+  background-color:#C4FBA7;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221368%22%20height%3D%22144%22%20viewBox%3D%220%200%201368%20144%22%20shape-rendering%3D%22geometricPrecision%22%3E%3Crect%20width%3D%221368%22%20height%3D%22144%22%20fill%3D%22%23C4FBA7%22%2F%3E%3Cg%20fill%3D%22%23ADECDF%22%3E%3Ccircle%20cx%3D%2272%22%20cy%3D%2272%22%20r%3D%2272%22%2F%3E%3Ccircle%20cx%3D%22504%22%20cy%3D%2272%22%20r%3D%2272%22%2F%3E%3Ccircle%20cx%3D%22864%22%20cy%3D%2272%22%20r%3D%2272%22%2F%3E%3Ccircle%20cx%3D%221224%22%20cy%3D%2272%22%20r%3D%2272%22%2F%3E%3Cpath%20d%3D%22M144%200%20A72%2072%200%200%201%20144%20144%20Z%22%2F%3E%3Cpath%20d%3D%22M216%200%20A72%2072%200%200%201%20216%20144%20Z%22%2F%3E%3Cpath%20d%3D%22M720%200%20A72%2072%200%200%201%20720%20144%20Z%22%2F%3E%3Cpath%20d%3D%22M936%200%20A72%2072%200%200%201%20936%20144%20Z%22%2F%3E%3Cpath%20d%3D%22M1296%200%20A72%2072%200%200%201%201296%20144%20Z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  background-repeat:repeat-x;
+  background-position:left center;
+  background-size:auto 100%;
+}
+.faixa--fina{ height:72px; }
+
+/* ---------- A lista (formulário) ---------- */
+.lista{ display:grid; gap:var(--e-7); align-items:start; }
+@media (min-width:960px){ .lista{ grid-template-columns:minmax(0,1fr) minmax(0,460px); gap:var(--e-9); } }
+.lista__texto{ display:grid; gap:var(--e-5); }
+.lista__texto > p{ color:var(--ink2); max-width:44ch; }
+.lista__texto h2{ max-width:14ch; }
+
+.depois{ display:grid; margin-top:var(--e-3); }
+.depois__t{ color:var(--ink2); margin-bottom:var(--e-4); }
+.depois li{
+  position:relative; display:grid; grid-template-columns:28px minmax(0,1fr); column-gap:var(--e-4);
+  padding-bottom:var(--e-5);
+}
+.depois li:last-child{ padding-bottom:0; }
+.depois li::before{
+  content:''; position:absolute; left:13px; top:28px; bottom:0; width:2px; background:var(--line2);
+}
+.depois li:last-child::before{ display:none; }
+.depois__n{
+  display:grid; place-items:center; width:28px; height:28px; border-radius:50%;
+  background:var(--paper); border:1px solid var(--line2);
+  font-size:12.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink2);
+}
+.depois li[data-agora="true"] .depois__n{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.depois__corpo{ display:grid; gap:2px; padding-top:3px; }
+.depois__corpo strong{ font-size:15px; font-weight:600; letter-spacing:-.01em; line-height:1.35; }
+.depois__corpo span{ font-size:14px; color:var(--ink2); line-height:1.5; }
+.agora{
+  display:inline-block; margin-left:var(--e-2); padding:1px var(--e-2);
+  border-radius:var(--r-pill); background:var(--turq-bg); color:var(--turq-txt);
+  position:relative; top:-2px;
+}
+
+.form{
+  display:grid; gap:var(--e-5);
+  padding:var(--e-5); border-radius:var(--r-lg);
+  background:var(--paper);
+  box-shadow:0 1px 2px rgba(17,17,17,.04), 0 16px 40px -12px rgba(17,17,17,.12);
+}
+@media (min-width:520px){ .form{ padding:var(--e-6); } }
+.form__cab{ display:grid; gap:var(--e-1); }
+.form__cab h3{ font-size:20px; }
+.form__cab p{ font-size:13.5px; color:var(--ink2); }
+.campos{ display:grid; gap:var(--e-4); }
+.campo{ display:grid; gap:6px; }
+.campo label{ font-size:13.5px; font-weight:600; }
+.campo input{
+  width:100%; min-height:46px; padding:0 var(--e-4);
+  border-radius:var(--r-pill); border:1px solid transparent;
+  background:var(--wash2); font-size:14.5px; color:var(--ink);
+  transition:border-color 180ms var(--easing), background-color 180ms var(--easing);
+}
+@media (pointer:coarse){ .campo input{ font-size:16px; } }
+.campo input::placeholder{ color:var(--ink3); }
+.campo input:hover{ border-color:var(--line2); }
+.campo input:focus{ outline:none; background:var(--paper); border-color:var(--turq-txt); box-shadow:0 0 0 3px var(--turq-bg); }
+.campo[data-erro="true"] input{ border-color:var(--erro); background:var(--erro-bg); }
+.campo__erro{ font-size:12.5px; color:var(--erro); }
+.campo__erro:empty{ display:none; }
+
+.aceite{
+  display:grid; grid-template-columns:22px minmax(0,1fr); gap:var(--e-3); align-items:start;
+  padding:var(--e-4); border-radius:var(--r-md); background:var(--wash);
+  cursor:pointer;
+}
+.aceite input{
+  -webkit-appearance:none; appearance:none; margin:1px 0 0;
+  width:22px; height:22px; border-radius:6px;
+  border:1.5px solid var(--ink3); background:var(--paper);
+  display:grid; place-items:center; cursor:pointer;
+}
+.aceite input::after{
+  content:''; width:11px; height:6px; margin-top:-3px;
+  border-left:2px solid #111111; border-bottom:2px solid #111111;
+  transform:rotate(-45deg) scale(0); transition:transform 140ms var(--easing);
+}
+.aceite input:checked{ background:var(--lima); border-color:var(--lima-txt); }
+.aceite input:checked::after{ transform:rotate(-45deg) scale(1); }
+.aceite__texto{ font-size:13.5px; line-height:1.5; color:var(--ink); }
+.aceite__texto a{ border-bottom:2px solid var(--lima); font-weight:600; }
+.aceite__texto a:hover{ border-bottom-color:var(--ink); }
+.aceite[data-erro="true"]{ background:var(--erro-bg); box-shadow:inset 0 0 0 1px var(--erro); }
+.form__rodape{ display:grid; gap:var(--e-3); }
+.form__nota{ font-size:12.5px; color:var(--ink2); text-align:center; }
+
+/* ---------- Perguntas ---------- */
+.faq{ display:grid; gap:var(--e-6); }
+@media (min-width:900px){ .faq{ grid-template-columns:minmax(0,1fr) minmax(0,1.6fr); gap:var(--e-8); } }
+.faq h2{ max-width:12ch; }
+.faq__lista{ border-top:1px solid var(--line); }
+.faq__item{ border-bottom:1px solid var(--line); }
+.faq__gat{
+  text-wrap:balance;
+  width:100%; min-height:64px; padding:var(--e-4) 0;
+  display:flex; align-items:center; justify-content:space-between; gap:var(--e-4);
+  text-align:left; font-size:17px; font-weight:500; letter-spacing:-.01em; line-height:1.35;
+}
+.faq__ic{
+  flex:none; display:grid; place-items:center; width:32px; height:32px; border-radius:50%;
+  background:var(--wash2); transition:transform 240ms var(--easing), background-color 180ms var(--easing);
+}
+.faq__ic svg{ width:16px; height:16px; }
+.faq__gat[aria-expanded="true"] .faq__ic{ transform:rotate(45deg); background:var(--lima); }
+.faq__resp{ display:grid; grid-template-rows:0fr; transition:grid-template-rows 240ms var(--easing); }
+.faq__resp > div{ overflow:hidden; }
+.faq__gat[aria-expanded="true"] + .faq__resp{ grid-template-rows:1fr; }
+.faq__resp p{ padding-bottom:var(--e-5); max-width:62ch; color:var(--ink2); font-size:15px; }
+
+/* ---------- Rodapé mínimo ---------- */
+.rodape{ background:var(--preto); color:var(--sobre-escuro); padding-block:var(--e-7) var(--e-6); }
+.rodape__grade{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--e-5); }
+.rodape__marca{ display:grid; gap:var(--e-3); }
+.rodape__marca img{ height:22px; width:auto; filter:invert(1); }
+.rodape__marca p{ font-size:13.5px; }
+.rodape__links{ display:flex; flex-wrap:wrap; gap:var(--e-2) var(--e-5); font-size:13.5px; }
+.rodape__links a{ display:inline-flex; align-items:center; min-height:32px; }
+.rodape__links a:hover{ color:var(--paper); }
+.rodape__base{
+  margin-top:var(--e-6); padding-top:var(--e-5); border-top:1px solid var(--linha-escura);
+  font-size:12.5px; color:rgba(255,255,255,.5);
+}
+
+/* ---------- Tela de obrigado ---------- */
+.obrigado{ padding-block:var(--e-8) var(--e-9); }
+@media (min-width:768px){ .obrigado{ padding-block:var(--e-9); } }
+.convite{
+  max-width:640px; margin-inline:auto; overflow:hidden;
+  border-radius:var(--r-lg); background:var(--paper);
+  box-shadow:0 1px 2px rgba(17,17,17,.04), 0 24px 56px -16px rgba(17,17,17,.16);
+}
+.convite__corpo{ display:grid; justify-items:center; gap:var(--e-4); padding:var(--e-6) var(--e-5) var(--e-6); text-align:center; }
+@media (min-width:600px){ .convite__corpo{ padding:var(--e-7) var(--e-8) var(--e-7); } }
+.confirmado{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px var(--e-3) 4px 6px; border-radius:var(--r-pill);
+  background:var(--turq-bg); color:var(--turq-txt);
+  font-size:13px; font-weight:600;
+}
+.confirmado svg{ width:18px; height:18px; }
+.convite h1{ font-size:clamp(32px,4.4vw,48px); max-width:14ch; }
+.convite__apoio{ color:var(--ink2); max-width:40ch; }
+.convite .btn{ min-height:56px; font-size:16px; margin-top:var(--e-3); padding-inline:var(--e-6); }
+@media (max-width:519px){ .convite .btn{ width:100%; } }
+.convite__letra{ display:grid; gap:var(--e-1); font-size:13.5px; color:var(--ink2); max-width:52ch; }
+.convite__letra strong{ color:var(--ink); font-weight:600; }
+
+.mostra{ margin-top:var(--e-9); }
+.mostra__cab{ display:grid; gap:var(--e-2); justify-items:center; text-align:center; margin-bottom:var(--e-6); }
+.mostra__cab h2{ font-size:clamp(24px,2.6vw,32px); letter-spacing:-.028em; }
+.mostra__cab p{ color:var(--ink2); max-width:46ch; text-wrap:balance; }
+.esteira{
+  overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.esteira__trilho{ display:flex; gap:var(--e-3); width:max-content; animation:correr 80s linear infinite; }
+.esteira:hover .esteira__trilho{ animation-play-state:paused; }
+.esteira__trilho img{ width:clamp(150px,16vw,200px); height:auto; aspect-ratio:4/5; object-fit:cover; border-radius:var(--r-md); background:var(--wash2); }
+@keyframes correr{ to{ transform:translateX(calc(-50% - var(--e-3) / 2)); } }
+.mostra .fichas{ justify-content:center; margin-top:var(--e-6); }
+.mostra .ficha{ background:var(--paper); }
+.rodape-mini{
+  padding-block:var(--e-5); border-top:1px solid var(--line);
+  font-size:12.5px; color:var(--ink2);
+}
+.rodape-mini .env{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:var(--e-2) var(--e-5); }
+.rodape-mini a{ border-bottom:2px solid var(--lima); }
+
+/* A esteira e as câmeras continuam andando com "reduzir movimento": o dono
+   quer ver a esteira em movimento no iPhone (15/09/2026). Só as transições
+   encurtam. */
+@media (prefers-reduced-motion:reduce){
+  *, *::before, *::after{ transition-duration:1ms !important; }
+}
+</style>
+<style data-demo>
+/* Moldura da demonstração. Não atravessa para o site. */
+.demo{
+  position:fixed; z-index:100; left:50%; transform:translateX(-50%);
+  bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  display:flex; align-items:center; gap:4px; padding:4px;
+  border-radius:100px; background:#111111; color:#fff;
+  box-shadow:0 10px 30px rgba(0,0,0,.28);
+  max-width:calc(100vw - 32px);
+}
+.demo__rot{ padding:0 10px 0 12px; font-family:'Space Mono', monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.6); white-space:nowrap; }
+.demo button{ min-height:36px; padding:0 14px; border-radius:100px; font-size:13px; font-weight:600; color:rgba(255,255,255,.75); white-space:nowrap; }
+.demo button[aria-pressed="true"]{ background:#fff; color:#111111; }
+@media (max-width:459px){ .demo__rot{ display:none; } }
+body{ padding-bottom:72px; }
+</style>
+
+<!-- ======================================================================
+     TELA 1 · PÁGINA DE INTERESSE
+     ==================================================================== -->
+<div class="tela" id="tela-interesse" data-tela="interesse">
+
+  <header class="cabecalho">
+    <div class="env cabecalho__interno">
+      <a class="marca" href="#topo" aria-label="Cora Render, início">
+        <img src="img/logo-cora.png" alt="Cora" width="266" height="64">
+        <span class="marca__selo rotulo-mono">Pré-lançamento</span>
+      </a>
+      <a class="btn btn--lima" href="#lista">Entrar na lista</a>
+    </div>
+  </header>
+
+  <main id="topo">
+    <section class="hero">
+      <div class="hero__video">
+        <video autoplay muted loop playsinline aria-hidden="true" poster="home/fc64e8ed45.jpg" src="home/09aa100a71.mp4"></video>
+      </div>
+      <div class="hero__veu" aria-hidden="true"></div>
+      <div class="env hero__interno">
+        <span class="vidro rotulo-mono"><span class="vidro__ponto" aria-hidden="true"></span>Lista de pré-lançamento</span>
+        <h1>O&nbsp;Cora Render abre em breve. Quem está na lista entra primeiro.</h1>
+        <p class="corpo-g hero__apoio">Do modelo 3D à apresentação final sem trocar de programa, no SketchUp ou no navegador. A&nbsp;plataforma está pronta, e a venda abre primeiro para quem se inscrever aqui.</p>
+        <div class="btn-grupo">
+          <a class="btn btn--lima" href="#lista">Entrar na lista</a>
+          <a class="btn btn--claro" href="#prova">Ver o Cora em ação</a>
+        </div>
+        <p class="hero__nota rotulo-mono">Sem custo e sem cartão</p>
+      </div>
+    </section>
+
+    <section class="secao papel" id="como-funciona">
+      <div class="env">
+        <div class="cab">
+          <h2>O&nbsp;fluxo inteiro em três passos.</h2>
+          <p class="corpo-g">Você continua modelando do seu jeito. O&nbsp;Cora entra depois, para ler a cena e gerar a imagem.</p>
+        </div>
+        <ol class="passos">
+          <li class="passo">
+            <span class="passo__n" aria-hidden="true">1</span>
+            <h3>Modele e enquadre como sempre.</h3>
+            <p>Continue no SketchUp do jeito que você já trabalha. O&nbsp;Cora marca na viewport o recorte exato que vai virar imagem.</p>
+          </li>
+          <li class="passo">
+            <span class="passo__n" aria-hidden="true">2</span>
+            <h3>O&nbsp;Cora lê a cena.</h3>
+            <p>Antes de gerar, ele identifica os materiais e a luz que você aplicou no 3D. Você confere essa leitura, ajusta o que precisar e aprova.</p>
+          </li>
+          <li class="passo">
+            <span class="passo__n" aria-hidden="true">3</span>
+            <h3>Gere e refine no mesmo lugar.</h3>
+            <p>A&nbsp;imagem sai fiel à geometria. Dali você corrige detalhes, troca o clima, cria o 360° e amplia a resolução sem abrir outro programa.</p>
+          </li>
+        </ol>
+        <p class="passos__nota"><strong>Não usa SketchUp?</strong> Na versão web, o primeiro passo é subir uma imagem. O&nbsp;resto é igual.</p>
+      </div>
+    </section>
+
+    <section class="secao escura" id="prova">
+      <div class="env">
+        <div class="cab">
+          <h2>Do print ao render, sem perder o projeto.</h2>
+          <p class="corpo-g">Imagens geradas no Cora a partir de projetos reais. Arraste, troque de câmera e gire o ambiente.</p>
+        </div>
+
+        <div class="provas">
+          <figure class="prova prova--larga">
+            <div class="prova__quadro">
+              <div class="comparador" style="--pos:50%">
+                <img class="comparador__img" src="home/fc64e8ed45.jpg" alt="A cena renderizada no Cora: estar e jantar com laje de concreto aparente, mesa de mármore verde, painel de madeira e o jardim atrás do vidro">
+                <div class="comparador__frente">
+                  <img class="comparador__img" src="home/c09de11c06.jpg" alt="A mesma cena crua na viewport do SketchUp, com o mesmo enquadramento, sem luz configurada e com materiais planos">
+                </div>
+                <span class="etiqueta-img etiqueta-img--antes rotulo-mono">SketchUp</span>
+                <span class="etiqueta-img etiqueta-img--depois rotulo-mono">Cora</span>
+                <span class="comparador__linha" aria-hidden="true"></span>
+                <span class="comparador__botao" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7 4 12l5 5M15 7l5 5-5 5M4 12h16"/></svg>
+                </span>
+                <input class="comparador__alca" id="comparar-render" type="range" min="0" max="100" value="50" step="1" aria-label="Arraste para comparar o print do SketchUp com o render do Cora">
+              </div>
+              <span class="credito">@mateuspinheiroarq</span>
+            </div>
+            <figcaption>
+              <h3>O&nbsp;ponto de partida</h3>
+              <p>A&nbsp;cena crua do SketchUp, sem material tratado e sem luz. Arraste para ver o render que saiu dela.</p>
+            </figcaption>
+          </figure>
+
+          <figure class="prova">
+            <div class="prova__quadro">
+              <div class="vistas" id="vistas" data-pausado="false">
+                <div class="vistas__barras" role="tablist" aria-label="Câmeras do mesmo ambiente">
+                  <button class="vistas__barra" type="button" role="tab" id="cam-1" aria-selected="true" aria-label="Câmera 1"><i><b></b></i></button>
+                  <button class="vistas__barra" type="button" role="tab" id="cam-2" aria-selected="false" aria-label="Câmera 2"><i><b></b></i></button>
+                  <button class="vistas__barra" type="button" role="tab" id="cam-3" aria-selected="false" aria-label="Câmera 3"><i><b></b></i></button>
+                  <button class="vistas__barra" type="button" role="tab" id="cam-4" aria-selected="false" aria-label="Câmera 4"><i><b></b></i></button>
+                  <button class="vistas__barra" type="button" role="tab" id="cam-5" aria-selected="false" aria-label="Câmera 5"><i><b></b></i></button>
+                </div>
+                <span class="vistas__cam rotulo-mono" aria-live="polite">Câmera 1 de 5</span>
+                <div class="vistas__item" data-ativo="true"><img src="home/59a9f52390.jpg" alt="Jantar e cozinha sob o mesmo teto ripado, com banquetas na bancada"></div>
+                <div class="vistas__item" data-ativo="false"><img src="home/ec3fa6607f.jpg" alt="Estar com parede de concreto aparente, poltrona amarela e o jardim atrás do vidro" loading="lazy"></div>
+                <div class="vistas__item" data-ativo="false"><img src="home/b11e84b4e4.jpg" alt="Mesa de jantar com cadeiras verdes e luminária de discos, escada e cozinha ao fundo" loading="lazy"></div>
+                <div class="vistas__item" data-ativo="false"><img src="home/7046f5e09d.jpg" alt="Estar voltado para o jardim, com televisor embutido na parede de concreto" loading="lazy"></div>
+                <div class="vistas__item" data-ativo="false"><img src="home/28c51d1913.jpg" alt="Estar com painel de madeira, televisor, duas poltronas amarelas e a escada ao fundo" loading="lazy"></div>
+              </div>
+              <span class="credito">@9barra7</span>
+            </div>
+            <figcaption>
+              <h3>Cinco câmeras, um ambiente só</h3>
+              <p>A&nbsp;madeira, o piso e a luz continuam os mesmos em todas as vistas do projeto.</p>
+            </figcaption>
+          </figure>
+
+          <figure class="prova">
+            <div class="prova__quadro">
+              <div class="comparador" style="--pos:50%">
+                <img class="comparador__img" src="home/df875634d5.jpg" alt="A planta humanizada pelo Cora, com piso paginado, mobiliário, vegetação e sombras" loading="lazy">
+                <div class="comparador__frente">
+                  <img class="comparador__img" src="home/e7a8dcf5b2.jpg" alt="A planta técnica em linhas, exportada do CAD, no mesmo recorte e na mesma escala" loading="lazy">
+                </div>
+                <span class="etiqueta-img etiqueta-img--antes rotulo-mono">Técnica</span>
+                <span class="etiqueta-img etiqueta-img--depois rotulo-mono">Humanizada</span>
+                <span class="comparador__linha" aria-hidden="true"></span>
+                <span class="comparador__botao" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7 4 12l5 5M15 7l5 5-5 5M4 12h16"/></svg>
+                </span>
+                <input class="comparador__alca" id="comparar-planta" type="range" min="0" max="100" value="50" step="1" aria-label="Arraste para comparar a planta técnica com a planta humanizada">
+              </div>
+            </div>
+            <figcaption>
+              <h3>A&nbsp;planta mobiliada</h3>
+              <p>Do desenho técnico à planta humanizada, na mesma escala e no mesmo recorte.</p>
+            </figcaption>
+          </figure>
+
+          <figure class="prova prova--larga prova--panorama">
+            <div class="prova__quadro">
+              <div class="visor" id="visor-360" tabindex="0" role="img" aria-label="Sala em 360 graus. Arraste ou use as setas do teclado para girar.">
+                <canvas id="canvas-360"></canvas>
+                <span class="visor__dica" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7 4 12l5 5M15 7l5 5-5 5"/></svg>
+                  Arraste para girar
+                </span>
+              </div>
+            </div>
+            <figcaption>
+              <h3>O&nbsp;giro de 360°</h3>
+              <p>A&nbsp;sala inteira a partir de uma câmera do SketchUp, pronta para virar tour virtual.</p>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="prova__espelho">
+          <h3>E&nbsp;o espelho reflete o que existe no modelo.</h3>
+          <p>O&nbsp;plugin calcula o reflexo a partir da sua cena. O&nbsp;ambiente que aparece no espelho é o do projeto, e não um inventado pela IA.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao wash" id="onde">
+      <div class="env">
+        <div class="cab">
+          <h2>No SketchUp ou no navegador.</h2>
+          <p class="corpo-g">Mesma conta e mesmo histórico nos dois. O&nbsp;que muda é por onde você começa.</p>
+        </div>
+        <div class="onde">
+          <article class="onde__card">
+            <p class="onde__tipo rotulo-mono">Plugin para SketchUp</p>
+            <h3>Direto da sua cena, sem exportar nada.</h3>
+            <p>O&nbsp;plugin reconhece a geometria e os materiais aplicados, captura o enquadramento da viewport e calcula o reflexo real dos espelhos. As ferramentas de materiais, blocos e otimização rodam na sua máquina.</p>
+            <ul class="fichas" aria-label="Destaques do plugin">
+              <li class="ficha">Leitura da cena</li>
+              <li class="ficha">Reflexo do espelho</li>
+              <li class="ficha">Render 360°</li>
+              <li class="ficha">Material ID</li>
+            </ul>
+          </article>
+          <article class="onde__card">
+            <p class="onde__tipo rotulo-mono">Versão web</p>
+            <h3>Qualquer imagem vira ponto de partida.</h3>
+            <p>Para quem modela em Revit, Archicad ou Promob, ou parte de uma foto de obra ou de um croqui. É&nbsp;só subir a imagem e seguir com o render e as edições pelo navegador, no computador, no tablet ou no celular.</p>
+            <ul class="fichas" aria-label="De onde dá para partir">
+              <li class="ficha">Revit</li>
+              <li class="ficha">Archicad</li>
+              <li class="ficha">Promob</li>
+              <li class="ficha">Foto de obra</li>
+              <li class="ficha">Croqui</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao escura" id="quem-fez">
+      <div class="env autoria">
+        <div class="autoria__texto">
+          <h2>Criado por quem faz isso todo dia.</h2>
+          <p class="corpo-g">Marilia Fischer é arquiteta e trabalha com imagem de arquitetura há 10 anos. Fundou o 9barra7, estúdio de renderização que atende construtoras e escritórios.</p>
+          <p class="corpo-g">O&nbsp;Cora nasceu do fluxo de trabalho dela. São as ferramentas que ela usa no estúdio e ensina no 9barra7 Academy.</p>
+          <div class="autoria__numero">
+            <p class="autoria__valor">2.000+</p>
+            <p class="autoria__rotulo">alunos em 12 países</p>
+          </div>
+        </div>
+        <figure class="autoria__foto">
+          <img src="home/54473497c6.jpg" alt="Marilia Fischer, arquiteta, fundadora do 9barra7 e criadora do Cora Render" width="1200" height="1499" loading="lazy">
+          <figcaption class="autoria__fala">
+            <blockquote>“A IA não conhece o seu cliente, nem a intenção do projeto, nem quais decisões de arquitetura são inegociáveis. Essa leitura continua sendo sua. O&nbsp;Cora acelera o resto.”</blockquote>
+            <span>
+              <span class="autoria__nome">Marilia Fischer</span>
+              <span class="autoria__papel">Arquiteta, fundadora do 9barra7 e criadora do Cora Render</span>
+            </span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <div class="faixa" aria-hidden="true"></div>
+
+    <section class="secao wash" id="lista">
+      <div class="env lista">
+        <div class="lista__texto">
+          <h2>Entre na lista do Cora.</h2>
+          <p class="corpo-g">O&nbsp;Cora está pronto. O&nbsp;que ainda não abriu é a venda, e ela abre primeiro para quem estiver aqui.</p>
+
+          <div class="depois">
+            <p class="depois__t rotulo-mono">O&nbsp;que acontece depois</p>
+            <ol>
+              <li data-agora="true">
+                <span class="depois__n" aria-hidden="true">1</span>
+                <span class="depois__corpo">
+                  <strong>Você entra na lista <span class="agora rotulo-mono">Agora</span></strong>
+                  <span>Nome, e-mail e WhatsApp, sem cartão.</span>
+                </span>
+              </li>
+              <li>
+                <span class="depois__n" aria-hidden="true">2</span>
+                <span class="depois__corpo">
+                  <strong>Recebe o convite para o grupo no WhatsApp</strong>
+                  <span>O&nbsp;link aparece na tela seguinte e chega também no seu e-mail.</span>
+                </span>
+              </li>
+              <li>
+                <span class="depois__n" aria-hidden="true">3</span>
+                <span class="depois__corpo">
+                  <strong>Conhece o Cora por dentro</strong>
+                  <span>A&nbsp;cada poucos dias, a equipe do 9barra7 mostra uma ferramenta em uso e responde às dúvidas que mais aparecem.</span>
+                </span>
+              </li>
+              <li>
+                <span class="depois__n" aria-hidden="true">4</span>
+                <span class="depois__corpo">
+                  <strong>Recebe a oferta antes de todo mundo</strong>
+                  <span>A&nbsp;venda abre primeiro para o grupo, com acompanhamento mais próximo da equipe nas primeiras semanas.</span>
+                </span>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <form class="form" id="form-lista" novalidate>
+          <div class="form__cab">
+            <h3>Seus dados</h3>
+            <p>Os três campos são obrigatórios.</p>
+          </div>
+          <div class="campos">
+            <div class="campo" id="campo-nome">
+              <label for="nome">Nome</label>
+              <input id="nome" name="nome" type="text" autocomplete="name" placeholder="Seu nome" required>
+              <p class="campo__erro" id="erro-nome" aria-live="polite"></p>
+            </div>
+            <div class="campo" id="campo-email">
+              <label for="email">E-mail</label>
+              <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="voce@escritorio.com.br" required>
+              <p class="campo__erro" id="erro-email" aria-live="polite"></p>
+            </div>
+            <div class="campo" id="campo-whats">
+              <label for="whats">WhatsApp com DDD</label>
+              <input id="whats" name="whatsapp" type="tel" autocomplete="tel-national" inputmode="numeric" placeholder="(11) 98765-4321" maxlength="16" required>
+              <p class="campo__erro" id="erro-whats" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <label class="aceite" id="campo-aceite" for="aceite">
+            <input id="aceite" name="aceite" type="checkbox" required>
+            <span class="aceite__texto">Aceito receber mensagens do Cora Render e do 9barra7 por e-mail e por WhatsApp. Posso pedir para sair quando quiser. Veja a <a href="#privacidade">Política de Privacidade</a>.</span>
+          </label>
+          <p class="campo__erro" id="erro-aceite" aria-live="polite"></p>
+
+          <div class="form__rodape">
+            <button class="btn btn--lima btn--largo" type="submit">Entrar na lista</button>
+            <p class="form__nota">Na tela seguinte você recebe o link do grupo.</p>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="secao papel" id="perguntas">
+      <div class="env faq">
+        <h2>Antes de entrar</h2>
+        <div class="faq__lista">
+          <div class="faq__item">
+            <button class="faq__gat" type="button" aria-expanded="true" aria-controls="resp-1" id="perg-1">Por que não dá para assinar hoje?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
+            <div class="faq__resp" id="resp-1" role="region" aria-labelledby="perg-1"><div><p>Porque a venda abre por turmas, e a primeira turma sai da lista. Assim a equipe consegue acompanhar de perto quem entra primeiro. O&nbsp;Cora está pronto e já roda no dia a dia do estúdio do 9barra7.</p></div></div>
+          </div>
+          <div class="faq__item">
+            <button class="faq__gat" type="button" aria-expanded="false" aria-controls="resp-2" id="perg-2">Entrar na lista tem algum custo?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
+            <div class="faq__resp" id="resp-2" role="region" aria-labelledby="perg-2"><div><p>Não. Você não paga nada e não informa cartão. A&nbsp;lista garante que a oferta chegue para você antes de abrir para todo mundo.</p></div></div>
+          </div>
+          <div class="faq__item">
+            <button class="faq__gat" type="button" aria-expanded="false" aria-controls="resp-3" id="perg-3">Preciso usar SketchUp?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
+            <div class="faq__resp" id="resp-3" role="region" aria-labelledby="perg-3"><div><p>Não. O&nbsp;plugin é o caminho para quem já modela no SketchUp. A&nbsp;versão web parte de qualquer imagem, então quem trabalha em Revit, Archicad, Promob ou à mão também usa. A&nbsp;conta e o histórico são os mesmos nas duas.</p></div></div>
+          </div>
+          <div class="faq__item">
+            <button class="faq__gat" type="button" aria-expanded="false" aria-controls="resp-4" id="perg-4">O&nbsp;grupo vai lotar meu WhatsApp?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
+            <div class="faq__resp" id="resp-4" role="region" aria-labelledby="perg-4"><div><p>Não. Só a equipe do 9barra7 escreve no grupo, e as mensagens chegam a cada três a cinco dias. Você pode sair quando quiser.</p></div></div>
+          </div>
+          <div class="faq__item">
+            <button class="faq__gat" type="button" aria-expanded="false" aria-controls="resp-5" id="perg-5">O&nbsp;Cora substitui o V-Ray ou o Enscape?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
+            <div class="faq__resp" id="resp-5" role="region" aria-labelledby="perg-5"><div><p>Essa é a proposta. Em vez de passar horas configurando luz física e mapas de material, você gera imagens com qualidade de apresentação em poucos minutos, direto do seu arquivo. E&nbsp;o processamento é na nuvem, então o computador não trava.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape" id="privacidade">
+    <div class="env">
+      <div class="rodape__grade">
+        <div class="rodape__marca">
+          <img src="img/logo-cora.png" alt="Cora" width="266" height="64">
+          <p>Um produto do 9barra7.</p>
+        </div>
+        <nav class="rodape__links" aria-label="Links legais">
+          <a href="#privacidade">Política de Privacidade</a>
+          <a href="#privacidade">Termos de Uso</a>
+          <a href="#privacidade">Suporte</a>
+        </nav>
+      </div>
+      <p class="rodape__base">© 2026 9barra7. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+</div>
+
+<!-- ======================================================================
+     TELA 2 · OBRIGADO
+     Sem menu e sem rodapé cheio. O link do grupo é a única coisa em
+     destaque, e o resto cabe em uma dobra.
+     ==================================================================== -->
+<div class="tela" id="tela-obrigado" data-tela="obrigado" hidden>
+  <header class="cabecalho">
+    <div class="env cabecalho__interno">
+      <span class="marca">
+        <img src="img/logo-cora.png" alt="Cora" width="266" height="64">
+        <span class="marca__selo rotulo-mono">Pré-lançamento</span>
+      </span>
+    </div>
+  </header>
+
+  <main class="obrigado wash">
+    <div class="env">
+      <div class="convite">
+        <div class="faixa faixa--fina" aria-hidden="true"></div>
+        <div class="convite__corpo">
+          <span class="confirmado">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.2 2.4 2.4 4.6-4.9"/></svg>
+            Você está na lista
+          </span>
+          <h1 id="obrigado-titulo">Falta um passo: entrar no grupo.</h1>
+          <p class="corpo-g convite__apoio">É&nbsp;no grupo do WhatsApp que a venda do Cora abre primeiro. Até lá, é por ele que chegam as novidades.</p>
+          <a class="btn btn--lima" id="link-grupo" href="#grupo-whatsapp">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z"/><path d="M9.2 9.3c.3 1.9 1.6 3.6 3.6 4.4l1-1 1.7.8-.4 1.3c-2.9.1-6-2.7-6.2-5.7l1.3-.4.8 1.6Z"/></svg>
+            Entrar no grupo do WhatsApp
+          </a>
+          <div class="convite__letra">
+            <p><strong>Grupo só de avisos.</strong> Quem escreve lá é a equipe do 9barra7.</p>
+            <p>O&nbsp;link também foi para <span id="obrigado-email">o seu e-mail</span>.</p>
+          </div>
+        </div>
+      </div>
+
+      <section class="mostra" aria-labelledby="mostra-titulo">
+        <div class="mostra__cab">
+          <h2 id="mostra-titulo">Enquanto isso, um pouco do que sai do Cora.</h2>
+          <p>Imagens geradas na plataforma, de projetos de interiores, fachadas e plantas.</p>
+        </div>
+        <div class="esteira">
+          <div class="esteira__trilho" id="esteira"></div>
+        </div>
+        <ul class="fichas" aria-label="Ferramentas do Cora">
+          <li class="ficha">Leitura de materiais</li>
+          <li class="ficha">Mesma luz em todas as vistas</li>
+          <li class="ficha">Planta humanizada</li>
+          <li class="ficha">Render 360°</li>
+          <li class="ficha">Edição por descrição</li>
+          <li class="ficha">Upscale</li>
+          <li class="ficha">Animação</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="rodape-mini">
+    <div class="env">
+      <span>© 2026 9barra7</span>
+      <a href="#privacidade">Política de Privacidade</a>
+    </div>
+  </footer>
+</div>
+
+<nav class="demo" aria-label="Trocar de tela na demonstração">
+  <span class="demo__rot">Protótipo · nada é enviado</span>
+  <button type="button" data-ir="interesse" aria-pressed="true">Interesse</button>
+  <button type="button" data-ir="obrigado" aria-pressed="false">Obrigado</button>
+</nav>
+
+<script>
+(function(){
+  var semMov = false;
+  try { semMov = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
+
+  /* ---------- Troca de tela (só na demonstração) ---------- */
+  var telas = document.querySelectorAll('.tela');
+  var botoesDemo = document.querySelectorAll('.demo button');
+  function irPara(nome){
+    telas.forEach(function(t){ t.hidden = t.dataset.tela !== nome; });
+    botoesDemo.forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.ir === nome)); });
+    window.scrollTo(0, 0);
+    if (nome === 'interesse') { redimensionar360(); }
+  }
+  botoesDemo.forEach(function(b){ b.addEventListener('click', function(){ irPara(b.dataset.ir); }); });
+
+  /* ---------- Comparadores ---------- */
+  document.querySelectorAll('.comparador').forEach(function(comp){
+    var alca = comp.querySelector('.comparador__alca');
+    alca.addEventListener('input', function(){ comp.style.setProperty('--pos', alca.value + '%'); });
+  });
+
+  /* ---------- As cinco câmeras ---------- */
+  var vistas = document.getElementById('vistas');
+  if (vistas){
+    var itens = [].slice.call(vistas.querySelectorAll('.vistas__item'));
+    var barras = [].slice.call(vistas.querySelectorAll('.vistas__barra'));
+    var legenda = vistas.querySelector('.vistas__cam');
+    var atual = 0;
+    function ir(i){
+      atual = (i + itens.length) % itens.length;
+      itens.forEach(function(it, k){ it.dataset.ativo = String(k === atual); });
+      barras.forEach(function(b, k){
+        b.setAttribute('aria-selected', String(k === atual));
+        b.tabIndex = k === atual ? 0 : -1;
+        b.dataset.status = k < atual ? 'completa' : (k > atual ? 'pendente' : 'ativa');
+        var f = b.querySelector('b');
+        f.style.animation = 'none'; void f.offsetWidth; f.style.animation = '';
+      });
+      legenda.textContent = 'Câmera ' + (atual + 1) + ' de ' + itens.length;
+    }
+    barras.forEach(function(b, k){
+      b.querySelector('b').addEventListener('animationend', function(){
+        if (b.dataset.status === 'ativa') ir(atual + 1);
+      });
+      b.addEventListener('click', function(){ ir(k); });
+      b.addEventListener('keydown', function(e){
+        if (e.key === 'ArrowRight'){ e.preventDefault(); ir(atual + 1); barras[atual].focus(); }
+        if (e.key === 'ArrowLeft'){ e.preventDefault(); ir(atual - 1); barras[atual].focus(); }
+      });
+    });
+    function pausar(v){ vistas.dataset.pausado = String(v); }
+    vistas.addEventListener('pointerdown', function(){ pausar(true); });
+    ['pointerup','pointercancel','pointerleave'].forEach(function(ev){ vistas.addEventListener(ev, function(){ pausar(false); }); });
+    ir(0);
+  }
+
+  /* ---------- 360 (o mesmo recorte equirretangular da home) ---------- */
+  var visor = document.getElementById('visor-360');
+  var canvas = document.getElementById('canvas-360');
+  var ctx = canvas && canvas.getContext('2d');
+  var img = new Image(), pronta = false;
+  var yaw = Math.PI, pitch = 0, vYaw = 0, vPitch = 0, arrastando = false, ux = 0, uy = 0;
+  function redimensionar360(){
+    if (!visor) return;
+    var r = visor.getBoundingClientRect();
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+    if (w && h && (canvas.width !== w || canvas.height !== h)){ canvas.width = w; canvas.height = h; }
+    desenhar();
+  }
+  function desenhar(){
+    if (!ctx) return;
+    var w = canvas.width, h = canvas.height;
+    if (!w || !h) return;
+    if (!pronta){ ctx.fillStyle = '#0e1013'; ctx.fillRect(0, 0, w, h); return; }
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    var ar = w / h, hfov = Math.PI * 0.8;
+    var vfov = ar >= 1 ? hfov / ar : hfov * (h / w);
+    var hEff = ar >= 1 ? hfov : vfov * ar;
+    var maxP = Math.max(0.2, Math.min(0.5, (Math.PI - vfov) * 0.5 - 0.05));
+    pitch = Math.max(-maxP, Math.min(maxP, pitch));
+    var IW = img.naturalWidth, IH = img.naturalHeight;
+    var u = ((yaw - hEff / 2) / (2 * Math.PI)) % 1; if (u < 0) u += 1;
+    var sx = u * IW, sw = hEff / (2 * Math.PI) * IW;
+    var vTop = (Math.PI / 2 - (pitch + vfov / 2)) / Math.PI;
+    var sy = Math.max(0, Math.min(IH, vTop * IH));
+    var sh = Math.max(1, Math.min(IH - sy, vfov / Math.PI * IH));
+    if (sx + sw <= IW){ ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h); }
+    else {
+      var sw1 = IW - sx, dw1 = sw1 / sw * w;
+      ctx.drawImage(img, sx, sy, sw1, sh, 0, 0, dw1, h);
+      ctx.drawImage(img, 0, sy, sw - sw1, sh, dw1, 0, w - dw1, h);
+    }
+  }
+  if (visor && ctx){
+    img.onload = function(){ pronta = true; redimensionar360(); };
+    img.src = 'home/360-sala-03.jpg';
+    var visivel = true;
+    if ('IntersectionObserver' in window){
+      new IntersectionObserver(function(es){ visivel = es[0].isIntersecting; }).observe(visor);
+    }
+    (function laco(){
+      if (visivel && pronta){
+        if (!arrastando){
+          if (Math.abs(vYaw) > 0.0001 || Math.abs(vPitch) > 0.0001){
+            yaw += vYaw; pitch += vPitch; vYaw *= 0.92; vPitch *= 0.92;
+          } else if (!semMov){ yaw += 0.0008; }
+        }
+        desenhar();
+      }
+      requestAnimationFrame(laco);
+    })();
+    visor.addEventListener('pointerdown', function(e){
+      arrastando = true; ux = e.clientX; uy = e.clientY; vYaw = vPitch = 0;
+      visor.dataset.mexeu = 'true';
+      try { visor.setPointerCapture(e.pointerId); } catch(err){}
+    });
+    visor.addEventListener('pointermove', function(e){
+      if (!arrastando) return;
+      var dx = e.clientX - ux, dy = e.clientY - uy;
+      yaw -= dx * 0.0035; pitch += dy * 0.0025;
+      vYaw = -dx * 0.003; vPitch = dy * 0.002;
+      ux = e.clientX; uy = e.clientY;
+    });
+    ['pointerup','pointercancel'].forEach(function(ev){ visor.addEventListener(ev, function(){ arrastando = false; }); });
+    visor.addEventListener('keydown', function(e){
+      if (e.key === 'ArrowLeft'){ e.preventDefault(); vYaw = -0.03; visor.dataset.mexeu = 'true'; }
+      if (e.key === 'ArrowRight'){ e.preventDefault(); vYaw = 0.03; visor.dataset.mexeu = 'true'; }
+    });
+    window.addEventListener('resize', redimensionar360);
+    redimensionar360();
+  }
+
+  /* ---------- Perguntas ---------- */
+  document.querySelectorAll('.faq__gat').forEach(function(g){
+    g.addEventListener('click', function(){
+      g.setAttribute('aria-expanded', String(g.getAttribute('aria-expanded') !== 'true'));
+    });
+  });
+
+  /* ---------- Formulário ---------- */
+  var form = document.getElementById('form-lista');
+  var nome = document.getElementById('nome');
+  var email = document.getElementById('email');
+  var whats = document.getElementById('whats');
+  var aceite = document.getElementById('aceite');
+
+  function mascara(v){
+    var d = v.replace(/\D/g, '').slice(0, 11);
+    if (d.length <= 2) return d.length ? '(' + d : '';
+    if (d.length <= 6) return '(' + d.slice(0, 2) + ') ' + d.slice(2);
+    if (d.length <= 10) return '(' + d.slice(0, 2) + ') ' + d.slice(2, 6) + '-' + d.slice(6);
+    return '(' + d.slice(0, 2) + ') ' + d.slice(2, 7) + '-' + d.slice(7);
+  }
+  whats.addEventListener('input', function(){ whats.value = mascara(whats.value); });
+
+  function marcar(campoId, erroId, input, msg){
+    var campo = document.getElementById(campoId);
+    campo.dataset.erro = String(!!msg);
+    document.getElementById(erroId).textContent = msg || '';
+    if (input){
+      input.setAttribute('aria-invalid', String(!!msg));
+      if (msg) input.setAttribute('aria-describedby', erroId); else input.removeAttribute('aria-describedby');
+    }
+    return !msg;
+  }
+  function validar(){
+    var ok = true, primeiro = null;
+    var n = nome.value.trim();
+    var em = email.value.trim();
+    var dig = whats.value.replace(/\D/g, '');
+    if (!marcar('campo-nome', 'erro-nome', nome, n.length < 2 ? 'Escreva seu nome.' : '')){ ok = false; primeiro = primeiro || nome; }
+    if (!marcar('campo-email', 'erro-email', email, /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em) ? '' : 'Confira o e-mail. Ele precisa ter @ e o domínio, como voce@escritorio.com.br.')){ ok = false; primeiro = primeiro || email; }
+    if (!marcar('campo-whats', 'erro-whats', whats, (dig.length === 10 || dig.length === 11) ? '' : 'Informe o número com DDD, como (11) 98765-4321.')){ ok = false; primeiro = primeiro || whats; }
+    if (!marcar('campo-aceite', 'erro-aceite', null, aceite.checked ? '' : 'Para entrar na lista, marque a autorização de contato.')){ ok = false; primeiro = primeiro || aceite; }
+    if (primeiro) primeiro.focus();
+    return ok;
+  }
+  [nome, email, whats].forEach(function(i){
+    i.addEventListener('blur', function(){
+      var c = i.closest('.campo');
+      if (c.dataset.erro === 'true') validar();
+    });
+  });
+  aceite.addEventListener('change', function(){ if (aceite.checked) marcar('campo-aceite', 'erro-aceite', null, ''); });
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (!validar()) return;
+    var primeiroNome = nome.value.trim().split(/\s+/)[0];
+    document.getElementById('obrigado-titulo').textContent = primeiroNome + ', falta um passo: entrar no grupo.';
+    document.getElementById('obrigado-email').textContent = email.value.trim();
+    irPara('obrigado');
+  });
+
+  /* ---------- Esteira da tela de obrigado ---------- */
+  var trilho = document.getElementById('esteira');
+  var ordem = ['01','09','03','14','06','17','10','02','19','08','12','04','16','07','20','11','05','15','13','18'];
+  var html = '';
+  for (var volta = 0; volta < 2; volta++){
+    ordem.forEach(function(n){
+      html += '<img src="esteira/' + n + '.jpg" alt=""' + (volta ? ' aria-hidden="true"' : '') + ' loading="lazy" width="600" height="750">';
+    });
+  }
+  trilho.innerHTML = html;
+})();
+</script>
