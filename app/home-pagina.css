@@ -796,7 +796,16 @@
     position:absolute; inset:0; width:100%; height:100%;
     border-radius:var(--r-lg); overflow:hidden; cursor:grab;
     touch-action:none; user-select:none; -webkit-user-select:none;
-  }.hm .visor-360:active{ cursor:grabbing; }.hm .visor-360 canvas{ width:100%; height:100%; display:block; }/* =========================================================
+  }.hm .visor-360:active{ cursor:grabbing; }.hm .visor-360 canvas{ width:100%; height:100%; display:block; }/* A dica do 360, no centro da imagem. Some no primeiro arraste ou seta do
+   teclado (pedido do dono, 16/09/2026, a partir da página de interesse). */.hm .visor-360__dica{
+    position:absolute; z-index:3; left:50%; top:50%; transform:translate(-50%,-50%);
+    display:inline-flex; align-items:center; gap:var(--e-2);
+    padding:var(--e-2) var(--e-4); border-radius:var(--r-pill);
+    background:rgba(0,0,0,.45);
+    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+    color:var(--paper); font-size:13.5px; font-weight:500; line-height:1.2; white-space:nowrap;
+    pointer-events:none; transition:opacity 300ms var(--easing);
+  }.hm .visor-360__dica svg{ width:18px; height:18px; flex:none; }.hm .visor-360[data-mexeu="true"] .visor-360__dica{ opacity:0; }/* =========================================================
      9b - A FAIXA DA MARCA
      =========================================================
      Fecha a autoria e abre os planos: sai a conversa sobre quem fez, entra a
