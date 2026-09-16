@@ -12,17 +12,18 @@
    de escopo e não desenho novo. Tema único, claro com seções pretas, como o
    site público.
    ========================================================================= */
-/* A mesma DM Sans do site (globals.css), com o size-adjust de 88%. Sem ele,
-   a da Google sai 12% maior que a home com os mesmos px. O gerador de CSS
-   descarta @font-face, porque no site ela já vem do globals. */
+/* O mesmo arquivo de DM Sans do site, no tamanho nominal, como a home faz
+   com a família irmã 'DM Sans TC' (home-pagina.css). Nem a do Google, que
+   desenha diferente, nem o size-adjust de 88% do globals, que deixa tudo 12%
+   menor. Ao portar, usar a 'DM Sans TC' da home. */
 @font-face{
   font-family:'DM Sans'; src:url('fontes/DMSans-latin.woff2') format('woff2');
-  font-weight:100 1000; font-style:normal; font-display:swap; size-adjust:88%;
+  font-weight:100 1000; font-style:normal; font-display:swap;
   unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face{
   font-family:'DM Sans'; src:url('fontes/DMSans-latin-ext.woff2') format('woff2');
-  font-weight:100 1000; font-style:normal; font-display:swap; size-adjust:88%;
+  font-weight:100 1000; font-style:normal; font-display:swap;
   unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 :root{
@@ -657,6 +658,20 @@ html:has(.galeria[open]){ overflow:hidden; }
 /* A esteira e as câmeras continuam andando com "reduzir movimento": o dono
    quer ver a esteira em movimento no iPhone (15/09/2026). Só as transições
    encurtam. */
+/* ---------- Voltar ao topo: o da home ---------- */
+.ao-topo{
+  position:fixed; right:24px; bottom:calc(24px + env(safe-area-inset-bottom, 0px)); z-index:3100;
+  width:46px; height:46px; display:grid; place-items:center;
+  border-radius:50%; background:var(--paper); color:var(--ink);
+  border:1px solid var(--line); box-shadow:0 6px 20px rgba(17,17,17,.14);
+  opacity:0; visibility:hidden; transform:translateY(10px);
+  transition:opacity 260ms ease, transform 260ms ease, visibility 260ms, background-color 160ms ease;
+}
+.ao-topo[data-ver="true"]{ opacity:1; visibility:visible; transform:none; }
+.ao-topo svg{ width:18px; height:18px; }
+@media (hover:hover) and (pointer:fine){ .ao-topo:hover{ background:var(--lima); border-color:var(--lima); color:#111111; } }
+@media (max-width:640px){ .ao-topo{ right:16px; bottom:calc(16px + env(safe-area-inset-bottom, 0px)); width:42px; height:42px; } }
+
 @media (prefers-reduced-motion:reduce){
   *, *::before, *::after{ transition-duration:1ms !important; }
 }
@@ -984,7 +999,7 @@ body{ padding-bottom:72px; }
 
     <section class="secao papel" id="perguntas">
       <div class="env faq">
-        <h2>Antes de entrar</h2>
+        <h2>Perguntas frequentes</h2>
         <div class="faq__lista">
           <div class="faq__item">
             <button class="faq__gat" type="button" aria-expanded="true" aria-controls="resp-1" id="perg-1">Por que não dá para assinar hoje?<span class="faq__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span></button>
@@ -1100,6 +1115,10 @@ body{ padding-bottom:72px; }
   </footer>
 </div>
 
+<button class="ao-topo" id="ao-topo" type="button" data-ver="false" aria-label="Voltar ao topo" title="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+</button>
+
 <nav class="demo" aria-label="Trocar de tela na demonstração">
   <span class="demo__rot">Protótipo · nada é enviado</span>
   <button type="button" data-ir="interesse" aria-pressed="true">Interesse</button>
@@ -1110,6 +1129,13 @@ body{ padding-bottom:72px; }
 (function(){
   var semMov = false;
   try { semMov = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
+
+  /* ---------- Voltar ao topo: aparece depois de descer ---------- */
+  var aoTopo = document.getElementById('ao-topo');
+  function olharTopo(){ aoTopo.dataset.ver = String(window.scrollY > 520); }
+  window.addEventListener('scroll', olharTopo, { passive: true });
+  olharTopo();
+  aoTopo.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: semMov ? 'auto' : 'smooth' }); });
 
   /* ---------- Troca de tela (só na demonstração) ---------- */
   var telas = document.querySelectorAll('.tela');
