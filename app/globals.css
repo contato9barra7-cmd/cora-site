@@ -12829,6 +12829,17 @@ textarea.sup-campo { border-radius: 18px; padding: 13px 18px; min-height: 120px;
 .ea-inp, .ea-sel { width:100%; border:1.5px solid var(--line); border-radius:100px; padding:10px 15px; font-size:12.5px; outline:0; font-family:inherit; color:var(--ink); background:var(--paper); }
 .ea-inp:focus, .ea-sel:focus { border-color: var(--turq-txt); }
 .ea-txt { border-radius:14px; height:96px; resize:none; line-height:1.45; }
+.ea-editor { border:1.5px solid var(--line); border-radius:14px; overflow:hidden; background:var(--paper); }
+.ea-editor:focus-within { border-color: var(--turq-txt); }
+.ea-barra-txt { display:flex; gap:2px; padding:5px; background:var(--wash); border-bottom:1px solid var(--line); }
+.ea-barra-txt button { position:relative; display:grid; place-items:center; width:30px; height:28px; border:0; border-radius:6px; background:none; color:var(--ink2); font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer; }
+.ea-barra-txt button:hover { background:var(--wash2); color:var(--ink); }
+.ea-barra-txt svg { width:15px; height:15px; stroke:currentColor; fill:none; }
+.ea-barra-txt hr { width:1px; height:16px; margin:6px 3px; border:0; background:var(--line2); }
+.ea-barra-txt u { text-decoration:none; border-bottom:1.5px solid currentColor; }
+.ea-barra-txt button[data-dica]::after { content:attr(data-dica); position:absolute; top:calc(100% + 5px); left:50%; transform:translateX(-50%); padding:4px 8px; border-radius:6px; background:var(--ink); color:var(--paper); font-size:11px; font-weight:500; line-height:1.2; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .15s; z-index:20; }
+.ea-barra-txt button[data-dica]:hover::after { opacity:1; }
+.ea-editor .ea-txt { border:0; border-radius:0; height:108px; padding:10px 14px; outline:none; box-shadow:none; }
 .ea-duo { display:flex; gap:12px; }
 .ea-duo .ea-fld { flex:1; }
 .ea-info { display:flex; align-items:center; gap:9px; background:var(--accent-bg); border-radius:12px; padding:10px 14px; font-size:12.5px; color: var(--turq-txt); }
