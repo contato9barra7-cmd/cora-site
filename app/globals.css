@@ -4608,6 +4608,7 @@ select.perfil-input {
   justify-content: center;
   overflow: hidden;
   position: relative;
+  container-type: size;
 }
 .vz-nav {
   position: absolute;
@@ -4652,8 +4653,8 @@ select.perfil-input {
    moldura, não na imagem.
 
    O certo é o inverso: a imagem não tem moldura. Ela É a caixa.
-     height: 100%        → cresce até encostar em cima e embaixo
-     aspect-ratio: <p>   → a largura sai da proporção real
+   A caixa se ajusta na largura e na altura para conter a proporção real
+   inteira, seja vertical (4:5) ou horizontal (16:9, 21:9).
    Nada de fundo atrás, e o border-radius vai na própria imagem.
 
    No Split, o print recebe a MESMA aspect-ratio do render e fica ancorado
@@ -4663,9 +4664,11 @@ select.perfil-input {
 .vz-par,
 .vz-sbs-lado {
   position: relative;
-  height: 100%;
-  width: auto;
-  max-width: 100%;
+  aspect-ratio: var(--ar, 4/5);
+  width: min(100cqw, calc(100cqh * var(--ar, (4/5))));
+  height: auto;
+  max-height: 100cqh;
+  max-width: 100cqw;
   border-radius: 12px;
   overflow: hidden;
   line-height: 0;
@@ -4722,24 +4725,22 @@ select.perfil-input {
 }
 .vz-zoom-badge:hover { background: rgba(0, 0, 0, .68); }
 
-/* Split: a cortina revela o print. A largura vem do JS (o arrasto). */
+/* Split: a cortina revela o print. O recorte vem do clip-path no JS. */
 .vz-cortina {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   overflow: hidden;
+  pointer-events: none;
 }
 
-/* O print, dentro da cortina, tem a MESMA aspect-ratio do render e fica
-   ancorado à esquerda — assim os dois se sobrepõem pixel a pixel, e a
-   cortina apenas descobre o que já está no lugar certo. */
+/* O print, dentro da cortina, ocupa o mesmo espaço que o render — assim
+   os dois se sobrepõem pixel a pixel, e a cortina apenas descobre o que já
+   está no lugar certo. */
 .vz-img--fixa {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
+  width: 100%;
   height: 100%;
-  width: auto;
   max-width: none;
 }
 

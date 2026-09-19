@@ -723,6 +723,17 @@ export default function AppPage() {
     if (conta) carregar();
   }, [conta, carregar]);
 
+  // Sincronizacao em tempo real do feed (Web e Plugin) sem piscar a tela
+  useEffect(() => {
+    if (!conta) return;
+    const t = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        carregar(true);
+      }
+    }, 5000);
+    return () => clearInterval(t);
+  }, [conta, carregar]);
+
   async function favoritar(item) {
     const antes  = item.favorito;
     const otimista = !antes;

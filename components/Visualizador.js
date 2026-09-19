@@ -161,7 +161,6 @@ export default function Visualizador({
 
   // A imagem gerada (B, à direita)
   useEffect(() => {
-    if (proporcao && proporcao !== 'auto') { setMedida(null); return; }
     if (!item?.url) return;
 
     let vivo = true;
@@ -173,15 +172,23 @@ export default function Visualizador({
     };
     img.src = item.url;
     return () => { vivo = false; };
-  }, [item?.url, proporcao]);
+  }, [item?.url]);
 
   // (A imagem da esquerda não precisa mais ser medida: no Split ela segue a
   //  forma do render, e no Side by Side ela entra na forma dela própria.)
 
   // A forma da caixa. A imagem NÃO se encaixa numa moldura fixa — ela É a
-  // caixa: altura cheia, e a largura sai desta proporção. Por isso não
-  // sobra faixa vazia e o arredondamento fica na própria imagem.
-  const forma = { aspectRatio: medida || proporcaoCss(proporcao) };
+  // caixa. A largura e altura se adaptam para conter a proporção real
+  // inteira sem cortar, seja horizontal (16:9) ou vertical (4:5).
+  const proporcaoCalculada = medida || proporcaoCss(proporcao) || '4 / 3';
+  const forma = {
+    aspectRatio: proporcaoCalculada,
+    '--ar': proporcaoCalculada,
+    width: `min(100cqw, calc(100cqh * (${proporcaoCalculada})))`,
+    height: 'auto',
+    maxHeight: '100cqh',
+    maxWidth: '100cqw'
+  };
 
   // No A/B as duas podem ter proporções diferentes. No Split a sobreposição
   // exige a mesma, então ali o print acompanha o render — e no Side by Side
@@ -358,21 +365,28 @@ export default function Visualizador({
               onTouchStart={iniciarArrasto}
             >
               {/* Base: o render */}
-              <img className="vz-img" src={item.url} alt="" draggable={false} />
+              <img
+                className="vz-img"
+                src={item.url}
+                alt=""
+                draggable={false}
+                onLoad={(e) => {
+                  const el = e.currentTarget;
+                  if (el.naturalWidth && el.naturalHeight) {
+                    setMedida(el.naturalWidth + ' / ' + el.naturalHeight);
+                  }
+                }}
+              />
 
-              {/* A cortina corta pela esquerda. O print, dentro dela, recebe
-                  a largura da CAIXA (não da cortina) — senão encolheria junto
-                  e as duas imagens deixariam de coincidir. Era esse o bug. */}
-              <div className="vz-cortina" style={{ width: corte + '%' }}>
-                {/* Mesma forma do render, ancorado à esquerda: os dois se
-                    sobrepõem exatamente, e a cortina só descobre o que já
-                    está no lugar. */}
+              {/* A cortina revela o print pela esquerda usando clip-path.
+                  Dentro dela, o print preenche o mesmo retângulo do render,
+                  garantindo sobreposição exata sem distorção nem corte. */}
+              <div className="vz-cortina" style={{ clipPath: `inset(0 ${100 - corte}% 0 0)` }}>
                 <img
                   className="vz-img vz-img--fixa"
                   src={esquerda}
                   alt=""
                   draggable={false}
-                  style={forma}
                 />
               </div>
 
@@ -424,6 +438,12 @@ export default function Visualizador({
                   src={segurando && compara ? esquerda : item.url}
                   alt=""
                   draggable={false}
+                  onLoad={(e) => {
+                    const el = e.currentTarget;
+                    if (el.naturalWidth && el.naturalHeight) {
+                      setMedida(el.naturalWidth + ' / ' + el.naturalHeight);
+                    }
+                  }}
                 />
                 {compara && (
                   <>

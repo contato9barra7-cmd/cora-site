@@ -2186,7 +2186,7 @@ h1{ margin:10px 0 0; font-size:clamp(26px,3.6vw,34px); font-weight:500; letter-s
 .jn .vz-sbs:not(.vz-sbs--um) > .vz-sbs-lado > .vz-tag{ position:absolute; top:10px; left:10px; margin:0; }
 /* O print é a captura do viewport, e o render é o que a IA devolveu. O que
    separa os dois no olho é a cor: o print do SketchUp é quase sem saturação. */
-.jn .vz-print{ filter:saturate(.1) contrast(.92) brightness(1.07); }
+
 .jn .vz-img--seg{ position:absolute; inset:0; }
 .jn .vz-pano{ cursor:ew-resize; }
 .jn .vz-modos{ flex:none; }
@@ -3585,7 +3585,7 @@ h1{ margin:10px 0 0; font-size:clamp(26px,3.6vw,34px); font-weight:500; letter-s
       '" fill="' + cheio + '" stroke="currentColor" stroke-width="' + i.w + '">' + i.d + '</svg></button>';
   }
   function imgVz(f, print) {
-    return '<i class="vz-img foto ' + f + (print ? ' vz-print' : '') + '"></i>';
+    return '<i class="vz-img foto ' + f + '"></i>';
   }
   function itemVz() {
     var it = IMAGENS[vz.i];
@@ -3642,7 +3642,7 @@ h1{ margin:10px 0 0; font-size:clamp(26px,3.6vw,34px); font-weight:500; letter-s
         '<span class="vz-tag vz-tag--baixo">Arraste para girar</span></div></div>';
     } else if (vz.modo === 'split') {
       palco = '<div class="vz-par" id="vz-par" style="--ar:' + ar + '">' + imgVz(it.f) +
-        '<div class="vz-cortina" style="clip-path:inset(0 ' + (100 - vz.corte) + '% 0 0)"><i class="vz-img vz-img--fixa foto ' + fEsq + (abEsq ? '' : ' vz-print') + '"></i></div>' +
+        '<div class="vz-cortina" style="clip-path:inset(0 ' + (100 - vz.corte) + '% 0 0)"><i class="vz-img vz-img--fixa foto ' + fEsq + '"></i></div>' +
         '<div class="vz-handle" style="left:' + vz.corte + '%"><span class="vz-handle-bola">' +
         '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7 4 12l5 5M15 7l5 5-5 5M4 12h16"/></svg>' +
         '</span></div><span class="vz-tag vz-tag--esq">' + rotEsq + '</span><span class="vz-tag vz-tag--dir">' + rotDir + '</span></div>';
@@ -3653,7 +3653,7 @@ h1{ margin:10px 0 0; font-size:clamp(26px,3.6vw,34px); font-weight:500; letter-s
         '<span class="vz-tag vz-tag--esq">' + rotDir + '</span></div></div>';
     } else {
       palco = '<div class="vz-sbs vz-sbs--um"><div class="vz-sbs-lado vz-sbs-lado--segura" style="--ar:' + ar + '" data-segura>' +
-        imgVz(it.f) + '<i class="vz-img vz-img--seg foto ' + fEsq + (abEsq ? '' : ' vz-print') + '" hidden></i>' +
+        imgVz(it.f) + '<i class="vz-img vz-img--seg foto ' + fEsq + '" hidden></i>' +
         '<span class="vz-tag vz-tag--esq" data-rot>' + rotDir + '</span>' +
         '<span class="vz-tag vz-tag--baixo" data-dica>Segure para ver o ' + rotEsq + '</span></div></div>';
     }
@@ -3665,7 +3665,7 @@ h1{ margin:10px 0 0; font-size:clamp(26px,3.6vw,34px); font-weight:500; letter-s
       '<div class="vz-div"></div><span class="vz-envia-rot">Enviar</span>' +
       icoVz('editar', 'Editar') + icoVz('upscale', 'Upscale') +
       icoVz('inicio', 'Usar como imagem inicial') + icoVz('fim', 'Usar como imagem final') + icoVz('pos', 'Ajustar na Pós-produção') +
-      '<div class="vz-acoes-fim">' + icoVz('externo', 'Abrir em tamanho real') +
+      '<div class="vz-acoes-fim">' +
       icoVz('excluir', 'Excluir', ' vz-ico--perigo') + '</div></footer>';
 
     caixaVz.innerHTML = '<div class="cr-overlay" data-vzfundo><div class="vz">' +
